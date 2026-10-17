@@ -1,0 +1,19 @@
+# TicTic v1.9.8 focused manual QA checklist
+
+**All scenarios are NOT RUN** until exercised on an Android emulator or physical device. Source contracts/build do not verify touch, layout, audio, or hardware behavior. OS-owned ringtone picker UI is excluded from TicTic's custom dialog styling.
+
+| ID | Area | Steps | Expected | Status |
+|---|---|---|---|---|
+| V198-POP-01 | Common dialogs | Open alarm defaults, routine editor, reminder editor, timer custom countdown, custom reminder lead, color picker and a confirmation dialog. Tap the top-right × in each. | The current dialog closes without saving unintended changes. × has accessible close description and doesn't trigger an action button. | NOT RUN |
+| V198-POP-02 | Outside dismiss | Open app-owned dialogs above and tap the dimmed area outside each. | Dialog closes; unsaved editor state is discarded; alarm/reminder timers are not silently changed. | NOT RUN |
+| V198-POP-03 | Popup consistency | Compare alarm, routine, reminder, date, timer and Widget Studio surfaces in light/dark themes. | Similar rounded corners, balanced title row, right-aligned close control and consistent outside dismissal. | NOT RUN |
+| V198-POP-04 | Platform-owned surface | Open Android's ringtone/notification tone picker and use its own back/cancel controls. | Platform picker remains Android/OEM styled; TicTic doesn't claim to inject its close control into another app's surface. | NOT RUN |
+| V198-HIS-01 | Recent history | Seed or generate 100 activity events; open Usage. | Latest 20 are shown first. A “Show 80 more” action reveals the remaining events, capped at 100. | NOT RUN |
+| V198-HIS-02 | History lifecycle | Navigate away/back to Usage, clear history, pause history saving, then resume. | A new Usage visit starts at 20; clear removes entries; pause retains existing entries and stops additions; the stored list never exceeds 100. | NOT RUN |
+| V198-KEY-01 | Shared volume keys | While alarm screen is foreground, separately test Volume Up and Volume Down for each setting: Volume, Snooze, Stop, Turn off. | Both keys perform the same selected action. “Turn off” disables the alarm; Snooze/Stop behavior matches on both keys. | NOT RUN |
+| V198-KEY-02 | Power key boundary | Use Power during ringing on representative Android/OEM builds; separately let display timeout. | Do not expect TicTic to intercept Power. Record actual OS behavior; notification actions and configured volume keys remain available as Android permits. | NOT RUN |
+| V198-CLOCK-01 | Digital face variants | Select Soft, Serif, Mono, Rounded and Condensed, with seconds on/off and 12/24-hour formats. | Home clock typeface updates; time remains legible and fits narrow/large displays without losing AM/PM clarity. | NOT RUN |
+| V198-CLOCK-02 | Analog face variants | Select Classic markers, Minimal, Numerals and Accent ring; compare light/dark themes and battery-saver/seconds settings. | Each dial style is visibly distinct; hands/markers remain readable and second-hand behavior follows Settings. | NOT RUN |
+| V198-DES-01 | App card customization | Test each corner, border and elevation option alongside density and theme changes. | Choices persist and apply consistently; None removes the border; Accent uses the selected app accent; Flat removes card lift; content remains unclipped. | NOT RUN |
+| V198-STUDIO-01 | Widget Studio close | Open Studio from add/configure widget flow. Tap top-right × and tap outside the popup. | Both paths cancel editing, retain the prior widget style and return the correct canceled result to the launcher. | NOT RUN |
+| V198-REG-01 | Alarm regression | Create/edit a repeating alarm after choosing shared volume action; verify ringing screen and notification actions, snooze, stop and turn-off. | Existing alarm flows remain intact; no Power-key capability is implied in UI or docs. | NOT RUN |

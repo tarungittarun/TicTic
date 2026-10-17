@@ -1,0 +1,54 @@
+<resources>
+    <style name="TicTicTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:statusBarColor">#F5F7FA</item>
+        <item name="android:navigationBarColor">#F5F7FA</item>
+        <item name="android:colorAccent">#3F7C73</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#F5F7FA</item>
+    </style>
+    <style name="TicTicDarkTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:statusBarColor">#0C1514</item>
+        <item name="android:navigationBarColor">#0C1514</item>
+        <item name="android:colorAccent">#64CDB1</item>
+        <item name="android:colorControlActivated">#64CDB1</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#0C1514</item>
+        <item name="android:colorBackground">#0C1514</item>
+    </style>
+    <style name="TicTicWidgetStudioLightPopup" parent="TicTicTheme">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@style/TicTicStudioWindowAnimation</item>
+    </style>
+    <style name="TicTicWidgetStudioDarkPopup" parent="TicTicDarkTheme">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@style/TicTicStudioWindowAnimation</item>
+    </style>
+    <style name="TicTicWidgetStudioLightFull" parent="TicTicTheme">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">#EDF2EF</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="TicTicWidgetStudioDarkFull" parent="TicTicDarkTheme">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">#0C1514</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="TicTicStudioWindowAnimation">
+        <item name="android:windowEnterAnimation">@anim/tictic_popup_enter</item>
+        <item name="android:windowExitAnimation">@anim/tictic_popup_exit</item>
+    </style>
+</resources>

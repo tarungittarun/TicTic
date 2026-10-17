@@ -1,0 +1,37 @@
+# TicTic v1.9.1 — 20 curated launcher widget entries
+# Five core entries plus fifteen selections from registered providers; this is not the separate requirement for 15 genuinely new widget concepts.
+# Widget Studio displays the actual RemoteViews layout in its pinned preview and only offers relevant content controls.
+
+## Core · 5
+
+01. Clock (widget_clock) — minimal live clock over the launcher's wallpaper; larger sizes can show date and alarm. Destination: Clock.
+02. Date (widget_date) — date-first layout with configurable date format and optional next alarm. Destination: Clock.
+03. Alarm (widget_alarm) — next wake-up and alarm label at a glance. Destination: Alarms.
+04. Analog (widget_analog) — classic dial plus digital time. Destination: Clock.
+05. World (widget_world) — local time paired with a second time zone. Destination: Clock.
+
+## More · 15
+
+06. Day Arc (widget_timeline) — time plus a simple local-day progress bar. Destination: Clock.
+07. Focus (widget_focus) — quick access to a focused work timer. Destination: Timer.
+08. Timers (widget_timer) — shortcut to common countdown lengths. Destination: Timer.
+09. Stopwatch (widget_stopwatch) — stopwatch/lap entry point. Destination: Stopwatch.
+10. Bedside (widget_bedside) — low-glare time with alarm context. Destination: Clock.
+11. Mono (widget_mono) — fixed-width digits for a clean, precise read. Destination: Clock.
+12. Week (widget_calendar) — weekday/date and week context. Destination: Clock.
+13. Date Stamp (widget_stacked) — bold, stacked date-first clock. Destination: Clock.
+14. Orbit (widget_orbit) — compact clock with day progress. Destination: Clock.
+15. Routine (widget_routine) — next scheduled local routine. Destination: Routines.
+16. Quiet (widget_quiet) — alarm-first glance with quiet styling. Destination: Alarms.
+17. Prism (widget_prism) — raised-glass cyan digital signature design. Destination: Clock.
+18. Flip (widget_flip) — split folio-style live time and alarm. Destination: Clock.
+19. Console (widget_command) — dedicated one-tap Timer and Alarm actions. Destination: Clock, Timer, Alarms.
+20. Halo (widget_halo) — live day-progress bar with date and next alarm. Destination: Clock.
+
+Weather is an optional per-widget add-on in Studio for supported clock designs (Clock, Date, Alarm, Analog, Skyline, Coral, Quiet, Aurora, Prism and Halo). When enabled, the widget uses a user-entered city and a selected 30/60/120-minute refresh interval. Android can defer network-constrained jobs; these are requested intervals, not guaranteed update times. No location permission is requested. The app makes no weather request before the user enables weather for that widget. Current conditions are cached locally and stale data is not replaced with a fabricated forecast.
+
+Wallpaper matching is also opt-in per widget. It reads only Android `WallpaperColors` metadata; it does not read wallpaper image files, request a picker, capture the screen or prompt for storage access. If metadata is unavailable, the widget uses its sample palette.
+
+Weather source/licensing gate: Open-Meteo free API and its geocoding endpoint are for non-commercial use. Attribution is shown in the widget and Studio; forecast data is CC BY 4.0. A commercial app, subscription, ad-supported distribution or other commercial integration must use a suitable paid plan before release. See https://open-meteo.com/en/terms and https://open-meteo.com/en/licence.
+
+The four signature layouts (Prism, Flip, Console and Halo) use static layered Android drawables rather than continuous 3D animation or blurred screen captures. AppWidget launchers and lock-screen surfaces vary by Android/OEM; no universal lock-screen placement is promised.

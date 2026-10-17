@@ -1,0 +1,100 @@
+package app.tictic.clock;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.format.DateFormat;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+final class DataStore {
+    static final String PREF = "tictic_local_v1";
+    static SharedPreferences prefs(Context c) { return c.getSharedPreferences(PREF, Context.MODE_PRIVATE); }
+    /** Migrate the former shared action to independent keys: Control volume becomes Snooze; Turn off becomes Stop. Values: 1=Snooze, 2=Stop. */
+    static void migrateRingingControls(Context c) {
+        SharedPreferences p=prefs(c);if(p.getBoolean("ringing_controls_v111_migrated",false))return;
+        int old=p.getInt("alarm_volume_buttons",1);int action=(old==2||old==3)?2:1;SharedPreferences.Editor e=p.edit();
+        if(!p.contains("alarm_volume_up_action"))e.putInt("alarm_volume_up_action",action);
+        if(!p.contains("alarm_volume_down_action"))e.putInt("alarm_volume_down_action",action);
+        if(!p.contains("alarm_ringing_actions"))e.putInt("alarm_ringing_actions",0);
+        e.putBoolean("ringing_controls_v111_migrated",true).apply();
+    }
+    static int alarmVolumeAction(Context c,boolean volumeUp) {
+        migrateRingingControls(c);SharedPreferences p=prefs(c);String key=volumeUp?"alarm_volume_up_action":"alarm_volume_down_action";int value=p.getInt(key,1);return value==2?2:1;
+    }
+    /** Compatibility accessor: the Volume Up choice. */
+    static int alarmVolumeAction(Context c){return alarmVolumeAction(c,true);}
+    static boolean showRingingSnoozeAction(Context c){migrateRingingControls(c);return prefs(c).getInt("alarm_ringing_actions",0)==0;}
+    static JSONArray array(Context c, String key) {
+        try { return new JSONArray(prefs(c).getString(key, "[]")); } catch (Exception e) { return new JSONArray(); }
+    }
+    static void putArray(Context c, String key, JSONArray a) { prefs(c).edit().putString(key, a.toString()).apply(); }
+    /** v1.9.2 one-time migration: old app defaults were 10 min / alarm tone. New default is a 30-minute notification ping. */
+    static void migrateReminderDefaults(Context c) {
+        SharedPreferences p=prefs(c);if(p.getBoolean("reminder_defaults_v192_migrated",false))return;
+        JSONArray alarms=array(c,"alarms");boolean changed=false;
+        for(int i=0;i<alarms.length();i++){JSONObject alarm=alarms.optJSONObject(i);if(alarm==null)continue;try{
+            if(!alarm.has("reminder_minutes")||alarm.optInt("reminder_minutes",10)==10){alarm.put("reminder_minutes",30);changed=true;}
+            String sound=alarm.optString("reminder_sound","");if(sound.isEmpty()||"same".equals(sound)){alarm.put("reminder_sound","ping");changed=true;}
+        }catch(Exception ignored){}}
+        if(changed)putArray(c,"alarms",alarms);p.edit().putBoolean("reminder_defaults_v192_migrated",true).apply();
+    }
+    static JSONObject find(Context c, String key, long id) {
+        JSONArray a = array(c, key);
+        for (int i=0;i<a.length();i++) { JSONObject o=a.optJSONObject(i); if (o!=null && o.optLong("id")==id) return o; }
+        return null;
+    }
+    static void log(Context c, String type, String title, String detail) {
+        if(prefs(c).getBoolean("activity_history_enabled",true)){
+            JSONArray old=array(c,"events"), n=new JSONArray();
+            try { n.put(new JSONObject().put("at",System.currentTimeMillis()).put("type",type).put("title",title).put("detail",detail));
+                for(int i=0;i<old.length() && i<99;i++) n.put(old.getJSONObject(i));
+            } catch(Exception ignored) {}
+            putArray(c,"events",n);
+        }
+        UsageTracker.recordEvent(c,type);
+    }
+    static String formatTime(Context c, int hour, int minute) {
+        Calendar cal=Calendar.getInstance(); cal.set(Calendar.HOUR_OF_DAY,hour); cal.set(Calendar.MINUTE,minute);
+        return new SimpleDateFormat(DateFormat.is24HourFormat(c)?"HH:mm":"h:mm a",Locale.getDefault()).format(cal.getTime());
+    }
+    static String formatDate(long millis) { return new SimpleDateFormat("EEE, d MMM",Locale.getDefault()).format(new Date(millis)); }
+    static long nextOccurrence(JSONObject alarm, long from) {
+        Calendar now=Calendar.getInstance(); now.setTimeInMillis(from);
+        int hr=alarm.optInt("hour",7), mn=alarm.optInt("minute",0), days=alarm.optInt("days",0);
+        if(days==0) {
+            long savedDate=alarm.optLong("date_millis",0);
+            Calendar candidate=(Calendar)now.clone();
+            if(savedDate>0){Calendar selected=(Calendar)now.clone();selected.setTimeInMillis(savedDate);candidate.set(Calendar.YEAR,selected.get(Calendar.YEAR));candidate.set(Calendar.MONTH,selected.get(Calendar.MONTH));candidate.set(Calendar.DAY_OF_MONTH,selected.get(Calendar.DAY_OF_MONTH));}
+            candidate.set(Calendar.HOUR_OF_DAY,hr); candidate.set(Calendar.MINUTE,mn); candidate.set(Calendar.SECOND,0); candidate.set(Calendar.MILLISECOND,0);
+            if(candidate.getTimeInMillis()<=from) candidate.add(Calendar.DAY_OF_YEAR,1);
+            return candidate.getTimeInMillis();
+        }
+        for(int add=0;add<8;add++) {
+            Calendar candidate=(Calendar)now.clone(); candidate.add(Calendar.DAY_OF_YEAR,add); candidate.set(Calendar.HOUR_OF_DAY,hr); candidate.set(Calendar.MINUTE,mn); candidate.set(Calendar.SECOND,0); candidate.set(Calendar.MILLISECOND,0);
+            int bit=candidate.get(Calendar.DAY_OF_WEEK)-Calendar.SUNDAY;
+            if((days & (1<<bit))!=0 && candidate.getTimeInMillis()>from) return candidate.getTimeInMillis();
+        }
+        return from+86400000L;
+    }
+    static String daysLabel(int mask) {
+        if(mask==0) return "Once";
+        if(mask==127) return "Every day";
+        String[] names={"S","M","T","W","T","F","S"}; StringBuilder b=new StringBuilder();
+        for(int i=0;i<7;i++) if((mask&(1<<i))!=0) { if(b.length()>0)b.append(" · "); b.append(names[i]); }
+        return b.toString();
+    }
+    static String nextAlarmText(Context c) {
+        JSONArray a=array(c,"alarms"); JSONObject best=null; long bestAt=Long.MAX_VALUE;
+        for(int i=0;i<a.length();i++){ JSONObject o=a.optJSONObject(i); if(o!=null&&o.optBoolean("enabled",true)){long t=nextOccurrence(o,System.currentTimeMillis());if(t<bestAt){bestAt=t;best=o;}} }
+        if(best==null)return "No alarm set";
+        return formatTime(c,best.optInt("hour"),best.optInt("minute"))+"  ·  "+formatDate(bestAt);
+    }
+    static int themeMode(Context c) { return prefs(c).getInt("theme",0); } // 0 system, 1 light, 2 dark
+    static boolean dark(Context c) { int t=themeMode(c); return t==2 || (t==0 && (c.getResources().getConfiguration().uiMode & 0x30)==0x20); }
+    static final int[] ACCENT_COLORS={0xff3f7c73,0xff8064d6,0xffd46d61,0xff3477b8,0xff94651d,0xff32846f,0xffb95078,0xff52677f,0xff2553a5,0xff754889,0xff8a761b,0xff167e83,0xffb65337,0xff526bb5,0xff516d40,0xff992f4f};
+    static int accent(Context c) { int i=prefs(c).getInt("accent",0);return ACCENT_COLORS[Math.max(0,Math.min(ACCENT_COLORS.length-1,i))]; }
+}

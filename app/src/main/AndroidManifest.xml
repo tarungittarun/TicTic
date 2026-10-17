@@ -1,0 +1,137 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_app"
+        android:roundIcon="@drawable/ic_app"
+        android:theme="@style/TicTicTheme"
+        android:supportsRtl="true">
+        <activity android:name=".WidgetCatalogActivity" android:exported="false" />
+        <activity android:name=".WidgetConfigActivity" android:exported="true" android:theme="@style/TicTicWidgetStudioLightPopup"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".AlarmActivity" android:exported="false" android:showWhenLocked="true" android:turnScreenOn="true" android:excludeFromRecents="true" android:launchMode="singleTop" />
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <receiver android:name=".AlarmReceiver" android:exported="false" />
+        <receiver android:name=".AlarmActionReceiver" android:exported="false" />
+        <receiver android:name=".PreAlarmReceiver" android:exported="false" />
+        <receiver android:name=".ReminderReceiver" android:exported="false" />
+        <receiver android:name=".ReminderActionReceiver" android:exported="false" />
+        <receiver android:name=".TimerReceiver" android:exported="false" />
+        <receiver android:name=".RoutineReceiver" android:exported="false" />
+        <receiver android:name=".PowerSaverReceiver" android:enabled="true" android:exported="false"><intent-filter><action android:name="android.os.action.POWER_SAVE_MODE_CHANGED" /></intent-filter></receiver>
+        <receiver android:name=".BootReceiver" android:enabled="true" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+        </receiver>
+        <service android:name=".AlarmSoundService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
+        <service android:name=".ReminderSoundService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
+        <service android:name=".WeatherJobService" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver android:name=".ClockWidgetProvider" android:label="@string/widget_label_widget_clock" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_TICK"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_clock_info" />
+        </receiver>
+        <receiver android:name=".DateWidgetProvider" android:label="@string/widget_label_widget_date" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_TICK"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_date_info" />
+        </receiver>
+        <receiver android:name=".NextAlarmWidgetProvider" android:label="@string/widget_label_widget_alarm" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_TICK"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_alarm_info" />
+        </receiver>
+
+        <receiver android:name=".WidgetVariants$Analog" android:label="@string/widget_label_widget_analog" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_analog_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$WorldPair" android:label="@string/widget_label_widget_world" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_world_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$DayArc" android:label="@string/widget_label_widget_timeline" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_timeline_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$FocusSprint" android:label="@string/widget_label_widget_focus" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_focus_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$TimerTiles" android:label="@string/widget_label_widget_timer" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_timer_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$LapTrack" android:label="@string/widget_label_widget_stopwatch" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_stopwatch_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$Nightstand" android:label="@string/widget_label_widget_bedside" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_bedside_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$MonoGrid" android:label="@string/widget_label_widget_mono" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_mono_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$PaperWeek" android:label="@string/widget_label_widget_calendar" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_calendar_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$CoralPulse" android:label="@string/widget_label_widget_coral" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_coral_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$Skyline" android:label="@string/widget_label_widget_sky" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_sky_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$LilacStack" android:label="@string/widget_label_widget_lavender" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_lavender_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$DateStamp" android:label="@string/widget_label_widget_stacked" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_stacked_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$Orbit" android:label="@string/widget_label_widget_orbit" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_orbit_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$RoutineLoop" android:label="@string/widget_label_widget_routine" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_routine_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$Aurora" android:label="@string/widget_label_widget_aurora" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_aurora_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$QuietAlarm" android:label="@string/widget_label_widget_quiet" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_quiet_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$NeonPrism" android:label="@string/widget_label_widget_prism" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_prism_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$FlipDeck" android:label="@string/widget_label_widget_flip" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_flip_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$SmartConsole" android:label="@string/widget_label_widget_command" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_command_info" />
+        </receiver>
+        <receiver android:name=".WidgetVariants$HaloOrbit" android:label="@string/widget_label_widget_halo" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/><action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_halo_info" />
+        </receiver>
+    </application>
+</manifest>

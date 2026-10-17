@@ -1,0 +1,15 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_bg_widget_clock" android:clipChildren="false">
+    <ImageView android:id="@+id/widget_panel" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_fill_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_gloss" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_gloss" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_edge" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_outline_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <LinearLayout android:id="@+id/widget_content" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:orientation="vertical" android:gravity="center" android:padding="4dp" android:clipToPadding="false">
+
+    <TextView android:id="@+id/widget_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:text="" />
+    <TextClock android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:format12Hour="EEE, d MMM" android:format24Hour="EEE, d MMM" android:textColor="#F7F2FF" android:textSize="18sp" android:fontFamily="sans-serif-light" android:includeFontPadding="false" />
+    <include layout="@layout/widget_clock_faces_glass" android:layout_width="match_parent" android:layout_height="76dp" />
+    <TextView android:id="@+id/widget_alarm" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="◴  NEXT ALARM" android:textColor="#F7F2FF" android:textSize="18sp" android:fontFamily="sans-serif-light" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+    <TextView android:id="@+id/widget_secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:visibility="gone" android:text="" />
+    <ProgressBar android:id="@+id/widget_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="0dp" android:max="100" android:visibility="gone" />
+
+    </LinearLayout>
+</FrameLayout>

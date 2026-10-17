@@ -1,0 +1,16 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_bg_widget_focus" android:clipChildren="false">
+    <ImageView android:id="@+id/widget_panel" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_fill_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_gloss" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_gloss" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_edge" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_outline_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <LinearLayout android:id="@+id/widget_content" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:orientation="vertical" android:gravity="center" android:padding="14dp" android:clipToPadding="false">
+
+    <TextView android:id="@+id/widget_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="FOCUS / TAKE A BREATH" android:textColor="#3F7C73" android:textSize="9sp" android:letterSpacing="0.11" android:fontFamily="sans-serif-medium" />
+    
+    <include layout="@layout/widget_clock_faces" android:layout_width="match_parent" android:layout_height="64dp" />
+    <TextClock android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:format12Hour="EEE, d MMMM" android:format24Hour="EEE, d MMMM" android:textColor="#173A35" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:gravity="start" android:includeFontPadding="false" />
+    <TextView android:id="@+id/widget_alarm" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="NEXT ALARM" android:textColor="#56736A" android:textSize="12sp" android:fontFamily="sans-serif" android:gravity="start" android:maxLines="1" android:ellipsize="end" />
+    <TextView android:id="@+id/widget_secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="FOCUS SPRINT" android:textColor="#56736A" android:textSize="10sp" android:fontFamily="sans-serif" android:gravity="start" android:maxLines="1" android:ellipsize="end" />
+    <ProgressBar android:id="@+id/widget_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:max="100" android:progress="0" android:visibility="gone" />
+
+    </LinearLayout>
+</FrameLayout>

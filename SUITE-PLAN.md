@@ -233,20 +233,39 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | Risk | Impact | Mitigation |
 |---|---|---|
 | No local build; CI is the only feedback loop | Slow iteration, blind refactors | Keep the Python contract suite green locally; make CI fast and run it on every push; prefer many small PRs over one big-bang refactor |
+| **CI logs cannot be downloaded from this workspace** — `results-receiver`, `pipelines` and `objects.githubusercontent.com` are all unreachable | A failing step is hard to diagnose; cycles get wasted guessing | Print diagnostics inside the workflow (see "Report toolchain"); read step *conclusions* via `gh api .../jobs`; keep each change small so failures stay attributable |
 | Phase 1 refactor silently breaks the clock | Regressing a working v1.11.2 | Move code without rewriting it; land `:feature-clock` before any new app; device QA gate before release |
 | Widget component names change package | **Every placed widget on users' home screens breaks** | Compat providers / aliases decided in Phase 1, verified on a real launcher |
 | Rebrand strands existing data | Lost alarms/routines | Export/import bundle shipped *before* the id change |
 | AndroidX + AGP upgrade cascade | Build breakage across 15+ modules | Do the AGP/JDK/AndroidX bump in Phase 1 while there are still few modules |
-| Google Play policy on SMS/CALL_LOG | Whole listing rejected | Keep carrier SMS out of the suite (§2 Tier B) |
-| Email/streaming licensing & OAuth compliance | Months of unplanned work, possible policy breach | Tier C — not committed; substitutes proposed |
+| Google Play policy on SMS/CALL_LOG | **Whole listing rejected**, not just the messaging module | Carrier SMS ships only inside an on-demand module that is off by default and never holds the permission unless enabled (§3.4 L3). If Play approval proves unreachable, fall back to the in-app/local messaging form and keep carrier SMS as a separate standalone app. |
+| Email/streaming licensing & OAuth compliance | Months of unplanned work, possible policy breach | Kept on the roadmap but sequenced last (Phase 6), each as an off-by-default on-demand module with its own privacy and policy review, so a failure to clear policy does not block the rest of MySpace. Budget the Cloud-project/OAuth verification and any catalogue licensing as separate workstreams. |
 | `MainActivity` is 501 dense lines with everything inline | Extraction is delicate, not mechanical | Extract screens one at a time behind the registry, CI after each |
-| Repo currently has one commit and no CI history | No safe point to roll back to | Tag the pre-refactor state once CI is green |
+| Dynamic-feature (L3) modules do not install from a plain APK | Sideloaded builds lose the on-demand control layer | Keep the `full`/`lite` flavours (L2) as a supported path, and decide the distribution target before Phase 5 (§9.4) |
+| Repo had one commit and no CI history | No safe point to roll back to | **Resolved** — Phase 0 is green and the pre-refactor state is tagged |
 
 ---
 
 ## 8. Immediate next step
 
-Phase 0: land CI, get one green build of the **current, unmodified** code, tag it. Everything else in this document is executable without further input, except the open items below.
+**Phase 0 is complete.** CI is green on the current, unmodified product code:
+
+- Workflow: `.github/workflows/android-ci.yml` — run [39323536015](https://github.com/tarungittarun/TicTic/actions/runs/39323536015), all 20 steps `success` in ~1m10s.
+- Python source contracts: **57 tests passing** (both locally and in CI).
+- `assembleDebug`: **passing** on `ubuntu-24.04`, JDK 17 (temurin), Gradle 7.6.4, AGP 7.4.2.
+- Artifact `MySpace-debug-apk`: **555,498 bytes**.
+- `lint`: **passing**, so it can be made blocking rather than `continue-on-error` once Phase 1 starts moving files.
+
+Two fixes were needed to get there, both worth remembering:
+
+1. `gradlew` was committed as mode `100644`, which breaks `./gradlew` on Linux runners. Now `100755`.
+2. `android-actions/setup-android@v3` failed on its first attempt and is unnecessary — GitHub's runners already ship `cmdline-tools`, `platform-tools`, `platforms;android-34` and `build-tools` 34.x. Replaced with a tolerant `sdkmanager` gap-filler, and the runner is **pinned to `ubuntu-24.04`** so SDK contents do not drift with the `ubuntu-latest` migration to Ubuntu 26 (begins 2026-10-19).
+
+Known follow-ups, non-blocking: `actions/setup-java@v4` is deprecated (move to v5); several actions still target Node 20.
+
+Also note: **CI logs cannot be downloaded from the review workspace** — `results-receiver`, `pipelines` and `objects.githubusercontent.com` are all unreachable, so `gh run view --log` fails. The workflow therefore has an explicit "Report toolchain" step, and diagnostics should be printed rather than relied on from logs. Step *conclusions* are readable via `gh api .../jobs`.
+
+The pre-refactor state is tagged so there is always a rollback point. Next: Phase 1 (§6), starting with the module skeleton and the `SuiteApp` registry — but the widget-compatibility decision (§9.1) should be settled first, because it constrains the package layout.
 
 ## 9. Open items
 

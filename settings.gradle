@@ -1,4 +1,16 @@
 pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
 dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
-rootProject.name = 'TicTic'
+// Renamed from 'TicTic' — the product is now MySpace (SUITE-PLAN.md §4).
+rootProject.name = 'MySpace'
+
 include ':app'
+
+// MySpace module graph. Dependency rule: :feature-* -> :core-* -> nothing,
+// :shell -> :core-*, :app -> :shell + every :feature-*. Feature modules must
+// never depend on each other; cross-app data flows only through :core-data
+// interfaces. See SUITE-PLAN.md §3.1.
+//
+// :core-domain is the first extracted module — pure JVM, no Android imports.
+// :core-design, :core-data, :core-platform, :core-widgets, :shell and
+// :feature-clock follow in Phase 1.
+include ':core-domain'

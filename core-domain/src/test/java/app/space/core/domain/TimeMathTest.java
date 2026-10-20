@@ -1,8 +1,13 @@
-package app.tictic.clock;
+package app.space.core.domain;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Moved from {@code app/src/test/java/app/tictic/clock/} alongside TimeMath.
+ * Assertions are unchanged — these are the timer/stopwatch monotonic-clock
+ * recovery rules, and they must survive the modularisation intact.
+ */
 public final class TimeMathTest {
     @Test public void timerUsesElapsedRealtimeDuringSameBootEvenIfWallClockMoves() {
         long left = TimeMath.countdownRemaining(300_000L, 9_000_000L, 1_075_000L,
@@ -22,7 +27,7 @@ public final class TimeMathTest {
     }
 
     @Test public void stopwatchUsesMonotonicClockDuringSameBoot() {
-        long elapsed = TimeMath.stopwatchElapsed(4_000L, 1_000_000L, 500_000L,
+        long elapsed = TimeMath.stopwatchElapsed(4_000L, 1_000_000L, 50_000L,
                 1_006_250L, 90_000_000L, 7, 7);
         assertEquals(10_250L, elapsed);
     }

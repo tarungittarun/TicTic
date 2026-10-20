@@ -34,6 +34,11 @@ android {
 }
 
 dependencies {
+    // MySpace core modules. :app is a thin application module and must hold no
+    // feature code of its own (SUITE-PLAN.md §3.1); today it still does, and
+    // Phase 1 moves it out module by module.
+    implementation project(':core-domain')
+
     // Test-only jars are vendored so the JVM regression suite runs even in offline/TLS-restricted builds.
     testImplementation files('libs/junit-4.13.2.jar', 'libs/hamcrest-core-1.3.jar')
 }

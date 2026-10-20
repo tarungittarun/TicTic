@@ -70,6 +70,13 @@ jobs:
           key: gradle-${{ runner.os }}-jdk17-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
           restore-keys: gradle-${{ runner.os }}-jdk17-
 
+      - name: Unit tests (all modules)
+        # assembleDebug does NOT run test tasks, so without this step the JVM
+        # regression suite (TimeMathTest and the :core-domain rules) would never
+        # execute in CI. This matters because there is no local Android build:
+        # CI is the only place these run against real compiled classes.
+        run: sh gradlew --no-daemon --stacktrace testDebugUnitTest test
+
       - name: Build debug APK
         run: sh gradlew --no-daemon --stacktrace assembleDebug
 
@@ -78,8 +85,19 @@ jobs:
         if: always()
         with:
           name: MySpace-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          # Globbed across modules: :app is meant to become a thin shell, and the
+          # APK may move as the module graph grows.
+          path: '**/build/outputs/apk/**/*.apk'
           if-no-files-found: warn
+
+      - name: Upload unit-test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: unit-test-reports
+          path: '**/build/reports/tests/'
+          if-no-files-found: ignore
 
       - name: Lint (non-blocking while establishing a baseline)
         if: always()

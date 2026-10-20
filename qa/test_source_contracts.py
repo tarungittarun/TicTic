@@ -6,10 +6,17 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = ROOT / "app/src/main/java/app/tictic/clock"
+# Extracted MySpace modules (SUITE-PLAN.md §3.1). Files that move out of :app
+# are read from here instead, so the contracts keep guarding them.
+CORE_DOMAIN = ROOT / "core-domain/src/main/java/app/space/core/domain"
 
 
 def read(name):
     return (JAVA / name).read_text(encoding="utf-8")
+
+
+def read_core_domain(name):
+    return (CORE_DOMAIN / name).read_text(encoding="utf-8")
 
 
 class AlarmContracts(unittest.TestCase):
@@ -423,7 +430,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
 
     def test_timer_and_stopwatch_precision_and_haptics_are_configurable(self):
         main = read("MainActivity.java")
-        math = read("TimeMath.java")
+        math = read_core_domain("TimeMath.java")
         for key in ('"timer_show_hundredths"','"timer_button_haptics"','"timer_vibrate_enabled"','"stopwatch_show_hundredths"','"stopwatch_button_haptics"','"stopwatch_lap_haptics"'):
             self.assertIn(key, main)
         self.assertIn("formatCountdownHundredths", math)
@@ -447,7 +454,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
 
     def test_stopwatch_uses_monotonic_elapsed_time_and_fast_visible_refresh(self):
         main = read("MainActivity.java")
-        math = read("TimeMath.java")
+        math = read_core_domain("TimeMath.java")
         self.assertIn("SystemClock.elapsedRealtime()", main)
         self.assertIn("TimeMath.stopwatchElapsed", main)
         self.assertIn("tab==3&&swRunning()", main)
@@ -614,6 +621,67 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn("minSdk 26", gradle)
         self.assertIn("targetSdk 34", gradle)
         self.assertNotIn("minSdk 23", gradle)
+
+
+class ModuleGraphContracts(unittest.TestCase):
+    """Guards the MySpace modularisation (SUITE-PLAN.md §3.1).
+
+    The whole point of the module graph is that adding app N stays cheap and that
+    no app can assume another is installed. These contracts fail loudly if a later
+    refactor shortcuts that — e.g. by depending across features, by letting a core
+    module import Android, or by moving a file out of :app without repointing the
+    contracts that guard it.
+    """
+
+    def test_core_domain_is_registered_and_consumed_by_app(self):
+        settings = (ROOT / "settings.gradle").read_text()
+        app_gradle = (ROOT / "app/build.gradle").read_text()
+        self.assertIn("rootProject.name = 'MySpace'", settings)
+        self.assertIn("include ':core-domain'", settings)
+        self.assertIn("implementation project(':core-domain')", app_gradle)
+
+    def test_core_domain_is_pure_jvm(self):
+        """A core-domain Android import would break JVM-only verification, which is
+        the only fast feedback loop available (there is no local Android build)."""
+        sources = sorted(CORE_DOMAIN.rglob("*.java"))
+        self.assertTrue(sources, "core-domain has no sources")
+        for path in sources:
+            text = path.read_text(encoding="utf-8")
+            self.assertNotIn("import android.", text, f"{path.name} imports Android")
+            self.assertNotIn("import androidx.", text, f"{path.name} imports AndroidX")
+
+    def test_extracted_classes_are_public_and_namespaced(self):
+        math = read_core_domain("TimeMath.java")
+        self.assertIn("package app.space.core.domain;", math)
+        self.assertIn("public final class TimeMath", math)
+        for member in ("countdownRemaining", "stopwatchElapsed",
+                       "formatHundredths", "formatCountdownHundredths"):
+            self.assertIn(f"public static", math)
+            self.assertIn(member, math)
+
+    def test_consumers_import_time_math_across_the_module_boundary(self):
+        """TimeMath left package app.tictic.clock, so same-package access no longer
+        applies. Without these imports the build breaks — assert them so a future
+        move back into :app is a deliberate act, not an accident."""
+        for name in ("MainActivity.java", "TimerReceiver.java"):
+            self.assertIn("import app.space.core.domain.TimeMath;", read(name), name)
+        self.assertFalse((JAVA / "TimeMath.java").exists(),
+                         "TimeMath must not be duplicated back into :app")
+
+    def test_feature_modules_never_depend_on_each_other(self):
+        """SUITE-PLAN.md §3.1 dependency rule. Scans every module build file."""
+        offenders = []
+        for gradle_file in sorted(ROOT.glob("*/build.gradle")):
+            module = gradle_file.parent.name
+            if not module.startswith("feature-"):
+                continue
+            for line in gradle_file.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if stripped.startswith("//"):
+                    continue
+                if "project(':feature-" in stripped:
+                    offenders.append(f"{module}: {stripped}")
+        self.assertEqual([], offenders, "cross-feature dependencies found")
 
 
 if __name__ == "__main__":

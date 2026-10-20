@@ -9,6 +9,7 @@ JAVA = ROOT / "app/src/main/java/app/tictic/clock"
 # Extracted MySpace modules (SUITE-PLAN.md §3.1). Files that move out of :app
 # are read from here instead, so the contracts keep guarding them.
 CORE_DOMAIN = ROOT / "core-domain/src/main/java/app/space/core/domain"
+CORE_DESIGN = ROOT / "core-design/src/main/java/app/space/core/design"
 
 
 def read(name):
@@ -682,6 +683,58 @@ class ModuleGraphContracts(unittest.TestCase):
                 if "project(':feature-" in stripped:
                     offenders.append(f"{module}: {stripped}")
         self.assertEqual([], offenders, "cross-feature dependencies found")
+
+    def test_core_design_is_an_android_library_with_no_upward_dependency(self):
+        """SUITE-PLAN.md §3.1: :core-* must never depend on :app, :shell or :feature-*.
+
+        :core-design is the module most at risk of this, because most design classes
+        read theme/accent values through DataStore, which still lives in :app. Only
+        genuinely decoupled classes may move until :core-data exists.
+        """
+        gradle_file = ROOT / "core-design/build.gradle"
+        self.assertTrue(gradle_file.exists(), "core-design/build.gradle missing")
+        settings = (ROOT / "settings.gradle").read_text()
+        self.assertIn("include ':core-design'", settings)
+        self.assertIn("implementation project(':core-design')",
+                      (ROOT / "app/build.gradle").read_text())
+        # Comment lines are excluded so explanatory prose cannot satisfy the check.
+        code = [ln.strip() for ln in gradle_file.read_text(encoding="utf-8").splitlines()
+                if not ln.strip().startswith("//")]
+        for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+            for line in code:
+                self.assertNotIn(forbidden, line, f"core-design depends upward: {line}")
+        # Checked against the whole file: `plugins { id '...' }` is a single line,
+        # so a list-of-lines membership test would never match.
+        self.assertIn("com.android.library", gradle_file.read_text(encoding="utf-8"))
+
+    def test_core_design_holds_only_decoupled_classes(self):
+        """TicIconView moved first because it has no DataStore coupling. This fails if
+        a coupled class is moved before :core-data exists, or if a moved class keeps
+        reaching back into the legacy package."""
+        sources = sorted((ROOT / "core-design/src/main/java").rglob("*.java"))
+        self.assertTrue(sources, "core-design has no sources")
+        for path in sources:
+            text = path.read_text(encoding="utf-8")
+            self.assertNotIn("DataStore", text,
+                             f"{path.name} touches DataStore; it belongs in :core-data's wake")
+            self.assertNotIn("import app.tictic.clock.", text,
+                             f"{path.name} imports the legacy :app package")
+
+    def test_tic_icon_view_is_public_and_namespaced(self):
+        view = (CORE_DESIGN / "TicIconView.java").read_text(encoding="utf-8")
+        self.assertIn("package app.space.core.design;", view)
+        self.assertIn("public final class TicIconView extends View", view)
+        # The glyph set must stay public: consumers now reach it across a module
+        # boundary, and every suite app will add its icon here.
+        for glyph in ("CLOCK", "TIMER", "STOPWATCH", "ROUTINE", "ACTIVITY",
+                      "SETTINGS", "ALARM", "WORLD", "REMINDER"):
+            self.assertIn(glyph, view)
+
+    def test_consumers_import_tic_icon_view_across_the_module_boundary(self):
+        main = read("MainActivity.java")
+        self.assertIn("import app.space.core.design.TicIconView;", main)
+        self.assertFalse((JAVA / "TicIconView.java").exists(),
+                         "TicIconView must not be duplicated back into :app")
 
 
 if __name__ == "__main__":

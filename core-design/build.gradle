@@ -1,0 +1,35 @@
+// Shared design system for MySpace: palette, accents, glass surfaces, motion,
+// typography/corner/spacing scales and locally drawn icons. Every :feature-*
+// module depends on this so all apps inherit one look (SUITE-PLAN.md §3.1).
+//
+// Scope today is deliberately narrow. Only TicIconView lives here so far, because
+// it is the single design class with zero coupling to the data layer. The rest of
+// the design system — GlassPreset, AppSurfaceStyle, AppGlassDrawable, GelMotion,
+// AnalogClockView — all read theme/accent/preference values through DataStore, so
+// they must wait for :core-data. Extracting them now would make :core-design
+// depend on :app and invert the module rule.
+//
+// This module must never depend on :app, :shell or any :feature-*.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.core.design'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+        // A library has no applicationId and no version of its own; the suite is
+        // versioned once, in :app.
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Intentionally empty. No AndroidX yet: the project still builds with
+    // android.useAndroidX=false, and TicIconView needs only the framework
+    // (Canvas/Paint/Path). AndroidX arrives with the modules that require it.
+}

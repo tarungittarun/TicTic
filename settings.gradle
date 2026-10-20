@@ -10,7 +10,12 @@ include ':app'
 // never depend on each other; cross-app data flows only through :core-data
 // interfaces. See SUITE-PLAN.md §3.1.
 //
-// :core-domain is the first extracted module — pure JVM, no Android imports.
-// :core-design, :core-data, :core-platform, :core-widgets, :shell and
-// :feature-clock follow in Phase 1.
+// :core-domain is pure JVM, no Android imports.
+// :core-design is an Android library. It currently holds only TicIconView: the
+//   other design classes (GlassPreset, AppSurfaceStyle, AppGlassDrawable,
+//   GelMotion, AnalogClockView) all read theme/accent values via DataStore, so
+//   they move only after :core-data exists. Extracting them earlier would make
+//   :core-design depend on :app and invert the rule above.
+// :core-data, :core-platform, :core-widgets, :shell and :feature-clock follow.
 include ':core-domain'
+include ':core-design'

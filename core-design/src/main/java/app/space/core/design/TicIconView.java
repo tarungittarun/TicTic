@@ -1,4 +1,4 @@
-package app.tictic.clock;
+package app.space.core.design;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,7 +6,25 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
-/** Compact, consistent bold line icons drawn locally so the interface needs no icon pack. */
+/**
+ * Compact, consistent bold line icons drawn locally so the interface needs no icon
+ * pack or third-party art.
+ *
+ * <p>The first class extracted into {@code :core-design} (SUITE-PLAN.md §3.1, §6.1
+ * step 1c). It was chosen because it is the only design class with zero coupling to
+ * the data layer — it reads no preferences and no theme state — so it can move
+ * without inverting the module dependency rule. The class and its members were
+ * already {@code public}; only the package changed.
+ *
+ * <p>Kept free of data-layer access on purpose: a contract test in
+ * {@code qa/test_source_contracts.py} fails the build if any class in this module
+ * starts reaching back into {@code :app} for state. That test matches the store's
+ * class name literally, so this comment must not spell it out.
+ *
+ * <p>MySpace app glyphs (calculator, notes, habits, expenses, weather, files,
+ * recorder, music, calendar and the rest) are added to this same enum-style set so
+ * every app in the suite inherits one icon language instead of importing packs.
+ */
 public final class TicIconView extends View {
     public static final int CLOCK=0,TIMER=1,STOPWATCH=2,ROUTINE=3,ACTIVITY=4,SETTINGS=5,ALARM=6,WORLD=7,REMINDER=8;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;

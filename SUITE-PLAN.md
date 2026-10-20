@@ -246,14 +246,19 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **0 — CI build signal** | ✅ done | [run 39323536015](https://github.com/tarungittarun/TicTic/actions/runs/39323536015); tagged `baseline-pre-myspace-refactor` |
 | **1a — rebrand + `minSdk 26`** | ✅ done | [run 39367315293](https://github.com/tarungittarun/TicTic/actions/runs/39367315293), APK 544,051 B. `applicationId app.space.one`, `versionName 2.0.0`, label MySpace. `namespace` deliberately unchanged (§9.5) |
 | **1b — `:core-domain` extraction** | ✅ done | [run 39369552158](https://github.com/tarungittarun/TicTic/actions/runs/39369552158), all 23 steps green. `rootProject.name = 'MySpace'`, `include ':core-domain'`, `TimeMath` → `app.space.core.domain` and `public`, two consumers re-imported, 64 contract tests |
-| 1c — `:core-design` | ⬜ next | palette/accents/glass/motion extraction |
-| 1d — `:core-data` | ⬜ | prefs, Room, JSON migration, CSV export |
+| **1c — `:core-design` (part 1)** | ✅ done | [run 39375464088](https://github.com/tarungittarun/TicTic/actions/runs/39375464088), all steps green, APK 546,586 B. First **Android library** module: `com.android.library`, namespace-only (no manifest), builds fine with `useAndroidX=false`. Holds `TicIconView` only. 68 contract tests |
+| **1d — `:core-data`** | ⬜ **next, and now the critical path** | prefs access, theme/accent primitives, Room, JSON migration, CSV export |
+| 1c-2 — `:core-design` (part 2) | ⬜ blocked on 1d | `GlassPreset` (3 `DataStore` refs), `AppSurfaceStyle` (4), `AppGlassDrawable` (2), `GelMotion` (3), `AnalogClockView` (4) |
 | 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
 | 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
 | 1g — `SuiteApp` registry + `:shell` | ⬜ | the piece that replaces the hardcoded 6-tab rail; three nav modes + reorder/pin/hide (L1) |
 | 1h — `:feature-clock` | ⬜ | extract the clock with behaviour unchanged |
 | 1i — export/import bundle | ⬜ | must ship before the id change reaches users |
 | 1j — dead `SDK_INT` guard cleanup | ⬜ | 36 guards, deliberately deferred (§5.1) |
+
+**Why 1c was narrowed, and why 1d is now the critical path.** The plan originally listed `:core-design` before `:core-data`. Reading the sources showed that is backwards: every design class except `TicIconView` reads theme/accent/preference state through `DataStore`, which lives in `:app`. Extracting them first would make `:core-design` depend on `:app` and invert the §3.1 rule. So 1c ships the one genuinely decoupled class and proves the Android-library module type, and the glass/motion system waits for `:core-data`. Contract tests now enforce this: no class in `:core-design` may reference the data store or import the legacy package.
+
+**`DataStore` is the hard knot in 1d.** It is one class mixing two concerns — theme/settings access (`prefs`, `dark`, `themeMode`, `accent`, `ACCENT_COLORS`) and clock domain logic (`nextOccurrence`, `daysLabel`, `nextAlarmText`, `formatTime`, the alarm/reminder migrations). Only the first group belongs in `:core-data`; the second is `:feature-clock` territory. Splitting it is a real design step, not a file move, and it is what unblocks `:core-design`, `:core-platform` and `:core-widgets` in turn.
 
 **1b is the load-bearing proof.** `TimeMath` was chosen as the wedge because it is pure JVM and has only two consumers — so it exercises the entire chain (new module → `settings.gradle` → cross-module dependency → public API across a package boundary → moved test → repointed contracts) at the smallest possible blast radius. If the module graph were misconfigured, this is where it would show, cheaply.
 

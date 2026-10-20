@@ -239,6 +239,28 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 
 ---
 
+## 6.1 Phase 1 progress
+
+| Step | State | Evidence |
+|---|---|---|
+| **0 — CI build signal** | ✅ done | [run 39323536015](https://github.com/tarungittarun/TicTic/actions/runs/39323536015); tagged `baseline-pre-myspace-refactor` |
+| **1a — rebrand + `minSdk 26`** | ✅ done | [run 39367315293](https://github.com/tarungittarun/TicTic/actions/runs/39367315293), APK 544,051 B. `applicationId app.space.one`, `versionName 2.0.0`, label MySpace. `namespace` deliberately unchanged (§9.5) |
+| **1b — `:core-domain` extraction** | ✅ done | [run 39369552158](https://github.com/tarungittarun/TicTic/actions/runs/39369552158), all 23 steps green. `rootProject.name = 'MySpace'`, `include ':core-domain'`, `TimeMath` → `app.space.core.domain` and `public`, two consumers re-imported, 64 contract tests |
+| 1c — `:core-design` | ⬜ next | palette/accents/glass/motion extraction |
+| 1d — `:core-data` | ⬜ | prefs, Room, JSON migration, CSV export |
+| 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
+| 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
+| 1g — `SuiteApp` registry + `:shell` | ⬜ | the piece that replaces the hardcoded 6-tab rail; three nav modes + reorder/pin/hide (L1) |
+| 1h — `:feature-clock` | ⬜ | extract the clock with behaviour unchanged |
+| 1i — export/import bundle | ⬜ | must ship before the id change reaches users |
+| 1j — dead `SDK_INT` guard cleanup | ⬜ | 36 guards, deliberately deferred (§5.1) |
+
+**1b is the load-bearing proof.** `TimeMath` was chosen as the wedge because it is pure JVM and has only two consumers — so it exercises the entire chain (new module → `settings.gradle` → cross-module dependency → public API across a package boundary → moved test → repointed contracts) at the smallest possible blast radius. If the module graph were misconfigured, this is where it would show, cheaply.
+
+**A real gap was found and fixed while doing it:** `assembleDebug` does *not* run Gradle `test` tasks, so the JVM regression suite had **never executed in CI** — `TimeMathTest` was passing locally and being silently skipped on every push. CI now runs `testDebugUnitTest test` as its own step and uploads the reports. Given there is no local Android build, that suite is the only place those assertions meet real compiled classes.
+
+**Ordering note.** 1c–1f extract shared code that `:feature-clock` still depends on, so the clock keeps compiling throughout; 1g introduces the registry the shell needs; 1h moves the clock last, once everything it uses is already in a `:core-*` module. Each step is one CI-verified commit — never a big-bang rename.
+
 ## 7. Risks
 
 | Risk | Impact | Mitigation |

@@ -247,8 +247,13 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1a — rebrand + `minSdk 26`** | ✅ done | [run 39367315293](https://github.com/tarungittarun/TicTic/actions/runs/39367315293), APK 544,051 B. `applicationId app.space.one`, `versionName 2.0.0`, label MySpace. `namespace` deliberately unchanged (§9.5) |
 | **1b — `:core-domain` extraction** | ✅ done | [run 39369552158](https://github.com/tarungittarun/TicTic/actions/runs/39369552158), all 23 steps green. `rootProject.name = 'MySpace'`, `include ':core-domain'`, `TimeMath` → `app.space.core.domain` and `public`, two consumers re-imported, 64 contract tests |
 | **1c — `:core-design` (part 1)** | ✅ done | [run 39375464088](https://github.com/tarungittarun/TicTic/actions/runs/39375464088), all steps green, APK 546,586 B. First **Android library** module: `com.android.library`, namespace-only (no manifest), builds fine with `useAndroidX=false`. Holds `TicIconView` only. 68 contract tests |
-| **1d — `:core-data`** | ⬜ **next, and now the critical path** | prefs access, theme/accent primitives, Room, JSON migration, CSV export |
-| 1c-2 — `:core-design` (part 2) | ⬜ blocked on 1d | `GlassPreset` (3 `DataStore` refs), `AppSurfaceStyle` (4), `AppGlassDrawable` (2), `GelMotion` (3), `AnalogClockView` (4) |
+| **1d-1 — `:core-data` + theme primitives** | ✅ done | [run 39376190362](https://github.com/tarungittarun/TicTic/actions/runs/39376190362), all steps green, APK 547,655 B. `AppTheme` holds `themeMode`/`dark`/`ACCENT_COLORS`/`accent`; `DataStore` delegates. **73 contract tests** |
+| 1d-2 — `:core-data` generic storage | ⬜ **next** | `prefs`, `array`, `putArray`, `find`, `log` (182 + 33 + 18 + 9 + 46 refs) |
+| 1d-3 — `:core-data` formatting | ⬜ | `formatTime`, `formatDate` |
+| 1d-4 — clock domain split | ⬜ | `nextOccurrence`, `daysLabel`, `nextAlarmText`, `alarmVolumeAction`, `showRingingSnoozeAction`, both migrations → `:feature-clock`, **not** `:core-data` |
+| 1d-5 — `UsageTracker` | ⬜ | generic counters → `:core-data` or `:core-platform`; `DataStore.log` calls it, so 1d-2 and this are coupled |
+| 1d-6 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
+| **1c-2 — `:core-design` (part 2)** | ⬜ **unblocked by 1d-1** | `GlassPreset` (3 `DataStore` refs), `AppSurfaceStyle` (4), `AppGlassDrawable` (2), `GelMotion` (3), `AnalogClockView` (4) — each also needs 1d-2 for `prefs` |
 | 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
 | 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
 | 1g — `SuiteApp` registry + `:shell` | ⬜ | the piece that replaces the hardcoded 6-tab rail; three nav modes + reorder/pin/hide (L1) |
@@ -258,7 +263,13 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 
 **Why 1c was narrowed, and why 1d is now the critical path.** The plan originally listed `:core-design` before `:core-data`. Reading the sources showed that is backwards: every design class except `TicIconView` reads theme/accent/preference state through `DataStore`, which lives in `:app`. Extracting them first would make `:core-design` depend on `:app` and invert the §3.1 rule. So 1c ships the one genuinely decoupled class and proves the Android-library module type, and the glass/motion system waits for `:core-data`. Contract tests now enforce this: no class in `:core-design` may reference the data store or import the legacy package.
 
-**`DataStore` is the hard knot in 1d.** It is one class mixing two concerns — theme/settings access (`prefs`, `dark`, `themeMode`, `accent`, `ACCENT_COLORS`) and clock domain logic (`nextOccurrence`, `daysLabel`, `nextAlarmText`, `formatTime`, the alarm/reminder migrations). Only the first group belongs in `:core-data`; the second is `:feature-clock` territory. Splitting it is a real design step, not a file move, and it is what unblocks `:core-design`, `:core-platform` and `:core-widgets` in turn.
+**`DataStore` is the hard knot in 1d.** Measured: **452 references across 25 files**, 144 of them in `MainActivity` alone. By method — `prefs` 182, `dark` 81, `log` 46, `array` 33, `accent` 24, `putArray` 18, `formatTime` 14, `nextOccurrence` 11, `find` 9, then the clock-specific tail. About fifteen contract tests assert on `DataStore.java` content *and* on `DataStore.xxx(...)` call-site strings in other files.
+
+It also mixes two concerns that belong in different modules: theme/settings/storage access (`prefs`, `dark`, `themeMode`, `accent`, `array`, `putArray`, `find`, `log`, `formatTime`, `formatDate`) belongs in `:core-data`, while the clock domain logic (`nextOccurrence`, `daysLabel`, `nextAlarmText`, `alarmVolumeAction`, `showRingingSnoozeAction`, and both migrations) belongs in `:feature-clock`.
+
+**Strategy: facade, not rewrite.** Each group's implementation moves to `:core-data` while `DataStore` keeps a thin delegating method, so **no call site changes** and the existing contract assertions stay valid. Call sites are rewritten only after every group has moved. This keeps each slice small enough to be attributable in a single CI run — which matters because CI is the only compiler available and each iteration costs ~2 minutes.
+
+**The most dangerous constant in this work** is the preference file name `tictic_local_v1`. `AppTheme` reads `SharedPreferences` directly and so carries its own copy. If the two literals ever diverge, appearance settings get read from a different file than `DataStore` writes — silently stranding every user's settings on upgrade, with no crash to reveal it. A contract test now compares both literals and pins the value.
 
 **1b is the load-bearing proof.** `TimeMath` was chosen as the wedge because it is pure JVM and has only two consumers — so it exercises the entire chain (new module → `settings.gradle` → cross-module dependency → public API across a package boundary → moved test → repointed contracts) at the smallest possible blast radius. If the module graph were misconfigured, this is where it would show, cheaply.
 
@@ -282,6 +293,7 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | `MainActivity` is 501 dense lines with everything inline | Extraction is delicate, not mechanical | Extract screens one at a time behind the registry, CI after each |
 | Dynamic-feature (L3) modules do not install from a plain APK | Sideloaded builds lose the on-demand control layer | Keep the `full`/`lite` flavours (L2) as a supported path, and decide the distribution target before Phase 5 (§9.4) |
 | Repo had one commit and no CI history | No safe point to roll back to | **Resolved** — Phase 0 is green and the pre-refactor state is tagged |
+| **The review workspace periodically loses local git state** — observed twice: HEAD reverts to `26eca2f` while the working tree keeps the edits, and remote-tracking refs disappear | A naive commit squashes already-pushed work and diverges from the remote; a force-push would then destroy it | Treat `origin` as authoritative. At the start of each session run `git fetch` and compare `HEAD` against `origin/arena/3caca636-tictic`; if they differ, `git reset --hard origin/<branch>` after confirming the working tree adds nothing new. **Never force-push.** Commit and push every slice immediately so the remote is never behind |
 
 ---
 

@@ -16,6 +16,12 @@ include ':app'
 //   GelMotion, AnalogClockView) all read theme/accent values via DataStore, so
 //   they move only after :core-data exists. Extracting them earlier would make
 //   :core-design depend on :app and invert the rule above.
-// :core-data, :core-platform, :core-widgets, :shell and :feature-clock follow.
+// :core-data is the critical path: the design, platform and widget modules all
+//   read theme/preference state, so none of them can finish moving until it
+//   exists. Extraction is incremental — implementations move here group by group
+//   while DataStore in :app stays a delegating facade, because DataStore has 452
+//   references across 25 files and ~15 contract tests assert on its call sites.
+// :core-platform, :core-widgets, :shell and :feature-clock follow.
 include ':core-domain'
 include ':core-design'
+include ':core-data'

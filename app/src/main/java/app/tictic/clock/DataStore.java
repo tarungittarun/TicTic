@@ -3,6 +3,7 @@ package app.tictic.clock;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.format.DateFormat;
+import app.space.core.data.AppTheme;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
@@ -93,8 +94,9 @@ final class DataStore {
         if(best==null)return "No alarm set";
         return formatTime(c,best.optInt("hour"),best.optInt("minute"))+"  ·  "+formatDate(bestAt);
     }
-    static int themeMode(Context c) { return prefs(c).getInt("theme",0); } // 0 system, 1 light, 2 dark
-    static boolean dark(Context c) { int t=themeMode(c); return t==2 || (t==0 && (c.getResources().getConfiguration().uiMode & 0x30)==0x20); }
-    static final int[] ACCENT_COLORS={0xff3f7c73,0xff8064d6,0xffd46d61,0xff3477b8,0xff94651d,0xff32846f,0xffb95078,0xff52677f,0xff2553a5,0xff754889,0xff8a761b,0xff167e83,0xffb65337,0xff526bb5,0xff516d40,0xff992f4f};
-    static int accent(Context c) { int i=prefs(c).getInt("accent",0);return ACCENT_COLORS[Math.max(0,Math.min(ACCENT_COLORS.length-1,i))]; }
+    static int themeMode(Context c) { return AppTheme.themeMode(c); } // 0 system, 1 light, 2 dark
+    static boolean dark(Context c) { return AppTheme.dark(c); }
+    /** @deprecated read the palette from {@link AppTheme#ACCENT_COLORS}; kept so existing call sites compile during the 1d extraction. */
+    static final int[] ACCENT_COLORS=AppTheme.ACCENT_COLORS;
+    static int accent(Context c) { return AppTheme.accent(c); }
 }

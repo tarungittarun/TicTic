@@ -10,6 +10,7 @@ JAVA = ROOT / "app/src/main/java/app/tictic/clock"
 # are read from here instead, so the contracts keep guarding them.
 CORE_DOMAIN = ROOT / "core-domain/src/main/java/app/space/core/domain"
 CORE_DESIGN = ROOT / "core-design/src/main/java/app/space/core/design"
+CORE_DATA = ROOT / "core-data/src/main/java/app/space/core/data"
 
 
 def read(name):
@@ -18,6 +19,65 @@ def read(name):
 
 def read_core_domain(name):
     return (CORE_DOMAIN / name).read_text(encoding="utf-8")
+
+
+def java_code_only(text):
+    """Strip Java comments so dependency and coupling contracts test code, not prose.
+
+    Module javadoc legitimately names the classes a module must *not* depend on —
+    explaining the rule is the point of the comment. Without this, a contract that
+    asserts "core-data must not reference DataStore" fails on the very sentence that
+    documents why. This is a character state machine rather than a regex because
+    string literals may legally contain "//" (a URL) or "/*", and naively cutting at
+    those would remove real code and hide an actual violation.
+    """
+    out = []
+    i, n = 0, len(text)
+    in_string = in_char = in_line_comment = in_block_comment = False
+    while i < n:
+        c = text[i]
+        nxt = text[i + 1] if i + 1 < n else ""
+        if in_line_comment:
+            if c == "\n":
+                in_line_comment = False
+                out.append(c)
+        elif in_block_comment:
+            if c == "*" and nxt == "/":
+                in_block_comment = False
+                i += 1
+        elif in_string:
+            out.append(c)
+            if c == "\\":
+                if nxt:
+                    out.append(nxt)
+                    i += 1
+            elif c == '"':
+                in_string = False
+        elif in_char:
+            out.append(c)
+            if c == "\\":
+                if nxt:
+                    out.append(nxt)
+                    i += 1
+            elif c == "'":
+                in_char = False
+        else:
+            if c == "/" and nxt == "/":
+                in_line_comment = True
+                i += 1
+            elif c == "/" and nxt == "*":
+                in_block_comment = True
+                i += 1
+            elif c == '"':
+                in_string = True
+                out.append(c)
+            elif c == "'":
+                in_char = True
+                out.append(c)
+            else:
+                out.append(c)
+        i += 1
+    return "".join(out)
 
 
 class AlarmContracts(unittest.TestCase):
@@ -247,7 +307,12 @@ class NewFeatureContracts(unittest.TestCase):
         self.assertIn('"Cobalt","Plum","Citrus","Lagoon"', main)
         self.assertIn('"APP TYPEFACE"', main)
         self.assertIn('"Card corners",new String[]{"Signature","Soft","Crisp","Capsule"}', main)
-        self.assertEqual(datastore[datastore.index('ACCENT_COLORS={'):datastore.index(';',datastore.index('ACCENT_COLORS={'))].count('0xff'),16)
+        # The 16-accent palette moved to :core-data in step 1d; DataStore keeps a
+        # delegating reference. Count the colours where they now live.
+        theme = (CORE_DATA / "AppTheme.java").read_text(encoding="utf-8")
+        start = theme.index("ACCENT_COLORS")
+        self.assertEqual(theme[start:theme.index("};", start)].count("0xff"), 16)
+        self.assertIn("ACCENT_COLORS=AppTheme.ACCENT_COLORS", datastore)
 
     def test_every_widget_provider_supports_launcher_resize_and_studio_spacing_preview(self):
         providers=list((ROOT / "app/src/main/res/xml").glob("widget_*_info.xml"))
@@ -641,15 +706,41 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("include ':core-domain'", settings)
         self.assertIn("implementation project(':core-domain')", app_gradle)
 
+    def test_java_code_only_strips_comments_but_preserves_string_literals(self):
+        """The coupling contracts depend on this helper being correct: if it stripped
+        real code it would hide a genuine violation, and if it kept comments the module
+        javadoc would keep tripping it."""
+        source = (
+            'package p;\n'
+            '// import android.widget.Toast;\n'
+            '/* DataStore line\n   still block */\n'
+            'class A {\n'
+            '  String url = "https://example.com/a";\n'
+            '  String glob = "/* not a comment */";\n'
+            '  char slash = \'/\';\n'
+            '  String esc = "a \\" /* b";\n'
+            '  void f() { g(); } // trailing\n'
+            '}\n'
+        )
+        code = java_code_only(source)
+        self.assertNotIn("import android.widget.Toast", code)
+        self.assertNotIn("DataStore", code)
+        self.assertNotIn("trailing", code)
+        # String and char literals survive intact, including "//" and "/*" inside them.
+        self.assertIn('"https://example.com/a"', code)
+        self.assertIn('"/* not a comment */"', code)
+        self.assertIn("g()", code)
+        self.assertIn("class A", code)
+
     def test_core_domain_is_pure_jvm(self):
         """A core-domain Android import would break JVM-only verification, which is
         the only fast feedback loop available (there is no local Android build)."""
         sources = sorted(CORE_DOMAIN.rglob("*.java"))
         self.assertTrue(sources, "core-domain has no sources")
         for path in sources:
-            text = path.read_text(encoding="utf-8")
-            self.assertNotIn("import android.", text, f"{path.name} imports Android")
-            self.assertNotIn("import androidx.", text, f"{path.name} imports AndroidX")
+            code = java_code_only(path.read_text(encoding="utf-8"))
+            self.assertNotIn("import android.", code, f"{path.name} imports Android")
+            self.assertNotIn("import androidx.", code, f"{path.name} imports AndroidX")
 
     def test_extracted_classes_are_public_and_namespaced(self):
         math = read_core_domain("TimeMath.java")
@@ -714,10 +805,10 @@ class ModuleGraphContracts(unittest.TestCase):
         sources = sorted((ROOT / "core-design/src/main/java").rglob("*.java"))
         self.assertTrue(sources, "core-design has no sources")
         for path in sources:
-            text = path.read_text(encoding="utf-8")
-            self.assertNotIn("DataStore", text,
+            code = java_code_only(path.read_text(encoding="utf-8"))
+            self.assertNotIn("DataStore", code,
                              f"{path.name} touches DataStore; it belongs in :core-data's wake")
-            self.assertNotIn("import app.tictic.clock.", text,
+            self.assertNotIn("import app.tictic.clock.", code,
                              f"{path.name} imports the legacy :app package")
 
     def test_tic_icon_view_is_public_and_namespaced(self):
@@ -735,6 +826,74 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("import app.space.core.design.TicIconView;", main)
         self.assertFalse((JAVA / "TicIconView.java").exists(),
                          "TicIconView must not be duplicated back into :app")
+
+    def test_core_data_is_registered_with_no_upward_dependency(self):
+        gradle_file = ROOT / "core-data/build.gradle"
+        self.assertTrue(gradle_file.exists(), "core-data/build.gradle missing")
+        text = gradle_file.read_text(encoding="utf-8")
+        self.assertIn("include ':core-data'", (ROOT / "settings.gradle").read_text())
+        self.assertIn("project(':core-data')", (ROOT / "app/build.gradle").read_text())
+        self.assertIn("com.android.library", text)
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("//"):
+                continue
+            for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+                self.assertNotIn(forbidden, stripped, f"core-data depends upward: {stripped}")
+
+    def test_preference_file_name_is_identical_in_both_modules(self):
+        """The single most dangerous constant in the 1d extraction.
+
+        AppTheme reads SharedPreferences directly, so it carries its own copy of the
+        file name. If the two literals ever diverge, theme and accent settings would
+        be read from a different file than the one DataStore writes — silently
+        stranding every user's appearance settings on upgrade.
+        """
+        import re
+        pattern = re.compile(r'PREF\s*=\s*"([^"]+)"')
+        datastore = pattern.search(read("DataStore.java"))
+        apptheme = pattern.search((CORE_DATA / "AppTheme.java").read_text(encoding="utf-8"))
+        self.assertIsNotNone(datastore, "DataStore.PREF literal not found")
+        self.assertIsNotNone(apptheme, "AppTheme.PREF literal not found")
+        self.assertEqual(datastore.group(1), apptheme.group(1))
+        self.assertEqual("tictic_local_v1", apptheme.group(1),
+                         "changing the preference file name strands existing user data")
+
+    def test_theme_primitives_moved_to_core_data_behind_a_facade(self):
+        """SUITE-PLAN.md §6.1 step 1d.
+
+        The implementation must live in AppTheme, DataStore must delegate rather than
+        keep a second copy, and no call site may change — there are 452 DataStore
+        references across 25 files, so the facade is what keeps this slice small
+        enough to verify in one CI run.
+        """
+        theme = (CORE_DATA / "AppTheme.java").read_text(encoding="utf-8")
+        datastore = read("DataStore.java")
+        self.assertIn("package app.space.core.data;", theme)
+        self.assertIn("public final class AppTheme", theme)
+        for member in ("public static int themeMode(", "public static boolean dark(",
+                       "public static int accent(", "public static final int[] ACCENT_COLORS"):
+            self.assertIn(member, theme)
+        # Delegation, not duplication: DataStore must not reimplement these.
+        self.assertIn("import app.space.core.data.AppTheme;", datastore)
+        self.assertIn("return AppTheme.themeMode(c);", datastore)
+        self.assertIn("return AppTheme.dark(c);", datastore)
+        self.assertIn("return AppTheme.accent(c);", datastore)
+        self.assertIn("AppTheme.ACCENT_COLORS", datastore)
+        self.assertNotIn("uiMode & 0x30", datastore)
+        self.assertNotIn("0xff3f7c73", datastore)
+        # The palette itself, so a future edit cannot quietly drop accents.
+        self.assertEqual(16, theme.count("0xff"), "expected 16 accent colours")
+
+    def test_core_data_does_not_reach_back_into_app(self):
+        sources = sorted(CORE_DATA.rglob("*.java"))
+        self.assertTrue(sources, "core-data has no sources")
+        for path in sources:
+            code = java_code_only(path.read_text(encoding="utf-8"))
+            self.assertNotIn("import app.tictic.clock.", code,
+                             f"{path.name} imports the legacy :app package")
+            self.assertNotIn("DataStore", code,
+                             f"{path.name} references DataStore; core-data must not depend on :app")
 
 
 if __name__ == "__main__":

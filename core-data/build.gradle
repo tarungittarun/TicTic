@@ -1,0 +1,32 @@
+// Shared local data layer for MySpace: preference access, theme/appearance
+// state, collection storage, and (later) the Room database, the JSON migration
+// off tictic_local_v1, and CSV export. See SUITE-PLAN.md §3.1 and §5.
+//
+// Extraction is deliberately incremental. DataStore in :app currently holds 452
+// references across 25 files — 144 of them in MainActivity alone — and about
+// fifteen contract tests assert on its content and on DataStore.xxx(...) call
+// sites elsewhere. Splitting it in one pass would be unattributable if the build
+// broke, so implementations move here group by group while DataStore stays as a
+// delegating facade. Call sites are rewritten only at the end, per group.
+//
+// This module must never depend on :app, :shell or any :feature-*.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.core.data'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // No AndroidX yet: SharedPreferences and Resources.Configuration are
+    // framework APIs. Room arrives with the collection data in step 1d-3.
+}

@@ -356,8 +356,17 @@ class NewFeatureContracts(unittest.TestCase):
         self.assertIn('Math.min(100,Math.max(20,activityHistoryLimit))',main)
         self.assertIn('pillButton("Show 80 more"',main)
         self.assertIn('activityHistoryLimit=100',main)
-        datastore=read("DataStore.java")
-        self.assertIn('i<old.length() && i<99',datastore)
+        # The history cap moved to :core-data in step 1d-2 (DataStore.log now
+        # delegates). MAX_ENTRIES-1 previous rows plus the new one keeps the
+        # original 100-entry bound.
+        history=(CORE_DATA / "AppActivityLog.java").read_text(encoding="utf-8")
+        # Whitespace-normalised so the assertion cannot break on formatting alone.
+        compact="".join(history.split())
+        self.assertIn('publicstaticfinalintMAX_ENTRIES=100',compact)
+        self.assertIn('i<old.length()&&i<MAX_ENTRIES-1',compact)
+        self.assertIn('AppPrefs.prefs(c).getBoolean("activity_history_enabled",true)',compact)
+        self.assertIn('UsageTracker.recordEvent(c,type)',compact)
+        self.assertIn('AppActivityLog.log(c, type, title, detail)',read("DataStore.java"))
 
     def test_home_clock_offers_digital_and_analog_style_variants(self):
         main=read("MainActivity.java")
@@ -850,14 +859,24 @@ class ModuleGraphContracts(unittest.TestCase):
         stranding every user's appearance settings on upgrade.
         """
         import re
-        pattern = re.compile(r'PREF\s*=\s*"([^"]+)"')
-        datastore = pattern.search(read("DataStore.java"))
-        apptheme = pattern.search((CORE_DATA / "AppTheme.java").read_text(encoding="utf-8"))
-        self.assertIsNotNone(datastore, "DataStore.PREF literal not found")
-        self.assertIsNotNone(apptheme, "AppTheme.PREF literal not found")
-        self.assertEqual(datastore.group(1), apptheme.group(1))
-        self.assertEqual("tictic_local_v1", apptheme.group(1),
+        literal = re.compile(r'PREF\s*=\s*"([^"]+)"')
+        reference = re.compile(r'PREF\s*=\s*AppPrefs\.PREF')
+
+        prefs_src = (CORE_DATA / "AppPrefs.java").read_text(encoding="utf-8")
+        theme_src = (CORE_DATA / "AppTheme.java").read_text(encoding="utf-8")
+        datastore = read("DataStore.java")
+
+        # Exactly one definition, in AppPrefs.
+        found = literal.search(prefs_src)
+        self.assertIsNotNone(found, "AppPrefs.PREF literal not found")
+        self.assertEqual("tictic_local_v1", found.group(1),
                          "changing the preference file name strands existing user data")
+        self.assertEqual(1, len(literal.findall(prefs_src + theme_src + datastore)),
+                         "the file name must be defined once, in AppPrefs")
+
+        # Everyone else references it, so the copies cannot drift apart.
+        self.assertIsNotNone(reference.search(theme_src), "AppTheme must reference AppPrefs.PREF")
+        self.assertIsNotNone(reference.search(datastore), "DataStore must reference AppPrefs.PREF")
 
     def test_theme_primitives_moved_to_core_data_behind_a_facade(self):
         """SUITE-PLAN.md §6.1 step 1d.
@@ -894,6 +913,53 @@ class ModuleGraphContracts(unittest.TestCase):
                              f"{path.name} imports the legacy :app package")
             self.assertNotIn("DataStore", code,
                              f"{path.name} references DataStore; core-data must not depend on :app")
+
+    def test_generic_storage_moved_to_core_data_behind_the_facade(self):
+        """SUITE-PLAN.md §6.1 step 1d-2: prefs/array/putArray/find.
+
+        These four account for 242 of DataStore's 452 references, so the facade is what
+        keeps the slice small — no call site changes, and the existing assertions on
+        DataStore.xxx(...) strings in other files stay valid.
+        """
+        prefs_src = (CORE_DATA / "AppPrefs.java").read_text(encoding="utf-8")
+        datastore = read("DataStore.java")
+        self.assertIn("package app.space.core.data;", prefs_src)
+        self.assertIn("public final class AppPrefs", prefs_src)
+        for member in ("public static SharedPreferences prefs(", "public static JSONArray array(",
+                       "public static void putArray(", "public static JSONObject find("):
+            self.assertIn(member, prefs_src)
+        self.assertIn("return AppPrefs.prefs(c);", datastore)
+        self.assertIn("return AppPrefs.array(c, key);", datastore)
+        self.assertIn("AppPrefs.putArray(c, key, a);", datastore)
+        self.assertIn("return AppPrefs.find(c, key, id);", datastore)
+        # Delegation, not duplication: the implementations must no longer be in DataStore.
+        self.assertNotIn('new JSONArray(prefs(c).getString', datastore)
+        self.assertNotIn("o.optLong(\"id\")", datastore)
+
+    def test_usage_tracker_moved_whole_to_core_data(self):
+        """Moved in the same slice as AppPrefs because the two are mutually coupled:
+        AppActivityLog records an event here, and this class reads its enabled flag and
+        every counter through preferences. Splitting them would have left a
+        cross-module cycle routed through :app.
+        """
+        tracker = (CORE_DATA / "UsageTracker.java").read_text(encoding="utf-8")
+        self.assertFalse((JAVA / "UsageTracker.java").exists(),
+                         "UsageTracker must not remain in :app")
+        self.assertIn("package app.space.core.data;", tracker)
+        self.assertIn("public final class UsageTracker", tracker)
+        for member in ("purgeLegacyBatterySnapshots", "addForeground", "recordWidgetRefresh",
+                       "recordEvent", "usageMillis", "clockMillis", "widgetRefreshes",
+                       "eventCount", "formatDuration", "dayKey"):
+            self.assertIn(member, tracker)
+        # Reading through AppPrefs is what keeps core-data free of :app.
+        self.assertIn("AppPrefs.prefs(c)", tracker)
+        self.assertNotIn("DataStore", java_code_only(tracker))
+        # Both switch names are user-visible promises in README/PRODUCT.md.
+        self.assertIn('"usage_metrics_enabled"', tracker)
+
+    def test_usage_tracker_consumers_import_it_across_the_boundary(self):
+        for name in ("MainActivity.java", "WidgetEngine.java", "DataStore.java"):
+            self.assertIn("import app.space.core.data.UsageTracker;", read(name), name)
 
 
 if __name__ == "__main__":

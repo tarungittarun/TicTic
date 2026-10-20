@@ -3,7 +3,10 @@ package app.tictic.clock;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.format.DateFormat;
+import app.space.core.data.AppActivityLog;
+import app.space.core.data.AppPrefs;
 import app.space.core.data.AppTheme;
+import app.space.core.data.UsageTracker;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
@@ -12,8 +15,14 @@ import java.util.Date;
 import java.util.Locale;
 
 final class DataStore {
-    static final String PREF = "tictic_local_v1";
-    static SharedPreferences prefs(Context c) { return c.getSharedPreferences(PREF, Context.MODE_PRIVATE); }
+    /**
+     * References {@link AppPrefs#PREF} rather than repeating the literal, so the file
+     * name has one source of truth across modules. Kept because 135 external call sites
+     * read preferences through {@code DataStore.prefs(...)} and the migrations below use
+     * it directly.
+     */
+    static final String PREF = AppPrefs.PREF;
+    static SharedPreferences prefs(Context c) { return AppPrefs.prefs(c); }
     /** Migrate the former shared action to independent keys: Control volume becomes Snooze; Turn off becomes Stop. Values: 1=Snooze, 2=Stop. */
     static void migrateRingingControls(Context c) {
         SharedPreferences p=prefs(c);if(p.getBoolean("ringing_controls_v111_migrated",false))return;
@@ -29,10 +38,8 @@ final class DataStore {
     /** Compatibility accessor: the Volume Up choice. */
     static int alarmVolumeAction(Context c){return alarmVolumeAction(c,true);}
     static boolean showRingingSnoozeAction(Context c){migrateRingingControls(c);return prefs(c).getInt("alarm_ringing_actions",0)==0;}
-    static JSONArray array(Context c, String key) {
-        try { return new JSONArray(prefs(c).getString(key, "[]")); } catch (Exception e) { return new JSONArray(); }
-    }
-    static void putArray(Context c, String key, JSONArray a) { prefs(c).edit().putString(key, a.toString()).apply(); }
+    static JSONArray array(Context c, String key) { return AppPrefs.array(c, key); }
+    static void putArray(Context c, String key, JSONArray a) { AppPrefs.putArray(c, key, a); }
     /** v1.9.2 one-time migration: old app defaults were 10 min / alarm tone. New default is a 30-minute notification ping. */
     static void migrateReminderDefaults(Context c) {
         SharedPreferences p=prefs(c);if(p.getBoolean("reminder_defaults_v192_migrated",false))return;
@@ -43,21 +50,8 @@ final class DataStore {
         }catch(Exception ignored){}}
         if(changed)putArray(c,"alarms",alarms);p.edit().putBoolean("reminder_defaults_v192_migrated",true).apply();
     }
-    static JSONObject find(Context c, String key, long id) {
-        JSONArray a = array(c, key);
-        for (int i=0;i<a.length();i++) { JSONObject o=a.optJSONObject(i); if (o!=null && o.optLong("id")==id) return o; }
-        return null;
-    }
-    static void log(Context c, String type, String title, String detail) {
-        if(prefs(c).getBoolean("activity_history_enabled",true)){
-            JSONArray old=array(c,"events"), n=new JSONArray();
-            try { n.put(new JSONObject().put("at",System.currentTimeMillis()).put("type",type).put("title",title).put("detail",detail));
-                for(int i=0;i<old.length() && i<99;i++) n.put(old.getJSONObject(i));
-            } catch(Exception ignored) {}
-            putArray(c,"events",n);
-        }
-        UsageTracker.recordEvent(c,type);
-    }
+    static JSONObject find(Context c, String key, long id) { return AppPrefs.find(c, key, id); }
+    static void log(Context c, String type, String title, String detail) { AppActivityLog.log(c, type, title, detail); }
     static String formatTime(Context c, int hour, int minute) {
         Calendar cal=Calendar.getInstance(); cal.set(Calendar.HOUR_OF_DAY,hour); cal.set(Calendar.MINUTE,minute);
         return new SimpleDateFormat(DateFormat.is24HourFormat(c)?"HH:mm":"h:mm a",Locale.getDefault()).format(cal.getTime());

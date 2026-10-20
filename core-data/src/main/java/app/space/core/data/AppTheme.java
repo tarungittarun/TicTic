@@ -16,15 +16,19 @@ import android.content.SharedPreferences;
  * <p>Logic is unchanged from the original; only the home moved. {@code DataStore}
  * keeps thin delegating methods so its 452 existing call sites are untouched.
  *
- * <p>The preference file name is intentionally the legacy {@code tictic_local_v1}.
- * Changing it would strand every existing setting, alarm and usage record on
- * upgrade, so it is preserved verbatim and guarded by a contract test that compares
- * it against the one in {@code DataStore}.
+ * <p>Appearance state is read from the same preference file as everything else, via
+ * {@link AppPrefs#PREF}. That name is intentionally the legacy {@code tictic_local_v1}:
+ * changing it would strand every existing setting, alarm and usage record on upgrade,
+ * with no crash to reveal it. A contract test pins the literal and asserts that this
+ * class and the legacy {@code DataStore} both reference it rather than redefining it.
  */
 public final class AppTheme {
 
-    /** Must stay identical to {@code DataStore.PREF} — see the class note. */
-    public static final String PREF = "tictic_local_v1";
+    /**
+     * References {@link AppPrefs#PREF} rather than repeating the literal, so the file
+     * name has exactly one definition across all modules.
+     */
+    public static final String PREF = AppPrefs.PREF;
 
     private AppTheme() {}
 

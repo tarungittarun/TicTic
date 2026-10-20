@@ -1,16 +1,31 @@
 plugins { id 'com.android.application' }
 
 android {
+    // Deliberately NOT renamed to app.space.one yet. The namespace drives the R
+    // class and resolves the manifest's relative component names (".MainActivity"
+    // and the 24 widget providers). Keeping it at app.tictic.clock lets the
+    // MySpace rebrand land as a small, CI-verifiable change; the package rename
+    // happens with the :feature-clock extraction in Phase 1. See SUITE-PLAN.md §9.5.
     namespace 'app.tictic.clock'
     compileSdk 34
     buildToolsVersion '34.0.0'
 
     defaultConfig {
-        applicationId 'app.tictic.clock'
-        minSdk 23
+        // MySpace — "One for many." New id, so existing app.tictic.clock installs
+        // do not upgrade in place; data moves via the export/import bundle and
+        // placed widgets are re-placed once (both accepted, SUITE-PLAN.md §4).
+        applicationId 'app.space.one'
+        // Raised from 23 (SUITE-PLAN.md §5.1): unlocks CameraX/ML Kit for the doc
+        // scanner and modern AndroidX, and guarantees notification channels and
+        // adaptive icons. Leaves 36 now-dead SDK_INT guards (>=21/23/24/26), which
+        // are removed in a separate cleanup — they sit in behaviour-sensitive
+        // notification and volume-key paths. Guards at >=27 remain live.
+        minSdk 26
         targetSdk 34
+        // New product line: MySpace starts at 2.0.0. The clock feature keeps its
+        // v1.11.2 lineage in CHANGELOG.md.
         versionCode 23
-        versionName '1.11.2'
+        versionName '2.0.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

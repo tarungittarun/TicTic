@@ -589,9 +589,31 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '1.11.2'", gradle)
+        self.assertIn("versionName '2.0.0'", gradle)
         self.assertIn("versionCode 23", gradle)
-        self.assertIn("TicTic · version 1.11.2", main)
+        self.assertIn("TicTic · version 2.0.0", main)
+
+    def test_myspace_rebrand_is_applied(self):
+        """MySpace / app.space.one — SUITE-PLAN.md §4.
+
+        The namespace intentionally stays app.tictic.clock until :feature-clock
+        is extracted, because it drives the R class and resolves the manifest's
+        relative component names. Asserting both facts keeps a later refactor
+        from silently breaking the 24 widget providers.
+        """
+        gradle = (ROOT / "app/build.gradle").read_text()
+        strings = (ROOT / "app/src/main/res/values/strings.xml").read_text()
+        self.assertIn("applicationId 'app.space.one'", gradle)
+        self.assertIn("namespace 'app.tictic.clock'", gradle)
+        self.assertIn('<string name="app_name">MySpace</string>', strings)
+        self.assertIn('<string name="app_tagline">One for many</string>', strings)
+
+    def test_min_sdk_is_26(self):
+        """Raised from 23 to unlock CameraX/ML Kit and modern AndroidX — SUITE-PLAN.md §5.1."""
+        gradle = (ROOT / "app/build.gradle").read_text()
+        self.assertIn("minSdk 26", gradle)
+        self.assertIn("targetSdk 34", gradle)
+        self.assertNotIn("minSdk 23", gradle)
 
 
 if __name__ == "__main__":

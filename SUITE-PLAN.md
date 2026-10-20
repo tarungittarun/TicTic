@@ -15,6 +15,13 @@
 5. **Keep every requested app — including email, music streaming and messaging — but the user controls which ones they have.** This is the defining product requirement and it changes the architecture; see §3.4.
 6. Build and verify through GitHub Actions (no local Android build is possible — §1).
 
+Decided 2026-10-19, closing the Phase 1 blockers:
+
+7. **Widgets: accept one-time re-placement** across the rebrand. No compat providers (§4).
+8. **Distribution: both Google Play and direct APK.** L3 on-demand modules are real, *and* the `full`/`lite` flavours must be first-class because a sideloaded APK cannot install dynamic features (§3.4).
+9. **`minSdk` raised 23 → 26** (Android 8.0) to unlock CameraX/ML Kit and modern AndroidX (§5.1).
+10. **Branching: work stays on `arena/3caca636-tictic`.** `origin/myspace` is *not* created by this session; the owner will create it if wanted (§9).
+
 ---
 
 ## 1. Ground truth (verified 2026-10-18)
@@ -161,7 +168,9 @@ Plus per-user **reorder, pin and hide**, and "open straight into last-used app" 
 |---|---|---|---|---|
 | **L1 — Visible** | Reorder, pin, hide any app. Hidden apps do not appear in the hub, rail, drawer, search or shortcuts. | `:shell` prefs over the `SuiteApp` registry | trivial | **Phase 1** |
 | **L2 — Present in the binary** | Choose a build that does not contain the heavy or networked apps at all. | Gradle **product flavours**: `full` and `lite`. `lite` excludes scanner, email, streaming, messaging — and therefore never declares their permissions or SDKs. | moderate: per-module `missingDimensionStrategy`, flavour-aware CI matrix | **Phase 2** |
-| **L3 — Downloaded on demand** | Install an app only when they ask for it, and uninstall it again. Size and permissions follow. | **Play Feature Delivery** dynamic-feature modules, with `SplitInstallManager` in `:shell` and an "Apps" catalogue screen showing install/uninstall state | high: Play Console, on-demand delivery, split-APK testing, and a sideload story (dynamic features do not install from a plain APK) | **Phase 5+, once 3–4 apps exist** |
+| **L3 — Downloaded on demand** | Install an app only when they ask for it, and uninstall it again. Size and permissions follow. | **Play Feature Delivery** dynamic-feature modules, with `SplitInstallManager` in `:shell` and an "Apps" catalogue screen showing install/uninstall state | high: Play Console, on-demand delivery, split-APK testing | **Phase 5+, once 3–4 apps exist** |
+
+**Distribution is both Google Play and direct APK (owner decision).** That makes L3 real *and* makes L2 mandatory rather than a fallback: a dynamic-feature split cannot be installed from a plain sideloaded APK, so the `full`/`lite` flavours must remain a supported, tested, first-class path — not a build curiosity. CI therefore builds a **matrix of flavours**, and the `lite` flavour is the one that ships as a direct APK. Practical consequences: a Play Console account (one-time fee) is needed before Phase 5; Play App Signing is required, so the existing debug-only artifact flow must gain a release signing path; and a privacy policy plus the Play data-safety form are prerequisites for the *first* networked module, not for the Play listing deadline generally.
 
 Design consequences that must be honoured from Phase 1, because retrofitting them is expensive:
 
@@ -183,7 +192,7 @@ This is also what makes the Tier C apps safe to keep: email, streaming and messa
 | `applicationId` | **`app.space.one`** | A new id means existing `app.tictic.clock` installs **do not upgrade in place** — they become a separate app. Safe right now: v1.11.2 is a *debug candidate with device QA pending*, i.e. no installed base to lose. This is the cheapest moment to rebrand; later it will cost users their data. |
 | Version | **MySpace starts at 2.0.0**; the clock feature keeps its v1.11.2 lineage in CHANGELOG | Avoids confusing "clock v1.11.2" with "suite v1.11.2" |
 | Data migration | The clock's `tictic_local_v1` SharedPreferences must be carried over | Ship an **export/import**: old app writes a JSON bundle via the document picker; MySpace imports it. Also keeps a rollback path. This must be built *before* the rebrand ships, or existing alarms/routines/usage are stranded. |
-| Widgets | 24 providers move to `:core-widgets`; provider class names change package | Launcher-placed widgets are bound to the provider's component name — **changing the package orphans every placed widget**. Mitigation: keep an `activity-alias`/compat provider at the old component name, or accept re-placement and document it. Decide in Phase 1; do not discover it at release. |
+| Widgets | **Decided: accept one-time re-placement.** 24 providers move cleanly to `:core-widgets`; no compat providers or aliases | Launcher-placed widgets bind to the provider's component name, so the package change orphans them. Accepted because there is no install base (v1.11.2 is an unreleased debug candidate) *and* the new `applicationId` already prevents in-place upgrade — so widgets would need re-placing regardless. **Must be stated in the release notes and in the export/import flow**, not discovered by users. |
 
 ---
 
@@ -202,6 +211,8 @@ The owner asked for scope of flexibility rather than a fixed toolchain decision,
 
 - **Now (Phase 0/1):** stay on AGP 7.4.2 + Gradle 7.6.4, and get CI green on the *existing* code first. A known-good baseline is worth more than a modern build.
 - **When the first Room module lands:** bump to **AGP 8.x + Gradle 8.x + JDK 17** in its own isolated PR, so a toolchain failure is never tangled with a feature failure. `compileSdk`/`targetSdk` 34 stay; `minSdk 23` is preserved.
+- **`minSdk` is raised from 23 to 26** (Android 8.0) — owner decision. Rationale: CameraX and ML Kit document scanning (needed for the doc scanner) and much of modern AndroidX assume 24+; 26 additionally guarantees notification channels and adaptive icons. The cost is device reach on Android 6/7, which is acceptable because there is no install base yet.
+  - **Known consequence, deliberately deferred:** 36 existing `SDK_INT` guards become dead code at minSdk 26 — 18× `>=26`, 13× `>=23`, 2× `>=24`, 1× `>=21`. These are *not* stripped as part of the bump, because they sit inside behaviour-sensitive paths (notification channel creation, volume-key dispatch, wallpaper colours at `>=27`, exact-alarm at `>=31`, `POST_NOTIFICATIONS` at `>=33`, full-screen intent at `>=34`). Guards at `>=27` and above remain live and must stay. Dead-guard removal is a separate, individually CI-verified cleanup after `:feature-clock` lands.
 - **Language:** Java stays the default — all 2,771 existing lines are Java, and mixing in Kotlin prematurely doubles the review surface. New modules *may* use Kotlin where a library clearly favours it (Room/KSP, CameraX), decided per module rather than globally.
 - **Dynamic features (L3, §3.4)** require a sufficiently modern AGP and Play Console setup — that is the hard floor under this flexibility, and it lands in Phase 5+.
 - Every bump is validated by CI, since there is no local build. **Nothing is merged on "it compiles for me".**
@@ -235,9 +246,10 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | No local build; CI is the only feedback loop | Slow iteration, blind refactors | Keep the Python contract suite green locally; make CI fast and run it on every push; prefer many small PRs over one big-bang refactor |
 | **CI logs cannot be downloaded from this workspace** — `results-receiver`, `pipelines` and `objects.githubusercontent.com` are all unreachable | A failing step is hard to diagnose; cycles get wasted guessing | Print diagnostics inside the workflow (see "Report toolchain"); read step *conclusions* via `gh api .../jobs`; keep each change small so failures stay attributable |
 | Phase 1 refactor silently breaks the clock | Regressing a working v1.11.2 | Move code without rewriting it; land `:feature-clock` before any new app; device QA gate before release |
-| Widget component names change package | **Every placed widget on users' home screens breaks** | Compat providers / aliases decided in Phase 1, verified on a real launcher |
+| Widget component names change package | Placed widgets are orphaned by the rebrand | **Accepted and decided**: no install base exists, and the new `applicationId` already blocks in-place upgrade, so widgets need re-placing regardless. Must be stated in the release notes and inside the export/import flow. |
 | Rebrand strands existing data | Lost alarms/routines | Export/import bundle shipped *before* the id change |
-| AndroidX + AGP upgrade cascade | Build breakage across 15+ modules | Do the AGP/JDK/AndroidX bump in Phase 1 while there are still few modules |
+| AndroidX + AGP upgrade cascade | Build breakage across 15+ modules | Bump only when a module needs it (§5.1), in its own isolated CI-verified PR |
+| Supporting **both** Play and direct-APK distribution | Two delivery paths to build, sign and test; L3 cannot be relied on alone | CI builds a flavour matrix; `lite` is the sideloadable path and is first-class, not a fallback. Play App Signing and a release signing path are added before Phase 5. |
 | Google Play policy on SMS/CALL_LOG | **Whole listing rejected**, not just the messaging module | Carrier SMS ships only inside an on-demand module that is off by default and never holds the permission unless enabled (§3.4 L3). If Play approval proves unreachable, fall back to the in-app/local messaging form and keep carrier SMS as a separate standalone app. |
 | Email/streaming licensing & OAuth compliance | Months of unplanned work, possible policy breach | Kept on the roadmap but sequenced last (Phase 6), each as an off-by-default on-demand module with its own privacy and policy review, so a failure to clear policy does not block the rest of MySpace. Budget the Cloud-project/OAuth verification and any catalogue licensing as separate workstreams. |
 | `MainActivity` is 501 dense lines with everything inline | Extraction is delicate, not mechanical | Extract screens one at a time behind the registry, CI after each |
@@ -269,12 +281,12 @@ The pre-refactor state is tagged so there is always a rollback point. Next: Phas
 
 ## 9. Open items
 
-Decided by the owner on 2026-10-18: product name **MySpace** · `applicationId` **`app.space.one`** · multi-module · AndroidX · customisable navigation · **all requested apps kept, with user control over which are present** (§3.4) · toolchain kept flexible and bumped only when a module needs it (§5.1).
+**All Phase 1 blockers are now closed.** Decided by the owner across 2026-10-18 and 2026-10-19: product name **MySpace** (`app.space.one`, "One for many") · multi-module Gradle · AndroidX · customisable navigation · all requested apps kept with three layers of user control (§3.4) · toolchain kept flexible (§5.1) · **widgets: accept one-time re-placement** · **distribution: both Google Play and direct APK** · **`minSdk` 23 → 26** · **branching: work stays on `arena/3caca636-tictic`**; `origin/myspace` is not created by this session.
 
-Still open:
+Still open, but none of these block Phase 1:
 
-1. **Widgets across the rebrand** — invest in compat providers/aliases so home-screen widgets survive the package change, or accept re-placement and document it? Must be settled in Phase 1.
-2. **Doc-scanner OCR** — accept a Play-Services/ML Kit dependency in an on-demand module, or ship crop-to-PDF only? Settled in Phase 5, but it affects the `lite` flavour definition.
-3. **`myspace` branch** — it does not exist on `origin`; the only remote branch is `origin/main`, and the session branch `arena/3caca636-tictic` points at the same commit (`26eca2f`). This session is pinned to `arena/3caca636-tictic`, so confirm how `myspace` should be created and kept in sync.
-4. **Distribution target** — Google Play (required for L3 on-demand delivery) and/or direct APK. L3 does not work from a plain sideloaded APK, so if sideloading matters the `full`/`lite` flavours (L2) must remain a supported path.
-5. **Privacy policy and Play data-safety form** — mandatory before any networked module ships, and a prerequisite for the email OAuth work.
+1. **Doc-scanner OCR** — accept a Play-Services/ML Kit dependency in an on-demand module, or ship crop-to-PDF only? Needed before Phase 5; it also affects how the `lite` flavour is defined. `minSdk 26` removes the main technical obstacle.
+2. **Per-app product specs do not exist.** Nothing in the repository specifies the calculator, notes, habits, expenses, recorder, scanner, writer or spreadsheet behaviour. These are written **just-in-time**, one short product note per app immediately before its phase — speculating on a spreadsheet editor before the shell exists would produce documents that are wrong. Only the **platform contract** (§3) needed specifying up front, and it is written.
+3. **Branding assets do not exist.** The icon is a single vector `ic_app.xml` (TicTic), with no `mipmap-*` directories and **no adaptive icon**. MySpace needs a launcher icon (with adaptive-icon support, now guaranteed available at `minSdk 26`) plus up to 13 in-suite app icons.
+4. **Play Console prerequisites** — developer account, Play App Signing, privacy policy and the data-safety form. Required before the first networked module ships, not before Phase 1.
+5. **Interim inconsistency, by design.** Until `:feature-clock` is extracted, the About screen still reads "TicTic · version …" and the 24 widget providers still live in `app.tictic.clock`. Only the launcher label and `applicationId` change now. This is intentional: keeping the Java `namespace` at `app.tictic.clock` means R references and the manifest's relative component names stay valid, so the rebrand lands as a small CI-verifiable change instead of a big-bang package rename.

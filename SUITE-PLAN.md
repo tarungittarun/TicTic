@@ -248,12 +248,11 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1b — `:core-domain` extraction** | ✅ done | [run 39369552158](https://github.com/tarungittarun/TicTic/actions/runs/39369552158), all 23 steps green. `rootProject.name = 'MySpace'`, `include ':core-domain'`, `TimeMath` → `app.space.core.domain` and `public`, two consumers re-imported, 64 contract tests |
 | **1c — `:core-design` (part 1)** | ✅ done | [run 39375464088](https://github.com/tarungittarun/TicTic/actions/runs/39375464088), all steps green, APK 546,586 B. First **Android library** module: `com.android.library`, namespace-only (no manifest), builds fine with `useAndroidX=false`. Holds `TicIconView` only. 68 contract tests |
 | **1d-1 — `:core-data` + theme primitives** | ✅ done | [run 39376190362](https://github.com/tarungittarun/TicTic/actions/runs/39376190362), all steps green, APK 547,655 B. `AppTheme` holds `themeMode`/`dark`/`ACCENT_COLORS`/`accent`; `DataStore` delegates. **73 contract tests** |
-| 1d-2 — `:core-data` generic storage | ⬜ **next** | `prefs`, `array`, `putArray`, `find`, `log` (182 + 33 + 18 + 9 + 46 refs) |
-| 1d-3 — `:core-data` formatting | ⬜ | `formatTime`, `formatDate` |
+| **1d-2 — `:core-data` generic storage** | ✅ done | [run 39387424120](https://github.com/tarungittarun/TicTic/actions/runs/39387424120), all steps green, APK 549,426 B. `AppPrefs` (`prefs`/`array`/`putArray`/`find`/`PREF`), `UsageTracker` moved whole, `AppActivityLog` (`log`). **76 contract tests** |
+| **1c-2 — `:core-design` (part 2)** | 🔨 **in progress** | All five classes use only `prefs`/`dark`/`accent`, so the rewrite is mechanical. Needs 5 classes made public, 6 consumers re-imported, 7 contract reads repointed. Split into two commits by consumer count: `GelMotion`+`AnalogClockView` (4 consumers), then `GlassPreset`+`AppSurfaceStyle`+`AppGlassDrawable` (6 consumers, and mutually referencing so they must move together) |
+| 1d-3 — `:core-data` formatting | ⬜ | `formatTime`, `formatDate` (14 + 2 refs) |
 | 1d-4 — clock domain split | ⬜ | `nextOccurrence`, `daysLabel`, `nextAlarmText`, `alarmVolumeAction`, `showRingingSnoozeAction`, both migrations → `:feature-clock`, **not** `:core-data` |
-| 1d-5 — `UsageTracker` | ⬜ | generic counters → `:core-data` or `:core-platform`; `DataStore.log` calls it, so 1d-2 and this are coupled |
-| 1d-6 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
-| **1c-2 — `:core-design` (part 2)** | ⬜ **unblocked by 1d-1** | `GlassPreset` (3 `DataStore` refs), `AppSurfaceStyle` (4), `AppGlassDrawable` (2), `GelMotion` (3), `AnalogClockView` (4) — each also needs 1d-2 for `prefs` |
+| 1d-5 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
 | 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
 | 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
 | 1g — `SuiteApp` registry + `:shell` | ⬜ | the piece that replaces the hardcoded 6-tab rail; three nav modes + reorder/pin/hide (L1) |

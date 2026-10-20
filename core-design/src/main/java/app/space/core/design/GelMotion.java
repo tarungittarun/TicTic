@@ -1,7 +1,8 @@
-package app.tictic.clock;
+package app.space.core.design;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import app.space.core.data.AppPrefs;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -24,12 +25,25 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
-/** Shared, selectable tactile feedback for clickable app surfaces. */
-final class GelMotion {
+/**
+ * Shared, selectable tactile feedback for clickable app surfaces.
+ *
+ * <p>Moved into {@code :core-design} in step 1c-2 (SUITE-PLAN.md §6.1) so every MySpace
+ * app gets the same five press styles, intensity control and Reduce-motion handling
+ * instead of each feature reinventing touch feedback. Became {@code public} for the
+ * module boundary; only {@link #apply} is used outside this module, so the style
+ * constants stay package-private.
+ *
+ * <p>Its preference reads moved from the legacy store to {@code AppPrefs}/{@code AppTheme}
+ * in {@code :core-data} — motion style and intensity are settings, and dark/accent are
+ * appearance state. Behaviour is unchanged.
+ */
+public final class GelMotion {
     static final int WATER_RIPPLE=0, GEL_SQUEEZE=1, EXPRESSIVE_SPRING=2, GLASS_WAVE=3, MAGNETIC_LIFT=4;
     private GelMotion(){}
 
-    static void apply(View root,int accent){if(root!=null)visit(root,accent);}
+    /** Attaches the user's selected press style to every pressable view in a tree. */
+    public static void apply(View root,int accent){if(root!=null)visit(root,accent);}
 
     private static void visit(View view,int accent){
         if(view.isClickable()&&isPressable(view))attach(view,accent);
@@ -43,10 +57,10 @@ final class GelMotion {
                 &&!(view instanceof ScrollView)&&!(view instanceof HorizontalScrollView);
     }
 
-    private static int motionMode(Context c){return Math.max(0,Math.min(4,DataStore.prefs(c).getInt("app_motion_style",GEL_SQUEEZE)));}
-    private static float intensity(Context c){return Math.max(0,Math.min(100,DataStore.prefs(c).getInt("app_motion_intensity",68)))/100f;}
+    private static int motionMode(Context c){return Math.max(0,Math.min(4,AppPrefs.prefs(c).getInt("app_motion_style",GEL_SQUEEZE)));}
+    private static float intensity(Context c){return Math.max(0,Math.min(100,AppPrefs.prefs(c).getInt("app_motion_intensity",68)))/100f;}
     private static boolean reducedMotion(Context c){
-        if(DataStore.prefs(c).getBoolean("app_reduce_motion",false))return true;
+        if(AppPrefs.prefs(c).getBoolean("app_reduce_motion",false))return true;
         try{if(Build.VERSION.SDK_INT>=26&&!ValueAnimator.areAnimatorsEnabled())return true;return Settings.Global.getFloat(c.getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1f)<=0f;}catch(RuntimeException ignored){return false;}
     }
     private static int rippleColor(int accent,int mode){int alpha=mode==WATER_RIPPLE?0x35:mode==EXPRESSIVE_SPRING?0x28:mode==GLASS_WAVE?0x24:0x20;return (alpha<<24)|(accent&0x00ffffff);}

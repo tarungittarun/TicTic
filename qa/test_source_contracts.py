@@ -21,6 +21,10 @@ def read_core_domain(name):
     return (CORE_DOMAIN / name).read_text(encoding="utf-8")
 
 
+def read_core_design(name):
+    return (CORE_DESIGN / name).read_text(encoding="utf-8")
+
+
 def java_code_only(text):
     """Strip Java comments so dependency and coupling contracts test code, not prose.
 
@@ -370,7 +374,7 @@ class NewFeatureContracts(unittest.TestCase):
 
     def test_home_clock_offers_digital_and_analog_style_variants(self):
         main=read("MainActivity.java")
-        analog=read("AnalogClockView.java")
+        analog=read_core_design("AnalogClockView.java")
         self.assertIn('new String[]{"Soft","Serif","Mono","Rounded","Condensed"}',main)
         self.assertIn('new String[]{"Classic markers","Minimal","Numerals","Accent ring"}',main)
         self.assertIn('"clock_digital_style"',main)
@@ -396,7 +400,7 @@ class NewFeatureContracts(unittest.TestCase):
 
 class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_gel_press_and_elastic_scroll_feedback_are_wired(self):
-        motion = read("GelMotion.java")
+        motion = read_core_design("GelMotion.java")
         scroll = read("AliveScrollView.java")
         main = read("MainActivity.java")
         self.assertIn("WATER_RIPPLE=0, GEL_SQUEEZE=1, EXPRESSIVE_SPRING=2, GLASS_WAVE=3, MAGNETIC_LIFT=4", motion)
@@ -807,18 +811,65 @@ class ModuleGraphContracts(unittest.TestCase):
         # so a list-of-lines membership test would never match.
         self.assertIn("com.android.library", gradle_file.read_text(encoding="utf-8"))
 
-    def test_core_design_holds_only_decoupled_classes(self):
-        """TicIconView moved first because it has no DataStore coupling. This fails if
-        a coupled class is moved before :core-data exists, or if a moved class keeps
-        reaching back into the legacy package."""
+    def test_core_design_uses_core_data_and_never_the_legacy_store(self):
+        """The rule changed as the extraction progressed, so the assertion did too.
+
+        Originally :core-design was required to be entirely decoupled, because
+        :core-data did not exist yet and any preference read would have had to reach
+        back into :app. Now that :core-data holds the appearance and settings state,
+        depending on it is correct and expected — what must never happen is the design
+        system reaching past it into the legacy :app store or package.
+
+        Note this checks code only (see java_code_only), so module javadoc is free to
+        name the legacy class while explaining why it is forbidden. An earlier version
+        of this suite failed on exactly that.
+        """
         sources = sorted((ROOT / "core-design/src/main/java").rglob("*.java"))
         self.assertTrue(sources, "core-design has no sources")
+        uses_core_data = False
         for path in sources:
             code = java_code_only(path.read_text(encoding="utf-8"))
             self.assertNotIn("DataStore", code,
-                             f"{path.name} touches DataStore; it belongs in :core-data's wake")
+                             f"{path.name} uses the legacy :app store; read via :core-data instead")
             self.assertNotIn("import app.tictic.clock.", code,
                              f"{path.name} imports the legacy :app package")
+            if "import app.space.core.data." in code:
+                uses_core_data = True
+        # GelMotion and AnalogClockView read settings and appearance state, so the
+        # dependency must be declared or the build breaks.
+        self.assertTrue(uses_core_data, "expected :core-design to consume :core-data")
+        self.assertIn("project(':core-data')",
+                      (ROOT / "core-design/build.gradle").read_text(encoding="utf-8"))
+
+    def test_design_system_classes_moved_into_core_design(self):
+        """Step 1c-2: GelMotion and AnalogClockView. Both became reachable across a
+        module boundary, so their public surface is pinned — a later refactor that
+        narrows it would break every consuming screen at compile time, and there is
+        no local compiler to catch that before CI."""
+        motion = read_core_design("GelMotion.java")
+        analog = read_core_design("AnalogClockView.java")
+        self.assertIn("package app.space.core.design;", motion)
+        self.assertIn("public final class GelMotion", motion)
+        self.assertIn("public static void apply(View root,int accent)", motion)
+        self.assertIn("package app.space.core.design;", analog)
+        self.assertIn("public final class AnalogClockView extends View", analog)
+        self.assertIn("public AnalogClockView(Context c,AttributeSet a)", analog)
+        for name in ("GelMotion.java", "AnalogClockView.java"):
+            self.assertFalse((JAVA / name).exists(), f"{name} must not remain in :app")
+        # The four screens that apply press styles must import across the boundary.
+        for name in ("MainActivity.java", "AlarmActivity.java",
+                     "WidgetCatalogActivity.java", "WidgetConfigActivity.java"):
+            self.assertIn("import app.space.core.design.GelMotion;", read(name), name)
+        self.assertIn("import app.space.core.design.AnalogClockView;", read("MainActivity.java"))
+        # Appearance/settings reads went to :core-data, not to a duplicated copy.
+        # Asserted per file because the two classes need different parts of it:
+        # GelMotion reads only settings, AnalogClockView also reads theme state.
+        self.assertIn("AppPrefs.prefs", motion)
+        self.assertNotIn("AppTheme", java_code_only(motion),
+                         "GelMotion reads no theme state; an AppTheme import here would be dead")
+        self.assertIn("AppPrefs.prefs", analog)
+        self.assertIn("AppTheme.dark", analog)
+        self.assertIn("AppTheme.accent", analog)
 
     def test_tic_icon_view_is_public_and_namespaced(self):
         view = (CORE_DESIGN / "TicIconView.java").read_text(encoding="utf-8")

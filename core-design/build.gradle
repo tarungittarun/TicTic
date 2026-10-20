@@ -29,7 +29,13 @@ android {
 }
 
 dependencies {
-    // Intentionally empty. No AndroidX yet: the project still builds with
-    // android.useAndroidX=false, and TicIconView needs only the framework
-    // (Canvas/Paint/Path). AndroidX arrives with the modules that require it.
+    // The design system reads appearance and settings state, so it sits on top of
+    // :core-data. This dependency is the reason the design classes could not move
+    // before step 1d: they all read theme/accent/preference values, and reaching
+    // back into :app for them would have inverted the module rule.
+    implementation project(':core-data')
+
+    // No AndroidX yet: the project still builds with android.useAndroidX=false,
+    // and these classes need only framework Canvas/Paint/Path/View APIs.
+    // AndroidX arrives with the modules that require it.
 }

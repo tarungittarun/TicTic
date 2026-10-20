@@ -15,6 +15,8 @@ import android.text.InputType;
 import android.text.format.DateFormat;
 import android.view.*;
 import android.widget.*;
+import app.space.core.design.AnalogClockView;
+import app.space.core.design.GelMotion;
 import app.space.core.data.UsageTracker;
 import app.space.core.design.TicIconView;
 import app.space.core.domain.TimeMath;

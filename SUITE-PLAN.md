@@ -99,21 +99,29 @@ The owner's direction is to **keep all three** and give the user control over wh
 :app                      → thin application module. Manifest merge target,
                             Application class, launcher Activity, app id
                             (app.space.one), icons. Holds NO feature code.
-:shell                    → the suite chrome: app registry, hub/rail/drawer,
-                            customisation (reorder/pin/hide), search, per-app
-                            settings groups, deep-link routing.
+                            The ONLY module allowed to see :shell and every
+                            :feature-*, because it assembles the registry.
+:core-suite               → the contract between an app and the chrome:
+                            SuiteApp, Screen, ScreenHost, SettingsGroup.
+                            Interfaces and value types only.
+:shell                    → implements that contract: SuiteRegistry, the three
+                            navigation modes, and the user's ordering/pinning/
+                            hiding (control layer L1). No app identity hardcoded.
 :core-design              → palette, accents (the existing 16), glass presets,
                             AppGlassDrawable, GelMotion, AppSurfaceStyle,
+                            TicIconView, AnalogClockView, Palette,
                             typography/corner/border/elevation/spacing scales,
-                            press styles, Reduce-motion. Extracted from today's
-                            :app so every feature module inherits one look.
-:core-data                → prefs access, Room database + DAOs, JSON migration
-                            from tictic_local_v1, CSV export, backup/restore.
-:core-domain              → TimeMath, scheduling helpers, occurrence rules —
-                            pure JVM, no Android imports, unit-testable.
+                            press styles, Reduce-motion.
+:core-data                → prefs access, theme/appearance, usage counters,
+                            activity history, time formatting; later the Room
+                            database, the JSON migration from tictic_local_v1,
+                            and CSV export.
+:core-domain              → pure JVM rules with no Android imports: TimeMath and
+                            NavOrder. Unit-testable, which matters because there
+                            is no emulator in this workspace.
 :core-platform            → permissions flows, exact-alarm/notification/full-screen
                             preflight, boot/time-change rescheduling, power-saver,
-                            usage tracking, foreground-service base.
+                            foreground-service base.
 :core-widgets             → the widget renderer + 24 providers + Widget Studio,
                             so any feature app can expose widgets.
 :feature-clock            → today's Clock/Alarms/Reminders/Timer/Stopwatch/
@@ -129,26 +137,38 @@ The owner's direction is to **keep all three** and give the user control over wh
 :feature-calendar         → local calendar
 ```
 
-Dependency rule: `:feature-* → :core-* → (nothing)`, `:shell → :core-*`, `:app → :shell + all :feature-*`. **Feature modules never depend on each other.** Cross-app data flows through `:core-data` interfaces only — that is what keeps "add app N" cheap instead of a refactor each time.
+Dependency rule: `:feature-* → :core-*`, `:shell → :core-*`, `:app → :shell + all :feature-*`. **Feature modules never depend on each other, and never on `:shell`.** Core modules may depend on other core modules (`:core-design → :core-data`, `:core-suite → :core-design + :core-domain`) but never upward on `:app`, `:shell` or `:feature-*`. Cross-app data flows through `:core-data` interfaces only — that is what keeps "add app N" cheap instead of a refactor each time.
+
+**Why the contract is not in `:shell`.** This corrects the original graph, which had no `:core-suite`. Features must implement `SuiteApp`, so if that interface lived in `:shell` every feature would depend on the shell — coupling each app to the navigation *implementation*. Navigation is user-customisable across hub, rail and drawer, so the shell is exactly the part that will change. Splitting the contract out means the shell's rendering can be rewritten without one app module recompiling. Both sides implement/serve `:core-suite`; only `:app` sees both. Enforced by a contract test that fails if any module other than `:app` declares `project(':shell')`.
 
 ### 3.2 The app-registry contract (the piece that makes this scale)
 
-Today's navigation is a hardcoded array inside a 501-line Activity. That is the single biggest blocker. Replace it with a declaration each module contributes:
+Today's navigation is a hardcoded array inside a 501-line Activity. That is the single biggest blocker. Replace it with a declaration each module contributes. **As built in step 1g:**
 
 ```java
-public interface SuiteApp {
-    String id();                 // stable, e.g. "clock", "calculator"
-    String label();              // "Calculator"
+// :core-suite — the contract. Interfaces only, no implementation, no preferences.
+public interface SuiteApp extends NavOrder.Entry {
+    @Override String id();       // stable, comma-free, e.g. "clock", "calculator"
+    @Override String label();    // "Calculator"
+    @Override int defaultOrder();// position before the user rearranges
     String tagline();            // one line for the hub tile
-    Drawable icon();             // vector, themed by :core-design
-    int defaultOrder();          // initial position in the hub
+    int iconGlyph();             // a TicIconView constant — drawn locally, no icon pack
     boolean supportsWidgets();   // surfaces a Widget Studio entry
-    List<SettingsGroup> settingsGroups();
-    Screen createScreen(ScreenHost host);   // the app's own nav + content
+    boolean acceptsRoute(String route);        // can this app open "timer"?
+    List<SettingsGroup> settingsGroups();      // contributes Settings categories
+    Screen createScreen(ScreenHost host, String route);
 }
 ```
 
-`:shell` discovers implementations (an explicit generated list — no reflection, keeping startup cheap and R8-friendly), renders the hub, and routes deep links like `tictic://app/calculator`. Existing widget intents that pass `tab=clock` keep working via a compatibility mapping, so **no placed widget breaks**.
+Three differences from the original sketch, each for a reason:
+
+- **`int iconGlyph()`, not `Drawable icon()`.** `TicIconView` in `:core-design` already draws a consistent bold-line icon set locally, and the product promise is no third-party art. Suite apps add glyphs there rather than each shipping vector assets.
+- **`acceptsRoute(String)` plus a `route` argument on `createScreen`.** The clock's existing widget intents already route to `alarms`, `reminders`, `timer`, `stopwatch`, `routines` and `usage`. Routes are strings rather than an enum so a new app defines its own destinations without editing the contract module.
+- **`extends NavOrder.Entry`.** Lets `:shell` pass registered apps straight into the pure ordering rules in `:core-domain`, which are unit-testable. `@Override` on the three shared members makes the compiler catch signature drift instead of silently declaring unrelated methods.
+
+`:app` — not `:shell` — assembles the explicit list of apps present in the build and hands it to `SuiteRegistry`. No reflection or classpath scanning, so startup stays cheap, R8 keeps working, and the `full`/`lite` flavours differ by *which apps are added to the list* rather than by runtime checks. `SuiteRegistry` validates ids at construction (null, empty, comma, duplicate), because a bad id would corrupt the comma-joined nav preferences and surface much later as the wrong app opening.
+
+Deep links resolve by asking the registry which app `acceptsRoute`, so the chrome never hardcodes an app's id or destination names — enforced by a contract test that fails if any app-id literal appears in `:shell`. Note this preserves *intent routing* only; placed widgets still need one-time re-placement because their provider component names change package (§4, owner decision 7).
 
 ### 3.3 Customisable navigation (per the owner's requirement)
 
@@ -252,13 +272,14 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1c-2a — `GelMotion` + `AnalogClockView`** | ✅ done | [run 39389088856](https://github.com/tarungittarun/TicTic/actions/runs/39389088856), all steps green, APK 551,203 B. First **library-to-library** dependency (`:core-design` → `:core-data`). **77 contract tests** |
 | **1c-2b — glass trio** | ✅ done | [run 39557877405](https://github.com/tarungittarun/TicTic/actions/runs/39557877405), all steps green, APK 551,668 B. `GlassPreset` + `AppSurfaceStyle` + `AppGlassDrawable`. **Design system extraction complete.** **79 contract tests** |
 | **1c/1d — `:core-design` + `:core-data`** | ✅ **complete** | `:core-design` holds all 6 design classes (icons, analog face, motion, presets, surfaces, renderer); `:core-data` holds 4 (theme, prefs, usage, activity log). `:app` is down from 37 Java files to **28** |
-| 1d-3 — `:core-data` formatting | ⬜ **next (small)** | `formatTime`, `formatDate` (14 + 2 refs) |
+| **1d-3 — `:core-data` formatting** | ✅ done | [run 39559422583](https://github.com/tarungittarun/TicTic/actions/runs/39559422583), all steps green. `AppFormat` holds `formatTime`/`formatDate`; 12 call sites untouched via the facade. **80 contract tests** |
+| **1g — `:core-suite` contract + `:shell` chrome** | ✅ done | [run 39561312731](https://github.com/tarungittarun/TicTic/actions/runs/39561312731), all steps green. 6 modules. Interfaces only, no implementations, no existing product code touched. `NavOrder` + 12 JVM unit tests in `:core-domain` (report artifact 6,159 → 7,520 B confirms they executed). **89 contract tests** |
+| **1h — `:feature-clock`** | ⬜ **next, and the delicate one** | Extract the clock as the contract's first and only implementor. Means dismantling the 501-line `MainActivity`: six tabs plus the whole settings surface are built inline. CI green after *each* screen, not at the end |
 | 1d-4 — clock domain split | ⬜ **blocked on 1h** | `nextOccurrence`, `daysLabel`, `nextAlarmText`, `alarmVolumeAction`, `showRingingSnoozeAction`, both migrations. These are `:feature-clock` territory, so they cannot move until that module exists. `nextOccurrence`/`daysLabel` are pure JVM and could go to `:core-domain`, but they encode clock recurrence rules — they belong with the clock |
 | 1d-5 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
 | 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
 | 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
-| 1g — `SuiteApp` registry + `:shell` | ⬜ | the piece that replaces the hardcoded 6-tab rail; three nav modes + reorder/pin/hide (L1) |
-| 1h — `:feature-clock` | ⬜ | extract the clock with behaviour unchanged |
+| 1g-2 — nav rendering in `:shell` | ⬜ | the hub/rail/drawer views themselves, plus the reorder/pin/hide UI. Follows 1h so there is a real app to render |
 | 1i — export/import bundle | ⬜ | must ship before the id change reaches users |
 | 1j — dead `SDK_INT` guard cleanup | ⬜ | 36 guards, deliberately deferred (§5.1) |
 

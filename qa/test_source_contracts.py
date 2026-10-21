@@ -247,7 +247,7 @@ class NewFeatureContracts(unittest.TestCase):
     def test_reminder_tab_is_adjacent_to_clock(self):
         main = read("MainActivity.java")
         self.assertIn('tabs={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"}', main)
-        self.assertIn('"reminders".equals(target))tab=1', main)
+        self.assertIn('"reminders".equals(target))showRoute("reminders")', main)
         self.assertIn('case 1:buildReminders();break;case 2:buildTimer();break;', main)
 
     def test_reminder_list_has_single_add_and_row_opens_editor(self):
@@ -1571,7 +1571,7 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn('i.putExtra("tab",route)', main)
         # The screen's ticker is stopped when its tab is left and when the Activity pauses,
         # or it would keep redrawing a detached view.
-        self.assertIn("if((settings||tab!=3)&&stopwatchScreen!=null){stopwatchScreen.onPause();"
+        self.assertIn('if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();'
                       "stopwatchScreen=null;}", main)
         self.assertIn("if(stopwatchScreen!=null)stopwatchScreen.onPause();", main)
         self.assertIn("if(stopwatchScreen!=null)stopwatchScreen.onResume();", main)
@@ -2151,3 +2151,65 @@ class ShellNavigationContracts(unittest.TestCase):
         self.assertIn("return AppPrefs.prefs(c);", self.nav)
         store = java_code_only(read("DataStore.java"))
         self.assertIn("AppPrefs.prefs", store)
+
+
+class RouteIdentityContracts(unittest.TestCase):
+    """Screens are identified by route, never by tab index.
+
+    Prerequisite for user-customisable navigation (SUITE-PLAN.md §3.3). The rail had 17
+    places comparing or assigning ``tab`` against a literal index. That is invisible today
+    because the order is fixed, but the moment a user hides or reorders a destination every
+    index shifts, and each of those comparisons silently retargets: the timer's tick
+    cadence would apply to the wrong screen, the stopwatch teardown guard would stop firing,
+    and usage time would be attributed to the wrong tab. None of those crash.
+
+    ``currentRoute``/``routeIs``/``showRoute`` replace them. ``tab`` survives only as the
+    field default and in two bounds checks.
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_no_comparison_against_a_literal_tab_index_survives(self):
+        # Only == and != against an index are the bug; >= and <= bounds checks are fine.
+        self.assertEqual(re.findall(r"tab *[!]?== *[0-9]", self.main), [])
+        # The field default and the bounds guards are the only legitimate index touches.
+        self.assertEqual(re.findall(r"tab *[=!<>]=? *[0-9]", self.main),
+                         ["tab=0", "tab>=0", "tab>=0"])
+        self.assertIn("private int tab=0;", self.main)
+
+    def test_the_three_route_helpers_are_defined_exactly_once(self):
+        for sig in ("private String currentRoute(){",
+                    "private boolean routeIs(String route){",
+                    "private void showRoute(String route){"):
+            self.assertEqual(self.main.count(sig), 1, sig)
+        # showRoute must ignore an unknown route rather than leaving tab stale or crashing:
+        # a deep link naming a route this build lacks is an ordinary outcome.
+        self.assertIn("int i=java.util.Arrays.asList(TAB_ROUTES).indexOf(route);if(i>=0)tab=i;",
+                      self.main)
+        # currentRoute falls back rather than throwing when tab is out of range.
+        self.assertIn("tab>=0&&tab<TAB_ROUTES.length?TAB_ROUTES[tab]:TAB_ROUTES[0]", self.main)
+
+    def test_the_tick_cadence_is_still_attached_to_the_right_screens(self):
+        """The stopwatch slice recorded these rates; a retargeted guard would change them."""
+        body = self.main.split("private long nextTickDelay(){")[1].split("private ")[0]
+        self.assertIn('if(routeIs("timer")&&timerRunning())', body)
+        self.assertIn('if(routeIs("clock"))return homeSecondsEnabled()?1000L:60000L;', body)
+        self.assertIn('if(routeIs("timer")||routeIs("stopwatch"))return 1000L;', body)
+        self.assertIn("if(settings)return 60000L;", body)
+
+    def test_stopwatch_teardown_and_usage_accounting_use_routes(self):
+        self.assertIn('if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null)', self.main)
+        self.assertIn('if(routeIs("clock")&&!settings)pendingClockMs+=delta;', self.main)
+        self.assertIn('if("usage".equals(TAB_ROUTES[ix])&&!routeIs("usage"))activityHistoryLimit=20;',
+                      self.main)
+
+    def test_apply_route_still_accepts_every_route_the_clock_app_declares(self):
+        body = self.main.split("private void applyRoute(Intent intent)")[1].split("private void ")[0]
+        # The route strings are the widget deep-link contract; converting the assignments to
+        # showRoute must not have dropped any of them.
+        for route in ('"alarms"', '"clock"', '"reminders"', '"timer"',
+                      '"stopwatch"', '"routines"', '"log"', '"usage"'):
+            self.assertIn(route, body)
+        self.assertEqual(len(re.findall(r'showRoute\("', body)), 6)
+        self.assertEqual(re.findall(r'tab=[0-9]', body), [])

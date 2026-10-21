@@ -1,0 +1,20 @@
+// habits app: offline, no permissions, no network, no :app coupling.
+// Dependency rule (SUITE-PLAN.md 3.1): :core-* only. Enforced by contract test.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.habits'
+    compileSdk 34
+    defaultConfig { minSdk 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(':core-suite')
+    implementation project(':core-data')
+    implementation project(':core-design')
+    testImplementation 'junit:junit:4.13.2'
+}

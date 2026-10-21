@@ -2099,7 +2099,7 @@ class ShellNavigationContracts(unittest.TestCase):
     def test_the_activity_reaches_navigation_state_through_shell(self):
         self.assertIn("import app.space.shell.NavPrefs;", self.main)
         self.assertIn("import app.space.shell.SuiteRegistry;", self.main)
-        self.assertIn("new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp))", self.main)
+        self.assertIn("registry=new SuiteRegistry(suiteApps())", self.main)
         # The registry is built from the registered app, so a second app added to the list
         # is all it takes for it to appear in navigation.
         self.assertIn("private SuiteRegistry registry(){", self.main)
@@ -2483,10 +2483,14 @@ class SecondAppIntegrationContracts(unittest.TestCase):
 
     def test_both_apps_are_registered_and_available(self):
         self.assertIn("private final SuiteApp calculatorApp=new CalculatorApp();", self.main)
-        self.assertIn("registry=new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp))",
+        # One list, read by the registry, availability and the picker, so registering an
+        # app is a single entry rather than four separate edits that can disagree.
+        self.assertIn("registry=new SuiteRegistry(suiteApps())", self.main)
+        self.assertIn("return suiteApps();", self.main)
+        self.assertIn("for(SuiteApp a:suiteApps())if(a.id().equals(id))return true;return false;",
                       self.main)
-        self.assertIn("return clockApp.id().equals(id)||calculatorApp.id().equals(id);", self.main)
-        self.assertIn("return java.util.Arrays.asList(clockApp,calculatorApp);", self.main)
+        self.assertIn("java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp)",
+                      self.main)
 
     def test_opening_another_app_goes_through_the_contract_not_a_hardcoded_branch(self):
         body = self.main.split("public boolean openApp(String id,String route){")[1].split("@Override")[0]
@@ -2516,3 +2520,117 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
                            if not l.strip().startswith("//"))
         self.assertIn("implementation project(':feature-calculator')", gradle)
+
+
+class ThreeMoreAppsContracts(unittest.TestCase):
+    """Notes, Habits and Expenses: apps three, four and five.
+
+    Registered in one slice to prove the host needs no per-app change. Each is offline, with
+    no permissions, no network and no :app coupling, and each keeps its rules in pure Java
+    so they are actually tested rather than only compiled.
+    """
+
+    APPS = (("notes", "NotesApp", "NotesRules", "NotesStore", "notes_items"),
+            ("habits", "HabitsApp", "HabitsRules", "HabitsStore", "habits_items"),
+            ("expenses", "ExpensesApp", "ExpenseRules", "ExpenseStore", "expenses_items"))
+
+    def src(self, mod, name):
+        return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
+
+    def gradle(self, mod):
+        return "\n".join(l for l in (ROOT / ("feature-%s/build.gradle" % mod)).read_text().splitlines()
+                         if not l.strip().startswith("//"))
+
+    def test_all_three_modules_are_declared_and_wired(self):
+        settings = (ROOT / "settings.gradle").read_text()
+        app_gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
+                               if not l.strip().startswith("//"))
+        for mod, _, _, _, _ in self.APPS:
+            self.assertIn("include ':feature-%s'" % mod, settings)
+            self.assertIn("implementation project(':feature-%s')" % mod, app_gradle)
+            self.assertIn("namespace 'app.space.feature.%s'" % mod, self.gradle(mod))
+
+    def test_no_new_app_may_reach_the_shell_or_another_app(self):
+        # The dependency rule (SUITE-PLAN.md 3.1). This is what lets an app be excluded
+        # from a lite flavour or not yet downloaded without anything else noticing.
+        for mod, _, _, _, _ in self.APPS:
+            g = self.gradle(mod)
+            for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+                self.assertNotIn(forbidden, g, "%s must not depend on %s" % (mod, forbidden))
+            self.assertIn("api project(':core-suite')", g)
+
+    def test_the_rules_are_pure_java_so_they_can_be_tested(self):
+        # There is no emulator here. Anything importing android.* is effectively untested,
+        # which is why streak maths, note search and money totals all live apart from the
+        # screens that render them.
+        for mod, _, rules, _, _ in self.APPS:
+            body = self.src(mod, rules)
+            for forbidden in ("import android.", "import androidx.", "Context"):
+                self.assertNotIn(forbidden, body, "%s must stay pure" % rules)
+
+    def test_each_app_has_a_jvm_test_suite(self):
+        for mod, _, rules, _, _ in self.APPS:
+            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java" % (mod, mod, rules))
+            self.assertTrue(path.exists(), "missing %s" % path)
+            self.assertIn("@Test", path.read_text())
+
+    def test_money_is_held_in_minor_units_never_doubles(self):
+        # java_code_only, not the raw file: the javadoc explains *why* doubles are avoided,
+        # so it legitimately contains the word. Grepping the whole file would make the
+        # documentation fail the assertion it exists to justify.
+        rules = java_code_only(self.src("expenses", "ExpenseRules"))
+        self.assertIn("public final long amountMinor;", rules)
+        self.assertIn("public static long total(List<Expense> expenses)", rules)
+        self.assertNotIn("double", rules)
+        self.assertNotIn("float", rules)
+        # parseAmountMinor returns null on bad input rather than 0: a typo stored as zero
+        # would silently skew every total the app reports.
+        self.assertIn("public static Long parseAmountMinor(String input)", rules)
+
+    def test_habit_streaks_are_computed_in_days_not_milliseconds(self):
+        rules = self.src("habits", "HabitsRules")
+        self.assertIn("public static long epochDay(long millis)", rules)
+        self.assertIn("Math.floorDiv(millis, MILLIS_PER_DAY)", rules)
+        # Surviving until the user has had a chance to complete today is the behaviour that
+        # stops every streak resetting at midnight.
+        self.assertIn("days.contains(todayEpochDay - 1)", rules)
+
+    def test_stored_data_uses_a_stable_key_and_survives_corruption(self):
+        # Data must outlive the module (SUITE-PLAN.md 3.4): stable keys, plain JSON, and a
+        # corrupt or absent blob reading as empty rather than crashing the screen.
+        for mod, _, _, store, key in self.APPS:
+            body = self.src(mod, store)
+            self.assertIn('KEY = "%s"' % key, body)
+            self.assertIn("AppPrefs.prefs(c)", body)
+            self.assertIn("catch (Exception e)", body)
+            self.assertIn("public static String newId()", body)
+
+    def test_every_app_is_reachable_from_the_rail(self):
+        # Registering an app is not the same as shipping it: without a switcher the three
+        # new apps would exist in the registry and be impossible to open.
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn("private void showAppPicker(){", main)
+        self.assertIn("appsSlot.setOnClickListener(v->showAppPicker());", main)
+        self.assertIn("for(final SuiteApp app:availableApps()){", main)
+        # The picker reads availableApps rather than a second hardcoded list, so a sixth app
+        # appears with no change here.
+        self.assertIn("openApp(app.id(),null)", main)
+
+    def test_all_five_apps_are_registered_once_in_one_list(self):
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn("private final SuiteApp notesApp=new NotesApp();", main)
+        self.assertIn("private final SuiteApp habitsApp=new HabitsApp();", main)
+        self.assertIn("private final SuiteApp expensesApp=new ExpensesApp();", main)
+        registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
+        self.assertIsNotNone(registry, "suiteApps() not found")
+        ids = registry.group(1).split(",")
+        self.assertEqual(len(ids), 5, ids)
+
+    def test_each_new_app_declines_routes_it_does_not_have(self):
+        for mod, app, _, _, _ in self.APPS:
+            body = java_code_only(self.src(mod, app))
+            self.assertIn("implements SuiteApp", body)
+            self.assertIn("return acceptsRoute(route) ? new ", body)
+            self.assertIn(" : null;", body)
+            self.assertIn("public static final String ID", body)
+            self.assertIn("@Override public int defaultOrder()", body)

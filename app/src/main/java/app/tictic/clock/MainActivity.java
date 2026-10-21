@@ -29,6 +29,9 @@ import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
 import app.space.feature.calculator.CalculatorApp;
+import app.space.feature.notes.NotesApp;
+import app.space.feature.habits.HabitsApp;
+import app.space.feature.expenses.ExpensesApp;
 import app.space.shell.NavPrefs;
 import app.space.shell.NavRoute;
 import app.space.shell.SuiteRegistry;
@@ -52,6 +55,13 @@ public class MainActivity extends Activity implements ScreenHost {
     private final SuiteApp clockApp=new ClockApp();
     /** The second app in the suite. Registration order is what SuiteRegistry reports. */
     private final SuiteApp calculatorApp=new CalculatorApp();
+    private final SuiteApp notesApp=new NotesApp();
+    private final SuiteApp habitsApp=new HabitsApp();
+    private final SuiteApp expensesApp=new ExpensesApp();
+    /** Every registered app, in the order the suite reports them. Adding an app is one
+     *  entry here and nothing else: availability, the registry and the picker all read it,
+     *  so no host method has to be taught about a new app individually. */
+    private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp);}
     /** Non-null while an app other than the clock owns the screen. */
     private Screen activeScreen;
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */
@@ -82,7 +92,7 @@ public class MainActivity extends Activity implements ScreenHost {
     private void showRoute(String route){List<NavRoute> v=visibleRoutes();for(int i=0;i<v.size();i++)if(v.get(i).id().equals(route)){tab=i;return;}}
     /** The suite this Activity renders navigation for. One app until the others land. */
     private SuiteRegistry registry;
-    private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp));return registry;} private final TonePreview tonePreview=new TonePreview();
+    private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(suiteApps());return registry;} private final TonePreview tonePreview=new TonePreview();
     private final java.util.ArrayList<WorldClockTile> worldTiles=new java.util.ArrayList<>(); private static class WorldClockTile { String zone; TextView time; WorldClockTile(String z,TextView t){zone=z;time=t;} } private Runnable ticker=new Runnable(){@Override public void run(){updateLive();handler.postDelayed(this,nextTickDelay());}};
     @Override public void onCreate(Bundle state){super.onCreate(state);DataStore.migrateReminderDefaults(this);DataStore.migrateRingingControls(this);UsageTracker.purgeLegacyBatterySnapshots(this);applyRoute(getIntent());recordWidgetOpen(getIntent());applyPalette();render();exactAccess=AlarmScheduler.canExact(this);root.post(()->{AlarmScheduler.rescheduleAll(this);ReminderScheduler.rescheduleAll(this);RoutineReceiver.scheduleAll(this);});}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);applyRoute(intent);recordWidgetOpen(intent);render();}
@@ -96,8 +106,8 @@ public class MainActivity extends Activity implements ScreenHost {
     @Override public Context context(){return this;}
     @Override public Palette palette(){return palette!=null?palette:Palette.resolve(DataStore.dark(this),DataStore.accent(this));}
     @Override public void invalidate(){render();}
-    @Override public boolean isAppAvailable(String id){return clockApp.id().equals(id)||calculatorApp.id().equals(id);}
-    @Override public List<SuiteApp> availableApps(){return java.util.Arrays.asList(clockApp,calculatorApp);}
+    @Override public boolean isAppAvailable(String id){for(SuiteApp a:suiteApps())if(a.id().equals(id))return true;return false;}
+    @Override public List<SuiteApp> availableApps(){return suiteApps();}
     @Override public boolean openApp(String id){return openApp(id,null);}
     /** Routes through applyRoute with a real Intent so the mapping widget intents already
      *  rely on stays the single source of truth rather than being copied here. */
@@ -193,7 +203,34 @@ public class MainActivity extends Activity implements ScreenHost {
         int screen=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);int item=76;int lead=Math.max(20,(screen-item)/2);content.addView(new View(this),new LinearLayout.LayoutParams(dp(lead),dp(54)));
         List<NavRoute> destinations=visibleRoutes();
         for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});}
+        LinearLayout appsSlot=vbox();appsSlot.setGravity(Gravity.CENTER);appsSlot.setPadding(dp(4),dp(4),dp(4),dp(3));
+            TicIconView appsIcon=new TicIconView(this,TicIconView.SETTINGS,muted);appsSlot.addView(appsIcon,lp(24,24));
+            TextView appsLabel=label("Apps",10,muted,false);appsLabel.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams anp=lp(-1,18);anp.topMargin=dp(1);appsSlot.addView(appsLabel,anp);
+            content.addView(appsSlot,lp(item,54));appsSlot.setOnClickListener(v->showAppPicker());
         content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp(tab*item),0));
+    }
+    /**
+     * The app switcher. Until NavMode.HUB is rendered this is how an app other than the
+     * clock is reached; it reads availableApps(), so a newly registered app appears here
+     * with no change to this method.
+     *
+     * <p>An app that declines the route returns false from openApp and simply stays where
+     * the user was -- a missing or hidden app is an ordinary outcome, never a crash.
+     */
+    private void showAppPicker(){
+        int style=DataStore.dark(this)?android.R.style.Theme_Material_Dialog_Alert:android.R.style.Theme_Material_Light_Dialog_Alert;
+        AppAlertBuilder builder=new AppAlertBuilder(new android.view.ContextThemeWrapper(this,style),ui());
+        LinearLayout list=vbox();list.setPadding(dp(12),dp(4),dp(12),dp(10));
+        builder.setTitle("Apps");
+        final AlertDialog[] ref=new AlertDialog[1];
+        for(final SuiteApp app:availableApps()){
+            TextView row=pillButton(app.label(),surface,text);
+            LinearLayout.LayoutParams p=lp(-1,44);p.topMargin=dp(6);list.addView(row,p);
+            row.setOnClickListener(v->{if(ref[0]!=null)ref[0].dismiss();openApp(app.id(),null);});
+        }
+        builder.setView(list);
+        ref[0]=builder.show();
     }
     private void sectionTitle(String title,String caption){ui().sectionTitle(body,title,caption);}
     private TextView pillButton(String title,int color,int ink){return ui().pillButton(title,color,ink);}

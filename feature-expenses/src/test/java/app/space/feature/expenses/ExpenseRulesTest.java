@@ -71,8 +71,9 @@ public class ExpenseRulesTest {
         assertEquals(Long.valueOf(12000), ExpenseRules.parseAmountMinor("  120  "));
         // A trailing decimal point is what a user leaves behind when they change their mind
         // mid-typing. Padding it to whole units is friendlier than refusing the entry, and
-        // it cannot misstate the amount: 12. is 12.00, not 12 cents.
-        assertEquals(Long.valueOf(12000), ExpenseRules.parseAmountMinor("12."));
+        // it cannot misstate the amount: 12. is 12.00, that is 1200 minor units.
+        assertEquals(Long.valueOf(1200), ExpenseRules.parseAmountMinor("12."));
+        assertEquals(Long.valueOf(0), ExpenseRules.parseAmountMinor("0."));
     }
 
     @Test public void refusesInputThatIsNotMoneyRatherThanStoringZero() {

@@ -2099,7 +2099,7 @@ class ShellNavigationContracts(unittest.TestCase):
     def test_the_activity_reaches_navigation_state_through_shell(self):
         self.assertIn("import app.space.shell.NavPrefs;", self.main)
         self.assertIn("import app.space.shell.SuiteRegistry;", self.main)
-        self.assertIn("new SuiteRegistry(Collections.singletonList(clockApp))", self.main)
+        self.assertIn("new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp))", self.main)
         # The registry is built from the registered app, so a second app added to the list
         # is all it takes for it to appear in navigation.
         self.assertIn("private SuiteRegistry registry(){", self.main)
@@ -2394,3 +2394,125 @@ class NavigationEditorContracts(unittest.TestCase):
         # Clearing only one would leave the user partway back to the default and unable to
         # tell which half had been reset.
         self.assertIn("routeCache=null;", reset)
+
+
+class CalculatorAppContracts(unittest.TestCase):
+    """The second app in the suite: :feature-calculator.
+
+    Deliberately the simplest of the thirteen requested apps -- offline, no permissions, no
+    network, no storage, no :app coupling. It exists to prove :core-suite carries a second
+    implementor without special cases, and to make NavMode.HUB worth building.
+    """
+
+    CALC = ROOT / "feature-calculator/src/main/java/app/space/feature/calculator"
+
+    def setUp(self):
+        self.app = java_code_only((self.CALC / "CalculatorApp.java").read_text())
+        self.rules = (self.CALC / "CalculatorRules.java").read_text()
+        self.screen = java_code_only((self.CALC / "CalculatorScreen.java").read_text())
+        self.gradle_code = "\n".join(
+            l for l in (ROOT / "feature-calculator/build.gradle").read_text().splitlines()
+            if not l.strip().startswith("//"))
+
+    def test_the_module_depends_on_core_only(self):
+        # The dependency rule (SUITE-PLAN.md 3.1). Depending on :app, :shell or another
+        # feature would make the apps unable to ship independently, which is the whole
+        # point of the L2/L3 control model.
+        for forbidden in ("project(':app')", "project(':shell')", "project(':feature-clock')"):
+            self.assertNotIn(forbidden, self.gradle_code)
+        self.assertIn("api project(':core-suite')", self.gradle_code)
+        self.assertIn("namespace 'app.space.feature.calculator'", self.gradle_code)
+        self.assertIn("include ':feature-calculator'",
+                      (ROOT / "settings.gradle").read_text())
+
+    def test_the_arithmetic_is_pure_java_so_it_can_actually_be_tested(self):
+        # There is no emulator in this project. Anything importing android.* is effectively
+        # untested, which is why the evaluator is separate from the screen.
+        for forbidden in ("import android.", "import androidx.", "Context", "View"):
+            self.assertNotIn(forbidden, self.rules)
+        self.assertIn("public static double evaluate(String expression)", self.rules)
+
+    def test_malformed_input_is_reported_not_guessed(self):
+        # A calculator that returns 0 for "3+" teaches the user nothing about the typo.
+        self.assertIn('throw new ArithmeticException("division by zero")', self.rules)
+        self.assertIn('throw new ArithmeticException("empty expression")', self.rules)
+        self.assertIn('throw new ArithmeticException("unbalanced parentheses")', self.rules)
+        self.assertIn('throw new ArithmeticException("expected a number")', self.rules)
+        self.assertIn("if (!p.atEnd()) throw new ArithmeticException", self.rules)
+
+    def test_the_keypad_translates_typographic_glyphs_before_parsing(self):
+        # The display shows divide and minus signs; the parser takes ASCII. Appending the
+        # glyph itself makes every operator key silently do nothing, because
+        # isInputCharacter rejects it -- so both halves are pinned here.
+        self.assertIn("private static char asciiForKey(String key)", self.screen)
+        self.assertIn("if (key.equals(\"\\u00f7\")) return '/';", self.screen)
+        self.assertIn("if (key.equals(\"\\u00d7\")) return '*';", self.screen)
+        self.assertIn("if (key.equals(\"\\u2212\")) return '-';", self.screen)
+        self.assertIn("char c = asciiForKey(key);", self.screen)
+        self.assertIn("if (c == 0 || !CalculatorRules.isInputCharacter(c)) return;", self.screen)
+        self.assertNotIn("char c = key.charAt(0);", self.screen)
+
+    def test_errors_are_shown_not_thrown_at_the_user(self):
+        self.assertIn("catch (ArithmeticException e)", self.screen)
+        self.assertIn('result = "Error";', self.screen)
+        self.assertIn('if (Double.isNaN(value) || Double.isInfinite(value)) return "Error";',
+                      self.rules)
+
+    def test_the_app_declares_a_stable_id_and_declines_unknown_routes(self):
+        self.assertIn('public static final String ID = "calculator";', self.app)
+        self.assertIn("public final class CalculatorApp implements SuiteApp", self.app)
+        # acceptsRoute must reject a route the app never had; a stale deep link is an
+        # ordinary outcome, and createScreen returns null rather than throwing.
+        self.assertIn('return route == null || route.isEmpty() || "basic".equals(route);', self.app)
+        self.assertIn("return acceptsRoute(route) ? new CalculatorScreen(host) : null;", self.app)
+        # The id is persisted in the user's navigation order, so it is a contract.
+        self.assertIn("TicIconView.CALCULATOR", self.app)
+
+    def test_the_glyph_was_added_to_the_icon_set(self):
+        icons = java_code_only(
+            (CORE_DESIGN / "TicIconView.java").read_text(encoding="utf-8"))
+        self.assertIn("CALCULATOR=9", icons)
+        self.assertIn("case CALCULATOR:", icons)
+
+
+class SecondAppIntegrationContracts(unittest.TestCase):
+    """Registering a second app must not special-case it anywhere in the host."""
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_both_apps_are_registered_and_available(self):
+        self.assertIn("private final SuiteApp calculatorApp=new CalculatorApp();", self.main)
+        self.assertIn("registry=new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp))",
+                      self.main)
+        self.assertIn("return clockApp.id().equals(id)||calculatorApp.id().equals(id);", self.main)
+        self.assertIn("return java.util.Arrays.asList(clockApp,calculatorApp);", self.main)
+
+    def test_opening_another_app_goes_through_the_contract_not_a_hardcoded_branch(self):
+        body = self.main.split("public boolean openApp(String id,String route){")[1].split("@Override")[0]
+        # The clock keeps its route-based deep links; anything else is resolved through the
+        # registry, so a third app needs no change here.
+        self.assertIn("SuiteApp app=registry().find(id);", body)
+        self.assertIn("Screen screen=app.createScreen(this,route);", body)
+        # A declined route returns false rather than throwing: under the control model an
+        # app being absent and an app declining a route look the same to the caller.
+        self.assertEqual(body.count("return false;"), 3)
+        self.assertIn("activeScreen=screen;settings=false;routeCache=null;render();return true;", body)
+
+    def test_a_foreign_app_replaces_the_clock_screen_and_its_rail(self):
+        # The clock's rail would otherwise stay on screen over another app's UI, and its
+        # slots would switch back mid-use.
+        self.assertIn("else if(activeScreen!=null){body.addView(activeScreen.build(this));}", self.main)
+        self.assertIn("if(!settings&&activeScreen==null)buildNav();", self.main)
+
+    def test_there_is_always_a_way_back_to_the_clock(self):
+        # The header wordmark is the escape hatch. Without it, opening the calculator would
+        # be a one-way trip with no rail left to tap.
+        self.assertIn("View.OnClickListener home=v->{activeScreen=null;showRoute(\"clock\");", self.main)
+        clock_branch = self.main.split("if(clockApp.id().equals(id)){")[1].split("}")[0]
+        self.assertIn("activeScreen=null;", clock_branch)
+
+    def test_app_module_declares_the_dependency(self):
+        gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
+                           if not l.strip().startswith("//"))
+        self.assertIn("implementation project(':feature-calculator')", gradle)

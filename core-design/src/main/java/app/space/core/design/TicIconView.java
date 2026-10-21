@@ -26,7 +26,7 @@ import android.view.View;
  * every app in the suite inherits one icon language instead of importing packs.
  */
 public final class TicIconView extends View {
-    public static final int CLOCK=0,TIMER=1,STOPWATCH=2,ROUTINE=3,ACTIVITY=4,SETTINGS=5,ALARM=6,WORLD=7,REMINDER=8;
+    public static final int CLOCK=0,TIMER=1,STOPWATCH=2,ROUTINE=3,ACTIVITY=4,SETTINGS=5,ALARM=6,WORLD=7,REMINDER=8,CALCULATOR=9;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;
     public TicIconView(Context c,int kind,int color){super(c);this.kind=kind;this.color=color;den=getResources().getDisplayMetrics().density;setContentDescription(kind==CLOCK?"Clock":kind==TIMER?"Timer":kind==STOPWATCH?"Stopwatch":kind==ROUTINE?"Routines":kind==ACTIVITY?"Usage":kind==SETTINGS?"Settings":kind==ALARM?"Alarm":kind==REMINDER?"Reminders":"World time");}
     private float d(float x){return x*den;}
@@ -39,6 +39,7 @@ public final class TicIconView extends View {
             case ROUTINE: Path star=new Path();star.moveTo(12,2);star.lineTo(14.2f,9.2f);star.lineTo(21,12);star.lineTo(14.2f,14.1f);star.lineTo(12,22);star.lineTo(9.8f,14.1f);star.lineTo(3,12);star.lineTo(9.8f,9.2f);star.close();c.drawPath(star,p);c.drawCircle(19.5f,4.5f,1.4f,p);break;
             case ACTIVITY: stroke(1.11f);c.drawLine(4,20,4,5,p);c.drawLine(4,20,21,20,p);c.drawRoundRect(7,14,9.8f,19,1.2f,1.2f,p);c.drawRoundRect(11.1f,10,13.9f,19,1.2f,1.2f,p);c.drawRoundRect(15.2f,6,18,19,1.2f,1.2f,p);Path trend=new Path();trend.moveTo(6.2f,12.1f);trend.lineTo(10.2f,9.1f);trend.lineTo(13.8f,11f);trend.lineTo(19,5.2f);c.drawPath(trend,p);c.drawLine(16.2f,5.2f,19,5.2f,p);c.drawLine(19,5.2f,19,8,p);p.setStyle(Paint.Style.FILL);c.drawCircle(10.2f,9.1f,1.1f,p);c.drawCircle(13.8f,11f,1.1f,p);p.setStyle(Paint.Style.STROKE);break;
             case SETTINGS: c.drawCircle(12,12,7.1f,p);c.drawCircle(12,12,2.8f,p);for(int i=0;i<8;i++){double a=Math.PI*i/4;float x=(float)Math.cos(a),y=(float)Math.sin(a);c.drawLine(12+x*8.2f,12+y*8.2f,12+x*10.3f,12+y*10.3f,p);}break;
+            case CALCULATOR: c.drawRoundRect(5,3,19,21,2,2,p);c.drawLine(7.5f,7.6f,16.5f,7.6f,p);c.drawCircle(9,12,1.05f,p);c.drawCircle(12,12,1.05f,p);c.drawCircle(15,12,1.05f,p);c.drawCircle(9,16.2f,1.05f,p);c.drawCircle(12,16.2f,1.05f,p);c.drawCircle(15,16.2f,1.05f,p);break;
             case WORLD: c.drawCircle(12,12,9,p);c.drawOval(8,3,16,21,p);c.drawLine(3,12,21,12,p);c.drawArc(4,6,20,18,0,180,false,p);c.drawArc(4,6,20,18,180,180,false,p);break;
             case REMINDER: Path bell=new Path();bell.moveTo(5,17);bell.lineTo(7,15);bell.lineTo(7,10);c.drawArc(7,4,17,16,180,180,false,p);bell.lineTo(17,15);bell.lineTo(19,17);bell.close();c.drawPath(bell,p);c.drawLine(9,17,15,17,p);c.drawArc(9,16,15,21,0,180,false,p);break;
             default: c.drawCircle(12,12,8,p);

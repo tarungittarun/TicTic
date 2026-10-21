@@ -52,3 +52,7 @@ include ':core-platform'
 //   one-line delegates, so its ~140 call sites are untouched.
 //   Every later app is a sibling: :feature-calculator, :feature-notes, ...
 include ':feature-clock'
+
+// The calculator: the second app, and the proof that :core-suite carries more than one
+// implementor without special cases. Offline, no permissions, no :app coupling.
+include ':feature-calculator'

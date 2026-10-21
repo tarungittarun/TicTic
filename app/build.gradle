@@ -54,6 +54,7 @@ dependencies {
     // :shell and the :feature-* modules — it is where the suite is assembled.
     implementation project(':core-platform')
     implementation project(':feature-clock')
+    implementation project(':feature-calculator')
 
     // Test-only jars are vendored so the JVM regression suite runs even in offline/TLS-restricted builds.
     testImplementation files('libs/junit-4.13.2.jar', 'libs/hamcrest-core-1.3.jar')

@@ -1,0 +1,34 @@
+// The calculator app: the second app in the suite, and the simplest of the thirteen
+// the owner asked for. Fully offline, no permissions, no network, no :app coupling --
+// which is why it goes first. It also makes NavMode.HUB worth building: with one
+// registered app a hub is a single tile.
+//
+// Dependency rule (SUITE-PLAN.md 3.1): :core-* only. Never :app, :shell or another
+// :feature-*. Enforced by contract test.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.calculator'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(':core-suite')
+
+    implementation project(':core-data')
+    implementation project(':core-design')
+
+    // The arithmetic is pure Java and runs on the JVM, so it is tested for real rather
+    // than only compiled. That is the whole reason the evaluator is separate from the
+    // screen: a keypad is hard to test here, a parser is not.
+    testImplementation 'junit:junit:4.13.2'
+}

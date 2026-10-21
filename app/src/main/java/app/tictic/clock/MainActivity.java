@@ -26,7 +26,9 @@ import app.space.core.design.Palette;
 import app.space.core.design.AppAlertBuilder;
 import app.space.core.design.DialogFit;
 import app.space.core.design.UiKit;
+import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
+import app.space.feature.calculator.CalculatorApp;
 import app.space.shell.NavPrefs;
 import app.space.shell.NavRoute;
 import app.space.shell.SuiteRegistry;
@@ -48,6 +50,10 @@ public class MainActivity extends Activity implements ScreenHost {
     private long usageLastTick,pendingUsageMs,pendingClockMs; private boolean usageResumed; private int activityRangeDays=7; private int activityHistoryLimit=20; private boolean powerReceiverRegistered; private final BroadcastReceiver powerModeReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){WidgetEngine.refreshForPowerSaverChange(context);handler.removeCallbacks(ticker);updateLive();handler.post(ticker);}}; private int accent, bg, surface, text, muted, border; private UiKit ui; private Palette palette;
     /** The suite this Activity hosts. One entry until the other apps land. */
     private final SuiteApp clockApp=new ClockApp();
+    /** The second app in the suite. Registration order is what SuiteRegistry reports. */
+    private final SuiteApp calculatorApp=new CalculatorApp();
+    /** Non-null while an app other than the clock owns the screen. */
+    private Screen activeScreen;
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */
     private StopwatchScreen stopwatchScreen;
     /** Lazily built so the primitives are usable before applyPalette() has run. */
@@ -76,7 +82,7 @@ public class MainActivity extends Activity implements ScreenHost {
     private void showRoute(String route){List<NavRoute> v=visibleRoutes();for(int i=0;i<v.size();i++)if(v.get(i).id().equals(route)){tab=i;return;}}
     /** The suite this Activity renders navigation for. One app until the others land. */
     private SuiteRegistry registry;
-    private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(Collections.singletonList(clockApp));return registry;} private final TonePreview tonePreview=new TonePreview();
+    private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(java.util.Arrays.asList(clockApp,calculatorApp));return registry;} private final TonePreview tonePreview=new TonePreview();
     private final java.util.ArrayList<WorldClockTile> worldTiles=new java.util.ArrayList<>(); private static class WorldClockTile { String zone; TextView time; WorldClockTile(String z,TextView t){zone=z;time=t;} } private Runnable ticker=new Runnable(){@Override public void run(){updateLive();handler.postDelayed(this,nextTickDelay());}};
     @Override public void onCreate(Bundle state){super.onCreate(state);DataStore.migrateReminderDefaults(this);DataStore.migrateRingingControls(this);UsageTracker.purgeLegacyBatterySnapshots(this);applyRoute(getIntent());recordWidgetOpen(getIntent());applyPalette();render();exactAccess=AlarmScheduler.canExact(this);root.post(()->{AlarmScheduler.rescheduleAll(this);ReminderScheduler.rescheduleAll(this);RoutineReceiver.scheduleAll(this);});}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);applyRoute(intent);recordWidgetOpen(intent);render();}
@@ -90,16 +96,26 @@ public class MainActivity extends Activity implements ScreenHost {
     @Override public Context context(){return this;}
     @Override public Palette palette(){return palette!=null?palette:Palette.resolve(DataStore.dark(this),DataStore.accent(this));}
     @Override public void invalidate(){render();}
-    @Override public boolean isAppAvailable(String id){return clockApp.id().equals(id);}
-    @Override public List<SuiteApp> availableApps(){return Collections.singletonList(clockApp);}
+    @Override public boolean isAppAvailable(String id){return clockApp.id().equals(id)||calculatorApp.id().equals(id);}
+    @Override public List<SuiteApp> availableApps(){return java.util.Arrays.asList(clockApp,calculatorApp);}
     @Override public boolean openApp(String id){return openApp(id,null);}
     /** Routes through applyRoute with a real Intent so the mapping widget intents already
      *  rely on stays the single source of truth rather than being copied here. */
     @Override public boolean openApp(String id,String route){
         if(!isAppAvailable(id))return false;
-        Intent i=new Intent(this,MainActivity.class);
-        if(route!=null)i.putExtra("tab",route);
-        applyRoute(i);settings=false;render();return true;
+        if(clockApp.id().equals(id)){
+            activeScreen=null;
+            Intent i=new Intent(this,MainActivity.class);
+            if(route!=null)i.putExtra("tab",route);
+            applyRoute(i);settings=false;render();return true;
+        }
+        SuiteApp app=registry().find(id);
+        if(app==null)return false;
+        Screen screen=app.createScreen(this,route);
+        // A null screen means the app declined the route, which is an ordinary outcome
+        // under the control model, not an error to throw at the caller.
+        if(screen==null)return false;
+        activeScreen=screen;settings=false;routeCache=null;render();return true;
     }
     @Override public void openSettings(){openSettingsPage();}
     /** Group ids are not mapped until the settings surface moves in step 1h-v. */
@@ -135,9 +151,9 @@ public class MainActivity extends Activity implements ScreenHost {
         // First use of :shell from :app. Navigation state is remembered here rather than
         // in each tab's click handler, so every path that changes the visible screen --
         // rail taps, widget deep links, settings exits -- is covered by one line.
-        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("TicTic",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{showRoute("clock");settings=false;render();};brand.setContentDescription("TicTic Clock home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());
-        ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
-        if(!settings)buildNav();GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
+        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("TicTic",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{activeScreen=null;showRoute("clock");settings=false;render();};brand.setContentDescription("TicTic Clock home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());
+        ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else if(activeScreen!=null){body.addView(activeScreen.build(this));}else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
+        if(!settings&&activeScreen==null)buildNav();GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
     private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;render();}
     private void renderSettingsPage(){

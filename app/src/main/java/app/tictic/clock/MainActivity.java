@@ -28,6 +28,7 @@ import app.space.core.design.DialogFit;
 import app.space.core.design.UiKit;
 import app.space.core.suite.ScreenHost;
 import app.space.shell.NavPrefs;
+import app.space.shell.NavRoute;
 import app.space.shell.SuiteRegistry;
 import app.space.core.suite.SuiteApp;
 import app.space.feature.clock.ClockApp;
@@ -50,16 +51,29 @@ public class MainActivity extends Activity implements ScreenHost {
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */
     private StopwatchScreen stopwatchScreen;
     /** Lazily built so the primitives are usable before applyPalette() has run. */
-    private UiKit ui(){if(ui==null)ui=new UiKit(this,Palette.resolve(DataStore.dark(this),DataStore.accent(this)));return ui;} private final String[] tabs={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"};
+    private UiKit ui(){if(ui==null)ui=new UiKit(this,Palette.resolve(DataStore.dark(this),DataStore.accent(this)));return ui;}
     /** Tab index to the clock's route name, so navigation state is stored as routes.
      *  Routes are the stable identity; tab positions are not (SUITE-PLAN.md 3.3). */
     private static final String[] TAB_ROUTES={"clock","reminders","timer","stopwatch","routines","usage"};
+    /** Labels and glyphs parallel TAB_ROUTES and are used only to build NavRoute entries;
+     *  every runtime decision goes by route id, never by position. */
+    private static final String[] TAB_LABELS={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"};
+    private static final int[] TAB_GLYPHS={TicIconView.CLOCK,TicIconView.REMINDER,TicIconView.TIMER,TicIconView.STOPWATCH,TicIconView.ROUTINE,TicIconView.ACTIVITY};
+    /** Cached because currentRoute() runs on the stopwatch ticker at up to 16 ms, and
+     *  rebuilding it from SharedPreferences on every tick would be visible as jank.
+     *  Cleared in render(), which every navigation or preference change goes through. */
+    private List<NavRoute> routeCache;
+    private static List<NavRoute> allRoutes(){List<NavRoute> out=new java.util.ArrayList<>();for(int i=0;i<TAB_ROUTES.length;i++)out.add(new NavRoute(TAB_ROUTES[i],TAB_LABELS[i],i));return out;}
+    /** The destinations the user has not hidden, in the order the user arranged them. */
+    private List<NavRoute> visibleRoutes(){if(routeCache==null)routeCache=NavPrefs.visibleRoutes(this,clockApp.id(),allRoutes());return routeCache;}
+    private static String labelFor(String route){for(int i=0;i<TAB_ROUTES.length;i++)if(TAB_ROUTES[i].equals(route))return TAB_LABELS[i];return route;}
+    private static int glyphFor(String route){for(int i=0;i<TAB_ROUTES.length;i++)if(TAB_ROUTES[i].equals(route))return TAB_GLYPHS[i];return TicIconView.CLOCK;}
     /** The route of the visible screen. Screen identity is the route, never the tab index:
      *  once the user can reorder or hide destinations an index stops meaning the same
      *  screen, and every comparison against one would silently retarget (SUITE-PLAN.md 3.3). */
-    private String currentRoute(){return tab>=0&&tab<TAB_ROUTES.length?TAB_ROUTES[tab]:TAB_ROUTES[0];}
+    private String currentRoute(){List<NavRoute> v=visibleRoutes();if(v.isEmpty())return TAB_ROUTES[0];return tab>=0&&tab<v.size()?v.get(tab).id():v.get(0).id();}
     private boolean routeIs(String route){return route.equals(currentRoute());}
-    private void showRoute(String route){int i=java.util.Arrays.asList(TAB_ROUTES).indexOf(route);if(i>=0)tab=i;}
+    private void showRoute(String route){List<NavRoute> v=visibleRoutes();for(int i=0;i<v.size();i++)if(v.get(i).id().equals(route)){tab=i;return;}}
     /** The suite this Activity renders navigation for. One app until the others land. */
     private SuiteRegistry registry;
     private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(Collections.singletonList(clockApp));return registry;} private final TonePreview tonePreview=new TonePreview();
@@ -117,11 +131,12 @@ public class MainActivity extends Activity implements ScreenHost {
     private LinearLayout card(){return ui().card();}
     private LinearLayout.LayoutParams lp(int w,int h){return ui().lp(w,h);}
     private void render(){
+        routeCache=null;
         // First use of :shell from :app. Navigation state is remembered here rather than
         // in each tab's click handler, so every path that changes the visible screen --
         // rail taps, widget deep links, settings exits -- is covered by one line.
-        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("TicTic",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{showRoute("clock");settings=false;render();};brand.setContentDescription("TicTic Clock home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(!routeIs("clock")){TextView sub=label(tabs[tab].toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());
-        ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else switch(tab){case 0:buildClock();break;case 1:buildReminders();break;case 2:buildTimer();break;case 3:buildStopwatch();break;case 4:buildRoutines();break;default:buildActivity();}
+        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("TicTic",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{showRoute("clock");settings=false;render();};brand.setContentDescription("TicTic Clock home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());
+        ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
         if(!settings)buildNav();GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
     private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;render();}
@@ -160,8 +175,8 @@ public class MainActivity extends Activity implements ScreenHost {
         HorizontalScrollView rail=new HorizontalScrollView(this);rail.setHorizontalScrollBarEnabled(false);rail.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout content=hbox();rail.addView(content,new HorizontalScrollView.LayoutParams(-2,-1));
         int screen=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);int item=76;int lead=Math.max(20,(screen-item)/2);content.addView(new View(this),new LinearLayout.LayoutParams(dp(lead),dp(54)));
-        String[] names={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"};int[] glyph={TicIconView.CLOCK,TicIconView.REMINDER,TicIconView.TIMER,TicIconView.STOPWATCH,TicIconView.ROUTINE,TicIconView.ACTIVITY};
-        for(int i=0;i<names.length;i++){final int ix=i;LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(i==tab?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyph[i],i==tab?Color.WHITE:(i==4?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(names[i],10,i==tab?Color.WHITE:muted,i==tab);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(TAB_ROUTES[ix])&&!routeIs("usage"))activityHistoryLimit=20;tab=ix;settings=false;render();});}
+        List<NavRoute> rail=visibleRoutes();
+        for(int i=0;i<rail.size();i++){final NavRoute route=rail.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});}
         content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp(tab*item),0));
     }
     private void sectionTitle(String title,String caption){ui().sectionTitle(body,title,caption);}

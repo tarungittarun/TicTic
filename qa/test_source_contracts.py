@@ -246,9 +246,12 @@ class NewFeatureContracts(unittest.TestCase):
 
     def test_reminder_tab_is_adjacent_to_clock(self):
         main = read("MainActivity.java")
-        self.assertIn('tabs={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"}', main)
+        self.assertIn('TAB_LABELS={"Clock","Reminders","Timer","Stopwatch","Routines","Usage"}', main)
         self.assertIn('"reminders".equals(target))showRoute("reminders")', main)
-        self.assertIn('case 1:buildReminders();break;case 2:buildTimer();break;', main)
+        # Dispatch moved from switch(tab) to route comparisons in step 1g-2c, so adjacency
+        # is now expressed by the route table rather than by case numbers.
+        self.assertIn('"reminders".equals(route))buildReminders();', main)
+        self.assertIn('"timer".equals(route))buildTimer();', main)
 
     def test_reminder_list_has_single_add_and_row_opens_editor(self):
         main = read("MainActivity.java")
@@ -2183,12 +2186,16 @@ class RouteIdentityContracts(unittest.TestCase):
                     "private boolean routeIs(String route){",
                     "private void showRoute(String route){"):
             self.assertEqual(self.main.count(sig), 1, sig)
-        # showRoute must ignore an unknown route rather than leaving tab stale or crashing:
-        # a deep link naming a route this build lacks is an ordinary outcome.
-        self.assertIn("int i=java.util.Arrays.asList(TAB_ROUTES).indexOf(route);if(i>=0)tab=i;",
-                      self.main)
-        # currentRoute falls back rather than throwing when tab is out of range.
-        self.assertIn("tab>=0&&tab<TAB_ROUTES.length?TAB_ROUTES[tab]:TAB_ROUTES[0]", self.main)
+        # Both must resolve against the VISIBLE list, not the full table: once a
+        # destination can be hidden, tab is an index into what the user can see, so
+        # consulting TAB_ROUTES would select the wrong screen.
+        cr = self.main.split("private String currentRoute(){")[1].split("}")[0]
+        self.assertIn("visibleRoutes()", cr)
+        sr = self.main.split("private void showRoute(String route){")[1].split("}return;")[0]
+        self.assertIn("visibleRoutes()", sr)
+        # An unknown route leaves tab untouched rather than crashing; a deep link naming a
+        # destination this build lacks -- or the user has hidden -- is an ordinary outcome.
+        self.assertIn('if(v.get(i).id().equals(route)){tab=i;return;}', self.main)
 
     def test_the_tick_cadence_is_still_attached_to_the_right_screens(self):
         """The stopwatch slice recorded these rates; a retargeted guard would change them."""
@@ -2201,7 +2208,7 @@ class RouteIdentityContracts(unittest.TestCase):
     def test_stopwatch_teardown_and_usage_accounting_use_routes(self):
         self.assertIn('if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null)', self.main)
         self.assertIn('if(routeIs("clock")&&!settings)pendingClockMs+=delta;', self.main)
-        self.assertIn('if("usage".equals(TAB_ROUTES[ix])&&!routeIs("usage"))activityHistoryLimit=20;',
+        self.assertIn('if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;',
                       self.main)
 
     def test_apply_route_still_accepts_every_route_the_clock_app_declares(self):
@@ -2213,3 +2220,88 @@ class RouteIdentityContracts(unittest.TestCase):
             self.assertIn(route, body)
         self.assertEqual(len(re.findall(r'showRoute\("', body)), 6)
         self.assertEqual(re.findall(r'tab=[0-9]', body), [])
+
+
+class CustomisableNavigationContracts(unittest.TestCase):
+    """The rail is data-driven, so hiding a destination cannot break anything else.
+
+    Step 1g-2c. The owner's requirement is that navigation be customisable (§3.3). Before
+    this the rail built six fixed slots from three parallel arrays and dispatched screens
+    with ``switch(tab)``, so a hidden or reordered destination would have shifted every
+    index and built the wrong screen — with no crash to point at it.
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+        self.nav = java_code_only((SHELL / "NavPrefs.java").read_text())
+        self.route = java_code_only((SHELL / "NavRoute.java").read_text())
+
+    def test_the_rail_renders_what_the_user_can_see_not_a_fixed_six(self):
+        self.assertIn("List<NavRoute> rail=visibleRoutes();", self.main)
+        self.assertIn("for(int i=0;i<rail.size();i++){", self.main)
+        # The fixed arrays are gone; a second list of destinations would drift from the
+        # first and the rail would show slots that dispatch somewhere else.
+        self.assertNotIn('String[] names={"Clock"', self.main)
+        self.assertNotIn("private final String[] tabs=", self.main)
+        self.assertNotIn("names.length", self.main.split("buildNav")[1] if "buildNav" in self.main else "")
+
+    def test_the_selected_slot_and_its_accent_are_chosen_by_route_not_position(self):
+        # i==4 used to mean "Routines" purely by position. After a reorder it would have
+        # highlighted whatever sat fourth.
+        self.assertNotIn("i==4?accent", self.main)
+        self.assertIn('on?Color.WHITE:("routines".equals(route.id())?accent:muted)', self.main)
+        self.assertIn("final boolean on=route.id().equals(currentRoute());", self.main)
+        self.assertIn("slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));", self.main)
+
+    def test_screen_dispatch_is_route_based(self):
+        self.assertNotIn("switch(tab)", self.main)
+        body = self.main.split("else{String route=currentRoute();")[1].split("buildNav()")[0]
+        for route, builder in (("reminders", "buildReminders()"), ("timer", "buildTimer()"),
+                               ("stopwatch", "buildStopwatch()"), ("routines", "buildRoutines()"),
+                               ("usage", "buildActivity()")):
+            self.assertIn('"%s".equals(route))%s' % (route, builder), body.replace("else if(", "").replace("if(", ""))
+        # Unrecognised route falls back to the clock rather than to buildActivity, which is
+        # what the old index-default did; falling through to usage would be a visible jump.
+        self.assertIn("else buildClock();}", body)
+
+    def test_the_route_cache_is_cleared_on_every_render(self):
+        # currentRoute() runs on the stopwatch ticker at up to 16 ms. Reading
+        # SharedPreferences each time would be visible as jank, so the list is cached --
+        # and a stale cache would keep showing a destination the user just hid.
+        self.assertIn("private List<NavRoute> routeCache;", self.main)
+        render = self.main.split("private void render(){")[1][:200]
+        self.assertIn("routeCache=null;", render)
+        self.assertIn("if(routeCache==null)routeCache=NavPrefs.visibleRoutes(this,clockApp.id(),allRoutes());",
+                      self.main)
+
+    def test_route_ordering_reuses_the_tested_core_domain_resolver(self):
+        # A second ordering rule for routes would be untestable in an Android module, and
+        # an ordering bug shows up as a destination that never appears.
+        self.assertIn("public final class NavRoute implements NavOrder.Entry", self.route)
+        self.assertIn("NavOrder.resolve(", self.nav)
+        self.assertIn("NavOrder.parse(", self.nav)
+        self.assertEqual(self.nav.count("NavOrder.resolve("), 3)
+
+    def test_route_preferences_are_namespaced_per_app(self):
+        # Two apps may each declare a destination called "settings"; without the app id in
+        # the key, hiding one would hide both.
+        self.assertIn('KEY_ROUTE_ORDER = "nav_route_order_"', self.nav)
+        self.assertIn('KEY_ROUTE_HIDDEN = "nav_route_hidden_"', self.nav)
+        self.assertIn("KEY_ROUTE_HIDDEN + appId", self.nav)
+        self.assertIn("KEY_ROUTE_ORDER + appId", self.nav)
+
+    def test_a_route_id_containing_a_comma_is_rejected_at_construction(self):
+        # Ids are comma-joined when persisted. A comma would corrupt the stored order and
+        # surface much later as a wrong destination opening -- the same reasoning
+        # SuiteRegistry applies to app ids.
+        self.assertIn('if (id.indexOf(\',\') >= 0)', self.route)
+        self.assertIn('"NavRoute id must not contain a comma: "', self.route)
+        self.assertIn('"NavRoute requires an id"', self.route)
+
+    def test_hiding_all_destinations_cannot_crash(self):
+        # visibleRoutes may legitimately come back empty if a user hides everything, or if
+        # an app declares no destinations. currentRoute must fall back, not index -1.
+        self.assertIn("if(v.isEmpty())return TAB_ROUTES[0];", self.main)
+        self.assertIn("return tab>=0&&tab<v.size()?v.get(tab).id():v.get(0).id();", self.main)
+        self.assertIn("if (all == null || all.isEmpty()) return java.util.Collections.emptyList();",
+                      self.nav)

@@ -38,6 +38,10 @@ public final class NavPrefs {
     static final String KEY_ORDER = "nav_order";
     static final String KEY_HIDDEN = "nav_hidden";
     static final String KEY_OPEN_LAST = "nav_open_last";
+    // Route-level keys are namespaced per app, so two apps may each have a destination
+    // called "settings" without their arrangements colliding.
+    static final String KEY_ROUTE_ORDER = "nav_route_order_";
+    static final String KEY_ROUTE_HIDDEN = "nav_route_hidden_";
     static final String KEY_LAST_APP = "nav_last_app";
 
     private NavPrefs() {}
@@ -120,5 +124,46 @@ public final class NavPrefs {
 
     public static void setLastApp(Context c, String id) {
         prefs(c).edit().putString(KEY_LAST_APP, id == null ? "" : id).apply();
+    }
+
+    // ---- destinations inside one app ------------------------------------------
+
+    /**
+     * The destinations of one app that the user can currently reach, in the user's order.
+     *
+     * <p>Hidden routes are removed first, then {@link NavOrder#resolve} applies the stored
+     * order — the same rule used for apps, so a route added in a later release appears in
+     * its declared position rather than at the end, and a route the user hid stays hidden
+     * even after an unrelated reorder.
+     *
+     * <p>{@code all} is supplied by the caller rather than read from the registry, because
+     * an app owns its own destinations; the shell must not know what they are.
+     */
+    public static List<NavRoute> visibleRoutes(Context c, String appId, List<NavRoute> all) {
+        if (all == null || all.isEmpty()) return java.util.Collections.emptyList();
+        Set<String> hidden = NavOrder.parse(prefs(c).getString(KEY_ROUTE_HIDDEN + appId, ""));
+        List<NavRoute> kept = new java.util.ArrayList<>(all.size());
+        for (NavRoute r : all) {
+            if (r != null && !hidden.contains(r.id())) kept.add(r);
+        }
+        return NavOrder.resolve(NavOrder.parse(prefs(c).getString(KEY_ROUTE_ORDER + appId, "")), kept);
+    }
+
+    public static Set<String> hiddenRoutes(Context c, String appId) {
+        return NavOrder.parse(prefs(c).getString(KEY_ROUTE_HIDDEN + appId, ""));
+    }
+
+    public static void setHiddenRoutes(Context c, String appId, Set<String> ids) {
+        prefs(c).edit().putString(KEY_ROUTE_HIDDEN + appId, NavOrder.join(ids)).apply();
+    }
+
+    /** Every destination the app declares, in the user's order, including hidden ones. */
+    public static List<NavRoute> orderedRoutes(Context c, String appId, List<NavRoute> all) {
+        if (all == null || all.isEmpty()) return java.util.Collections.emptyList();
+        return NavOrder.resolve(NavOrder.parse(prefs(c).getString(KEY_ROUTE_ORDER + appId, "")), all);
+    }
+
+    public static void saveRouteOrder(Context c, String appId, List<String> ids) {
+        prefs(c).edit().putString(KEY_ROUTE_ORDER + appId, NavOrder.join(ids)).apply();
     }
 }

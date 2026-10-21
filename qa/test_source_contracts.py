@@ -355,10 +355,14 @@ class NewFeatureContracts(unittest.TestCase):
 
     def test_app_dialogs_share_close_control_rounded_surface_and_outside_dismiss(self):
         main = read("MainActivity.java")
-        self.assertIn("private final class TicAlertBuilder", main)
-        self.assertIn('close.setContentDescription("Close dialog")', main)
-        self.assertIn("dialog.setCanceledOnTouchOutside(true)", main)
-        self.assertIn("window.setBackgroundDrawable(panel)", main)
+        # The shared alert dialog moved to :core-design (step 1h-iv.3); these four
+        # assertions follow it. The two "Close ..." dialogs below are separate,
+        # hand-built dialogs that stayed in MainActivity.
+        builder = read_core_design("AppAlertBuilder.java")
+        self.assertIn("public final class AppAlertBuilder extends AlertDialog.Builder", builder)
+        self.assertIn('close.setContentDescription("Close dialog")', builder)
+        self.assertIn("dialog.setCanceledOnTouchOutside(true)", builder)
+        self.assertIn("window.setBackgroundDrawable(panel)", builder)
         self.assertIn('close.setContentDescription("Close time picker")', main)
         self.assertIn('close.setContentDescription("Close alarm editor")', main)
         studio = read("WidgetConfigActivity.java")
@@ -1874,3 +1878,102 @@ class ModuleGraphContracts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DialogSystemContracts(unittest.TestCase):
+    """The themed alert dialog is design-system code, and 22 call sites depend on it.
+
+    Step 1h-iv.3 moved MainActivity's private inner class ``TicAlertBuilder`` into
+    :core-design as ``AppAlertBuilder``, with its two window-fitting helpers following as
+    ``DialogFit``. It was the largest single blocker to extracting screens: a private inner
+    class of the Activity cannot be reached from a feature module, and four of the five
+    remaining clock screens open an editor dialog.
+    """
+
+    def test_the_dialog_builder_lives_in_core_design_and_nowhere_else(self):
+        builder = (CORE_DESIGN / "AppAlertBuilder.java").read_text()
+        self.assertIn("package app.space.core.design;", builder)
+        self.assertIn("public final class AppAlertBuilder extends AlertDialog.Builder", builder)
+        self.assertIn("public AppAlertBuilder(Context context, UiKit ui)", builder)
+        # The old private inner class must not survive anywhere: two themed alert dialogs
+        # would drift apart, and only one would keep the close button and rounded panel.
+        main = read("MainActivity.java")
+        self.assertNotIn("TicAlertBuilder", main)
+        self.assertNotIn("class TicAlertBuilder", builder)
+
+    def test_alert_builder_still_themes_from_the_palette_not_hardcoded_colours(self):
+        builder = java_code_only((CORE_DESIGN / "AppAlertBuilder.java").read_text())
+        # Heading and close glyph must come from the resolved palette. Hardcoding them here
+        # would make every dialog ignore an accent or dark-mode change.
+        self.assertIn("ui.label(title.toString(), 18, p.text, true)", builder)
+        self.assertIn("ui.label(\"\\u00d7\", 27, p.muted, true)", builder)
+        self.assertIn("ui.shape(p.surface, 24)", builder)
+        self.assertIn("setStroke(ui.dp(1), p.border)", builder)
+        self.assertIn("GelMotion.apply(dialog.getWindow().getDecorView(), ui.palette().accent)", builder)
+
+    def test_dialog_title_row_keeps_its_own_dismiss_control(self):
+        builder = (CORE_DESIGN / "AppAlertBuilder.java").read_text()
+        # A dialog without this is undismissable on a device with no back key gesture.
+        self.assertIn("super.setCustomTitle(row)", builder)
+        self.assertIn("if (dialogRef[0] != null) dialogRef[0].dismiss();", builder)
+        self.assertIn("close.setFocusable(true)", builder)
+        self.assertIn("close.setClickable(true)", builder)
+
+    def test_alert_builder_fits_the_window_exactly_once_on_show(self):
+        builder = (CORE_DESIGN / "AppAlertBuilder.java").read_text()
+        # The original called fitAlertDialog twice back to back. It is idempotent, so the
+        # duplicate was dropped; a third or a missing call would both be regressions.
+        self.assertEqual(builder.count("DialogFit.fit(ui, dialog);"), 1)
+        self.assertIn("AlertDialog dialog = create();", builder)
+        self.assertIn("dialog.show();", builder)
+
+    def test_dialog_fit_clamps_width_and_reserves_room_for_buttons(self):
+        fit = java_code_only((CORE_DESIGN / "DialogFit.java").read_text())
+        self.assertIn("package app.space.core.design;", (CORE_DESIGN / "DialogFit.java").read_text())
+        # 280..560dp wide: without the floor a form overflows a small phone, without the
+        # ceiling a dialog stretches across a tablet.
+        self.assertIn("Math.min(ui.dp(560)", fit)
+        self.assertIn("Math.max(ui.dp(280), width)", fit)
+        # The 220dp reserve is what keeps the dialog's own buttons on screen. Losing it
+        # means a long routine or alarm form pushes Save off the bottom.
+        self.assertIn("heightPixels - ui.dp(220)", fit)
+        self.assertIn("Math.max(ui.dp(180)", fit)
+        self.assertIn("window.getDecorView().requestLayout();", fit)
+
+    def test_scroll_views_inside_dialogs_are_capped_recursively(self):
+        fit = java_code_only((CORE_DESIGN / "DialogFit.java").read_text())
+        self.assertIn("if (view instanceof ScrollView)", fit)
+        self.assertIn("params.height = params.height > 0 ? Math.min(params.height, maxHeight) : maxHeight", fit)
+        # Recursion is the point: editors nest scroll views inside cards.
+        self.assertEqual(fit.count("capScrollViews(group.getChildAt(i), maxHeight)"), 1)
+
+    def test_the_two_fitting_helpers_are_no_longer_private_to_the_activity(self):
+        main = read("MainActivity.java")
+        self.assertNotIn("private void fitAlertDialog", main)
+        self.assertNotIn("private void capAlertScrollViews", main)
+        # Every remaining call site must go through DialogFit, or it silently keeps the
+        # platform's default dialog size.
+        self.assertEqual(len(re.findall(r"fitAlertDialog\(", main)), 0)
+        self.assertEqual(len(re.findall(r"DialogFit\.fit\(ui\(\), ", main)), 3)
+        self.assertIn("import app.space.core.design.DialogFit;", main)
+
+    def test_every_editor_dialog_still_obtains_its_builder_from_one_place(self):
+        main = java_code_only(read("MainActivity.java"))
+        # alertBuilder() is the single funnel for all six editor dialogs. 22 call sites is
+        # the measured invariant: if a dialog starts constructing AlertDialog.Builder
+        # directly it loses the close button, the rounded panel and the motion.
+        self.assertEqual(len(re.findall(r"alertBuilder\(\)", main)), 22)
+        self.assertIn(
+            "return new AppAlertBuilder(new android.view.ContextThemeWrapper(this,style),ui());", main)
+        self.assertIn("import app.space.core.design.AppAlertBuilder;", main)
+        self.assertNotIn("new AlertDialog.Builder(", main)
+
+    def test_core_design_may_depend_on_core_data_for_the_dialog_theme_choice(self):
+        # AppAlertBuilder picks its close-button fill from AppTheme.dark, so :core-design
+        # must keep its :core-data dependency. This is the same coupling that reordered the
+        # module plan in step 1c.
+        builder = (CORE_DESIGN / "AppAlertBuilder.java").read_text()
+        self.assertIn("import app.space.core.data.AppTheme;", builder)
+        self.assertIn("AppTheme.dark(themedContext) ? 0xff263632 : 0xffe5ece8", builder)
+        gradle = (ROOT / "core-design/build.gradle").read_text()
+        self.assertIn(":core-data", gradle)

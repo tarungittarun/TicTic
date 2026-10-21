@@ -1,0 +1,36 @@
+// The MySpace chrome: app registry, navigation rendering (hub / rail / drawer), and
+// the user's customisation of it. SUITE-PLAN.md §3.3, §3.4 layer L1.
+//
+// :shell implements the contract in :core-suite; :feature-* modules implement the same
+// contract. Neither depends on the other — :app wires them together. That separation is
+// what allows the navigation to be rewritten (it is user-customisable, so it will be)
+// without recompiling a single app module.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.shell'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // api: SuiteRegistry and NavPrefs take and return SuiteApp, so consumers of :shell
+    // need the contract on their compile classpath.
+    api project(':core-suite')
+    // Navigation customisation is persisted with the rest of the user's settings.
+    implementation project(':core-data')
+    // The ordering and encoding rules themselves. Reached transitively through
+    // :core-suite's api dependency, but declared here because NavPrefs uses them
+    // directly and an implicit classpath entry is easy to lose.
+    implementation project(':core-domain')
+    // Nav rendering draws with the shared palette, icons and press styles.
+    implementation project(':core-design')
+}

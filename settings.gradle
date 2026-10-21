@@ -25,3 +25,14 @@ include ':app'
 include ':core-domain'
 include ':core-design'
 include ':core-data'
+
+// :core-suite is the contract between an app and the chrome (SuiteApp, Screen,
+//   ScreenHost, SettingsGroup). It is separate from :shell so that :feature-*
+//   modules implement the contract without depending on the shell that renders
+//   it — navigation is user-customisable, so the shell will change and apps must
+//   not have to.
+// :shell implements that contract: the registry, the three navigation modes and
+//   the user's ordering/pinning/hiding (control layer L1).
+// :feature-clock and the remaining Phase 1 steps follow.
+include ':core-suite'
+include ':shell'

@@ -43,6 +43,13 @@ dependencies {
     // a package-visible field, and later slices will surface core-data types through
     // :app's own API. Modules that consume :app must therefore see core-data too.
     api project(':core-data')
+    // :app is the only module permitted to see both the shell and every feature
+    // module, because it is what assembles the registry and hands it over. Nothing in
+    // :app calls into the shell yet — the contract lands first with no
+    // implementations, so it is designed against the clock when the clock is
+    // extracted next (SUITE-PLAN.md §6.1 step 1g/1h). The dependency is declared now
+    // so both modules are compiled and wired on every CI run.
+    implementation project(':shell')
 
     // Test-only jars are vendored so the JVM regression suite runs even in offline/TLS-restricted builds.
     testImplementation files('libs/junit-4.13.2.jar', 'libs/hamcrest-core-1.3.jar')

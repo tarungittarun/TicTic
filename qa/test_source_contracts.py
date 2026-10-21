@@ -11,6 +11,8 @@ JAVA = ROOT / "app/src/main/java/app/tictic/clock"
 CORE_DOMAIN = ROOT / "core-domain/src/main/java/app/space/core/domain"
 CORE_DESIGN = ROOT / "core-design/src/main/java/app/space/core/design"
 CORE_DATA = ROOT / "core-data/src/main/java/app/space/core/data"
+CORE_SUITE = ROOT / "core-suite/src/main/java/app/space/core/suite"
+SHELL = ROOT / "shell/src/main/java/app/space/shell"
 
 
 def read(name):
@@ -831,6 +833,177 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("Math.max(82,opacityFloor)", renderer)
         self.assertIn("clamp(Math.max(82,opacityFloor),100,", renderer)
         self.assertIn(",88)", style)
+
+    def test_suite_contract_module_holds_interfaces_only(self):
+        """SUITE-PLAN.md §3.2. :core-suite is the contract between an app and the chrome.
+
+        It must stay free of implementation. If it grew preferences or rendering code,
+        every feature module would pull in behaviour it does not use, and the shell could
+        no longer be rewritten independently — which matters because navigation is
+        user-customisable, so it will be rewritten.
+        """
+        sources = sorted(CORE_SUITE.rglob("*.java"))
+        names = {p.stem for p in sources}
+        self.assertEqual({"SuiteApp", "Screen", "ScreenHost", "SettingsGroup"}, names)
+        for path in sources:
+            text = path.read_text(encoding="utf-8")
+            code = java_code_only(text)
+            self.assertIn(f"public interface {path.stem}", code)
+            # No persistence and no preference access in a contract module.
+            self.assertNotIn("SharedPreferences", code, f"{path.name} touches preferences")
+            self.assertNotIn("AppPrefs", code, f"{path.name} touches the data layer")
+            self.assertNotIn("import app.tictic.clock.", code, f"{path.name} imports :app")
+        self.assertIn("include ':core-suite'", (ROOT / "settings.gradle").read_text())
+
+    def test_screen_host_encodes_the_no_app_may_assume_another_is_installed_rule(self):
+        """SUITE-PLAN.md §3.4: an app can be hidden (L1), excluded by a lite flavour (L2)
+        or not yet downloaded (L3). The contract therefore reports absence rather than
+        throwing, and any cross-app affordance must handle the negative case.
+
+        Asserted as signatures, because a later widening to void or to a non-null return
+        would quietly remove the ability to handle a missing app.
+        """
+        host = java_code_only((CORE_SUITE / "ScreenHost.java").read_text(encoding="utf-8"))
+        for signature in ("boolean isAppAvailable(String id)",
+                          "List<SuiteApp> availableApps()",
+                          "boolean openApp(String id)",
+                          "boolean openApp(String id, String route)",
+                          "Palette palette()",
+                          "Context context()",
+                          "void invalidate()",
+                          "void openSettings()",
+                          "void openSettings(String groupId)"):
+            self.assertIn(signature, host)
+        # Palette is handed out rather than recomputed, so one theme edit cannot leave a
+        # single app looking wrong.
+        self.assertIn("import app.space.core.design.Palette;",
+                      (CORE_SUITE / "ScreenHost.java").read_text(encoding="utf-8"))
+
+    def test_suite_app_extends_the_pure_ordering_entry(self):
+        """SuiteApp is-a NavOrder.Entry so :shell can pass registered apps straight into
+        the pure, unit-tested ordering rules without an adapter. @Override is required on
+        the three shared members so the compiler catches signature drift instead of
+        silently declaring unrelated methods."""
+        app_src = (CORE_SUITE / "SuiteApp.java").read_text(encoding="utf-8")
+        code = java_code_only(app_src)
+        self.assertIn("public interface SuiteApp extends NavOrder.Entry", code)
+        for member in ("String id();", "String label();", "int defaultOrder();"):
+            self.assertIn("@Override\n    " + member, code, f"{member} must override Entry")
+        for member in ("String tagline();", "int iconGlyph();", "boolean supportsWidgets();",
+                       "boolean acceptsRoute(String route);",
+                       "List<SettingsGroup> settingsGroups();",
+                       "Screen createScreen(ScreenHost host, String route);"):
+            self.assertIn(member, code)
+        # Both types appear in public signatures, so both must be api, not implementation.
+        gradle = (ROOT / "core-suite/build.gradle").read_text(encoding="utf-8")
+        self.assertIn("api project(':core-design')", gradle)
+        self.assertIn("api project(':core-domain')", gradle)
+        self.assertNotIn("implementation project(':core-design')", gradle)
+
+    def test_shell_implements_the_contract_and_nothing_depends_on_it_except_app(self):
+        """The separation that lets navigation change without recompiling any app:
+        features implement :core-suite, the shell implements :core-suite, and neither
+        depends on the other. Only :app, which assembles the registry, may see :shell.
+        """
+        settings = (ROOT / "settings.gradle").read_text()
+        self.assertIn("include ':shell'", settings)
+        shell_gradle = (ROOT / "shell/build.gradle").read_text(encoding="utf-8")
+        self.assertIn("api project(':core-suite')", shell_gradle)
+        self.assertIn("com.android.library", shell_gradle)
+
+        # The contract must not know about its implementor.
+        suite_gradle = (ROOT / "core-suite/build.gradle").read_text(encoding="utf-8")
+        self.assertNotIn("project(':shell')", suite_gradle)
+
+        # Only :app may depend on the shell. Features depending on it would couple every
+        # app to the navigation implementation.
+        for gradle_file in sorted(ROOT.glob("*/build.gradle")):
+            module = gradle_file.parent.name
+            if module == "app":
+                continue
+            code = [ln.strip() for ln in gradle_file.read_text(encoding="utf-8").splitlines()
+                    if not ln.strip().startswith("//")]
+            for line in code:
+                self.assertNotIn("project(':shell')", line,
+                                 f"{module} must not depend on :shell")
+
+    def test_registry_validates_ids_at_construction(self):
+        """A comma or duplicate id would corrupt the comma-joined order and hidden lists,
+        and would surface much later as the wrong app opening. Validating at construction
+        turns that into a startup failure naming the offending app."""
+        registry = java_code_only((SHELL / "SuiteRegistry.java").read_text(encoding="utf-8"))
+        self.assertIn("public final class SuiteRegistry", registry)
+        for guard in ('"SuiteRegistry requires a non-null app list"',
+                      '"SuiteRegistry contains a null SuiteApp"',
+                      "has an empty id",
+                      "must not contain a comma",
+                      "Duplicate SuiteApp id"):
+            self.assertIn(guard, registry)
+        # Route resolution asks the apps, so the shell never learns an app's id or its
+        # destination names. Without this, existing widget deep links would need the
+        # clock hardcoded into the chrome.
+        self.assertIn("acceptsRoute(route)", registry)
+        self.assertIn("public SuiteApp resolveRoute(String route)", registry)
+
+    def test_shell_hardcodes_no_app_identity(self):
+        """The chrome must be app-agnostic. Any literal app id in :shell is a coupling
+        that will have to be edited every time an app is added or renamed — and there is
+        no local compiler to catch what that breaks."""
+        for path in sorted(SHELL.rglob("*.java")):
+            code = java_code_only(path.read_text(encoding="utf-8"))
+            for forbidden in ('"clock"', '"calculator"', '"alarms"', '"usage"', '"tictic"'):
+                self.assertNotIn(forbidden, code, f"{path.name} hardcodes {forbidden}")
+
+    def test_nav_prefs_holds_no_ordering_logic_of_its_own(self):
+        """The ordering rules live in :core-domain where they are pure JVM and unit
+        tested. There is no emulator here, so logic left inside an Android module would
+        be logic nothing can test — and a subtle ordering bug presents as a new app that
+        never appears, not as a crash."""
+        nav = java_code_only((SHELL / "NavPrefs.java").read_text(encoding="utf-8"))
+        self.assertIn("NavOrder.resolve(stored, registry.apps())", nav)
+        self.assertIn("NavOrder.parse(", nav)
+        self.assertIn("NavOrder.join(", nav)
+        self.assertNotIn("Collections.sort", nav)
+        self.assertNotIn("defaultOrder()", nav)
+        # Reads must not write: persisting on read would hit disk on every navigation
+        # render and would destroy the property that an absent app returns to its
+        # original position.
+        for reader in ("orderedApps", "visibleApps", "hidden", "mode", "lastApp"):
+            self.assertIn(reader, nav)
+
+    def test_nav_mode_persists_explicit_codes_not_ordinals(self):
+        """Three customisable modes (SUITE-PLAN.md §3.3). Ordinals must not be persisted:
+        reordering the constants in a later release would silently change every user's
+        saved choice."""
+        mode_src = (SHELL / "NavMode.java").read_text(encoding="utf-8")
+        code = java_code_only(mode_src)
+        self.assertIn("public enum NavMode", code)
+        for name in ("HUB(0)", "RAIL(1)", "DRAWER(2)"):
+            self.assertIn(name, code)
+        self.assertIn("public int code()", code)
+        self.assertIn("public static NavMode fromCode(int code)", code)
+        self.assertIn("public static NavMode defaultValue()", code)
+        self.assertNotIn("ordinal()", code)
+        # The default must be the rail: extracting the clock into the shell should not
+        # change how the existing app looks.
+        self.assertIn("return RAIL;", code)
+
+    def test_palette_matches_the_clock_values_it_replaces(self):
+        """Palette centralises colours that were computed inline in MainActivity. The six
+        values must match exactly, or extraction silently re-themes the clock."""
+        palette = java_code_only((ROOT / "core-design/src/main/java/app/space/core/design"
+                                  / "Palette.java").read_text(encoding="utf-8"))
+        main = read("MainActivity.java")
+        for value in ("0xff0c1514", "0xffedf2ef", "0xff1b2926", "0xfffcfdfc",
+                      "0xfff1f5f3", "0xff18312f", "0xffaabbb5", "0xff5d7069",
+                      "0xff354a44", "0xffd5e0db"):
+            self.assertIn(value, palette)
+            self.assertIn(value, main)
+        for field in ("public final int accent", "public final int background",
+                      "public final int surface", "public final int text",
+                      "public final int muted", "public final int border",
+                      "public final boolean dark"):
+            self.assertIn(field, palette)
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

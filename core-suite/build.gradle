@@ -1,0 +1,38 @@
+// The MySpace suite contract: what an app in the suite is, and what the chrome
+// owes it. SUITE-PLAN.md §3.2.
+//
+// WHY THIS IS NOT PART OF :shell
+// The dependency rule is :feature-* -> :core-*, :shell -> :core-*, :app -> :shell +
+// every :feature-*. If the SuiteApp contract lived in :shell, every feature module
+// would have to depend on :shell to implement it — and :shell is the part that
+// changes, because navigation is user-customisable across hub, rail and drawer.
+// Splitting the contract out means the shell's rendering can be rewritten without
+// a single app module recompiling, and no feature can reach into shell internals.
+//
+// This module holds interfaces and value types only. It must contain no rendering
+// code, no preferences and no implementation of navigation.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.core.suite'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // api, not implementation: Palette appears in ScreenHost's public signature, and
+    // SuiteApp extends NavOrder.Entry, so every module implementing or calling either
+    // needs both on its compile classpath. Using implementation here would compile fine
+    // in isolation and then fail in every consumer — the kind of breakage that is
+    // invisible without a local compiler.
+    api project(':core-design')
+    api project(':core-domain')
+}

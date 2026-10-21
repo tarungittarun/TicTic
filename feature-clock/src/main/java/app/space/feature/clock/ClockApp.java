@@ -98,8 +98,8 @@ public final class ClockApp implements SuiteApp {
     }
 
     /**
-     * Returns {@code null} for every route until that screen has been moved out of
-     * {@code MainActivity}.
+     * Returns the migrated screen for routes that have moved, and {@code null} for the
+     * rest until they have.
      *
      * <p>Null rather than a placeholder is intentional and matches the convention already
      * set by {@link ScreenHost}'s availability methods, which return false or null instead
@@ -110,6 +110,10 @@ public final class ClockApp implements SuiteApp {
      */
     @Override
     public Screen createScreen(ScreenHost host, String route) {
+        // Stopwatch is the one screen migrated so far (step 1h-iv). The other five routes
+        // still return null, which tells the host to keep rendering them inline exactly as
+        // it does today; a placeholder screen would render blank instead.
+        if ("stopwatch".equals(route)) return new StopwatchScreen(host);
         return null;
     }
 }

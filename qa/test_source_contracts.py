@@ -1470,6 +1470,82 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("import app.space.core.platform.PowerState;",
                       read_core_design("AnalogClockView.java"))
 
+    def test_stopwatch_screen_is_the_first_real_screen_and_keeps_every_pref_key(self):
+        """SUITE-PLAN.md §6.1 step 1h-iv: the first Screen implementation.
+
+        The assertion that matters most here is key parity. All stopwatch state lives in
+        preferences rather than Activity fields, so a renamed or dropped key does not crash
+        — it silently strands whatever the user had running, and a paused stopwatch comes
+        back as zero. Nothing else about this move would fail so quietly.
+        """
+        screen = java_code_only(read_feature_clock("StopwatchScreen.java"))
+        main = java_code_only(read("MainActivity.java"))
+
+        self.assertIn("public final class StopwatchScreen implements Screen", screen)
+        compact = "".join(screen.split())
+        for member in ("public String title()", "public View build(Context buildContext)",
+                       "public void onResume()", "public void onPause()",
+                       "public StopwatchScreen(ScreenHost host)"):
+            self.assertIn("".join(member.split()), compact, f"missing: {member}")
+
+        keys = {"sw_running", "sw_elapsed", "sw_start", "sw_start_wall", "sw_start_elapsed",
+                "sw_boot_count", "sw_last_lap", "laps", "stopwatch_show_hundredths",
+                "stopwatch_lap_haptics", "stopwatch_button_haptics"}
+        for key in keys:
+            self.assertIn('"' + key + '"', screen, f"StopwatchScreen lost pref key {key}")
+            self.assertIn('"' + key + '"', main, f"MainActivity no longer holds {key} to compare against")
+
+        # A screen owns its clock: the shared Activity ticker is unreachable from here.
+        self.assertIn("new Handler(Looper.getMainLooper())", screen)
+        self.assertIn("handler.post(ticker)", screen)
+        self.assertIn("handler.removeCallbacks(ticker)", screen)
+        # And it must reproduce nextTickDelay()'s four rates for this tab exactly, or the
+        # hundredths display stutters or the battery drains. 60 s while paused under
+        # battery saver is the easy one to lose, because the original checks power-saver
+        # state before the paused-tab branch.
+        for rate in ("16L", "100L", "1000L", "60000L"):
+            self.assertIn(rate, screen, f"tick rate {rate} missing")
+        self.assertIn("PowerState.isOptimizing(context)", screen)
+
+        # Re-render goes through the host, never by reaching back into the Activity.
+        self.assertIn("host.invalidate()", screen)
+        self.assertNotIn("render()", screen)
+        self.assertNotIn("DataStore", screen)
+        self.assertNotIn("app.tictic.clock", screen)
+        # Reachable modules only: boot count and power state came from :core-platform,
+        # which is why 1e had to precede this screen.
+        self.assertIn("SystemBoot.count(context)", screen)
+        self.assertIn("TimeMath.stopwatchElapsed", screen)
+        self.assertIn("TimeMath.formatHundredths", screen)
+        # Colours from the host palette, not from Activity fields.
+        self.assertIn("palette.accent", screen)
+        self.assertIn("palette.surface", screen)
+        self.assertIn("palette.dark ? 0xff293b37 : 0xffedf3f1", screen)
+        # A lap records its split, not just its absolute time.
+        self.assertIn('.put("split", e - prev)', screen)
+
+    def test_only_the_stopwatch_route_is_migrated_and_the_rest_stay_inline(self):
+        """The migration marker, updated deliberately rather than inherited.
+
+        createScreen returns a real screen for stopwatch and null for the other five, which
+        is what lets the host keep rendering them inline. Nothing is wired into MainActivity
+        yet, so behaviour cannot have changed; that cutover is the next slice and it carries
+        five existing assertions that point at MainActivity's copies of this logic.
+        """
+        clock = java_code_only(read_feature_clock("ClockApp.java"))
+        self.assertIn('if ("stopwatch".equals(route)) return new StopwatchScreen(host);', clock)
+        body = clock[clock.index("public Screen createScreen(ScreenHost host, String route)"):]
+        self.assertIn("return null;", body)
+        main = read("MainActivity.java")
+        self.assertNotIn("ClockApp", main)
+        self.assertNotIn("SuiteRegistry", main)
+        self.assertNotIn("StopwatchScreen", main)
+        # MainActivity's own copies still exist and still render, which is why the tab is
+        # unchanged on screen. They are removed in the cutover slice.
+        for legacy in ("private void buildStopwatch()", "private long swElapsed()",
+                       "private void addLap()", "private void stopwatchPause()"):
+            self.assertIn(legacy, main, f"{legacy} should still be present until the cutover")
+
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped
         real code it would hide a genuine violation, and if it kept comments the module

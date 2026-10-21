@@ -100,7 +100,10 @@ public class TasksRulesTest {
 
     @Test public void dueLabelNamesTheUrgentCasesInWords() {
         assertEquals("Overdue", TasksRules.dueLabel(t("a", false, NOW - 1, 0), NOW, TODAY));
-        assertEquals("Due today", TasksRules.dueLabel(t("b", false, TODAY + 3600000L, 0), NOW, TODAY));
+        // NOW is 22 hours into TODAY, so "an hour after midnight" is already in the past
+        // and would correctly read as Overdue. Anchoring to NOW keeps this case actually in
+        // the future while still falling inside today.
+        assertEquals("Due today", TasksRules.dueLabel(t("b", false, NOW + 3600000L, 0), NOW, TODAY));
         assertEquals("Due tomorrow", TasksRules.dueLabel(t("c", false, TODAY + DAY + 3600000L, 0), NOW, TODAY));
         assertEquals("", TasksRules.dueLabel(t("d", false, TasksRules.NO_DUE, 0), NOW, TODAY));
         // A completed task still shows its date; hiding it would make the row look undated.
@@ -135,7 +138,9 @@ public class TasksRulesTest {
         in.add(t("soon", false, TODAY, 0));
         List<TasksRules.Task> out = TasksRules.capped(in, 2);
         assertEquals(2, out.size());
-        assertEquals("soon", out.get(0).id);
-        assertEquals("old", out.get(1).id);
+        // capped() keeps the head of the SORTED list, so it keeps the most urgent and drops
+        // the completed task -- not the most recent, which is what a naive cap would do.
+        assertEquals("old", out.get(0).id);
+        assertEquals("soon", out.get(1).id);
     }
 }

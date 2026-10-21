@@ -478,7 +478,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
 
     def test_glass_surface_exposes_presets_customization_and_legibility(self):
         main = read("MainActivity.java")
-        presets = read("GlassPreset.java")
+        presets = read_core_design("GlassPreset.java")
         for key in ('"app_glass_enabled"','"app_glass_opacity"','"app_glass_finish"','"app_glass_depth"'):
             self.assertIn(key, main)
         self.assertIn("glassSurfaceDrawable", main)
@@ -488,7 +488,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn("Five ready-made light moods", main)
         self.assertIn("GlassPreset.apply(this,index)", main)
         self.assertIn('"app_glass_customized"', main)
-        self.assertIn("Math.max(82,opacityFloor)", read("AppGlassDrawable.java"))
+        self.assertIn("Math.max(82,opacityFloor)", read_core_design("AppGlassDrawable.java"))
         for name in ("Sunlit Bubble","Daylight Pearl","Golden Hour","Moonlit Opal","Aurora Frost"):
             self.assertIn(name, presets)
         self.assertIn("AppSurfaceStyle.pageBackground(this)", main)
@@ -499,7 +499,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn('"glass_customized"', studio)
         self.assertIn("GlassPreset.widgetBase(preset)", studio)
         self.assertIn('"glass_preset"', read("WidgetEngine.java"))
-        renderer = read("AppGlassDrawable.java")
+        renderer = read_core_design("AppGlassDrawable.java")
         self.assertIn("extends Drawable", renderer)
         self.assertIn("new LinearGradient", renderer)
         self.assertIn("boolean dark", renderer)
@@ -616,12 +616,12 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn('activityRangeCaption()', main)
 
     def test_glass_character_is_shared_across_app_pages(self):
-        style = read("AppSurfaceStyle.java")
+        style = read_core_design("AppSurfaceStyle.java")
         main = read("MainActivity.java")
         alarm = read("AlarmActivity.java")
         studio = read("WidgetConfigActivity.java")
         catalog = read("WidgetCatalogActivity.java")
-        presets = read("GlassPreset.java")
+        presets = read_core_design("GlassPreset.java")
         for token in ('app_glass_opacity','app_glass_finish','app_glass_depth'):
             self.assertIn(token, style)
         for token in ('Sunlit Bubble','Daylight Pearl','Golden Hour','Moonlit Opal','Aurora Frost'):
@@ -718,6 +718,89 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("rootProject.name = 'MySpace'", settings)
         self.assertIn("include ':core-domain'", settings)
         self.assertIn("implementation project(':core-domain')", app_gradle)
+
+    def test_glass_trio_moved_into_core_design_with_a_deliberately_narrow_surface(self):
+        """Step 1c-2b: GlassPreset, AppSurfaceStyle and AppGlassDrawable.
+
+        These three moved together because they reference each other; splitting them
+        would have put two of them in different modules with a cyclic feel.
+
+        The public surface is asserted member by member because it was chosen
+        deliberately, not by blanket-widening. Two specific things are guarded:
+
+        1. All THREE AppSurfaceStyle.glass() overloads must be public. A scripted
+           visibility edit that replaced only the first occurrence left the 7- and
+           8-arg overloads package-private, which breaks MainActivity at compile time
+           — and there is no local compiler to catch that before CI.
+        2. AppGlassDrawable must stay PACKAGE-PRIVATE. Only AppSurfaceStyle
+           constructs it, and screens receive it typed as Drawable. Widening it would
+           invite callers to bypass the opacity floor that keeps text legible.
+        """
+        presets = read_core_design("GlassPreset.java")
+        style = read_core_design("AppSurfaceStyle.java")
+        renderer = read_core_design("AppGlassDrawable.java")
+        for name in ("GlassPreset.java", "AppSurfaceStyle.java", "AppGlassDrawable.java"):
+            self.assertFalse((JAVA / name).exists(), f"{name} must not remain in :app")
+            self.assertIn(f"package app.space.core.design;",
+                          read_core_design(name))
+
+        # 1. GlassPreset: consumers read the tuning arrays and the accessors directly.
+        self.assertIn("public final class GlassPreset", presets)
+        for member in ("public static final String[] NAMES", "public static final String[] NOTES",
+                       "public static final int[] OPACITY", "public static final int[] FINISH",
+                       "public static final int[] DEPTH", "public static int clamp(",
+                       "public static int selected(", "public static void apply(",
+                       "public static int glow(", "public static int widgetBase(",
+                       "public static int widgetOpacity("):
+            self.assertIn(member, presets)
+        # Palette arrays stay behind their accessors so a caller cannot index them
+        # without the clamp that prevents an out-of-range preset.
+        for hidden in ("static final int[] GLOW=", "static final int[] BASE=",
+                       "static final int[] WIDGET_OPACITY="):
+            self.assertIn(hidden, presets)
+            self.assertNotIn("public " + hidden, presets)
+
+        # 2. AppSurfaceStyle: all three glass() overloads, and mix() stays private.
+        self.assertIn("public final class AppSurfaceStyle", style)
+        self.assertEqual(3, style.count("public static Drawable glass("),
+                         "every glass() overload must be public across the module boundary")
+        self.assertNotIn("\n    static Drawable glass(", style)
+        self.assertIn("public static boolean enabled(", style)
+        self.assertIn("public static Drawable criticalGlass(", style)
+        self.assertIn("public static Drawable pageBackground(", style)
+        self.assertIn("private static int mix(", style)
+
+        # 3. AppGlassDrawable stays package-private; screens only ever see Drawable.
+        self.assertIn("final class AppGlassDrawable extends Drawable", renderer)
+        self.assertNotIn("public final class AppGlassDrawable", renderer)
+        self.assertIn("new AppGlassDrawable(", style)
+
+        # Consumers import what they use, and nothing they do not: GlassPreset reads
+        # settings but no theme state, so an AppTheme import there would be dead.
+        # This is the blanket-substitution bug that hit GelMotion in step 1c-2a.
+        self.assertNotIn("AppTheme", java_code_only(presets))
+        self.assertIn("import app.space.core.data.AppPrefs;", presets)
+        for name, wanted in (("AlarmActivity.java", ("AppSurfaceStyle",)),
+                             ("MainActivity.java", ("GlassPreset", "AppSurfaceStyle")),
+                             ("WidgetCatalogActivity.java", ("AppSurfaceStyle",)),
+                             ("WidgetConfigActivity.java", ("GlassPreset",)),
+                             ("WidgetEngine.java", ("GlassPreset",))):
+            src = read(name)
+            for cls in wanted:
+                self.assertIn(f"import app.space.core.design.{cls};", src, f"{name} needs {cls}")
+            self.assertNotIn("import app.space.core.design.AppGlassDrawable;", src,
+                             f"{name} must not construct the renderer directly")
+
+    def test_glass_opacity_floor_survives_the_move(self):
+        """The 82% floor is a documented legibility guarantee in README.md and
+        PRODUCT.md ("critical actions remain solid", "82% opacity floor keeps glass
+        behind text"). It lives in the renderer, so it moved with it — assert both the
+        floor and the higher 88% critical-control floor are still enforced."""
+        renderer = read_core_design("AppGlassDrawable.java")
+        style = read_core_design("AppSurfaceStyle.java")
+        self.assertIn("Math.max(82,opacityFloor)", renderer)
+        self.assertIn("clamp(Math.max(82,opacityFloor),100,", renderer)
+        self.assertIn(",88)", style)
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

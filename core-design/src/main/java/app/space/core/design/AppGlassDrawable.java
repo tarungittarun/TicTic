@@ -1,4 +1,4 @@
-package app.tictic.clock;
+package app.space.core.design;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,8 +13,21 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import app.space.core.data.AppPrefs;
+import app.space.core.data.AppTheme;
 
-/** A soft, modern gel-glass surface drawn from light, tint and depth rather than a hard outline. */
+/**
+ * A soft, modern gel-glass surface drawn from light, tint and depth rather than a
+ * hard outline.
+ *
+ * <p>Moved into {@code :core-design} in step 1c-2b (SUITE-PLAN.md §6.1) with the rest
+ * of the glass system. It deliberately stays <b>package-private</b>: only
+ * {@link AppSurfaceStyle} constructs it, and callers receive it typed as
+ * {@code Drawable}. Keeping the constructor closed is what guarantees every glass
+ * surface goes through the opacity floor enforced below, which is the documented
+ * legibility guarantee (README.md: glass stays behind text, critical actions remain
+ * solid). A public constructor would let a caller bypass it.
+ */
 final class AppGlassDrawable extends Drawable {
     private final Context context;
     private final int base, highlight, cornerPx, opacity, finish, depth, preset, opacityFloor;
@@ -32,8 +45,8 @@ final class AppGlassDrawable extends Drawable {
         this.context=context.getApplicationContext();
         this.base=base;
         this.highlight=GlassPreset.glow(preset);
-        this.dark=DataStore.dark(context);
-        this.cornerPx=dp(radiusDp*cornerScale(DataStore.prefs(context).getInt("app_shape_style",0)));
+        this.dark=AppTheme.dark(context);
+        this.cornerPx=dp(radiusDp*cornerScale(AppPrefs.prefs(context).getInt("app_shape_style",0)));
         this.opacityFloor=Math.max(82,opacityFloor);
         this.opacity=clamp(Math.max(82,opacityFloor),100,Math.max(Math.max(82,opacityFloor),Math.max(0,Math.min(100,opacity))));
         this.finish=Math.max(0,Math.min(100,finish));

@@ -147,10 +147,10 @@ public class MainActivity extends Activity implements ScreenHost {
         LinearLayout top=hbox();top.setPadding(dp(12),dp(7),dp(16),dp(7));root.addView(top,lp(-1,62));
         TextView back=label("‹",34,accent,true);back.setGravity(Gravity.CENTER);top.addView(back,lp(44,46));back.setContentDescription("Back to TicTic");back.setOnClickListener(v->{settings=false;settingsScrollView=null;settingsScrollY=0;render();});
         TextView title=label("Settings",22,text,true);LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,dp(46),1);titleParams.leftMargin=dp(8);top.addView(title,titleParams);
-        String[] headings={"DESIGN","ALARMS","REMINDERS","ROUTINES","TIMER","STOPWATCH","EFFICIENCY & DATA","ABOUT & PERMISSIONS"};
-        TextView current=label(headings[Math.max(0,Math.min(7,settingsGroup))],10,muted,true);current.setLetterSpacing(.08f);top.addView(current);
+        String[] headings={"DESIGN","ALARMS","REMINDERS","ROUTINES","TIMER","STOPWATCH","EFFICIENCY & DATA","NAVIGATION","ABOUT & PERMISSIONS"};
+        TextView current=label(headings[Math.max(0,Math.min(8,settingsGroup))],10,muted,true);current.setLetterSpacing(.08f);top.addView(current);
         LinearLayout frame=compact?vbox():hbox();frame.setClipChildren(true);frame.setClipToPadding(true);root.addView(frame,new LinearLayout.LayoutParams(-1,0,1));
-        String[] navLabels={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency","About"};
+        String[] navLabels={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency","Navigation","About"};
         if(compact){
             HorizontalScrollView navScroll=new HorizontalScrollView(this);navScroll.setHorizontalScrollBarEnabled(false);navScroll.setFillViewport(false);navScroll.setClipChildren(true);navScroll.setClipToPadding(true);
             LinearLayout nav=hbox();nav.setPadding(dp(10),dp(4),dp(10),dp(5));navScroll.addView(nav);frame.addView(navScroll,lp(-1,58));
@@ -509,7 +509,7 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
         LinearLayout footer=hbox();footer.setGravity(Gravity.CENTER_VERTICAL);LinearLayout.LayoutParams footerP=lp(-1,52);footerP.topMargin=dp(9);shell.addView(footer,footerP);TextView cancel=pillButton("Cancel",DataStore.dark(this)?0xff293b37:0xffedf3f1,text);footer.addView(cancel,new LinearLayout.LayoutParams(0,dp(46),.9f));cancel.setOnClickListener(v->dlg.dismiss());TextView save=pillButton("Save defaults",accent,Color.WHITE);LinearLayout.LayoutParams saveP=new LinearLayout.LayoutParams(0,dp(46),1.2f);saveP.leftMargin=dp(8);footer.addView(save,saveP);
         save.setOnClickListener(v->{int snoozePos=Math.max(0,Math.min(snoozeValues.length-1,snooze.getSelectedItemPosition()));int tonePos=Math.max(0,Math.min(toneValues.length-1,tone.getSelectedItemPosition()));int reminderPos=Math.max(0,Math.min(reminderValues.length-1,reminderTone.getSelectedItemPosition()));int leadPos=Math.max(0,Math.min(leads.length-1,lead.getSelectedItemPosition()));prefs.edit().putInt("alarm_default_snooze",snoozeValues[snoozePos]).putBoolean("alarm_default_vibrate",vibrate.isChecked()).putBoolean("alarm_default_gentle",gentle.isChecked()).putString("alarm_default_sound",toneValues[tonePos]).putBoolean("alarm_default_reminder_enabled",reminder.isChecked()).putInt("alarm_default_reminder_minutes",useCustom[0]?customLead[0]:leads[leadPos]).putString("alarm_default_reminder_sound",reminderValues[reminderPos]).putBoolean("alarm_default_reminder_vibrate",reminderVibrate.isChecked()).apply();DataStore.log(this,"Settings","Alarm defaults updated","Snooze, sound, vibration and pre-alarm defaults");dlg.dismiss();render();});
         shell.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));dlg.setContentView(shell);dlg.setCancelable(true);dlg.setCanceledOnTouchOutside(false);dlg.show();configureFormDialogWindow(dlg);
-    }    private void buildSettings(){switch(settingsGroup){case 0:buildDesignSettings();break;case 1:buildAlarmSettings();break;case 2:buildReminderSettings();break;case 3:buildRoutineSettings();break;case 4:buildTimerSettings();break;case 5:buildStopwatchSettings();break;case 6:buildEfficiencySettings();break;default:buildAboutSettings();}}
+    }    private void buildSettings(){switch(settingsGroup){case 0:buildDesignSettings();break;case 1:buildAlarmSettings();break;case 2:buildReminderSettings();break;case 3:buildRoutineSettings();break;case 4:buildTimerSettings();break;case 5:buildStopwatchSettings();break;case 6:buildEfficiencySettings();break;case 7:buildNavigationSettings();break;default:buildAboutSettings();}}
     private void buildReminderSettings(){
         editorSoundValue=DataStore.prefs(this).getString("alarm_default_sound",DataStore.prefs(this).getString("alarm_sound_uri",""));sectionTitle("Reminders","Local alerts, notification actions and repeat schedules.");gap(10);LinearLayout card=card();body.addView(card,lp(-1,-2));card.addView(label("Reminder defaults",16,text,true));TextView detail=label("Applied when creating a new reminder. Each reminder can still override vibration.",12,muted,false);detail.setPadding(0,dp(4),0,dp(8));card.addView(detail);
         card.addView(label("DEFAULT NOTIFICATION SOUND",10,muted,true),lp(-1,27));String[] reminderDefaults={"TicTic Ping","Daybreak Bell","Golden Hour","Pulse","System notification","Silent","Choose phone tone…"};String[] reminderValues={"ping","dawn","golden","pulse","notification","silent","custom"};String savedDefault=DataStore.prefs(this).getString("reminder_default_tone","ping");int defIndex=0;for(int i=0;i<reminderValues.length;i++)if(reminderValues[i].equals(savedDefault)){defIndex=i;break;}Spinner defaultTone=appSpinner(reminderDefaults,defIndex);card.addView(defaultTone,lp(-1,46));TextView customTone=label("Choose phone notification tone",12,accent,true);card.addView(customTone,lp(-1,35));customTone.setOnClickListener(v->launchReminderTonePicker(86));TextView previewDefaultReminder=pillButton("▶  Hear reminder default",DataStore.dark(this)?0xff263632:0xffe3ebe7,text);card.addView(previewDefaultReminder,lp(-1,38));previewDefaultReminder.setOnClickListener(v->{int ix=Math.max(0,Math.min(reminderValues.length-1,defaultTone.getSelectedItemPosition()));previewReminderTone(reminderValues[ix],DataStore.prefs(this).getString("reminder_default_tone_uri",""));});defaultTone.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){boolean first=true;public void onNothingSelected(android.widget.AdapterView<?> a){}public void onItemSelected(android.widget.AdapterView<?> a,View v,int position,long id){if(first){first=false;return;}int ix=Math.max(0,Math.min(reminderValues.length-1,position));if(ix==6){launchReminderTonePicker(86);return;}DataStore.prefs(MainActivity.this).edit().putString("reminder_default_tone",reminderValues[ix]).apply();DataStore.log(MainActivity.this,"Settings","Reminder default tone updated",reminderDefaults[ix]);}});
@@ -542,6 +542,76 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
     private void buildStopwatchSettings(){sectionTitle("Stopwatch","Display precision and lap feedback.");gap(10);LinearLayout c=card();body.addView(c,lp(-1,-2));addSettingsToggle(c,"Show hundredths","Display minutes, seconds and hundredths on the main stopwatch.","stopwatch_show_hundredths",true);addSettingsToggle(c,"Button haptics","Brief haptic feedback on stopwatch Start, Pause and Reset.","stopwatch_button_haptics",true);addSettingsToggle(c,"Lap haptic feedback","Brief vibration when recording a lap.","stopwatch_lap_haptics",true);TextView note=label("Lap records remain precise to hundredths, regardless of the display setting.",11,muted,false);note.setPadding(0,dp(7),0,0);c.addView(note);}
     private void buildEfficiencySettings(){
         sectionTitle("Efficiency & data","Local behavior and usage controls.");gap(10);TextView controlsTitle=label("EFFICIENCY & DATA",10,muted,true);controlsTitle.setLetterSpacing(.14f);body.addView(controlsTitle,lp(-1,30));LinearLayout controls=card();body.addView(controls,lp(-1,-2));addSettingsToggle(controls,"Show seconds","Display seconds in Clock and widgets.","show_home_seconds",true);addSettingsToggle(controls,"Adapt to Battery Saver","Reduce updates while system Battery Saver is on.","adaptive_power_saver",true);addSettingsToggle(controls,"Usage metrics","Local screen time and widget counts.","usage_metrics_enabled",true);addSettingsToggle(controls,"Activity history","Save recent actions on this device.","activity_history_enabled",true);
+    }
+    /**
+     * The editor for layer L1 of the control model (SUITE-PLAN.md §3.4): which
+     * destinations appear in the rail, and in what order.
+     *
+     * <p>This is what makes navigation customisable rather than merely capable of being
+     * customised. The rail has been data-driven since step 1g-2c, but until now nothing
+     * wrote the preferences it read, so it always showed all six destinations.
+     *
+     * <p>Order and visibility are stored per app in :shell and resolved by NavOrder in
+     * :core-domain, so the rule is the same one apps use and is unit-tested. Hiding the
+     * last visible destination is refused rather than allowed: an empty rail would leave
+     * the user with no way back into this screen to undo it.
+     */
+    private void buildNavigationSettings(){
+        sectionTitle("Navigation","Choose which destinations appear in the rail, and in what order.");
+        gap(10);
+        final List<NavRoute> ordered=NavPrefs.orderedRoutes(this,clockApp.id(),allRoutes());
+        final java.util.Set<String> hidden=NavPrefs.hiddenRoutes(this,clockApp.id());
+        int visible=0;for(NavRoute r:ordered)if(!hidden.contains(r.id()))visible++;
+        final int visibleCount=visible;
+        LinearLayout list=card();body.addView(list,lp(-1,-2));
+        list.addView(label("Destinations",16,text,true));
+        TextView intro=label("Hidden destinations keep their data and still open from widgets and shortcuts. Changes apply immediately.",11,muted,false);
+        intro.setPadding(0,dp(4),0,dp(8));list.addView(intro);
+        for(int i=0;i<ordered.size();i++){
+            final NavRoute route=ordered.get(i);final int index=i;final boolean isHidden=hidden.contains(route.id());
+            LinearLayout row=hbox();row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(10),dp(8),dp(10),dp(8));
+            row.setBackground(shape(DataStore.dark(this)?0xff202f2b:0xfff1f5f3,14));
+            LinearLayout.LayoutParams rp=lp(-1,-2);rp.topMargin=dp(6);list.addView(row,rp);
+            row.addView(new TicIconView(this,glyphFor(route.id()),isHidden?muted:accent),lp(22,22));
+            LinearLayout copy=vbox();LinearLayout.LayoutParams cp=lp(-1,-2);cp.leftMargin=dp(10);row.addView(copy,cp);
+            copy.addView(label(route.label(),14,text,true));
+            TextView note=label(isHidden?"Hidden from the rail.":"Position "+(index+1)+" of "+ordered.size(),11,muted,false);
+            note.setPadding(0,dp(3),dp(8),dp(2));copy.addView(note);
+            TextView up=moveButton("\u2191",index>0&&!isHidden);
+            row.addView(up,lp(34,34));
+            up.setOnClickListener(v->{if(index==0)return;NavPrefs.saveRouteOrder(this,clockApp.id(),swapped(ordered,index,index-1));routeCache=null;render();});
+            TextView down=moveButton("\u2193",index<ordered.size()-1&&!isHidden);
+            row.addView(down,lp(34,34));
+            down.setOnClickListener(v->{if(index>=ordered.size()-1)return;NavPrefs.saveRouteOrder(this,clockApp.id(),swapped(ordered,index,index+1));routeCache=null;render();});
+            Switch toggle=appSwitch();toggle.setChecked(!isHidden);
+            LinearLayout.LayoutParams tp=lp(-2,-2);tp.leftMargin=dp(6);row.addView(toggle,tp);
+            toggle.setOnCheckedChangeListener((button,on)->{
+                java.util.Set<String> next=new java.util.LinkedHashSet<>(hidden);
+                if(on)next.remove(route.id());
+                else{
+                    if(visibleCount<=1){toast("At least one destination must stay visible.");toggle.setChecked(true);return;}
+                    next.add(route.id());
+                }
+                NavPrefs.setHiddenRoutes(this,clockApp.id(),next);routeCache=null;render();
+            });
+        }
+        gap(12);
+        TextView reset=pillButton("Reset to the default order",accent,Color.WHITE);
+        list.addView(reset,lp(-1,46));
+        reset.setOnClickListener(v->{NavPrefs.saveRouteOrder(this,clockApp.id(),java.util.Collections.<String>emptyList());NavPrefs.setHiddenRoutes(this,clockApp.id(),java.util.Collections.<String>emptySet());routeCache=null;toast("Navigation reset.");render();});
+    }
+    /** A reorder affordance that is visibly inert when the move is not possible. */
+    private TextView moveButton(String glyph,boolean enabled){
+        TextView b=label(glyph,15,enabled?text:muted,true);b.setGravity(Gravity.CENTER);
+        b.setAlpha(enabled?1f:.3f);b.setFocusable(enabled);b.setClickable(enabled);
+        b.setBackground(shape(DataStore.dark(this)?0xff263632:0xffe5ece8,12));
+        LinearLayout.LayoutParams p=lp(34,34);p.leftMargin=dp(6);b.setLayoutParams(p);
+        return b;
+    }
+    /** The destination ids with two positions exchanged, for NavPrefs.saveRouteOrder. */
+    private static List<String> swapped(List<NavRoute> ordered,int from,int to){
+        List<String> ids=new java.util.ArrayList<>();for(NavRoute r:ordered)ids.add(r.id());
+        java.util.Collections.swap(ids,from,to);return ids;
     }
     private void buildAboutSettings(){
         sectionTitle("About & permissions","Privacy, permissions and local backup.");gap(10);TextView accessTitle=label("PERMISSIONS & ACCESS",10,muted,true);accessTitle.setLetterSpacing(.14f);body.addView(accessTitle,lp(-1,30));LinearLayout access=card();body.addView(access,lp(-1,-2));access.addView(label("Minimum access, and why",16,text,true));TextView accessIntro=label("Alarm tools stay on this device. Optional access is requested only when its feature is used.",11,muted,false);accessIntro.setPadding(0,dp(4),0,dp(8));access.addView(accessIntro);

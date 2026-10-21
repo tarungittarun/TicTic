@@ -2308,3 +2308,89 @@ class CustomisableNavigationContracts(unittest.TestCase):
         self.assertIn("return tab>=0&&tab<v.size()?v.get(tab).id():v.get(0).id();", self.main)
         self.assertIn("if (all == null || all.isEmpty()) return java.util.Collections.emptyList();",
                       self.nav)
+
+
+class NavigationEditorContracts(unittest.TestCase):
+    """Settings ▸ Navigation: the editor that makes L1 customisation real.
+
+    Step 1g-2d. The rail has been data-driven since 1g-2c but nothing wrote the
+    preferences it read, so it always showed all six destinations. This is the slice that
+    turns "capable of being customised" into "customisable".
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+        self.editor = self.main.split("private void buildNavigationSettings(){")[1].split("private TextView moveButton(")[0]
+
+    def test_settings_has_nine_groups_and_the_arrays_still_agree(self):
+        headings = re.search(r'String\[\] headings=\{([^}]*)\}', self.main).group(1)
+        labels = re.search(r'String\[\] navLabels=\{([^}]*)\}', self.main).group(1)
+        h = re.findall(r'"([^"]*)"', headings)
+        l = re.findall(r'"([^"]*)"', labels)
+        # headings is the caption and navLabels the picker; if they diverge the caption
+        # names a different group from the one selected. Both must be 9 and both must end
+        # with the About group, which is the switch's default.
+        self.assertEqual(len(h), 9, h)
+        self.assertEqual(len(l), 9, l)
+        self.assertEqual(h[-1], "ABOUT & PERMISSIONS")
+        self.assertEqual(l[-1], "About")
+        self.assertEqual(h[7], "NAVIGATION")
+        self.assertEqual(l[7], "Navigation")
+        self.assertIn("Math.min(8,settingsGroup)", self.main)
+
+    def test_the_group_picker_is_not_hardcoded_to_a_count(self):
+        self.assertIn("for(int i=0;i<navLabels.length;i++)", self.main)
+        self.assertIn("case 7:buildNavigationSettings();break;default:buildAboutSettings();}", self.main)
+
+    def test_the_editor_writes_both_preferences_and_invalidates_the_cache(self):
+        self.assertIn("NavPrefs.setHiddenRoutes(this,clockApp.id(),next)", self.editor)
+        self.assertIn("NavPrefs.saveRouteOrder(this,clockApp.id(),swapped(ordered,index,index-1))", self.editor)
+        self.assertIn("NavPrefs.saveRouteOrder(this,clockApp.id(),swapped(ordered,index,index+1))", self.editor)
+        # currentRoute() is cached for the 16 ms ticker. A write that does not clear the
+        # cache changes the preference while the rail keeps rendering the old list, and the
+        # user's tap appears to do nothing until some unrelated re-render.
+        # Four handlers write: reorder up, reorder down, the visibility switch, and reset.
+        # Reset writes both preferences, so five writes must be matched by four cache
+        # clears and four re-renders -- one per handler, none of them skipped.
+        writes = (self.editor.count("NavPrefs.setHiddenRoutes(")
+                  + self.editor.count("NavPrefs.saveRouteOrder("))
+        self.assertEqual(writes, 5, "expected 5 preference writes")
+        self.assertEqual(self.editor.count("routeCache=null;"), 4)
+        self.assertEqual(self.editor.count("render();"), 4)
+
+    def test_the_last_visible_destination_cannot_be_hidden(self):
+        # An empty rail would leave no way back into Settings to undo it.
+        self.assertIn('if(visibleCount<=1){toast("At least one destination must stay visible.");'
+                      'toggle.setChecked(true);return;}', self.editor)
+        # The switch must be put back, or it reads as hidden while the rail still shows it.
+        self.assertIn("toggle.setChecked(true);", self.editor)
+        self.assertIn("int visible=0;for(NavRoute r:ordered)if(!hidden.contains(r.id()))visible++;",
+                      self.editor)
+
+    def test_hidden_destinations_keep_their_data_and_still_open_from_widgets(self):
+        # Stated to the user in the editor, so it must actually be true: hiding removes the
+        # slot from the rail, not the destination. applyRoute resolves any route regardless
+        # of visibility, and the data is untouched.
+        self.assertIn("Hidden destinations keep their data and still open from widgets", self.main)
+        apply_route = self.main.split("private void applyRoute(Intent intent)")[1].split("private void ")[0]
+        self.assertNotIn("visibleRoutes()", apply_route)
+        self.assertNotIn("hiddenRoutes(", apply_route)
+
+    def test_reorder_affordances_are_inert_at_the_ends_of_the_list(self):
+        self.assertIn("moveButton(\"\\u2191\",index>0&&!isHidden)", self.editor)
+        self.assertIn("moveButton(\"\\u2193\",index<ordered.size()-1&&!isHidden)", self.editor)
+        # The click guards too: an inert-looking button that still fires would swap a
+        # destination with whatever sits outside the list.
+        self.assertIn("if(index==0)return;", self.editor)
+        self.assertIn("if(index>=ordered.size()-1)return;", self.editor)
+        self.assertIn("b.setAlpha(enabled?1f:.3f);b.setFocusable(enabled);b.setClickable(enabled);",
+                      self.main)
+
+    def test_reset_clears_order_and_hidden_together(self):
+        reset = self.editor.split("reset.setOnClickListener")[1]
+        self.assertIn("NavPrefs.saveRouteOrder(this,clockApp.id(),java.util.Collections.<String>emptyList())", reset)
+        self.assertIn("NavPrefs.setHiddenRoutes(this,clockApp.id(),java.util.Collections.<String>emptySet())", reset)
+        self.assertIn('toast("Navigation reset.")', reset)
+        # Clearing only one would leave the user partway back to the default and unable to
+        # tell which half had been reset.
+        self.assertIn("routeCache=null;", reset)

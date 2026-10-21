@@ -274,7 +274,9 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1c/1d — `:core-design` + `:core-data`** | ✅ **complete** | `:core-design` holds all 6 design classes (icons, analog face, motion, presets, surfaces, renderer); `:core-data` holds 4 (theme, prefs, usage, activity log). `:app` is down from 37 Java files to **28** |
 | **1d-3 — `:core-data` formatting** | ✅ done | [run 39559422583](https://github.com/tarungittarun/TicTic/actions/runs/39559422583), all steps green. `AppFormat` holds `formatTime`/`formatDate`; 12 call sites untouched via the facade. **80 contract tests** |
 | **1g — `:core-suite` contract + `:shell` chrome** | ✅ done | [run 39561312731](https://github.com/tarungittarun/TicTic/actions/runs/39561312731), all steps green. 6 modules. Interfaces only, no implementations, no existing product code touched. `NavOrder` + 12 JVM unit tests in `:core-domain` (report artifact 6,159 → 7,520 B confirms they executed). **89 contract tests** |
-| **1h — `:feature-clock`** | ⬜ **next, and the delicate one** | Extract the clock as the contract's first and only implementor. Means dismantling the 501-line `MainActivity`: six tabs plus the whole settings surface are built inline. CI green after *each* screen, not at the end |
+| **1h-i — `UiKit` drawing primitives** | ✅ done | [run 39563925916](https://github.com/tarungittarun/TicTic/actions/runs/39563925916), all steps green, APK 560,207 B. `dp`/`vbox`/`hbox`/`lp`/`label`/`shape`/typeface moved to `:core-design`; `MainActivity` keeps one-line delegates (net 18 lines changed); `applyPalette` now resolves a `Palette`, so the ten theme literals are single-sourced. **91 contract tests** |
+| **1h-ii — `:feature-clock` + first `Screen`** | ⬜ **next** | Create the module, implement `SuiteApp`/`ScreenHost`, and move one screen end-to-end to prove the wiring before touching the rest |
+| 1h-iii — remaining screens | ⬜ | The other five tabs plus the settings surface, one CI-verified screen at a time |
 | 1d-4 — clock domain split | ⬜ **blocked on 1h** | `nextOccurrence`, `daysLabel`, `nextAlarmText`, `alarmVolumeAction`, `showRingingSnoozeAction`, both migrations. These are `:feature-clock` territory, so they cannot move until that module exists. `nextOccurrence`/`daysLabel` are pure JVM and could go to `:core-domain`, but they encode clock recurrence rules — they belong with the clock |
 | 1d-5 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
 | 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
@@ -283,7 +285,19 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | 1i — export/import bundle | ⬜ | must ship before the id change reaches users |
 | 1j — dead `SDK_INT` guard cleanup | ⬜ | 36 guards, deliberately deferred (§5.1) |
 
-**Why 1c was narrowed, and why 1d is now the critical path.** The plan originally listed `:core-design` before `:core-data`. Reading the sources showed that is backwards: every design class except `TicIconView` reads theme/accent/preference state through `DataStore`, which lives in `:app`. Extracting them first would make `:core-design` depend on `:app` and invert the §3.1 rule. So 1c ships the one genuinely decoupled class and proves the Android-library module type, and the glass/motion system waits for `:core-data`. Contract tests now enforce this: no class in `:core-design` may reference the data store or import the legacy package.
+**What still blocks a screen from moving (found in 1h-i).** The seven primitives were necessary but not sufficient. Four more helpers are entangled with `MainActivity` itself rather than with the design system, and a screen cannot be lifted out until they are addressed:
+
+- `sectionTitle()` and `gap()` write into the Activity's own `body` container, so they assume a specific parent rather than returning a view.
+- `card()` reads the glass, layout-density and card-elevation settings and calls `glassEnabled()` and `cardFillForElevation()`, which in turn use the `bg`/`surface` fields.
+- `glassSurfaceDrawable()` builds the app-glass panel from several preferences.
+
+These are all legitimately design-system code, but each needs a container or a palette passed in rather than read from Activity fields. `UiKit` is the right home; they are a follow-up slice, not part of 1h-i.
+
+Also noted and deliberately left alone: eight sites in `MainActivity` hardcode dark-mode field fills of the form `dark ? 0xff1b2926 : <light value>`, where the dark branch coincides with the palette surface but the light value differs per site. These are pre-existing and appearance-affecting, so changing them belongs with a visual pass on device, not with a refactor whose contract is that behaviour does not change.
+
+**Why 1c was narrowed, and why 1d became the critical path.** The plan originally listed `:core-design` before `:core-data`. Reading the sources showed that is backwards: every design class except `TicIconView` reads theme/accent/preference state through `DataStore`, which lived in `:app`. Extracting them first would have made `:core-design` depend on `:app` and inverted the §3.1 rule. So 1c shipped the one genuinely decoupled class and proved the Android-library module type, and the glass/motion system waited for `:core-data`.
+
+The enforcing test had to change once `:core-data` existed, and that is worth recording: it originally forbade *any* reference to the legacy store in `:core-design`, which was correct while `:core-data` was absent and wrong afterwards, since depending on it is then the whole point. It now asserts the real rule — `:core-design` must use `:core-data` and declare that dependency, and must never reach past it into `:app`.
 
 **`DataStore` is the hard knot in 1d.** Measured: **452 references across 25 files**, 144 of them in `MainActivity` alone. By method — `prefs` 182, `dark` 81, `log` 46, `array` 33, `accent` 24, `putArray` 18, `formatTime` 14, `nextOccurrence` 11, `find` 9, then the clock-specific tail. About fifteen contract tests assert on `DataStore.java` content *and* on `DataStore.xxx(...)` call-site strings in other files.
 

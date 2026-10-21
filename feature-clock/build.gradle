@@ -1,0 +1,42 @@
+// The clock app: alarms, reminders, timer, stopwatch, routines and usage.
+// The first and (for now) only implementor of the :core-suite contract, and the
+// reference for how every later app module is shaped. See SUITE-PLAN.md §3.1.
+//
+// Dependency rule: this module may depend on :core-* and nothing else. It must
+// never depend on :app, :shell or another :feature-* — enforced by contract test.
+// That rule is why the clock domain logic moved here before any screen did:
+// MainActivity makes 140 DataStore calls, and DataStore lives in :app, which this
+// module can never see. :app may depend on every :feature-*, so DataStore keeps
+// thin delegates in here and no call site changes.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.clock'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // The contract this app implements. api, not implementation: SuiteApp and
+    // Screen appear in this module's public surface once ClockApp lands.
+    api project(':core-suite')
+
+    implementation project(':core-data')
+    implementation project(':core-design')
+    implementation project(':core-domain')
+
+    // Unit tests run on the JVM via testDebugUnitTest. org.json is deliberately
+    // NOT added here: android.jar stubs it as "not mocked", and rather than fight
+    // the test classpath, AlarmRules exposes a pure overload that takes plain
+    // ints. The scheduling rule is what deserves testing; JSON field extraction
+    // is not.
+    testImplementation 'junit:junit:4.13.2'
+}

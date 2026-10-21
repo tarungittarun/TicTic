@@ -33,6 +33,15 @@ include ':core-data'
 //   not have to.
 // :shell implements that contract: the registry, the three navigation modes and
 //   the user's ordering/pinning/hiding (control layer L1).
-// :feature-clock and the remaining Phase 1 steps follow.
 include ':core-suite'
 include ':shell'
+
+// :feature-clock is the first app module and the first implementor of the
+//   :core-suite contract. It holds the clock's own domain rules — alarm
+//   recurrence, weekday labels, ringing-control settings and their migrations —
+//   which is why it was created before any screen moved: a feature module may
+//   never depend on :app, so everything a clock screen needs must already be
+//   reachable from a :core-* or :feature-* module. DataStore in :app keeps
+//   one-line delegates, so its ~140 call sites are untouched.
+//   Every later app is a sibling: :feature-calculator, :feature-notes, ...
+include ':feature-clock'

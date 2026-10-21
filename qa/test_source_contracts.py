@@ -13,6 +13,7 @@ CORE_DESIGN = ROOT / "core-design/src/main/java/app/space/core/design"
 CORE_DATA = ROOT / "core-data/src/main/java/app/space/core/data"
 CORE_SUITE = ROOT / "core-suite/src/main/java/app/space/core/suite"
 SHELL = ROOT / "shell/src/main/java/app/space/shell"
+FEATURE_CLOCK = ROOT / "feature-clock/src/main/java/app/space/feature/clock"
 
 
 def read(name):
@@ -21,6 +22,10 @@ def read(name):
 
 def read_core_domain(name):
     return (CORE_DOMAIN / name).read_text(encoding="utf-8")
+
+
+def read_feature_clock(name):
+    return (FEATURE_CLOCK / name).read_text(encoding="utf-8")
 
 
 def read_core_design(name):
@@ -94,7 +99,10 @@ class AlarmContracts(unittest.TestCase):
         self.assertIn('prefs.getInt("alarm_default_reminder_minutes",30)', main)
         self.assertIn('putInt("alarm_default_reminder_minutes",useCustom[0]?customLead[0]:leads[leadPos])', main)
         self.assertIn('o.optInt("reminder_minutes",30)', scheduler)
-        self.assertIn('alarm.put("reminder_minutes",30)', datastore)
+        # Step 1d-4: the v1.9.2 reminder-defaults migration moved to :feature-clock.
+        rules = "".join(java_code_only(read_feature_clock("AlarmRules.java")).split())
+        self.assertIn('alarm.put("reminder_minutes",30)', rules)
+        self.assertIn("AlarmRules.migrateReminderDefaults(c)", datastore)
 
     def test_reminder_default_is_distinct_bundled_ping(self):
         main = read("MainActivity.java")
@@ -318,7 +326,7 @@ class NewFeatureContracts(unittest.TestCase):
         theme = (CORE_DATA / "AppTheme.java").read_text(encoding="utf-8")
         start = theme.index("ACCENT_COLORS")
         self.assertEqual(theme[start:theme.index("};", start)].count("0xff"), 16)
-        self.assertIn("ACCENT_COLORS=AppTheme.ACCENT_COLORS", datastore)
+        self.assertIn("ACCENT_COLORS=AppTheme.ACCENT_COLORS", "".join(datastore.split()))
 
     def test_every_widget_provider_supports_launcher_resize_and_studio_spacing_preview(self):
         providers=list((ROOT / "app/src/main/res/xml").glob("widget_*_info.xml"))
@@ -457,9 +465,14 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn('"Stop"', alarm)
         self.assertNotIn("Turn off this repeating alarm", alarm)
         self.assertNotIn('"Turn off",AlarmActionReceiver.pending(this,AlarmActionReceiver.ACTION_DISABLE', service)
-        self.assertIn("static int alarmVolumeAction(Context c,boolean volumeUp)", store)
+        # Step 1d-4: the ringing-control settings moved to :feature-clock. DataStore keeps
+        # the delegate and the doc comment its call sites were written against; the mapping
+        # rule itself is asserted where it now lives.
+        ringing = "".join(java_code_only(read_feature_clock("RingingControls.java")).split())
+        self.assertIn("static int alarmVolumeAction(Context c, boolean volumeUp)", store)
+        self.assertIn("RingingControls.volumeAction(c, volumeUp)", store)
         self.assertIn("Control volume becomes Snooze; Turn off becomes Stop", store)
-        self.assertIn("int action=(old==2||old==3)?2:1", store)
+        self.assertIn("intaction=(old==2||old==3)?2:1", ringing)
         self.assertIn("AlarmActionReceiver.snooze(this,id)", alarm)
         self.assertIn("AlarmActionReceiver.dismiss(this,id)", alarm)
         self.assertNotIn("setVolumeControlStream", alarm)
@@ -601,8 +614,11 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         store = read("DataStore.java")
         main = read("MainActivity.java")
         alarm = read("AlarmActivity.java")
-        self.assertIn('"alarm_volume_up_action"', store)
-        self.assertIn('"alarm_volume_down_action"', store)
+        ringing = read_feature_clock("RingingControls.java")
+        self.assertIn('"alarm_volume_up_action"', ringing)
+        self.assertIn('"alarm_volume_down_action"', ringing)
+        # The facade still exposes the per-key accessor its call sites use.
+        self.assertIn("static int alarmVolumeAction(Context c, boolean volumeUp)", store)
         self.assertIn('"alarm_volume_up_action",true', main)
         self.assertIn('"alarm_volume_down_action",false', main)
         self.assertIn('String[] options={"Snooze","Stop"}', main)
@@ -1164,6 +1180,107 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertEqual(["Palette.java"], holders, f"colour blend duplicated in: {holders}")
         self.assertNotIn("blendColor", read("MainActivity.java"))
 
+    def test_feature_clock_is_the_first_app_module_and_depends_only_downward(self):
+        """SUITE-PLAN.md §6.1 step 1d-4. :feature-clock is the first app module and the
+        reference shape for every later one, so its dependency direction matters more than
+        its contents: a feature that reaches sideways or upward cannot be removed from a
+        build, which is the one thing §3.4 promises users they can do."""
+        settings = (ROOT / "settings.gradle").read_text(encoding="utf-8")
+        self.assertIn("include ':feature-clock'", settings)
+        app_build = (ROOT / "app/build.gradle").read_text(encoding="utf-8")
+        self.assertIn("implementation project(':feature-clock')", app_build)
+
+        build = (ROOT / "feature-clock/build.gradle").read_text(encoding="utf-8")
+        self.assertIn("id 'com.android.library'", build)
+        self.assertIn("namespace 'app.space.feature.clock'", build)
+        self.assertIn("api project(':core-suite')", build)
+        # A feature implements the contract, so :core-suite must be api, not
+        # implementation: SuiteApp and Screen appear in its public surface.
+        self.assertNotIn("implementation project(':core-suite')", build)
+        for forbidden in ("project(':app')", "project(':shell')"):
+            self.assertNotIn(forbidden, build, f"a feature module may not depend on {forbidden}")
+
+        # Nor may its code reach back into the legacy package it is being extracted from.
+        for name in ("AlarmRules.java", "RingingControls.java"):
+            src = read_feature_clock(name)
+            self.assertNotIn("app.tictic.clock", src, f"{name} must not import the legacy package")
+            self.assertNotIn("DataStore", java_code_only(src), f"{name} must not use DataStore")
+
+    def test_data_store_is_now_pure_delegation_with_no_clock_logic(self):
+        """The point of the facade strategy: implementations move, call sites do not.
+
+        DataStore held the clock's recurrence rules, ringing-control settings and two
+        migrations. As of 1d-4 it holds no logic at all — every body is a one-line
+        delegate — which is what makes it safe for a :feature-* module to exist while
+        ~140 call sites in :app still read through this class.
+        """
+        store = java_code_only((JAVA / "DataStore.java").read_text(encoding="utf-8"))
+        rules = read_feature_clock("AlarmRules.java")
+        ringing = read_feature_clock("RingingControls.java")
+
+        # The recurrence arithmetic must be gone from DataStore and present in the module.
+        self.assertNotIn("Calendar.DAY_OF_YEAR", store)
+        self.assertNotIn("86400000L", store)
+        self.assertIn("Calendar.DAY_OF_YEAR", rules)
+        self.assertIn("86400000L", rules)
+        # The weekday initials table is a clock display rule, not shared data.
+        self.assertNotIn('"S","M","T","W","T","F","S"', store.replace(" ", ""))
+        self.assertIn('"S", "M", "T", "W", "T", "F", "S"', rules)
+
+        # Preference keys owned by the clock live in the clock module only.
+        for key in ('"ringing_controls_v111_migrated"', '"alarm_volume_up_action"',
+                    '"alarm_volume_down_action"', '"alarm_ringing_actions"',
+                    '"reminder_defaults_v192_migrated"', '"reminder_minutes"'):
+            self.assertNotIn(key, store, f"{key} must not remain in the DataStore facade")
+        for key in ('"ringing_controls_v111_migrated"', '"alarm_volume_up_action"',
+                    '"alarm_ringing_actions"'):
+            self.assertIn(key, ringing)
+        for key in ('"reminder_defaults_v192_migrated"', '"reminder_minutes"'):
+            self.assertIn(key, rules)
+
+        # Every remaining DataStore body is a delegate, not an implementation.
+        self.assertIn("RingingControls.migrate(c)", store)
+        self.assertIn("AlarmRules.nextOccurrence(alarm, from)", store)
+        self.assertIn("AlarmRules.daysLabel(mask)", store)
+        self.assertIn("AlarmRules.nextAlarmText(c)", store)
+        self.assertIn("AlarmRules.migrateReminderDefaults(c)", store)
+        self.assertIn("RingingControls.showSnoozeAction(c)", store)
+
+    def test_alarm_recurrence_rule_is_unit_testable_without_json(self):
+        """nextOccurrence decides when every alarm in the product fires, and was untested
+        because its only entry point took a JSONObject — which android.jar stubs as "not
+        mocked", so testing it would have meant putting a real JSON jar on the test
+        classpath and hoping it beat android.jar. The pure overload removes that fight."""
+        rules = java_code_only(read_feature_clock("AlarmRules.java"))
+        compact = "".join(rules.split())
+        for sig in ("public static long nextOccurrence(int hour, int minute, int daysMask, "
+                    "long savedDateMillis, long from)",
+                    "public static long nextOccurrence(JSONObject alarm, long from)"):
+            self.assertIn("".join(sig.split()), compact, f"missing overload: {sig}")
+        # The JSON form must be a thin extraction, not a second copy of the arithmetic.
+        json_body = rules[rules.index("public static long nextOccurrence(JSONObject alarm"):
+                          rules.index("public static long nextOccurrence(int hour")]
+        self.assertNotIn("Calendar", json_body,
+                         "the JSON overload must delegate, not reimplement the rule")
+
+        test = (ROOT / "feature-clock/src/test/java/app/space/feature/clock"
+                / "AlarmRulesTest.java").read_text(encoding="utf-8")
+        self.assertGreaterEqual(test.count("@Test"), 12)
+        # The bug this rule is most likely to grow: a weekly alarm whose time has already
+        # passed today must come round in seven days, not fire tomorrow on the wrong day.
+        self.assertIn("WaitsAWeekNotADay", test)
+        # And it must never schedule into the past.
+        self.assertIn("assertTrue(result > from)", test)
+        # A test that recomputes the expected value the same way the implementation does
+        # would pass even if the rule were wrong, so no org.json on the test classpath.
+        # Comment lines are stripped before this check: the build file explains in prose
+        # why org.json is deliberately absent, and an assertion that matched its own
+        # explanation would fail for the right reason and pass for the wrong one.
+        build = (ROOT / "feature-clock/build.gradle").read_text(encoding="utf-8")
+        declared = "\n".join(l for l in build.split("\n") if not l.strip().startswith("//"))
+        self.assertNotIn("org.json", declared)
+        self.assertIn("testImplementation 'junit:junit:4.13.2'", declared)
+
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped
         real code it would hide a genuine violation, and if it kept comments the module
@@ -1454,8 +1571,12 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn('"usage_metrics_enabled"', tracker)
 
     def test_usage_tracker_consumers_import_it_across_the_boundary(self):
-        for name in ("MainActivity.java", "WidgetEngine.java", "DataStore.java"):
+        # DataStore was dropped from this list in step 1d-4. It imported UsageTracker
+        # without ever calling it, so the assertion was pinning a dead import rather than a
+        # real consumer; the facade no longer references the tracker at all.
+        for name in ("MainActivity.java", "WidgetEngine.java"):
             self.assertIn("import app.space.core.data.UsageTracker;", read(name), name)
+        self.assertNotIn("UsageTracker", read("DataStore.java"))
 
 
 if __name__ == "__main__":

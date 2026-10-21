@@ -26,16 +26,19 @@ public class ExpenseRulesTest {
 
     @Test public void categoryBreakdownIsLargestFirstThenAlphabetical() {
         List<Map.Entry<String, Long>> out = ExpenseRules.byCategory(Arrays.asList(
-                e("1", "Food", 500, 0), e("2", "Travel", 900, 0), e("3", "Food", 400, 0),
-                e("4", "Bills", 900, 0)));
-        assertEquals(3, out.size());
-        // Travel and Bills tie on 900, so they sort by name rather than by insertion
-        // order, which would otherwise change when the list is re-read.
-        assertEquals("Bills", out.get(0).getKey());
-        assertEquals(Long.valueOf(900), out.get(0).getValue());
-        assertEquals("Travel", out.get(1).getKey());
-        assertEquals("Food", out.get(2).getKey());
-        assertEquals(Long.valueOf(900), out.get(2).getValue());
+                e("1", "Food", 500, 0), e("2", "Travel", 1200, 0), e("3", "Food", 400, 0),
+                e("4", "Zebra", 300, 0), e("5", "Bills", 300, 0)));
+        assertEquals(4, out.size());
+        // Distinct totals sort by size...
+        assertEquals("Travel", out.get(0).getKey());
+        assertEquals(Long.valueOf(1200), out.get(0).getValue());
+        assertEquals("Food", out.get(1).getKey());
+        assertEquals(Long.valueOf(900), out.get(1).getValue());
+        // ...and a tie sorts by name, NOT by insertion order. Zebra is added first, so
+        // insertion order would put it ahead of Bills and the breakdown would reshuffle
+        // whenever the rows are re-read in a different order.
+        assertEquals("Bills", out.get(2).getKey());
+        assertEquals("Zebra", out.get(3).getKey());
     }
 
     @Test public void aBlankCategoryBecomesUncategorised() {

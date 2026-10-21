@@ -281,7 +281,8 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1h-iv — move the screens** | ⬜ **next** | One tab at a time, each behind its own CI-verified commit. First screen must also close two contract gaps: `appSwitch()` is still Activity-local, and `ScreenHost` has `invalidate()` but no `toast()`. `createScreen` returning null and `settingsGroups` being empty are pinned as explicitly-incomplete markers to update then |
 | **1h-v — settings groups** | ⬜ | ~12 groups move to `SettingsGroup`, so a suite Settings page renders the clock's categories |
 | 1d-5 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
-| 1e — `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
+| **1e·1 — `:core-platform` created** | ✅ done | [run 39595590343](https://github.com/tarungittarun/TicTic/actions/runs/39595590343), all steps green, APK 565,112 B. `SystemBoot.count` moved out of `TimerReceiver`, which was the last `:app`-only dependency blocking the stopwatch screen. Receiver keeps a delegate, so its three call sites and `MainActivity`'s two are untouched. **99 contract tests** |
+| 1e·2 — rest of `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, power saver, usage |
 | 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
 | 1g-2 — nav rendering in `:shell` | ⬜ | the hub/rail/drawer views themselves, plus the reorder/pin/hide UI. Follows 1h so there is a real app to render |
 | 1i — export/import bundle | ⬜ | must ship before the id change reaches users |

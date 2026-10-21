@@ -2,17 +2,14 @@ package app.tictic.clock;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.format.DateFormat;
 import app.space.core.data.AppActivityLog;
+import app.space.core.data.AppFormat;
 import app.space.core.data.AppPrefs;
 import app.space.core.data.AppTheme;
 import app.space.core.data.UsageTracker;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 final class DataStore {
     /**
@@ -52,11 +49,8 @@ final class DataStore {
     }
     static JSONObject find(Context c, String key, long id) { return AppPrefs.find(c, key, id); }
     static void log(Context c, String type, String title, String detail) { AppActivityLog.log(c, type, title, detail); }
-    static String formatTime(Context c, int hour, int minute) {
-        Calendar cal=Calendar.getInstance(); cal.set(Calendar.HOUR_OF_DAY,hour); cal.set(Calendar.MINUTE,minute);
-        return new SimpleDateFormat(DateFormat.is24HourFormat(c)?"HH:mm":"h:mm a",Locale.getDefault()).format(cal.getTime());
-    }
-    static String formatDate(long millis) { return new SimpleDateFormat("EEE, d MMM",Locale.getDefault()).format(new Date(millis)); }
+    static String formatTime(Context c, int hour, int minute) { return AppFormat.formatTime(c, hour, minute); }
+    static String formatDate(long millis) { return AppFormat.formatDate(millis); }
     static long nextOccurrence(JSONObject alarm, long from) {
         Calendar now=Calendar.getInstance(); now.setTimeInMillis(from);
         int hr=alarm.optInt("hour",7), mn=alarm.optInt("minute",0), days=alarm.optInt("days",0);

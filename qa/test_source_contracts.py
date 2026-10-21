@@ -719,6 +719,36 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("include ':core-domain'", settings)
         self.assertIn("implementation project(':core-domain')", app_gradle)
 
+    def test_time_formatting_moved_to_core_data_and_locale_rules_hold(self):
+        """SUITE-PLAN.md §6.1 step 1d-3.
+
+        Formatting lives in the data layer, not the design system, because what it
+        encodes is a reading of user settings: formatTime switches 12/24-hour purely
+        from the system preference, and every suite app must honour it identically or
+        the device looks inconsistent.
+
+        Also pins the locale rule that separates the two extracted modules: strings
+        shown to a person follow the device locale, while numeric readouts must not
+        vary by locale. Getting this backwards produces either untranslated month
+        names or a locale-dependent stopwatch display.
+        """
+        fmt_src = (CORE_DATA / "AppFormat.java").read_text(encoding="utf-8")
+        datastore = read("DataStore.java")
+        self.assertIn("package app.space.core.data;", fmt_src)
+        self.assertIn("public final class AppFormat", fmt_src)
+        self.assertIn("public static String formatTime(Context c, int hour, int minute)", fmt_src)
+        self.assertIn("public static String formatDate(long millis)", fmt_src)
+        # The 12/24-hour switch is the whole reason this is shared.
+        self.assertIn("DateFormat.is24HourFormat(c)", fmt_src)
+        # Delegation, not duplication.
+        self.assertIn("return AppFormat.formatTime(c, hour, minute);", datastore)
+        self.assertIn("return AppFormat.formatDate(millis);", datastore)
+        self.assertNotIn("is24HourFormat", datastore)
+        self.assertNotIn('"EEE, d MMM"', datastore)
+        # Locale rule: user-facing text follows the device; numeric readouts do not.
+        self.assertIn("Locale.getDefault()", fmt_src)
+        self.assertIn("Locale.ROOT", read_core_domain("TimeMath.java"))
+
     def test_glass_trio_moved_into_core_design_with_a_deliberately_narrow_surface(self):
         """Step 1c-2b: GlassPreset, AppSurfaceStyle and AppGlassDrawable.
 

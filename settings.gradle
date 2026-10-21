@@ -36,6 +36,13 @@ include ':core-data'
 include ':core-suite'
 include ':shell'
 
+// :core-platform reads OS state rather than the app's own storage. It starts with
+//   the boot count, which the stopwatch needs to detect a reboot mid-run and which
+//   was unreachable from :feature-clock while it sat package-private inside an :app
+//   broadcast receiver. Permission preflight, time-change rescheduling and
+//   power-saver state join it in the rest of step 1e.
+include ':core-platform'
+
 // :feature-clock is the first app module and the first implementor of the
 //   :core-suite contract. It holds the clock's own domain rules — alarm
 //   recurrence, weekday labels, ringing-control settings and their migrations —

@@ -15,6 +15,7 @@ CORE_DATA = ROOT / "core-data/src/main/java/app/space/core/data"
 CORE_SUITE = ROOT / "core-suite/src/main/java/app/space/core/suite"
 SHELL = ROOT / "shell/src/main/java/app/space/shell"
 FEATURE_CLOCK = ROOT / "feature-clock/src/main/java/app/space/feature/clock"
+CORE_PLATFORM = ROOT / "core-platform/src/main/java/app/space/core/platform"
 
 
 def read(name):
@@ -1370,6 +1371,53 @@ class ModuleGraphContracts(unittest.TestCase):
         main = read("MainActivity.java")
         self.assertNotIn("ClockApp", main)
         self.assertNotIn("SuiteRegistry", main)
+
+    def test_core_platform_holds_os_state_reads_and_the_boot_count_moved_there(self):
+        """SUITE-PLAN.md §6.1 step 1e (first slice).
+
+        The boot count was package-private inside an :app broadcast receiver, which made
+        it unreachable from :feature-clock — and the stopwatch needs it, because
+        SystemClock.elapsedRealtime() resets on reboot while currentTimeMillis() does not.
+        Without it a timer that spans a reboot reports a wildly wrong duration.
+        """
+        settings = (ROOT / "settings.gradle").read_text(encoding="utf-8")
+        self.assertIn("include ':core-platform'", settings)
+        for consumer in ("app/build.gradle", "feature-clock/build.gradle"):
+            self.assertIn("implementation project(':core-platform')",
+                          (ROOT / consumer).read_text(encoding="utf-8"), consumer)
+
+        build = (ROOT / "core-platform/build.gradle").read_text(encoding="utf-8")
+        self.assertIn("id 'com.android.library'", build)
+        self.assertIn("namespace 'app.space.core.platform'", build)
+        # OS state, not app storage: no dependency on the data layer.
+        self.assertNotIn("project(':core-data')", build)
+        for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+            self.assertNotIn(forbidden, build, f":core-platform may not depend on {forbidden}")
+
+        boot = java_code_only((CORE_PLATFORM / "SystemBoot.java").read_text(encoding="utf-8"))
+        self.assertIn("public final class SystemBoot", boot)
+        self.assertIn("public static int count(Context context)".replace(" ", ""),
+                      "".join(boot.split()))
+        self.assertIn("Settings.Global.BOOT_COUNT", boot)
+        # A device that cannot report a boot count must not throw, and must not look as
+        # though a reboot happened: -1 compares equal to itself.
+        self.assertIn("catch (RuntimeException ignored)", boot)
+        # Two early returns of -1 (the SDK guard and the catch), plus -1 as the default
+        # when the setting is absent. All three must be the same value: a boot count that
+        # cannot be read has to compare equal to itself rather than look like a reboot.
+        self.assertEqual(2, boot.count("return -1;"))
+        self.assertIn("Settings.Global.BOOT_COUNT,-1", boot.replace(" ", ""))
+        self.assertIn("private SystemBoot()", boot)
+
+        # TimerReceiver keeps a delegate so its three internal callers and MainActivity's
+        # two are untouched, and no longer reads Settings itself.
+        receiver = read("TimerReceiver.java")
+        self.assertIn("static int bootCount(Context context) { return SystemBoot.count(context); }",
+                      receiver)
+        self.assertIn("import app.space.core.platform.SystemBoot;", receiver)
+        self.assertNotIn("import android.provider.Settings;", receiver)
+        self.assertNotIn("Settings.Global", java_code_only(receiver))
+        self.assertEqual(3, java_code_only(receiver).count("bootCount(context)"))
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

@@ -1,6 +1,7 @@
 package app.tictic.clock;
 
 import android.app.AlarmManager;
+import app.space.core.platform.SystemBoot;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,7 +12,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
-import android.provider.Settings;
 import app.space.core.domain.TimeMath;
 
 /** Durable timer deadline, monotonic countdown display, and completion notification. */
@@ -20,11 +20,10 @@ public class TimerReceiver extends BroadcastReceiver {
     private static final String TIMER_URI = "tictic://timer";
     private static final String CHANNEL = "tictic_timer_v199";
 
-    static int bootCount(Context context) {
-        if (Build.VERSION.SDK_INT < 24) return -1;
-        try { return Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1); }
-        catch (RuntimeException ignored) { return -1; }
-    }
+    /** Delegates to {@link SystemBoot#count}: moved to :core-platform in step 1e so
+     *  :feature-clock can reach it. Kept as a delegate because three call sites in
+     *  this receiver and two in MainActivity already use it. */
+    static int bootCount(Context context) { return SystemBoot.count(context); }
 
     static long remaining(Context context) {
         android.content.SharedPreferences prefs = DataStore.prefs(context);

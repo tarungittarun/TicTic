@@ -1,0 +1,25 @@
+// Platform-state reads for MySpace: values that come from the OS rather than from
+// the app's own storage. Starts with the boot count in step 1e (SUITE-PLAN.md §6.1),
+// because a :feature-* module needs it and may never depend on :app, where it lived.
+//
+// Permission preflight, boot/time-change rescheduling and power-saver state join here
+// later in 1e. This module must never depend on :app, :shell or any :feature-*.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.core.platform'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Framework APIs only: Settings.Global and Build. No AndroidX, no :core-* yet.
+}

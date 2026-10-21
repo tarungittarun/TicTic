@@ -52,6 +52,7 @@ dependencies {
     implementation project(':shell')
     // The clock app module. :app is the only module allowed to depend on both
     // :shell and the :feature-* modules — it is where the suite is assembled.
+    implementation project(':core-platform')
     implementation project(':feature-clock')
 
     // Test-only jars are vendored so the JVM regression suite runs even in offline/TLS-restricted builds.

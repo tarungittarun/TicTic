@@ -2016,8 +2016,12 @@ class CiDiagnosticsContracts(unittest.TestCase):
         # javac writes "path:line: error: cannot find symbol"; gradle wraps it in
         # "Execution failed for task". Both must be matched or the common case is
         # the one that goes silent.
-        for needle in ("error:", "Execution failed", "> Task .* FAILED", "AssertionError"):
+        for needle in ("error:", "Execution failed", "FAILED", "AssertionError"):
             self.assertIn(needle, self.yml)
+        # A bare "> Task .* FAILED" pattern matched the gradle task line but not a
+        # test-level "ClassName > testName FAILED", so a failing unit test reported that
+        # some test failed without saying which. The pattern must stay general.
+        self.assertIn("Test.* > ", self.yml)
 
     def test_the_annotation_step_is_what_fails_the_job(self):
         # Both build steps are continue-on-error so their output can be captured;

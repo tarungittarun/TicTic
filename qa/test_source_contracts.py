@@ -2,6 +2,7 @@
 Run: python3 -m unittest discover -s qa -v
 """
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1280,6 +1281,77 @@ class ModuleGraphContracts(unittest.TestCase):
         declared = "\n".join(l for l in build.split("\n") if not l.strip().startswith("//"))
         self.assertNotIn("org.json", declared)
         self.assertIn("testImplementation 'junit:junit:4.13.2'", declared)
+
+    def test_clock_app_declares_identity_the_registry_can_sort_and_render(self):
+        """SUITE-PLAN.md §6.1 step 1h-iii: the contract's first real implementor.
+
+        Until now SuiteApp had no consumer, so its identity and routing surface had never
+        been checked against anything. These assertions are what turn the interface from a
+        sketch into a requirement a second app can be written against.
+        """
+        src = java_code_only(read_feature_clock("ClockApp.java"))
+        self.assertIn("public final class ClockApp implements SuiteApp", src)
+        # Every SuiteApp member overridden, so the compiler catches signature drift
+        # instead of ClockApp quietly declaring unrelated methods.
+        self.assertEqual(src.count("@Override"), 9, "ClockApp must override all nine members")
+        for member in ('return "clock";', 'return "Clock";', "return TicIconView.CLOCK;",
+                       "return 0;", "return true;"):
+            self.assertIn(member, src)
+        # First in the hub: the clock is what this install started as.
+        self.assertIn("public int defaultOrder()", src)
+        # A suite app is instantiated by the registry, so it must not need an Activity.
+        self.assertNotIn("import android.app.", src)
+        self.assertNotIn("import android.content.Context;", src)
+
+    def test_clock_routes_match_the_widget_intents_that_already_send_them(self):
+        """The cross-module agreement that keeps 24 placed widgets working.
+
+        The clock's widget providers and notification actions put a `tab` extra on their
+        intents, and MainActivity.applyRoute maps those strings to tabs. ClockApp.acceptsRoute
+        must accept exactly the same set. A route present in one and missing from the other
+        fails silently: the widget opens the app and shows nothing, with no crash to explain
+        why. Neither side can be unit-tested against the other, so the parity is asserted
+        here. Legacy "log" is included because widgets placed before the rename still send
+        it.
+        """
+        main = java_code_only(read("MainActivity.java"))
+        start = main.index("private void applyRoute(Intent intent)")
+        body = main[start:main.index("}", main.index("activityHistoryLimit=20", start)) + 1]
+        in_activity = set(re.findall(r'"([a-z]+)"\.equals\(target\)', body))
+
+        clock = java_code_only(read_feature_clock("ClockApp.java"))
+        routes_decl = clock[clock.index("ROUTES = "):clock.index(";", clock.index("ROUTES = "))]
+        in_clock = set(re.findall(r'"([a-z]+)"', routes_decl))
+
+        self.assertEqual(in_activity, in_clock,
+                         "ClockApp.ROUTES and MainActivity.applyRoute disagree; a widget deep "
+                         f"link would break. only-in-activity={in_activity - in_clock} "
+                         f"only-in-clock={in_clock - in_activity}")
+        self.assertEqual({"clock", "alarms", "reminders", "timer", "stopwatch", "routines",
+                          "usage", "log"}, in_clock)
+        # acceptsRoute must be null-safe: the registry asks it about arbitrary strings.
+        self.assertIn("route != null && ROUTES.contains(route)", clock)
+
+    def test_clock_app_screen_migration_is_explicitly_incomplete_not_silently_empty(self):
+        """createScreen returns null and settingsGroups is empty until step 1h-iv.
+
+        Both are temporary and both are pinned, because the failure mode of an unfinished
+        migration is a blank page rather than an error. Null is the convention ScreenHost
+        already uses for availability, so the host can keep rendering the tab inline exactly
+        as it does today; a placeholder screen would render blank and look like a
+        regression. When the screens land, these assertions must be updated deliberately —
+        they are the marker that says the migration is not finished.
+        """
+        src = java_code_only(read_feature_clock("ClockApp.java"))
+        sig = "public Screen createScreen(ScreenHost host, String route)"
+        self.assertIn("".join(sig.split()), "".join(src.split()))
+        body = src[src.index(sig):]
+        self.assertIn("return null;", body)
+        self.assertIn("return Collections.emptyList();", src)
+        # And nothing is wired to render through it yet, so behaviour cannot change.
+        main = read("MainActivity.java")
+        self.assertNotIn("ClockApp", main)
+        self.assertNotIn("SuiteRegistry", main)
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

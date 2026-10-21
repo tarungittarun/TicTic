@@ -2237,8 +2237,11 @@ class CustomisableNavigationContracts(unittest.TestCase):
         self.route = java_code_only((SHELL / "NavRoute.java").read_text())
 
     def test_the_rail_renders_what_the_user_can_see_not_a_fixed_six(self):
-        self.assertIn("List<NavRoute> rail=visibleRoutes();", self.main)
-        self.assertIn("for(int i=0;i<rail.size();i++){", self.main)
+        # Named `destinations`, not `rail`: buildNav already has a HorizontalScrollView
+        # called rail, and shadowing it broke rail.addView at compile time.
+        self.assertIn("List<NavRoute> destinations=visibleRoutes();", self.main)
+        self.assertIn("for(int i=0;i<destinations.size();i++){", self.main)
+        self.assertIn("HorizontalScrollView rail=new HorizontalScrollView(this);", self.main)
         # The fixed arrays are gone; a second list of destinations would drift from the
         # first and the rail would show slots that dispatch somewhere else.
         self.assertNotIn('String[] names={"Clock"', self.main)

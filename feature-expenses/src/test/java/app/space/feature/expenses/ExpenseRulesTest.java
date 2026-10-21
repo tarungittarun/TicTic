@@ -69,11 +69,15 @@ public class ExpenseRulesTest {
         assertEquals(Long.valueOf(0), ExpenseRules.parseAmountMinor("0"));
         assertEquals(Long.valueOf(-12000), ExpenseRules.parseAmountMinor("-120"));
         assertEquals(Long.valueOf(12000), ExpenseRules.parseAmountMinor("  120  "));
+        // A trailing decimal point is what a user leaves behind when they change their mind
+        // mid-typing. Padding it to whole units is friendlier than refusing the entry, and
+        // it cannot misstate the amount: 12. is 12.00, not 12 cents.
+        assertEquals(Long.valueOf(12000), ExpenseRules.parseAmountMinor("12."));
     }
 
     @Test public void refusesInputThatIsNotMoneyRatherThanStoringZero() {
         // Returning null is the point: a typo stored as 0 would silently skew every total.
-        for (String bad : new String[]{"", "   ", null, "abc", "12.345", "1.2.3", "--5", "12.", "."}) {
+        for (String bad : new String[]{"", "   ", null, "abc", "12.345", "1.2.3", "--5", ".", "1.2.", "12,50"}) {
             assertNull("should reject: '" + bad + "'", ExpenseRules.parseAmountMinor(bad));
         }
     }

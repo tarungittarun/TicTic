@@ -2586,6 +2586,9 @@ class ThreeMoreAppsContracts(unittest.TestCase):
         # parseAmountMinor returns null on bad input rather than 0: a typo stored as zero
         # would silently skew every total the app reports.
         self.assertIn("public static Long parseAmountMinor(String input)", rules)
+        # Two decimal places is the contract; a third would mean fractional paise being
+        # silently dropped somewhere downstream.
+        self.assertIn("if (fraction.length() > 2 || !fraction.matches(\"[0-9]*\")) return null;", rules)
 
     def test_habit_streaks_are_computed_in_days_not_milliseconds(self):
         rules = self.src("habits", "HabitsRules")

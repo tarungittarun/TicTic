@@ -32,6 +32,8 @@ import app.space.feature.calculator.CalculatorApp;
 import app.space.feature.notes.NotesApp;
 import app.space.feature.habits.HabitsApp;
 import app.space.feature.expenses.ExpensesApp;
+import app.space.feature.calendar.CalendarApp;
+import app.space.feature.tasks.TasksApp;
 import app.space.shell.NavPrefs;
 import app.space.shell.NavRoute;
 import app.space.shell.SuiteRegistry;
@@ -58,10 +60,12 @@ public class MainActivity extends Activity implements ScreenHost {
     private final SuiteApp notesApp=new NotesApp();
     private final SuiteApp habitsApp=new HabitsApp();
     private final SuiteApp expensesApp=new ExpensesApp();
+    private final SuiteApp calendarApp=new CalendarApp();
+    private final SuiteApp tasksApp=new TasksApp();
     /** Every registered app, in the order the suite reports them. Adding an app is one
      *  entry here and nothing else: availability, the registry and the picker all read it,
      *  so no host method has to be taught about a new app individually. */
-    private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp);}
+    private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp,calendarApp,tasksApp);}
     /** Non-null while an app other than the clock owns the screen. */
     private Screen activeScreen;
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */

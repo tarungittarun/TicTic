@@ -1,0 +1,22 @@
+// Calendar app: local events only. Offline, no permissions, and deliberately NOT reading
+// the device calendar provider -- that would need READ_CALENDAR, a permission the owner's
+// "minimum access" promise in Settings would then have to justify.
+// Dependency rule (SUITE-PLAN.md 3.1): :core-* only. Enforced by contract test.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.calendar'
+    compileSdk 34
+    defaultConfig { minSdk 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(':core-suite')
+    implementation project(':core-data')
+    implementation project(':core-design')
+    testImplementation 'junit:junit:4.13.2'
+}

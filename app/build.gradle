@@ -58,6 +58,8 @@ dependencies {
     implementation project(':feature-notes')
     implementation project(':feature-habits')
     implementation project(':feature-expenses')
+    implementation project(':feature-calendar')
+    implementation project(':feature-tasks')
 
     // Test-only jars are vendored so the JVM regression suite runs even in offline/TLS-restricted builds.
     testImplementation files('libs/junit-4.13.2.jar', 'libs/hamcrest-core-1.3.jar')

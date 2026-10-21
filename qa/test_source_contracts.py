@@ -2493,8 +2493,8 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         self.assertIn("return suiteApps();", self.main)
         self.assertIn("for(SuiteApp a:suiteApps())if(a.id().equals(id))return true;return false;",
                       self.main)
-        self.assertIn("java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp)",
-                      self.main)
+        self.assertIn("java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,"
+                      "habitsApp,expensesApp,calendarApp,tasksApp)", self.main)
 
     def test_opening_another_app_goes_through_the_contract_not_a_hardcoded_branch(self):
         body = self.main.split("public boolean openApp(String id,String route){")[1].split("@Override")[0]
@@ -2623,15 +2623,21 @@ class ThreeMoreAppsContracts(unittest.TestCase):
         # appears with no change here.
         self.assertIn("openApp(app.id(),null)", main)
 
-    def test_all_five_apps_are_registered_once_in_one_list(self):
+    def test_every_app_is_registered_once_in_one_list(self):
+        # The count is deliberately NOT pinned here any more: CalendarAndTasksContracts
+        # asserts the current size, and pinning it twice meant every new app broke two
+        # tests for the same reason. What matters here is that each app is constructed
+        # exactly once, in the list, and nowhere else.
         main = java_code_only(read("MainActivity.java"))
-        self.assertIn("private final SuiteApp notesApp=new NotesApp();", main)
-        self.assertIn("private final SuiteApp habitsApp=new HabitsApp();", main)
-        self.assertIn("private final SuiteApp expensesApp=new ExpensesApp();", main)
+        for field, ctor in (("notesApp", "NotesApp"), ("habitsApp", "HabitsApp"),
+                            ("expensesApp", "ExpensesApp"), ("calendarApp", "CalendarApp"),
+                            ("tasksApp", "TasksApp")):
+            self.assertEqual(1, main.count("private final SuiteApp %s=new %s();" % (field, ctor)))
         registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
         self.assertIsNotNone(registry, "suiteApps() not found")
-        ids = registry.group(1).split(",")
-        self.assertEqual(len(ids), 5, ids)
+        for field in ("clockApp", "calculatorApp", "notesApp", "habitsApp", "expensesApp",
+                      "calendarApp", "tasksApp"):
+            self.assertIn(field, registry.group(1))
 
     def test_each_new_app_declines_routes_it_does_not_have(self):
         for mod, app, _, _, _ in self.APPS:
@@ -2641,3 +2647,81 @@ class ThreeMoreAppsContracts(unittest.TestCase):
             self.assertIn(" : null;", body)
             self.assertIn("public static final String ID", body)
             self.assertIn("@Override public int defaultOrder()", body)
+
+
+class CalendarAndTasksContracts(unittest.TestCase):
+    """Apps six and seven: Calendar and Tasks.
+
+    Both are offline with no permissions. Calendar deliberately does not read the device
+    calendar provider -- that would need READ_CALENDAR, which the Settings page's
+    "minimum access, and why" promise would then have to justify.
+    """
+
+    def src(self, mod, name):
+        return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
+
+    def gradle(self, mod):
+        return "\n".join(l for l in (ROOT / ("feature-%s/build.gradle" % mod)).read_text().splitlines()
+                         if not l.strip().startswith("//"))
+
+    def test_both_modules_are_declared_and_wired(self):
+        settings = (ROOT / "settings.gradle").read_text()
+        app_gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
+                               if not l.strip().startswith("//"))
+        for mod in ("calendar", "tasks"):
+            self.assertIn("include ':feature-%s'" % mod, settings)
+            self.assertIn("implementation project(':feature-%s')" % mod, app_gradle)
+            self.assertIn("namespace 'app.space.feature.%s'" % mod, self.gradle(mod))
+            for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+                self.assertNotIn(forbidden, self.gradle(mod))
+
+    def test_seven_apps_are_registered_in_one_list(self):
+        main = java_code_only(read("MainActivity.java"))
+        registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
+        self.assertIsNotNone(registry)
+        ids = registry.group(1).split(",")
+        self.assertEqual(7, len(ids), ids)
+        self.assertIn("private final SuiteApp calendarApp=new CalendarApp();", main)
+        self.assertIn("private final SuiteApp tasksApp=new TasksApp();", main)
+
+    def test_the_calendar_rules_are_pure_java(self):
+        rules = self.src("calendar", "CalendarRules")
+        for forbidden in ("import android.", "import androidx.", "Context"):
+            self.assertNotIn(forbidden, rules)
+        # A fixed zone for the grid maths: letting the default zone in would make the
+        # leading-blank count differ between the JVM test and a device elsewhere.
+        self.assertIn('TimeZone.getTimeZone("UTC")', rules)
+
+    def test_the_grid_is_a_fixed_size_and_undated_tasks_do_not_float_to_the_top(self):
+        rules = java_code_only(self.src("calendar", "CalendarRules"))
+        self.assertIn("GRID_CELLS = 42", rules)
+        tasks = java_code_only(self.src("tasks", "TasksRules"))
+        # NO_DUE is -1, so the comparator must branch on hasDue() rather than compare the
+        # sentinel as a timestamp.
+        self.assertIn("NO_DUE = -1L", tasks)
+        self.assertIn("if (a.hasDue() != b.hasDue()) return a.hasDue() ? -1 : 1;", tasks)
+
+    def test_day_ranges_are_half_open(self):
+        cal = java_code_only(self.src("calendar", "CalendarRules"))
+        self.assertIn("e.when >= fromInclusive && e.when < toExclusive", cal)
+        tasks = java_code_only(self.src("tasks", "TasksRules"))
+        self.assertIn("task.dueAt >= todayStart && task.dueAt < tomorrowStart", tasks)
+
+    def test_both_apps_have_jvm_test_suites(self):
+        for mod, rules in (("calendar", "CalendarRules"), ("tasks", "TasksRules")):
+            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java" % (mod, mod, rules))
+            self.assertTrue(path.exists(), "missing %s" % path)
+            self.assertIn("@Test", path.read_text())
+
+    def test_a_blank_due_date_is_not_defaulted_to_today(self):
+        # Defaulting to today would make every task overdue by tomorrow, which trains the
+        # user to ignore the list entirely.
+        screen = self.src("tasks", "TasksScreen")
+        self.assertIn("long due = TasksRules.NO_DUE;", screen)
+        self.assertIn("A blank due date means NO_DUE, not today", screen)
+
+    def test_events_are_stored_at_midday_not_midnight(self):
+        # Midnight is the boundary of the day range, so an event stored there can fall on
+        # the neighbouring day if the device's zone or offset changes later.
+        screen = self.src("calendar", "CalendarScreen")
+        self.assertIn("dayFrom + 43200000L", screen)

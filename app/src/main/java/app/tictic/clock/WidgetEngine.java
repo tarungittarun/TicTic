@@ -1,6 +1,7 @@
 package app.tictic.clock;
 
 import android.app.PendingIntent;
+import app.space.core.platform.PowerState;
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.appwidget.AppWidgetManager;
@@ -135,7 +136,7 @@ final class WidgetEngine {
         }
     }
     private static int dp(Context c,int value){return (int)(value*c.getResources().getDisplayMetrics().density+.5f);}
-    private static boolean powerSaverOptimization(Context c){if(!DataStore.prefs(c).getBoolean("adaptive_power_saver",true))return false;android.os.PowerManager pm=(android.os.PowerManager)c.getSystemService(Context.POWER_SERVICE);return pm!=null&&pm.isPowerSaveMode();}
+private static boolean powerSaverOptimization(Context c){return PowerState.isOptimizing(c);}
     static void refreshForPowerSaverChange(Context c){android.content.SharedPreferences p=DataStore.prefs(c);android.os.PowerManager pm=(android.os.PowerManager)c.getSystemService(Context.POWER_SERVICE);boolean now=pm!=null&&pm.isPowerSaveMode();boolean known=p.getBoolean("power_mode_known",false),before=p.getBoolean("power_mode_last",false);if(!known||before!=now){p.edit().putBoolean("power_mode_known",true).putBoolean("power_mode_last",now).apply();refreshAll(c);}}
     private static int panelDrawable(String n,int treatment){if(treatment==1)return R.drawable.widget_panel_fill_round;if(treatment==2)return R.drawable.widget_panel_fill_square;if(treatment==3)return R.drawable.widget_panel_fill_pill;if(treatment==4||treatment==5)return R.drawable.widget_panel_fill_soft;switch(n){case "widget_clock":return R.drawable.widget_bg_widget_clock;case "widget_date":return R.drawable.widget_bg_widget_date;case "widget_alarm":return R.drawable.widget_bg_widget_alarm;case "widget_analog":return R.drawable.widget_bg_widget_analog;case "widget_world":return R.drawable.widget_bg_widget_world;case "widget_timeline":return R.drawable.widget_bg_widget_timeline;case "widget_focus":return R.drawable.widget_bg_widget_focus;case "widget_timer":return R.drawable.widget_bg_widget_timer;case "widget_stopwatch":return R.drawable.widget_bg_widget_stopwatch;case "widget_bedside":return R.drawable.widget_bg_widget_bedside;case "widget_mono":return R.drawable.widget_bg_widget_mono;case "widget_calendar":return R.drawable.widget_bg_widget_calendar;case "widget_coral":return R.drawable.widget_bg_widget_coral;case "widget_sky":return R.drawable.widget_bg_widget_sky;case "widget_lavender":return R.drawable.widget_bg_widget_lavender;case "widget_stacked":return R.drawable.widget_bg_widget_stacked;case "widget_orbit":return R.drawable.widget_bg_widget_orbit;case "widget_prism":return R.drawable.widget_bg_widget_prism;case "widget_flip":return R.drawable.widget_bg_widget_flip;case "widget_command":return R.drawable.widget_bg_widget_command;case "widget_halo":return R.drawable.widget_bg_widget_halo;case "widget_routine":return R.drawable.widget_bg_widget_routine;case "widget_aurora":return R.drawable.widget_bg_widget_aurora;default:return R.drawable.widget_bg_widget_quiet;}}
     private static int outlineDrawable(int treatment){switch(treatment){case 1:return R.drawable.widget_panel_outline_round;case 2:return R.drawable.widget_panel_outline_square;case 3:return R.drawable.widget_panel_outline_pill;default:return R.drawable.widget_panel_outline_soft;}}

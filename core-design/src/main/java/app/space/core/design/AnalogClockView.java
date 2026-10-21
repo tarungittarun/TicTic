@@ -1,6 +1,7 @@
 package app.space.core.design;
 
 import android.content.Context;
+import app.space.core.platform.PowerState;
 import app.space.core.data.AppPrefs;
 import app.space.core.data.AppTheme;
 import android.graphics.Canvas;
@@ -29,7 +30,7 @@ public final class AnalogClockView extends View {
     public AnalogClockView(Context c){this(c,null);}
     public AnalogClockView(Context c,AttributeSet a){super(c,a);density=getResources().getDisplayMetrics().density;setContentDescription("Analog clock with selectable dial style");}
     private float d(float x){return x*density;}
-    private boolean powerSaverOptimization(){if(!AppPrefs.prefs(getContext()).getBoolean("adaptive_power_saver",true))return false;android.os.PowerManager pm=(android.os.PowerManager)getContext().getSystemService(Context.POWER_SERVICE);return pm!=null&&pm.isPowerSaveMode();}
+private boolean powerSaverOptimization(){return PowerState.isOptimizing(getContext());}
     @Override protected void onDraw(Canvas canvas){
         super.onDraw(canvas);float cx=getWidth()/2f,cy=getHeight()/2f,r=Math.min(getWidth(),getHeight())*.46f;
         boolean dark=AppTheme.dark(getContext());int ink=dark?0xfff1f4f2:0xffffffff;int soft=dark?0xffd3e0db:0xffd9e8e1;int accent=AppTheme.accent(getContext());

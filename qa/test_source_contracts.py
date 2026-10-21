@@ -1389,8 +1389,12 @@ class ModuleGraphContracts(unittest.TestCase):
         build = (ROOT / "core-platform/build.gradle").read_text(encoding="utf-8")
         self.assertIn("id 'com.android.library'", build)
         self.assertIn("namespace 'app.space.core.platform'", build)
-        # OS state, not app storage: no dependency on the data layer.
-        self.assertNotIn("project(':core-data')", build)
+        # SystemBoot needs nothing but framework APIs; PowerState reads the user's
+        # adaptive-power-saving preference before consulting the OS, so the module does
+        # depend on :core-data. Core -> core is permitted by the 3.1 rule and the
+        # constraint that actually matters is asserted below: nothing here may point at
+        # :app, :shell or a :feature-*.
+        self.assertIn("implementation project(':core-data')", build)
         for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
             self.assertNotIn(forbidden, build, f":core-platform may not depend on {forbidden}")
 
@@ -1418,6 +1422,53 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertNotIn("import android.provider.Settings;", receiver)
         self.assertNotIn("Settings.Global", java_code_only(receiver))
         self.assertEqual(3, java_code_only(receiver).count("bootCount(context)"))
+
+    def test_power_saver_rule_is_defined_exactly_once_across_three_modules(self):
+        """The third copy-pasted rule found in four slices.
+
+        MainActivity.batterySaverOptimization(), WidgetEngine.powerSaverOptimization() and
+        AnalogClockView.powerSaverOptimization() were logically identical under three names
+        in three modules. Drift here is concrete rather than cosmetic: widgets would keep
+        animating while the app throttled itself, or the analog clock would freeze while the
+        rest of the UI stayed live, and both read as a rendering bug rather than a
+        preference disagreement. Unified as PowerState.isOptimizing in :core-platform, which
+        is also where :feature-clock can reach it — the stopwatch screen needs it to pick
+        its tick rate.
+        """
+        state = java_code_only((CORE_PLATFORM / "PowerState.java").read_text(encoding="utf-8"))
+        self.assertIn("public final class PowerState", state)
+        self.assertIn("public static boolean isOptimizing(Context context)".replace(" ", ""),
+                      "".join(state.split()))
+        # The preference gates the OS read, and defaults to on: a user who turns adaptive
+        # throttling off is asking for full fidelity regardless of what Android reports.
+        self.assertIn('"adaptive_power_saver"', state)
+        self.assertIn("isPowerSaveMode()", state)
+        gate = state.index('"adaptive_power_saver"')
+        self.assertLess(gate, state.index("isPowerSaveMode()"),
+                        "the user preference must be checked before the OS read")
+
+        # The rule must exist in one file only.
+        holders = []
+        for path in ROOT.rglob("*.java"):
+            if ".git" in path.parts:
+                continue
+            compact = "".join(java_code_only(path.read_text(encoding="utf-8")).split())
+            if "isPowerSaveMode()" in compact and "getBoolean(\"adaptive_power_saver\",true)" in compact:
+                holders.append(path.name)
+        self.assertEqual(["PowerState.java"], holders, f"power-saver rule duplicated in: {holders}")
+
+        # All three former copies are now delegates, so their call sites are untouched.
+        self.assertIn("private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);}",
+                      read("MainActivity.java"))
+        self.assertIn("private static boolean powerSaverOptimization(Context c)"
+                      "{return PowerState.isOptimizing(c);}", read("WidgetEngine.java"))
+        self.assertIn("private boolean powerSaverOptimization()"
+                      "{return PowerState.isOptimizing(getContext());}",
+                      read_core_design("AnalogClockView.java"))
+        for name in ("MainActivity.java", "WidgetEngine.java"):
+            self.assertIn("import app.space.core.platform.PowerState;", read(name), name)
+        self.assertIn("import app.space.core.platform.PowerState;",
+                      read_core_design("AnalogClockView.java"))
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

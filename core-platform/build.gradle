@@ -21,5 +21,9 @@ android {
 }
 
 dependencies {
-    // Framework APIs only: Settings.Global and Build. No AndroidX, no :core-* yet.
+    // PowerState reads the user's adaptive-power-saving preference before consulting the
+    // OS, so this module needs the data layer. Core -> core is permitted by the 3.1 rule;
+    // the constraint that matters is that nothing here points at :app, :shell or a
+    // :feature-*, and a contract test asserts exactly that.
+    implementation project(':core-data')
 }

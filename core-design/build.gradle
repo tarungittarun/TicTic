@@ -34,6 +34,7 @@ dependencies {
     // before step 1d: they all read theme/accent/preference values, and reaching
     // back into :app for them would have inverted the module rule.
     implementation project(':core-data')
+    implementation project(':core-platform')
 
     // No AndroidX yet: the project still builds with android.useAndroidX=false,
     // and these classes need only framework Canvas/Paint/Path/View APIs.

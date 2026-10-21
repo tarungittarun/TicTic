@@ -1,6 +1,7 @@
 package app.tictic.clock;
 
 import android.Manifest;
+import app.space.core.platform.PowerState;
 import android.app.*;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -185,7 +186,7 @@ public class MainActivity extends Activity {
     }
     private String greetingText(){Calendar c=Calendar.getInstance();int h=c.get(Calendar.HOUR_OF_DAY);if(h<5)return "🌙  Good night";if(h<12)return "🌤️  Good morning";if(h<17)return "☀️  Good afternoon";if(h<21)return "🌇  Good evening";return "🌙  Good night";}
     private boolean clock24Hour(){int mode=DataStore.prefs(this).getInt("clock_time_format",1);return mode==2||(mode==0&&DateFormat.is24HourFormat(this));}
-    private boolean batterySaverOptimization(){if(!DataStore.prefs(this).getBoolean("adaptive_power_saver",true))return false;PowerManager pm=(PowerManager)getSystemService(POWER_SERVICE);return pm!=null&&pm.isPowerSaveMode();}
+private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);}
     private boolean homeSecondsEnabled(){return DataStore.prefs(this).getBoolean("show_home_seconds",true)&&!batterySaverOptimization();}
     private Typeface homeClockTypeface(){switch(DataStore.prefs(this).getInt("clock_digital_style",0)){case 1:return Typeface.SERIF;case 2:return Typeface.MONOSPACE;case 3:return Typeface.create("sans-serif-rounded",Typeface.NORMAL);case 4:return Typeface.create("sans-serif-condensed",Typeface.NORMAL);default:return Typeface.create("sans-serif-light",Typeface.NORMAL);}}
     private float homeClockLetterSpacing(){int style=DataStore.prefs(this).getInt("clock_digital_style",0);return style==2?.025f:style==3?.01f:0f;}

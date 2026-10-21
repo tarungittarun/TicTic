@@ -2027,3 +2027,48 @@ class CiDiagnosticsContracts(unittest.TestCase):
     def test_jvm_tests_are_still_run_explicitly(self):
         # assembleDebug does not run test tasks. This was already lost once.
         self.assertIn("testDebugUnitTest test", self.yml)
+
+
+class ScreenHostPersistenceContracts(unittest.TestCase):
+    """Screens must be able to confirm a save and have it take effect everywhere.
+
+    Step 1h-iv.4 grew ScreenHost from 9 members to 11. Without these, a screen in a
+    feature module can persist data but cannot tell the user it did, and cannot make the
+    widgets and schedulers that read the same data notice. The clock's editors finish every
+    save with a refresh of WidgetEngine plus three schedulers, all :app-only classes.
+    """
+
+    def setUp(self):
+        self.host = java_code_only((CORE_SUITE / "ScreenHost.java").read_text())
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_host_declares_toast_and_a_generic_refresh_channel(self):
+        self.assertIn("void toast(String message);", self.host)
+        self.assertIn("void refreshSurfaces();", self.host)
+        # The channel must stay generic. Naming a clock class here would make the contract
+        # belong to one app, and the whole point is that apps never learn what surfaces
+        # the shell happens to have.
+        for leak in ("WidgetEngine", "AlarmScheduler", "ReminderScheduler", "RoutineReceiver"):
+            self.assertNotIn(leak, self.host)
+
+    def test_the_activity_implements_both_new_members(self):
+        self.assertIn("@Override public void toast(String s)", self.main)
+        self.assertIn("@Override public void refreshSurfaces()", self.main)
+        # All four derived surfaces must be refreshed, or a save updates the page while
+        # the home-screen widget keeps showing the old routine list.
+        body = self.main.split("@Override public void refreshSurfaces()")[1].split("}")[0]
+        for call in ("WidgetEngine.refreshAll(this)", "AlarmScheduler.rescheduleAll(this)",
+                     "ReminderScheduler.rescheduleAll(this)", "RoutineReceiver.scheduleAll(this)"):
+            self.assertIn(call, body)
+
+    def test_screen_host_has_exactly_eleven_members(self):
+        # Guards silent contract drift in either direction: a new method breaks every
+        # implementor, and a removed one breaks every screen that relied on it.
+        members = re.findall(r"\b(?:void|boolean|Context|Palette|List<SuiteApp>|String)\s+(\w+)\(", self.host)
+        self.assertEqual(len(members), 11, members)
+
+    def test_toast_was_promoted_not_duplicated(self):
+        # MainActivity already had a private toast(); it must be the same one, now public.
+        # A second implementation would let screens and chrome diverge on duration.
+        self.assertEqual(len(re.findall(r"void toast\(String ", self.main)), 1)
+        self.assertIn("Toast.makeText(this,s,Toast.LENGTH_SHORT).show()", self.main)

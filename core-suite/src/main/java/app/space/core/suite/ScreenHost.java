@@ -76,4 +76,30 @@ public interface ScreenHost {
      * app is hidden or excluded from the build.
      */
     void openSettings(String groupId);
+
+    /**
+     * Shows a short transient message.
+     *
+     * <p>Added because screens confirm persistence — "Saved", "Routine deleted" — and a
+     * feature module has no business constructing its own {@code Toast} against a context
+     * it does not own. Routing it through the host keeps confirmation copy consistent and
+     * lets the shell decide presentation.
+     */
+    void toast(String message);
+
+    /**
+     * Tells the shell that persisted data changed, so every surface derived from it is
+     * rebuilt: home-screen widgets, and all scheduled alarms, reminders and routines.
+     *
+     * <p>This is the generic form of a coupling that would otherwise be unfixable. The
+     * clock's screens finish a save with {@code WidgetEngine.refreshAll} plus a
+     * reschedule of three different schedulers, and all four are {@code :app}-only
+     * classes. A screen in {@code :feature-clock} cannot call them, and importing them
+     * into the feature module would invert the dependency rule (§3.1).
+     *
+     * <p>The host owns the mapping from "data changed" to "which surfaces care", so an
+     * app never needs to know widgets or schedulers exist. That also means a new surface
+     * can be added later without touching any screen.
+     */
+    void refreshSurfaces();
 }

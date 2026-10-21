@@ -1112,7 +1112,8 @@ class ModuleGraphContracts(unittest.TestCase):
                        "public int cardFillForElevation(int level)",
                        "public Drawable glassSurfaceDrawable(int base,int radius,int opacity,int finish,int depth)",
                        "public Drawable glassSurfaceDrawable(int base,int radius,int opacity,int finish,int depth,int preset)",
-                       "public Drawable pageBackground()"):
+                       "public Drawable pageBackground()",
+                       "public Switch appSwitch()"):
             self.assertIn("".join(member.split()), compact, f"missing from UiKit: {member}")
         for delegate in ("private LinearLayout card(){return ui().card();}",
                          "private void sectionTitle(String title,String caption)"
@@ -1124,8 +1125,25 @@ class ModuleGraphContracts(unittest.TestCase):
                          "private int cardFillForElevation(int level)"
                          "{return ui().cardFillForElevation(level);}",
                          "private android.graphics.drawable.Drawable pageBackground()"
-                         "{return ui().pageBackground();}"):
+                         "{return ui().pageBackground();}",
+                         "private Switch appSwitch(){return ui().appSwitch();}"):
             self.assertIn(delegate, main, f"MainActivity must delegate: {delegate}")
+        # appSwitch tints with three palette colours; a stock Switch is grey in both states
+        # and disappears against a dark glass card, so every toggle goes through this.
+        self.assertIn("palette.accent", kit)
+        self.assertIn("palette.muted", kit)
+        self.assertIn("palette.border", kit)
+        # appSwitch's distinctive two-state tint must not survive in the Activity. The
+        # plain setThumbTintList calls that remain there belong to sliders and the alarm
+        # and reminder editors, which tint a single colour with ColorStateList.valueOf —
+        # a different control, not a copy of this one, so banning the method name outright
+        # would be wrong.
+        # Both markers of the two-state tint are verified absent from MainActivity, while
+        # setThumbTintList/setTrackTintList legitimately remain there for sliders and the
+        # alarm and reminder editors, which tint a single colour via ColorStateList.valueOf.
+        self.assertNotIn("int[][] states", main)
+        self.assertNotIn("android.R.attr.state_checked", main)
+        self.assertIn("android.R.attr.state_checked", kit)
         # Both glass overloads delegate, and the Activity no longer builds glass itself.
         self.assertEqual(2, main.count("{return ui().glassSurfaceDrawable("),
                          "both glassSurfaceDrawable overloads must delegate")

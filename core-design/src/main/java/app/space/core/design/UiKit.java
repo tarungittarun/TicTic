@@ -6,6 +6,8 @@ import android.view.View;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.content.res.ColorStateList;
+import android.widget.Switch;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -210,6 +212,22 @@ public final class UiKit {
             q.topMargin = dp(4);
             parent.addView(c, q);
         }
+    }
+
+    /**
+     * A toggle tinted with the palette: thumb and track both take the accent when checked,
+     * and fall back to muted text and the border colour when not.
+     *
+     * <p>Android's stock {@code Switch} is grey in both states, which disappears against a
+     * dark glass card, so every toggle in the product is built through this. Seven call
+     * sites in the clock alone; a suite app drawing its own would be visibly off-palette.
+     */
+    public Switch appSwitch() {
+        Switch sw = new Switch(context);
+        int[][] states = {new int[]{android.R.attr.state_checked}, new int[]{}};
+        sw.setThumbTintList(new ColorStateList(states, new int[]{palette.accent, palette.muted}));
+        sw.setTrackTintList(new ColorStateList(states, new int[]{palette.accent, palette.border}));
+        return sw;
     }
 
     /** Vertical spacer added to {@code parent}, for the same reason as {@link #sectionTitle}. */

@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
         @Override public AlertDialog create(){AlertDialog dialog=super.create();dialogRef[0]=dialog;dialog.setCanceledOnTouchOutside(true);android.view.Window window=dialog.getWindow();if(window!=null){android.graphics.drawable.Drawable panel=shape(surface,24);if(panel instanceof GradientDrawable)((GradientDrawable)panel).setStroke(dp(1),border);window.setBackgroundDrawable(panel);}return dialog;}
         @Override public AlertDialog show(){AlertDialog dialog=create();dialog.show();fitAlertDialog(dialog);fitAlertDialog(dialog);if(dialog.getWindow()!=null)GelMotion.apply(dialog.getWindow().getDecorView(),accent);return dialog;}
     }
-    private Switch appSwitch(){Switch sw=new Switch(this);int[][] states={new int[]{android.R.attr.state_checked},new int[]{}};sw.setThumbTintList(new android.content.res.ColorStateList(states,new int[]{accent,muted}));sw.setTrackTintList(new android.content.res.ColorStateList(states,new int[]{accent,border}));return sw;}
+    private Switch appSwitch(){return ui().appSwitch();}
     private Typeface appTypeface(){return ui().typeface();}
     private boolean glassEnabled(){return ui().glassEnabled();}
     

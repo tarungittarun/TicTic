@@ -293,7 +293,22 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 
 That reversal is worth keeping visible: this document previously claimed **1d-4 cannot precede 1h**, reasoning that the clock domain logic belongs in `:feature-clock` and that module did not exist. The premise was right and the conclusion was backwards — creating the module *first* is what made the screens movable at all. The superseded wording is quoted here rather than quietly deleted so the change of mind is auditable.
 
-What remains before a screen can move is per-screen rather than architectural:
+**One coupling that is still architectural (measured in 1h-iv).** A feature module may reach `:core-*` but never `:app`, and three of the classes a screen needs when it *persists* data live in `:app`: `WidgetEngine`, and the `AlarmScheduler` / `ReminderScheduler` / `RoutineReceiver` schedulers. Direct coupling by tab:
+
+| tab | `:app`-only classes touched directly |
+|---|---|
+| `buildClock` | `DataStore` only |
+| `buildTimer` | `DataStore` only |
+| `buildStopwatch` | `DataStore` only |
+| `buildActivity` | `DataStore` only |
+| `buildReminders` | `DataStore`, `ReminderScheduler` |
+| `buildRoutines` | `DataStore`, `RoutineReceiver` — and `saveRoutines()` calls `WidgetEngine.refreshAll` |
+
+`DataStore` is not a blocker: it is pure delegation into `:core-data` and `:feature-clock`, both reachable. The schedulers and `WidgetEngine` are, so either **1e (`:core-platform`) and 1f (`:core-widgets`) must precede those two screens**, or `ScreenHost` grows one generic post-persistence refresh channel that the host implements by rescheduling and refreshing widgets. The second is the better fit for the contract — `ScreenHost` is already defined as the only channel from app to chrome, and "my data changed, update anything bound to it" is a need every widget-backed app will have, not a clock special case. It should be added when the first such screen actually needs it, not before.
+
+This is direct coupling only; the transitive closure per screen still needs checking, since `buildTimer` reaches `requestTimerStart`/`cancelTimer` which likely touch `TimerReceiver`. **Stopwatch is the strongest candidate for the first move**: pure in-memory state plus haptics, no scheduler, no widget refresh, no editor dialog.
+
+What remains besides that is per-screen rather than architectural:
 
 - **Screen state and lifecycle.** Each tab keeps its own state in `MainActivity` fields (`routines`, `swElapsed`, `timerRunning`) and shares one `ticker`/`handler`. A `Screen` must own its state and drive it from `onResume`/`onPause`, which the contract already provides.
 - **Editor dialogs travel with their screen.** `showRoutineEditor` alone is ~5 KB and is called from the Routines tab; it moves with it rather than staying behind.

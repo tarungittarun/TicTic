@@ -313,7 +313,30 @@ Rebrand to **MySpace / `app.space.one`** (name, id, icons, `README.md` + `PRODUC
 | **1h-iv·2 — stopwatch cutover** | ✅ done | [run 39602977308](https://github.com/tarungittarun/TicTic/actions/runs/39602977308), all steps green, APK 570,232 B. **`MainActivity implements ScreenHost` and tab 3 renders through `StopwatchScreen` — the first screen driven by the contract.** Deleted the 2,267-char legacy duplicate and the `nextTickDelay` tab-3 branch. **102 contract tests** |
 | **1h-iv·3 — `TicAlertBuilder` → `:core-design`** | ✅ **done `b292814`, run `39641062277`** | Moved as **`AppAlertBuilder`** (takes a `UiKit`); its two window-fitting helpers moved with it as **`DialogFit`**. `MainActivity` is down **2,668 chars** and references none of the three moved symbols. All **22 `alertBuilder()` call sites keep working unchanged** through the existing funnel, now pinned by a test plus `assertNotIn("new AlertDialog.Builder(")` — a dialog built directly would silently lose the close button, the rounded panel and the motion. One deliberate change: `show()` called `fitAlertDialog` twice back to back; it is idempotent, so the duplicate was dropped, and a test asserts exactly one call. **This unblocks Timer, Routines, Reminders and Usage at once.** qa 102→111 |
 | **CI is now debuggable — annotations, not logs** | ✅ **done `78148cd`** | Run logs and artifacts are both undownloadable from the sandbox (`results-receiver…` and the blob host EOF), so a red run reported only pass/fail and every blind change cost a full guess-and-check cycle — **the largest single tax on throughput in this refactor**. Check-run annotations *are* plain API objects, so the build steps now `tee` their output under `set -o pipefail` and a failure step re-emits the error lines as `::error::`, then `exit 1`. **Proven, not assumed:** a deliberately planted `cannot find symbol` produced run `39642303634` whose annotations carried `DialogFit.java:30: error: cannot find symbol` and the failing task name; the plant was then reverted. Read with `gh api repos/tarungittarun/TicTic/check-runs/<job_id>/annotations`. **Consequence: the remaining screen moves can be attempted at full size instead of in fragments.** qa 111→115, 4 tests guarding the capability |
-| **1h-iv·4 — remaining five screens** | ⬜ | Then Clock, Timer, Routines, Reminders, Usage — one CI-verified screen at a time. Routines and Reminders also need the `ScreenHost` refresh channel for the schedulers and `WidgetEngine.refreshAll`, and `ScreenHost` still has no `toast()` |
+| **1h-iv·4 — Usage screen (`buildActivity`)** | ⬜ **next; cheapest of the five** | Measured by **transitive closure**, not by direct body size — see the table below. 8,845 chars, 7 methods, 6 extra helpers, and `UsageTracker` as its only `:app` class |
+| **1h-iv·5..8 — Routines, Timer, Reminders, Clock** | ⬜ **in that order** | Re-ordered by measured closure size, ascending. **Clock goes last**: it is 47,920 chars across 42 methods and is not a screen move, it is a project of its own |
+
+#### Measured transitive closure per screen (2026-10-21, at `e262d11`)
+
+The plan had been costing screens by the size of their direct method bodies. That undercounts badly, because each screen calls private Activity helpers that call more of them. Closure is what a screen actually has to carry with it:
+
+| screen | closure chars | methods | extra Activity-only helpers | `:app` classes |
+|---|---|---|---|---|
+| `buildStopwatch` | 208 | 1 | **0 — self-contained** | none (✅ moved) |
+| `buildActivity` (Usage) | 8,845 | 7 | 6 | `UsageTracker` |
+| `buildTimer` | 12,955 | 29 | 28 | `AlarmScheduler`, `UsageTracker` |
+| `buildRoutines` | 14,204 | 9 | 6 | `RoutineReceiver`, `WidgetEngine` |
+| `buildReminders` | 25,965 | 14 | 13 | `ReminderScheduler` |
+| `buildClock` | **47,920** | **42** | **41** | `AlarmScheduler`, `RoutineReceiver`, `WidgetEngine` |
+
+Three consequences:
+
+1. **Routines is 14,204 chars, not the ~7 KB estimated from its three direct bodies.** The three methods need four helpers that were not in the estimate — `appSpinner`, `nextSequenceName`, `showTimeDialPicker`, `styleTextInput` — and `showTimeDialPicker` is a whole dial-picker dialog. It is no longer the obvious next move.
+2. **`buildTimer` has the worst helper ratio in the project**: 12,955 chars spread over 29 methods, 28 of them extra. Small code, many dependencies — it will feel harder than its size suggests.
+3. **`buildClock` at 47,920 chars and 42 methods is larger than every other screen combined.** Treating it as one slice was never realistic; it should be decomposed before it is attempted, and it should be attempted last.
+
+Shared helpers appear in several closures (`appTypeface`, `clock24Hour`, `appSpinner`, `nextSequenceName`). Each should be moved **once**, to `UiKit` or `:core-data`, on first use — moving them per screen would duplicate them, which is the failure mode this refactor has been eliminating |
+
 | **1h-v — settings groups** | ⬜ | ~12 groups move to `SettingsGroup`, so a suite Settings page renders the clock's categories |
 | 1d-5 — Room + JSON migration + CSV export | ⬜ | the actual storage upgrade (§5), needs the AGP/JDK bump (§5.1) |
 | **1e·1 — `:core-platform` created** | ✅ done | [run 39595590343](https://github.com/tarungittarun/TicTic/actions/runs/39595590343), all steps green, APK 565,112 B. `SystemBoot.count` moved out of `TimerReceiver`, which was the last `:app`-only dependency blocking the stopwatch screen. Receiver keeps a delegate, so its three call sites and `MainActivity`'s two are untouched. **99 contract tests** |

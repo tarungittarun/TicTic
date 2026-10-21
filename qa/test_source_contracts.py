@@ -1380,10 +1380,12 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("return null;", body)
         self.assertIn("return Collections.emptyList();", src)
         # Step 1h-iv·2 cut the stopwatch over, so MainActivity now does reference ClockApp
-        # and hosts it. The registry is still unused: nav rendering is step 1g-2.
+        # and hosts it. Step 1g-2 then put the registry into service: navigation state is
+        # read and written through :shell, so this assertion was inverted rather than
+        # deleted. ShellNavigationContracts covers the behaviour in detail.
         main = read("MainActivity.java")
         self.assertIn("ClockApp", main)
-        self.assertNotIn("SuiteRegistry", main)
+        self.assertIn("SuiteRegistry", main)
 
     def test_core_platform_holds_os_state_reads_and_the_boot_count_moved_there(self):
         """SUITE-PLAN.md §6.1 step 1e (first slice).
@@ -1576,7 +1578,9 @@ class ModuleGraphContracts(unittest.TestCase):
         # The dead duplicate is gone: two copies of one screen is how a fix reaches one of
         # them and not the other.
         self.assertNotIn("buildStopwatchLegacy", main)
-        self.assertNotIn("SuiteRegistry", main)
+        # This guard used to record that :shell had no callers. Step 1g-2 gave it one, so
+        # the marker is inverted; keeping it negative would fail every future nav slice.
+        self.assertIn("SuiteRegistry", main)
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped
@@ -2072,3 +2076,78 @@ class ScreenHostPersistenceContracts(unittest.TestCase):
         # A second implementation would let screens and chrome diverge on duration.
         self.assertEqual(len(re.findall(r"void toast\(String ", self.main)), 1)
         self.assertIn("Toast.makeText(this,s,Toast.LENGTH_SHORT).show()", self.main)
+
+
+class ShellNavigationContracts(unittest.TestCase):
+    """:shell is now actually used by :app — MySpace reopens into the last screen.
+
+    Step 1g-2. Until this, NavMode, SuiteRegistry and NavPrefs were fully built and had
+    zero callers: the module graph was correct but nothing a user could observe came from
+    it. This is the first behaviour in the product that is driven by :shell.
+
+    Navigation state is stored as *routes* ("clock", "timer"), not tab indices, because
+    tab positions are not stable once the user can reorder them (SUITE-PLAN.md §3.3).
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+        self.nav = java_code_only((SHELL / "NavPrefs.java").read_text())
+
+    def test_the_activity_reaches_navigation_state_through_shell(self):
+        self.assertIn("import app.space.shell.NavPrefs;", self.main)
+        self.assertIn("import app.space.shell.SuiteRegistry;", self.main)
+        self.assertIn("new SuiteRegistry(Collections.singletonList(clockApp))", self.main)
+        # The registry is built from the registered app, so a second app added to the list
+        # is all it takes for it to appear in navigation.
+        self.assertIn("private SuiteRegistry registry(){", self.main)
+
+    def test_navigation_state_is_stored_as_routes_not_tab_positions(self):
+        self.assertIn('private static final String[] TAB_ROUTES='
+                      '{"clock","reminders","timer","stopwatch","routines","usage"};', self.main)
+        routes = re.search(r'TAB_ROUTES=\{([^}]*)\}', self.main).group(1)
+        names = [r.strip('"') for r in routes.split(",")]
+        # Six tabs, six routes, and every one must be a route ClockApp actually accepts --
+        # an unknown route silently restores to nothing, with no crash to point at it.
+        self.assertEqual(len(names), 6)
+        clock = java_code_only((FEATURE_CLOCK / "ClockApp.java").read_text())
+        declared = re.search(r'ROUTES = Collections\.unmodifiableList\(Arrays\.asList\((.*?)\)\)',
+                             clock, re.S)
+        assert declared, "ClockApp.ROUTES not found"
+        accepted = set(re.findall(r'"([a-z]+)"', declared.group(1)))
+        for n in names:
+            self.assertIn(n, accepted, "tab route %r is not accepted by ClockApp" % n)
+
+    def test_last_screen_is_restored_only_when_the_intent_names_no_destination(self):
+        body = self.main.split("private void applyRoute(Intent intent)")[1].split("private void ")[0]
+        # A widget deep link must win over the remembered screen, or tapping a widget
+        # would open wherever the user happened to be last.
+        self.assertIn('String target=intent.getStringExtra("tab");', body)
+        self.assertIn('if(target==null&&NavPrefs.openLastApp(this))target=NavPrefs.lastApp(this);', body)
+        self.assertLess(body.index('NavPrefs.openLastApp'), body.index('if("alarms".equals(target)'),
+                        "restore must happen before the route is mapped onto a tab")
+        # Exactly one null guard, after the restore, so a cold start with nothing recorded
+        # still falls through to the default tab instead of throwing.
+        self.assertEqual(body.count("if(target==null)return;"), 1)
+
+    def test_the_visible_screen_is_remembered_from_one_place(self):
+        body = self.main.split("private void render(){")[1].split("private ")[0]
+        self.assertIn("if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);",
+                      body)
+        # Recording from render() rather than each tab's click handler is what covers
+        # widget deep links and settings exits too. Assert it is the only writer.
+        self.assertEqual(self.main.count("NavPrefs.setLastApp("), 1)
+
+    def test_the_settings_toggle_writes_the_key_navprefs_reads(self):
+        # Both sides must agree on "nav_open_last" and on the default. A mismatch means the
+        # toggle visibly reads one way while the launch behaviour does the other.
+        self.assertIn('"nav_open_last",false);', self.main)
+        self.assertIn('KEY_OPEN_LAST = "nav_open_last"', self.nav)
+        self.assertIn('getBoolean(KEY_OPEN_LAST, false)', self.nav)
+
+    def test_navprefs_and_the_settings_toggles_share_one_preference_store(self):
+        # addSettingsToggle writes through DataStore.prefs, which delegates to AppPrefs.
+        # If NavPrefs kept its own file, the toggle would be inert -- the switch would move
+        # and nothing would change, which is the hardest kind of bug to notice here.
+        self.assertIn("return AppPrefs.prefs(c);", self.nav)
+        store = java_code_only(read("DataStore.java"))
+        self.assertIn("AppPrefs.prefs", store)

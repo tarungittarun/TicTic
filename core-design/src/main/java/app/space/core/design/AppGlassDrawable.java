@@ -13,7 +13,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import app.space.core.data.AppPrefs;
 import app.space.core.data.AppTheme;
 
 /**
@@ -46,7 +45,7 @@ final class AppGlassDrawable extends Drawable {
         this.base=base;
         this.highlight=GlassPreset.glow(preset);
         this.dark=AppTheme.dark(context);
-        this.cornerPx=dp(radiusDp*cornerScale(AppPrefs.prefs(context).getInt("app_shape_style",0)));
+        this.cornerPx=dp(radiusDp*UiKit.cornerFactor(UiKit.cornerStyle(context)));
         this.opacityFloor=Math.max(82,opacityFloor);
         this.opacity=clamp(Math.max(82,opacityFloor),100,Math.max(Math.max(82,opacityFloor),Math.max(0,Math.min(100,opacity))));
         this.finish=Math.max(0,Math.min(100,finish));
@@ -61,7 +60,6 @@ final class AppGlassDrawable extends Drawable {
 
     private int dp(float value){return (int)(value*context.getResources().getDisplayMetrics().density+.5f);}
     private static int clamp(int min,int max,int value){return Math.max(min,Math.min(max,value));}
-    private static float cornerScale(int style){return style==1?1.35f:style==2?.58f:style==3?1.8f:1f;}
     private int mix(int first,int second,float amount){float f=Math.max(0f,Math.min(1f,amount));return Color.rgb(Math.round(Color.red(first)+(Color.red(second)-Color.red(first))*f),Math.round(Color.green(first)+(Color.green(second)-Color.green(first))*f),Math.round(Color.blue(first)+(Color.blue(second)-Color.blue(first))*f));}
     private int alpha(int color,float amount){int a=Math.round(clamp(0,255,Math.round(amount))*drawableAlpha/255f);return (color&0x00ffffff)|(a<<24);}
     private int scaledAlpha(float amount){return Math.round(clamp(0,255,Math.round(amount))*drawableAlpha/255f);}

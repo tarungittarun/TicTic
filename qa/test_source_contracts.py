@@ -988,22 +988,101 @@ class ModuleGraphContracts(unittest.TestCase):
         # change how the existing app looks.
         self.assertIn("return RAIL;", code)
 
-    def test_palette_matches_the_clock_values_it_replaces(self):
-        """Palette centralises colours that were computed inline in MainActivity. The six
-        values must match exactly, or extraction silently re-themes the clock."""
+    def test_palette_is_the_single_source_of_the_six_theme_colours(self):
+        """Palette centralises colours that were computed inline in MainActivity.
+
+        Step 1h-i completed the move: applyPalette() now resolves a Palette and copies
+        its fields, so the ten literals live only in Palette. Before that they existed in
+        both places, which is how a theme edit silently reaches half the app.
+
+        Two of the literals still appear elsewhere in MainActivity, and that is expected
+        — they are dialog field fills of the form `dark ? 0xff1b2926 : <light value>`,
+        where only the dark branch coincides with the palette surface. The assertion is
+        therefore scoped to the applyPalette line rather than the whole file.
+        """
         palette = java_code_only((ROOT / "core-design/src/main/java/app/space/core/design"
                                   / "Palette.java").read_text(encoding="utf-8"))
         main = read("MainActivity.java")
-        for value in ("0xff0c1514", "0xffedf2ef", "0xff1b2926", "0xfffcfdfc",
-                      "0xfff1f5f3", "0xff18312f", "0xffaabbb5", "0xff5d7069",
-                      "0xff354a44", "0xffd5e0db"):
+        values = ("0xff0c1514", "0xffedf2ef", "0xff1b2926", "0xfffcfdfc",
+                  "0xfff1f5f3", "0xff18312f", "0xffaabbb5", "0xff5d7069",
+                  "0xff354a44", "0xffd5e0db")
+        for value in values:
             self.assertIn(value, palette)
-            self.assertIn(value, main)
         for field in ("public final int accent", "public final int background",
                       "public final int surface", "public final int text",
                       "public final int muted", "public final int border",
                       "public final boolean dark"):
             self.assertIn(field, palette)
+
+        # MainActivity resolves rather than recomputes.
+        self.assertIn("Palette.resolve(DataStore.dark(this),DataStore.accent(this))", main)
+        self.assertIn("accent=p.accent;bg=p.background;surface=p.surface;"
+                      "text=p.text;muted=p.muted;border=p.border", main)
+        apply_line = next(l for l in main.split("\n") if "private void applyPalette()" in l)
+        for value in values:
+            self.assertNotIn(value, apply_line,
+                             f"applyPalette still hardcodes {value}; it must come from Palette")
+
+    def test_drawing_primitives_live_in_uikit_and_main_activity_delegates(self):
+        """SUITE-PLAN.md §6.1 step 1h-i: the prerequisite for moving any screen.
+
+        Every one of the clock's six tabs builds content from dp/vbox/hbox/lp/label/
+        shape/typeface, and all were private to one Activity — so no screen could move
+        into a :feature-* module until they had a shared home. MainActivity keeps
+        one-line delegates so its hundreds of call sites are untouched.
+        """
+        kit = java_code_only((ROOT / "core-design/src/main/java/app/space/core/design"
+                              / "UiKit.java").read_text(encoding="utf-8"))
+        main = read("MainActivity.java")
+        # Signatures are compared whitespace-normalised: these assert the shape of an
+        # API, not its formatting, and a reformatted file must not read as a break.
+        compact = "".join(kit.split())
+        self.assertIn("publicfinalclassUiKit", compact)
+        for member in ("public int dp(float x)", "public LinearLayout vbox()",
+                       "public LinearLayout hbox()",
+                       "public LinearLayout.LayoutParams lp(int w,int h)",
+                       "public Typeface typeface()",
+                       "public TextView label(String s,float size,int color,boolean bold)",
+                       "public Drawable shape(int color,int radius)",
+                       "public Context context()", "public Palette palette()"):
+            self.assertIn("".join(member.split()), compact, f"missing from UiKit: {member}")
+        # A UiKit without a palette could mix stale colours with fresh ones.
+        self.assertIn('"UiKit requires a Palette"', kit)
+        self.assertIn("import app.space.core.design.UiKit;", main)
+        self.assertIn("import app.space.core.design.Palette;", main)
+        for delegate in ("private int dp(float x){return ui().dp(x);}",
+                         "private LinearLayout vbox(){return ui().vbox();}",
+                         "private LinearLayout hbox(){return ui().hbox();}",
+                         "private LinearLayout.LayoutParams lp(int w,int h){return ui().lp(w,h);}",
+                         "private TextView label(String s,float size,int color,boolean bold)"
+                         "{return ui().label(s,size,color,bold);}",
+                         "private Typeface appTypeface(){return ui().typeface();}",
+                         "private android.graphics.drawable.Drawable shape(int color,int radius)"
+                         "{return ui().shape(color,radius);}"):
+            self.assertIn(delegate, main)
+        # Lazy accessor: dp() is reachable from a dialog before applyPalette() has run.
+        self.assertIn("private UiKit ui(){if(ui==null)", main)
+
+    def test_corner_style_factors_are_defined_exactly_once(self):
+        """MainActivity.shape() and AppGlassDrawable.cornerScale() each carried their own
+        copy of the four corner factors. Two copies of one design decision is how a solid
+        card and a glass panel end up with visibly different corners after someone tunes
+        one of them, so both now read UiKit.cornerFactor."""
+        kit = (ROOT / "core-design/src/main/java/app/space/core/design" / "UiKit.java").read_text(encoding="utf-8")
+        renderer = read_core_design("AppGlassDrawable.java")
+        self.assertIn("public static float cornerFactor(int style)", kit)
+        self.assertIn("public static int cornerStyle(Context c)", kit)
+        self.assertIn("UiKit.cornerFactor(UiKit.cornerStyle(context))", renderer)
+        self.assertNotIn("cornerScale", renderer)
+        # Repo-wide: the factor table must exist in one file only.
+        holders = []
+        for path in ROOT.rglob("*.java"):
+            if ".git" in path.parts:
+                continue
+            if "1.35f" in java_code_only(path.read_text(encoding="utf-8")):
+                holders.append(path.name)
+        self.assertEqual(["UiKit.java"], holders,
+                         f"corner factors duplicated in: {holders}")
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

@@ -71,14 +71,52 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-jdk17-
 
       - name: Unit tests (all modules)
+        id: unit
+        continue-on-error: true
+        shell: bash
         # assembleDebug does NOT run test tasks, so without this step the JVM
         # regression suite (TimeMathTest and the :core-domain rules) would never
         # execute in CI. This matters because there is no local Android build:
         # CI is the only place these run against real compiled classes.
-        run: sh gradlew --no-daemon --stacktrace testDebugUnitTest test
+        # tee + pipefail keep gradlew's real exit status while capturing output
+        # for the annotation step below.
+        run: |
+          set -o pipefail
+          sh gradlew --no-daemon --stacktrace testDebugUnitTest test 2>&1 | tee /tmp/unit.log
 
       - name: Build debug APK
-        run: sh gradlew --no-daemon --stacktrace assembleDebug
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew --no-daemon --stacktrace assembleDebug 2>&1 | tee /tmp/build.log
+
+      - name: Surface compile and test errors as annotations
+        if: steps.unit.outcome == 'failure' || steps.build.outcome == 'failure'
+        shell: bash
+        # WHY THIS STEP EXISTS: run logs and artifacts are not downloadable from
+        # the review sandbox -- results-receiver.actions.githubusercontent.com and
+        # the artifact blob host both EOF, so `gh run view --log` and
+        # `gh run download` are dead ends. A red run therefore used to report only
+        # pass/fail, with no clue what failed, which made every blind iteration
+        # cost a full guess-and-check cycle.
+        #
+        # Check-run annotations ARE plain API objects, retrievable with:
+        #   gh api repos/{owner}/{repo}/check-runs/{job_id}/annotations
+        # So re-emitting the error lines here turns CI back into a debuggable
+        # loop. The final `exit 1` is what actually fails the job, since the two
+        # build steps are continue-on-error.
+        run: |
+          for f in /tmp/unit.log /tmp/build.log; do
+            [ -f "$f" ] || continue
+            grep -nE "^e: |error:|Execution failed|What went wrong|> Task .* FAILED|Caused by:|AssertionError|expected:" "$f" \
+              | head -80 \
+              | while IFS= read -r line; do
+                  echo "::error title=$(basename "$f")::${line}"
+                done
+          done
+          exit 1
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

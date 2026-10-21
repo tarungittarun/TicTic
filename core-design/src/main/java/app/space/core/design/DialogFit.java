@@ -27,6 +27,7 @@ public final class DialogFit {
 
     /** Clamps the dialog window and caps any scrollable content inside it. */
     public static void fit(UiKit ui, AlertDialog dialog) {
+        int deliberatelyBroken = thisSymbolDoesNotExistAnywhere; // TEMP: proves CI annotations
         android.view.Window window = dialog.getWindow();
         if (window == null) return;
         int width = Math.min(ui.dp(560), ui.context().getResources().getDisplayMetrics().widthPixels - ui.dp(32));

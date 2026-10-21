@@ -1977,3 +1977,53 @@ class DialogSystemContracts(unittest.TestCase):
         self.assertIn("AppTheme.dark(themedContext) ? 0xff263632 : 0xffe5ece8", builder)
         gradle = (ROOT / "core-design/build.gradle").read_text()
         self.assertIn(":core-data", gradle)
+
+
+class CiDiagnosticsContracts(unittest.TestCase):
+    """CI must be able to tell us *why* it failed, not just *that* it failed.
+
+    The review sandbox cannot download run logs or artifacts (both the
+    results-receiver host and the artifact blob host EOF), so for most of this
+    project a red run carried no diagnostic at all. Check-run annotations are the
+    one failure channel that is an ordinary API object, so the workflow re-emits
+    gradle's error lines as annotations. Losing this silently returns the project
+    to blind iteration.
+    """
+
+    def setUp(self):
+        self.yml = (ROOT / ".github/workflows/android-ci.yml").read_text()
+
+    def test_build_steps_capture_output_and_keep_their_exit_status(self):
+        # tee without pipefail would report success even when gradlew fails.
+        self.assertIn("set -o pipefail", self.yml)
+        self.assertIn("2>&1 | tee /tmp/unit.log", self.yml)
+        self.assertIn("2>&1 | tee /tmp/build.log", self.yml)
+        self.assertIn("id: unit", self.yml)
+        self.assertIn("id: build", self.yml)
+
+    def test_failures_are_re_emitted_as_annotations(self):
+        self.assertIn('echo "::error title=', self.yml)
+        self.assertIn(
+            "if: steps.unit.outcome == 'failure' || steps.build.outcome == 'failure'",
+            self.yml)
+        # javac writes "path:line: error: cannot find symbol"; gradle wraps it in
+        # "Execution failed for task". Both must be matched or the common case is
+        # the one that goes silent.
+        for needle in ("error:", "Execution failed", "> Task .* FAILED", "AssertionError"):
+            self.assertIn(needle, self.yml)
+
+    def test_the_annotation_step_is_what_fails_the_job(self):
+        # Both build steps are continue-on-error so their output can be captured;
+        # without a hard exit in the annotation step a compile failure would go green.
+        for step_id in ("unit", "build"):
+            block = self.yml.split("        id: %s\n" % step_id)[1].split("      - name:")[0]
+            self.assertIn("continue-on-error: true", block,
+                          "step %s must not fail the job before its log is captured" % step_id)
+        annotation = self.yml.split("Surface compile and test errors as annotations")[1].split("      - name:")[0]
+        self.assertNotIn("continue-on-error: true", annotation,
+                         "the annotation step must be allowed to fail the job")
+        self.assertIn("          exit 1", annotation)
+
+    def test_jvm_tests_are_still_run_explicitly(self):
+        # assembleDebug does not run test tasks. This was already lost once.
+        self.assertIn("testDebugUnitTest test", self.yml)

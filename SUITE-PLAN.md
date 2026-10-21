@@ -239,6 +239,37 @@ The owner asked for scope of flexibility rather than a fixed toolchain decision,
 
 ---
 
+## 5.9 Confirmed scope, measured position, and the obligations that come with it
+
+**Owner decision, 2026-10-21: full 13-app scope, accepting the timeline.** All thirteen
+requested apps stay in scope — Calculator, Notes/Tasks, Calendar, Expense tracker, Habit
+tracker, Weather, Email, Music streamer, Files, Messages, Recorder, Doc scanner, and the
+doc/spreadsheet writer — along with customisable navigation, the rebrand, and both
+distribution channels. This reconfirms the earlier decision to keep every app rather than
+defer or substitute any; it is not to be re-litigated.
+
+Measured at commit `0aed793`: 39 elapsed hours, 26 CI-verified slices, 29 CI runs (28
+green), and 23% of the codebase extracted out of `:app` into eight modules. Against the
+full scope the honest position is that **12 of the 13 apps do not exist**, and the one that
+does is ~20% migrated — its domain rules moved to `:feature-clock`, but 0 of 6 screens
+have, so it still renders from the legacy `MainActivity`. Phase 1 is roughly half complete.
+Completing everything is on the order of **165–340 slices**; a shippable v1 (clock
+migrated, navigation working, plus Calculator/Notes/Habits with `full`/`lite` flavours) is
+**~70–110**.
+
+**Three of these the owner must carry, and no amount of code resolves them:**
+
+- **Email.** Gmail restricted scopes require OAuth verification against a Cloud project, a
+  published privacy policy, and possibly a security assessment.
+- **Music streamer.** Commercial catalogues require partner agreements or licensed SDKs.
+  Only local playback and user-supplied stream URLs are buildable without them.
+- **Carrier SMS.** Google Play restricts SMS and Call Log permissions to apps whose *core
+  function* is SMS. MySpace would very likely be rejected; this needs a Play policy
+  declaration, or the feature ships only through the direct-APK channel.
+
+Also outstanding and owner-side: whether a funded Play Console account exists, the privacy
+policy, and the Play data-safety form.
+
 ## 6. Phased roadmap
 
 **Phase 0 — build signal (must be first; nothing is verifiable without it).**
@@ -307,7 +338,10 @@ That reversal is worth keeping visible: this document previously claimed **1d-4 
 
 `DataStore` is not a blocker: it is pure delegation into `:core-data` and `:feature-clock`, both reachable. The schedulers and `WidgetEngine` are, so either **1e (`:core-platform`) and 1f (`:core-widgets`) must precede those two screens**, or `ScreenHost` grows one generic post-persistence refresh channel that the host implements by rescheduling and refreshing widgets. The second is the better fit for the contract — `ScreenHost` is already defined as the only channel from app to chrome, and "my data changed, update anything bound to it" is a need every widget-backed app will have, not a clock special case. It should be added when the first such screen actually needs it, not before.
 
-This is direct coupling only; the transitive closure per screen still needs checking, since `buildTimer` reaches `requestTimerStart`/`cancelTimer` which likely touch `TimerReceiver`. **Stopwatch is the strongest candidate for the first move**: pure in-memory state plus haptics, no scheduler, no widget refresh, no editor dialog.
+This is direct coupling only; the transitive closure per screen still needs checking, since `buildTimer` reaches `requestTimerStart`/`cancelTimer` which likely touch `TimerReceiver`. **Stopwatch is the strongest candidate for the first move**: pure in-memory state plus haptics, no scheduler, no widget refresh, no editor dialog. Two facts measured since fix its prerequisites exactly:
+
+- **The tick cadence is 16 ms.** `nextTickDelay()` returns 16 ms for the stopwatch while running — roughly 60 fps, which the hundredths display needs — 100 ms under battery saver, and 1 s when paused. A `Screen` owns its own ticker through `onResume`/`onPause`, so it must reproduce all three rates or the display either stutters or drains the battery.
+- **Battery-saver state is still an `:app` method.** `batterySaverOptimization()` gates that cadence, and power-saver state is already assigned to `:core-platform` in 1e. So that read must move first — one more small slice, and the last one before a screen can be written.
 
 What remains besides that is per-screen rather than architectural:
 

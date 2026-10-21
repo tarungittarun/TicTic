@@ -541,7 +541,9 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
             self.assertIn(key, main)
         self.assertIn("formatCountdownHundredths", math)
         self.assertIn("timerButtonHaptic(v)", main)
-        self.assertIn("stopwatchButtonHaptic(v)", main)
+        # Step 1h-iv·2: the stopwatch UI moved into StopwatchScreen, so its haptic call is
+        # asserted there. The preference key is unchanged and still asserted above.
+        self.assertIn("buttonHaptic(v)", read_feature_clock("StopwatchScreen.java"))
 
     def test_blank_reminder_and_routine_names_get_next_available_sequence(self):
         main = read("MainActivity.java")
@@ -563,9 +565,15 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         math = read_core_domain("TimeMath.java")
         self.assertIn("SystemClock.elapsedRealtime()", main)
         self.assertIn("TimeMath.stopwatchElapsed", main)
-        self.assertIn("tab==3&&swRunning()", main)
-        self.assertIn("?100L:16L", main)
-        self.assertIn("TimeMath.formatHundredths(ms)", main)
+        # Step 1h-iv·2: the screen owns its ticker now, so the fast-refresh guarantee is
+        # asserted where the cadence lives. MainActivity's shared ticker no longer drives
+        # the stopwatch at all — leaving that branch in would run it at 60 fps to update a
+        # field that is permanently null.
+        screen = read_feature_clock("StopwatchScreen.java")
+        self.assertIn("TimeMath.stopwatchElapsed", screen)
+        self.assertIn("if (running()) return saver ? 100L : 16L;", screen)
+        self.assertIn("TimeMath.formatHundredths(ms)", screen)
+        self.assertNotIn("tab==3&&swRunning()", main)
         self.assertIn("removeCallbacks(ticker);handler.post(ticker)", main)
 
     def test_timer_uses_monotonic_deadline_with_boot_and_wall_change_recovery(self):
@@ -1367,9 +1375,10 @@ class ModuleGraphContracts(unittest.TestCase):
         body = src[src.index(sig):]
         self.assertIn("return null;", body)
         self.assertIn("return Collections.emptyList();", src)
-        # And nothing is wired to render through it yet, so behaviour cannot change.
+        # Step 1h-iv·2 cut the stopwatch over, so MainActivity now does reference ClockApp
+        # and hosts it. The registry is still unused: nav rendering is step 1g-2.
         main = read("MainActivity.java")
-        self.assertNotIn("ClockApp", main)
+        self.assertIn("ClockApp", main)
         self.assertNotIn("SuiteRegistry", main)
 
     def test_core_platform_holds_os_state_reads_and_the_boot_count_moved_there(self):
@@ -1537,14 +1546,33 @@ class ModuleGraphContracts(unittest.TestCase):
         body = clock[clock.index("public Screen createScreen(ScreenHost host, String route)"):]
         self.assertIn("return null;", body)
         main = read("MainActivity.java")
-        self.assertNotIn("ClockApp", main)
+        compact = "".join(java_code_only(main).split())
+        # Step 1h-iv·2: the cutover. MainActivity is now the ScreenHost and tab 3 renders
+        # through the screen instead of building its own view tree.
+        self.assertIn("public class MainActivity extends Activity implements ScreenHost", main)
+        self.assertIn("private final SuiteApp clockApp=new ClockApp();", main)
+        self.assertIn("stopwatchScreen=new StopwatchScreen(this)", main)
+        self.assertIn("body.addView(stopwatchScreen.build(this),lp(-1,-2))", main)
+        # All nine ScreenHost members, or the class would not compile.
+        for member in ("public Context context()", "public Palette palette()",
+                       "public void invalidate()", "public boolean isAppAvailable(String id)",
+                       "public List<SuiteApp> availableApps()", "public boolean openApp(String id)",
+                       "public boolean openApp(String id,String route)", "public void openSettings()",
+                       "public void openSettings(String groupId)"):
+            self.assertIn("".join(member.split()), compact, f"missing ScreenHost member: {member}")
+        # openApp routes through applyRoute rather than duplicating the mapping, so widget
+        # intents and suite navigation cannot disagree about what a route means.
+        self.assertIn('i.putExtra("tab",route)', main)
+        # The screen's ticker is stopped when its tab is left and when the Activity pauses,
+        # or it would keep redrawing a detached view.
+        self.assertIn("if((settings||tab!=3)&&stopwatchScreen!=null){stopwatchScreen.onPause();"
+                      "stopwatchScreen=null;}", main)
+        self.assertIn("if(stopwatchScreen!=null)stopwatchScreen.onPause();", main)
+        self.assertIn("if(stopwatchScreen!=null)stopwatchScreen.onResume();", main)
+        # The dead duplicate is gone: two copies of one screen is how a fix reaches one of
+        # them and not the other.
+        self.assertNotIn("buildStopwatchLegacy", main)
         self.assertNotIn("SuiteRegistry", main)
-        self.assertNotIn("StopwatchScreen", main)
-        # MainActivity's own copies still exist and still render, which is why the tab is
-        # unchanged on screen. They are removed in the cutover slice.
-        for legacy in ("private void buildStopwatch()", "private long swElapsed()",
-                       "private void addLap()", "private void stopwatchPause()"):
-            self.assertIn(legacy, main, f"{legacy} should still be present until the cutover")
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

@@ -40,7 +40,10 @@ public class HabitsRulesTest {
 
     @Test public void streakIsZeroOnceADayIsActuallyMissed() {
         assertEquals(0, HabitsRules.currentStreak(days(10, 11), 13));
-        assertEquals(0, HabitsRules.currentStreak(days(10, 12), 12));
+        // Today is completed, so the streak is 1: the missed day 11 breaks the run behind
+        // it but cannot cancel today. Asserting 0 here would have required the streak to
+        // ignore a completion the user can see marked as done.
+        assertEquals(1, HabitsRules.currentStreak(days(10, 12), 12));
         assertEquals(0, HabitsRules.currentStreak(null, 12));
         assertEquals(0, HabitsRules.currentStreak(new HashSet<Long>(), 12));
     }
@@ -57,7 +60,10 @@ public class HabitsRulesTest {
     }
 
     @Test public void theWindowCountsTodayAndExcludesOlderDays() {
-        assertEquals(3, HabitsRules.completionsInWindow(days(6, 7, 10, 12), 12, 7));
+        // The window is days 6..12 inclusive -- seven days, today included -- so all four
+        // of these fall inside it. Counting 3 would mean the window silently drops its
+        // oldest day, which is the off-by-one this test exists to catch.
+        assertEquals(4, HabitsRules.completionsInWindow(days(6, 7, 10, 12), 12, 7));
         assertEquals(0, HabitsRules.completionsInWindow(days(1, 2), 12, 7));
         assertEquals(0, HabitsRules.completionsInWindow(days(12), 12, 0));
         // A future day must not count as done.
@@ -66,7 +72,7 @@ public class HabitsRulesTest {
 
     @Test public void weeklyRateIsClampedToOne() {
         assertEquals(1f, HabitsRules.weeklyRate(days(6, 7, 8, 9, 10, 11, 12), 12), 1e-6f);
-        assertEquals(0.5f, HabitsRules.weeklyRate(days(9, 10, 11, 12), 12), 1e-6f);
+        assertEquals(4f / 7f, HabitsRules.weeklyRate(days(9, 10, 11, 12), 12), 1e-6f);
         assertEquals(0f, HabitsRules.weeklyRate(days(1), 12), 1e-6f);
     }
 

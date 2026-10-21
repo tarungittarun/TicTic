@@ -110,7 +110,7 @@ jobs:
         run: |
           for f in /tmp/unit.log /tmp/build.log; do
             [ -f "$f" ] || continue
-            grep -nE "^e: |error:|Execution failed|What went wrong|> Task .* FAILED|Caused by:|AssertionError|expected:" "$f" \
+            grep -nE "^e: |error:|Execution failed|What went wrong|FAILED|Caused by:|Test.* > |AssertionError|expected:" "$f" \
               | head -80 \
               | while IFS= read -r line; do
                   echo "::error title=$(basename "$f")::${line}"

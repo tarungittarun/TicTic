@@ -60,7 +60,9 @@ final class AppGlassDrawable extends Drawable {
 
     private int dp(float value){return (int)(value*context.getResources().getDisplayMetrics().density+.5f);}
     private static int clamp(int min,int max,int value){return Math.max(min,Math.min(max,value));}
-    private int mix(int first,int second,float amount){float f=Math.max(0f,Math.min(1f,amount));return Color.rgb(Math.round(Color.red(first)+(Color.red(second)-Color.red(first))*f),Math.round(Color.green(first)+(Color.green(second)-Color.green(first))*f),Math.round(Color.blue(first)+(Color.blue(second)-Color.blue(first))*f));}
+    /** Delegates to {@link Palette#blend}: this was a fourth character-identical copy
+     *  of the same arithmetic until step 1h-ii. */
+    private int mix(int first,int second,float amount){return Palette.blend(first,second,amount);}
     private int alpha(int color,float amount){int a=Math.round(clamp(0,255,Math.round(amount))*drawableAlpha/255f);return (color&0x00ffffff)|(a<<24);}
     private int scaledAlpha(float amount){return Math.round(clamp(0,255,Math.round(amount))*drawableAlpha/255f);}
 

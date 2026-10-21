@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import app.space.core.design.GelMotion;
 import app.space.core.design.AppSurfaceStyle;
+import app.space.core.design.Palette;
 
 import org.json.JSONObject;
 
@@ -41,7 +42,10 @@ public final class AlarmActivity extends Activity {
     };
 
     private int background(){return DataStore.dark(this)?0xff102321:0xff183b39;}
-    private int blend(int from,int to,float amount){return Color.rgb(Math.round(Color.red(from)+(Color.red(to)-Color.red(from))*amount),Math.round(Color.green(from)+(Color.green(to)-Color.green(from))*amount),Math.round(Color.blue(from)+(Color.blue(to)-Color.blue(from))*amount));}
+    /** Delegates to {@link Palette#blend}. This copy did not clamp its amount; the one
+     *  call site passes .20f, so clamping is a no-op and the ringing background is
+     *  unchanged. */
+    private int blend(int from,int to,float amount){return Palette.blend(from,to,amount);}
     private android.graphics.drawable.Drawable ringingBackground(){int base=background();if(!AppSurfaceStyle.enabled(this))return new android.graphics.drawable.ColorDrawable(base);return new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{base,blend(base,DataStore.accent(this),.20f),base});}
     private int dp(float value){return (int)(value*getResources().getDisplayMetrics().density+.5f);}
 

@@ -474,8 +474,14 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
 
     def test_card_elevation_has_visible_surface_and_shadow_differences(self):
         main = read("MainActivity.java")
+        kit = read_core_design("UiKit.java")
         self.assertIn("cardFillForElevation(int level)", main)
-        self.assertIn("elevation==2?9f+glassDepth*.05f:4f+glassDepth*.025f", main)
+        # Step 1h-ii moved card() and cardFillForElevation() into UiKit, so the elevation
+        # curve lives there now. Compared whitespace-normalised: this asserts the shape of
+        # the curve, not its formatting.
+        compact = "".join(java_code_only(kit).split())
+        self.assertIn("elevation==0?0f:elevation==2?9f+glassDepth*.05f:4f+glassDepth*.025f",
+                      compact)
         self.assertIn("deeper shadow and clearer edge separation", main)
 
     def test_glass_surface_exposes_presets_customization_and_legibility(self):
@@ -493,9 +499,13 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn("Math.max(82,opacityFloor)", read_core_design("AppGlassDrawable.java"))
         for name in ("Sunlit Bubble","Daylight Pearl","Golden Hour","Moonlit Opal","Aurora Frost"):
             self.assertIn(name, presets)
-        self.assertIn("AppSurfaceStyle.pageBackground(this)", main)
+        kit = read_core_design("UiKit.java")
+        self.assertIn("AppSurfaceStyle.pageBackground(context)", kit)
+        self.assertIn("AppSurfaceStyle.glass(context, base, radius, opacity, finish, depth, preset, 82)", kit)
+        # MainActivity reaches both through its delegates.
+        self.assertIn("ui().pageBackground()", main)
+        self.assertIn("ui().glassSurfaceDrawable(base,radius,opacity,finish,depth,preset)", main)
         self.assertIn("AppSurfaceStyle.criticalGlass(this,fill,17)", read("AlarmActivity.java"))
-        self.assertIn("AppSurfaceStyle.glass(this,base,radius,opacity,finish,depth,preset,82)", main)
         studio=read("WidgetConfigActivity.java")
         self.assertIn("buildGlassPresetChoices(root,ink)", studio)
         self.assertIn('"glass_customized"', studio)
@@ -628,7 +638,11 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
             self.assertIn(token, style)
         for token in ('Sunlit Bubble','Daylight Pearl','Golden Hour','Moonlit Opal','Aurora Frost'):
             self.assertIn(token, presets)
-        self.assertIn('AppSurfaceStyle.pageBackground(this)',main)
+        # MainActivity reaches the page background through UiKit since step 1h-ii. The
+        # other pages still call AppSurfaceStyle directly and are asserted below, which is
+        # the point of this test: one shared material, several callers.
+        self.assertIn('ui().pageBackground()',main)
+        self.assertIn('AppSurfaceStyle.pageBackground(context)',read_core_design("UiKit.java"))
         self.assertIn('ringingBackground()',alarm)
         self.assertIn('AppSurfaceStyle.criticalGlass(this,fill,17)',alarm)
         self.assertIn('buildGlassPresetChoices(root,ink)',studio)
@@ -792,7 +806,9 @@ class ModuleGraphContracts(unittest.TestCase):
             self.assertIn(hidden, presets)
             self.assertNotIn("public " + hidden, presets)
 
-        # 2. AppSurfaceStyle: all three glass() overloads, and mix() stays private.
+        # 2. AppSurfaceStyle: all three glass() overloads public. Its private colour blend
+        #    was deleted in step 1h-ii and unified into Palette.blend — see
+        #    test_colour_blend_is_defined_exactly_once.
         self.assertIn("public final class AppSurfaceStyle", style)
         self.assertEqual(3, style.count("public static Drawable glass("),
                          "every glass() overload must be public across the module boundary")
@@ -800,7 +816,8 @@ class ModuleGraphContracts(unittest.TestCase):
         self.assertIn("public static boolean enabled(", style)
         self.assertIn("public static Drawable criticalGlass(", style)
         self.assertIn("public static Drawable pageBackground(", style)
-        self.assertIn("private static int mix(", style)
+        self.assertNotIn("private static int mix(", style)
+        self.assertIn("Palette.blend(", style)
 
         # 3. AppGlassDrawable stays package-private; screens only ever see Drawable.
         self.assertIn("final class AppGlassDrawable extends Drawable", renderer)
@@ -812,8 +829,11 @@ class ModuleGraphContracts(unittest.TestCase):
         # This is the blanket-substitution bug that hit GelMotion in step 1c-2a.
         self.assertNotIn("AppTheme", java_code_only(presets))
         self.assertIn("import app.space.core.data.AppPrefs;", presets)
-        for name, wanted in (("AlarmActivity.java", ("AppSurfaceStyle",)),
-                             ("MainActivity.java", ("GlassPreset", "AppSurfaceStyle")),
+        # Step 1h-ii changed two of these: MainActivity now reaches AppSurfaceStyle only
+        # through UiKit, so its direct import is gone and asserting it would demand a dead
+        # import. AlarmActivity gained Palette for the unified blend.
+        for name, wanted in (("AlarmActivity.java", ("AppSurfaceStyle", "Palette")),
+                             ("MainActivity.java", ("GlassPreset", "Palette", "UiKit")),
                              ("WidgetCatalogActivity.java", ("AppSurfaceStyle",)),
                              ("WidgetConfigActivity.java", ("GlassPreset",)),
                              ("WidgetEngine.java", ("GlassPreset",))):
@@ -1063,6 +1083,45 @@ class ModuleGraphContracts(unittest.TestCase):
         # Lazy accessor: dp() is reachable from a dialog before applyPalette() has run.
         self.assertIn("private UiKit ui(){if(ui==null)", main)
 
+        # Step 1h-ii: the four helpers that were still entangled with the Activity, plus
+        # the glass and elevation support they need. sectionTitle/gap now TAKE a parent —
+        # the versions in MainActivity wrote into its own `body` field, which is exactly
+        # what stopped a screen from being lifted out of it.
+        for member in ("public TextView pillButton(String title,int color,int ink)",
+                       "public LinearLayout card()",
+                       "public void sectionTitle(LinearLayout parent,String title,String caption)",
+                       "public void gap(LinearLayout parent,int h)",
+                       "public boolean glassEnabled()",
+                       "public int cardFillForElevation(int level)",
+                       "public Drawable glassSurfaceDrawable(int base,int radius,int opacity,int finish,int depth)",
+                       "public Drawable glassSurfaceDrawable(int base,int radius,int opacity,int finish,int depth,int preset)",
+                       "public Drawable pageBackground()"):
+            self.assertIn("".join(member.split()), compact, f"missing from UiKit: {member}")
+        for delegate in ("private LinearLayout card(){return ui().card();}",
+                         "private void sectionTitle(String title,String caption)"
+                         "{ui().sectionTitle(body,title,caption);}",
+                         "private void gap(int h){ui().gap(body,h);}",
+                         "private TextView pillButton(String title,int color,int ink)"
+                         "{return ui().pillButton(title,color,ink);}",
+                         "private boolean glassEnabled(){return ui().glassEnabled();}",
+                         "private int cardFillForElevation(int level)"
+                         "{return ui().cardFillForElevation(level);}",
+                         "private android.graphics.drawable.Drawable pageBackground()"
+                         "{return ui().pageBackground();}"):
+            self.assertIn(delegate, main, f"MainActivity must delegate: {delegate}")
+        # Both glass overloads delegate, and the Activity no longer builds glass itself.
+        self.assertEqual(2, main.count("{return ui().glassSurfaceDrawable("),
+                         "both glassSurfaceDrawable overloads must delegate")
+        self.assertNotIn("AppSurfaceStyle.", main)
+        # card() read five preferences through the Activity; UiKit reads them itself.
+        for pref in ('"app_layout_density"', '"app_card_elevation"', '"app_card_border"',
+                     '"app_glass_opacity"', '"app_glass_finish"'):
+            self.assertIn(pref, kit)
+        # The elevation curve and the density paddings are design decisions, not Activity
+        # state: they must not survive in MainActivity.
+        self.assertNotIn("9f+glassDepth", main)
+        self.assertNotIn("density==0?13:density==2?22:18", main)
+
     def test_corner_style_factors_are_defined_exactly_once(self):
         """MainActivity.shape() and AppGlassDrawable.cornerScale() each carried their own
         copy of the four corner factors. Two copies of one design decision is how a solid
@@ -1083,6 +1142,27 @@ class ModuleGraphContracts(unittest.TestCase):
                 holders.append(path.name)
         self.assertEqual(["UiKit.java"], holders,
                          f"corner factors duplicated in: {holders}")
+
+    def test_colour_blend_is_defined_exactly_once(self):
+        """Three character-identical copies of the same colour blend existed.
+
+        AppSurfaceStyle.mix(), MainActivity.blendColor(), and the arithmetic UiKit needed
+        for raised card fills were the same four lines under three names. Found while
+        extracting card() in step 1h-ii. Unified into Palette.blend because colour maths
+        belongs on the colour class; the other two now call it.
+        """
+        palette = (ROOT / "core-design/src/main/java/app/space/core/design"
+                   / "Palette.java").read_text(encoding="utf-8")
+        self.assertIn("public static int blend(int from, int to, float amount)", palette)
+        holders = []
+        for path in ROOT.rglob("*.java"):
+            if ".git" in path.parts:
+                continue
+            compact = "".join(java_code_only(path.read_text(encoding="utf-8")).split())
+            if "Color.rgb(Math.round(Color.red(" in compact:
+                holders.append(path.name)
+        self.assertEqual(["Palette.java"], holders, f"colour blend duplicated in: {holders}")
+        self.assertNotIn("blendColor", read("MainActivity.java"))
 
     def test_java_code_only_strips_comments_but_preserves_string_literals(self):
         """The coupling contracts depend on this helper being correct: if it stripped

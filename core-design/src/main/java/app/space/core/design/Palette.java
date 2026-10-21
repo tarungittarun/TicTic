@@ -1,5 +1,7 @@
 package app.space.core.design;
 
+import android.graphics.Color;
+
 /**
  * The six resolved colours every MySpace screen draws with, plus the dark flag that
  * produced them.
@@ -45,5 +47,22 @@ public final class Palette {
         return dark
                 ? new Palette(true, accent, 0xff0c1514, 0xff1b2926, 0xfff1f5f3, 0xffaabbb5, 0xff354a44)
                 : new Palette(false, accent, 0xffedf2ef, 0xfffcfdfc, 0xff18312f, 0xff5d7069, 0xffd5e0db);
+    }
+
+    /**
+     * Linear blend between two colours, {@code amount} 0..1.
+     *
+     * <p>This was duplicated three ways before step 1h-ii: {@code AppSurfaceStyle.mix()},
+     * {@code MainActivity.blendColor()} and — once {@code UiKit.cardFillForElevation()}
+     * moved out of the Activity — a third caller needing the same arithmetic. All three
+     * were character-identical, which is exactly the kind of duplication that survives
+     * review because each copy looks locally correct. Colour maths belongs on the colour
+     * class, so it lives here and everything else calls it.
+     */
+    public static int blend(int from, int to, float amount) {
+        float f = Math.max(0f, Math.min(1f, amount));
+        return Color.rgb(Math.round(Color.red(from) + (Color.red(to) - Color.red(from)) * f),
+                Math.round(Color.green(from) + (Color.green(to) - Color.green(from)) * f),
+                Math.round(Color.blue(from) + (Color.blue(to) - Color.blue(from)) * f));
     }
 }

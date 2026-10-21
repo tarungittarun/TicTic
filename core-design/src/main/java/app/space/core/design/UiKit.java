@@ -1,6 +1,8 @@
 package app.space.core.design;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.View;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -135,5 +137,119 @@ public final class UiKit {
      */
     public static float cornerFactor(int style) {
         return style == 1 ? 1.35f : style == 2 ? .58f : style == 3 ? 1.8f : 1f;
+    }
+
+    /**
+     * A pill-shaped button: the app typeface, bold, centred, on a rounded fill.
+     *
+     * <p>Used for every primary action across all six clock tabs, so it is the single
+     * most repeated control in the product.
+     */
+    public TextView pillButton(String title, int color, int ink) {
+        TextView b = label(title, 14, ink, true);
+        b.setGravity(Gravity.CENTER);
+        b.setPadding(dp(16), dp(11), dp(16), dp(11));
+        b.setBackground(shape(color, 18));
+        return b;
+    }
+
+    /**
+     * A card honouring the user's layout density, elevation, border and glass settings.
+     *
+     * <p>The most settings-sensitive control in the design system: five preferences and
+     * the palette all feed one drawable. Every suite app's content sits inside these, so
+     * a card drawn here cannot drift from a card drawn there.
+     *
+     * <p>Note the local {@code fill} — the original in {@code MainActivity} called this
+     * variable {@code bg}, shadowing the Activity's {@code bg} palette field in the same
+     * method. Renamed because a shadowed palette field is how a card silently picks up the
+     * page background instead of its own fill.
+     */
+    public LinearLayout card() {
+        LinearLayout c = vbox();
+        int density = AppPrefs.prefs(context).getInt("app_layout_density", 1);
+        int horizontal = density == 0 ? 13 : density == 2 ? 22 : 18;
+        int vertical = density == 0 ? 11 : density == 2 ? 20 : 16;
+        c.setPadding(dp(horizontal), dp(vertical), dp(horizontal), dp(vertical));
+        int elevation = AppPrefs.prefs(context).getInt("app_card_elevation", 1);
+        int cardColor = glassEnabled() ? palette.surface : cardFillForElevation(elevation);
+        Drawable fill = glassEnabled()
+                ? glassSurfaceDrawable(cardColor, 22,
+                        AppPrefs.prefs(context).getInt("app_glass_opacity", GlassPreset.OPACITY[0]),
+                        AppPrefs.prefs(context).getInt("app_glass_finish", GlassPreset.FINISH[0]),
+                        AppPrefs.prefs(context).getInt("app_glass_depth", GlassPreset.DEPTH[0]))
+                : shape(cardColor, 22);
+        int borderStyle = AppPrefs.prefs(context).getInt("app_card_border", 1);
+        if (borderStyle > 0 && fill instanceof GradientDrawable) {
+            ((GradientDrawable) fill).setStroke(dp(borderStyle == 2 ? 1.6f : 1),
+                    borderStyle == 2 ? palette.accent : palette.border);
+        }
+        c.setBackground(fill);
+        int glassDepth = glassEnabled()
+                ? AppPrefs.prefs(context).getInt("app_glass_depth", GlassPreset.DEPTH[0]) : 0;
+        float z = elevation == 0 ? 0f : elevation == 2 ? 9f + glassDepth * .05f : 4f + glassDepth * .025f;
+        c.setElevation(dp(z));
+        return c;
+    }
+
+    /**
+     * A section heading with an optional caption, added to {@code parent}.
+     *
+     * <p>Takes the parent rather than assuming one: the version in {@code MainActivity}
+     * wrote into that Activity's own {@code body} field, which is precisely what stopped a
+     * screen from being lifted out of it. A suite app's screen owns its container.
+     */
+    public void sectionTitle(LinearLayout parent, String title, String caption) {
+        TextView t = label(title, 24, palette.text, true);
+        LinearLayout.LayoutParams p = lp(-1, -2);
+        p.topMargin = dp(10);
+        parent.addView(t, p);
+        if (caption != null) {
+            TextView c = label(caption, 13, palette.muted, false);
+            LinearLayout.LayoutParams q = lp(-1, -2);
+            q.topMargin = dp(4);
+            parent.addView(c, q);
+        }
+    }
+
+    /** Vertical spacer added to {@code parent}, for the same reason as {@link #sectionTitle}. */
+    public void gap(LinearLayout parent, int h) {
+        parent.addView(new View(context), lp(1, h));
+    }
+
+    /** Whether the user has turned on the app-glass material. */
+    public boolean glassEnabled() {
+        return AppPrefs.prefs(context).getBoolean("app_glass_enabled", false);
+    }
+
+    /**
+     * Card fill for an elevation level: flat takes the page background, normal takes the
+     * surface, and raised lightens the surface in dark mode but goes pure white in light
+     * mode, where lightening an already-near-white surface would be invisible.
+     */
+    public int cardFillForElevation(int level) {
+        if (level <= 0) return palette.background;
+        if (level == 1) return palette.surface;
+        return palette.dark ? Palette.blend(palette.surface, Color.WHITE, .18f) : Color.WHITE;
+    }
+
+    /** An app-glass panel at the 82% opacity floor, from the user's glass settings. */
+    public Drawable glassSurfaceDrawable(int base, int radius, int opacity, int finish, int depth) {
+        return AppSurfaceStyle.glass(context, base, radius, opacity, finish, depth, 82);
+    }
+
+    /**
+     * The same panel with an explicit {@link GlassPreset} rather than the user's saved
+     * glass settings — for surfaces that must look the same regardless of preference, such
+     * as the Widget Studio preview, which shows what a widget will look like on a home
+     * screen the app does not control.
+     */
+    public Drawable glassSurfaceDrawable(int base, int radius, int opacity, int finish, int depth, int preset) {
+        return AppSurfaceStyle.glass(context, base, radius, opacity, finish, depth, preset, 82);
+    }
+
+    /** The page background: a subtle accent-tinted gradient when enabled, else flat. */
+    public Drawable pageBackground() {
+        return AppSurfaceStyle.pageBackground(context);
     }
 }

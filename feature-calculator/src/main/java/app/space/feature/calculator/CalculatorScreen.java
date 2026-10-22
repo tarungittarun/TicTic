@@ -91,37 +91,35 @@ public final class CalculatorScreen implements Screen {
     }
 
     private void press(String key) {
-        if (key.equals("C")) {
+        if ("C".equals(key)) {
             expression.setLength(0);
-            result = "0";
-            justEvaluated = false;
+            result = null;
             return;
         }
-        if (key.equals("=")) {
-            if (expression.length() == 0) return;
+        if ("=".equals(key)) {
+            // Equals evaluates what is typed; a trailing operator is dropped first, the way a
+            // pocket calculator reads 5 + = as 5.
+            String typed = expression.toString();
+            while (!typed.isEmpty() && CalculatorRules.isOperator(typed.charAt(typed.length() - 1))) {
+                typed = typed.substring(0, typed.length() - 1);
+            }
+            if (typed.isEmpty()) return;
             try {
-                double value = CalculatorRules.evaluate(expression.toString());
-                result = CalculatorRules.format(value);
+                result = CalculatorRules.format(CalculatorRules.evaluate(typed));
                 expression.setLength(0);
                 expression.append(result);
-                justEvaluated = true;
-            } catch (ArithmeticException e) {
+            } catch (Exception e) {
                 result = "Error";
-                expression.setLength(0);
-                justEvaluated = true;
             }
             return;
         }
-        // After a result, a digit starts a new calculation but an operator continues it.
-        if (justEvaluated && !isOperator(key)) {
-            expression.setLength(0);
-            result = "0";
-        }
-        justEvaluated = false;
-        if (expression.length() >= CalculatorRules.MAX_LENGTH) return;
-        char c = asciiForKey(key);
-        if (c == 0 || !CalculatorRules.isInputCharacter(c)) return;
-        expression.append(c);
+        // The rules decide, not the keyboard: an unacceptable key is simply not typed, so the
+        // display can never hold a sequence that is not a number in progress.
+        String next = CalculatorRules.append(expression.toString(), key);
+        if (next == null) return;
+        expression.setLength(0);
+        expression.append(next);
+        result = null;
     }
 
     private static boolean isOperator(String key) {

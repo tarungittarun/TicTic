@@ -267,7 +267,7 @@ class NewFeatureContracts(unittest.TestCase):
         self.assertIn("private void renderSettingsPage()", main)
         for title in ('"Design"','"Alarms"','"Reminders"','"Routines"','"Timer"','"Stopwatch"','"Efficiency\\n& data"','"About\\n& permissions"'): 
             self.assertIn(title, main)
-        self.assertIn('private void buildSettings(){switch(settingsGroup)', main)
+        self.assertIn('private void buildSettings(){settingsError=null;try{switch(settingsGroup)', main)
         self.assertNotIn("openSettingsPopup", main)
 
     def test_reminder_snooze_default_and_usage_events_are_wired(self):
@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.5.0'", gradle)
-        self.assertIn("versionCode 29", gradle)
+        self.assertIn("versionName '3.6.0'", gradle)
+        self.assertIn("versionCode 30", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2345,17 +2345,19 @@ class NavigationEditorContracts(unittest.TestCase):
         # headings is the caption and navLabels the picker; if they diverge the caption
         # names a different group from the one selected. Both must be 9 and both must end
         # with the About group, which is the switch's default.
-        self.assertEqual(len(h), 9, h)
-        self.assertEqual(len(l), 9, l)
-        self.assertEqual(h[-1], "ABOUT & PERMISSIONS")
-        self.assertEqual(l[-1], "About")
+        self.assertEqual(len(h), 10, h)
+        self.assertEqual(len(l), 10, l)
+        self.assertEqual(h[-1], "DIAGNOSTICS")
+        self.assertEqual(l[-1], "Diagnostics")
         self.assertEqual(h[7], "NAVIGATION")
         self.assertEqual(l[7], "Navigation")
-        self.assertIn("Math.min(8,settingsGroup)", self.main)
+        self.assertIn("Math.min(9,settingsGroup)", self.main)
 
     def test_the_group_picker_is_not_hardcoded_to_a_count(self):
         self.assertIn("for(int i=0;i<navLabels.length;i++)", self.main)
-        self.assertIn("case 7:buildNavigationSettings();break;default:buildAboutSettings();}", self.main)
+        self.assertIn("case 7:buildNavigationSettings();break;case 9:buildDiagnosticsSettings();break;", self.main)
+        self.assertIn("settingsError=null;try{switch(settingsGroup){", self.main)
+        self.assertIn("}catch(Throwable settingsFailure){", self.main)
 
     def test_the_editor_writes_both_preferences_and_invalidates_the_cache(self):
         self.assertIn("NavPrefs.setHiddenRoutes(this,clockApp.id(),next)", self.editor)
@@ -2465,16 +2467,16 @@ class CalculatorAppContracts(unittest.TestCase):
         # The display shows divide and minus signs; the parser takes ASCII. Appending the
         # glyph itself makes every operator key silently do nothing, because
         # isInputCharacter rejects it -- so both halves are pinned here.
-        self.assertIn("private static char asciiForKey(String key)", self.screen)
-        self.assertIn("if (key.equals(\"\\u00f7\")) return '/';", self.screen)
-        self.assertIn("if (key.equals(\"\\u00d7\")) return '*';", self.screen)
-        self.assertIn("if (key.equals(\"\\u2212\")) return '-';", self.screen)
-        self.assertIn("char c = asciiForKey(key);", self.screen)
-        self.assertIn("if (c == 0 || !CalculatorRules.isInputCharacter(c)) return;", self.screen)
-        self.assertNotIn("char c = key.charAt(0);", self.screen)
+        rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
+        self.assertIn("public static String normaliseKey(String key)", rules)
+        self.assertIn("if (c == '\\u00f7') return \"/\";", rules)
+        self.assertIn("if (c == '\\u00d7') return \"*\";", rules)
+        self.assertIn("if (c == '\\u2212') return \"-\";", rules)
+        self.assertIn("String k = normaliseKey(key);", rules)
+        self.assertIn("CalculatorRules.append(expression.toString(), key)", self.screen)
 
     def test_errors_are_shown_not_thrown_at_the_user(self):
-        self.assertIn("catch (ArithmeticException e)", self.screen)
+        self.assertIn("catch (Exception e)", self.screen)
         self.assertIn('result = "Error";', self.screen)
         self.assertIn('if (Double.isNaN(value) || Double.isInfinite(value)) return "Error";',
                       self.rules)
@@ -2525,7 +2527,8 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         # A declined route returns false rather than throwing: under the control model an
         # app being absent and an app declining a route look the same to the caller.
         self.assertEqual(body.count("return false;"), 3)
-        self.assertIn("activeScreen=screen;activeApp=app;settings=false;routeCache=null;render();return true;", body)
+        self.assertIn("NavPrefs.pushRecent(this,id);AppLog.event(this,\"app\",\"open \"+id", body)
+        self.assertIn("activeScreen=screen;activeApp=app;settings=false;routeCache=null;", body)
 
     def test_a_foreign_app_replaces_the_clock_screen_and_its_rail(self):
         # The clock's rail would otherwise stay on screen over another app's UI, and its
@@ -2638,10 +2641,12 @@ class ThreeMoreAppsContracts(unittest.TestCase):
         main = java_code_only(read("MainActivity.java"))
         self.assertIn("private void showAppPicker(){", main)
         self.assertIn("appsSlot.setOnClickListener(v->showAppPicker());", main)
-        self.assertIn("for(final SuiteApp app:availableApps()){", main)
+        self.assertIn("List<SuiteApp> apps=availableApps();", main)
         # The picker reads availableApps rather than a second hardcoded list, so a sixth app
         # appears with no change here.
-        self.assertIn("openApp(app.id(),null)", main)
+        self.assertIn("dismissAppSheet();openApp(app.id());", main)
+        self.assertIn("List<String> recents=NavPrefs.recents(this);", main)
+        self.assertIn("NavPrefs.pushRecent(this,id);", main)
 
     def test_every_app_is_registered_once_in_one_list(self):
         # The count is deliberately NOT pinned here any more: CalendarAndTasksContracts
@@ -3469,7 +3474,7 @@ class NavigationModesContracts(unittest.TestCase):
         # Two hand-rolled tile layouts would drift, and the same destination would read
         # differently depending on which mode the user had chosen. Seven: the definition, one
         # call in hub, two in the drawer list, and two in the in-app bar.
-        self.assertEqual(self.main.count("navTile("), 7)
+        self.assertEqual(self.main.count("navTile("), 9)
         hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildAppNav(){")]
         drawer = self.main[self.main.index("private void showDrawer("):]
         self.assertIn("navTile(", hub)
@@ -3724,3 +3729,50 @@ class NotDebuggableContracts(unittest.TestCase):
     def test_the_scan_refuses_a_debuggable_apk(self):
         self.assertIn('if "debuggable".encode("utf-16-le") in blob:', self.script)
         self.assertIn("DEBUGGABLE", self.script)
+
+
+class DiagnosticsLogContracts(unittest.TestCase):
+    """A screenshot says a crash happened; the log says where.
+
+    Two Play Protect blocks and one settings crash were diagnosed from screenshots alone. The log
+    collector records navigation, app opens, permission outcomes and errors while enabled, and
+    crashes whether or not it is enabled -- a crash is exactly when nobody thought to turn it on.
+    """
+
+    def setUp(self):
+        self.log = (ROOT / "core-data/src/main/java/app/space/core/data/AppLog.java").read_text()
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_the_collector_exists_and_cannot_grow_without_bound(self):
+        for api in ("public static boolean enabled(Context c)", "public static void event(",
+                    "public static void crash(", "public static String tail(", "public static void clear("):
+            self.assertIn(api, self.log)
+        self.assertIn("MAX_BYTES = 1000000", self.log)
+
+    def test_crashes_are_recorded_even_when_logging_is_off(self):
+        self.assertIn("if (c == null || t == null) return;", self.log)
+        crash = self.log[self.log.index("public static void crash("):]
+        self.assertNotIn("enabled(c)", crash[:crash.index("private static")])
+
+    def test_the_host_installs_a_crash_handler_first(self):
+        self.assertIn("Thread.setDefaultUncaughtExceptionHandler(", self.main)
+        self.assertIn("AppLog.crash(MainActivity.this,thrown);", self.main)
+        self.assertLess(self.main.index("setDefaultUncaughtExceptionHandler"),
+                        self.main.index("super.onCreate(state);"))
+
+    def test_settings_has_a_diagnostics_page_with_share_and_clear(self):
+        self.assertIn("private void buildDiagnosticsSettings(){", self.main)
+        self.assertIn('pillButton("Share log"', self.main)
+        self.assertIn('pillButton("Clear log"', self.main)
+        self.assertIn("Intent.ACTION_SEND", self.main)
+
+    def test_the_recorder_no_longer_rebuilds_its_screen_on_every_tick(self):
+        body = (ROOT / "feature-recorder/src/main/java/app/space/feature/recorder/RecorderScreen.java").read_text()
+        ticker = body[body.index("private final Runnable ticker"):body.index("public RecorderScreen(")]
+        # Comment lines stripped: the fix's own comment names host.invalidate() to explain why it
+        # is gone, which is the seventh time an assertion in this suite has matched the
+        # documentation of the thing it asserts. The rule stands on its own now.
+        ticker = "\n".join(l for l in ticker.splitlines() if not l.strip().startswith("//"))
+        self.assertNotIn("host.invalidate()", ticker, "the ticker must update views in place")
+        self.assertIn("clockView.setText(", ticker)
+        self.assertIn("statusView.setText(", ticker)

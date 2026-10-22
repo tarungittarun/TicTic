@@ -44,6 +44,70 @@ public final class CalculatorRules {
     }
 
     /** Whether a character may be appended to the expression being typed. */
+    /**
+     * The expression after pressing a key, or null when the key is not acceptable here.
+     *
+     * <p>A calculator that appends whatever is tapped will happily show "-+-++-52***-+++", which
+     * is what this one did: the rules lived only in evaluate(), so nonsense was accepted at
+     * input time and refused at equals time. Google's calculator refuses at the key, so the
+     * display can never hold something that is not a number in progress.
+     *
+     * <p>Rules: a digit always appends (within MAX_LENGTH); a decimal point only when the number
+     * being typed has none; an operator replaces a trailing operator, and only minus may lead;
+     * equals and clear are handled by the caller.
+     */
+    /** Maps a key cap to the character it types; the rules work in ASCII, the caps are glyphs. */
+    public static String normaliseKey(String key) {
+        if (key == null || key.isEmpty()) return null;
+        char c = key.charAt(key.length() - 1);
+        if (c == '\u00f7') return "/";
+        if (c == '\u00d7') return "*";
+        if (c == '\u2212') return "-";
+        return String.valueOf(c);
+    }
+
+    public static String append(String expression, String key) {
+        String current = expression == null ? "" : expression;
+        if (key == null || key.isEmpty()) return null;
+        String k = normaliseKey(key);
+        if (k == null || k.isEmpty()) return null;
+        char c = k.charAt(k.length() - 1);
+        if (current.length() >= MAX_LENGTH && Character.isDigit(c)) return null;
+        if (Character.isDigit(c)) return current + c;
+        if (c == '.') {
+            String number = trailingNumber(current);
+            return number.indexOf('.') >= 0 ? null : current + c;
+        }
+        if (c == '+' || c == '-' || c == '*' || c == '/') {
+            if (current.isEmpty()) return c == '-' ? "-" : null;
+            char last = current.charAt(current.length() - 1);
+            if (isOperator(last)) {
+                // Replace rather than stack, so 5 + * stays 5 *, and 5 + - becomes 5 - only when
+                // the new key is minus; anything else after an operator is refused except minus.
+                if (c == '-') return current + c;
+                return current.substring(0, current.length() - 1) + c;
+            }
+            return current + c;
+        }
+        return null;
+    }
+
+    /** The number currently being typed, i.e. everything after the last operator. */
+    public static String trailingNumber(String expression) {
+        if (expression == null || expression.isEmpty()) return "";
+        int cut = -1;
+        for (int i = expression.length() - 1; i >= 0; i--) {
+            char c = expression.charAt(i);
+            if (c == '+' || c == '*' || c == '/') { cut = i; break; }
+            if (c == '-' && i > 0 && !isOperator(expression.charAt(i - 1))) { cut = i; break; }
+        }
+        return expression.substring(cut + 1);
+    }
+
+    public static boolean isOperator(char c) {
+        return c == '+' || c == '-' || c == '*' || c == '/';
+    }
+
     public static boolean isInputCharacter(char c) {
         return (c >= '0' && c <= '9') || c == '.' || c == '+' || c == '-' || c == '*'
                 || c == '/' || c == '(' || c == ')';

@@ -50,6 +50,40 @@ public final class NavPrefs {
         return AppPrefs.prefs(c);
     }
 
+    // ---- recently used apps ----------------------------------------------------
+
+    private static final String KEY_RECENTS = "nav_recents";
+
+    /** Most recent first, capped. Drives the sheet's bottom row. */
+    public static List<String> recents(Context c) {
+        List<String> out = new ArrayList<>();
+        String stored = prefs(c).getString(KEY_RECENTS, "");
+        for (String id : stored.split(",")) {
+            if (!id.isEmpty() && !out.contains(id)) out.add(id);
+        }
+        return out;
+    }
+
+    public static void pushRecent(Context c, String id) {
+        if (id == null || id.isEmpty() || id.indexOf(',') >= 0) return;
+        List<String> next = new ArrayList<>();
+        next.add(id);
+        for (String existing : recents(c)) {
+            if (!existing.equals(id)) next.add(existing);
+            if (next.size() >= 5) break;
+        }
+        prefs(c).edit().putString(KEY_RECENTS, join(next)).apply();
+    }
+
+    private static String join(List<String> ids) {
+        StringBuilder b = new StringBuilder();
+        for (String id : ids) {
+            if (b.length() > 0) b.append(',');
+            b.append(id);
+        }
+        return b.toString();
+    }
+
     // ---- navigation mode -------------------------------------------------------
 
     public static NavMode mode(Context c) {

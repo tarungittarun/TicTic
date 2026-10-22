@@ -1,5 +1,6 @@
 package app.space.feature.recorder;
 
+import app.space.core.data.AppLog;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -48,6 +49,8 @@ public final class RecorderScreen implements Screen {
     private File active;
     private long startedAt;
     private long elapsed;
+    private TextView clockView;
+    private TextView statusView;
     private boolean recording;
     private Context pauseContext;
 
@@ -60,7 +63,13 @@ public final class RecorderScreen implements Screen {
                 if (pauseContext != null) stop(pauseContext);
                 return;
             }
-            host.invalidate();
+            // In place, never a rebuild: host.invalidate() rebuilds the whole screen, which is
+            // the blinking seen twice a second on device.
+            if (clockView != null) clockView.setText(RecorderRules.formatDuration(elapsed));
+            if (statusView != null) {
+                statusView.setText("Recording \u00b7 about "
+                        + RecorderRules.formatBytes(RecorderRules.estimatedBytes(elapsed)));
+            }
             main.postDelayed(this, 500L);
         }
     };
@@ -89,6 +98,7 @@ public final class RecorderScreen implements Screen {
                 ui.palette().text, true);
         clock.setGravity(Gravity.CENTER);
         root.addView(clock, ui.lp(-1, 76));
+        clockView = clock;
 
         TextView status = ui.label(recording
                 ? "Recording \u00b7 about " + RecorderRules.formatBytes(RecorderRules.estimatedBytes(elapsed))
@@ -96,6 +106,7 @@ public final class RecorderScreen implements Screen {
                 11, recording ? 0xffc2564a : ui.palette().muted, recording);
         status.setGravity(Gravity.CENTER);
         root.addView(status, ui.lp(-1, 22));
+        statusView = status;
 
         TextView toggle = ui.pillButton(recording ? "Stop" : "Record",
                 recording ? ui.palette().surface : ui.palette().accent,
@@ -212,6 +223,7 @@ public final class RecorderScreen implements Screen {
             host.invalidate();
             return;
         }
+        AppLog.event(context, "recorder", "stop duration=" + duration + " bytes=" + finished.length());
         elapsed = duration;
         // Duration travels with the file name so the list can render without decoding every
         // recording, which would be slow with a lot of them.
@@ -295,9 +307,12 @@ public final class RecorderScreen implements Screen {
                 @Override public void onCompletion(MediaPlayer mp) { stopPlayback(); }
             });
         } catch (Exception e) {
+            AppLog.event(context, "recorder", "play failed " + item.fileName + " "
+                    + e.getClass().getName() + ": " + String.valueOf(e.getMessage()));
             stopPlayback();
-            host.toast("Could not play that recording.");
+            host.toast("Could not play that recording: " + e.getClass().getSimpleName());
         }
+        AppLog.event(context, "recorder", "play " + item.fileName + " bytes=" + file.length());
     }
 
     private void stopPlayback() {

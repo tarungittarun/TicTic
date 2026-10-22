@@ -16,6 +16,27 @@ public class CalculatorRulesTest {
 
     private static final double EPS = 1e-9;
 
+    @Test public void keysThatCannotAppearHereAreRefusedAtTheKey() {
+        // The display must never hold a sequence that is not a number in progress. This is the
+        // defect the owner hit: "-+-++-52xxx-+++" was accepted because the rules only ran at
+        // equals, not at input.
+        assertNull(CalculatorRules.append("", "+"));
+        assertNull(CalculatorRules.append("", "*"));
+        assertEquals("-", CalculatorRules.append("", "-"));
+        assertEquals("5", CalculatorRules.append("", "5"));
+        assertEquals("5+", CalculatorRules.append("5", "+"));
+        // A second operator replaces the first rather than stacking, except minus, which may
+        // follow an operator to make it negative.
+        assertEquals("5*", CalculatorRules.append("5+", "*"));
+        assertEquals("5+-", CalculatorRules.append("5+", "-"));
+        assertEquals("5+2", CalculatorRules.append("5+", "2"));
+        assertNull(CalculatorRules.append("5.2", "."));
+        assertEquals("5.2", CalculatorRules.append("5.", "2"));
+        // Display glyphs type their ASCII character.
+        assertEquals("8/", CalculatorRules.append("8", "\u00f7"));
+        assertEquals("8*", CalculatorRules.append("8", "\u00d7"));
+    }
+
     @Test public void addsAndSubtracts() {
         assertEquals(7d, CalculatorRules.evaluate("3+4"), EPS);
         assertEquals(-1d, CalculatorRules.evaluate("3-4"), EPS);

@@ -1,5 +1,6 @@
 package app.tictic.clock;
 
+import app.space.core.data.AppLog;
 import android.Manifest;
 import app.space.core.platform.PowerState;
 import android.app.*;
@@ -107,6 +108,9 @@ private String aboutText(){
 private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp,calendarApp,tasksApp,weatherApp,recorderApp,filesApp,documentsApp,messagesApp,musicApp,scannerApp,emailApp);}
     /** Non-null while an app other than the clock owns the screen. */
     private Screen activeScreen;
+    private String settingsError;
+    private PopupWindow appSheet;
+    private View navBarView;
     // The app that owns activeScreen, so the header can say whose screen is showing.
     private SuiteApp activeApp;
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */
@@ -139,7 +143,15 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     private SuiteRegistry registry;
     private SuiteRegistry registry(){if(registry==null)registry=new SuiteRegistry(suiteApps());return registry;} private final TonePreview tonePreview=new TonePreview();
     private final java.util.ArrayList<WorldClockTile> worldTiles=new java.util.ArrayList<>(); private static class WorldClockTile { String zone; TextView time; WorldClockTile(String z,TextView t){zone=z;time=t;} } private Runnable ticker=new Runnable(){@Override public void run(){updateLive();handler.postDelayed(this,nextTickDelay());}};
-    @Override public void onCreate(Bundle state){super.onCreate(state);DataStore.migrateReminderDefaults(this);DataStore.migrateRingingControls(this);UsageTracker.purgeLegacyBatterySnapshots(this);applyRoute(getIntent());recordWidgetOpen(getIntent());applyPalette();render();exactAccess=AlarmScheduler.canExact(this);root.post(()->{AlarmScheduler.rescheduleAll(this);ReminderScheduler.rescheduleAll(this);RoutineReceiver.scheduleAll(this);});}
+    @Override public void onCreate(Bundle state){// Installed before anything else can fail. A crash written to the log is the difference
+        // between a screenshot that says "it crashed" and one that says where.
+        final Thread.UncaughtExceptionHandler previousHandler=Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread,thrown)->{
+            AppLog.crash(MainActivity.this,thrown);
+            if(previousHandler!=null)previousHandler.uncaughtException(thread,thrown);
+        });
+        AppLog.event(this,"lifecycle","onCreate");
+        super.onCreate(state);DataStore.migrateReminderDefaults(this);DataStore.migrateRingingControls(this);UsageTracker.purgeLegacyBatterySnapshots(this);applyRoute(getIntent());recordWidgetOpen(getIntent());applyPalette();render();exactAccess=AlarmScheduler.canExact(this);root.post(()->{AlarmScheduler.rescheduleAll(this);ReminderScheduler.rescheduleAll(this);RoutineReceiver.scheduleAll(this);});}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);applyRoute(intent);recordWidgetOpen(intent);render();}
     private void applyRoute(Intent intent){if(intent==null)return;String target=intent.getStringExtra("tab");
         if(target==null&&NavPrefs.openLastApp(this))target=NavPrefs.lastApp(this);
@@ -170,7 +182,9 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         // A null screen means the app declined the route, which is an ordinary outcome
         // under the control model, not an error to throw at the caller.
         if(screen==null)return false;
-        activeScreen=screen;activeApp=app;settings=false;routeCache=null;render();return true;
+        activeScreen=screen;activeApp=app;settings=false;routeCache=null;
+        NavPrefs.pushRecent(this,id);AppLog.event(this,"app","open "+id+(route==null?"":" route="+route));
+        render();return true;
     }
     @Override public void openSettings(){openSettingsPage();}
     /** Group ids are not mapped until the settings surface moves in step 1h-v. */
@@ -210,7 +224,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else if(activeScreen!=null){body.addView(activeScreen.build(this));}else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
         if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
-    private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;render();}
+    private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;AppLog.event(this,"settings","open");render();}
     private void renderSettingsPage(){
         applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;
         boolean compact=getResources().getConfiguration().screenWidthDp<600;
@@ -218,10 +232,10 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout top=hbox();top.setPadding(dp(12),dp(7),dp(16),dp(7));root.addView(top,lp(-1,62));
         TextView back=label("‹",34,accent,true);back.setGravity(Gravity.CENTER);top.addView(back,lp(44,46));back.setContentDescription("Back to MySpace");back.setOnClickListener(v->{settings=false;settingsScrollView=null;settingsScrollY=0;render();});
         TextView title=label("Settings",22,text,true);LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,dp(46),1);titleParams.leftMargin=dp(8);top.addView(title,titleParams);
-        String[] headings={"DESIGN","ALARMS","REMINDERS","ROUTINES","TIMER","STOPWATCH","EFFICIENCY & DATA","NAVIGATION","ABOUT & PERMISSIONS"};
-        TextView current=label(headings[Math.max(0,Math.min(8,settingsGroup))],10,muted,true);current.setLetterSpacing(.08f);top.addView(current);
+        String[] headings={"DESIGN","ALARMS","REMINDERS","ROUTINES","TIMER","STOPWATCH","EFFICIENCY & DATA","NAVIGATION","ABOUT & PERMISSIONS","DIAGNOSTICS"};
+        TextView current=label(headings[Math.max(0,Math.min(9,settingsGroup))],10,muted,true);current.setLetterSpacing(.08f);top.addView(current);
         LinearLayout frame=compact?vbox():hbox();frame.setClipChildren(true);frame.setClipToPadding(true);root.addView(frame,new LinearLayout.LayoutParams(-1,0,1));
-        String[] navLabels={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency","Navigation","About"};
+        String[] navLabels={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency","Navigation","About","Diagnostics"};
         if(compact){
             HorizontalScrollView navScroll=new HorizontalScrollView(this);navScroll.setHorizontalScrollBarEnabled(false);navScroll.setFillViewport(false);navScroll.setClipChildren(true);navScroll.setClipToPadding(true);
             LinearLayout nav=hbox();nav.setPadding(dp(10),dp(4),dp(10),dp(5));navScroll.addView(nav);frame.addView(navScroll,lp(-1,58));
@@ -306,12 +320,15 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
      */
     void buildAppNav(){
         LinearLayout bar=hbox();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackground(shape(surface,24));bar.setPadding(dp(10),dp(5),dp(10),dp(6));
-        View home=navTile("Clock",TicIconView.CLOCK,false);bar.addView(home,lp(76,54));
-        home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
-        TextView title=label(activeApp==null?"":activeApp.label(),14,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);bar.addView(title,tp);
+        navBarView=bar;
+        // Apps first, on the owner's instruction: the switcher is the control that reaches
+        // everything else, so it gets the leading position rather than the way home.
         View apps=navTile("Apps",TicIconView.APPS,false);bar.addView(apps,lp(76,54));
         apps.setOnClickListener(v->showAppPicker());
+        TextView title=label(activeApp==null?"":activeApp.label(),14,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);bar.addView(title,tp);
+        View home=navTile("Clock",TicIconView.CLOCK,false);bar.addView(home,lp(76,54));
+        home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
         root.addView(bar,lp(-1,64));
     }
     /** One nav tile, shared by hub mode, the drawer list and the in-app bar. */
@@ -370,19 +387,47 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
      * the user was -- a missing or hidden app is an ordinary outcome, never a crash.
      */
     private void showAppPicker(){
-        int style=DataStore.dark(this)?android.R.style.Theme_Material_Dialog_Alert:android.R.style.Theme_Material_Light_Dialog_Alert;
-        AppAlertBuilder builder=new AppAlertBuilder(new android.view.ContextThemeWrapper(this,style),ui());
-        LinearLayout list=vbox();list.setPadding(dp(12),dp(4),dp(12),dp(10));
-        builder.setTitle("Apps");
-        final AlertDialog[] ref=new AlertDialog[1];
-        for(final SuiteApp app:availableApps()){
-            TextView row=pillButton(app.label(),surface,text);
-            LinearLayout.LayoutParams p=lp(-1,44);p.topMargin=dp(6);list.addView(row,p);
-            row.setOnClickListener(v->{if(ref[0]!=null)ref[0].dismiss();openApp(app.id(),null);});
+        LinearLayout sheet=vbox();sheet.setPadding(dp(12),dp(10),dp(12),dp(12));
+        sheet.addView(label("Apps",16,text,true));
+        List<SuiteApp> apps=availableApps();
+        LinearLayout row=null;
+        for(int i=0;i<apps.size();i++){
+            if(i%4==0){row=hbox();sheet.addView(row,lp(-1,-2));}
+            final SuiteApp app=apps.get(i);
+            View tile=navTile(app.label(),app.iconGlyph(),activeApp!=null&&activeApp.id().equals(app.id()));
+            LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,dp(58),1);row.addView(tile,tp);
+            tile.setOnClickListener(v->{dismissAppSheet();openApp(app.id());});
         }
-        builder.setView(list);
-        ref[0]=builder.show();
+        // Recently used on the bottom line, as specified: the grid is the catalogue, the row
+        // beneath it is where you actually go back to.
+        List<String> recents=NavPrefs.recents(this);
+        LinearLayout recentRow=null;int shown=0;
+        for(String id:recents){
+            if(shown>=4)break;
+            SuiteApp app=registry().find(id);
+            if(app==null||!isAppAvailable(id))continue;
+            if(recentRow==null){
+                TextView head=label("RECENT",10,muted,true);head.setLetterSpacing(.1f);head.setPadding(0,dp(10),0,dp(4));sheet.addView(head);
+                recentRow=hbox();sheet.addView(recentRow,lp(-1,-2));
+            }
+            final SuiteApp target=app;
+            View tile=navTile(app.label(),app.iconGlyph(),false);
+            LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,dp(58),1);recentRow.addView(tile,tp);
+            tile.setOnClickListener(v->{dismissAppSheet();openApp(target.id());});
+            shown++;
+        }
+        appSheet=new PopupWindow(sheet,Math.min(dp(360),getResources().getDisplayMetrics().widthPixels-dp(24)),-2,true);
+        appSheet.setBackgroundDrawable(shape(surface,22));appSheet.setOutsideTouchable(true);appSheet.setElevation(dp(10));
+        // A box just above the bar, not a full-screen dialog: it should read as belonging to
+        // the bar that summoned it.
+        if(navBarView!=null&&navBarView.getWindowToken()!=null){
+            appSheet.showAtLocation(navBarView,Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,navBarView.getHeight()+dp(10));
+        }else{
+            appSheet.showAtLocation(root,Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,dp(84));
+        }
+        AppLog.event(this,"nav","app sheet shown with "+apps.size()+" apps, "+shown+" recent");
     }
+    private void dismissAppSheet(){if(appSheet!=null&&appSheet.isShowing())appSheet.dismiss();}
     private void sectionTitle(String title,String caption){ui().sectionTitle(body,title,caption);}
     private TextView pillButton(String title,int color,int ink){return ui().pillButton(title,color,ink);}
     private void addGlassSlider(LinearLayout parent,View preview,int[] values,int index,String title,String left,String right,int min,int max,boolean enabled){
@@ -571,6 +616,9 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
         // Forwarded to the visible app screen first: a screen that asks for a permission has
         // to hear the answer, or the user taps Allow and nothing appears to change.
         if(requestCode>=90&&requestCode<100&&activeScreen!=null){activeScreen.onRequestPermissionsResult(requestCode,permissions,grantResults);}
+        StringBuilder granted=new StringBuilder();
+        for(int i=0;i<permissions.length;i++)granted.append(permissions[i]).append('=').append(grantResults.length>i&&grantResults[i]==0?"granted":"denied").append(' ');
+        AppLog.event(this,"permission","request "+requestCode+" "+granted);
         if(requestCode==REQUEST_ALARM_NOTIFICATIONS){requestExactAccessBeforeSave();}
     }
     private void requestExactAccessBeforeSave(){
@@ -716,7 +764,14 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
         LinearLayout footer=hbox();footer.setGravity(Gravity.CENTER_VERTICAL);LinearLayout.LayoutParams footerP=lp(-1,52);footerP.topMargin=dp(9);shell.addView(footer,footerP);TextView cancel=pillButton("Cancel",DataStore.dark(this)?0xff293b37:0xffedf3f1,text);footer.addView(cancel,new LinearLayout.LayoutParams(0,dp(46),.9f));cancel.setOnClickListener(v->dlg.dismiss());TextView save=pillButton("Save defaults",accent,Color.WHITE);LinearLayout.LayoutParams saveP=new LinearLayout.LayoutParams(0,dp(46),1.2f);saveP.leftMargin=dp(8);footer.addView(save,saveP);
         save.setOnClickListener(v->{int snoozePos=Math.max(0,Math.min(snoozeValues.length-1,snooze.getSelectedItemPosition()));int tonePos=Math.max(0,Math.min(toneValues.length-1,tone.getSelectedItemPosition()));int reminderPos=Math.max(0,Math.min(reminderValues.length-1,reminderTone.getSelectedItemPosition()));int leadPos=Math.max(0,Math.min(leads.length-1,lead.getSelectedItemPosition()));prefs.edit().putInt("alarm_default_snooze",snoozeValues[snoozePos]).putBoolean("alarm_default_vibrate",vibrate.isChecked()).putBoolean("alarm_default_gentle",gentle.isChecked()).putString("alarm_default_sound",toneValues[tonePos]).putBoolean("alarm_default_reminder_enabled",reminder.isChecked()).putInt("alarm_default_reminder_minutes",useCustom[0]?customLead[0]:leads[leadPos]).putString("alarm_default_reminder_sound",reminderValues[reminderPos]).putBoolean("alarm_default_reminder_vibrate",reminderVibrate.isChecked()).apply();DataStore.log(this,"Settings","Alarm defaults updated","Snooze, sound, vibration and pre-alarm defaults");dlg.dismiss();render();});
         shell.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));dlg.setContentView(shell);dlg.setCancelable(true);dlg.setCanceledOnTouchOutside(false);dlg.show();configureFormDialogWindow(dlg);
-    }    private void buildSettings(){switch(settingsGroup){case 0:buildDesignSettings();break;case 1:buildAlarmSettings();break;case 2:buildReminderSettings();break;case 3:buildRoutineSettings();break;case 4:buildTimerSettings();break;case 5:buildStopwatchSettings();break;case 6:buildEfficiencySettings();break;case 7:buildNavigationSettings();break;default:buildAboutSettings();}}
+    }    private void buildSettings(){settingsError=null;try{switch(settingsGroup){case 0:buildDesignSettings();break;case 1:buildAlarmSettings();break;case 2:buildReminderSettings();break;case 3:buildRoutineSettings();break;case 4:buildTimerSettings();break;case 5:buildStopwatchSettings();break;case 6:buildEfficiencySettings();break;case 7:buildNavigationSettings();break;case 9:buildDiagnosticsSettings();break;default:buildAboutSettings();}}catch(Throwable settingsFailure){
+            AppLog.crash(this,settingsFailure);
+            settingsError=settingsFailure.getClass().getSimpleName()+": "+String.valueOf(settingsFailure.getMessage());
+            LinearLayout err=card();frame.addView(err,new LinearLayout.LayoutParams(-1,-2));
+            err.addView(label("This settings page failed to render",16,text,true));
+            TextView why=label(settingsError,12,muted,false);why.setPadding(0,dp(6),0,dp(8));err.addView(why);
+            err.addView(label("It is recorded in Settings \u25b8 Diagnostics. Everything else still works; the arrow above goes back.",11,muted,false));
+        }}
     private void buildReminderSettings(){
         editorSoundValue=DataStore.prefs(this).getString("alarm_default_sound",DataStore.prefs(this).getString("alarm_sound_uri",""));sectionTitle("Reminders","Local alerts, notification actions and repeat schedules.");gap(10);LinearLayout card=card();body.addView(card,lp(-1,-2));card.addView(label("Reminder defaults",16,text,true));TextView detail=label("Applied when creating a new reminder. Each reminder can still override vibration.",12,muted,false);detail.setPadding(0,dp(4),0,dp(8));card.addView(detail);
         card.addView(label("DEFAULT NOTIFICATION SOUND",10,muted,true),lp(-1,27));String[] reminderDefaults={"MySpace Ping","Daybreak Bell","Golden Hour","Pulse","System notification","Silent","Choose phone tone…"};String[] reminderValues={"ping","dawn","golden","pulse","notification","silent","custom"};String savedDefault=DataStore.prefs(this).getString("reminder_default_tone","ping");int defIndex=0;for(int i=0;i<reminderValues.length;i++)if(reminderValues[i].equals(savedDefault)){defIndex=i;break;}Spinner defaultTone=appSpinner(reminderDefaults,defIndex);card.addView(defaultTone,lp(-1,46));TextView customTone=label("Choose phone notification tone",12,accent,true);card.addView(customTone,lp(-1,35));customTone.setOnClickListener(v->launchReminderTonePicker(86));TextView previewDefaultReminder=pillButton("▶  Hear reminder default",DataStore.dark(this)?0xff263632:0xffe3ebe7,text);card.addView(previewDefaultReminder,lp(-1,38));previewDefaultReminder.setOnClickListener(v->{int ix=Math.max(0,Math.min(reminderValues.length-1,defaultTone.getSelectedItemPosition()));previewReminderTone(reminderValues[ix],DataStore.prefs(this).getString("reminder_default_tone_uri",""));});defaultTone.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){boolean first=true;public void onNothingSelected(android.widget.AdapterView<?> a){}public void onItemSelected(android.widget.AdapterView<?> a,View v,int position,long id){if(first){first=false;return;}int ix=Math.max(0,Math.min(reminderValues.length-1,position));if(ix==6){launchReminderTonePicker(86);return;}DataStore.prefs(MainActivity.this).edit().putString("reminder_default_tone",reminderValues[ix]).apply();DataStore.log(MainActivity.this,"Settings","Reminder default tone updated",reminderDefaults[ix]);}});
@@ -763,6 +818,44 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
      * last visible destination is refused rather than allowed: an empty rail would leave
      * the user with no way back into this screen to undo it.
      */
+    private void buildDiagnosticsSettings(){
+        sectionTitle("Diagnostics","Collect what the app does, so a problem can be analysed from the log rather than from a screenshot.");
+        gap(10);
+        LinearLayout logCard=card();body.addView(logCard,lp(-1,-2));
+        Switch toggle=appSwitch();
+        toggle.setChecked(AppLog.enabled(this));
+        logCard.addView(toggle,lp(-1,-2));
+        logCard.addView(label("Collect diagnostics log",14,text,true));
+        TextView state=label(AppLog.enabled(this)?"Recording navigation, app opens, permissions, errors and every crash to files/logs/myspace.log.":"Off. Crashes are still recorded, because a crash is exactly when nobody thought to enable it.",11,muted,false);
+        state.setPadding(0,dp(4),0,dp(8));logCard.addView(state);
+        toggle.setOnCheckedChangeListener((button,on)->{AppLog.setEnabled(this,on);AppLog.event(this,"log",on?"enabled":"disabled");render();});
+        java.io.File logFile=AppLog.file(this);
+        TextView size=label(logFile.exists()?logFile.length()+" bytes on disk":"no log file yet",11,muted,false);
+        size.setPadding(0,0,0,dp(8));logCard.addView(size);
+        LinearLayout actions=hbox();logCard.addView(actions,lp(-1,-2));
+        TextView share=pillButton("Share log",accent,Color.WHITE);
+        LinearLayout.LayoutParams shp=new LinearLayout.LayoutParams(0,dp(46),1);actions.addView(share,shp);
+        share.setOnClickListener(v->{
+            String content=AppLog.tail(this,60000);
+            if(content.isEmpty()){toast("Nothing logged yet.");return;}
+            Intent send=new Intent(Intent.ACTION_SEND);send.setType("text/plain");
+            send.putExtra(Intent.EXTRA_SUBJECT,"MySpace diagnostics log");
+            send.putExtra(Intent.EXTRA_TEXT,content);
+            AppLog.event(this,"log","shared "+content.length()+" chars");
+            try{startActivity(Intent.createChooser(send,"Share diagnostics log"));}catch(Exception e){toast("No app can share text.");}
+        });
+        TextView clear=pillButton("Clear log",surface,text);
+        LinearLayout.LayoutParams clp=new LinearLayout.LayoutParams(0,dp(46),1);clp.leftMargin=dp(6);actions.addView(clear,clp);
+        clear.setOnClickListener(v->{AppLog.clear(this);AppLog.event(this,"log","cleared");render();});
+        if(settingsError!=null){
+            gap(10);
+            LinearLayout err=card();body.addView(err,lp(-1,-2));
+            err.addView(label("Last settings failure",14,text,true));
+            TextView why=label(settingsError,11,muted,false);why.setPadding(0,dp(4),0,0);err.addView(why);
+        }
+        gap(14);
+    }
+
     private void buildNavigationSettings(){
         sectionTitle("Navigation","Choose how destinations are reached, and which appear.");
         gap(10);

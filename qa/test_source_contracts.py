@@ -2025,10 +2025,56 @@ class CiDiagnosticsContracts(unittest.TestCase):
         # the one that goes silent.
         for needle in ("error:", "Execution failed", "FAILED", "AssertionError"):
             self.assertIn(needle, self.yml)
-        # A bare "> Task .* FAILED" pattern matched the gradle task line but not a
-        # test-level "ClassName > testName FAILED", so a failing unit test reported that
-        # some test failed without saying which. The pattern must stay general.
-        self.assertIn("Test.* > ", self.yml)
+
+    def test_the_annotation_pattern_reports_failures_and_not_passes(self):
+        # Behavioural rather than string-presence: the pattern is extracted from the workflow
+        # and run against real gradle output lines.
+        #
+        # History, in both directions. A bare "> Task .* FAILED" matched the gradle task line
+        # but not a test-level "ClassName > testName FAILED", so a failing test reported that
+        # *something* failed without saying which. The fix added "Test.* > " -- which also
+        # matches PASSED lines. Under the 'test' lifecycle every variant prints every passing
+        # test, so the 80-line head filled with successes, the one FAILED line fell off the
+        # end, and a green build got reported as a red one. Plain "FAILED" covers the task
+        # line and the test line without ever matching a pass, so the general-match
+        # requirement is satisfied by it alone.
+        import re
+        m = re.search(r'grep -nE "([^"]+)" "\$f"', self.yml)
+        self.assertIsNotNone(m, "could not locate the annotation grep pattern")
+        pattern = re.compile(m.group(1))
+        failures = [
+            "> Task :feature-calculator:testLiteDebugUnitTest FAILED",
+            "app.space.feature.calculator.CalculatorRulesTest > "
+            "keysThatCannotAppearHereAreRefusedAtTheKey FAILED",
+            "app/src/main/java/app/tictic/clock/MainActivity.java:770: error: cannot find symbol",
+            "Execution failed for task ':app:compileLiteDistJavaWithJavac'.",
+            "java.lang.AssertionError: expected:<null> but was:<.>",
+            "Caused by: java.lang.NullPointerException",
+            "  What went wrong:",
+        ]
+        for line in failures:
+            self.assertTrue(pattern.search(line), "failure line not matched: %r" % line)
+        # These are the lines that used to consume the whole annotation budget.
+        passes = [
+            "app.space.shell.NavOrderTest > joins ids with a comma PASSED",
+            "app.space.core.domain.TimeMathTest > streaksUseEpochDays PASSED",
+            "> Task :app:assembleLiteDist",
+            "BUILD SUCCESSFUL in 2m 11s",
+            "264 tests completed, 0 failed",
+        ]
+        for line in passes:
+            self.assertFalse(pattern.search(line), "success line matched: %r" % line)
+
+    def test_the_annotation_step_dumps_the_unit_log_tail_as_context(self):
+        # A grep can only report the shapes it was written for. When the failure is something
+        # else entirely -- an OOM, a daemon crash, a task that never printed FAILED -- the
+        # summary at the end of the log is what says so.
+        annotation = self.yml.split("Surface compile and test errors as annotations")[1].split("      - name:")[0]
+        self.assertIn("tail -30 /tmp/unit.log", annotation)
+        self.assertIn("unit-log-tail", annotation)
+        # Still bounded: an unbounded dump is its own failure mode, because annotations are
+        # capped and a huge log would evict the very lines that matter.
+        self.assertIn("| head -80", annotation)
 
     def test_the_annotation_step_is_what_fails_the_job(self):
         # Both build steps are continue-on-error so their output can be captured;
@@ -3729,6 +3775,46 @@ class NotDebuggableContracts(unittest.TestCase):
     def test_the_scan_refuses_a_debuggable_apk(self):
         self.assertIn('if "debuggable".encode("utf-16-le") in blob:', self.script)
         self.assertIn("DEBUGGABLE", self.script)
+
+
+class JUnitImportContracts(unittest.TestCase):
+    """Every JVM test file must import the assertion helpers it calls.
+
+    There is no JDK in this workspace, so nothing compiles locally: a missing static import is
+    invisible until CI, where it presents as a failing 'test' step whose exit status is masked by
+    continue-on-error. That is exactly how CalculatorRulesTest went unnoticed -- it called
+    assertNull four times and imported three helpers.
+
+    Rather than pin one file, this scans all of them, so the next test written cannot reintroduce
+    the same silent failure. It is a poor substitute for javac, but it covers the one javac
+    diagnostic this project has actually shipped.
+    """
+
+    HELPERS = ("assertEquals", "assertNull", "assertNotNull", "assertTrue", "assertFalse",
+               "assertSame", "assertNotSame", "assertArrayEquals", "assertThat", "fail")
+
+    def test_files(self):
+        found = sorted(ROOT.glob("*/src/test/java/**/*.java"))
+        self.assertGreater(len(found), 10, "expected the JVM test corpus to be discovered")
+        return found
+
+    def test_every_assertion_helper_used_is_statically_imported(self):
+        for path in self.test_files():
+            text = path.read_text(encoding="utf-8")
+            imported = set(re.findall(r"import static org\.junit\.Assert\.(\w+);", text))
+            used = {h for h in self.HELPERS if re.search(r"\b%s\s*\(" % h, text)}
+            self.assertEqual(set(), used - imported,
+                             "%s calls helpers it does not import" % path.name)
+
+    def test_assertNull_is_imported_where_the_input_refusal_rules_are_pinned(self):
+        path = ROOT / (
+            "feature-calculator/src/test/java/app/space/feature/calculator/CalculatorRulesTest.java")
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("import static org.junit.Assert.assertNull;", text)
+        # The refusal rules are the point of the test: a key that cannot appear here must return
+        # null, not an expression that only fails at equals time.
+        self.assertIn("keysThatCannotAppearHereAreRefusedAtTheKey", text)
+        self.assertGreaterEqual(text.count("assertNull(CalculatorRules.append("), 3)
 
 
 class DiagnosticsLogContracts(unittest.TestCase):

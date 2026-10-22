@@ -115,12 +115,19 @@ jobs:
         run: |
           for f in /tmp/unit.log /tmp/build.log; do
             [ -f "$f" ] || continue
-            grep -nE "^e: |error:|Execution failed|What went wrong|FAILED|Caused by:|Test.* > |AssertionError|expected:" "$f" \
+            grep -nE "^e: |error:|Execution failed|What went wrong|FAILED|Caused by:|AssertionError|expected:" "$f" \
               | head -80 \
               | while IFS= read -r line; do
                   echo "::error title=$(basename "$f")::${line}"
                 done
           done
+          # Context when the greps above are not enough: the tail of the unit log, where a
+          # failing test's stack and the summary line live.
+          if [ -f /tmp/unit.log ]; then
+            tail -30 /tmp/unit.log | while IFS= read -r line; do
+              echo "::error title=unit-log-tail::${line}"
+            done
+          fi
           exit 1
 
       - name: Upload debug APK

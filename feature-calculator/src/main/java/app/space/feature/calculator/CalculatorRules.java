@@ -43,7 +43,6 @@ public final class CalculatorRules {
         return s;
     }
 
-    /** Whether a character may be appended to the expression being typed. */
     /**
      * The expression after pressing a key, or null when the key is not acceptable here.
      *

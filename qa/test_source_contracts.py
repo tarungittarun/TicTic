@@ -2493,8 +2493,11 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         self.assertIn("return suiteApps();", self.main)
         self.assertIn("for(SuiteApp a:suiteApps())if(a.id().equals(id))return true;return false;",
                       self.main)
-        self.assertIn("java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,"
-                      "habitsApp,expensesApp,calendarApp,tasksApp)", self.main)
+        # Size is deliberately not asserted here. It was pinned in three tests and broke
+        # all three every time an app landed; FourMoreAppsContracts owns the count now.
+        block = self.main.split("suiteApps(){return")[1].split(";")[0]
+        for field in ("clockApp", "calculatorApp"):
+            self.assertIn(field, block)
 
     def test_opening_another_app_goes_through_the_contract_not_a_hardcoded_branch(self):
         body = self.main.split("public boolean openApp(String id,String route){")[1].split("@Override")[0]
@@ -2680,7 +2683,8 @@ class CalendarAndTasksContracts(unittest.TestCase):
         registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
         self.assertIsNotNone(registry)
         ids = registry.group(1).split(",")
-        self.assertEqual(7, len(ids), ids)
+        for field in ('calendarApp', 'tasksApp'):
+            self.assertIn(field, ids)  # size owned by FourMoreAppsContracts
         self.assertIn("private final SuiteApp calendarApp=new CalendarApp();", main)
         self.assertIn("private final SuiteApp tasksApp=new TasksApp();", main)
 
@@ -2725,3 +2729,127 @@ class CalendarAndTasksContracts(unittest.TestCase):
         # the neighbouring day if the device's zone or offset changes later.
         screen = self.src("calendar", "CalendarScreen")
         self.assertIn("dayFrom + 43200000L", screen)
+
+
+class FourMoreAppsContracts(unittest.TestCase):
+    """Apps eight to eleven: Weather, Recorder, Files and Documents.
+
+    These are the remaining requested apps that carry no owner-blocked obligation. Email,
+    Messages and a commercial music streamer still sit behind Gmail OAuth verification,
+    Play's SMS policy and catalogue licensing, and a document scanner behind a ~50 MB
+    CameraX/ML Kit dependency -- all recorded in SUITE-PLAN.md §5.9.
+    """
+
+    MODS = ("weather", "recorder", "files", "documents")
+    RULES = {"weather": "WeatherRules", "recorder": "RecorderRules",
+             "files": "FileRules", "documents": "DocumentRules"}
+
+    def src(self, mod, name):
+        return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
+
+    def gradle(self, mod):
+        return "\n".join(l for l in (ROOT / ("feature-%s/build.gradle" % mod)).read_text().splitlines()
+                         if not l.strip().startswith("//"))
+
+    def test_all_four_modules_are_declared_and_wired(self):
+        settings = (ROOT / "settings.gradle").read_text()
+        app_gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
+                               if not l.strip().startswith("//"))
+        for mod in self.MODS:
+            self.assertIn("include ':feature-%s'" % mod, settings)
+            self.assertIn("implementation project(':feature-%s')" % mod, app_gradle)
+            self.assertIn("namespace 'app.space.feature.%s'" % mod, self.gradle(mod))
+
+    def test_no_new_app_may_reach_the_shell_or_another_app(self):
+        for mod in self.MODS:
+            g = self.gradle(mod)
+            for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+                self.assertNotIn(forbidden, g, "%s must not depend on %s" % (mod, forbidden))
+            self.assertIn("api project(':core-suite')", g)
+
+    def test_eleven_apps_are_registered_in_one_list(self):
+        main = java_code_only(read("MainActivity.java"))
+        registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
+        self.assertIsNotNone(registry, "suiteApps() not found")
+        ids = [x.strip() for x in registry.group(1).split(",")]
+        self.assertEqual(11, len(ids), ids)
+        for mod, field in (("weather", "weatherApp"), ("recorder", "recorderApp"),
+                           ("files", "filesApp"), ("documents", "documentsApp")):
+            self.assertIn(field, ids)
+            self.assertEqual(1, main.count("new %sApp()" % mod.capitalize().replace("Files", "Files")))
+
+    def test_the_rules_are_pure_java_so_they_are_actually_tested(self):
+        for mod in self.MODS:
+            body = self.src(mod, self.RULES[mod])
+            for forbidden in ("import android.", "import androidx.", "Context", "View"):
+                self.assertNotIn(forbidden, body, "%s must stay pure" % self.RULES[mod])
+
+    def test_each_new_app_has_a_jvm_test_suite(self):
+        for mod in self.MODS:
+            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
+                           % (mod, mod, self.RULES[mod]))
+            self.assertTrue(path.exists(), "missing %s" % path)
+            self.assertIn("@Test", path.read_text())
+
+    def test_csv_quoting_is_the_contract_not_a_split_on_commas(self):
+        rules = java_code_only(self.src("documents", "DocumentRules"))
+        # A field is quoted when it holds a comma, a quote or a newline, and embedded quotes
+        # are doubled. Splitting on commas would shift every column after the first
+        # unquoted comma, and the damage appears only when the file is opened elsewhere.
+        self.assertIn('value.indexOf(\',\') >= 0 || value.indexOf(\'"\') >= 0', rules)
+        self.assertIn('value.replace("\\"", "\\"\\"")', rules)
+
+    def test_the_file_browser_cannot_walk_out_of_app_private_storage(self):
+        rules = java_code_only(self.src("files", "FileRules"))
+        self.assertIn('if (part.equals("..")) return false;', rules)
+        self.assertIn("if (relativePath.startsWith(\"/\")) return false;", rules)
+        # java_code_only: the screen's javadoc explains WHY DocumentFile is not used, so
+        # grepping the raw file matches the explanation and fails the assertion that exists
+        # to justify it. Fifth time this trap has appeared in this suite.
+        screen = java_code_only(self.src("files", "FilesScreen"))
+        self.assertIn("FileRules.isInside(", screen)
+        # AndroidX is disabled in this project, so SAF's DocumentFile is unavailable; the
+        # browser uses app-private storage, which needs no permission at all.
+        self.assertIn("context.getFilesDir()", screen)
+        self.assertNotIn("DocumentFile", screen)
+
+    def test_record_audio_is_declared_and_requested_only_at_the_moment_of_use(self):
+        manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+        self.assertIn("android.permission.RECORD_AUDIO", manifest)
+        screen = self.src("recorder", "RecorderScreen")
+        # Asking at launch would break the Settings page's promise that optional access is
+        # requested only when its feature is used.
+        self.assertIn("Manifest.permission.RECORD_AUDIO", screen)
+        self.assertIn("if (!hasPermission(context)) { requestPermission(context); return; }", screen)
+        # The recorder must be released when the screen goes away, or it holds the
+        # microphone in the background and the next start fails silently.
+        self.assertIn("if (recording && pauseContext != null) stop(pauseContext);", screen)
+
+    def test_weather_needs_no_key_and_no_location_and_fetches_only_when_asked(self):
+        rules = java_code_only(self.src("weather", "WeatherRules"))
+        self.assertIn("geocoding-api.open-meteo.com", rules)
+        self.assertIn("api.open-meteo.com", rules)
+        # A typed city is what lets Settings keep promising no location permission.
+        screen = self.src("weather", "WeatherScreen")
+        self.assertNotIn("ACCESS_FINE_LOCATION", screen)
+        self.assertNotIn("getLastKnownLocation", screen)
+        self.assertNotIn("LocationManager", screen)
+        # Open-Meteo needs no key, so a key appearing here would mean the provider had been
+        # switched to one that bills per call and needs a secret baked into the build.
+        self.assertNotIn("apikey", screen.lower())
+        self.assertIn("new Thread(", screen)
+        self.assertIn("main.post(", screen)
+
+    def test_the_network_fetch_runs_off_the_main_thread_and_posts_back(self):
+        # Inline would throw NetworkOnMainThreadException; a bare thread touching views
+        # would crash only sometimes, which is worse.
+        screen = self.src("weather", "WeatherScreen")
+        self.assertIn("private final Handler main = new Handler(Looper.getMainLooper());", screen)
+        self.assertIn("connection.disconnect();", screen)
+        self.assertIn("setConnectTimeout(", screen)
+        self.assertIn("setReadTimeout(", screen)
+
+    def test_a_malformed_forecast_response_does_not_blank_the_screen(self):
+        screen = self.src("weather", "WeatherScreen")
+        self.assertIn("catch (Exception e)", screen)
+        self.assertIn("Could not read that response.", screen)

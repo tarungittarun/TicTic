@@ -1,0 +1,22 @@
+// Documents app: Plain-text documents and CSV spreadsheets, written and stored on device.
+// Dependency rule (SUITE-PLAN.md 3.1): :core-* only. Never :app, :shell or another
+// :feature-*. Enforced by contract test -- that rule is what lets an app be excluded from
+// a lite build without anything else noticing.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.documents'
+    compileSdk 34
+    defaultConfig { minSdk 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(':core-suite')
+    implementation project(':core-data')
+    implementation project(':core-design')
+    testImplementation 'junit:junit:4.13.2'
+}

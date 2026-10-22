@@ -31,6 +31,20 @@ public class CalculatorRulesTest {
         assertEquals("5*", CalculatorRules.append("5+", "*"));
         assertEquals("5+-", CalculatorRules.append("5+", "-"));
         assertEquals("5+2", CalculatorRules.append("5+", "2"));
+        // A minus chain was the exact garbage typed on device: "0/0------85522*3*-". One negation
+        // minus may follow an operator; a second replaces it, so the chain cannot grow.
+        assertEquals("5+-", CalculatorRules.append("5+-", "-"));
+        assertEquals("5-", CalculatorRules.append("5-", "-"));
+        assertEquals("-", CalculatorRules.append("-", "-"));
+        assertEquals("5*", CalculatorRules.append("5-*", "*"));
+        // Brackets open where an operand may start and close only over an open group.
+        assertEquals("(", CalculatorRules.append("", "("));
+        assertEquals("(2", CalculatorRules.append("(", "2"));
+        assertEquals("(2)", CalculatorRules.append("(2", ")"));
+        assertEquals("(2+3)*", CalculatorRules.append("(2+3)", "*"));
+        assertNull(CalculatorRules.append("2", "("));
+        assertNull(CalculatorRules.append("", ")"));
+        assertNull(CalculatorRules.append("()", ")"));
         assertNull(CalculatorRules.append("5.2", "."));
         assertEquals("5.2", CalculatorRules.append("5.", "2"));
         // Display glyphs type their ASCII character.

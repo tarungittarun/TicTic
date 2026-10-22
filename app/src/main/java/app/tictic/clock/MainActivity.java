@@ -225,7 +225,8 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
     private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;AppLog.event(this,"settings","open");render();}
-    private void renderSettingsPage(){
+    private void renderSettingsPage(){try{renderSettingsPageInner();}catch(Throwable settingsCrash){AppLog.crash(this,settingsCrash);settingsError=String.valueOf(settingsCrash);renderSettingsFallback(settingsCrash);}}
+    private void renderSettingsPageInner(){
         applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;
         boolean compact=getResources().getConfiguration().screenWidthDp<600;
         root=vbox();root.setClipChildren(true);root.setBackground(pageBackground());setContentView(root);
@@ -249,6 +250,29 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout content=vbox();content.setClipChildren(true);content.setClipToPadding(true);content.setPadding(dp(compact?18:14),dp(7),dp(compact?18:14),dp(24));scroll.addView(content);
         LinearLayout.LayoutParams contentParams=compact?new LinearLayout.LayoutParams(-1,0,1):new LinearLayout.LayoutParams(0,-1,1);frame.addView(scroll,contentParams);
         body=content;settingsScrollView=scroll;final int restoreY=settingsScrollY;scroll.post(()->scroll.scrollTo(0,restoreY));buildSettings();GelMotion.apply(root,accent);
+    }
+    /**
+     * What a settings failure looks like when even drawing the settings page throws: a plain page
+     * with a way back and the exception written on it. The previous net wrapped only buildSettings,
+     * which left the nav rail, the scroll restore and the palette application outside it -- and the
+     * owner's crash report names the tap on the settings tab, not a group inside it. A settings
+     * page that can describe its own failure is worth more than one that pretends not to have any.
+     */
+    private void renderSettingsFallback(Throwable failure){
+        applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;
+        root=vbox();root.setBackground(pageBackground());setContentView(root);
+        LinearLayout top=hbox();top.setPadding(dp(12),dp(7),dp(16),dp(7));root.addView(top,lp(-1,62));
+        TextView back=label("\u2039",34,accent,true);back.setGravity(Gravity.CENTER);top.addView(back,lp(44,46));
+        back.setContentDescription("Back to MySpace");
+        back.setOnClickListener(v->{settings=false;settingsScrollView=null;settingsScrollY=0;render();});
+        TextView title=label("Settings",22,text,true);top.addView(title,new LinearLayout.LayoutParams(0,dp(46),1));
+        body=vbox();body.setPadding(dp(18),dp(14),dp(18),dp(24));root.addView(body,new LinearLayout.LayoutParams(-1,0,1));
+        TextView card=label("Settings could not be drawn.\n"+failure,13,0xffc2564a,false);
+        card.setPadding(dp(14),dp(14),dp(14),dp(14));card.setBackground(shape(surface,16));
+        body.addView(card,lp(-1,-2));
+        TextView hint=label("Enable Settings \u25b8 Diagnostics on the next successful open and share the log: the full stack is in it.",11,muted,false);
+        hint.setPadding(0,dp(10),0,0);body.addView(hint,lp(-1,-2));
+        AppLog.event(this,"settings","fallback rendered: "+failure);
     }
     private TextView settingsNavItem(String name,int index){
         TextView item=label(name,10,index==settingsGroup?Color.WHITE:text,index==settingsGroup);item.setGravity(Gravity.CENTER);item.setPadding(dp(4),dp(5),dp(4),dp(5));item.setBackground(shape(index==settingsGroup?accent:(DataStore.dark(this)?0xff202f2b:0xfff1f5f3),15));
@@ -390,9 +414,16 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout sheet=vbox();sheet.setPadding(dp(12),dp(10),dp(12),dp(12));
         sheet.addView(label("Apps",16,text,true));
         List<SuiteApp> apps=availableApps();
-        LinearLayout row=null;
+        // Owner's ordering, 2026-10-23: the apps icon holds the first slot of the grid -- the slot
+        // the clock app used to hold -- and the clock app moves to second. The grid flows on from
+        // there, so the lead tile is position 0 and every app sits one place later than its index.
+        // Inside the all-apps box the apps tile is the box accepting itself: tapping it closes it.
+        LinearLayout row=hbox();sheet.addView(row,lp(-1,-2));
+        View appsTile=navTile("Apps",TicIconView.APPS,true);
+        row.addView(appsTile,new LinearLayout.LayoutParams(0,dp(58),1));
+        appsTile.setOnClickListener(v->dismissAppSheet());
         for(int i=0;i<apps.size();i++){
-            if(i%4==0){row=hbox();sheet.addView(row,lp(-1,-2));}
+            if((i+1)%4==0){row=hbox();sheet.addView(row,lp(-1,-2));}
             final SuiteApp app=apps.get(i);
             View tile=navTile(app.label(),app.iconGlyph(),activeApp!=null&&activeApp.id().equals(app.id()));
             LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,dp(58),1);row.addView(tile,tp);

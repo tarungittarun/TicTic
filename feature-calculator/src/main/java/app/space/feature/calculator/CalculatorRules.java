@@ -77,13 +77,33 @@ public final class CalculatorRules {
             String number = trailingNumber(current);
             return number.indexOf('.') >= 0 ? null : current + c;
         }
+        if (c == '(') {
+            // An open group starts an operand: at the beginning, after an operator, or nested.
+            // After a digit or a close paren it would mean implicit multiplication, which this
+            // grammar does not have, so it is refused rather than guessed.
+            if (current.isEmpty() || isOperator(last) || last == '(') return current + c;
+            return null;
+        }
+        if (c == ')') {
+            // A close group needs something closable inside it and an open group to close.
+            if (!Character.isDigit(last) && last != ')') return null;
+            int open = 0, close = 0;
+            for (int i = 0; i < current.length(); i++) {
+                if (current.charAt(i) == '(') open++;
+                else if (current.charAt(i) == ')') close++;
+            }
+            return close < open ? current + c : null;
+        }
         if (c == '+' || c == '-' || c == '*' || c == '/') {
             if (current.isEmpty()) return c == '-' ? "-" : null;
             char last = current.charAt(current.length() - 1);
             if (isOperator(last)) {
-                // Replace rather than stack, so 5 + * stays 5 *, and 5 + - becomes 5 - only when
-                // the new key is minus; anything else after an operator is refused except minus.
-                if (c == '-') return current + c;
+                // Replace rather than stack, so 5 + * stays 5 *. A minus after an operator is the
+                // negation of the number being typed, so 5 * - appends once -- but a minus after a
+                // minus is not a deeper negation, it is a changed mind, so it replaces and the
+                // chain can never grow. On device, "0/0------85522*3*-" was typed one tap at a
+                // time under the rule that let every minus append.
+                if (c == '-' && last != '-') return current + c;
                 return current.substring(0, current.length() - 1) + c;
             }
             return current + c;

@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.6.0'", gradle)
-        self.assertIn("versionCode 30", gradle)
+        self.assertIn("versionName '3.7.0'", gradle)
+        self.assertIn("versionCode 31", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2065,6 +2065,21 @@ class CiDiagnosticsContracts(unittest.TestCase):
         for line in passes:
             self.assertFalse(pattern.search(line), "success line matched: %r" % line)
 
+    def test_every_build_is_signed_with_one_stable_sideload_key(self):
+        # "App not installed as package conflicts with an existing package" is what Android says
+        # when the update's certificate differs from the installed app's. The debug keystore is
+        # per-machine and CI is a fresh machine every run, so build 30 could not upgrade build
+        # 29. One key in the repository is the only fix available without a Play account.
+        gradle = (ROOT / "app/build.gradle").read_text()
+        self.assertIn("sideload {", gradle)
+        self.assertIn("storeType 'pkcs12'", gradle)
+        self.assertIn("signing/myspace.p12", gradle)
+        self.assertIn("signingConfigs.sideload", gradle)
+        self.assertIn("Ensure the stable sideload signing key", self.yml)
+        self.assertIn("keytool -genkeypair", self.yml)
+        # The run that generates the key must also be the run that persists it.
+        self.assertIn("git add artifacts signing", self.yml)
+
     def test_the_annotation_step_dumps_the_unit_log_tail_as_context(self):
         # A grep can only report the shapes it was written for. When the failure is something
         # else entirely -- an OOM, a daemon crash, a task that never printed FAILED -- the
@@ -2526,6 +2541,44 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn('result = "Error";', self.screen)
         self.assertIn('if (Double.isNaN(value) || Double.isInfinite(value)) return "Error";',
                       self.rules)
+
+    def test_the_keypad_is_laid_out_like_the_one_it_recreates(self):
+        # The owner's complaint had two halves: the keys accepted anything, and the keypad sat in
+        # the top half of the screen with dead space under it. Fixed heights are what caused the
+        # second half, so the rows must take their height from weights, and the display from a
+        # larger one, on any screen.
+        self.assertIn('{"C", "( )", "\\u232b", "\\u00f7"},', self.screen)
+        self.assertIn('{"0", ".", "=", null},', self.screen)
+        self.assertIn("root.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));", self.screen)
+        self.assertIn("new LinearLayout.LayoutParams(-1, 0, 2f)", self.screen)
+        self.assertIn("params.weight = 2f;", self.screen)  # equals spans the last two cells
+        # A live result under the display: silence until equals hides mistakes until it is too
+        # late to fix them cheaply.
+        self.assertIn('"= " + CalculatorRules.format(', self.screen)
+
+    def test_the_input_rules_refuse_the_sequences_typed_on_device(self):
+        rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
+        # "0/0------85522*3*-" reached a real display one tap at a time. The chain rule is the fix.
+        self.assertIn("if (c == '-' && last != '-') return current + c;", rules)
+        # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.
+        self.assertIn("if (c == '(') {", rules)
+        self.assertIn("if (c == ')') {", rules)
+
+    def test_a_settings_crash_renders_a_page_that_describes_itself(self):
+        # The net used to wrap only buildSettings; the owner's crash is on the tap that opens
+        # settings, so the whole render is inside the try now, with a fallback page as the catch.
+        main = read("MainActivity.java")
+        self.assertIn("private void renderSettingsPage(){try{renderSettingsPageInner();}catch(Throwable settingsCrash){",
+                      main)
+        self.assertIn("private void renderSettingsFallback(Throwable failure){", main)
+        self.assertIn("AppLog.crash(this,settingsCrash);", main)
+
+    def test_the_apps_tile_holds_the_first_slot_of_the_picker_grid(self):
+        # Owner's ordering: the apps icon where the clock app used to be, clock app second. The
+        # grid flows from the lead tile, so app i sits at position i+1.
+        main = read("MainActivity.java")
+        self.assertIn('View appsTile=navTile("Apps",TicIconView.APPS,true);', main)
+        self.assertIn("if((i+1)%4==0){row=hbox();sheet.addView(row,lp(-1,-2));}", main)
 
     def test_the_app_declares_a_stable_id_and_declines_unknown_routes(self):
         self.assertIn('public static final String ID = "calculator";', self.app)
@@ -3518,9 +3571,10 @@ class NavigationModesContracts(unittest.TestCase):
 
     def test_drawer_and_hub_share_one_tile_implementation(self):
         # Two hand-rolled tile layouts would drift, and the same destination would read
-        # differently depending on which mode the user had chosen. Seven: the definition, one
-        # call in hub, two in the drawer list, and two in the in-app bar.
-        self.assertEqual(self.main.count("navTile("), 9)
+        # differently depending on which mode the user had chosen. Ten: the definition, one call
+        # in hub, two in the drawer list, two in the in-app bar, the picker grid, its recents
+        # row, and the lead Apps tile the owner asked to see in the clock app's old first slot.
+        self.assertEqual(self.main.count("navTile("), 10)
         hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildAppNav(){")]
         drawer = self.main[self.main.index("private void showDrawer("):]
         self.assertIn("navTile(", hub)
@@ -3762,7 +3816,10 @@ class NotDebuggableContracts(unittest.TestCase):
     def test_a_dist_build_type_exists_and_is_not_debuggable(self):
         self.assertIn("dist {", self.gradle)
         self.assertIn("debuggable false", self.gradle)
-        self.assertIn("signingConfig signingConfigs.debug", self.gradle)
+        # Signed with one stable sideload key, falling back to the debug key only where the
+        # repository key is absent. The old pin demanded signingConfigs.debug outright, which is
+        # exactly the per-machine key that made build 30 refuse to upgrade build 29.
+        self.assertIn("? signingConfigs.sideload : signingConfigs.debug", self.gradle)
         # Library modules declare only debug and release; without a fallback the variant graph
         # cannot resolve and the build fails at configuration time.
         self.assertIn("matchingFallbacks = ['release', 'debug']", self.gradle)

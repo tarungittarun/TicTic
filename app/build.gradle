@@ -24,9 +24,28 @@ android {
         targetSdk 34
         // New product line: MySpace starts at 2.0.0. The clock feature keeps its
         // v1.11.2 lineage in CHANGELOG.md.
-        versionCode 30
-        versionName '3.6.0'
+        versionCode 31
+        versionName '3.7.0'
     }
+    signingConfigs {
+        // One key for the sideload channel, kept in the repository. The default debug keystore
+        // is generated per machine, and CI runs on a fresh machine every time: two builds of
+        // identical source signed on two runners carry different certificates, and Android
+        // refuses the upgrade with "App not installed as package conflicts with an existing
+        // package". That is what happened to build 30 on the owner's phone. A key in the repo
+        // makes every later build an upgrade of this one.
+        //
+        // This is the SIDELOAD key. It is deliberately not a secret -- anyone with the APK has
+        // the APK -- and it is deliberately not a Play upload key, which stays with the owner.
+        sideload {
+            storeFile rootProject.file('signing/myspace.p12')
+            storeType 'pkcs12'
+            storePassword 'myspace-sideload'
+            keyAlias 'myspace'
+            keyPassword 'myspace-sideload'
+        }
+    }
+
     buildTypes {
         // dist is the build handed to a tester: signed so that it installs, but NOT debuggable.
         // A debuggable APK can be attached to over adb and its data read by anything holding a
@@ -35,7 +54,11 @@ android {
         // a debuggable build to a human was the defect. debug and release keep their defaults.
         dist {
             debuggable false
-            signingConfig signingConfigs.debug
+            // The workflow generates signing/myspace.p12 before the build if it is missing and
+            // commits it with the APK, so it is present on CI; the fallback keeps a checkout
+            // without it buildable instead of failing at configuration time.
+            signingConfig file("${rootDir}/signing/myspace.p12").exists()
+                    ? signingConfigs.sideload : signingConfigs.debug
             // Library modules declare only debug and release; map dist onto release for them.
             matchingFallbacks = ['release', 'debug']
         }

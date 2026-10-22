@@ -66,6 +66,25 @@ jobs:
           "$SDK/cmdline-tools/latest/bin/sdkmanager" \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
 
+      - name: Ensure the stable sideload signing key
+        # Without this every runner signs with its own ephemeral debug keystore, so an update
+        # over a previous build is a signature change and the package installer refuses it with
+        # "package conflicts with an existing package". The key is generated once, on the first
+        # run after this step lands, and the commit step below persists it; from then on every
+        # build upgrades every earlier build.
+        run: |
+          if [ ! -f signing/myspace.p12 ]; then
+            mkdir -p signing
+            keytool -genkeypair -keystore signing/myspace.p12 -storetype pkcs12 \
+              -storepass myspace-sideload -keypass myspace-sideload -alias myspace \
+              -keyalg RSA -keysize 2048 -validity 10950 \
+              -dname "CN=MySpace Sideload, OU=Sideload, O=MySpace, C=IN"
+            echo "generated signing/myspace.p12; the commit step will persist it"
+          else
+            echo "using the committed signing key"
+          fi
+          ls -l signing/
+
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -210,7 +229,9 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add artifacts
+          # signing/ as well: on the run that generates the sideload key this is what persists
+          # it, and from then on it is already present and adds nothing to the diff.
+          git add artifacts signing
           if git diff --cached --quiet; then
             echo "nothing to publish."
             exit 0

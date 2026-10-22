@@ -113,8 +113,12 @@ mistake I make.
 **Compile errors caught before pushing (2):** removing `import android.view.Gravity` while
 `Gravity` was still used three times; an invalid `\U0001f500` escape (Java has no `\U`).
 
-**Process failures (5):**
-- Pushed with qa red **twice**. The commit is now gated on the suite printing `OK`.
+**Process failures (6):**
+- Pushed with qa red **three times**. The first two were before the commit gate existed; the
+  third was the gate itself failing open -- `unittest | tail -2` returns tail's status, not the
+  suite's, so a red suite still exited zero and the `&&` let the push through. The gate now reads
+  the suite's exit status from a variable, and this entry is the third and last of its kind or the
+  ledger needs a new category.
 - One commit message described a fix that **had not been applied** — the patch script had aborted
   and written nothing, and the commit went ahead anyway.
 - Built a `workflow_dispatch` workflow that **could not be triggered**: GitHub only exposes

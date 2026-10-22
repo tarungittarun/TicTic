@@ -2558,8 +2558,14 @@ class CalculatorAppContracts(unittest.TestCase):
 
     def test_the_input_rules_refuse_the_sequences_typed_on_device(self):
         rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
-        # "0/0------85522*3*-" reached a real display one tap at a time. The chain rule is the fix.
-        self.assertIn("if (c == '-' && last != '-') return current + c;", rules)
+        # "0/0------85522*3*-" reached a real display one tap at a time. The chain rule is the
+        # fix: a negation minus appends once, and a minus after a minus replaces.
+        self.assertIn("if (c == '-') {", rules)
+        self.assertIn("if (last != '-') return current + c;", rules)
+        # And swapping operators over a pending negation must drop the negation, or 5*- then *
+        # stacks two operators -- expected:<5*[]> but was:<5*[*]> was a red CI run for exactly that.
+        self.assertIn("return current.substring(0, current.length() - 2) + c;", rules)
+        self.assertIn('if ("-".equals(current)) return null;', rules)
         # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.
         self.assertIn("if (c == '(') {", rules)
         self.assertIn("if (c == ')') {", rules)

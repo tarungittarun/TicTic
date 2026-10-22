@@ -177,6 +177,11 @@ jobs:
           # whichever APK find reaches first would publish an uninstallable one half the time.
           BUILT=$(find . -path '*lite*' -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
           if [ -z "$BUILT" ]; then echo "no APK was produced"; exit 1; fi
+          # The one check in the project that observes installability rather than behaviour.
+          # Play Protect refuses sideloaded APKs declaring SMS before any code runs, so no
+          # source-level assertion can see it. Validated by controls inside the script, so a
+          # broken scan fails instead of passing quietly.
+          python3 qa/check_apk_permissions.py "$BUILT"
           cp "$BUILT" "artifacts/$NAME"
           sha256sum "artifacts/$NAME" | awk '{print $1}' > "artifacts/$NAME.sha256"
           SIZE=$(stat -c %s "artifacts/$NAME")

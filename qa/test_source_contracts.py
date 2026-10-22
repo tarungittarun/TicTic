@@ -3653,3 +3653,41 @@ class SideloadableBuildContracts(unittest.TestCase):
         # suite would silently stop running in CI. 'test' aggregates every variant.
         self.assertIn("sh gradlew --no-daemon --stacktrace test 2>&1", self.workflow)
         self.assertNotIn("testDebugUnitTest", self.workflow)
+
+
+class InstallabilityIsCheckedContracts(unittest.TestCase):
+    """The Play Protect block could not be seen by any existing check, so now one exists.
+
+    The refusal happens before any code in the APK runs, which is why 81 slices of green CI and
+    252 contracts did not notice that the published build could not be installed. A script now
+    reads the built APK's binary manifest and fails the publish if the SMS pair is present.
+    """
+
+    def setUp(self):
+        self.script = (ROOT / "qa/check_apk_permissions.py")
+        self.assertTrue(self.script.exists())
+        self.body = self.script.read_text()
+        self.workflow = (ROOT / ".github/workflows/android-ci.yml").read_text()
+
+    def test_the_scan_is_validated_by_controls(self):
+        # Without controls, a scan that finds nothing would pass for the wrong reason -- the
+        # same failure mode as every vacuous assertion this suite has ever had.
+        self.assertIn('for control in ("INTERNET", "WAKE_LOCK"):', self.body)
+        self.assertIn("SCAN BROKEN", self.body)
+
+    def test_it_refuses_to_publish_an_uninstallable_apk(self):
+        self.assertIn("REFUSED AT INSTALL", self.body)
+        self.assertIn("return 1", self.body)
+
+    def test_ci_runs_it_before_committing_the_apk(self):
+        self.assertIn('python3 qa/check_apk_permissions.py "$BUILT"', self.workflow)
+        # It must run before the copy, or the blocked build is already in artifacts/ by the
+        # time anyone looks.
+        self.assertLess(self.workflow.index('python3 qa/check_apk_permissions.py "$BUILT"'),
+                        self.workflow.index('cp "$BUILT" "artifacts/$NAME"'))
+
+    def test_the_late_flavour_build_still_emits_both_apks_for_the_artifact(self):
+        # The upload glob is unchanged, so both flavours land in the Actions artifact and the
+        # lite one is additionally committed; losing the full build from CI would hide whether
+        # it still compiles.
+        self.assertIn("path: '**/build/outputs/apk/**/*.apk'", self.workflow)

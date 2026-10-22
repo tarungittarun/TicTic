@@ -48,7 +48,10 @@ public class RecorderRulesTest {
     }
 
     @Test public void labelsAreSanitisedAndBounded() {
-        assertEquals("abc", RecorderRules.sanitise("  a b c  "));
+        // A space is not in the allowed set, so it becomes a separator -- it is not dropped.
+        // Asserting "abc" here would have required sanitise to delete characters, and a
+        // label that silently loses its spaces reads as a different label to the user.
+        assertEquals("a-b-c", RecorderRules.sanitise("  a b c  "));
         assertEquals("a-b", RecorderRules.sanitise("a###b"));
         assertEquals("abc", RecorderRules.sanitise("--abc--"));
         assertEquals("", RecorderRules.sanitise(null));

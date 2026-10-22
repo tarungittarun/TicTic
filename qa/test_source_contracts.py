@@ -3553,7 +3553,7 @@ class FilesCanCreateContracts(unittest.TestCase):
 
     def test_there_is_a_create_action(self):
         self.assertIn('ui.pillButton("New text file"', self.body)
-        self.assertIn("promptNewFile(context, root, folder)", self.body)
+        self.assertIn("promptNewFile(context, ui, root, folder)", self.body)
         self.assertIn("new FileOutputStream(target)", self.body)
 
     def test_the_create_path_uses_the_same_guards_as_the_browser(self):
@@ -3561,6 +3561,21 @@ class FilesCanCreateContracts(unittest.TestCase):
         self.assertIn("FileRules.isSafeName(wanted)", self.body)
         self.assertIn("FileRules.isInside(folder)", self.body)
         self.assertIn("target.exists()", self.body)
+
+    def test_dialogs_use_the_two_argument_builder_so_they_are_fitted(self):
+        # AppAlertBuilder(Context, UiKit) is the only constructor. The UiKit is what carries the
+        # palette into the dialog, and AppAlertBuilder.show() is the single funnel through which
+        # DialogFit clamps every dialog in the suite. Building one without a UiKit does not
+        # compile, which is the cheapest possible guard -- but only if every call site is checked,
+        # and a grep across all feature modules is how this one was caught after CI named it.
+        import subprocess
+        bad = subprocess.run(
+            ["grep", "-rhoE", r"new AppAlertBuilder\([^,)]*\)", "feature-calculator", "feature-clock",
+             "feature-notes", "feature-habits", "feature-expenses", "feature-calendar", "feature-tasks",
+             "feature-weather", "feature-recorder", "feature-files", "feature-documents",
+             "feature-messages", "feature-music", "feature-scanner", "feature-email"],
+            capture_output=True, text=True, cwd=str(ROOT)).stdout.strip()
+        self.assertEqual(bad, "", "AppAlertBuilder call sites missing the UiKit: " + bad)
 
     def test_the_stream_is_closed_on_every_path(self):
         create = self.body[self.body.index("private void promptNewFile("):]

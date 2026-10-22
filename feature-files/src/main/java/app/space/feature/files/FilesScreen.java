@@ -95,7 +95,7 @@ public final class FilesScreen implements Screen {
         createParams.topMargin = ui.dp(10);
         column.addView(create, createParams);
         create.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { promptNewFile(context, root, folder); }
+            @Override public void onClick(View v) { promptNewFile(context, ui, root, folder); }
         });
 
         if (shown.isEmpty()) {
@@ -168,10 +168,10 @@ public final class FilesScreen implements Screen {
      * <p>Name and path go through the same rules the browser uses, so the one place this screen
      * writes cannot be used to write outside the root.
      */
-    private void promptNewFile(final Context context, final File root, final String folder) {
+    private void promptNewFile(final Context context, final UiKit ui, final File root, final String folder) {
         LinearLayout form = new LinearLayout(context);
         form.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (context.getResources().getDisplayMetrics().density * 20);
+        int pad = ui.dp(20);
         form.setPadding(pad, pad / 2, pad, 0);
         final EditText name = new EditText(context);
         name.setHint("name, e.g. notes.txt");
@@ -181,7 +181,7 @@ public final class FilesScreen implements Screen {
         body.setHint("contents (optional)");
         body.setMinLines(3);
         form.addView(body, new LinearLayout.LayoutParams(-1, -2));
-        new AppAlertBuilder(context).setTitle("New text file").setView(form)
+        new AppAlertBuilder(context, ui).setTitle("New text file").setView(form)
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int w) {
                         String wanted = name.getText().toString().trim();

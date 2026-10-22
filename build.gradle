@@ -1,3 +1,17 @@
 plugins {
     id 'com.android.application' version '7.4.2' apply false
 }
+
+// A failing JVM test used to put one line in the CI log -- which test, not why. The assertion
+// diff lives only in the HTML report, which nothing in this pipeline can open. Full exception
+// format on the console is what lets the annotation surfacer quote the expected/actual pair,
+// turning a red run from a rumour into a diagnosis.
+subprojects {
+    tasks.withType(Test).configureEach {
+        testLogging {
+            events "failed"
+            exceptionFormat "full"
+            showStackTraces true
+        }
+    }
+}

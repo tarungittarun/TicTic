@@ -36,7 +36,7 @@ public class CalculatorRulesTest {
         assertEquals("5+-", CalculatorRules.append("5+-", "-"));
         assertEquals("5-", CalculatorRules.append("5-", "-"));
         assertEquals("-", CalculatorRules.append("-", "-"));
-        assertEquals("5*", CalculatorRules.append("5-*", "*"));
+        assertEquals("5*", CalculatorRules.append("5*-", "*"));
         // Brackets open where an operand may start and close only over an open group.
         assertEquals("(", CalculatorRules.append("", "("));
         assertEquals("(2", CalculatorRules.append("(", "2"));

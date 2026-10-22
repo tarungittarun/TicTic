@@ -84,7 +84,7 @@ does, it will write down what it was.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (5):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (6):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -100,6 +100,15 @@ concluded the build was fine. **My own debug channel lied to me by telling the t
 thing.** Fixed by making the pattern match failures only, dumping the log tail alongside it, pinning
 that behaviourally, and adding a contract that scans every test file for helpers called but not
 imported — verified with a negative control.
+
+**The seventh** came an hour later: the new bracket rule read `last`, a variable declared inside
+the operator branch below it. And with it, the first *wrong assertion* this project ever shipped --
+a fixture written backwards (`append("5-*", "*")` where the chain case is `append("5*-", "*")`),
+which turned the rules test red while the code it tested was correct. Both were found the same
+way, too late: by porting the rule to Python and running every fixture through the port. That
+simulation is now the habit for any rule touched blind, because it is the only check available
+between me and a three-minute CI cycle, and this push proved it catches exactly the class of
+mistake I make.
 
 **Compile errors caught before pushing (2):** removing `import android.view.Gravity` while
 `Gravity` was still used three times; an invalid `\U0001f500` escape (Java has no `\U`).

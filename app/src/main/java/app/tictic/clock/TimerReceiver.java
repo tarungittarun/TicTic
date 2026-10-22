@@ -125,7 +125,7 @@ public class TimerReceiver extends BroadcastReceiver {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= 26 && manager != null && manager.getNotificationChannel(channel) == null) {
             NotificationChannel created = new NotificationChannel(channel,
-                    vibrate ? "TicTic timers · vibration" : "TicTic timers · quiet",
+                    vibrate ? "MySpace timers · vibration" : "MySpace timers · quiet",
                     NotificationManager.IMPORTANCE_HIGH);
             created.enableVibration(vibrate);
             if (vibrate) created.setVibrationPattern(new long[]{0, 350, 180, 350});
@@ -138,7 +138,7 @@ public class TimerReceiver extends BroadcastReceiver {
         Notification.Builder notification = Build.VERSION.SDK_INT >= 26
                 ? new Notification.Builder(context, channel) : new Notification.Builder(context);
         notification.setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle("Timer complete").setContentText("Your TicTic countdown is done")
+                .setContentTitle("Timer complete").setContentText("Your MySpace countdown is done")
                 .setAutoCancel(true).setContentIntent(content).setPriority(Notification.PRIORITY_HIGH);
         if (Build.VERSION.SDK_INT < 26) {
             if (vibrate) notification.setVibrate(new long[]{0, 350, 180, 350});

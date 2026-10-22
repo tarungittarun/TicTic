@@ -86,7 +86,7 @@ public final class WeatherJobService extends JobService {
         connection.setRequestMethod("GET");
         connection.setConnectTimeout(10_000);
         connection.setReadTimeout(15_000);
-        connection.setRequestProperty("User-Agent", "TicTic Android widget (Open-Meteo attribution in-app)");
+        connection.setRequestProperty("User-Agent", "MySpace Android widget (Open-Meteo attribution in-app)");
         try {
             int status = connection.getResponseCode();
             InputStream stream = status >= 200 && status < 300 ? connection.getInputStream() : connection.getErrorStream();

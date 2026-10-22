@@ -13,7 +13,7 @@ public class AlarmSoundService extends Service {
     static final String CHANNEL="tictic_alarm"; static final int NOTIFICATION=4401;
     private Ringtone ringtone; private Vibrator vibrator; private PowerManager.WakeLock wakeLock; private final Handler rampHandler=new Handler(); private float ringVolume=.20f;
     @Override public void onCreate(){super.onCreate(); createChannel();}
-    private void createChannel(){ if(Build.VERSION.SDK_INT>=26){NotificationChannel ch=new NotificationChannel(CHANNEL,"TicTic alarms",NotificationManager.IMPORTANCE_HIGH);ch.setDescription("Ringing alarms");ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);ch.enableVibration(true);((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(ch);} }
+    private void createChannel(){ if(Build.VERSION.SDK_INT>=26){NotificationChannel ch=new NotificationChannel(CHANNEL,"MySpace alarms",NotificationManager.IMPORTANCE_HIGH);ch.setDescription("Ringing alarms");ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);ch.enableVibration(true);((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(ch);} }
     @Override public int onStartCommand(Intent in,int flags,int startId){
         if(in!=null && "STOP".equals(in.getAction())){stopRing();stopSelf();return START_NOT_STICKY;}
         if(ringtone!=null||vibrator!=null||wakeLock!=null)stopRing();
@@ -24,7 +24,7 @@ public class AlarmSoundService extends Service {
         Notification.Builder nb=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
         JSONObject alarm=DataStore.find(this,"alarms",id);int snoozeMinutes=alarm==null?9:Math.max(1,alarm.optInt("snooze",9));
         String actionHint=DataStore.showRingingSnoozeAction(this)?"Alarm is ringing · Snooze or Stop":"Alarm is ringing · Stop";
-        nb.setSmallIcon(android.R.drawable.ic_lock_idle_alarm).setContentTitle("TicTic · "+label).setContentText(actionHint).setCategory(Notification.CATEGORY_ALARM).setPriority(Notification.PRIORITY_MAX).setVisibility(Notification.VISIBILITY_PUBLIC).setOngoing(true).setAutoCancel(false).setContentIntent(fullPi);
+        nb.setSmallIcon(android.R.drawable.ic_lock_idle_alarm).setContentTitle("MySpace · "+label).setContentText(actionHint).setCategory(Notification.CATEGORY_ALARM).setPriority(Notification.PRIORITY_MAX).setVisibility(Notification.VISIBILITY_PUBLIC).setOngoing(true).setAutoCancel(false).setContentIntent(fullPi);
         if(DataStore.showRingingSnoozeAction(this))nb.addAction(android.R.drawable.ic_lock_idle_alarm,"Snooze · "+snoozeMinutes+" min",AlarmActionReceiver.pending(this,AlarmActionReceiver.ACTION_SNOOZE,id,1));
         nb.addAction(android.R.drawable.ic_menu_close_clear_cancel,"Stop",AlarmActionReceiver.pending(this,AlarmActionReceiver.ACTION_DISMISS,id,2));
         boolean allowFullScreen=Build.VERSION.SDK_INT<34||((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).canUseFullScreenIntent();

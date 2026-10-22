@@ -23,7 +23,7 @@ public enum NavMode {
     HUB(0),
 
     /**
-     * The slim horizontal rail TicTic ships today, showing the user's pinned apps.
+     * The slim horizontal rail MySpace ships today, showing the user's pinned apps.
      *
      * <p>Kept as the initial default so extracting the clock into the shell does not
      * change how the existing app looks or feels. Gets crowded past six or seven
@@ -50,7 +50,7 @@ public enum NavMode {
         return code;
     }
 
-    /** Default until the user chooses: the rail, which is what TicTic ships today. */
+    /** Default until the user chooses: the rail, which is what MySpace ships today. */
     public static NavMode defaultValue() {
         return RAIL;
     }

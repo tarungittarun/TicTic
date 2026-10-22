@@ -459,3 +459,97 @@ Still open, but none of these block Phase 1:
 3. **Branding assets do not exist.** The icon is a single vector `ic_app.xml` (TicTic), with no `mipmap-*` directories and **no adaptive icon**. MySpace needs a launcher icon (with adaptive-icon support, now guaranteed available at `minSdk 26`) plus up to 13 in-suite app icons.
 4. **Play Console prerequisites** — developer account, Play App Signing, privacy policy and the data-safety form. Required before the first networked module ships, not before Phase 1.
 5. **Interim inconsistency, by design.** Until `:feature-clock` is extracted, the About screen still reads "TicTic · version …" and the 24 widget providers still live in `app.tictic.clock`. Only the launcher label and `applicationId` change now. This is intentional: keeping the Java `namespace` at `app.tictic.clock` means R references and the manifest's relative component names stay valid, so the rebrand lands as a small CI-verifiable change instead of a big-bang package rename.
+
+---
+
+## 6.2 Phase 2 progress — app modules and rebrand
+
+§6.1 records Phase 1 (the clock extraction and the navigation layer). It is deliberately left
+as written; this section records Phase 2, which began once the owner confirmed the full
+thirteen-app scope (§5.9) and asked for larger slices.
+
+| slice | status | what landed |
+|---|---|---|
+| **2a — `:feature-calculator`** | ✅ `abdad23` | Second app. `CalculatorRules` is a pure recursive-descent parser, so `2+3*4` is 14 and not 20, and malformed input throws rather than silently evaluating to 0. `asciiForKey` translates the typographic `÷ × −` glyphs to ASCII before they are appended: `isInputCharacter` rejects them, so without that mapping **every operator key silently did nothing**. `TicIconView.CALCULATOR=9`. |
+| **2b — `:feature-notes`, `:feature-habits`, `:feature-expenses`** | ✅ `ccf9ce3` | Three apps in one slice. Registration was refactored so the host needs **no per-app change**: one `suiteApps()` list is read by `registry()`, `isAppAvailable()` and `availableApps()`. The rail gained an **Apps** slot opening `showAppPicker()` — without it the three apps would have been registered and unreachable. Money is held in **minor units as longs**, never doubles; habit streaks are epoch days via `Math.floorDiv`, and a streak survives a run ending *yesterday* so habits do not reset at midnight. |
+| **2c — `:feature-calendar`, `:feature-tasks`** | ✅ `84eae6f` | Calendar computes its month grid in a **fixed UTC calendar**, because letting the device zone in would make the leading-blank count differ between a JVM test and a phone elsewhere — the tests would pass and the grid would still shift a day for some users. Always 42 cells so the screen does not jump height between months. Events are stored at **midday, not midnight**: midnight is the day-range boundary and a value stored there can land on the neighbouring day if the zone or offset changes. Tasks' `NO_DUE` is `-1`, so the comparator branches on `hasDue()` instead of comparing the sentinel as a timestamp — comparing it would float every undated task above whatever is due today. Calendar deliberately does **not** read the device calendar provider: that needs `READ_CALENDAR`, which the Settings page's "minimum access, and why" promise would then have to justify. |
+| **2d — `:feature-weather`, `:feature-recorder`, `:feature-files`, `:feature-documents`** | ✅ `84eae6f` | Weather uses Open-Meteo with **no API key and no location permission** — the city is typed, which is what lets Settings keep promising no location is requested. The fetch runs on a worker thread posting to the main looper; a malformed response leaves the last good reading up and labels it stale past 20 minutes. Recorder requests `RECORD_AUDIO` only on the first Record press and **releases the recorder in `onPause`**, because a live `MediaRecorder` across a background transition holds the microphone and the next start then fails looking like a dead button. Files uses **app-private storage, not SAF**, because `useAndroidX=false` means `DocumentFile` is unavailable — so Files declares no permission at all; every navigation step is guarded by `isInside`, refusing `..` and absolute paths. Documents applies **RFC 4180 quoting**, since an unquoted comma shifts every later column and the damage only appears when the file is opened elsewhere. |
+| **2e — `:feature-messages`, `:feature-music`, `:feature-scanner`, `:feature-email`** | ✅ `3754ea9`…`d2608e7` | All thirteen requested apps now exist. Each ships the half that needs no owner-side obligation and **states on screen which half that is**. Messages reads and sends SMS through the framework; permissions at use, multipart send so a long body is not silently truncated, and a segment count that accounts for UCS-2 because any non-GSM character halves the segment size. Music plays the user's own files and URLs the user supplies — no catalogue, no partner SDK; only `http`/`https` may be streamed, because the field is user input and `file:` would let a pasted string read arbitrary local paths. Scanner assembles picked images into a PDF with the **framework `PdfDocument`, adding no dependencies**; CameraX plus ML Kit would add ~50 MB, which a `lite` flavour cannot carry. Pages are picked rather than shot because full-resolution capture needs a `FileProvider`, which ships with AndroidX. The fit arithmetic takes the **minimum** of the width and height ratios — scaling by width alone overflows the sheet height, and the framework clips rather than reports, so the bottom of every page would be missing with no error. Email composes, drafts and archives locally, sending through the device's own mail app, so **no credential is stored and no OAuth verification is needed**. |
+| **2f — rebrand depth and adaptive launcher icon** | ✅ this slice | Both were parked while the apps were built and both block a Play submission. See below. |
+
+**Adding an app is now a five-step recipe**, proven across six slices: module directory plus
+`build.gradle` (`api :core-suite`, `implementation :core-data` + `:core-design`,
+`testImplementation junit`) → pure `*Rules` with nested value types → `*Store` holding JSON
+via `AppPrefs` → `*App implements SuiteApp` and `*Screen implements Screen` → one field plus
+one entry in `MainActivity.suiteApps()`, plus the `settings.gradle` include and the
+`app/build.gradle` dependency. **No other host change.** Modules are written before being
+wired, so the tree stays green if the work is interrupted.
+
+**The pure-rules / Android-screen split is what makes these testable.** `org.json` is stubbed
+"not mocked" in Android unit tests, so any logic that touches JSON or `Context` cannot run as
+a JVM test. Every module therefore keeps its arithmetic in a `*Rules` class that imports no
+`android.*`, and its persistence in a `*Store` or the screen. 175 JVM tests now run in CI.
+
+### What 2e does **not** do
+
+These are owner-side obligations, not remaining engineering, and each is stated on screen
+rather than hidden behind a UI that implies the capability:
+
+| app | blocked by |
+|---|---|
+| **Email — receiving** | Reading a mailbox needs IMAP, which needs either an app password held by this app or a verified OAuth sign-in. Gmail's restricted scopes require OAuth verification, a privacy policy, and possibly a security assessment. |
+| **Messages — Play distribution** | Play restricts SMS and Call Log permissions to apps whose core function is messaging, and requires a declaration form. Ships on the direct-APK path until that is filed. |
+| **Music — commercial catalogue** | Streaming a catalogue needs partner agreements or a licensed SDK. What ships is the user's own files and URLs. |
+| **Scanner — live capture** | Full-resolution camera capture needs a `FileProvider`, which ships with AndroidX, and `useAndroidX=false`. Also open: whether the `lite` flavour carries CameraX/ML Kit at all. |
+
+### 2f — rebrand depth and the launcher icon
+
+`applicationId` was already `app.space.one` and `app_name` was already `MySpace`. What was
+still TicTic was everything a user actually reads: the header wordmark, the About page, four
+widget names shown in the launcher, notification channel names shown in system Settings, the
+sound and typeface names in pickers, and the widget-catalog instructions. There was also **no
+launcher icon at all** — no `mipmap-*` directory and no adaptive icon, so the app installed
+with the platform default.
+
+The rename was surgical rather than global, and the distinction matters:
+
+* **Notification channel display names were changed; channel IDs were not.** Changing an ID
+  creates a new channel, orphans the notification settings the user already chose, and leaves
+  the dead channel listed in system Settings permanently.
+* **Wake-lock tags (`TicTic:Alarm`, `TicTic:ReminderTone`) and the weather thread-name prefix
+  (`TicTic-weather-`) were left alone.** They are debug labels, not display text.
+* **`R.style.TicTicTheme`, the private `TicTicPrefs` class and the `app.tictic.clock` package
+  were left alone.** Renaming a theme means touching every `R.style` reference for no gain a
+  user can see. The namespace still drives the R class and resolves the manifest's relative
+  component names, including all 24 widget providers.
+
+The adaptive icon draws the existing brand mark scaled 1.3× about the centre, putting a dial of
+radius 29.9 inside the 33-unit safe zone: the launcher mask crops everything beyond that, so a
+mark drawn edge to edge across the 108-unit canvas would lose its ring and numerals on a
+circular launcher. A `monochrome` layer is included for Android 13+ themed icons, keeping only
+the strokes and centre cap because the layered cream dial and gold ring would collapse into a
+solid blob when tinted a single colour. `minSdk` is 26, so `mipmap-anydpi-v26` alone is
+sufficient and no density PNG fallbacks are required. `ic_app.xml` was removed; the manifest
+was its only reference.
+
+**The About page was stale in both halves and is now derived.** It hardcoded `version 2.0.0`
+and described "offline clock, alarms, reminders, timers and routines" — an app that now hosts
+fifteen. It reads the version from `PackageManager` and the app list from `availableApps()`, so
+neither can drift again, and under a `lite` build it lists only what is actually installed
+rather than advertising absent apps. A contract test had asserted the About string matched
+`build.gradle`; it passed for several releases while **both sides were stale together**, which
+is what pinning two hardcoded literals to each other cannot detect. Version is now 3.0.0
+(versionCode 24): a rebrand plus fifteen apps is not a point release.
+
+### Still open after 2f
+
+* **Distinct icon glyphs.** `TicIconView` has ten glyphs for fifteen apps, so Notes and
+  Calendar share `WORLD`, Habits / Expenses / Music share `ACTIVITY`, and Email uses `ALARM`.
+  The rail and the app picker are legible, but apps that share a glyph are hard to tell apart
+  at a glance. Thirteen new hand-drawn glyphs — deferred deliberately rather than overlooked.
+* **App chrome (1g-3).** The clock's header still renders over a foreign app's screen. It is
+  functional and not polished. `NavMode.HUB` and `NavMode.DRAWER` still render nothing; RAIL is
+  the only visual mode, and `showAppPicker()` is the interim app switcher.
+* **Play submission still needs from the owner:** a funded Play Console account, a privacy
+  policy, the data-safety form, and a 512×512 store listing icon (the adaptive icon is for the
+  launcher and does not substitute for it).

@@ -7,7 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import app.space.core.data.AppPrefs;
 import app.space.core.data.AppTheme;
 
-/** Shared original TicTic glass surfaces. Critical alarm controls request a higher opacity floor. */
+/** Shared original glass surfaces, carried over from the clock. Critical alarm controls request a higher opacity floor. */
 public final class AppSurfaceStyle {
     private AppSurfaceStyle() {}
     public static boolean enabled(Context c){return AppPrefs.prefs(c).getBoolean("app_glass_enabled",false);}

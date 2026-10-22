@@ -724,9 +724,16 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '2.0.0'", gradle)
-        self.assertIn("versionCode 23", gradle)
-        self.assertIn("TicTic · version 2.0.0", main)
+        self.assertIn("versionName '3.0.0'", gradle)
+        self.assertIn("versionCode 24", gradle)
+        # The About page must not hardcode either half. It said "version 2.0.0" through
+        # several releases and described a clock-only app that now hosts fifteen, so both
+        # were stale in the one place a user can check what they are running.
+        self.assertNotIn("version 2.0.0", main)
+        self.assertIn("getPackageManager().getPackageInfo(getPackageName(),0).versionName", main)
+        self.assertIn("for(SuiteApp a:availableApps())", main)
+        self.assertIn("One for many.", main)
+        self.assertIn("\" apps in one install: \"", main)
 
     def test_myspace_rebrand_is_applied(self):
         """MySpace / app.space.one — SUITE-PLAN.md §4.
@@ -3071,3 +3078,89 @@ class FinalFourAppsContracts(unittest.TestCase):
             for path in (ROOT / ("feature-" + mod)).rglob("*.java"):
                 body = path.read_text()
                 self.assertNotIn("import androidx.", body, "%s imports androidx" % path.name)
+
+
+class RebrandAndLauncherIconContracts(unittest.TestCase):
+    """The rebrand and the adaptive launcher icon.
+
+    Both were parked while the apps were built and both block a Play submission: Play
+    requires an icon, and a listing called MySpace whose header, About page, widget names and
+    notification channels all said TicTic would not survive review or a refund request.
+
+    The rename was deliberately surgical. Notification channel DISPLAY NAMES were changed but
+    channel IDs were not: changing an ID creates a new channel, orphans the user's existing
+    notification settings, and leaves the dead channel listed in system Settings forever.
+    """
+
+    def test_the_launcher_icon_is_adaptive(self):
+        manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+        self.assertIn('android:icon="@mipmap/ic_launcher"', manifest)
+        self.assertIn('android:roundIcon="@mipmap/ic_launcher_round"', manifest)
+        self.assertNotIn("@drawable/ic_app", manifest)
+        for name in ("ic_launcher", "ic_launcher_round"):
+            path = ROOT / ("app/src/main/res/mipmap-anydpi-v26/%s.xml" % name)
+            self.assertTrue(path.exists(), "missing %s" % path)
+            body = path.read_text()
+            self.assertIn("<adaptive-icon", body)
+            self.assertIn("@color/ic_launcher_background", body)
+            self.assertIn("@drawable/ic_launcher_foreground", body)
+            # Android 13+ themed icons. Without a monochrome layer the launcher shows a
+            # full-colour mark in a row of themed ones, or leaves a gap.
+            self.assertIn("<monochrome", body)
+        self.assertIn('name="ic_launcher_background"',
+                      (ROOT / "app/src/main/res/values/colors.xml").read_text())
+
+    def test_the_foreground_mark_sits_inside_the_adaptive_safe_zone(self):
+        # The launcher mask crops everything outside a circle of radius 33 in the 108-unit
+        # canvas, so a mark drawn edge to edge loses its ring on a circular launcher.
+        foreground = (ROOT / "app/src/main/res/drawable/ic_launcher_foreground.xml").read_text()
+        self.assertIn('android:viewportWidth="108"', foreground)
+        self.assertIn('android:scaleX="1.3"', foreground)
+        self.assertIn('android:translateX="22.8"', foreground)
+        # minSdk 26 means every device supports adaptive icons, so anydpi-v26 alone is
+        # sufficient and no density PNG fallbacks are required.
+        self.assertNotIn("mipmap-hdpi", (ROOT / "app/build.gradle").read_text())
+
+    def test_no_display_text_still_says_tictic(self):
+        """Walks every string literal in :app and in res/values.
+
+        Identifiers are allowed to keep the old name: the package, the R.style themes and the
+        private TicTicPrefs class are not user-visible, and renaming a theme means touching
+        every R.style reference for no gain a user can see.
+        """
+        allowed = ("TicTic:Alarm", "TicTic:ReminderTone", "TicTic-weather-")
+        offenders = []
+        for path in (ROOT / "app/src/main/java").rglob("*.java"):
+            body = path.read_text()
+            for literal in re.findall(r'"(?:[^"\\]|\\.)*"', body):
+                if "TicTic" in literal and not any(keep in literal for keep in allowed):
+                    offenders.append("%s: %s" % (path.name, literal[:70]))
+        for path in (ROOT / "app/src/main/res/values").glob("*.xml"):
+            if path.name == "styles.xml":
+                continue  # style identifiers, not display text
+            for line in path.read_text().splitlines():
+                if "TicTic" in line:
+                    offenders.append("%s: %s" % (path.name, line.strip()[:70]))
+        self.assertEqual([], offenders)
+
+    def test_notification_channel_ids_were_not_renamed(self):
+        # A renamed channel ID orphans the user's notification settings and leaves the old
+        # channel in system Settings permanently. The display name changes; the ID must not.
+        alarm = (ROOT / "app/src/main/java/app/tictic/clock/AlarmSoundService.java").read_text()
+        self.assertIn('"TicTic:Alarm"', alarm)
+        self.assertIn('"MySpace alarms"', alarm)
+        reminder = (ROOT / "app/src/main/java/app/tictic/clock/ReminderSoundService.java").read_text()
+        self.assertIn('"TicTic:ReminderTone"', reminder)
+
+    def test_the_widget_names_the_launcher_shows_are_rebranded(self):
+        strings = (ROOT / "app/src/main/res/values/strings.xml").read_text()
+        self.assertIn('<string name="widget_clock">MySpace Glass</string>', strings)
+        self.assertIn('<string name="widget_date">MySpace Sunrise</string>', strings)
+        self.assertIn('<string name="widget_next_alarm">MySpace Wake Desk</string>', strings)
+        self.assertNotIn("TicTic", strings)
+
+    def test_the_header_wordmark_and_its_content_description_are_rebranded(self):
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn('label("MySpace",23,text,true)', main)
+        self.assertIn('setContentDescription("MySpace home")', main)
+        self.assertNotIn('label("TicTic"', main)

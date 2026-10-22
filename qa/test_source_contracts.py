@@ -2772,7 +2772,11 @@ class FourMoreAppsContracts(unittest.TestCase):
         registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
         self.assertIsNotNone(registry, "suiteApps() not found")
         ids = [x.strip() for x in registry.group(1).split(",")]
-        self.assertEqual(11, len(ids), ids)
+        # Not the whole-suite count: FinalFourAppsContracts owns that, and pinning it in two
+        # places means every new app breaks both for the same reason.
+        self.assertIn("weatherApp", ids)
+        self.assertIn("documentsApp", ids)
+        self.assertTrue(len(ids) >= 11, ids)
         for mod, field in (("weather", "weatherApp"), ("recorder", "recorderApp"),
                            ("files", "filesApp"), ("documents", "documentsApp")):
             self.assertIn(field, ids)
@@ -2853,3 +2857,204 @@ class FourMoreAppsContracts(unittest.TestCase):
         screen = self.src("weather", "WeatherScreen")
         self.assertIn("catch (Exception e)", screen)
         self.assertIn("Could not read that response.", screen)
+
+
+class FinalFourAppsContracts(unittest.TestCase):
+    """Apps twelve to fifteen: Messages, Music, Scanner and Email.
+
+    These are the last four requested apps. Each ships the half that is buildable without an
+    owner-side obligation, and each states on screen which half that is rather than implying
+    a capability it does not have:
+
+      Messages  reads and sends SMS through the framework. Play restricts SMS permissions to
+                apps whose core function is messaging and requires a declaration form, so
+                this ships on the direct-APK path.
+      Music     plays the user's own files and URLs the user supplies. No catalogue and no
+                partner SDK, which is the licensing constraint respected rather than worked
+                around.
+      Scanner   assembles picked images into a PDF with the framework PdfDocument, so it adds
+                no dependencies. CameraX and ML Kit would add about 50 MB, which a lite
+                flavour cannot carry.
+      Email     composes and archives locally, sending through the device's own mail app, so
+                no credential is stored and no OAuth verification is needed. Receiving over
+                IMAP is the half that stays blocked.
+    """
+
+    MODS = ("messages", "music", "scanner", "email")
+    RULES = {"messages": "MessagesRules", "music": "MusicRules",
+             "scanner": "ScannerRules", "email": "EmailRules"}
+
+    def src(self, mod, name):
+        return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
+
+    def gradle(self, mod):
+        return "\n".join(l for l in (ROOT / ("feature-%s/build.gradle" % mod)).read_text().splitlines()
+                         if not l.strip().startswith("//"))
+
+    def test_all_four_modules_are_declared_and_wired(self):
+        settings = (ROOT / "settings.gradle").read_text()
+        app_gradle = "\n".join(l for l in (ROOT / "app/build.gradle").read_text().splitlines()
+                               if not l.strip().startswith("//"))
+        for mod in self.MODS:
+            self.assertIn("include ':feature-%s'" % mod, settings)
+            self.assertIn("implementation project(':feature-%s')" % mod, app_gradle)
+            self.assertIn("namespace 'app.space.feature.%s'" % mod, self.gradle(mod))
+            for forbidden in ("project(':app')", "project(':shell')", "project(':feature-"):
+                self.assertNotIn(forbidden, self.gradle(mod), "%s must not depend on %s" % (mod, forbidden))
+
+    def test_fifteen_apps_are_registered_in_one_list(self):
+        # This is the ONLY place the app count is asserted. It was previously pinned in three
+        # tests, so every new app broke all three for the same reason.
+        main = java_code_only(read("MainActivity.java"))
+        registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
+        self.assertIsNotNone(registry, "suiteApps() not found")
+        ids = [x.strip() for x in registry.group(1).split(",")]
+        self.assertEqual(15, len(ids), ids)
+        for mod in self.MODS:
+            self.assertIn(mod + "App", ids)
+            self.assertEqual(1, main.count("private final SuiteApp %sApp=new %sApp();"
+                                           % (mod, mod.capitalize())))
+
+    def test_the_rules_are_pure_java_so_they_are_actually_tested(self):
+        for mod in self.MODS:
+            body = self.src(mod, self.RULES[mod])
+            for forbidden in ("import android.", "import androidx.", "Context", "View"):
+                self.assertNotIn(forbidden, body, "%s must stay pure" % self.RULES[mod])
+
+    def test_each_new_app_has_a_jvm_test_suite(self):
+        for mod in self.MODS:
+            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
+                           % (mod, mod, self.RULES[mod]))
+            self.assertTrue(path.exists(), "missing %s" % path)
+            self.assertIn("@Test", path.read_text())
+
+    def test_a_screen_can_receive_an_activity_result(self):
+        # The scanner picks images, and a screen has no activity of its own. Without this the
+        # result goes to MainActivity and the picker appears to do nothing.
+        screen = (ROOT / "core-suite/src/main/java/app/space/core/suite/Screen.java").read_text()
+        self.assertIn("default void onActivityResult(int requestCode, int resultCode, "
+                      "android.content.Intent data)", screen)
+        main = java_code_only(read("MainActivity.java"))
+        # Forwarded BEFORE the RESULT_OK guard, or a cancelled pick never reaches the screen
+        # and it stays waiting for a result that will not come.
+        self.assertIn("if(req>=90&&req<100&&activeScreen!=null)"
+                      "{activeScreen.onActivityResult(req,result,data);return;}", main)
+        self.assertTrue(main.index("req>=90") < main.index("if(result!=RESULT_OK||data==null)return;"),
+                        "the forward must precede the RESULT_OK guard")
+        scanner = self.src("scanner", "ScannerScreen")
+        self.assertIn("public void onActivityResult(int requestCode, int resultCode, Intent data)", scanner)
+        self.assertIn("PICK_IMAGES = 90", scanner)
+
+    def test_sms_permissions_are_declared_and_the_play_restriction_is_recorded(self):
+        manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+        self.assertIn("android.permission.READ_SMS", manifest)
+        self.assertIn("android.permission.SEND_SMS", manifest)
+        # The restriction must be written down where a reviewer will find it, not discovered
+        # at Play review time.
+        self.assertIn("core function is messaging", manifest)
+        screen = java_code_only(self.src("messages", "MessagesScreen"))
+        # Asked for when the feature is used, never at launch.
+        self.assertIn("Manifest.permission.READ_SMS", screen)
+        self.assertIn("requestPermissions(new String[]{", screen)
+        self.assertIn("Google Play restricts SMS", screen)
+
+    def test_a_long_sms_is_sent_multipart_rather_than_truncated(self):
+        screen = java_code_only(self.src("messages", "MessagesScreen"))
+        # sendTextMessage truncates past one segment silently; divideMessage plus
+        # sendMultipartTextMessage is the only correct path.
+        self.assertIn("manager.divideMessage(text)", screen)
+        self.assertIn("sendMultipartTextMessage(", screen)
+        rules = java_code_only(self.src("messages", "MessagesRules"))
+        # UCS-2 halves the segment size, so the count shown before sending must reflect it
+        # or the user is told a smaller charge than the carrier applies.
+        self.assertIn("isSevenBit(body) ? 160 : 70", rules)
+
+    def test_the_sms_query_is_capped_and_survives_a_refusing_provider(self):
+        screen = java_code_only(self.src("messages", "MessagesScreen"))
+        self.assertIn("ROW_LIMIT = 500", screen)
+        self.assertIn("LIMIT \" + ROW_LIMIT", screen)
+        self.assertIn("cursor.close()", screen)
+        self.assertIn("catch (Exception e)", screen)
+
+    def test_only_http_and_https_may_be_streamed(self):
+        rules = java_code_only(self.src("music", "MusicRules"))
+        # The field is user input from a dialog; accepting file: or content: would let a
+        # pasted string read arbitrary local paths.
+        self.assertIn('trimmed.startsWith("http://") || trimmed.startsWith("https://")', rules)
+        screen = java_code_only(self.src("music", "MusicScreen"))
+        self.assertIn("MusicRules.isStreamableUrl(address)", screen)
+
+    def test_the_shuffle_is_seeded_so_the_queue_cannot_move_under_the_finger(self):
+        screen = java_code_only(self.src("music", "MusicScreen"))
+        self.assertIn("SHUFFLE_SEED = 20260101L", screen)
+        self.assertIn("MusicRules.shuffled(playable, SHUFFLE_SEED)", screen)
+        rules = java_code_only(self.src("music", "MusicRules"))
+        self.assertIn("Collections.shuffle(out, new Random(seed))", rules)
+
+    def test_the_music_player_is_released_when_the_screen_goes_away(self):
+        screen = java_code_only(self.src("music", "MusicScreen"))
+        self.assertIn("public void onPause()", screen)
+        self.assertIn("release();", screen)
+        # A failed stream must say so: silently stopping looks like the button did nothing.
+        self.assertIn("setOnErrorListener", screen)
+
+    def test_the_scanner_adds_no_dependencies(self):
+        # CameraX plus ML Kit would add roughly 50 MB, which a lite flavour cannot carry.
+        for mod in self.MODS:
+            g = self.gradle(mod)
+            for forbidden in ("camera", "mlkit", "ml-kit", "androidx"):
+                self.assertNotIn(forbidden, g.lower())
+        screen = java_code_only(self.src("scanner", "ScannerScreen"))
+        self.assertIn("android.graphics.pdf.PdfDocument", self.src("scanner", "ScannerScreen"))
+        self.assertIn("new PdfDocument()", screen)
+        self.assertIn("MAX_DECODE_EDGE = 1600", screen)
+
+    def test_the_pdf_fit_takes_the_minimum_ratio_so_nothing_is_clipped(self):
+        rules = java_code_only(self.src("scanner", "ScannerRules"))
+        # Scaling by width alone overflows the sheet height and the framework clips rather
+        # than reports, so the bottom of every page would be missing with no error.
+        self.assertIn("float scale = Math.min(byWidth, byHeight);", rules)
+        self.assertIn("MARGIN = 24f", rules)
+        self.assertIn("A4_WIDTH = 595f", rules)
+        # A rotated page must be fitted using its rotated size.
+        self.assertIn("boolean swap = page.rotation == 90 || page.rotation == 270;", rules)
+        self.assertIn("float[] size = rotatedSize(page);", rules)
+
+    def test_picked_uris_take_a_persistable_grant(self):
+        screen = java_code_only(self.src("scanner", "ScannerScreen"))
+        # Without it the grant expires and the PDF fails to build later with no cause shown.
+        self.assertIn("takePersistableUriPermission(", screen)
+        self.assertIn("EXTRA_ALLOW_MULTIPLE", screen)
+        self.assertIn("getClipData()", screen)
+
+    def test_email_states_that_receiving_is_not_implemented(self):
+        # The screen must not imply an inbox that is always empty.
+        screen = java_code_only(self.src("email", "EmailScreen"))
+        self.assertIn("Receiving mail is not implemented", screen)
+        self.assertIn("ACTION_SENDTO", screen)
+        self.assertIn("resolveActivity(", screen)
+        # No credential is stored, which is the property that makes the mailto path need no
+        # OAuth verification. Asserting merely that the word "password" is absent was wrong:
+        # the disclosure text on screen says "no password is stored here" and the javadoc
+        # explains that IMAP would need an app password. Both are the point, not a leak.
+        lowered = screen.lower()
+        self.assertNotIn("javax.mail", lowered)
+        self.assertNotIn("jakarta.mail", lowered)
+        self.assertNotIn("putstring(\"password", lowered)
+        self.assertNotIn("putstring(\"email_password", lowered)
+        self.assertNotIn("getpassword", lowered)
+
+    def test_the_mailto_uri_encodes_characters_that_would_truncate_it(self):
+        rules = java_code_only(self.src("email", "EmailRules"))
+        # An unencoded ampersand or newline truncates the URI and silently drops the rest of
+        # the message.
+        self.assertIn("URLEncoder.encode(value, \"UTF-8\")", rules)
+        self.assertIn('.replace("+", "%20")', rules)
+        # A comma inside a display name must not split the recipient.
+        self.assertIn("if (c == ',' && !inQuotes && !inAngle)", rules)
+
+    def test_no_module_reaches_for_androidx(self):
+        for mod in self.MODS:
+            for path in (ROOT / ("feature-" + mod)).rglob("*.java"):
+                body = path.read_text()
+                self.assertNotIn("import androidx.", body, "%s imports androidx" % path.name)

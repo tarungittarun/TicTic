@@ -30,6 +30,19 @@ public interface Screen {
      */
     View build(Context context);
 
+    /**
+     * Result of an activity this screen started, for example picking a document or an image.
+     *
+     * <p>Forwarded by the host, because a screen has no activity of its own and the platform
+     * delivers results to the activity. Request codes 90 to 99 are reserved for screens; the
+     * clock's own handlers use 81 to 87. The default does nothing, so a screen that starts no
+     * activity need not implement it.
+     *
+     * <p>Delivered for cancelled results too, since a screen that is waiting on a picker has
+     * to be able to stop waiting.
+     */
+    default void onActivityResult(int requestCode, int resultCode, android.content.Intent data) { }
+
     /** The screen became visible. Start tickers, animations and usage timing here. */
     void onResume();
 

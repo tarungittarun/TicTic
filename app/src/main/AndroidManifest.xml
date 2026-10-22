@@ -6,6 +6,12 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Requested at runtime only when the user first presses Record, never at launch. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- SMS. Requested at runtime only when the user opens the message list or presses
+         send. Google Play restricts these to apps whose core function is messaging and
+         requires a declaration form, so a Play build must file that first; the direct-APK
+         build is unaffected. See SUITE-PLAN.md 5.9. -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />

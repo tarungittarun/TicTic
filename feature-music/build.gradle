@@ -1,0 +1,21 @@
+// Music app: Plays files you own and stream URLs you supply. No catalogue and no partner SDK, which is the licensing constraint respected rather than worked around.
+// Dependency rule (SUITE-PLAN.md 3.1): :core-* only. Never :app, :shell or another
+// :feature-*. Enforced by contract test.
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'app.space.feature.music'
+    compileSdk 34
+    defaultConfig { minSdk 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(':core-suite')
+    implementation project(':core-data')
+    implementation project(':core-design')
+    testImplementation 'junit:junit:4.13.2'
+}

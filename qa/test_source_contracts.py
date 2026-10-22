@@ -3275,7 +3275,7 @@ class ApkPublishWorkflowContracts(unittest.TestCase):
         self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-debug.apk"', self.yml)
 
     def test_it_fails_loudly_if_no_apk_was_produced(self):
-        self.assertIn('test -n "$BUILT"', self.yml)
+        self.assertIn('if [ -z "$BUILT" ]; then', self.yml)
         self.assertIn("no APK was produced", self.yml)
         self.assertIn("set -euo pipefail", self.yml)
 

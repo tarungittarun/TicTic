@@ -71,6 +71,10 @@ public final class CalculatorRules {
         String k = normaliseKey(key);
         if (k == null || k.isEmpty()) return null;
         char c = k.charAt(k.length() - 1);
+        // Declared once, up here: the bracket rules and the operator rules both need the
+        // character before the caret, and declaring it inside one branch left the other
+        // referring to a symbol the compiler had never seen.
+        char last = current.isEmpty() ? 0 : current.charAt(current.length() - 1);
         if (current.length() >= MAX_LENGTH && Character.isDigit(c)) return null;
         if (Character.isDigit(c)) return current + c;
         if (c == '.') {
@@ -96,7 +100,6 @@ public final class CalculatorRules {
         }
         if (c == '+' || c == '-' || c == '*' || c == '/') {
             if (current.isEmpty()) return c == '-' ? "-" : null;
-            char last = current.charAt(current.length() - 1);
             if (isOperator(last)) {
                 // Replace rather than stack, so 5 + * stays 5 *. A minus after an operator is the
                 // negation of the number being typed, so 5 * - appends once -- but a minus after a

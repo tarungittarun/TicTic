@@ -1,6 +1,13 @@
-# TicTic debug APKs
+# MySpace debug APKs
 
-Five retained debug APK versions. Each has a SHA-256 sidecar. These are local debug builds, not store-signed releases.
+Each build has a SHA-256 sidecar. These are debug builds signed with the CI debug key, not
+store-signed releases: installable directly, and they will not overwrite or be overwritten by a
+Play install because the applicationId changed from the TicTic builds above to `app.space.one`.
+
+The TicTic rows are the last builds of the single clock app. The MySpace rows are builds of the
+suite. From v3.0.0 the APK is committed by CI on every push that changes the version or
+versionCode, so a testable build is always downloadable from this directory rather than only
+from an expiring Actions artifact.
 
 | Version | APK | Size | SHA-256 |
 |---|---|---:|---|

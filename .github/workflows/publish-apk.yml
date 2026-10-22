@@ -1,7 +1,7 @@
 name: Publish installable APK
 
 # On demand only. Committing a build output back to the branch would otherwise retrigger CI on
-# every push, and the APK differs byte-for-byte between builds even with no source change, so an
+# every push, and an APK differs byte-for-byte between builds with no source change, so an
 # automatic commit would produce a commit per run for no reason.
 on:
   workflow_dispatch:
@@ -20,7 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history so the commit lands on the branch tip rather than a shallow graft.
           fetch-depth: 0
 
       - name: Set up JDK 17
@@ -29,8 +28,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # The runners ship the Android SDK. android-actions/setup-android was tried earlier in
-      # this project and broke the build; do not reintroduce it.
+      # The runners ship the Android SDK. The setup-android action was tried early in this
+      # project and broke the build; it must not be reintroduced.
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -46,35 +45,31 @@ jobs:
           chmod +x ./gradlew
           ./gradlew --no-daemon --stacktrace assembleDebug 2>&1 | tee /tmp/build.log
 
+      # Shell only, deliberately: an earlier version of this step used a nested Python heredoc
+      # whose terminator was indented by the YAML block. Bash requires the terminator at column
+      # zero, so the heredoc never closed, the step could not run, and an invalid workflow file
+      # in the push stopped GitHub from creating runs for the whole commit.
       - name: Stage the APK into artifacts/
         run: |
           set -euo pipefail
           VERSION=$(grep -oE "versionName '[^']+'" app/build.gradle | head -1 | cut -d"'" -f2)
           CODE=$(grep -oE "versionCode [0-9]+" app/build.gradle | head -1 | awk '{print $2}')
           BUILT=$(find . -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
-          test -n "$BUILT" || { echo "no APK was produced"; exit 1; }
+          if [ -z "$BUILT" ]; then echo "no APK was produced"; exit 1; fi
           NAME="MySpace-v${VERSION}-${CODE}-debug.apk"
           cp "$BUILT" "artifacts/$NAME"
           sha256sum "artifacts/$NAME" | awk '{print $1}' > "artifacts/$NAME.sha256"
           SIZE=$(stat -c %s "artifacts/$NAME")
           HASH=$(cat "artifacts/$NAME.sha256")
-          python3 - "$NAME" "$VERSION" "$SIZE" "$HASH" "$CODE" <<'PY'
-          import pathlib, sys
-          name, version, size, digest, code = sys.argv[1:6]
-          index = pathlib.Path("artifacts/APK-INDEX.md")
-          text = index.read_text()
-          row = ("| %s (build %s) | [Download APK](%s) | %s bytes | `%s` |\n"
-                 % (version, code, name, size, digest))
-          lines = text.splitlines(keepends=True)
+          ROW="| ${VERSION} (build ${CODE}) | [Download APK](${NAME}) | ${SIZE} bytes | \`${HASH}\` |"
           # Insert after the last table row so the newest build sits at the bottom of the list.
-          last = max(i for i, l in enumerate(lines) if l.startswith("| "))
-          lines.insert(last + 1, row)
-          out = "".join(lines)
-          out = out.replace("# TicTic debug APKs", "# MySpace debug APKs", 1)
-          out = out.replace("Five retained debug APK versions.", "Retained debug APK versions.", 1)
-          index.write_text(out)
-          print("indexed %s (%s bytes)" % (name, size))
-          PY
+          LAST=$(grep -n '^| ' artifacts/APK-INDEX.md | tail -1 | cut -d: -f1)
+          awk -v row="$ROW" -v last="$LAST" 'NR==last{print; print row; next} {print}' \
+            artifacts/APK-INDEX.md > /tmp/index.md
+          sed -e 's/^# TicTic debug APKs$/# MySpace debug APKs/' \
+              -e 's/^Five retained debug APK versions\./Retained debug APK versions./' \
+              /tmp/index.md > artifacts/APK-INDEX.md
+          echo "indexed $NAME ($SIZE bytes)"
 
       - name: Commit the APK back to the branch
         run: |
@@ -86,12 +81,5 @@ jobs:
             echo "APK unchanged; nothing to commit."
             exit 0
           fi
-          # [skip ci] so the commit of a build output does not start another build.
-          git commit -m "Publish debug APK for on-device testing [skip ci]" \
-                     -m "Built by the publish-apk workflow and committed into artifacts/, which is
-          where this repository has always kept installable debug builds with a SHA-256 sidecar.
-
-          Committed rather than left as a workflow artifact because artifacts are only reachable
-          from the Actions UI and expire, whereas a file on the branch can be downloaded straight
-          from github.com and stays put."
+          git commit -m "Publish debug APK for on-device testing [skip ci]" -m "Built by the publish-apk workflow and committed into artifacts/, where this repository has always kept installable debug builds with a SHA-256 sidecar and an index. Committed rather than left as a workflow artifact because artifacts are only reachable from the Actions UI and they expire, whereas a file on the branch can be downloaded straight from github.com and stays put."
           git push

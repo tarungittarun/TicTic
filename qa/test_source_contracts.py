@@ -3657,6 +3657,57 @@ class InAppNavigationContracts(unittest.TestCase):
         self.assertIn("case APPS:", view)
 
 
+class TextEditorContracts(unittest.TestCase):
+    """The owner's verdict on Files' text creation: "it's not editor, it's like just a notes.
+    Take reference of note in windows and recreate as much as possible." These pin the shape of
+    the editor that answers that: a page, not a dialog, with the modes Notepad is remembered for.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+        self.rules = (ROOT / "feature-files/src/main/java/app/space/feature/files/EditorRules.java").read_text()
+
+    def test_the_editor_is_a_page_not_a_dialog(self):
+        # A create dialog with a three-line EditText is the notes stub that was rejected. The
+        # editor owns the whole screen and the text owns the editor.
+        self.assertIn("private View buildEditor(", self.screen)
+        self.assertIn("if (editingPath != null) return buildEditor(context, ui);", self.screen)
+        self.assertIn("new LinearLayout.LayoutParams(-1, 0, 1f)", self.screen)
+
+    def test_the_notepad_view_modes_exist(self):
+        self.assertIn("text.setHorizontallyScrolling(!wrap);", self.screen)
+        self.assertIn("android.graphics.Typeface.MONOSPACE", self.screen)
+
+    def test_save_and_save_as_are_both_reachable(self):
+        self.assertIn("setOnLongClickListener", self.screen)
+        self.assertIn('setTitle("Save as")', self.screen)
+        self.assertIn("private void writeEditor(", self.screen)
+
+    def test_undo_groups_keystrokes_instead_of_letters(self):
+        # One press per mistake is the expectation; one press per character is an insult.
+        self.assertIn("now - lastUndoPush > 1500", self.screen)
+        self.assertIn("while (undoStack.size() > 25) undoStack.removeLast();", self.screen)
+
+    def test_find_and_replace_are_literal_and_wrap(self):
+        self.assertIn("public static int nextOccurrence(", self.rules)
+        self.assertIn("public static int previousOccurrence(", self.rules)
+        self.assertIn("public static String replaceAllLiteral(", self.rules)
+        # Wrapping: a find that dies at the bottom of the file reads as a broken find.
+        self.assertIn("return text.indexOf(needle);", self.rules)
+        # Stepping past each match: how replace-all of "a" with "aa" terminates.
+        self.assertIn("from = at + needle.length();", self.rules)
+
+    def test_text_files_open_into_the_editor_and_creation_lands_in_it(self):
+        self.assertIn("EditorRules.isEditableName(entry.name)", self.screen)
+        self.assertIn("openEditor(context, FileRules.join(relative, entry.name));", self.screen)
+        self.assertIn("openEditor(context, FileRules.join(folder, wanted));", self.screen)
+
+    def test_the_status_line_names_caret_and_dirt(self):
+        self.assertIn("public static String statusLabel(", self.rules)
+        self.assertIn("modified", self.screen)
+
+
 class FilesCanCreateContracts(unittest.TestCase):
     """Files was a read-only browser over app-private storage, which is empty on a fresh install.
 

@@ -16,6 +16,37 @@ A second constraint, stated by the owner on 2026-10-23: **size is not a budget.*
 lightweight app, but a multi feature rich app" and "let the app cross MBs". From this sprint
 onward no design choice is made to save bytes; richness wins every tie.
 
+## The numbers, plainly
+
+Asked on 2026-10-23: how many sprints, how much time, how much effort. Answered without rounding
+in my own favour.
+
+- **Sprints: six in total. One is delivered** (Sprint 0, build 3.7.0). **Five remain.**
+- **Slices: 23 remain** (4 + 5 + 5 + 6 + 3). A slice is one commit: code, contracts, QA green,
+  CI green. Observed cost this project: one to three CI cycles per slice, three to five minutes a
+  cycle, so 23 slices is roughly 30-50 pushes.
+- **Agent build effort: two to four days of continuous work** for all 23 slices.
+- **Calendar time: eight to twelve working days to 4.0.0.** The binding constraint is not coding,
+  it is the device gate at the end of every sprint: one day to build, one round for you to install
+  and test, zero to two fix slices per round. Every feedback round that waits a day adds a day.
+- **Human equivalent, for scale:** this checklist to parity grade, in one install, is five to six
+  weeks of a human Android developer's time. The agent compresses the building; nothing compresses
+  the phone.
+- **What could add a sprint:** AndroidX (Sprint 4) is the only change with a genuinely unknown
+  blast radius -- if widgets or notifications regress under it, Sprint 4 splits into 4a/4b and the
+  calendar gains two to three days. The two open unknowns (the settings crash's cause, the
+  recorder playback failure) cost at most one slice each *once their logs arrive*; without logs
+  they stay open indefinitely, which is the one place this plan can stall rather than slip.
+
+### Size is not a budget
+
+Your clock app alone is 4-5 MB. This suite's APK is 0.72 MiB today, so there is roughly six times
+headroom before it even equals an app you already consider normal. Forecast at 4.0.0: about
+1.8-2.5 MiB once the music service, camera path, editor and AndroidX land. The rule from here on,
+written down: **no feature is refused or trimmed for bytes; if a feature needs size, it ships with
+the size.** "Higher is fine but should work as I need" -- the working half is enforced by the
+device gate at the end of every sprint, never by a size limit.
+
 ## Sprint 0 — delivered in 3.7.0 (31), this slice
 
 | Checklist item | Outcome |

@@ -43,6 +43,17 @@ public interface Screen {
      */
     default void onActivityResult(int requestCode, int resultCode, android.content.Intent data) { }
 
+    /**
+     * Result of a runtime permission this screen asked for.
+     *
+     * <p>Forwarded by the host for request codes 90 to 99, the same range reserved for
+     * screens. Without it a screen that asks for a permission cannot learn the answer: the
+     * user taps Allow, the dialog closes, and the screen still says access is not granted
+     * until they navigate away and back -- which reads as the permission having failed.
+     * Delivered for a denial too, so the screen can say what was refused.
+     */
+    default void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) { }
+
     /** The screen became visible. Start tickers, animations and usage timing here. */
     void onResume();
 

@@ -3164,3 +3164,129 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         self.assertIn('label("MySpace",23,text,true)', main)
         self.assertIn('setContentDescription("MySpace home")', main)
         self.assertNotIn('label("TicTic"', main)
+
+
+class DeviceTestReadinessContracts(unittest.TestCase):
+    """The four partial apps must survive a real install before the owner tests them.
+
+    Found by reading the four screens against what a device actually does at targetSdk 34,
+    not by anything CI reported: three defects that would each have made a working feature
+    look broken to a tester, with no crash and no log to point at the cause.
+    """
+
+    def manifest(self):
+        return (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+
+    def src(self, mod, name):
+        return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
+
+    def test_mailto_is_visible_to_the_package_manager(self):
+        manifest = self.manifest()
+        # targetSdk 34 with no <queries> means resolveActivity() returns null for a mailto
+        # intent even with Gmail installed, so Email reports "no mail app is set up" on every
+        # modern device -- breaking the one action the module can perform, silently.
+        self.assertIn("<queries>", manifest)
+        self.assertIn('android:name="android.intent.action.SENDTO"', manifest)
+        self.assertIn('android:scheme="mailto"', manifest)
+        self.assertTrue(manifest.index("<queries>") < manifest.index("<application"),
+                        "<queries> must be a manifest child, not inside <application>")
+
+    def test_a_screen_can_hear_the_answer_to_a_permission_it_asked_for(self):
+        screen = (ROOT / "core-suite/src/main/java/app/space/core/suite/Screen.java").read_text()
+        self.assertIn("default void onRequestPermissionsResult(int requestCode, "
+                      "String[] permissions, int[] grantResults)", screen)
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn("requestCode>=90&&requestCode<100&&activeScreen!=null", main)
+        self.assertIn("activeScreen.onRequestPermissionsResult(requestCode,permissions,grantResults)",
+                      main)
+        # Both requesting screens must react, or the user taps Allow and nothing changes --
+        # which reads as the permission having failed rather than the screen not refreshing.
+        for mod, cls in (("messages", "MessagesScreen"), ("recorder", "RecorderScreen")):
+            body = self.src(mod, cls)
+            self.assertIn("public void onRequestPermissionsResult(int requestCode", body)
+            self.assertIn("host.invalidate();", body)
+
+    def test_music_can_obtain_audio_on_a_fresh_install(self):
+        body = java_code_only(self.src("music", "MusicScreen"))
+        # The app-private music folder cannot be written to by any file manager without root,
+        # so without a picker a fresh install has exactly one way to get audio in.
+        self.assertIn("Intent.ACTION_OPEN_DOCUMENT", body)
+        self.assertIn('intent.setType("audio/*")', body)
+        self.assertIn("PICK_AUDIO = 93", body)
+        self.assertIn("public void onActivityResult(int requestCode, int resultCode, Intent data)", body)
+        # Persisted, or every picked track silently stops playing after a process restart.
+        self.assertIn("takePersistableUriPermission(", body)
+        # A content URI needs the Context overload; the String one handles paths and URLs only.
+        self.assertIn("player.setDataSource(context, Uri.parse(track.source))", body)
+
+    def test_every_screen_request_code_is_in_the_reserved_range(self):
+        # The host forwards 90 to 99. A screen using a code outside that range gets its result
+        # swallowed by the clock's own handler, and the failure is a picker that does nothing.
+        codes = []
+        for path in (ROOT).glob("feature-*/src/main/java/app/space/feature/*/*Screen.java"):
+            body = path.read_text()
+            for match in re.finditer(r"(PICK_IMAGES|PICK_AUDIO|PERMISSION_REQUEST)\s*=\s*(\d+)", body):
+                codes.append((path.name, match.group(1), int(match.group(2))))
+        self.assertTrue(codes, "no screen request codes found")
+        for name, constant, code in codes:
+            self.assertTrue(90 <= code < 100,
+                            "%s.%s = %d is outside the 90-99 range the host forwards"
+                            % (name, constant, code))
+        # Two screens must not share a code, or a result is delivered to the wrong one.
+        self.assertEqual(len(set(c for _, _, c in codes)), len(codes), codes)
+
+    def test_the_clocks_own_request_codes_do_not_collide_with_screens(self):
+        main = java_code_only(read("MainActivity.java"))
+        for code in re.findall(r"req==(\d+)", main):
+            self.assertFalse(90 <= int(code) < 100,
+                             "the clock uses request code %s, which is reserved for screens" % code)
+
+
+class ApkPublishWorkflowContracts(unittest.TestCase):
+    """The owner tests on a real device, so an installable APK has to be reachable.
+
+    Workflow artifacts are only downloadable from the Actions UI and they expire. This
+    repository already keeps installable debug builds in artifacts/ with a SHA-256 sidecar and
+    an index, so the publish workflow follows that convention rather than inventing one.
+    """
+
+    def setUp(self):
+        self.path = ROOT / ".github/workflows/publish-apk.yml"
+        self.assertTrue(self.path.exists(), "publish-apk.yml is missing")
+        self.yml = self.path.read_text()
+
+    def test_it_can_push_to_the_branch(self):
+        self.assertIn("contents: write", self.yml)
+        self.assertIn("fetch-depth: 0", self.yml)
+
+    def test_it_is_manual_so_a_build_output_does_not_retrigger_ci(self):
+        self.assertIn("workflow_dispatch:", self.yml)
+        # An APK differs byte-for-byte between builds with no source change, so committing it
+        # automatically would produce a commit per run.
+        self.assertNotIn("on:\n  push:", self.yml)
+        self.assertIn("[skip ci]", self.yml)
+
+    def test_it_follows_the_existing_artifacts_convention(self):
+        self.assertIn("artifacts/", self.yml)
+        self.assertIn(".sha256", self.yml)
+        self.assertIn("APK-INDEX.md", self.yml)
+        # The name carries the version and versionCode, so two builds of the same versionName
+        # cannot overwrite each other silently.
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-debug.apk"', self.yml)
+
+    def test_it_fails_loudly_if_no_apk_was_produced(self):
+        self.assertIn('test -n "$BUILT"', self.yml)
+        self.assertIn("no APK was produced", self.yml)
+        self.assertIn("set -euo pipefail", self.yml)
+
+    def test_it_does_not_reintroduce_the_action_that_broke_ci(self):
+        # android-actions/setup-android was tried early in this project and broke the build;
+        # the runners already ship the SDK.
+        #
+        # Comment lines are stripped first. The workflow's own comment explains why the action
+        # must NOT be used, so grepping the raw file matches the warning and fails the
+        # assertion the warning exists to justify. That is the sixth time this trap has
+        # appeared in this suite, which is enough to say the rule outright: an assertion that
+        # greps whole-file text will eventually match its own documentation.
+        live = "\n".join(l for l in self.yml.splitlines() if not l.strip().startswith("#"))
+        self.assertNotIn("setup-android", live)

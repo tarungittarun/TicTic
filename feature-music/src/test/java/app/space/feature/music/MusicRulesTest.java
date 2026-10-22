@@ -89,6 +89,22 @@ public class MusicRulesTest {
         assertFalse(MusicRules.isPlayableExtension(null));
     }
 
+    @Test public void aPickedContentUriIsPlayableEvenWithoutAnExtension() {
+        // A file chosen through the system audio picker arrives as a content URI with no
+        // filename, so there is no suffix to check. The picker already filtered to audio,
+        // which is stronger evidence than a name: a file renamed to .mp3 that is not audio
+        // passes the extension test and fails to play.
+        assertTrue(MusicRules.isPickedSource("content://media/external/audio/123"));
+        assertFalse(MusicRules.isPickedSource("/storage/music/a.mp3"));
+        assertFalse(MusicRules.isPickedSource("https://x.com/a.mp3"));
+        assertFalse(MusicRules.isPickedSource(null));
+        List<MusicRules.Track> out = MusicRules.playable(Arrays.asList(
+                t("1", "picked", "content://media/audio/9", false),
+                t("2", "no-extension", "/m/noext", false)));
+        assertEquals(1, out.size());
+        assertEquals("1", out.get(0).id);
+    }
+
     @Test public void unplayableItemsAreDroppedFromTheQueue() {
         List<MusicRules.Track> out = MusicRules.playable(Arrays.asList(
                 t("1", "good", "/m/a.mp3", false),

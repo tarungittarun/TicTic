@@ -308,6 +308,19 @@ public final class RecorderScreen implements Screen {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode != %s) return;
+        // Re-render either way: on grant the screen becomes usable, and on denial it has to
+        // stop looking like it is waiting for something that will not arrive.
+        host.invalidate();
+        boolean granted = grantResults.length > 0;
+        for (int result : grantResults) {
+            if (result != android.content.pm.PackageManager.PERMISSION_GRANTED) { granted = false; break; }
+        }
+        host.toast(granted ? "Access granted." : "Access refused. The feature stays unavailable.");
+    }
+
     @Override public void onResume() { }
 
     @Override

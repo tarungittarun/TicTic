@@ -133,13 +133,29 @@ public final class MusicRules {
                 || ext.equals("wav") || ext.equals("ogg") || ext.equals("flac");
     }
 
+    /**
+     * Whether a source the user picked through the system audio picker can be played.
+     *
+     * <p>A picked file arrives as a {@code content://} URI with no filename, so there is no
+     * extension to check. The picker already filtered to audio, which is a stronger signal
+     * than a suffix: a file renamed to .mp3 that is not audio would pass the extension test
+     * and fail to play, while a picked .opus with no suffix would be wrongly rejected.
+     */
+    public static boolean isPickedSource(String source) {
+        return source != null && source.trim().startsWith("content://");
+    }
+
     /** Tracks this app can actually play, dropping anything unplayable. */
     public static List<Track> playable(List<Track> tracks) {
         List<Track> out = new ArrayList<>();
         if (tracks == null) return out;
         for (Track t : tracks) {
             if (t == null || t.source.isEmpty()) continue;
-            if (t.remote ? isStreamableUrl(t.source) : isPlayableExtension(t.source)) out.add(t);
+            if (t.remote) {
+                if (isStreamableUrl(t.source)) out.add(t);
+            } else if (isPickedSource(t.source) || isPlayableExtension(t.source)) {
+                out.add(t);
+            }
         }
         return out;
     }

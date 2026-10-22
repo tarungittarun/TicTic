@@ -458,6 +458,9 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
     }
     @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
         super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        // Forwarded to the visible app screen first: a screen that asks for a permission has
+        // to hear the answer, or the user taps Allow and nothing appears to change.
+        if(requestCode>=90&&requestCode<100&&activeScreen!=null){activeScreen.onRequestPermissionsResult(requestCode,permissions,grantResults);}
         if(requestCode==REQUEST_ALARM_NOTIFICATIONS){requestExactAccessBeforeSave();}
     }
     private void requestExactAccessBeforeSave(){

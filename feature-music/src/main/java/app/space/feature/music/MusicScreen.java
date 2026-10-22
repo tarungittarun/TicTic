@@ -2,6 +2,7 @@ package app.space.feature.music;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
@@ -42,6 +43,9 @@ public final class MusicScreen implements Screen {
     static final String KEY_STREAMS = "music_streams";
     static final String KEY_REPEAT = "music_repeat";
     static final String KEY_SHUFFLE = "music_shuffle";
+    /** Audio the user picked through the system picker, stored as persistable content URIs. */
+    static final String KEY_PICKED = "music_picked";
+    private static final int PICK_AUDIO = 93;
     /** Fixed seed: the shuffle is reproducible, so the queue is stable across renders. */
     static final long SHUFFLE_SEED = 20260101L;
 
@@ -74,6 +78,10 @@ public final class MusicScreen implements Screen {
         for (JSONObject o : streams(context)) {
             library.add(new MusicRules.Track(o.optString("id"), o.optString("title"),
                     o.optString("url"), true, 0));
+        }
+        for (JSONObject o : picked(context)) {
+            library.add(new MusicRules.Track(o.optString("id"), o.optString("title"),
+                    o.optString("uri"), false, 0));
         }
         List<MusicRules.Track> playable = MusicRules.playable(library);
         queue = shuffle ? MusicRules.shuffled(playable, SHUFFLE_SEED) : MusicRules.sorted(playable);
@@ -136,17 +144,29 @@ public final class MusicScreen implements Screen {
         });
 
         // ---- add a stream ----
-        TextView add = ui.pillButton("Add a stream URL", ui.palette().accent, android.graphics.Color.WHITE);
+        LinearLayout addRow = ui.hbox();
         LinearLayout.LayoutParams ap = ui.lp(-1, 46);
         ap.topMargin = ui.dp(10);
-        root.addView(add, ap);
+        root.addView(addRow, ap);
+        TextView pick = ui.pillButton("Add music files", ui.palette().accent, android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams pkp = ui.lp(0, 46);
+        pkp.weight = 1f;
+        addRow.addView(pick, pkp);
+        pick.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { pickAudio(context); }
+        });
+        TextView add = ui.pillButton("Add a stream URL", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams adp = ui.lp(0, 46);
+        adp.weight = 1f;
+        adp.leftMargin = ui.dp(6);
+        addRow.addView(add, adp);
         add.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { addStream(context); }
         });
 
         if (queue.isEmpty()) {
-            TextView empty = ui.label("No playable audio. Put files in this app's music folder, "
-                    + "or add a stream URL above.", 13, ui.palette().muted, false);
+            TextView empty = ui.label("No playable audio yet. Add your own music files, "
+                    + "or a stream URL you trust.", 13, ui.palette().muted, false);
             empty.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams ep = ui.lp(-1, 60);
             ep.topMargin = ui.dp(10);
@@ -172,11 +192,16 @@ public final class MusicScreen implements Screen {
                     position == index ? ui.palette().accent : ui.palette().text, position == index));
             copy.addView(ui.label(track.remote ? track.source
                     : MusicRules.formatBytes(track.bytes), 10, ui.palette().muted, false));
-            TextView remove = ui.label(track.remote ? "Remove" : "", 12, ui.palette().muted, false);
+            boolean removable = track.remote || MusicRules.isPickedSource(track.source);
+            TextView remove = ui.label(removable ? "Remove" : "", 12, ui.palette().muted, false);
             row.addView(remove, ui.lp(-2, -2));
             if (track.remote) {
                 remove.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) { removeStream(context, track.id); }
+                });
+            } else if (removable) {
+                remove.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) { removePicked(context, track.id); }
                 });
             }
             row.setOnClickListener(new View.OnClickListener() {
@@ -216,6 +241,104 @@ public final class MusicScreen implements Screen {
             return new ArrayList<>();
         }
         return out;
+    }
+
+    private void pickAudio(Context context) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("audio/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).startActivityForResult(intent, PICK_AUDIO);
+            } else {
+                host.toast("Cannot open the picker here.");
+            }
+        } catch (Exception e) {
+            host.toast("No file picker is available.");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != PICK_AUDIO || data == null) return;
+        if (resultCode != android.app.Activity.RESULT_OK) {
+            host.toast("No files added.");
+            return;
+        }
+        Context context = host.context();
+        List<Uri> uris = new ArrayList<>();
+        android.content.ClipData clip = data.getClipData();
+        if (clip != null) {
+            for (int i = 0; i < clip.getItemCount(); i++) uris.add(clip.getItemAt(i).getUri());
+        } else if (data.getData() != null) {
+            uris.add(data.getData());
+        }
+        JSONArray array = new JSONArray();
+        int added = 0;
+        try {
+            for (JSONObject o : picked(context)) array.put(o);
+            for (Uri uri : uris) {
+                // Persisted, or the grant expires and every picked track stops playing after
+                // a process restart with no visible cause.
+                try {
+                    context.getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (Exception ignored) { }
+                array.put(new JSONObject().put("id", Long.toString(System.nanoTime(), 36))
+                        .put("title", displayName(context, uri)).put("uri", uri.toString()));
+                added++;
+            }
+        } catch (Exception e) {
+            host.toast("Could not add those files.");
+            return;
+        }
+        AppPrefs.prefs(context).edit().putString(KEY_PICKED, array.toString()).apply();
+        host.toast(added == 0 ? "No files in that selection."
+                : "Added " + added + (added == 1 ? " track." : " tracks."));
+        host.invalidate();
+    }
+
+    /** The picker's own display name, falling back to the URI's last segment. */
+    private static String displayName(Context context, Uri uri) {
+        android.database.Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri,
+                    new String[]{android.provider.OpenableColumns.DISPLAY_NAME}, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                String name = cursor.getString(0);
+                if (name != null && !name.trim().isEmpty()) return prettyName(name);
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return prettyName(uri.getLastPathSegment() == null ? "track" : uri.getLastPathSegment());
+    }
+
+    static List<JSONObject> picked(Context context) {
+        List<JSONObject> out = new ArrayList<>();
+        try {
+            JSONArray a = new JSONArray(AppPrefs.prefs(context).getString(KEY_PICKED, "[]"));
+            for (int i = 0; i < a.length(); i++) out.add(a.getJSONObject(i));
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return out;
+    }
+
+    private void removePicked(Context context, String id) {
+        JSONArray a = new JSONArray();
+        try {
+            for (JSONObject o : picked(context)) if (!o.optString("id").equals(id)) a.put(o);
+        } catch (Exception e) {
+            return;
+        }
+        AppPrefs.prefs(context).edit().putString(KEY_PICKED, a.toString()).apply();
+        release();
+        index = -1;
+        host.invalidate();
     }
 
     private void addStream(final Context context) {
@@ -282,7 +405,11 @@ public final class MusicScreen implements Screen {
         MusicRules.Track track = queue.get(index);
         try {
             player = new MediaPlayer();
-            player.setDataSource(track.source);
+            if (MusicRules.isPickedSource(track.source)) {
+                player.setDataSource(context, Uri.parse(track.source));
+            } else {
+                player.setDataSource(track.source);
+            }
             prepared = false;
             player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override public void onPrepared(MediaPlayer mp) {

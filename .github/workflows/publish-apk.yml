@@ -1,0 +1,97 @@
+name: Publish installable APK
+
+# On demand only. Committing a build output back to the branch would otherwise retrigger CI on
+# every push, and the APK differs byte-for-byte between builds even with no source change, so an
+# automatic commit would produce a commit per run for no reason.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Build and commit the debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the commit lands on the branch tip rather than a shallow graft.
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # The runners ship the Android SDK. android-actions/setup-android was tried earlier in
+      # this project and broke the build; do not reintroduce it.
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Build debug APK
+        run: |
+          set -o pipefail
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --stacktrace assembleDebug 2>&1 | tee /tmp/build.log
+
+      - name: Stage the APK into artifacts/
+        run: |
+          set -euo pipefail
+          VERSION=$(grep -oE "versionName '[^']+'" app/build.gradle | head -1 | cut -d"'" -f2)
+          CODE=$(grep -oE "versionCode [0-9]+" app/build.gradle | head -1 | awk '{print $2}')
+          BUILT=$(find . -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
+          test -n "$BUILT" || { echo "no APK was produced"; exit 1; }
+          NAME="MySpace-v${VERSION}-${CODE}-debug.apk"
+          cp "$BUILT" "artifacts/$NAME"
+          sha256sum "artifacts/$NAME" | awk '{print $1}' > "artifacts/$NAME.sha256"
+          SIZE=$(stat -c %s "artifacts/$NAME")
+          HASH=$(cat "artifacts/$NAME.sha256")
+          python3 - "$NAME" "$VERSION" "$SIZE" "$HASH" "$CODE" <<'PY'
+          import pathlib, sys
+          name, version, size, digest, code = sys.argv[1:6]
+          index = pathlib.Path("artifacts/APK-INDEX.md")
+          text = index.read_text()
+          row = ("| %s (build %s) | [Download APK](%s) | %s bytes | `%s` |\n"
+                 % (version, code, name, size, digest))
+          lines = text.splitlines(keepends=True)
+          # Insert after the last table row so the newest build sits at the bottom of the list.
+          last = max(i for i, l in enumerate(lines) if l.startswith("| "))
+          lines.insert(last + 1, row)
+          out = "".join(lines)
+          out = out.replace("# TicTic debug APKs", "# MySpace debug APKs", 1)
+          out = out.replace("Five retained debug APK versions.", "Retained debug APK versions.", 1)
+          index.write_text(out)
+          print("indexed %s (%s bytes)" % (name, size))
+          PY
+
+      - name: Commit the APK back to the branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts
+          if git diff --cached --quiet; then
+            echo "APK unchanged; nothing to commit."
+            exit 0
+          fi
+          # [skip ci] so the commit of a build output does not start another build.
+          git commit -m "Publish debug APK for on-device testing [skip ci]" \
+                     -m "Built by the publish-apk workflow and committed into artifacts/, which is
+          where this repository has always kept installable debug builds with a SHA-256 sidecar.
+
+          Committed rather than left as a workflow artifact because artifacts are only reachable
+          from the Actions UI and expire, whereas a file on the branch can be downloaded straight
+          from github.com and stays put."
+          git push

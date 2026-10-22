@@ -553,3 +553,35 @@ is what pinning two hardcoded literals to each other cannot detect. Version is n
 * **Play submission still needs from the owner:** a funded Play Console account, a privacy
   policy, the data-safety form, and a 512×512 store listing icon (the adaptive icon is for the
   launcher and does not substitute for it).
+
+### 6.3 Phase 3 — 3g: distinct icons, app chrome, and the three navigation styles
+
+Version **3.2.0 (26)**. Owner instruction: *"Take all at once and get on it."*
+
+| Slice | What landed |
+|---|---|
+| 3g-i | Thirteen new `TicIconView` glyphs so all fifteen apps have a distinct icon, plus `MENU` for the drawer handle. Previously Notes and Calendar shared `WORLD`; Habits, Expenses, Music and Recorder shared `ACTIVITY`; Email borrowed `ALARM`; Files borrowed `SETTINGS`. |
+| 3g-ii | App chrome: the host tracks the app owning `activeScreen`, the header names it in the accent colour, and the clock's settings gear is hidden while another app is on screen. Previously the header showed the *clock's* route label over a foreign app's body. |
+| 3g-iii | `buildNav()` became a dispatcher over `NavPrefs.mode()`. **All three navigation styles now render**: rail (unchanged body, split into `buildRailNav`), hub (every destination and app as a tile in two rows), drawer (a one-line bar whose handle summons the list). Settings ▸ Navigation gained the style chooser, which was the missing half — the preference was stored and read by nothing, so the only reference to `NavMode` in `MainActivity` was a comment saying hub was not rendered yet. |
+| 3g-iv | `APPS.md`: the build inventory, generated from source and held to the registry by contract. |
+
+Two decisions worth recording:
+
+**Hub and drawer share one tile implementation** (`navTile`). Two hand-rolled layouts would
+drift, and the same destination would read differently depending on which style the user had
+chosen. A contract counts the call sites so a fourth style cannot quietly fork it.
+
+**The drawer is a `PopupWindow`, not an overlay panel.** `root` is a `LinearLayout` handed to
+`setContentView` at two separate places, so an overlay would need both call sites wrapped in a
+`FrameLayout` — restructuring the tree every screen is built into, for one navigation style.
+Anchoring a popup to the bar gives the same behaviour without touching that tree.
+
+All three styles read `visibleRoutes()`, so hiding a destination hides it in every style. The
+nav-editor contract was updated rather than loosened: it counts one cache clear and one
+re-render per *writing handler*, and the style chooser is a fifth such handler — it writes a
+preference that changes what is drawn, so skipping the cache clear would leave the old style on
+screen until an unrelated re-render. That is exactly the failure the assertion exists to catch.
+
+Still open after 3g: the clock extraction (five of six clock screens remain in `MainActivity`,
+order Usage → Routines → Timer → Reminders → Clock, with `buildClock` decomposed first);
+`:core-widgets`; the Room migration; export/import; and the 36 dead `SDK_INT` guards.

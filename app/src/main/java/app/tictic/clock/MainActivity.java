@@ -42,6 +42,8 @@ import app.space.feature.messages.MessagesApp;
 import app.space.feature.music.MusicApp;
 import app.space.feature.scanner.ScannerApp;
 import app.space.feature.email.EmailApp;
+import app.space.shell.NavMode;
+import android.widget.PopupWindow;
 import app.space.shell.NavPrefs;
 import app.space.shell.NavRoute;
 import app.space.shell.SuiteRegistry;
@@ -240,6 +242,12 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     }
     @Override public void onBackPressed(){if(settings){settings=false;settingsScrollView=null;settingsScrollY=0;render();return;}super.onBackPressed();}
     private void buildNav(){
+        NavMode mode=NavPrefs.mode(this);
+        if(mode==NavMode.HUB){buildHubNav();return;}
+        if(mode==NavMode.DRAWER){buildDrawerNav();return;}
+        buildRailNav();
+    }
+    void buildRailNav(){
         LinearLayout bar=hbox();bar.setBackground(shape(surface,24));bar.setPadding(0,dp(5),0,dp(6));
         HorizontalScrollView rail=new HorizontalScrollView(this);rail.setHorizontalScrollBarEnabled(false);rail.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout content=hbox();rail.addView(content,new HorizontalScrollView.LayoutParams(-2,-1));
@@ -253,9 +261,86 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
             content.addView(appsSlot,lp(item,54));appsSlot.setOnClickListener(v->showAppPicker());
         content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp(tab*item),0));
     }
+
     /**
-     * The app switcher. Until NavMode.HUB is rendered this is how an app other than the
-     * clock is reached; it reads availableApps(), so a newly registered app appears here
+     * Hub mode: every destination and every installed app as a tile in two rows, so nothing
+     * sits behind a picker. It costs vertical space the rail does not, which is the trade the
+     * mode exists to offer -- the rail is one row and scrolls, the hub is two rows and shows
+     * the whole suite at once.
+     */
+    void buildHubNav(){
+        HorizontalScrollView scroll=new HorizontalScrollView(this);scroll.setHorizontalScrollBarEnabled(false);scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);scroll.setBackground(shape(surface,24));
+        LinearLayout stack=vbox();scroll.addView(stack,new HorizontalScrollView.LayoutParams(-2,-1));
+        LinearLayout top=hbox();LinearLayout bottom=hbox();stack.addView(top,lp(-2,54));stack.addView(bottom,lp(-2,54));
+        List<NavRoute> destinations=visibleRoutes();
+        int placed=0;
+        for(int i=0;i<destinations.size();i++){
+            final NavRoute route=destinations.get(i);
+            View tile=navTile(route.label(),glyphFor(route.id()),route.id().equals(currentRoute()));
+            ((placed++)%2==0?top:bottom).addView(tile,lp(76,54));
+            tile.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});
+        }
+        // Apps rather than a single Apps slot: in hub mode there is room for them, and reading
+        // availableApps() means a newly registered app appears with no change here.
+        for(SuiteApp app:availableApps()){
+            if(clockApp.id().equals(app.id()))continue;
+            final String id=app.id();
+            View tile=navTile(app.label(),app.iconGlyph(),false);
+            ((placed++)%2==0?top:bottom).addView(tile,lp(76,54));
+            tile.setOnClickListener(v->openApp(id));
+        }
+        root.addView(scroll,lp(-1,118));
+    }
+    /** One nav tile, shared by hub mode and the drawer list so the two read identically. */
+    private View navTile(String name,int glyph,boolean on){
+        LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));
+        slot.addView(new TicIconView(this,glyph,on?Color.WHITE:muted),lp(24,24));
+        TextView text=label(name,10,on?Color.WHITE:muted,on);text.setGravity(Gravity.CENTER);text.setSingleLine(true);text.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(text,np);
+        return slot;
+    }
+    /**
+     * Drawer mode: a one-line bar naming where you are, with a handle that summons the full
+     * list. It reclaims the vertical space the rail and hub both spend, which is the reason to
+     * choose it, at the cost of destinations no longer being one tap away.
+     *
+     * <p>A PopupWindow rather than an overlay panel: root is a LinearLayout and is handed to
+     * setContentView at two separate places, so an overlay would need both call sites wrapped
+     * in a FrameLayout. Anchoring a popup to the bar gets the same behaviour without touching
+     * the layout tree that every screen is built into.
+     */
+    void buildDrawerNav(){
+        LinearLayout bar=hbox();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackground(shape(surface,24));bar.setPadding(dp(12),dp(7),dp(14),dp(8));
+        bar.addView(new TicIconView(this,TicIconView.MENU,accent),lp(24,24));
+        TextView title=label(labelFor(currentRoute()),15,text,true);
+        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);tp.leftMargin=dp(12);bar.addView(title,tp);
+        TicIconView apps=new TicIconView(this,TicIconView.SETTINGS,muted);bar.addView(apps,lp(24,24));
+        root.addView(bar,lp(-1,50));
+        bar.setOnClickListener(v->showDrawer(bar));
+        apps.setOnClickListener(v->showAppPicker());
+    }
+    private void showDrawer(View anchor){
+        ScrollView scroll=new ScrollView(this);scroll.setVerticalScrollBarEnabled(false);
+        LinearLayout list=vbox();list.setPadding(dp(8),dp(8),dp(8),dp(8));scroll.addView(list,lp(-1,-2));
+        final PopupWindow popup=new PopupWindow(scroll,dp(244),-2,true);
+        popup.setBackgroundDrawable(shape(surface,20));popup.setOutsideTouchable(true);popup.setElevation(dp(8));
+        for(final NavRoute route:visibleRoutes()){
+            View row=navTile(route.label(),glyphFor(route.id()),route.id().equals(currentRoute()));
+            list.addView(row,lp(-1,46));
+            row.setOnClickListener(v->{popup.dismiss();if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});
+        }
+        for(SuiteApp app:availableApps()){
+            if(clockApp.id().equals(app.id()))continue;
+            final String id=app.id();
+            View row=navTile(app.label(),app.iconGlyph(),false);
+            list.addView(row,lp(-1,46));
+            row.setOnClickListener(v->{popup.dismiss();openApp(id);});
+        }
+        popup.showAsDropDown(anchor,dp(10),dp(6));
+    }
+    /**
+     * The app switcher, offered from the rail and from drawer mode. Hub mode lists apps
+     * directly and does not need it; it reads availableApps(), so a newly registered app appears here
      * with no change to this method.
      *
      * <p>An app that declines the route returns false from openApp and simply stays where
@@ -656,8 +741,35 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
      * the user with no way back into this screen to undo it.
      */
     private void buildNavigationSettings(){
-        sectionTitle("Navigation","Choose which destinations appear in the rail, and in what order.");
+        sectionTitle("Navigation","Choose how destinations are reached, and which appear.");
         gap(10);
+        // The mode was stored in NavPrefs and read by nothing: choosing hub or drawer had no
+        // effect because every render drew the rail. Exposing it here is what makes the stored
+        // preference mean something, and it is the owner's "navigation must be customisable"
+        // requirement -- reorder, pin and hide were already done, the mode itself was not.
+        LinearLayout modeCard=card();body.addView(modeCard,lp(-1,-2));
+        modeCard.addView(label("Navigation style",16,text,true));
+        TextView modeNote=label("Reordering and hiding apply to all three styles. Changes apply immediately.",11,muted,false);
+        modeNote.setPadding(0,dp(4),0,dp(8));modeCard.addView(modeNote);
+        final NavMode currentMode=NavPrefs.mode(this);
+        NavMode[] modes={NavMode.RAIL,NavMode.HUB,NavMode.DRAWER};
+        String[] names={"Rail","Hub","Drawer"};
+        String[] notes={"One scrolling row at the bottom. Every destination is one tap away.",
+                "Every destination and app as a tile in two rows. Nothing sits behind a picker.",
+                "One bar naming where you are. The handle summons the full list, which reclaims the space the other two spend."};
+        for(int i=0;i<modes.length;i++){
+            final NavMode option=modes[i];final boolean on=option==currentMode;
+            LinearLayout row=hbox();row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(10),dp(8),dp(10),dp(8));
+            row.setBackground(shape(on?accent:(DataStore.dark(this)?0xff202f2b:0xfff1f5f3),14));
+            LinearLayout.LayoutParams rp=lp(-1,-2);rp.topMargin=dp(6);modeCard.addView(row,rp);
+            LinearLayout copy=vbox();LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,-2,1);row.addView(copy,cp);
+            copy.addView(label(names[i],14,on?Color.WHITE:text,true));
+            TextView note=label(notes[i],11,on?Color.WHITE:muted,false);
+            note.setPadding(0,dp(3),dp(8),dp(2));copy.addView(note);
+            if(on)row.addView(label("\u2713",16,Color.WHITE,true),lp(-2,-2));
+            row.setOnClickListener(v->{NavPrefs.setMode(MainActivity.this,option);routeCache=null;render();});
+        }
+        gap(14);
         final List<NavRoute> ordered=NavPrefs.orderedRoutes(this,clockApp.id(),allRoutes());
         final java.util.Set<String> hidden=NavPrefs.hiddenRoutes(this,clockApp.id());
         int visible=0;for(NavRoute r:ordered)if(!hidden.contains(r.id()))visible++;

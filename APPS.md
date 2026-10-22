@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.1.0** (versionCode 25) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.2.0** (versionCode 26) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -163,10 +163,17 @@ picker listing every installed app. Tapping the MySpace wordmark in the header r
 clock — that is the only way back, and while another app is on screen the header names that app
 and hides the clock's settings gear, because clock settings do not describe another app's screen.
 
-Settings ▸ Navigation lets you reorder, pin and hide destinations; the choices are stored as
-routes rather than positions, so reordering cannot silently retarget a widget deep link. Hiding
-the last visible destination is refused, because an empty rail is a state you could not escape
-without clearing app data. Hidden destinations keep their data and still open from widgets.
+Settings ▸ Navigation lets you choose the **navigation style** and reorder, pin and hide
+destinations. Choices are stored as routes rather than positions, so reordering cannot silently
+retarget a widget deep link. Hiding the last visible destination is refused, because an empty
+rail is a state you could not escape without clearing app data. Hidden destinations keep their
+data and still open from widgets — and they stay hidden in all three styles, since all three
+read the same visible-destination list.
 
-Two navigation modes — hub and drawer — are declared but not yet rendered; the rail is the only
-visual mode, and the Apps picker is the interim app switcher.
+| Style | What you get | What it costs |
+|---|---|---|
+| **Rail** *(default)* | One scrolling row at the bottom. Every destination is one tap away. | Two taps to reach an app that is not pinned |
+| **Hub** | Every destination **and** every installed app as a tile, in two rows. Nothing sits behind a picker. | The most vertical space of the three |
+| **Drawer** | One bar naming where you are; a handle summons the full list. | Destinations are no longer one tap away |
+
+Rail is the default, so nothing changes for an existing install until you choose otherwise.

@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.1.0'", gradle)
-        self.assertIn("versionCode 25", gradle)
+        self.assertIn("versionName '3.2.0'", gradle)
+        self.assertIn("versionCode 26", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2360,14 +2360,20 @@ class NavigationEditorContracts(unittest.TestCase):
         # currentRoute() is cached for the 16 ms ticker. A write that does not clear the
         # cache changes the preference while the rail keeps rendering the old list, and the
         # user's tap appears to do nothing until some unrelated re-render.
-        # Four handlers write: reorder up, reorder down, the visibility switch, and reset.
-        # Reset writes both preferences, so five writes must be matched by four cache
-        # clears and four re-renders -- one per handler, none of them skipped.
+        # Five handlers write: reorder up, reorder down, the visibility switch, reset, and the
+        # navigation-style chooser. Reset writes both route preferences, so six writes must be
+        # matched by five cache clears and five re-renders -- one per handler, none skipped.
+        #
+        # The style chooser is counted here on purpose. It writes a preference that changes what
+        # is drawn, so a handler that wrote it without clearing the cache would leave the old
+        # style on screen until some unrelated re-render, which is precisely the failure this
+        # assertion exists to prevent.
         writes = (self.editor.count("NavPrefs.setHiddenRoutes(")
-                  + self.editor.count("NavPrefs.saveRouteOrder("))
-        self.assertEqual(writes, 5, "expected 5 preference writes")
-        self.assertEqual(self.editor.count("routeCache=null;"), 4)
-        self.assertEqual(self.editor.count("render();"), 4)
+                  + self.editor.count("NavPrefs.saveRouteOrder(")
+                  + self.editor.count("NavPrefs.setMode("))
+        self.assertEqual(writes, 6, "expected 6 preference writes")
+        self.assertEqual(self.editor.count("routeCache=null;"), 5)
+        self.assertEqual(self.editor.count("render();"), 5)
 
     def test_the_last_visible_destination_cannot_be_hidden(self):
         # An empty rail would leave no way back into Settings to undo it.
@@ -3412,3 +3418,74 @@ class AppsInventoryDocContracts(unittest.TestCase):
         self.assertIn("never at launch", self.doc)
         for absent in ("location", "contacts", "camera", "calendar"):
             self.assertIn(absent, self.doc)
+
+
+class NavigationModesContracts(unittest.TestCase):
+    """All three declared navigation modes must actually render, and be reachable.
+
+    NavPrefs stored a mode and buildNav never read it: the only reference to NavMode anywhere in
+    MainActivity was inside a comment saying hub mode was not rendered yet. Reordering, pinning
+    and hiding worked, so "navigation must be customisable" looked satisfied while a third of it
+    was inert -- and inert silently, because choosing a mode that draws nothing looks exactly
+    like the setting having been saved.
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_buildnav_dispatches_on_the_stored_mode(self):
+        self.assertIn("NavMode mode=NavPrefs.mode(this);", self.main)
+        self.assertIn("if(mode==NavMode.HUB){buildHubNav();return;}", self.main)
+        self.assertIn("if(mode==NavMode.DRAWER){buildDrawerNav();return;}", self.main)
+        self.assertIn("buildRailNav();", self.main)
+
+    def test_each_mode_has_its_own_builder(self):
+        for builder in ("void buildRailNav(){", "void buildHubNav(){", "void buildDrawerNav(){"):
+            self.assertEqual(self.main.count(builder), 1, builder)
+
+    def test_the_rail_body_is_unchanged_by_the_split(self):
+        # The rail is the default and the mode every existing user has. Splitting buildNav into
+        # a dispatcher must not alter it, so the declaration the older contracts pin survives.
+        self.assertEqual(self.main.count("HorizontalScrollView rail=new HorizontalScrollView(this);"), 1)
+        self.assertIn("rail.post(()->rail.scrollTo(dp(tab*item),0));", self.main)
+
+    def test_hub_lists_apps_directly_rather_than_behind_a_picker(self):
+        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("private View navTile(")]
+        self.assertIn("for(SuiteApp app:availableApps())", hub)
+        # Reading availableApps() is what lets a newly registered app appear with no edit here.
+        self.assertNotIn("showAppPicker()", hub)
+        self.assertIn("openApp(id)", hub)
+        self.assertIn("root.addView(scroll,lp(-1,118));", hub)
+
+    def test_drawer_and_hub_share_one_tile_implementation(self):
+        # Two hand-rolled tile layouts would drift, and the same destination would read
+        # differently depending on which mode the user had chosen.
+        self.assertEqual(self.main.count("navTile("), 5)
+        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildDrawerNav(){")]
+        drawer = self.main[self.main.index("private void showDrawer("):]
+        self.assertIn("navTile(", hub)
+        self.assertIn("navTile(", drawer[:drawer.index("\n    }\n")])
+
+    def test_the_mode_is_choosable_in_settings(self):
+        self.assertIn('sectionTitle("Navigation","Choose how destinations are reached', self.main)
+        self.assertIn("NavMode[] modes={NavMode.RAIL,NavMode.HUB,NavMode.DRAWER};", self.main)
+        self.assertIn("NavPrefs.setMode(MainActivity.this,option);routeCache=null;render();", self.main)
+        # Clearing routeCache matters: the mode changes what is drawn, and a stale cache would
+        # render the previous style until something else invalidated it.
+        self.assertIn("final NavMode currentMode=NavPrefs.mode(this);", self.main)
+
+    def test_the_drawer_handle_has_a_glyph_of_its_own(self):
+        view = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
+        self.assertRegex(view, r"\bMENU=\d+")
+        self.assertIn("case MENU:", view)
+        self.assertIn("new TicIconView(this,TicIconView.MENU,accent)", self.main)
+
+    def test_every_mode_honours_hidden_destinations(self):
+        # Hiding a destination must hide it in all three styles, or the control only works in
+        # the default one and the user cannot tell which they are in.
+        for builder in ("void buildRailNav(){", "void buildHubNav(){"):
+            start = self.main.index(builder)
+            body = self.main[start:start + 2600]
+            self.assertIn("visibleRoutes()", body, builder + " ignores hidden destinations")
+        drawer = self.main[self.main.index("private void showDrawer("):]
+        self.assertIn("visibleRoutes()", drawer[:1200])

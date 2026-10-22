@@ -407,10 +407,10 @@ public final class FilesScreen implements Screen {
         TextView next = ui.pillButton("\u203a", ui.palette().surface, ui.palette().text);
         row.addView(next, ui.lp(40, 36));
         prev.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { stepFind(box, input, count, false); }
+            @Override public void onClick(View v) { stepFind(box[0], input, count, false); }
         });
         next.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { stepFind(box, input, count, true); }
+            @Override public void onClick(View v) { stepFind(box[0], input, count, true); }
         });
         return row;
     }

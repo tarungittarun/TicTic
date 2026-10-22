@@ -106,7 +106,19 @@ public final class CalculatorRules {
                 // minus is not a deeper negation, it is a changed mind, so it replaces and the
                 // chain can never grow. On device, "0/0------85522*3*-" was typed one tap at a
                 // time under the rule that let every minus append.
-                if (c == '-' && last != '-') return current + c;
+                if (c == '-') {
+                    if (last != '-') return current + c;
+                    return current.substring(0, current.length() - 1) + c;
+                }
+                // Swapping operators over a pending negation drops the negation with them:
+                // 5 * - then * is 5 *, not 5 * *. Replacing only the last character there would
+                // stack two operators, which is the one thing this method exists to prevent.
+                if (last == '-' && current.length() >= 2
+                        && isOperator(current.charAt(current.length() - 2))) {
+                    return current.substring(0, current.length() - 2) + c;
+                }
+                // A lone leading minus is not an operand to swap operators over.
+                if ("-".equals(current)) return null;
                 return current.substring(0, current.length() - 1) + c;
             }
             return current + c;

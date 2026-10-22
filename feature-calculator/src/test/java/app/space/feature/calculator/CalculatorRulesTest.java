@@ -37,6 +37,14 @@ public class CalculatorRulesTest {
         assertEquals("5-", CalculatorRules.append("5-", "-"));
         assertEquals("-", CalculatorRules.append("-", "-"));
         assertEquals("5*", CalculatorRules.append("5*-", "*"));
+        // Swapping operators over a pending negation drops the negation: replacing only the last
+        // character there stacks two operators, which is what the second red run of this slice was.
+        assertEquals("5+", CalculatorRules.append("5*-", "+"));
+        assertEquals("5+", CalculatorRules.append("5+-", "+"));
+        assertEquals("5*-", CalculatorRules.append("5*-", "-"));
+        // A lone leading minus is not an operand; only another minus may follow it.
+        assertNull(CalculatorRules.append("-", "*"));
+        assertNull(CalculatorRules.append("-", "+"));
         // Brackets open where an operand may start and close only over an open group.
         assertEquals("(", CalculatorRules.append("", "("));
         assertEquals("(2", CalculatorRules.append("(", "2"));

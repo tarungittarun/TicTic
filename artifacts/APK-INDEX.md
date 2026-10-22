@@ -18,5 +18,6 @@ from an expiring Actions artifact.
 | 1.11.2 | [Download APK](TicTic-v1.11.2-debug.apk) | 724,118 bytes | `746e979746481d3bd1c6f4849aef0afaf3161948d698464c77a259d95762faa2` |
 | 3.0.0 (build 24) | [Download APK](MySpace-v3.0.0-24-debug.apk) | 878434 bytes | `a628e30c488a04db8d1c63db48a167d9757829dc1decb713b04cc41039fae27c` |
 | 3.1.0 (build 25) | [Download APK](MySpace-v3.1.0-25-debug.apk) | 879694 bytes | `241ed87dc5833b066e572e5dd25fc67f8b8b2aa52d2924c43842f2bf94b356c1` |
+| 3.2.0 (build 26) | [Download APK](MySpace-v3.2.0-26-debug.apk) | 882954 bytes | `e6c889dab302be9b7305e1bce63b110ffa1c7b810e0f7eafec441ccf3fdae27a` |
 
 Retained versions: 1.9.9, 1.10.0, 1.11.0, 1.11.1 and 1.11.2. The v1.11.2 build contains the responsive Settings/Alarm Defaults/Widget Studio update, five glass presets and five selectable touch-feedback styles. Runtime/device QA for v1.11.2 remains NOT RUN.

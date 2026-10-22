@@ -313,7 +313,7 @@ public final class MessagesScreen implements Screen {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode != %s) return;
+        if (requestCode != PERMISSION_REQUEST) return;
         // Re-render either way: on grant the screen becomes usable, and on denial it has to
         // stop looking like it is waiting for something that will not arrive.
         host.invalidate();

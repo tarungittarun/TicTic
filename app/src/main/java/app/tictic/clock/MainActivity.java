@@ -767,7 +767,7 @@ private boolean batterySaverOptimization(){return PowerState.isOptimizing(this);
     }    private void buildSettings(){settingsError=null;try{switch(settingsGroup){case 0:buildDesignSettings();break;case 1:buildAlarmSettings();break;case 2:buildReminderSettings();break;case 3:buildRoutineSettings();break;case 4:buildTimerSettings();break;case 5:buildStopwatchSettings();break;case 6:buildEfficiencySettings();break;case 7:buildNavigationSettings();break;case 9:buildDiagnosticsSettings();break;default:buildAboutSettings();}}catch(Throwable settingsFailure){
             AppLog.crash(this,settingsFailure);
             settingsError=settingsFailure.getClass().getSimpleName()+": "+String.valueOf(settingsFailure.getMessage());
-            LinearLayout err=card();frame.addView(err,new LinearLayout.LayoutParams(-1,-2));
+            LinearLayout err=card();body.addView(err,new LinearLayout.LayoutParams(-1,-2));
             err.addView(label("This settings page failed to render",16,text,true));
             TextView why=label(settingsError,12,muted,false);why.setPadding(0,dp(6),0,dp(8));err.addView(why);
             err.addView(label("It is recorded in Settings \u25b8 Diagnostics. Everything else still works; the arrow above goes back.",11,muted,false));

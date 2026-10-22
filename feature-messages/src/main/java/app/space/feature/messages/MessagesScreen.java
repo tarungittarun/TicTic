@@ -57,6 +57,26 @@ public final class MessagesScreen implements Screen {
         root.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(14));
         scroll.addView(root, new LinearLayout.LayoutParams(-1, -2));
 
+        // A build that does not declare the permission cannot ever be granted it, so offering
+        // the grant button would be a control that can never work. The lite build leaves SMS out
+        // entirely, because Play Protect refuses rather than warns about sideloaded APKs that
+        // declare it -- and a build carrying it could not be installed at all.
+        if (!declared(context, Manifest.permission.READ_SMS)) {
+            ui.sectionTitle(root, "Messages", "Not in this build");
+            LinearLayout card = ui.card();
+            LinearLayout.LayoutParams cp = ui.lp(-1, -2);
+            cp.topMargin = ui.dp(8);
+            root.addView(card, cp);
+            card.addView(ui.label("This build does not include messaging.", 13, ui.palette().text, true));
+            TextView note = ui.label("Messages needs SMS access, and Google Play Protect refuses to "
+                    + "install any APK from outside the Play Store that declares it -- so this build "
+                    + "leaves the permission out rather than making all fifteen apps uninstallable. "
+                    + "Install the full build to send and read messages.", 11, ui.palette().muted, false);
+            note.setPadding(0, ui.dp(4), 0, ui.dp(8));
+            card.addView(note);
+            return scroll;
+        }
+
         boolean canRead = has(context, Manifest.permission.READ_SMS);
         if (!canRead) {
             ui.sectionTitle(root, "Messages", "Not connected");
@@ -181,6 +201,26 @@ public final class MessagesScreen implements Screen {
 
     private static boolean has(Context context, String permission) {
         return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * Whether the installed package even declares the permission, as distinct from having been
+     * granted it. A permission removed by a flavour manifest is neither granted nor grantable,
+     * and {@code checkSelfPermission} alone cannot tell those two states apart.
+     */
+    static boolean declared(Context context, String permission) {
+        try {
+            android.content.pm.PackageInfo info = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS);
+            if (info.requestedPermissions != null) {
+                for (String p : info.requestedPermissions) {
+                    if (permission.equals(p)) return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
     private void requestPermissions(Context context) {

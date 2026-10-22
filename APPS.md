@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.3.0** (versionCode 27) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.4.0** (versionCode 28) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -82,7 +82,7 @@ outside the root.
 comma inside a cell does not shift every later column. Sheets report row and column counts and a
 total over the first numeric column.
 
-**Messages** — conversations read from the system SMS provider and sent through the framework
+**Messages** *(full build only)* — conversations read from the system SMS provider and sent through the framework
 `SmsManager`. Numbers are folded so `+91 98765 43210`, `098765 43210` and `9876543210` are one
 conversation, while two genuinely different numbers stay separate. Alphanumeric sender headers
 such as `VK-TICTIC` are kept distinct rather than all collapsing into one "Unknown sender"
@@ -126,7 +126,7 @@ otherwise.
 |---|---|---|
 | `INTERNET` | Weather | Already declared for the clock's weather widget. Nothing polls in the background |
 | `RECORD_AUDIO` | Recorder | Only when you first press Record, never at launch |
-| `READ_SMS`, `SEND_SMS` | Messages | Only when you open the message list or press send |
+| `READ_SMS`, `SEND_SMS` | Messages, **full build only** | Only when you open the message list or press send. The lite build does not declare them at all — see below |
 
 **Not requested by anything:** location, contacts, storage, camera, calendar. Files, Scanner and
 Documents all work inside app-private storage, which needs no permission at all.
@@ -183,3 +183,19 @@ the app you are in, and an Apps button to switch directly. The clock's own desti
 offered there, because they route into the clock — offering them over another app would move you
 there without saying so. Before this, opening any app other than the clock rendered no navigation
 at all, so switching apps meant going home first.
+
+## Two builds: lite and full
+
+Google Play Protect **refuses rather than warns** about any APK installed outside the Play Store
+that declares SMS access. While the manifest carried `READ_SMS` and `SEND_SMS`, every sideloaded
+build of this suite was blocked at install — all fifteen apps, taken down by the one that uses
+them. There are therefore two flavours:
+
+| Build | SMS permissions | Messages app | Installs sideloaded |
+|---|---|---|---|
+| **lite** *(published here)* | not declared | opens, explains it is not in this build | yes |
+| **full** | declared | complete, once you grant access | no — Play Protect blocks it until the Play declaration form is filed |
+
+The flavour manifest strips the permissions with `tools:node="remove"`, and the Messages screen
+detects that its permission is undeclared — `checkSelfPermission` cannot tell "not granted" from
+"not grantable" — so it states the situation instead of offering a button that could never work.

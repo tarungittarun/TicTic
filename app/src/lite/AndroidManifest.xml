@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A flavour manifest merges OVER the main manifest, so removing here strips the permission
+     from the lite APK without touching the full build. Play Protect refuses, rather than warns
+     about, any sideloaded APK declaring SMS access, which made the whole suite uninstallable
+     for the one app that uses it. The Messages screen detects the missing declaration and says
+     so, rather than offering a permission button that can never succeed. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.READ_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.SEND_SMS" tools:node="remove" />
+</manifest>

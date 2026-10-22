@@ -87,7 +87,7 @@ jobs:
         # for the annotation step below.
         run: |
           set -o pipefail
-          sh gradlew --no-daemon --stacktrace testDebugUnitTest test 2>&1 | tee /tmp/unit.log
+          sh gradlew --no-daemon --stacktrace test 2>&1 | tee /tmp/unit.log
 
       - name: Build debug APK
         id: build
@@ -168,12 +168,14 @@ jobs:
           set -euo pipefail
           VERSION=$(grep -oE "versionName '[^']+'" app/build.gradle | head -1 | cut -d"'" -f2)
           CODE=$(grep -oE "versionCode [0-9]+" app/build.gradle | head -1 | awk '{print $2}')
-          NAME="MySpace-v${VERSION}-${CODE}-debug.apk"
+          NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"
           if [ -f "artifacts/$NAME" ]; then
             echo "$NAME is already published; nothing to do."
             exit 0
           fi
-          BUILT=$(find . -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
+          # lite, deliberately: it is the build that can actually be sideloaded. Picking
+          # whichever APK find reaches first would publish an uninstallable one half the time.
+          BUILT=$(find . -path '*lite*' -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
           if [ -z "$BUILT" ]; then echo "no APK was produced"; exit 1; fi
           cp "$BUILT" "artifacts/$NAME"
           sha256sum "artifacts/$NAME" | awk '{print $1}' > "artifacts/$NAME.sha256"

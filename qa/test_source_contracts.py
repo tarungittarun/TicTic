@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.3.0'", gradle)
-        self.assertIn("versionCode 27", gradle)
+        self.assertIn("versionName '3.4.0'", gradle)
+        self.assertIn("versionCode 28", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2044,7 +2044,11 @@ class CiDiagnosticsContracts(unittest.TestCase):
 
     def test_jvm_tests_are_still_run_explicitly(self):
         # assembleDebug does not run test tasks. This was already lost once.
-        self.assertIn("testDebugUnitTest test", self.yml)
+        # 'test' rather than the old 'testDebugUnitTest test': once :app has flavours there is
+        # no per-build-type testDebugUnitTest task on it, and a task name that does not exist
+        # fails a step that is continue-on-error -- the JVM suite would stop running in CI and
+        # nothing would say so. 'test' aggregates every variant of every module.
+        self.assertIn("sh gradlew --no-daemon --stacktrace test 2>&1", self.yml)
 
 
 class ScreenHostPersistenceContracts(unittest.TestCase):
@@ -3287,7 +3291,10 @@ class ApkPublishWorkflowContracts(unittest.TestCase):
         self.assertIn("APK-INDEX.md", self.yml)
         # The name carries the version and versionCode, so two builds of the same versionName
         # cannot overwrite each other silently.
-        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-debug.apk"', self.yml)
+        # The flavour name is part of it now: publishing a build that Play Protect refuses at
+        # install would be publishing something nobody can use, and the name is what tells the
+        # two apart in artifacts/.
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"', self.yml)
 
     def test_it_fails_loudly_if_no_apk_was_produced(self):
         self.assertIn('if [ -z "$BUILT" ]; then', self.yml)
@@ -3589,3 +3596,60 @@ class FilesCanCreateContracts(unittest.TestCase):
         self.assertIn("Nothing here yet. Create a text file below", self.body)
         self.assertNotIn("This folder is empty.", self.body)
         self.assertIn("appear here too", self.body)
+
+
+class SideloadableBuildContracts(unittest.TestCase):
+    """A build that cannot be installed is worse than a feature that is missing.
+
+    Google Play Protect refuses -- not warns about -- any APK installed outside the Play Store
+    that declares READ_SMS or SEND_SMS. While the manifest carried them, every sideloaded build
+    of the suite was blocked at install, so the Messages app took all fifteen apps down with it.
+    Found on a real device, by the owner, from a screenshot: nothing in CI can observe an install
+    being refused, and nothing in the contract suite was looking at installability at all.
+    """
+
+    def setUp(self):
+        self.gradle = (ROOT / "app/build.gradle").read_text()
+        self.main_manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+        self.lite_manifest = (ROOT / "app/src/lite/AndroidManifest.xml")
+        self.workflow = (ROOT / ".github/workflows/android-ci.yml").read_text()
+
+    def test_two_flavours_exist(self):
+        self.assertIn('flavorDimensions "scope"', self.gradle)
+        self.assertIn("lite { dimension", self.gradle)
+        self.assertIn("full { dimension", self.gradle)
+
+    def test_the_main_manifest_still_declares_sms_for_the_full_build(self):
+        # Removing them outright would abandon Messages, which the owner kept deliberately.
+        self.assertIn('android.permission.READ_SMS', self.main_manifest)
+        self.assertIn('android.permission.SEND_SMS', self.main_manifest)
+
+    def test_the_lite_flavour_strips_both_permissions(self):
+        self.assertTrue(self.lite_manifest.exists(), "app/src/lite/AndroidManifest.xml missing")
+        body = self.lite_manifest.read_text()
+        for permission in ("READ_SMS", "SEND_SMS"):
+            self.assertRegex(body,
+                             r'<uses-permission android:name="android\.permission\.%s" tools:node="remove" />'
+                             % permission)
+
+    def test_messages_tells_the_truth_when_its_permission_is_undeclared(self):
+        screen = java_code_only(
+            (ROOT / "feature-messages/src/main/java/app/space/feature/messages/MessagesScreen.java").read_text())
+        self.assertIn("static boolean declared(Context context, String permission)", screen)
+        self.assertIn("if (!declared(context, Manifest.permission.READ_SMS)) {", screen)
+        self.assertIn("This build does not include messaging.", screen)
+        # The gate must precede the grant button, or the button is offered in a state where it
+        # can never succeed.
+        self.assertLess(screen.index("declared(context, Manifest.permission.READ_SMS)"),
+                        screen.index("Allow message access"))
+
+    def test_ci_publishes_the_sideloadable_build_not_whichever_find_reaches_first(self):
+        self.assertIn("-path '*lite*'", self.workflow)
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"', self.workflow)
+
+    def test_the_unit_test_task_survives_the_flavour_split(self):
+        # With flavours there is no per-build-type testDebugUnitTest on :app; using a task name
+        # that does not exist would fail the step, and the step is continue-on-error, so the JVM
+        # suite would silently stop running in CI. 'test' aggregates every variant.
+        self.assertIn("sh gradlew --no-daemon --stacktrace test 2>&1", self.workflow)
+        self.assertNotIn("testDebugUnitTest", self.workflow)

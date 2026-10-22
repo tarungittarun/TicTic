@@ -24,9 +24,20 @@ android {
         targetSdk 34
         // New product line: MySpace starts at 2.0.0. The clock feature keeps its
         // v1.11.2 lineage in CHANGELOG.md.
-        versionCode 27
-        versionName '3.3.0'
+        versionCode 28
+        versionName '3.4.0'
     }
+    flavorDimensions "scope"
+    productFlavors {
+        // lite omits SMS access. Google Play Protect hard-blocks any APK installed outside the
+        // Play Store that declares READ_SMS or SEND_SMS -- the install does not warn, it refuses.
+        // Carrying the permission therefore made the entire suite uninstallable for the one app
+        // that uses it. lite is the build a sideloaded install can actually be; full is the
+        // Play-facing build, usable once the SMS declaration form is filed.
+        lite { dimension "scope" }
+        full { dimension "scope" }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

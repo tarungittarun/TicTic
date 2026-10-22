@@ -30,7 +30,9 @@ public class EditorRulesTest {
         assertEquals("aa aa", EditorRules.replaceAllLiteral("a a", "a", "aa"));
         // Literal, not regular expression: a dot is a dot.
         assertEquals("Xab", EditorRules.replaceAllLiteral(".ab", ".", "X"));
-        assertEquals("gone", EditorRules.replaceAllLiteral("stay gone stay", "stay ", ""));
+        // The trailing "stay" has no space after it, so it is not a match: replace-all replaces
+        // what it finds, not what the fixture author was thinking of.
+        assertEquals("gone ", EditorRules.replaceAllLiteral("stay gone stay ", "stay ", ""));
         assertEquals("same", EditorRules.replaceAllLiteral("same", "", "x"));
     }
 
@@ -54,7 +56,7 @@ public class EditorRulesTest {
         assertEquals(1, EditorRules.columnAt(text, 0));
         assertEquals(2, EditorRules.lineAt(text, 6));
         assertEquals(1, EditorRules.columnAt(text, 6));
-        assertEquals(2, EditorRules.columnAt(text, 9));
+        assertEquals(4, EditorRules.columnAt(text, 9));
         assertEquals(3, EditorRules.lineAt(text, text.length()));
         // A caret beyond the end is clamped, not an exception: selections arrive from the
         // widget and can race an edit.

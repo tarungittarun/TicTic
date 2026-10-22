@@ -2969,6 +2969,15 @@ class FinalFourAppsContracts(unittest.TestCase):
         # or the user is told a smaller charge than the carrier applies.
         self.assertIn("isSevenBit(body) ? 160 : 70", rules)
 
+    def test_threading_cannot_merge_two_people_or_every_service_sender(self):
+        rules = java_code_only(self.src("messages", "MessagesRules"))
+        # Ten digits, not nine: a nine-digit tail merges distinct Indian mobiles, so two
+        # people would share one thread and read each other's messages.
+        self.assertIn("COMPARE_DIGITS = 10", rules)
+        # An alphanumeric DLT header has no digits; reducing it to "" would fold every
+        # service sender into a single Unknown thread.
+        self.assertIn("if (hasLetter) return alphanumeric.toString();", rules)
+
     def test_the_sms_query_is_capped_and_survives_a_refusing_provider(self):
         screen = java_code_only(self.src("messages", "MessagesScreen"))
         self.assertIn("ROW_LIMIT = 500", screen)

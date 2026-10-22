@@ -20,8 +20,17 @@ public final class MessagesRules {
 
     private MessagesRules() {}
 
-    /** Digits kept when comparing numbers. A local number is matched on its last nine. */
-    public static final int COMPARE_DIGITS = 9;
+    /**
+     * Digits kept when comparing numbers, so a country code and a trunk prefix do not split
+     * a conversation.
+     *
+     * <p>Ten, not nine. A nine-digit tail silently merges distinct Indian mobile numbers:
+     * 9876543210 and 8876543210 both reduce to 876543210, so two people would share one
+     * thread and each would read the other's messages. Ten is the national significant
+     * length for India and most of the countries this ships in, which folds +91 and a leading
+     * 0 together without colliding.
+     */
+    public static final int COMPARE_DIGITS = 10;
 
     public static final class Message {
         public final String id;
@@ -57,18 +66,39 @@ public final class MessagesRules {
     public static String normalise(String address) {
         if (address == null) return "";
         StringBuilder digits = new StringBuilder();
+        StringBuilder alphanumeric = new StringBuilder();
+        boolean hasLetter = false;
         for (int i = 0; i < address.length(); i++) {
             char c = address.charAt(i);
-            if (c >= '0' && c <= '9') digits.append(c);
+            if (c >= '0' && c <= '9') { digits.append(c); alphanumeric.append(c); }
+            else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+                hasLetter = true;
+                alphanumeric.append(Character.toUpperCase(c));
+            }
         }
+        // An alphanumeric sender ID -- India's DLT headers such as VK-TICTIC -- carries no
+        // number at all. Reducing it to digits yields "", which would fold every service
+        // sender into one thread, so it is compared as text instead.
+        if (hasLetter) return alphanumeric.toString();
         String out = digits.toString();
         if (out.length() > COMPARE_DIGITS) out = out.substring(out.length() - COMPARE_DIGITS);
         return out;
     }
 
-    /** Whether an address is a short code rather than a phone number. */
+    /**
+     * Whether an address is a service sender rather than a person's number: a short numeric
+     * code, or an alphanumeric header.
+     */
     public static boolean isShortCode(String address) {
-        String digits = digitsOnly(address);
+        if (address == null) return false;
+        String trimmed = address.trim();
+        if (trimmed.isEmpty()) return false;
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            // A sender ID with letters is a service header whatever else it contains.
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) return true;
+        }
+        String digits = digitsOnly(trimmed);
         return !digits.isEmpty() && digits.length() <= 6;
     }
 

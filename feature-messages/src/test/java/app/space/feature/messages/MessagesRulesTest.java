@@ -29,6 +29,18 @@ public class MessagesRulesTest {
 
     @Test public void distinctNumbersStayDistinct() {
         assertFalse(MessagesRules.normalise("9876543210").equals(MessagesRules.normalise("9876543211")));
+        // A nine-digit tail would merge these two: both end in 876543210. Two people would
+        // then share one thread and each would read the other's messages.
+        assertFalse(MessagesRules.normalise("9876543210").equals(MessagesRules.normalise("8876543210")));
+    }
+
+    @Test public void alphanumericSenderIdsStayDistinctFromEachOther() {
+        // India's DLT headers carry no digits. Reducing them to digits yields "", which would
+        // fold every service sender into a single "Unknown sender" thread.
+        assertEquals("VKTICTIC", MessagesRules.normalise("VK-TICTIC"));
+        assertEquals("VKTICTIC", MessagesRules.normalise("vk-tictic"));
+        assertFalse(MessagesRules.normalise("VK-TICTIC").equals(MessagesRules.normalise("AX-PROMO")));
+        assertFalse(MessagesRules.normalise("VK-TICTIC").isEmpty());
     }
 
     @Test public void anAddresslessSenderGroupsUnderOneUnknownThread() {
@@ -41,11 +53,13 @@ public class MessagesRulesTest {
         assertEquals("+91 98765 43210", MessagesRules.threadLabel(" +91 98765 43210 "));
     }
 
-    @Test public void shortCodesAreRecognised() {
+    @Test public void shortCodesAndSenderHeadersAreRecognised() {
         assertTrue(MessagesRules.isShortCode("VK-TICTIC"));
         assertTrue(MessagesRules.isShortCode("56161"));
+        assertTrue(MessagesRules.isShortCode(" 56161 "));
         assertFalse(MessagesRules.isShortCode("+919876543210"));
         assertFalse(MessagesRules.isShortCode(""));
+        assertFalse(MessagesRules.isShortCode(null));
     }
 
     @Test public void threadsAreNewestFirstAndReadOldestFirst() {

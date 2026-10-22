@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.4.0'", gradle)
-        self.assertIn("versionCode 28", gradle)
+        self.assertIn("versionName '3.5.0'", gradle)
+        self.assertIn("versionCode 29", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3294,7 +3294,7 @@ class ApkPublishWorkflowContracts(unittest.TestCase):
         # The flavour name is part of it now: publishing a build that Play Protect refuses at
         # install would be publishing something nobody can use, and the name is what tells the
         # two apart in artifacts/.
-        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"', self.yml)
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-dist.apk"', self.yml)
 
     def test_it_fails_loudly_if_no_apk_was_produced(self):
         self.assertIn('if [ -z "$BUILT" ]; then', self.yml)
@@ -3645,7 +3645,7 @@ class SideloadableBuildContracts(unittest.TestCase):
 
     def test_ci_publishes_the_sideloadable_build_not_whichever_find_reaches_first(self):
         self.assertIn("-path '*lite*'", self.workflow)
-        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"', self.workflow)
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-dist.apk"', self.workflow)
 
     def test_the_unit_test_task_survives_the_flavour_split(self):
         # With flavours there is no per-build-type testDebugUnitTest on :app; using a task name
@@ -3691,3 +3691,36 @@ class InstallabilityIsCheckedContracts(unittest.TestCase):
         # lite one is additionally committed; losing the full build from CI would hide whether
         # it still compiles.
         self.assertIn("path: '**/build/outputs/apk/**/*.apk'", self.workflow)
+
+
+class NotDebuggableContracts(unittest.TestCase):
+    """The second Play Protect block was correct, and the fix is to stop shipping the defect.
+
+    'Harmful app blocked' is what Play Protect says about a debuggable APK, because anything
+    holding an adb cable can attach to it and read its data. The first build published was the
+    implicit debug type: there was no buildTypes block at all, so debuggable=true came free with
+    the build and nobody chose it. dist is signed so it installs and not debuggable so it is safe
+    to hand over.
+    """
+
+    def setUp(self):
+        self.gradle = (ROOT / "app/build.gradle").read_text()
+        self.workflow = (ROOT / ".github/workflows/android-ci.yml").read_text()
+        self.script = (ROOT / "qa/check_apk_permissions.py").read_text()
+
+    def test_a_dist_build_type_exists_and_is_not_debuggable(self):
+        self.assertIn("dist {", self.gradle)
+        self.assertIn("debuggable false", self.gradle)
+        self.assertIn("signingConfig signingConfigs.debug", self.gradle)
+        # Library modules declare only debug and release; without a fallback the variant graph
+        # cannot resolve and the build fails at configuration time.
+        self.assertIn("matchingFallbacks = ['release', 'debug']", self.gradle)
+
+    def test_ci_builds_and_publishes_the_dist_variant(self):
+        self.assertIn("assembleDebug assembleLiteDist", self.workflow)
+        self.assertIn("-path '*dist*'", self.workflow)
+        self.assertIn('NAME="MySpace-v${VERSION}-${CODE}-lite-dist.apk"', self.workflow)
+
+    def test_the_scan_refuses_a_debuggable_apk(self):
+        self.assertIn('if "debuggable".encode("utf-16-le") in blob:', self.script)
+        self.assertIn("DEBUGGABLE", self.script)

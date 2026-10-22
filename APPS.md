@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.4.0** (versionCode 28) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.5.0** (versionCode 29) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -193,7 +193,8 @@ them. There are therefore two flavours:
 
 | Build | SMS permissions | Messages app | Installs sideloaded |
 |---|---|---|---|
-| **lite** *(published here)* | not declared | opens, explains it is not in this build | yes |
+| **lite** | not declared | opens, explains it is not in this build | yes, as the `dist` build type |
+| **lite-dist** *(published here)* | not declared, not debuggable | same | yes, and Play Protect's harmful-app trigger is gone |
 | **full** | declared | complete, once you grant access | no — Play Protect blocks it until the Play declaration form is filed |
 
 The flavour manifest strips the permissions with `tools:node="remove"`, and the Messages screen

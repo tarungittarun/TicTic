@@ -22,6 +22,12 @@ def main(path):
         if not present(control):
             print("SCAN BROKEN: %s should be declared but was not found" % control)
             return 2
+    # AGP omits android:debuggable from the merged manifest when it is false, so the attribute
+    # name appearing in the binary string pool at all means the build is debuggable -- which is
+    # what Play Protect's harmful-app verdict was correctly objecting to.
+    if "debuggable".encode("utf-16-le") in blob:
+        print("DEBUGGABLE: the APK can be attached to over adb; do not hand this to a tester")
+        return 1
     for forbidden in ("READ_SMS", "SEND_SMS"):
         if present(forbidden):
             print("REFUSED AT INSTALL: %s is declared; Play Protect blocks sideloaded APKs "

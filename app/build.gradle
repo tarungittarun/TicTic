@@ -24,9 +24,23 @@ android {
         targetSdk 34
         // New product line: MySpace starts at 2.0.0. The clock feature keeps its
         // v1.11.2 lineage in CHANGELOG.md.
-        versionCode 28
-        versionName '3.4.0'
+        versionCode 29
+        versionName '3.5.0'
     }
+    buildTypes {
+        // dist is the build handed to a tester: signed so that it installs, but NOT debuggable.
+        // A debuggable APK can be attached to over adb and its data read by anything holding a
+        // cable, which is precisely what Play Protect means by "can put your device or data at
+        // risk". The verdict on the previous APK was correct, not a false positive, and shipping
+        // a debuggable build to a human was the defect. debug and release keep their defaults.
+        dist {
+            debuggable false
+            signingConfig signingConfigs.debug
+            // Library modules declare only debug and release; map dist onto release for them.
+            matchingFallbacks = ['release', 'debug']
+        }
+    }
+
     flavorDimensions "scope"
     productFlavors {
         // lite omits SMS access. Google Play Protect hard-blocks any APK installed outside the

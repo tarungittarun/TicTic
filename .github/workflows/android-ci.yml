@@ -95,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          sh gradlew --no-daemon --stacktrace assembleDebug 2>&1 | tee /tmp/build.log
+          sh gradlew --no-daemon --stacktrace assembleDebug assembleLiteDist 2>&1 | tee /tmp/build.log
 
       - name: Surface compile and test errors as annotations
         if: steps.unit.outcome == 'failure' || steps.build.outcome == 'failure'
@@ -168,14 +168,16 @@ jobs:
           set -euo pipefail
           VERSION=$(grep -oE "versionName '[^']+'" app/build.gradle | head -1 | cut -d"'" -f2)
           CODE=$(grep -oE "versionCode [0-9]+" app/build.gradle | head -1 | awk '{print $2}')
-          NAME="MySpace-v${VERSION}-${CODE}-lite-debug.apk"
+          NAME="MySpace-v${VERSION}-${CODE}-lite-dist.apk"
           if [ -f "artifacts/$NAME" ]; then
             echo "$NAME is already published; nothing to do."
             exit 0
           fi
           # lite, deliberately: it is the build that can actually be sideloaded. Picking
           # whichever APK find reaches first would publish an uninstallable one half the time.
-          BUILT=$(find . -path '*lite*' -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
+          # lite and dist: not debuggable, which is what Play Protect's harmful-app verdict
+          # was correctly objecting to. Selecting any lite APK would republish a debuggable one.
+          BUILT=$(find . -path '*lite*' -path '*dist*' -path '*/build/outputs/apk/*' -name '*.apk' | head -1)
           if [ -z "$BUILT" ]; then echo "no APK was produced"; exit 1; fi
           # The one check in the project that observes installability rather than behaviour.
           # Play Protect refuses sideloaded APKs declaring SMS before any code runs, so no

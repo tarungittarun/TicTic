@@ -208,7 +208,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         // rail taps, widget deep links, settings exits -- is covered by one line.
         if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("MySpace",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();};brand.setContentDescription("MySpace home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(activeScreen!=null&&activeApp!=null){TextView sub=label(activeApp.label().toUpperCase(Locale.ROOT),10,accent,true);sub.setLetterSpacing(.13f);header.addView(sub);}else if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}if(activeScreen==null){TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());}
         ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else if(activeScreen!=null){body.addView(activeScreen.build(this));}else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
-        if(!settings&&activeScreen==null)buildNav();GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
+        if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
     private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;render();}
     private void renderSettingsPage(){
@@ -255,7 +255,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         List<NavRoute> destinations=visibleRoutes();
         for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});}
         LinearLayout appsSlot=vbox();appsSlot.setGravity(Gravity.CENTER);appsSlot.setPadding(dp(4),dp(4),dp(4),dp(3));
-            TicIconView appsIcon=new TicIconView(this,TicIconView.SETTINGS,muted);appsSlot.addView(appsIcon,lp(24,24));
+            TicIconView appsIcon=new TicIconView(this,TicIconView.APPS,muted);appsSlot.addView(appsIcon,lp(24,24));
             TextView appsLabel=label("Apps",10,muted,false);appsLabel.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams anp=lp(-1,18);anp.topMargin=dp(1);appsSlot.addView(appsLabel,anp);
             content.addView(appsSlot,lp(item,54));appsSlot.setOnClickListener(v->showAppPicker());
@@ -291,7 +291,30 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         }
         root.addView(scroll,lp(-1,118));
     }
-    /** One nav tile, shared by hub mode and the drawer list so the two read identically. */
+
+    /**
+     * Navigation while another app owns the body.
+     *
+     * <p>Nothing was rendered here before, so opening any app other than the clock left no way
+     * to move except tapping the wordmark back to the clock and starting over. With fifteen apps
+     * installed that is the difference between a suite and fifteen dead ends: reaching a second
+     * app cost three taps, and the only control on screen was the one that takes you home.
+     *
+     * <p>The clock's own destinations are deliberately absent. They are routes into the clock,
+     * and offering them while another app is showing would move the user into the clock without
+     * saying so -- the same wrong-context failure as the settings gear.
+     */
+    void buildAppNav(){
+        LinearLayout bar=hbox();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackground(shape(surface,24));bar.setPadding(dp(10),dp(5),dp(10),dp(6));
+        View home=navTile("Clock",TicIconView.CLOCK,false);bar.addView(home,lp(76,54));
+        home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
+        TextView title=label(activeApp==null?"":activeApp.label(),14,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);bar.addView(title,tp);
+        View apps=navTile("Apps",TicIconView.APPS,false);bar.addView(apps,lp(76,54));
+        apps.setOnClickListener(v->showAppPicker());
+        root.addView(bar,lp(-1,64));
+    }
+    /** One nav tile, shared by hub mode, the drawer list and the in-app bar. */
     private View navTile(String name,int glyph,boolean on){
         LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));
         slot.addView(new TicIconView(this,glyph,on?Color.WHITE:muted),lp(24,24));

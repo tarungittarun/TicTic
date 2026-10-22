@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.2.0'", gradle)
-        self.assertIn("versionCode 26", gradle)
+        self.assertIn("versionName '3.3.0'", gradle)
+        self.assertIn("versionCode 27", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2527,7 +2527,7 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         # The clock's rail would otherwise stay on screen over another app's UI, and its
         # slots would switch back mid-use.
         self.assertIn("else if(activeScreen!=null){body.addView(activeScreen.build(this));}", self.main)
-        self.assertIn("if(!settings&&activeScreen==null)buildNav();", self.main)
+        self.assertIn("if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}", self.main)
 
     def test_there_is_always_a_way_back_to_the_clock(self):
         # The header wordmark is the escape hatch. Without it, opening the calculator would
@@ -3359,9 +3359,10 @@ class DistinctGlyphAndAppChromeContracts(unittest.TestCase):
                       "activeApp.label().toUpperCase(Locale.ROOT),10,accent,true);", main)
         # Cleared on every path that clears activeScreen, or a stale label would name an app
         # that is no longer on screen.
-        self.assertEqual(main.count("activeApp=null"), 2)
-        # Every path that clears the screen clears the app too, or a stale label would name
-        # an app that is no longer on screen.
+        # Three paths clear it: opening the clock, the header wordmark, and the in-app bar's
+        # Clock button. Every path that clears the screen clears the app too, or a stale label
+        # would name an app that is no longer on screen.
+        self.assertEqual(main.count("activeApp=null"), 3)
         self.assertEqual(main.count("activeScreen=null"), main.count("activeApp=null"))
 
     def test_the_settings_gear_is_clock_only(self):
@@ -3450,7 +3451,7 @@ class NavigationModesContracts(unittest.TestCase):
         self.assertIn("rail.post(()->rail.scrollTo(dp(tab*item),0));", self.main)
 
     def test_hub_lists_apps_directly_rather_than_behind_a_picker(self):
-        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("private View navTile(")]
+        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildAppNav(){")]
         self.assertIn("for(SuiteApp app:availableApps())", hub)
         # Reading availableApps() is what lets a newly registered app appear with no edit here.
         self.assertNotIn("showAppPicker()", hub)
@@ -3459,9 +3460,10 @@ class NavigationModesContracts(unittest.TestCase):
 
     def test_drawer_and_hub_share_one_tile_implementation(self):
         # Two hand-rolled tile layouts would drift, and the same destination would read
-        # differently depending on which mode the user had chosen.
-        self.assertEqual(self.main.count("navTile("), 5)
-        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildDrawerNav(){")]
+        # differently depending on which mode the user had chosen. Seven: the definition, one
+        # call in hub, two in the drawer list, and two in the in-app bar.
+        self.assertEqual(self.main.count("navTile("), 7)
+        hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildAppNav(){")]
         drawer = self.main[self.main.index("private void showDrawer("):]
         self.assertIn("navTile(", hub)
         self.assertIn("navTile(", drawer[:drawer.index("\n    }\n")])
@@ -3489,3 +3491,86 @@ class NavigationModesContracts(unittest.TestCase):
             self.assertIn("visibleRoutes()", body, builder + " ignores hidden destinations")
         drawer = self.main[self.main.index("private void showDrawer("):]
         self.assertIn("visibleRoutes()", drawer[:1200])
+
+
+class InAppNavigationContracts(unittest.TestCase):
+    """Opening an app other than the clock must not leave the user stranded.
+
+    buildNav was gated on activeScreen==null, so while any of the fourteen other apps owned the
+    body there was no navigation at all. Reaching a second app meant tapping the wordmark back to
+    the clock and starting over: three taps, and the only control on screen was the one that
+    takes you home. With fifteen apps installed that is the difference between a suite and
+    fifteen dead ends, and it is invisible in every test that renders nothing.
+    """
+
+    def setUp(self):
+        self.main = java_code_only(read("MainActivity.java"))
+
+    def test_a_nav_bar_is_rendered_in_every_state(self):
+        self.assertIn("if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}", self.main)
+        self.assertEqual(self.main.count("void buildAppNav(){"), 1)
+        bar = self.main[self.main.index("void buildAppNav(){"):]
+        bar = bar[:bar.index("\n    }\n")]
+        self.assertIn("root.addView(bar,lp(-1,64));", bar, "the in-app bar is never added to the tree")
+
+    def test_the_in_app_bar_offers_home_and_the_switcher(self):
+        bar = self.main[self.main.index("void buildAppNav(){"):]
+        bar = bar[:bar.index("\n    }\n")]
+        self.assertIn('navTile("Clock",TicIconView.CLOCK,false)', bar)
+        self.assertIn('navTile("Apps",TicIconView.APPS,false)', bar)
+        self.assertIn("showAppPicker()", bar)
+        # Going home must clear the foreign screen and its owner, or the header keeps naming an
+        # app that is no longer on screen.
+        self.assertIn("activeScreen=null;activeApp=null;", bar)
+
+    def test_the_in_app_bar_does_not_offer_clock_destinations(self):
+        # They are routes into the clock. Offering them over another app would move the user
+        # into the clock without saying so -- the same wrong-context failure as the settings gear.
+        bar = self.main[self.main.index("void buildAppNav(){"):]
+        bar = bar[:bar.index("\n    }\n")]
+        self.assertNotIn("visibleRoutes()", bar)
+        self.assertNotIn("showRoute(route", bar)
+
+    def test_the_apps_switcher_does_not_use_the_settings_gear(self):
+        # A gear labelled "Apps" reads as settings. The switcher now has its own glyph.
+        self.assertIn("TicIconView appsIcon=new TicIconView(this,TicIconView.APPS,muted)", self.main)
+        view = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
+        self.assertRegex(view, r"\bAPPS=\d+")
+        self.assertIn("case APPS:", view)
+
+
+class FilesCanCreateContracts(unittest.TestCase):
+    """Files was a read-only browser over app-private storage, which is empty on a fresh install.
+
+    The summary, the list and the empty state all reported that accurately, and the result was
+    still an app that appeared to do nothing. Other apps write here only when they produce
+    something, so nothing exists until a recording or a scan is saved.
+    """
+
+    def setUp(self):
+        self.body = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+
+    def test_there_is_a_create_action(self):
+        self.assertIn('ui.pillButton("New text file"', self.body)
+        self.assertIn("promptNewFile(context, root, folder)", self.body)
+        self.assertIn("new FileOutputStream(target)", self.body)
+
+    def test_the_create_path_uses_the_same_guards_as_the_browser(self):
+        # The one place this screen writes must not become the one place it can escape the root.
+        self.assertIn("FileRules.isSafeName(wanted)", self.body)
+        self.assertIn("FileRules.isInside(folder)", self.body)
+        self.assertIn("target.exists()", self.body)
+
+    def test_the_stream_is_closed_on_every_path(self):
+        create = self.body[self.body.index("private void promptNewFile("):]
+        create = create[:create.index("    @Override public void onResume()")]
+        self.assertIn("} finally {", create)
+        self.assertIn("out.close();", create)
+
+    def test_the_empty_state_does_not_assume_another_app_is_installed(self):
+        # The suite is modular: a build may not contain the apps that would write here, so the
+        # copy offers them as a possibility rather than naming them as present.
+        self.assertIn("Nothing here yet. Create a text file below", self.body)
+        self.assertNotIn("This folder is empty.", self.body)
+        self.assertIn("appear here too", self.body)

@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.2.0** (versionCode 26) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.3.0** (versionCode 27) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -73,7 +73,7 @@ playable in-app. One hour cap. The recorder is released when the screen goes awa
 holds the microphone in the background.
 
 **Files** — a browser for the files this app owns, with sizes, kinds, folder navigation and
-breadcrumbs. Uses app-private storage rather than the Storage Access Framework, because
+breadcrumbs, plus creating and deleting text files. Uses app-private storage rather than the Storage Access Framework, because
 `useAndroidX=false` means `DocumentFile` is unavailable — so it needs **no permission at all**.
 Every navigation step is guarded, so `..` and absolute paths are refused and nothing can walk
 outside the root.
@@ -177,3 +177,9 @@ read the same visible-destination list.
 | **Drawer** | One bar naming where you are; a handle summons the full list. | Destinations are no longer one tap away |
 
 Rail is the default, so nothing changes for an existing install until you choose otherwise.
+
+**Inside another app** the bottom bar changes: it shows a Clock button to go home, the name of
+the app you are in, and an Apps button to switch directly. The clock's own destinations are not
+offered there, because they route into the clock — offering them over another app would move you
+there without saying so. Before this, opening any app other than the clock rendered no navigation
+at all, so switching apps meant going home first.

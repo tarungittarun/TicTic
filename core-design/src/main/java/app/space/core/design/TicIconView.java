@@ -33,8 +33,8 @@ public final class TicIconView extends View {
             // apart at a glance, which is the whole job of an icon.
             NOTES=10,HABITS=11,EXPENSES=12,CALENDAR=13,TASKS=14,WEATHER=15,RECORDER=16,
             FILES=17,DOCUMENTS=18,MESSAGES=19,MUSIC=20,SCANNER=21,EMAIL=22,
-            // Chrome, not an app: the drawer handle.
-            MENU=23;
+            // Chrome, not an app: the drawer handle, and the app switcher.
+            MENU=23,APPS=24;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;
     public TicIconView(Context c,int kind,int color){super(c);this.kind=kind;this.color=color;den=getResources().getDisplayMetrics().density;setContentDescription(kind==CLOCK?"Clock":kind==TIMER?"Timer":kind==STOPWATCH?"Stopwatch":kind==ROUTINE?"Routines":kind==ACTIVITY?"Usage":kind==SETTINGS?"Settings":kind==ALARM?"Alarm":kind==REMINDER?"Reminders":"World time");}
     private float d(float x){return x*den;}
@@ -64,6 +64,7 @@ public final class TicIconView extends View {
             case SCANNER: c.drawLine(3.6f,8.4f,3.6f,3.6f,p);c.drawLine(3.6f,3.6f,8.4f,3.6f,p);c.drawLine(15.6f,3.6f,20.4f,3.6f,p);c.drawLine(20.4f,3.6f,20.4f,8.4f,p);c.drawLine(20.4f,15.6f,20.4f,20.4f,p);c.drawLine(20.4f,20.4f,15.6f,20.4f,p);c.drawLine(8.4f,20.4f,3.6f,20.4f,p);c.drawLine(3.6f,20.4f,3.6f,15.6f,p);c.drawLine(5.6f,12,18.4f,12,p);break;
             case EMAIL: c.drawRoundRect(3,6,21,18,1.8f,1.8f,p);c.drawLine(3.6f,7,12,13.2f,p);c.drawLine(12,13.2f,20.4f,7,p);break;
             case MENU: c.drawLine(4,7,20,7,p);c.drawLine(4,12,20,12,p);c.drawLine(4,17,20,17,p);break;
+            case APPS: c.drawRoundRect(4,4,10.4f,10.4f,1.4f,1.4f,p);c.drawRoundRect(13.6f,4,20,10.4f,1.4f,1.4f,p);c.drawRoundRect(4,13.6f,10.4f,20,1.4f,1.4f,p);c.drawRoundRect(13.6f,13.6f,20,20,1.4f,1.4f,p);break;
             default: c.drawCircle(12,12,8,p);
         }c.restore();}
 }

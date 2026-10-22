@@ -5,12 +5,17 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.content.DialogInterface;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.space.core.design.AppAlertBuilder;
 import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
@@ -55,6 +60,7 @@ public final class FilesScreen implements Screen {
         List<FileRules.Entry> shown = FileRules.sorted(entries);
         long[] summary = FileRules.summarise(entries);
 
+        final String folder = relative;
         ui.sectionTitle(column, "Files",
                 summary[0] + (summary[0] == 1 ? " folder" : " folders") + "  \u00b7  "
                         + summary[1] + (summary[1] == 1 ? " file" : " files") + "  \u00b7  "
@@ -84,8 +90,19 @@ public final class FilesScreen implements Screen {
             });
         }
 
+        TextView create = ui.pillButton("New text file", ui.palette().accent, android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams createParams = ui.lp(-1, 46);
+        createParams.topMargin = ui.dp(10);
+        column.addView(create, createParams);
+        create.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { promptNewFile(context, root, folder); }
+        });
+
         if (shown.isEmpty()) {
-            TextView empty = ui.label("This folder is empty.", 13, ui.palette().muted, false);
+            // Worded without assuming any other app is installed: the suite is modular, so a
+            // build may not contain the apps that would write here.
+            TextView empty = ui.label("Nothing here yet. Create a text file below, and files "
+                    + "saved by other apps in this suite appear here too.", 13, ui.palette().muted, false);
             empty.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams ep = ui.lp(-1, 60);
             ep.topMargin = ui.dp(10);
@@ -137,6 +154,67 @@ public final class FilesScreen implements Screen {
             }
         }
         return scroll;
+    }
+
+    /**
+     * Creates a text file in the folder being browsed.
+     *
+     * <p>Without this the screen is a read-only browser over app-private storage, which on a
+     * fresh install is empty: the summary, the list and the empty state all report that
+     * accurately, and the result is still an app that appears to do nothing. Other apps write
+     * here only when they produce something, so nothing exists until a recording or a scan is
+     * saved -- and a tester reaching Files first would reasonably conclude it was broken.
+     *
+     * <p>Name and path go through the same rules the browser uses, so the one place this screen
+     * writes cannot be used to write outside the root.
+     */
+    private void promptNewFile(final Context context, final File root, final String folder) {
+        LinearLayout form = new LinearLayout(context);
+        form.setOrientation(LinearLayout.VERTICAL);
+        int pad = (int) (context.getResources().getDisplayMetrics().density * 20);
+        form.setPadding(pad, pad / 2, pad, 0);
+        final EditText name = new EditText(context);
+        name.setHint("name, e.g. notes.txt");
+        name.setSingleLine(true);
+        form.addView(name, new LinearLayout.LayoutParams(-1, -2));
+        final EditText body = new EditText(context);
+        body.setHint("contents (optional)");
+        body.setMinLines(3);
+        form.addView(body, new LinearLayout.LayoutParams(-1, -2));
+        new AppAlertBuilder(context).setTitle("New text file").setView(form)
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        String wanted = name.getText().toString().trim();
+                        if (!FileRules.isSafeName(wanted)) {
+                            host.toast("That name is not allowed.");
+                            return;
+                        }
+                        if (!FileRules.isInside(folder)) {
+                            host.toast("That folder is outside this app's files.");
+                            return;
+                        }
+                        File target = new File(folder.isEmpty() ? root : new File(root, folder), wanted);
+                        if (target.exists()) {
+                            host.toast("Something is already named " + wanted);
+                            return;
+                        }
+                        OutputStream out = null;
+                        try {
+                            out = new FileOutputStream(target);
+                            out.write(body.getText().toString().getBytes("UTF-8"));
+                        } catch (Exception e) {
+                            host.toast("Could not create the file: " + e.getClass().getSimpleName());
+                            return;
+                        } finally {
+                            if (out != null) {
+                                try { out.close(); } catch (Exception ignored) { }
+                            }
+                        }
+                        host.toast("Created " + wanted);
+                        host.invalidate();
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
     }
 
     @Override public void onResume() { }

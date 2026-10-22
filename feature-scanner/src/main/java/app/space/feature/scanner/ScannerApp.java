@@ -18,7 +18,7 @@ public final class ScannerApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Scanner"; }
     @Override public String tagline() { return "Turn picked images into a PDF document."; }
-    @Override public int iconGlyph() { return TicIconView.WORLD; }
+    @Override public int iconGlyph() { return TicIconView.SCANNER; }
     @Override public int defaultOrder() { return 140; }
     @Override public boolean supportsWidgets() { return false; }
 

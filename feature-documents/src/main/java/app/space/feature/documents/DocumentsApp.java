@@ -18,7 +18,7 @@ public final class DocumentsApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Documents"; }
     @Override public String tagline() { return "Write text documents and CSV spreadsheets."; }
-    @Override public int iconGlyph() { return TicIconView.ROUTINE; }
+    @Override public int iconGlyph() { return TicIconView.DOCUMENTS; }
     @Override public int defaultOrder() { return 110; }
     @Override public boolean supportsWidgets() { return false; }
 

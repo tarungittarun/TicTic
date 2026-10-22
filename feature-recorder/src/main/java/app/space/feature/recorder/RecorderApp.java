@@ -18,7 +18,7 @@ public final class RecorderApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Recorder"; }
     @Override public String tagline() { return "Voice recordings, stored on this device."; }
-    @Override public int iconGlyph() { return TicIconView.ACTIVITY; }
+    @Override public int iconGlyph() { return TicIconView.RECORDER; }
     @Override public int defaultOrder() { return 90; }
     @Override public boolean supportsWidgets() { return false; }
 

@@ -17,7 +17,7 @@ public final class NotesApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Notes"; }
     @Override public String tagline() { return "Notes and tasks, stored on this device."; }
-    @Override public int iconGlyph() { return TicIconView.WORLD; }
+    @Override public int iconGlyph() { return TicIconView.NOTES; }
     @Override public int defaultOrder() { return 30; }
     @Override public boolean supportsWidgets() { return false; }
 

@@ -17,7 +17,7 @@ public final class TasksApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Tasks"; }
     @Override public String tagline() { return "Checklists with due dates and priority."; }
-    @Override public int iconGlyph() { return TicIconView.REMINDER; }
+    @Override public int iconGlyph() { return TicIconView.TASKS; }
     @Override public int defaultOrder() { return 70; }
     @Override public boolean supportsWidgets() { return false; }
 

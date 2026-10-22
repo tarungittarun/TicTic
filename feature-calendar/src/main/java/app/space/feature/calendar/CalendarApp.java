@@ -17,7 +17,7 @@ public final class CalendarApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Calendar"; }
     @Override public String tagline() { return "Events and dates, kept on this device."; }
-    @Override public int iconGlyph() { return TicIconView.WORLD; }
+    @Override public int iconGlyph() { return TicIconView.CALENDAR; }
     @Override public int defaultOrder() { return 60; }
     @Override public boolean supportsWidgets() { return false; }
 

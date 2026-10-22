@@ -18,7 +18,7 @@ public final class FilesApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Files"; }
     @Override public String tagline() { return "Browse the files this app owns."; }
-    @Override public int iconGlyph() { return TicIconView.SETTINGS; }
+    @Override public int iconGlyph() { return TicIconView.FILES; }
     @Override public int defaultOrder() { return 100; }
     @Override public boolean supportsWidgets() { return false; }
 

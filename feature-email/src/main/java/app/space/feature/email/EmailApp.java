@@ -18,7 +18,7 @@ public final class EmailApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Email"; }
     @Override public String tagline() { return "Compose and archive mail; sending uses your own mail app."; }
-    @Override public int iconGlyph() { return TicIconView.ALARM; }
+    @Override public int iconGlyph() { return TicIconView.EMAIL; }
     @Override public int defaultOrder() { return 150; }
     @Override public boolean supportsWidgets() { return false; }
 

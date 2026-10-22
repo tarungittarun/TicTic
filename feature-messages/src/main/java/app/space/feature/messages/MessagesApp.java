@@ -18,7 +18,7 @@ public final class MessagesApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Messages"; }
     @Override public String tagline() { return "Text messages, sent and received on this phone."; }
-    @Override public int iconGlyph() { return TicIconView.REMINDER; }
+    @Override public int iconGlyph() { return TicIconView.MESSAGES; }
     @Override public int defaultOrder() { return 120; }
     @Override public boolean supportsWidgets() { return false; }
 

@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.0.0'", gradle)
-        self.assertIn("versionCode 24", gradle)
+        self.assertIn("versionName '3.1.0'", gradle)
+        self.assertIn("versionCode 25", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2515,7 +2515,7 @@ class SecondAppIntegrationContracts(unittest.TestCase):
         # A declined route returns false rather than throwing: under the control model an
         # app being absent and an app declining a route look the same to the caller.
         self.assertEqual(body.count("return false;"), 3)
-        self.assertIn("activeScreen=screen;settings=false;routeCache=null;render();return true;", body)
+        self.assertIn("activeScreen=screen;activeApp=app;settings=false;routeCache=null;render();return true;", body)
 
     def test_a_foreign_app_replaces_the_clock_screen_and_its_rail(self):
         # The clock's rail would otherwise stay on screen over another app's UI, and its
@@ -2526,7 +2526,7 @@ class SecondAppIntegrationContracts(unittest.TestCase):
     def test_there_is_always_a_way_back_to_the_clock(self):
         # The header wordmark is the escape hatch. Without it, opening the calculator would
         # be a one-way trip with no rail left to tap.
-        self.assertIn("View.OnClickListener home=v->{activeScreen=null;showRoute(\"clock\");", self.main)
+        self.assertIn("View.OnClickListener home=v->{activeScreen=null;activeApp=null;showRoute(\"clock\");", self.main)
         clock_branch = self.main.split("if(clockApp.id().equals(id)){")[1].split("}")[0]
         self.assertIn("activeScreen=null;", clock_branch)
 
@@ -3299,3 +3299,116 @@ class ApkPublishWorkflowContracts(unittest.TestCase):
         # greps whole-file text will eventually match its own documentation.
         live = "\n".join(l for l in self.yml.splitlines() if not l.strip().startswith("#"))
         self.assertNotIn("setup-android", live)
+
+
+class DistinctGlyphAndAppChromeContracts(unittest.TestCase):
+    """Every app gets its own icon, and the header identifies the app on screen.
+
+    Fifteen apps were sharing ten glyphs: Notes and Calendar both borrowed WORLD, Habits,
+    Expenses, Music and Recorder all borrowed ACTIVITY, and Email borrowed ALARM. The rail and
+    the picker were legible, but apps sharing a glyph were hard to tell apart at a glance --
+    which is the entire job of an icon.
+
+    The chrome defect was worse than cosmetic. Over a foreign app the header still showed the
+    clock's own route label, so it told the user they were in the clock while another app owned
+    the body beneath it.
+    """
+
+    def apps(self):
+        return sorted(p.parent.name for p in (ROOT).glob("feature-*/src/main/java/app/space/feature/*/*App.java"))
+
+    def glyph_of(self, mod):
+        for path in (ROOT / ("feature-" + mod)).rglob("*App.java"):
+            match = re.search(r"iconGlyph\(\)\s*\{?\s*return TicIconView\.([A-Z]+);",
+                              path.read_text())
+            if match:
+                return match.group(1)
+        return None
+
+    def test_no_two_apps_share_an_icon_glyph(self):
+        glyphs = {}
+        for mod in self.apps():
+            glyph = self.glyph_of(mod)
+            self.assertIsNotNone(glyph, "%s declares no glyph" % mod)
+            self.assertNotIn(glyph, glyphs, "%s and %s both use %s" % (mod, glyphs.get(glyph), glyph))
+            glyphs[glyph] = mod
+        self.assertEqual(len(self.apps()), len(glyphs))
+
+    def test_every_glyph_constant_is_declared_and_drawn(self):
+        view = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
+        for mod in self.apps():
+            glyph = self.glyph_of(mod)
+            if glyph == "CLOCK":
+                continue
+            self.assertRegex(view, r"\b%s=\d+" % glyph, "%s is not declared" % glyph)
+            # A declared constant with no case falls through to the default circle, so two
+            # apps would look identical again and nothing would report it.
+            self.assertIn("case %s:" % glyph, view, "%s has no drawing code" % glyph)
+
+    def test_the_header_names_the_app_that_owns_the_body(self):
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn("private SuiteApp activeApp;", main)
+        self.assertIn("activeApp=app", main)
+        self.assertIn("if(activeScreen!=null&&activeApp!=null){TextView sub=label("
+                      "activeApp.label().toUpperCase(Locale.ROOT),10,accent,true);", main)
+        # Cleared on every path that clears activeScreen, or a stale label would name an app
+        # that is no longer on screen.
+        self.assertEqual(main.count("activeApp=null"), 2)
+        # Every path that clears the screen clears the app too, or a stale label would name
+        # an app that is no longer on screen.
+        self.assertEqual(main.count("activeScreen=null"), main.count("activeApp=null"))
+
+    def test_the_settings_gear_is_clock_only(self):
+        # It opens clock settings, which do not describe a foreign app's screen.
+        main = java_code_only(read("MainActivity.java"))
+        self.assertIn("if(activeScreen==null){TicIconView gear=new TicIconView(this,"
+                      "TicIconView.SETTINGS,accent);", main)
+
+
+class AppsInventoryDocContracts(unittest.TestCase):
+    """APPS.md is the inventory handed to the owner for on-device testing.
+
+    It is generated from the source rather than typed, and these assertions hold it to that: a
+    hand-written inventory of fifteen apps drifts the first time an app is added, and a stale
+    inventory is worse than none because it is read as authoritative.
+    """
+
+    def setUp(self):
+        self.path = ROOT / "APPS.md"
+        self.assertTrue(self.path.exists(), "APPS.md is missing")
+        self.doc = self.path.read_text()
+
+    def registered(self):
+        main = java_code_only(read("MainActivity.java"))
+        registry = re.search(r"suiteApps\(\)\{return java\.util\.Arrays\.<SuiteApp>asList\(([^)]*)\)", main)
+        return [x.strip().replace("App", "") for x in registry.group(1).split(",")]
+
+    def test_every_registered_app_is_listed(self):
+        for app in self.registered():
+            self.assertIn("`%s`" % app, self.doc, "%s is registered but not documented" % app)
+
+    def test_the_documented_count_matches_the_registry(self):
+        match = re.search(r"\| (\d+) \| \*\*Email\*\*", self.doc)
+        self.assertIsNotNone(match, "the app table's last row is not Email")
+        self.assertEqual(len(self.registered()), int(match.group(1)))
+
+    def test_the_documented_version_matches_the_build(self):
+        gradle = (ROOT / "app/build.gradle").read_text()
+        version = re.search(r"versionName '([^']+)'", gradle).group(1)
+        code = re.search(r"versionCode (\d+)", gradle).group(1)
+        self.assertIn("version **%s** (versionCode %s)" % (version, code), self.doc)
+
+    def test_it_records_what_is_not_in_the_build_and_why(self):
+        # The gaps are owner-side obligations. Documenting them is what stops a partial app
+        # being read as a finished one.
+        for gap in ("Email — receiving", "Messages — Play distribution",
+                    "Music — commercial catalogue", "Scanner — live camera capture"):
+            self.assertIn(gap, self.doc)
+
+    def test_it_records_which_permissions_are_requested_and_when(self):
+        for permission in ("RECORD_AUDIO", "READ_SMS", "SEND_SMS", "INTERNET"):
+            self.assertIn(permission, self.doc)
+        # The promise the Settings page makes has to be written down where it can be checked.
+        self.assertIn("never at launch", self.doc)
+        for absent in ("location", "contacts", "camera", "calendar"):
+            self.assertIn(absent, self.doc)

@@ -26,7 +26,13 @@ import android.view.View;
  * every app in the suite inherits one icon language instead of importing packs.
  */
 public final class TicIconView extends View {
-    public static final int CLOCK=0,TIMER=1,STOPWATCH=2,ROUTINE=3,ACTIVITY=4,SETTINGS=5,ALARM=6,WORLD=7,REMINDER=8,CALCULATOR=9;
+    public static final int CLOCK=0,TIMER=1,STOPWATCH=2,ROUTINE=3,ACTIVITY=4,SETTINGS=5,ALARM=6,WORLD=7,REMINDER=8,CALCULATOR=9,
+            // One glyph per app. Notes and Calendar shared WORLD, Habits, Expenses
+            // and Music shared ACTIVITY, and Email borrowed ALARM: the rail and the
+            // app picker were legible but apps that shared a glyph were hard to tell
+            // apart at a glance, which is the whole job of an icon.
+            NOTES=10,HABITS=11,EXPENSES=12,CALENDAR=13,TASKS=14,WEATHER=15,RECORDER=16,
+            FILES=17,DOCUMENTS=18,MESSAGES=19,MUSIC=20,SCANNER=21,EMAIL=22;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;
     public TicIconView(Context c,int kind,int color){super(c);this.kind=kind;this.color=color;den=getResources().getDisplayMetrics().density;setContentDescription(kind==CLOCK?"Clock":kind==TIMER?"Timer":kind==STOPWATCH?"Stopwatch":kind==ROUTINE?"Routines":kind==ACTIVITY?"Usage":kind==SETTINGS?"Settings":kind==ALARM?"Alarm":kind==REMINDER?"Reminders":"World time");}
     private float d(float x){return x*den;}
@@ -42,6 +48,19 @@ public final class TicIconView extends View {
             case CALCULATOR: c.drawRoundRect(5,3,19,21,2,2,p);c.drawLine(7.5f,7.6f,16.5f,7.6f,p);c.drawCircle(9,12,1.05f,p);c.drawCircle(12,12,1.05f,p);c.drawCircle(15,12,1.05f,p);c.drawCircle(9,16.2f,1.05f,p);c.drawCircle(12,16.2f,1.05f,p);c.drawCircle(15,16.2f,1.05f,p);break;
             case WORLD: c.drawCircle(12,12,9,p);c.drawOval(8,3,16,21,p);c.drawLine(3,12,21,12,p);c.drawArc(4,6,20,18,0,180,false,p);c.drawArc(4,6,20,18,180,180,false,p);break;
             case REMINDER: Path bell=new Path();bell.moveTo(5,17);bell.lineTo(7,15);bell.lineTo(7,10);c.drawArc(7,4,17,16,180,180,false,p);bell.lineTo(17,15);bell.lineTo(19,17);bell.close();c.drawPath(bell,p);c.drawLine(9,17,15,17,p);c.drawArc(9,16,15,21,0,180,false,p);break;
+            case NOTES: c.drawRoundRect(5.5f,3,18.5f,21,1.6f,1.6f,p);c.drawLine(8,8,16,8,p);c.drawLine(8,11.5f,16,11.5f,p);c.drawLine(8,15,13,15,p);break;
+            case HABITS: c.drawArc(4,4,20,20,120,300,false,p);c.drawLine(8.6f,12.2f,11.2f,14.8f,p);c.drawLine(11.2f,14.8f,16,9.4f,p);break;
+            case EXPENSES: c.drawCircle(12,12,8.8f,p);c.drawLine(9.2f,8.2f,14.8f,8.2f,p);c.drawLine(9.2f,10.8f,14.8f,10.8f,p);c.drawLine(11.4f,8.2f,11.4f,12.6f,p);c.drawLine(11.4f,12.6f,15,16.2f,p);break;
+            case CALENDAR: c.drawRoundRect(3.6f,5,20.4f,20,1.8f,1.8f,p);c.drawLine(3.6f,9.4f,20.4f,9.4f,p);c.drawLine(8,3.4f,8,6.6f,p);c.drawLine(16,3.4f,16,6.6f,p);c.drawCircle(8.4f,13.4f,.9f,p);c.drawCircle(12,13.4f,.9f,p);c.drawCircle(15.6f,13.4f,.9f,p);c.drawCircle(8.4f,17,.9f,p);c.drawCircle(12,17,.9f,p);break;
+            case TASKS: c.drawRect(4,4.6f,8.4f,9,p);c.drawLine(5,6.8f,6.2f,8,p);c.drawLine(6.2f,8,8.8f,5.2f,p);c.drawLine(11,6.8f,20,6.8f,p);c.drawRect(4,14.4f,8.4f,18.8f,p);c.drawLine(11,16.6f,20,16.6f,p);break;
+            case WEATHER: c.drawCircle(9,8.6f,3.4f,p);c.drawLine(9,2.6f,9,4,p);c.drawLine(3.4f,8.6f,4.8f,8.6f,p);c.drawLine(4.6f,4.2f,5.6f,5.2f,p);c.drawArc(8,12,20,21,180,180,false,p);c.drawLine(8.6f,20.4f,19.4f,20.4f,p);break;
+            case RECORDER: c.drawRoundRect(9.4f,2.6f,14.6f,12.4f,2.6f,2.6f,p);c.drawArc(6.4f,8,17.6f,17,0,180,false,p);c.drawLine(12,17,12,20.4f,p);c.drawLine(8.6f,20.4f,15.4f,20.4f,p);break;
+            case FILES: Path dir=new Path();dir.moveTo(3.4f,19.4f);dir.lineTo(3.4f,5.4f);dir.lineTo(9.2f,5.4f);dir.lineTo(11,7.8f);dir.lineTo(20.6f,7.8f);dir.lineTo(20.6f,19.4f);dir.close();c.drawPath(dir,p);c.drawLine(3.4f,10.2f,20.6f,10.2f,p);break;
+            case DOCUMENTS: c.drawRoundRect(5,3,19,21,1.6f,1.6f,p);c.drawLine(5,9,19,9,p);c.drawLine(5,15,19,15,p);c.drawLine(10.4f,9,10.4f,21,p);c.drawLine(15,9,15,21,p);break;
+            case MESSAGES: Path bubble=new Path();bubble.moveTo(3.4f,6.6f);bubble.lineTo(20.6f,6.6f);bubble.lineTo(20.6f,16.2f);bubble.lineTo(11.4f,16.2f);bubble.lineTo(7.4f,20.2f);bubble.lineTo(7.4f,16.2f);bubble.lineTo(3.4f,16.2f);bubble.close();c.drawPath(bubble,p);c.drawLine(7,10,17,10,p);c.drawLine(7,13,14,13,p);break;
+            case MUSIC: c.drawOval(4,15.4f,9.4f,19.6f,p);c.drawOval(14,13.4f,19.4f,17.6f,p);c.drawLine(9.4f,17.4f,9.4f,5.4f,p);c.drawLine(19.4f,15.4f,19.4f,3.4f,p);c.drawLine(9.4f,5.4f,19.4f,3.4f,p);break;
+            case SCANNER: c.drawLine(3.6f,8.4f,3.6f,3.6f,p);c.drawLine(3.6f,3.6f,8.4f,3.6f,p);c.drawLine(15.6f,3.6f,20.4f,3.6f,p);c.drawLine(20.4f,3.6f,20.4f,8.4f,p);c.drawLine(20.4f,15.6f,20.4f,20.4f,p);c.drawLine(20.4f,20.4f,15.6f,20.4f,p);c.drawLine(8.4f,20.4f,3.6f,20.4f,p);c.drawLine(3.6f,20.4f,3.6f,15.6f,p);c.drawLine(5.6f,12,18.4f,12,p);break;
+            case EMAIL: c.drawRoundRect(3,6,21,18,1.8f,1.8f,p);c.drawLine(3.6f,7,12,13.2f,p);c.drawLine(12,13.2f,20.4f,7,p);break;
             default: c.drawCircle(12,12,8,p);
         }c.restore();}
 }

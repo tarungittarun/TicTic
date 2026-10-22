@@ -105,6 +105,8 @@ private String aboutText(){
 private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(clockApp,calculatorApp,notesApp,habitsApp,expensesApp,calendarApp,tasksApp,weatherApp,recorderApp,filesApp,documentsApp,messagesApp,musicApp,scannerApp,emailApp);}
     /** Non-null while an app other than the clock owns the screen. */
     private Screen activeScreen;
+    // The app that owns activeScreen, so the header can say whose screen is showing.
+    private SuiteApp activeApp;
     /** Non-null only while the Stopwatch tab is on screen; owns its own ticker. */
     private StopwatchScreen stopwatchScreen;
     /** Lazily built so the primitives are usable before applyPalette() has run. */
@@ -155,7 +157,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     @Override public boolean openApp(String id,String route){
         if(!isAppAvailable(id))return false;
         if(clockApp.id().equals(id)){
-            activeScreen=null;
+            activeScreen=null;activeApp=null;
             Intent i=new Intent(this,MainActivity.class);
             if(route!=null)i.putExtra("tab",route);
             applyRoute(i);settings=false;render();return true;
@@ -166,7 +168,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         // A null screen means the app declined the route, which is an ordinary outcome
         // under the control model, not an error to throw at the caller.
         if(screen==null)return false;
-        activeScreen=screen;settings=false;routeCache=null;render();return true;
+        activeScreen=screen;activeApp=app;settings=false;routeCache=null;render();return true;
     }
     @Override public void openSettings(){openSettingsPage();}
     /** Group ids are not mapped until the settings surface moves in step 1h-v. */
@@ -202,7 +204,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         // First use of :shell from :app. Navigation state is remembered here rather than
         // in each tab's click handler, so every path that changes the visible screen --
         // rail taps, widget deep links, settings exits -- is covered by one line.
-        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("MySpace",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{activeScreen=null;showRoute("clock");settings=false;render();};brand.setContentDescription("MySpace home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());
+        if(!settings&&tab>=0&&tab<TAB_ROUTES.length)NavPrefs.setLastApp(this,TAB_ROUTES[tab]);if(settings){if(settingsScrollView!=null)settingsScrollY=settingsScrollView.getScrollY();renderSettingsPage();handler.removeCallbacks(ticker);handler.post(ticker);return;}applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;root=vbox();root.setClipChildren(false);root.setBackground(pageBackground());setContentView(root);header=hbox();header.setPadding(dp(20),dp(9),dp(16),dp(8));root.addView(header,lp(-1,62));ImageView brand=new ImageView(this);brand.setImageResource(R.drawable.ic_brand);LinearLayout.LayoutParams bp=lp(40,40);bp.rightMargin=dp(10);header.addView(brand,bp);TextView logo=label("MySpace",23,text,true);header.addView(logo,new LinearLayout.LayoutParams(0,dp(44),1));View.OnClickListener home=v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();};brand.setContentDescription("MySpace home");brand.setOnClickListener(home);logo.setOnClickListener(home);if(activeScreen!=null&&activeApp!=null){TextView sub=label(activeApp.label().toUpperCase(Locale.ROOT),10,accent,true);sub.setLetterSpacing(.13f);header.addView(sub);}else if(!routeIs("clock")){TextView sub=label(labelFor(currentRoute()).toUpperCase(Locale.ROOT),10,muted,true);sub.setLetterSpacing(.13f);header.addView(sub);}if(activeScreen==null){TicIconView gear=new TicIconView(this,TicIconView.SETTINGS,accent);LinearLayout.LayoutParams gp=lp(44,44);gp.leftMargin=dp(10);header.addView(gear,gp);gear.setOnClickListener(v->openSettingsPage());}
         ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else if(activeScreen!=null){body.addView(activeScreen.build(this));}else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
         if(!settings&&activeScreen==null)buildNav();GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }

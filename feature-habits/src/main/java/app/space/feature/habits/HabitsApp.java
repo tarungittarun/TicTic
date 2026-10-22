@@ -17,7 +17,7 @@ public final class HabitsApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Habits"; }
     @Override public String tagline() { return "Daily habits, streaks and weekly rate."; }
-    @Override public int iconGlyph() { return TicIconView.ACTIVITY; }
+    @Override public int iconGlyph() { return TicIconView.HABITS; }
     @Override public int defaultOrder() { return 40; }
     @Override public boolean supportsWidgets() { return false; }
 

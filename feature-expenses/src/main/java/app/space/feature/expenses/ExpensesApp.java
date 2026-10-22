@@ -17,7 +17,7 @@ public final class ExpensesApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Expenses"; }
     @Override public String tagline() { return "Track spending by category, on device."; }
-    @Override public int iconGlyph() { return TicIconView.ACTIVITY; }
+    @Override public int iconGlyph() { return TicIconView.EXPENSES; }
     @Override public int defaultOrder() { return 50; }
     @Override public boolean supportsWidgets() { return false; }
 

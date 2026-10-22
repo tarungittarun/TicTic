@@ -18,7 +18,7 @@ public final class MusicApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Music"; }
     @Override public String tagline() { return "Play files you own and streams you add yourself."; }
-    @Override public int iconGlyph() { return TicIconView.ACTIVITY; }
+    @Override public int iconGlyph() { return TicIconView.MUSIC; }
     @Override public int defaultOrder() { return 130; }
     @Override public boolean supportsWidgets() { return false; }
 

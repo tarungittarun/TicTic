@@ -18,7 +18,7 @@ public final class WeatherApp implements SuiteApp {
     @Override public String id() { return ID; }
     @Override public String label() { return "Weather"; }
     @Override public String tagline() { return "Forecasts from Open-Meteo for a city you type."; }
-    @Override public int iconGlyph() { return TicIconView.WORLD; }
+    @Override public int iconGlyph() { return TicIconView.WEATHER; }
     @Override public int defaultOrder() { return 80; }
     @Override public boolean supportsWidgets() { return false; }
 

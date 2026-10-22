@@ -3245,26 +3245,35 @@ class DeviceTestReadinessContracts(unittest.TestCase):
 class ApkPublishWorkflowContracts(unittest.TestCase):
     """The owner tests on a real device, so an installable APK has to be reachable.
 
-    Workflow artifacts are only downloadable from the Actions UI and they expire. This
-    repository already keeps installable debug builds in artifacts/ with a SHA-256 sidecar and
-    an index, so the publish workflow follows that convention rather than inventing one.
+    Workflow artifacts are only downloadable from the Actions UI and they expire, and they
+    cannot be fetched from the review sandbox at all. This repository already keeps installable
+    debug builds in artifacts/ with a SHA-256 sidecar and an index, so publishing follows that
+    convention rather than inventing one.
+
+    Publishing lives in the push-triggered Android CI workflow, not in a workflow_dispatch one:
+    GitHub only exposes workflow_dispatch for files present on the DEFAULT branch, and this
+    work happens on a branch that is never merged, so a dispatch-only workflow could be written
+    and committed and still be impossible to run. That was built once before being discovered.
     """
 
     def setUp(self):
-        self.path = ROOT / ".github/workflows/publish-apk.yml"
-        self.assertTrue(self.path.exists(), "publish-apk.yml is missing")
+        self.path = ROOT / ".github/workflows/android-ci.yml"
+        self.assertTrue(self.path.exists(), "android-ci.yml is missing")
         self.yml = self.path.read_text()
+        self.assertFalse((ROOT / ".github/workflows/publish-apk.yml").exists(),
+                         "a dispatch-only workflow cannot be triggered from this branch")
 
     def test_it_can_push_to_the_branch(self):
         self.assertIn("contents: write", self.yml)
         self.assertIn("fetch-depth: 0", self.yml)
 
-    def test_it_is_manual_so_a_build_output_does_not_retrigger_ci(self):
-        self.assertIn("workflow_dispatch:", self.yml)
-        # An APK differs byte-for-byte between builds with no source change, so committing it
-        # automatically would produce a commit per run.
-        self.assertNotIn("on:\n  push:", self.yml)
+    def test_it_does_not_commit_on_every_run(self):
+        # An APK differs byte-for-byte between builds with no source change, so publishing
+        # unconditionally would add a commit per run. The guard is the version-and-code
+        # filename already being present.
+        self.assertIn('if [ -f "artifacts/$NAME" ]; then', self.yml)
         self.assertIn("[skip ci]", self.yml)
+        self.assertIn("if git diff --cached --quiet; then", self.yml)
 
     def test_it_follows_the_existing_artifacts_convention(self):
         self.assertIn("artifacts/", self.yml)

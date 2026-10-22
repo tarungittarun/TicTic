@@ -91,10 +91,14 @@ public class ScannerRulesTest {
         assertEquals(Arrays.asList("b", "a", "c"), ids(ScannerRules.moved(pages, 0, 1)));
         assertEquals(Arrays.asList("a", "c", "b"), ids(ScannerRules.moved(pages, 1, 2)));
         assertEquals(Arrays.asList("c", "a", "b"), ids(ScannerRules.moved(pages, 2, 0)));
-        // Out-of-range steps clamp instead of throwing, because the move buttons are at the
-        // ends of a list whose length changes as pages are removed.
-        assertEquals(ids(pages), ids(ScannerRules.moved(pages, 0, 99)));
-        assertEquals(ids(pages), ids(ScannerRules.moved(pages, 5, 0)));
+        // Out-of-range steps clamp to the nearest valid position and still perform the move,
+        // rather than throwing or doing nothing. That matters because the move buttons sit at
+        // the ends of a list whose length changes as pages are removed, so a click can arrive
+        // with an index that was valid a moment ago. Asserting identity here was wrong: a
+        // clamped move to the end is a move to the end, not a no-op.
+        assertEquals(Arrays.asList("b", "c", "a"), ids(ScannerRules.moved(pages, 0, 99)));
+        assertEquals(Arrays.asList("c", "a", "b"), ids(ScannerRules.moved(pages, 5, 0)));
+        // A move onto itself is the one genuine no-op.
         assertEquals(ids(pages), ids(ScannerRules.moved(pages, 1, 1)));
         assertTrue(ScannerRules.moved(null, 0, 1).isEmpty());
     }

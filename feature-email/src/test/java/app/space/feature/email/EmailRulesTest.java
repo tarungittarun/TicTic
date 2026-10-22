@@ -114,6 +114,13 @@ public class EmailRulesTest {
         assertFalse(uri, uri.contains("&B"));
         String multi = EmailRules.mailtoUri(Arrays.asList("a@b.com", "c@d.com"), "s", "b");
         assertTrue(multi, multi.startsWith("mailto:a@b.com,c@d.com?"));
+        // The at-sign must survive. Escaping it to %40 is permitted by RFC 6068 but a lot of
+        // mail apps will not resolve it, and the failure surfaces as "no app can open this"
+        // with nothing to indicate the address was the cause.
+        assertFalse(uri, uri.contains("%40"));
+        assertTrue(uri, uri.contains("jane@example.com"));
+        // A space in a pasted address is still escaped rather than breaking the URI.
+        assertTrue(EmailRules.mailtoUri(Arrays.asList("ja ne@b.com"), "", "").contains("%20"));
     }
 
     @Test public void foldersSeparateAndUnreadCountsOnlyTheGivenFolder() {

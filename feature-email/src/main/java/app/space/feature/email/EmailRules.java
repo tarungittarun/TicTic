@@ -249,11 +249,34 @@ public final class EmailRules {
         if (recipients != null) {
             for (int i = 0; i < recipients.size(); i++) {
                 if (i > 0) out.append(',');
-                out.append(encode(addressOf(recipients.get(i))));
+                out.append(encodeAddress(addressOf(recipients.get(i))));
             }
         }
         out.append("?subject=").append(encode(subject == null ? "" : subject));
         out.append("&body=").append(encode(body == null ? "" : body));
+        return out.toString();
+    }
+
+    /**
+     * Percent-encodes an address while leaving addr-spec characters intact.
+     *
+     * <p>{@link #encode} would turn the at-sign into {@code %40}, producing
+     * {@code mailto:jane%40example.com}. RFC 6068 permits that, but plenty of mail apps do
+     * not resolve it, and the failure is a "no app can open this" dialog with no hint that
+     * the address was the problem. Only characters that cannot appear in an address are
+     * escaped; the subject and body still go through the full encoder, where an ampersand or
+     * a newline really would truncate the URI.
+     */
+    static String encodeAddress(String value) {
+        if (value == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            boolean safe = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                    || c == '@' || c == '.' || c == '_' || c == '-' || c == '+';
+            if (safe) out.append(c);
+            else out.append(encode(String.valueOf(c)));
+        }
         return out.toString();
     }
 

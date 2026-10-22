@@ -3050,6 +3050,10 @@ class FinalFourAppsContracts(unittest.TestCase):
         # the message.
         self.assertIn("URLEncoder.encode(value, \"UTF-8\")", rules)
         self.assertIn('.replace("+", "%20")', rules)
+        # The address goes through a lighter encoder: full encoding turns the at-sign into
+        # %40, which many mail apps will not resolve.
+        self.assertIn("encodeAddress(addressOf(recipients.get(i)))", rules)
+        self.assertIn("c == '@'", rules)
         # A comma inside a display name must not split the recipient.
         self.assertIn("if (c == ',' && !inQuotes && !inAngle)", rules)
 

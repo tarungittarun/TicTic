@@ -33,4 +33,10 @@ dependencies {
     // handing private files to other apps. Pinned to 1.12.0, the last line that is happy on
     // AGP 7.4. SharedPreferences and Resources.Configuration stay framework APIs.
     implementation 'androidx.core:core:1.12.0'
+
+    // Sprint 4: Room is the in-app store of record for the collection data. api, not
+    // implementation, because the stores in feature modules touch the entities directly.
+    // 2.5.2 is the line that is happy on AGP 7.4 with Java 8 sources.
+    api 'androidx.room:room-runtime:2.5.2'
+    annotationProcessor 'androidx.room:room-compiler:2.5.2'
 }

@@ -779,6 +779,9 @@ public final class FilesScreen implements Screen {
                 host.toast("The import failed: " + result.failure);
                 return;
             }
+            // The restored prefs describe another install's data; the database describing
+            // this one goes with them, and repopulates from the restored mirror on restart.
+            app.space.core.data.db.RoomBridge.resetAfterRestore(context);
             host.toast("Imported " + app.space.core.data.DataExportRules.summary(
                     result.prefsCount, result.filesCount, result.bytes) + ". Restarting\u2026");
             android.content.Intent restart = context.getPackageManager()

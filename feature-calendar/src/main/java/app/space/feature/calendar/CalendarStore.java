@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.space.core.data.AppPrefs;
+import app.space.core.data.db.EventEntity;
+import app.space.core.data.db.MySpaceDatabase;
+import app.space.core.data.db.RoomBridge;
 
 /**
  * Persistence as one JSON array under a stable key.
@@ -26,26 +29,32 @@ public final class CalendarStore {
     private CalendarStore() {}
 
 public static List<CalendarRules.Event> load(Context c) {
+        RoomBridge.ensurePopulated(c);
+        List<EventEntity> rows = MySpaceDatabase.get(c).eventDao().selectAll();
         List<CalendarRules.Event> out = new ArrayList<>();
-        try {
-            JSONArray a = new JSONArray(AppPrefs.prefs(c).getString(KEY, "[]"));
-            for (int i = 0; i < a.length(); i++) {
-                JSONObject o = a.getJSONObject(i);
-                out.add(new CalendarRules.Event(o.optString("id"), o.optString("title"),
-                        o.optString("notes"), o.has("when") ? o.optLong("when") : CalendarRules.NO_TIME,
-                        o.optInt("reminderMinutes", -1)));
-            }
-        } catch (Exception e) {
-            return new ArrayList<>();
+        for (EventEntity e : rows) {
+            out.add(new CalendarRules.Event(e.id, e.title, e.notes, e.whenMs,
+                    e.reminderMinutes));
         }
         if (out.size() > CAP) return new ArrayList<>(out.subList(out.size() - CAP, out.size()));
         return out;
     }
 
     public static void save(Context c, List<CalendarRules.Event> events) {
+        List<CalendarRules.Event> capped = events;
+        if (capped.size() > CAP) capped = new ArrayList<>(capped.subList(capped.size() - CAP, capped.size()));
+        RoomBridge.ensurePopulated(c);
+        List<EventEntity> rows = new ArrayList<>();
         JSONArray a = new JSONArray();
         try {
-            for (CalendarRules.Event e : events) {
+            for (CalendarRules.Event e : capped) {
+                EventEntity row = new EventEntity();
+                row.id = e.id;
+                row.title = e.title;
+                row.notes = e.notes;
+                row.whenMs = e.when;
+                row.reminderMinutes = e.reminderMinutes;
+                rows.add(row);
                 a.put(new JSONObject().put("id", e.id).put("title", e.title)
                         .put("notes", e.notes).put("when", e.when)
                         .put("reminderMinutes", e.reminderMinutes));
@@ -53,6 +62,9 @@ public static List<CalendarRules.Event> load(Context c) {
         } catch (Exception e) {
             return;
         }
+        MySpaceDatabase db = MySpaceDatabase.get(c);
+        db.eventDao().deleteAll();
+        db.eventDao().insertAll(rows);
         AppPrefs.prefs(c).edit().putString(KEY, a.toString()).apply();
     }
 

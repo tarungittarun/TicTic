@@ -3982,6 +3982,59 @@ class MusicLibraryContracts(unittest.TestCase):
         self.assertIn("MusicRules.librarySubtitle(track)", self.screen)
 
 
+class RoomAdoptionContracts(unittest.TestCase):
+    """Sprint 4's plan line: "Room replaces the prefs-backed stores." What that means here,
+    pinned so it cannot drift: Room is the in-app store of record for notes and calendar
+    events, the prefs JSON stays as the mirror the export bundle and lite builds depend on,
+    population is keyed on emptiness rather than a flag a restore could forge, and a restore
+    deletes the database so the mirror becomes the truth again.
+    """
+
+    def setUp(self):
+        base = ROOT / "core-data/src/main/java/app/space/core/data/db"
+        self.database = java_code_only((base / "MySpaceDatabase.java").read_text())
+        self.bridge = java_code_only((base / "RoomBridge.java").read_text())
+        self.notes = java_code_only(
+            (ROOT / "feature-notes/src/main/java/app/space/feature/notes/NotesStore.java").read_text())
+        self.calendar = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarStore.java").read_text())
+        self.gradle = (ROOT / "core-data/build.gradle").read_text()
+
+    def test_one_database_two_tables_and_a_documented_main_thread_choice(self):
+        self.assertIn("@Database(entities = {NoteEntity.class, EventEntity.class}, version = 1, exportSchema = false)", self.database)
+        self.assertIn(".allowMainThreadQueries()", self.database)
+        # The choice is deliberate and the comment is the reason it may be revisited.
+        self.assertIn("allowMainThreadQueries is deliberate",
+                      (ROOT / "core-data/src/main/java/app/space/core/data/db/MySpaceDatabase.java").read_text())
+        self.assertIn("api 'androidx.room:room-runtime:2.5.2'", self.gradle)
+        self.assertIn("annotationProcessor 'androidx.room:room-compiler:2.5.2'", self.gradle)
+
+    def test_the_stores_read_room_and_write_the_mirror_too(self):
+        self.assertIn("RoomBridge.ensurePopulated(c);", self.notes)
+        self.assertIn("MySpaceDatabase.get(c).noteDao().selectAll();", self.notes)
+        self.assertIn("db.noteDao().deleteAll();", self.notes)
+        self.assertIn("AppPrefs.prefs(c).edit().putString(KEY, a.toString()).apply();", self.notes)
+        self.assertIn("RoomBridge.ensurePopulated(c);", self.calendar)
+        self.assertIn("MySpaceDatabase.get(c).eventDao().selectAll();", self.calendar)
+        self.assertIn("AppPrefs.prefs(c).edit().putString(KEY, a.toString()).apply();", self.calendar)
+
+    def test_population_is_keyed_on_emptiness_because_a_flag_cannot_survive_a_restore(self):
+        self.assertIn("if (db.noteDao().countAll() == 0) populateNotes(context, db);", self.bridge)
+        self.assertIn("if (db.eventDao().countAll() == 0) populateEvents(context, db);", self.bridge)
+        self.assertNotIn("room_migrated", self.bridge)
+        # The bridge and the stores must read the same mirror keys, or migration reads air.
+        self.assertIn('"notes_items"', self.bridge)
+        self.assertIn('"calendar_items"', self.bridge)
+
+    def test_a_restore_deletes_the_database_and_the_next_load_rebuilds_it(self):
+        self.assertIn("public static void resetAfterRestore(Context context)", self.bridge)
+        self.assertIn("MySpaceDatabase.shutdown();", self.bridge)
+        self.assertIn('"myspace.db", "myspace.db-wal", "myspace.db-shm"', self.bridge)
+        screen = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+        self.assertIn("RoomBridge.resetAfterRestore(context);", screen)
+
+
 class DataBackupContracts(unittest.TestCase):
     """The Sprint 4 acceptance line: "a full data round-trip through export/import on a fresh
     install." The map is total -- every prefs XML, every file under getFilesDir() -- and import

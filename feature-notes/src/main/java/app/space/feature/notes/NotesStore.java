@@ -9,13 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.space.core.data.AppPrefs;
+import app.space.core.data.db.MySpaceDatabase;
+import app.space.core.data.db.NoteEntity;
+import app.space.core.data.db.RoomBridge;
 
 /**
- * Notes persistence. One JSON array in the shared preference store.
+ * Notes persistence: Room is the store of record in-app; one JSON array in the shared
+ * preference store stays as the mirror.
  *
- * <p>Data outlives the module (SUITE-PLAN.md §3.4): the key is stable and the rows are
- * plain JSON, so notes survive the module being excluded from a {@code lite} build and are
- * readable by the export/import bundle.
+ * <p>The mirror is not legacy -- it is the exchange format. It is what the export/import
+ * bundle carries, what a {@code lite} build without this module can still hold, and what
+ * RoomBridge repopulates the database from after a restore. Data outlives the module
+ * (SUITE-PLAN.md §3.4) because the mirror does.
  */
 public final class NotesStore {
 
@@ -25,26 +30,32 @@ public final class NotesStore {
     private NotesStore() {}
 
     public static List<NotesRules.Note> load(Context c) {
+        RoomBridge.ensurePopulated(c);
+        List<NoteEntity> rows = MySpaceDatabase.get(c).noteDao().selectAll();
         List<NotesRules.Note> out = new ArrayList<>();
-        try {
-            JSONArray a = new JSONArray(AppPrefs.prefs(c).getString(KEY, "[]"));
-            for (int i = 0; i < a.length(); i++) {
-                JSONObject o = a.getJSONObject(i);
-                out.add(new NotesRules.Note(
-                        o.optString("id"), o.optString("title"), o.optString("body"), o.optLong("updatedAt"),
-                        o.optInt("color", 0), o.optBoolean("pinned", false), o.optBoolean("archived", false)));
-            }
-        } catch (Exception e) {
-            // Corrupt or absent data reads as an empty list rather than crashing the screen.
-            return new ArrayList<>();
+        for (NoteEntity e : rows) {
+            out.add(new NotesRules.Note(e.id, e.title, e.body, e.updatedAt,
+                    e.color, e.pinned, e.archived));
         }
         return NotesRules.capped(out, CAP);
     }
 
     public static void save(Context c, List<NotesRules.Note> notes) {
+        List<NotesRules.Note> capped = NotesRules.capped(notes, CAP);
+        RoomBridge.ensurePopulated(c);
+        List<NoteEntity> rows = new ArrayList<>();
         JSONArray a = new JSONArray();
         try {
-            for (NotesRules.Note n : NotesRules.capped(notes, CAP)) {
+            for (NotesRules.Note n : capped) {
+                NoteEntity e = new NoteEntity();
+                e.id = n.id;
+                e.title = n.title;
+                e.body = n.body;
+                e.updatedAt = n.updatedAt;
+                e.color = n.color;
+                e.pinned = n.pinned;
+                e.archived = n.archived;
+                rows.add(e);
                 a.put(new JSONObject().put("id", n.id).put("title", n.title)
                         .put("body", n.body).put("updatedAt", n.updatedAt)
                         .put("color", n.color).put("pinned", n.pinned).put("archived", n.archived));
@@ -52,6 +63,9 @@ public final class NotesStore {
         } catch (Exception e) {
             return;
         }
+        MySpaceDatabase db = MySpaceDatabase.get(c);
+        db.noteDao().deleteAll();
+        db.noteDao().insertAll(rows);
         AppPrefs.prefs(c).edit().putString(KEY, a.toString()).apply();
     }
 

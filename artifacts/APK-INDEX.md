@@ -27,5 +27,6 @@ from an expiring Actions artifact.
 | 3.8.0 (build 32) | [Download APK](MySpace-v3.8.0-32-lite-dist.apk) | 767951 bytes | `2acefffc3e3770dc7e28ec4f7cd340453d81c28791686c6f0fb93c1d3586dab1` |
 | 3.9.0 (build 33) | [Download APK](MySpace-v3.9.0-33-lite-dist.apk) | 776483 bytes | `44b9536f85706c079a19784903204863610fff4976827988c1b337b9cd200fc8` |
 | 3.10.0 (build 34) | [Download APK](MySpace-v3.10.0-34-lite-dist.apk) | 791143 bytes | `26791ec883189a042d70d020e03a71dbd978956d3a29f00c1d218f24b57fbf2d` |
+| 3.11.0 (build 35) | [Download APK](MySpace-v3.11.0-35-lite-dist.apk) | 2059932 bytes | `5e23c53c4fafb39ee295089f4e8ca7bbdef7d70ecfc5775659bdd859dda5f675` |
 
 Retained versions: 1.9.9, 1.10.0, 1.11.0, 1.11.1 and 1.11.2. The v1.11.2 build contains the responsive Settings/Alarm Defaults/Widget Studio update, five glass presets and five selectable touch-feedback styles. Runtime/device QA for v1.11.2 remains NOT RUN.

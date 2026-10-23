@@ -42,6 +42,10 @@ public final class FilesScreen implements Screen {
     private String relative = "";
     // Editor state. It lives in the screen object, not in the views, so the text survives a
     // re-render the way a Notepad session survives a window resize.
+    private boolean browsing;
+    private String category;
+    private String query = "";
+    private int sortMode = FileRules.SORT_NAME;
     private String editingPath;
     private String editorText = "";
     private String savedText = "";
@@ -63,6 +67,10 @@ public final class FilesScreen implements Screen {
     public View build(final Context context) {
         final UiKit ui = new UiKit(context, host.palette());
         if (editingPath != null) return buildEditor(context, ui);
+        // Samsung My Files opens on categories, not on a folder: Images, Videos, Audio,
+        // Documents. The folder browser is one row down, where that app keeps storage locations.
+        if (category != null) return inScroll(buildCategoryPage(context, ui));
+        if (!browsing) return inScroll(buildHome(context, ui));
         final File root = context.getFilesDir();
         ScrollView scroll = new ScrollView(context);
         scroll.setVerticalScrollBarEnabled(false);
@@ -78,7 +86,7 @@ public final class FilesScreen implements Screen {
                 entries.add(new FileRules.Entry(f.getName(), f.isDirectory(), f.length(), f.lastModified()));
             }
         }
-        List<FileRules.Entry> shown = FileRules.sorted(entries);
+        List<FileRules.Entry> shown = FileRules.sortBy(entries, sortMode);
         long[] summary = FileRules.summarise(entries);
 
         final String folder = relative;
@@ -96,7 +104,12 @@ public final class FilesScreen implements Screen {
         TextView homeCrumb = ui.label("Files", 12, relative.isEmpty() ? ui.palette().accent : ui.palette().muted, true);
         crumbs.addView(homeCrumb, ui.lp(-2, -2));
         homeCrumb.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { relative = ""; host.invalidate(); }
+            @Override public void onClick(View v) {
+                relative = "";
+                browsing = false;
+                category = null;
+                host.invalidate();
+            }
         });
         String walked = "";
         for (String part : FileRules.crumbs(relative)) {
@@ -130,6 +143,7 @@ public final class FilesScreen implements Screen {
             column.addView(empty, ep);
         }
 
+        column.addView(sortRow(context, ui), ui.lp(-1, 40));
         for (final FileRules.Entry entry : shown) {
             LinearLayout card = ui.card();
             LinearLayout.LayoutParams rp = ui.lp(-1, -2);
@@ -554,6 +568,213 @@ public final class FilesScreen implements Screen {
                     }
                 })
                 .setNegativeButton("Cancel", null).show();
+    }
+
+
+    private View inScroll(LinearLayout page) {
+        ScrollView scroll = new ScrollView(page.getContext());
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.addView(page, new LinearLayout.LayoutParams(-1, -2));
+        return scroll;
+    }
+
+    /** A file found by the recursive scan, with the path the editor and the guards need. */
+    private static final class Found {
+        final String path;
+        final FileRules.Entry entry;
+        Found(String path, FileRules.Entry entry) { this.path = path; this.entry = entry; }
+    }
+
+    private List<Found> scan(Context context) {
+        List<Found> out = new ArrayList<>();
+        walk(context.getFilesDir(), "", 0, out);
+        return out;
+    }
+
+    // Bounded on purpose: a category page that walks ten thousand files on every render is a
+    // stutter the user feels, and app-private storage has no business being that deep.
+    private void walk(File dir, String rel, int depth, List<Found> out) {
+        if (depth > 6 || out.size() > 1500) return;
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File f : children) {
+            String path = FileRules.join(rel, f.getName());
+            if (f.isDirectory()) { walk(f, path, depth + 1, out); continue; }
+            out.add(new Found(path, new FileRules.Entry(f.getName(), false, f.length(), f.lastModified())));
+        }
+    }
+
+    private View buildHome(final Context context, final UiKit ui) {
+        LinearLayout page = ui.vbox();
+        page.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(14));
+        final List<Found> all = scan(context);
+        long bytes = 0;
+        for (Found f : all) bytes += f.entry.bytes;
+        ui.sectionTitle(page, "Files",
+                all.size() + (all.size() == 1 ? " file" : " files") + "  \u00b7  "
+                        + FileRules.formatBytes(bytes));
+
+        LinearLayout searchRow = ui.hbox();
+        searchRow.setGravity(Gravity.CENTER_VERTICAL);
+        page.addView(searchRow, ui.lp(-1, 44));
+        final EditText q = new EditText(context);
+        q.setHint("search files");
+        q.setSingleLine(true);
+        q.setText(query);
+        q.setTextSize(14);
+        searchRow.addView(q, new LinearLayout.LayoutParams(0, -2, 1f));
+        q.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, android.view.KeyEvent event) {
+                query = q.getText().toString();
+                host.invalidate();
+                return true;
+            }
+        });
+        TextView clear = ui.pillButton("\u00d7", ui.palette().surface, ui.palette().text);
+        searchRow.addView(clear, ui.lp(40, 38));
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { query = ""; host.invalidate(); }
+        });
+
+        if (!query.trim().isEmpty()) {
+            List<Found> hits = new ArrayList<>();
+            for (Found f : all) if (FileRules.matchesQuery(f.entry.name, query)) hits.add(f);
+            page.addView(ui.label(hits.size() + (hits.size() == 1 ? " result for " : " results for ")
+                    + query, 12, ui.palette().muted, false), ui.lp(-1, -2));
+            page.addView(sortRow(context, ui), ui.lp(-1, 40));
+            if (hits.isEmpty()) {
+                page.addView(ui.label("Nothing matches. Search looks at every file this app owns, "
+                        + "in every folder.", 13, ui.palette().muted, false), ui.lp(-1, -2));
+            }
+            for (Found f : sortFound(hits)) page.addView(fileCard(context, ui, f), cardParams(ui));
+            return page;
+        }
+
+        for (String cat : new String[]{"Images", "Videos", "Audio", "Documents", "Sheets", "Other"}) {
+            int n = 0;
+            for (Found f : all) if (FileRules.categoryOfName(f.entry.name).equals(cat)) n++;
+            LinearLayout card = ui.card();
+            page.addView(card, cardParams(ui));
+            LinearLayout row = ui.hbox();
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            card.addView(row, ui.lp(-1, -2));
+            row.addView(ui.label(cat, 15, ui.palette().text, true),
+                    new LinearLayout.LayoutParams(0, -2, 1f));
+            row.addView(ui.label(n + (n == 1 ? " file" : " files"), 11, ui.palette().muted, false),
+                    ui.lp(-2, -2));
+            row.addView(ui.label("\u203a", 16, ui.palette().accent, true), ui.lp(-2, -2));
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { category = cat; host.invalidate(); }
+            });
+        }
+
+        LinearLayout store = ui.card();
+        page.addView(store, cardParams(ui));
+        LinearLayout srow = ui.hbox();
+        srow.setGravity(Gravity.CENTER_VERTICAL);
+        store.addView(srow, ui.lp(-1, -2));
+        srow.addView(ui.label("Internal storage", 15, ui.palette().text, true),
+                new LinearLayout.LayoutParams(0, -2, 1f));
+        srow.addView(ui.label("\u203a", 16, ui.palette().accent, true), ui.lp(-2, -2));
+        store.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { browsing = true; relative = ""; host.invalidate(); }
+        });
+        return page;
+    }
+
+    private View buildCategoryPage(final Context context, final UiKit ui) {
+        LinearLayout page = ui.vbox();
+        page.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(14));
+        LinearLayout top = ui.hbox();
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        page.addView(top, ui.lp(-1, 44));
+        TextView back = ui.label("\u2039", 30, ui.palette().accent, true);
+        back.setGravity(Gravity.CENTER);
+        top.addView(back, ui.lp(40, 40));
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { category = null; host.invalidate(); }
+        });
+        List<Found> mine = new ArrayList<>();
+        for (Found f : scan(context)) {
+            if (FileRules.categoryOfName(f.entry.name).equals(category)) mine.add(f);
+        }
+        TextView title = ui.label(category, 20, ui.palette().text, true);
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, -2, 1f);
+        tp.leftMargin = ui.dp(8);
+        top.addView(title, tp);
+        top.addView(ui.label(mine.size() + "", 13, ui.palette().muted, false), ui.lp(-2, -2));
+        page.addView(sortRow(context, ui), ui.lp(-1, 40));
+        if (mine.isEmpty()) {
+            page.addView(ui.label("Nothing in this category yet. Files land here when another app "
+                    + "in the suite saves them, or when you create them.", 13, ui.palette().muted, false),
+                    ui.lp(-1, -2));
+        }
+        for (Found f : sortFound(mine)) page.addView(fileCard(context, ui, f), cardParams(ui));
+        return page;
+    }
+
+    private List<Found> sortFound(List<Found> in) {
+        List<Found> out = new ArrayList<>(in);
+        final int mode = sortMode;
+        java.util.Collections.sort(out, new java.util.Comparator<Found>() {
+            @Override public int compare(Found a, Found b) {
+                int c = 0;
+                if (mode == FileRules.SORT_DATE) c = Long.compare(b.entry.modifiedAt, a.entry.modifiedAt);
+                else if (mode == FileRules.SORT_SIZE) c = Long.compare(b.entry.bytes, a.entry.bytes);
+                if (c == 0) c = a.entry.name.compareToIgnoreCase(b.entry.name);
+                return c != 0 ? c : a.entry.name.compareTo(b.entry.name);
+            }
+        });
+        return out;
+    }
+
+    private View sortRow(final Context context, final UiKit ui) {
+        LinearLayout row = ui.hbox();
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        String[] labels = {"Name", "Date", "Size"};
+        for (int i = 0; i < labels.length; i++) {
+            final int mode = i;
+            TextView pill = ui.pillButton(labels[i],
+                    sortMode == i ? ui.palette().accent : ui.palette().surface,
+                    sortMode == i ? android.graphics.Color.WHITE : ui.palette().muted);
+            pill.setTextSize(11);
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -2, 1f);
+            p.leftMargin = ui.dp(3);
+            p.rightMargin = ui.dp(3);
+            row.addView(pill, p);
+            pill.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { sortMode = mode; host.invalidate(); }
+            });
+        }
+        return row;
+    }
+
+    private LinearLayout.LayoutParams cardParams(UiKit ui) {
+        LinearLayout.LayoutParams p = ui.lp(-1, -2);
+        p.topMargin = ui.dp(6);
+        return p;
+    }
+
+    private View fileCard(final Context context, final UiKit ui, final Found f) {
+        LinearLayout card = ui.card();
+        LinearLayout row = ui.hbox();
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        card.addView(row, ui.lp(-1, -2));
+        LinearLayout copy = ui.vbox();
+        copy.addView(ui.label(f.entry.name, 14, ui.palette().text, true));
+        String parent = f.path.contains("/") ? f.path.substring(0, f.path.lastIndexOf('/')) : "";
+        copy.addView(ui.label((parent.isEmpty() ? "root" : parent) + "  \u00b7  "
+                + FileRules.kindOf(f.entry.name) + "  \u00b7  "
+                + FileRules.formatBytes(f.entry.bytes), 11, ui.palette().muted, false));
+        row.addView(copy, new LinearLayout.LayoutParams(0, -2, 1f));
+        if (EditorRules.isEditableName(f.entry.name)) {
+            TextView edit = ui.label("Edit \u203a", 12, ui.palette().accent, true);
+            row.addView(edit, ui.lp(-2, -2));
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { openEditor(context, f.path); }
+            });
+        }
+        return card;
     }
 
     @Override public void onResume() { }

@@ -128,6 +128,52 @@ public final class FileRules {
         return true;
     }
 
+    /** The Samsung-style category a kind belongs to; the browser's top level is categories. */
+    public static String categoryOf(String kind) {
+        if (kind == null) return "Other";
+        if (kind.equals("Image")) return "Images";
+        if (kind.equals("Video")) return "Videos";
+        if (kind.equals("Audio")) return "Audio";
+        if (kind.equals("Sheet")) return "Sheets";
+        if (kind.equals("Text") || kind.equals("Markup") || kind.equals("PDF")) return "Documents";
+        return "Other";
+    }
+
+    /** The category of a file name, through its kind. */
+    public static String categoryOfName(String name) {
+        return categoryOf(kindOf(name));
+    }
+
+    public static final int SORT_NAME = 0;
+    public static final int SORT_DATE = 1;
+    public static final int SORT_SIZE = 2;
+
+    /**
+     * Orders by the chosen mode. Folders stay on top in every mode, including size: a manager
+     * where a folder sinks between two large files cannot be scanned, and scanning is the job.
+     */
+    public static List<Entry> sortBy(List<Entry> entries, final int mode) {
+        List<Entry> out = new ArrayList<>(entries == null ? Collections.<Entry>emptyList() : entries);
+        Collections.sort(out, new Comparator<Entry>() {
+            @Override public int compare(Entry a, Entry b) {
+                if (a.directory != b.directory) return a.directory ? -1 : 1;
+                int byMode = 0;
+                if (mode == SORT_DATE) byMode = Long.compare(b.modifiedAt, a.modifiedAt);
+                else if (mode == SORT_SIZE) byMode = Long.compare(b.bytes, a.bytes);
+                if (byMode == 0) byMode = a.name.compareToIgnoreCase(b.name);
+                return byMode != 0 ? byMode : a.name.compareTo(b.name);
+            }
+        });
+        return out;
+    }
+
+    /** Case-insensitive contains; an empty or blank query matches everything. */
+    public static boolean matchesQuery(String name, String query) {
+        if (query == null || query.trim().isEmpty()) return true;
+        if (name == null) return false;
+        return name.toLowerCase(Locale.ROOT).contains(query.trim().toLowerCase(Locale.ROOT));
+    }
+
     /** Counts and total size for the header. */
     public static long[] summarise(List<Entry> entries) {
         long folders = 0;

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -106,5 +107,44 @@ public class FileRulesTest {
         // folder's size would be meaningless.
         assertEquals(0, dir("anything").bytes);
         assertEquals(0, new FileRules.Entry("x", true, 4096, 0).bytes);
+    }
+
+    @Test public void kindsFallIntoSamsungStyleCategories() {
+        assertEquals("Images", FileRules.categoryOfName("photo.png"));
+        assertEquals("Videos", FileRules.categoryOfName("clip.mp4"));
+        assertEquals("Audio", FileRules.categoryOfName("song.m4a"));
+        assertEquals("Documents", FileRules.categoryOfName("notes.txt"));
+        assertEquals("Documents", FileRules.categoryOfName("page.html"));
+        assertEquals("Documents", FileRules.categoryOfName("scan.pdf"));
+        assertEquals("Sheets", FileRules.categoryOfName("budget.csv"));
+        assertEquals("Other", FileRules.categoryOfName("bundle.zip"));
+        assertEquals("Other", FileRules.categoryOfName("noextension"));
+    }
+
+    @Test public void sortModesKeepFoldersOnTop() {
+        List<FileRules.Entry> entries = new ArrayList<>();
+        entries.add(new FileRules.Entry("old.txt", false, 10, 1000L));
+        entries.add(new FileRules.Entry("big.bin", false, 900, 2000L));
+        entries.add(new FileRules.Entry("new.txt", false, 20, 3000L));
+        entries.add(new FileRules.Entry("zfolder", true, 0, 500L));
+        // Name: folders first, then alphabetical.
+        assertEquals("zfolder", FileRules.sortBy(entries, FileRules.SORT_NAME).get(0).name);
+        assertEquals("big.bin", FileRules.sortBy(entries, FileRules.SORT_NAME).get(1).name);
+        // Date: newest file first, folder still first of all.
+        assertEquals("zfolder", FileRules.sortBy(entries, FileRules.SORT_DATE).get(0).name);
+        assertEquals("new.txt", FileRules.sortBy(entries, FileRules.SORT_DATE).get(1).name);
+        // Size: largest file first; the folder's zero bytes must not sink it.
+        assertEquals("zfolder", FileRules.sortBy(entries, FileRules.SORT_SIZE).get(0).name);
+        assertEquals("big.bin", FileRules.sortBy(entries, FileRules.SORT_SIZE).get(1).name);
+        assertEquals("old.txt", FileRules.sortBy(entries, FileRules.SORT_SIZE).get(3).name);
+    }
+
+    @Test public void searchIsCaseInsensitiveAndBlankMatchesAll() {
+        assertTrue(FileRules.matchesQuery("Notes.txt", "notes"));
+        assertTrue(FileRules.matchesQuery("Notes.txt", "TES"));
+        assertFalse(FileRules.matchesQuery("Notes.txt", "absent"));
+        assertTrue(FileRules.matchesQuery("Notes.txt", ""));
+        assertTrue(FileRules.matchesQuery("Notes.txt", "   "));
+        assertFalse(FileRules.matchesQuery(null, "x"));
     }
 }

@@ -3657,6 +3657,39 @@ class InAppNavigationContracts(unittest.TestCase):
         self.assertIn("case APPS:", view)
 
 
+class CategoryBrowserContracts(unittest.TestCase):
+    """The owner's ask for Files was twofold: a Notepad-grade editor (pinned above) and "recreate
+    samsung files". That app opens on categories with search and sort, not on a bare folder tree,
+    so the top level here is categories and the folder browser sits one row down.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+        self.rules = (ROOT / "feature-files/src/main/java/app/space/feature/files/FileRules.java").read_text()
+
+    def test_the_top_level_is_categories_with_a_storage_row(self):
+        self.assertIn("if (!browsing) return inScroll(buildHome(context, ui));", self.screen)
+        self.assertIn('"Images", "Videos", "Audio", "Documents", "Sheets", "Other"', self.screen)
+        self.assertIn('ui.label("Internal storage", 15, ui.palette().text, true)', self.screen)
+
+    def test_search_covers_every_folder_and_sort_has_three_modes(self):
+        self.assertIn("public static boolean matchesQuery(", self.rules)
+        self.assertIn("public static List<Entry> sortBy(", self.rules)
+        self.assertIn("String[] labels = {\"Name\", \"Date\", \"Size\"};", self.screen)
+        # The scan behind categories and search must be bounded, or a full render walks everything.
+        self.assertIn("if (depth > 6 || out.size() > 1500) return;", self.screen)
+
+    def test_folders_stay_on_top_in_every_sort_mode(self):
+        # A folder sinking between two large files makes the list unscannable; the rule lives in
+        # FileRules so the JVM test, not a screenshot, is what guards it.
+        self.assertIn("if (a.directory != b.directory) return a.directory ? -1 : 1;", self.rules)
+
+    def test_category_pages_keep_the_edit_action_and_the_guards(self):
+        self.assertIn("EditorRules.isEditableName(f.entry.name)", self.screen)
+        self.assertIn("openEditor(context, f.path);", self.screen)
+
+
 class TextEditorContracts(unittest.TestCase):
     """The owner's verdict on Files' text creation: "it's not editor, it's like just a notes.
     Take reference of note in windows and recreate as much as possible." These pin the shape of

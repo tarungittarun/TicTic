@@ -63,15 +63,15 @@ Twelve through twenty-one were found by the owner in **one session**, with scree
 | 12 | **Crash** tapping the top settings tab | owner, on device | **Root cause still unknown.** Now caught: any settings-page `Throwable` renders an in-page card and persists the stack to Settings ▸ Diagnostics. Needs one shared log to close. |
 | 13 | Calculator accepted any key sequence — display could hold `-+-++-52***-+++` | owner, on device | **Fixed at input.** `CalculatorRules.append` refuses the key rather than typing it; pinned by a JVM test. |
 | 14 | Recorder screen **blinked every second** while recording | owner, on device | **Fixed.** The ticker rebuilt the whole view each second; it now updates two TextViews in place. |
-| 15 | Recorded file **would not play** | owner, on device | **Not fixed — instrumented.** `play()` now logs bytes and the exception class, and the toast names it. The log distinguishes empty file / missing file / decoder refusal; I cannot reproduce it without a device. |
+| 15 | Recorded file **would not play** | owner, on device | **Closed as far as blind allows (3.10.0).** Every save self-tests decode and logs the verdict; a zero media volume -- silent playback that reads as broken -- is named on screen; playback errors log what/extra; rename and share ship. The owner's device round decides whether it was silence, a decoder refusal, or something the self-test now names in the log. |
 | 16 | Notes not comparable to Google Notes | owner, on device | **Rewritten in 3.9.0 (33).** Card wall, colours, pins, archive, checklists, submit-search. Awaits the owner's device verdict. |
 | 17 | Calendar has no quick year change and no settings | owner, on device | **Delivered in 3.9.0 (33).** Year picker + double-arrow steps, week/day views, event dots, settings sheet, reminders that ring and survive reboot. Awaits the owner's device verdict. |
 | 18 | Files' text creation is not a real editor | owner, on device | **Not started.** Queued — Notepad-grade editor, plus Samsung My Files parity. |
-| 19 | Music player **worse** than before | owner, on device | **Not started.** Queued for rebuild. |
-| 20 | Scanner does not capture like CamScanner | owner, on device | **Not started.** Queued. |
+| 19 | Music player **worse** than before | owner, on device | **Rebuilt in 3.10.0 (34).** MediaStore library, foreground service, notification transport, seek bar, audio focus, playback that survives leaving the screen. Awaits the owner's device verdict. |
+| 20 | Scanner does not capture like CamScanner | owner, on device | **Delivered in 3.10.0 (34).** System-camera capture into a private inbox, four-handle crop with perspective straightening, three enhance modes, multi-page PDF. Live in-app preview deferred to the AndroidX sprint, stated on screen. Awaits the owner's device verdict. |
 | 21 | Bar was Clock-first, and switching apps had no recents | owner, on device | **Fixed.** Apps-first bar; popup sheet above the bar with a RECENT row of the last four. |
 
-That is **four fixed, one instrumented, six not started** — and the honest summary of this project's
+That was **four fixed, one instrumented, six not started** at 3.6.0. Through 3.10.0 (34) the ledger stands: **five fixed, ten delivered-in-code awaiting the owner's device, two still open** — defect 12 (the settings crash, whose root cause still only the owner's shared log can name) and defect 15 (which the recorder's new self-test and volume forensics will name on the next device round). The honest summary of this project's
 testing is in the split: the defects a JVM can see were caught by tests, and the defects a user can
 see were caught by the user. Twelve is the worst entry in this document. A crash on a primary
 navigation control survived 84 slices, 269 contracts and 63 green CI runs, and after two more
@@ -104,6 +104,34 @@ not clean anyway: the first Notes push was lost to a mid-turn HEAD reset and reb
 origin tip — the second time that has happened — and a qa contract edit once swallowed a class
 attribute (MODS) that four tests needed, caught only because the gate ran before the push.
 Routine recovery from self-inflicted wounds is still a wound.
+
+## Sprint 3 — DELIVERED: Music rebuilt, Recorder closed, Scanner captures (5 slices, build 3.10.0 (34))
+
+Defects 19 and 20 rebuilt in code; defect 15 closed as far as it can be closed without a device.
+Music became an actual player: the phone's whole library through MediaStore, a foreground
+service so the song survives leaving the screen, a notification transport for the lock screen,
+audio focus that pauses instead of fighting a call, a seek bar whose ticker updates two views in
+place (the recorder-blink pattern, pinned by contract so it cannot regress), and a guard that
+stops a queue of undecodable files from spinning advance-on-error through the battery. The
+recorder now proves at save time that its own recording decodes, names a zero media volume as
+the silence it is, and grows rename and share. The scanner captures through the system camera
+into a private inbox and closes the CamScanner loop with a four-handle crop, perspective
+straightening and three enhance modes whose colour matrices are exact, JVM-tested numbers.
+
+**CI caught zero new compile errors for the second sprint running** — the ledger stays at (9).
+What the sprint cost instead: two inventions caught in self-review before pushing (a
+PendingIntent flag that does not exist, a stop path calling a method never written), a
+notification that could not refresh because a static callback could not reach the instance, an
+infinite error-advance loop, an enhance switch that would have thrown away dragged corners, and
+one honest collision — the magic-contrast constant 1.35f tripped the repo-wide uniqueness
+contract that fingerprints UiKit's corner table. The contract did its job; the constant moved.
+Two pushes were lost to mid-turn HEAD resets and rebuilt on the origin tip, making four total;
+the recovery drill is now routine, and routine is the indictment.
+
+Deviations, stated plainly: the plan's "live preview via SurfaceView" became delegated
+system-camera capture, because hand-rolling a Camera2 pipeline blind — no device, no emulator,
+no compiler — is how a sprint dies; CameraX preview is a Sprint 4 candidate once AndroidX lands,
+and the scanner screen says so on its own card rather than hiding it.
 
 ## My own error ledger
 

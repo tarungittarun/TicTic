@@ -121,7 +121,27 @@ year-jump, week and day views, event create/edit with reminders, and a settings 
 event with a 10-minute reminder and see it in month, week and day views; pin a yellow note and
 find it by search.
 
-## Sprint 3 — Music rebuilt, Recorder closed, Scanner captures (5 slices, ~2 days)
+## Sprint 3 — DELIVERED: Music rebuilt, Recorder closed, Scanner captures (5 slices, build 3.10.0)
+
+Delivered in full, in five slices: Music scans the device library through MediaStore (permission
+asked with a reason, capped at maxSdkVersion 32 where it is the old one), plays through a
+foreground service with a notification transport -- Previous / Play-Pause / Next / Stop from the
+lock screen, audio focus honoured, seek bar with position -- and survives leaving the screen,
+which is the line whose absence made the old player read as "worse". The recorder closes defect
+15 as far as it can be closed without the owner's log: every save self-tests that the device can
+decode its own recording, playback names a zero media volume instead of failing silently, errors
+reach the diagnostics log, and rename and share ship per recording through the suite's new
+hand-rolled ShareProvider (useAndroidX=false rules out FileProvider). The scanner captures
+through the system camera into a private inbox via a writable CaptureProvider, then crops
+(four draggable handles, perspective-straightened through setPolyToPoly) and enhances (Original /
+Gray / Magic colour, exact JVM-tested matrices) before the existing PDF writer assembles the
+document. One plan deviation: "live preview via SurfaceView" became delegated system-camera
+capture -- hand-rolling a Camera2 pipeline blind, with no device to see it on, is how a sprint
+dies; CameraX preview is a Sprint 4 candidate the moment AndroidX lands. JVM suites grew the
+week maths, crop ordering, enhance matrices, share containment and rename hygiene; CI caught
+zero new compile errors this sprint. The original plan text follows, for the record.
+
+## Sprint 3 — original plan: Music rebuilt, Recorder closed, Scanner captures (5 slices, ~2 days)
 
 Research basis: a music *player* is library + queue + transport + background service +
 notification; the current screen is a file list with a play button, which is why it reads as

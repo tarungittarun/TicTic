@@ -7,6 +7,17 @@ plugins {
 // format on the console is what lets the annotation surfacer quote the expected/actual pair,
 // turning a red run from a rumour into a diagnosis.
 subprojects {
+    // Kotlin 1.8 folded kotlin-stdlib-jdk7/jdk8 into kotlin-stdlib itself. Room 2.5.2
+    // was built against Kotlin 1.7.20 and still drags the standalone jdk8 artifact in,
+    // while androidx.core pulls kotlin-stdlib 1.8.22 -- and :app:checkDebugDuplicateClasses
+    // then sees every jdk8 class twice and refuses to dex. The 1.8.22 jdk8/jdk7 artifacts
+    // are empty merge-pointers, so forcing them is the documented cure, not a hack.
+    configurations.all {
+        resolutionStrategy {
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+        }
+    }
     tasks.withType(Test).configureEach {
         testLogging {
             events "failed"

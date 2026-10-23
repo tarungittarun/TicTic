@@ -4041,6 +4041,15 @@ class RoomAdoptionContracts(unittest.TestCase):
         self.assertIn('"notes_items"', self.bridge)
         self.assertIn('"calendar_items"', self.bridge)
 
+    def test_the_kotlin_stdlib_merge_collision_is_forced_shut(self):
+        # Room 2.5.2 was built against Kotlin 1.7.20 and drags kotlin-stdlib-jdk8 in
+        # beside androidx.core's kotlin-stdlib 1.8.22; since Kotlin 1.8 the jdk8 classes
+        # live in the main stdlib, so checkDuplicateClasses sees them twice and the build
+        # dies before dexing. The forced 1.8.22 jdk7/jdk8 artifacts are empty pointers.
+        root = (ROOT / "build.gradle").read_text()
+        self.assertIn("force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'", root)
+        self.assertIn("force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'", root)
+
     def test_a_restore_deletes_the_database_and_the_next_load_rebuilds_it(self):
         self.assertIn("public static void resetAfterRestore(Context context)", self.bridge)
         self.assertIn("MySpaceDatabase.shutdown();", self.bridge)

@@ -3,7 +3,7 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build:** 3.11.0 (versionCode 35) · 2,059,932 bytes · SHA-256 `5e23c53c4fafb39ee295089f4e8ca7bbdef7d70ecfc5775659bdd859dda5f675` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build:** 3.11.1 (versionCode 36) · 2,060,312 bytes · SHA-256 `daed2bd3d8b6d5fd3f3670741b3e49ba41ebc5633d8d76149ec72984ec0de46d` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
 **Effort:** 22 modules · 19,516 lines of Java · 353 Python contracts · 20 JVM test files
 **CI:** 118 recorded runs — **84 green, 33 red, 1 cancelled** (71% green; every red read)
 **Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other

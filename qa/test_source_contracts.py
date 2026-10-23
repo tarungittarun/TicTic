@@ -3133,12 +3133,20 @@ class FinalFourAppsContracts(unittest.TestCase):
         rules = java_code_only(self.src("music", "MusicRules"))
         self.assertIn("Collections.shuffle(out, new Random(seed))", rules)
 
-    def test_the_music_player_is_released_when_the_screen_goes_away(self):
+    def test_music_playback_outlives_the_screen_and_dies_with_the_service(self):
+        # This test once pinned the opposite rule: release the player in onPause, because a
+        # MediaPlayer left running holds the decode session. Sprint 3 replaced the screen-owned
+        # player with a foreground service -- leaving the screen must NOT stop the song now;
+        # stopping is an explicit transport action that tears the service down.
         screen = java_code_only(self.src("music", "MusicScreen"))
-        self.assertIn("public void onPause()", screen)
-        self.assertIn("release();", screen)
-        # A failed stream must say so: silently stopping looks like the button did nothing.
-        self.assertIn("setOnErrorListener", screen)
+        service = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/PlaybackService.java").read_text())
+        self.assertNotIn("private void release()", screen)
+        self.assertIn("PlaybackService.setListener(null);", screen)
+        self.assertIn("public void onDestroy()", service)
+        self.assertIn("releasePlayer();", service)
+        self.assertIn("abandonFocus();", service)
+        self.assertIn("case MusicActionReceiver.ACTION_STOP:", service)
 
     def test_the_scanner_adds_no_dependencies(self):
         # CameraX plus ML Kit would add roughly 50 MB, which a lite flavour cannot carry.
@@ -3343,7 +3351,10 @@ class DeviceTestReadinessContracts(unittest.TestCase):
         # Persisted, or every picked track silently stops playing after a process restart.
         self.assertIn("takePersistableUriPermission(", body)
         # A content URI needs the Context overload; the String one handles paths and URLs only.
-        self.assertIn("player.setDataSource(context, Uri.parse(track.source))", body)
+        # The player moved into PlaybackService when playback learned to outlive the screen.
+        service = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/PlaybackService.java").read_text())
+        self.assertIn("player.setDataSource(this, Uri.parse(track.source))", service)
 
     def test_every_screen_request_code_is_in_the_reserved_range(self):
         # The host forwards 90 to 99. A screen using a code outside that range gets its result
@@ -3751,6 +3762,63 @@ class CalendarParityContracts(unittest.TestCase):
         self.assertIn("public static long startOfWeek(", self.rules)
         self.assertIn("public static int dayOfMonth(", self.rules)
         self.assertIn("public static String timeLabel(", self.rules)
+
+
+class MusicPlaybackServiceContracts(unittest.TestCase):
+    """The plan's music player: "queue with shuffle/repeat, seek bar with position, foreground
+    service with a notification transport so playback survives leaving the app." Surviving the
+    screen is the whole point, so the delegation lines and the onPause that must NOT stop audio
+    are pinned as hard as the service's own guard rails.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/MusicScreen.java").read_text())
+        self.service = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/PlaybackService.java").read_text())
+        self.receiver = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/MusicActionReceiver.java").read_text())
+        self.manifest = (ROOT / "feature-music/src/main/AndroidManifest.xml").read_text()
+
+    def test_the_service_and_its_buttons_are_declared(self):
+        self.assertIn('android:name=".PlaybackService"', self.manifest)
+        self.assertIn('android:foregroundServiceType="mediaPlayback"', self.manifest)
+        self.assertIn('android:name=".MusicActionReceiver"', self.manifest)
+        self.assertIn('android:name="app.space.feature.music.TOGGLE"', self.manifest)
+
+    def test_the_notification_carries_a_transport(self):
+        self.assertIn('"myspace_music_v1"', self.service)
+        self.assertIn("NotificationManager.IMPORTANCE_LOW", self.service)
+        self.assertIn('android.R.drawable.ic_media_previous, "Previous"', self.service)
+        self.assertIn('android.R.drawable.ic_media_next, "Next"', self.service)
+        self.assertIn('.setOngoing(playing)', self.service)
+
+    def test_a_queue_of_broken_files_cannot_loop_forever(self):
+        # Every open failure advances; without this guard a dead queue spins the battery.
+        self.assertIn("private void skipOrFailQuietly()", self.service)
+        self.assertIn("if (queue.isEmpty() || failures > queue.size())", self.service)
+        self.assertIn("failures = 0;", self.service)
+
+    def test_audio_focus_pauses_instead_of_fighting(self):
+        self.assertIn("AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)", self.service)
+        self.assertIn("AUDIOFOCUS_LOSS_TRANSIENT", self.service)
+
+    def test_the_screen_delegates_and_never_kills_playback_on_pause(self):
+        self.assertIn("PlaybackService.play(context, queue, position);", self.screen)
+        self.assertIn("PlaybackService.toggle(context);", self.screen)
+        self.assertIn("PlaybackService.step(context, direction);", self.screen)
+        self.assertNotIn("private void release()", self.screen)
+        self.assertIn("PlaybackService.setListener(null);", self.screen)
+        # onResume wires the repaint listener; onPause unwires it and nothing else about audio.
+        self.assertIn("PlaybackService.setListener(new PlaybackService.StateListener()", self.screen)
+
+    def test_the_seek_bar_updates_in_place_instead_of_rebuilding(self):
+        self.assertIn("private final Runnable seekTicker = new Runnable()", self.screen)
+        self.assertIn("seekView.setProgress(position);", self.screen)
+        self.assertIn("PlaybackService.seekTo(context, progress);", self.screen)
+        self.assertIn("main.postDelayed(this, 500L);", self.screen)
+        # Rebuilding per tick is the blink defect; the ticker touches views only.
+        self.assertNotIn("host.invalidate();\n            main.postDelayed(this, 500L);", self.screen)
 
 
 class MusicLibraryContracts(unittest.TestCase):

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Music's background half: the playback service and its notification transport buttons.
+     Library manifests merge into :app; the mediaPlayback type matches the
+     FOREGROUND_SERVICE_MEDIA_PLAYBACK permission the shell already declares. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service
+            android:name=".PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <receiver
+            android:name=".MusicActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.space.feature.music.TOGGLE" />
+                <action android:name="app.space.feature.music.STEP" />
+                <action android:name="app.space.feature.music.STOP" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

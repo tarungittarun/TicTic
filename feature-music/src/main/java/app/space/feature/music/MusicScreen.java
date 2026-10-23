@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -57,11 +56,10 @@ public final class MusicScreen implements Screen {
 
     private final ScreenHost host;
     private final Handler main = new Handler(Looper.getMainLooper());
-    private MediaPlayer player;
     private List<MusicRules.Track> queue = new ArrayList<>();
-    private int index = -1;
-    private boolean playing;
-    private boolean prepared;
+    /** Live views the seek ticker updates in place; rebuilding per tick would flicker. */
+    private android.widget.SeekBar seekView;
+    private TextView positionView;
 
     public MusicScreen(ScreenHost host) { this.host = host; }
 
@@ -95,6 +93,10 @@ public final class MusicScreen implements Screen {
         }
         List<MusicRules.Track> playable = MusicRules.playable(library);
         queue = shuffle ? MusicRules.shuffled(playable, SHUFFLE_SEED) : MusicRules.sorted(playable);
+        PlaybackService.setRepeat(repeat);
+        final String currentId = PlaybackService.currentTrackId();
+        final boolean playing = PlaybackService.isPlaying();
+        final boolean prepared = PlaybackService.isPrepared();
 
         ScrollView scroll = new ScrollView(context);
         scroll.setVerticalScrollBarEnabled(false);
@@ -126,19 +128,45 @@ public final class MusicScreen implements Screen {
         LinearLayout.LayoutParams cp = ui.lp(-1, -2);
         cp.topMargin = ui.dp(8);
         root.addView(card, cp);
-        MusicRules.Track current = index >= 0 && index < queue.size() ? queue.get(index) : null;
+        MusicRules.Track current = null;
+        for (MusicRules.Track candidate : queue) {
+            if (candidate.id.equals(currentId)) { current = candidate; break; }
+        }
         TextView title = ui.label(current == null ? "Nothing playing" : current.title, 16,
                 ui.palette().text, true);
         title.setGravity(Gravity.CENTER);
         card.addView(title);
         TextView state = ui.label(current == null
-                ? "Your own files, and streams you add yourself."
+                ? "Your library, your own files, and streams you add yourself."
                 : (playing ? "Playing" : (prepared ? "Paused" : "Loading\u2026"))
                         + (current.remote ? "  \u00b7  streaming" : "  \u00b7  "
                         + MusicRules.formatBytes(current.bytes)),
                 11, ui.palette().muted, false);
         state.setGravity(Gravity.CENTER);
         card.addView(state);
+
+        if (current != null) {
+            final android.widget.SeekBar seek = new android.widget.SeekBar(context);
+            card.addView(seek, ui.lp(-1, -2));
+            TextView positionLabel = ui.label("0:00 / 0:00", 10, ui.palette().muted, false);
+            positionLabel.setGravity(Gravity.CENTER);
+            card.addView(positionLabel, ui.lp(-1, -2));
+            seekView = seek;
+            positionView = positionLabel;
+            seek.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(android.widget.SeekBar sb, int progress,
+                                                        boolean fromUser) {
+                    if (fromUser) PlaybackService.seekTo(context, progress);
+                }
+                @Override public void onStartTrackingTouch(android.widget.SeekBar sb) { }
+                @Override public void onStopTrackingTouch(android.widget.SeekBar sb) {
+                    if (positionView != null) {
+                        positionView.setText(MusicRules.formatDuration(PlaybackService.currentPosition())
+                                + " / " + MusicRules.formatDuration(PlaybackService.currentDuration()));
+                    }
+                }
+            });
+        }
 
         LinearLayout controls = ui.hbox();
         controls.setGravity(Gravity.CENTER);
@@ -163,8 +191,9 @@ public final class MusicScreen implements Screen {
         addControl(controls, ui, repeat == MusicRules.REPEAT_ONE ? "\u27f31"
                 : (repeat == MusicRules.REPEAT_ALL ? "\u27f3" : "\u27f3\u0338"), new View.OnClickListener() {
             @Override public void onClick(View v) {
-                AppPrefs.prefs(context).edit().putInt(KEY_REPEAT,
-                        MusicRules.nextRepeatMode(repeat)).apply();
+                int next = MusicRules.nextRepeatMode(repeat);
+                AppPrefs.prefs(context).edit().putInt(KEY_REPEAT, next).apply();
+                PlaybackService.setRepeat(next);
                 host.invalidate();
             }
         });
@@ -208,15 +237,16 @@ public final class MusicScreen implements Screen {
             LinearLayout.LayoutParams rp = ui.lp(-1, 48);
             rp.topMargin = ui.dp(4);
             root.addView(row, rp);
-            TextView marker = ui.label(position == index ? (playing ? "\u25b6" : "\u23f8") : "\u00b7",
-                    12, position == index ? ui.palette().accent : ui.palette().muted, position == index);
+            boolean isCurrent = track.id.equals(currentId);
+            TextView marker = ui.label(isCurrent ? (playing ? "\u25b6" : "\u23f8") : "\u00b7",
+                    12, isCurrent ? ui.palette().accent : ui.palette().muted, isCurrent);
             row.addView(marker, ui.lp(28, -2));
             LinearLayout copy = ui.vbox();
             LinearLayout.LayoutParams cpp = ui.lp(0, -2);
             cpp.weight = 1f;
             row.addView(copy, cpp);
             copy.addView(ui.label(track.title, 13,
-                    position == index ? ui.palette().accent : ui.palette().text, position == index));
+                    isCurrent ? ui.palette().accent : ui.palette().text, isCurrent));
             copy.addView(ui.label(track.remote ? track.source
                     : MusicRules.isLibrarySource(track.source)
                         ? MusicRules.librarySubtitle(track)
@@ -376,8 +406,9 @@ public final class MusicScreen implements Screen {
             return;
         }
         AppPrefs.prefs(context).edit().putString(KEY_PICKED, a.toString()).apply();
-        release();
-        index = -1;
+        // The removed source might be the one playing; the service stops rather than
+        // advancing into a row that no longer exists.
+        PlaybackService.stopAll(context);
         host.invalidate();
     }
 
@@ -433,8 +464,9 @@ public final class MusicScreen implements Screen {
             return;
         }
         AppPrefs.prefs(context).edit().putString(KEY_STREAMS, a.toString()).apply();
-        release();
-        index = -1;
+        // The removed source might be the one playing; the service stops rather than
+        // advancing into a row that no longer exists.
+        PlaybackService.stopAll(context);
         host.invalidate();
     }
 
@@ -498,87 +530,45 @@ public final class MusicScreen implements Screen {
         return out;
     }
 
+    /** Hands the queue to the service; playback continues when this screen goes away. */
     private void playAt(Context context, int position) {
-        release();
-        index = MusicRules.clampIndex(position, queue.size());
-        if (index < 0) { host.toast("Nothing to play."); return; }
-        MusicRules.Track track = queue.get(index);
-        try {
-            player = new MediaPlayer();
-            if (MusicRules.isPickedSource(track.source)) {
-                player.setDataSource(context, Uri.parse(track.source));
-            } else {
-                player.setDataSource(track.source);
-            }
-            prepared = false;
-            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override public void onPrepared(MediaPlayer mp) {
-                    prepared = true;
-                    playing = true;
-                    mp.start();
-                    host.invalidate();
-                }
-            });
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override public void onCompletion(MediaPlayer mp) {
-                    playing = false;
-                    advance(context, 1);
-                }
-            });
-            player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override public boolean onError(MediaPlayer mp, int what, int extra) {
-                    // A stream that fails must say so. Silently stopping looks like the
-                    // button did nothing, which is the worst outcome for a player.
-                    release();
-                    playing = false;
-                    prepared = false;
-                    host.toast("Could not play " + track.title + ".");
-                    host.invalidate();
-                    return true;
-                }
-            });
-            // Async for both cases: a remote source cannot be prepared on the main thread,
-            // and a large local file should not block it either.
-            player.prepareAsync();
-        } catch (Exception e) {
-            release();
-            host.toast("Could not open " + track.title + ".");
-        }
-        host.invalidate();
+        if (queue.isEmpty()) { host.toast("Nothing to play."); return; }
+        PlaybackService.play(context, queue, position);
     }
 
     private void toggle(Context context) {
-        if (player == null) { playAt(context, index < 0 ? 0 : index); return; }
-        if (!prepared) return;
-        if (playing) { player.pause(); playing = false; }
-        else { player.start(); playing = true; }
-        host.invalidate();
+        if (queue.isEmpty() && PlaybackService.queueSize() == 0) {
+            host.toast("Nothing to play.");
+            return;
+        }
+        PlaybackService.toggle(context);
     }
 
     private void step(Context context, int direction) {
-        if (queue.isEmpty()) { host.toast("Nothing in the queue."); return; }
-        advance(context, direction);
-    }
-
-    /** Moves by the repeat rules, stopping when REPEAT_NONE runs off the end. */
-    private void advance(Context context, int direction) {
-        int repeat = AppPrefs.prefs(context).getInt(KEY_REPEAT, MusicRules.REPEAT_ALL);
-        int next = direction < 0
-                ? MusicRules.previousIndex(index < 0 ? 0 : index, queue.size())
-                : MusicRules.nextIndex(index < 0 ? -1 : index, queue.size(), repeat);
-        if (next < 0) { release(); playing = false; index = -1; host.invalidate(); return; }
-        playAt(context, next);
-    }
-
-    private void release() {
-        if (player != null) {
-            try { if (player.isPlaying()) player.stop(); } catch (Exception ignored) { }
-            try { player.release(); } catch (Exception ignored) { }
-            player = null;
+        if (queue.isEmpty() && PlaybackService.queueSize() == 0) {
+            host.toast("Nothing in the queue.");
+            return;
         }
-        playing = false;
-        prepared = false;
+        PlaybackService.step(context, direction);
     }
+
+    /** The seek ticker: updates two views in place. Rebuilding the screen per tick is the
+     *  blink defect the recorder had; this is the pattern that fixed it there. */
+    private final Runnable seekTicker = new Runnable() {
+        @Override public void run() {
+            int position = PlaybackService.currentPosition();
+            int duration = PlaybackService.currentDuration();
+            if (seekView != null) {
+                seekView.setMax(Math.max(1, duration));
+                seekView.setProgress(position);
+            }
+            if (positionView != null) {
+                positionView.setText(MusicRules.formatDuration(position)
+                        + " / " + MusicRules.formatDuration(duration));
+            }
+            main.postDelayed(this, 500L);
+        }
+    };
 
     private static EditText field(Context context, UiKit ui, String hint) {
         EditText e = new EditText(context);
@@ -604,12 +594,21 @@ public final class MusicScreen implements Screen {
         host.invalidate();
     }
 
-    @Override public void onResume() { }
+    @Override
+    public void onResume() {
+        PlaybackService.setListener(new PlaybackService.StateListener() {
+            @Override public void onPlaybackStateChanged() { host.invalidate(); }
+        });
+        main.postDelayed(seekTicker, 500L);
+    }
 
     @Override
     public void onPause() {
-        // Audio focus and the decode session must not survive a background transition.
-        release();
+        // Playback deliberately survives this screen -- that is what the service is for.
+        // The screen only stops listening and stops its own ticker.
+        PlaybackService.setListener(null);
         main.removeCallbacksAndMessages(null);
+        seekView = null;
+        positionView = null;
     }
 }

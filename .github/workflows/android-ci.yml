@@ -141,19 +141,22 @@ jobs:
           # message corrupts the workflow command; (3) tails of BOTH logs, not just
           # unit, because a daemon/disk/OOM death leaves its verdict in the last
           # lines, not in a greppable "FAILED".
-          esc() { local s="$1"; s="${s//'%'/'%25'}"; printf '%s' "$s"; }
+          # And the cap itself: GitHub registers at most TEN annotations per level
+          # per check run. The per-line emitter below its own predecessor's output --
+          # unit.log's tails consumed all ten slots and build.log, the log that
+          # actually mattered, was silently dropped. One fat annotation per log,
+          # newlines escaped as %0A, is cap-proof and still fully readable.
+          esc() { sed 's/%/%25/g; s/\r//g' | awk 'BEGIN { ORS = "%0A" } { print }'; }
+          dump() {
+            f="$1"
+            [ -f "$f" ] || { echo "::error title=$(basename "$f")::MISSING on the runner"; return; }
+            { grep -nE "^e: |error:|Execution failed|What went wrong|FAILURE|FAILED|Caused by:|AssertionError|expected:|Could not resolve|No space left|Daemon" "$f" | head -25
+              echo "--- last 40 lines ---"
+              tail -40 "$f"; } | esc | { body=$(cat); echo "::error title=$(basename "$f")::${body}"; }
+          }
           echo "::notice::outcomes unit=${{ steps.unit.outcome }} build=${{ steps.build.outcome }} unitlog=$([ -f /tmp/unit.log ] && wc -c < /tmp/unit.log || echo MISSING) buildlog=$([ -f /tmp/build.log ] && wc -c < /tmp/build.log || echo MISSING)"
-          for f in /tmp/unit.log /tmp/build.log; do
-            [ -f "$f" ] || { echo "::error title=log-missing::$(esc "$f") does not exist on the runner"; continue; }
-            grep -nE "^e: |error:|Execution failed|What went wrong|FAILURE|FAILED|Caused by:|AssertionError|expected:|Could not resolve|No space left|Daemon" "$f" \
-              | head -80 \
-              | while IFS= read -r line; do
-                  echo "::error title=$(basename "$f")::$(esc "$line")"
-                done
-            tail -50 "$f" | while IFS= read -r line; do
-              echo "::error title=$(basename "$f")-tail::$(esc "$line")"
-            done
-          done
+          dump /tmp/build.log
+          dump /tmp/unit.log
           exit 1
 
       - name: Upload debug APK

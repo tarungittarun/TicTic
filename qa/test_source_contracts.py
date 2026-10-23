@@ -2090,16 +2090,21 @@ class CiDiagnosticsContracts(unittest.TestCase):
         # logs (a daemon/OOM/disk death leaves its verdict in the last lines, not in a
         # greppable FAILED), states outcomes and log sizes in a notice, and escapes %
         # because a literal percent corrupts the workflow command.
-        self.assertIn('tail -50 "$f"', annotation)
-        self.assertIn("for f in /tmp/unit.log /tmp/build.log", annotation)
+        # Cap-proof shape: ONE annotation per log with %0A-escaped newlines (GitHub
+        # registers at most ten per level per check run -- a per-line emitter let the
+        # unit tail eat every slot and silently dropped build.log, twice). Build log
+        # goes first because it is the one that matters when no APK exists.
+        self.assertIn("dump /tmp/build.log", annotation)
+        self.assertIn("dump /tmp/unit.log", annotation)
+        self.assertIn('ORS = "%0A"', annotation)
         self.assertIn("outcomes unit=", annotation)
         self.assertIn("%25", annotation)
         self.assertIn("Could not resolve", annotation)
         self.assertIn("No space left", annotation)
-        self.assertIn('-tail::', annotation)
+        self.assertIn("last 40 lines", annotation)
         # Still bounded: an unbounded dump is its own failure mode, because annotations are
         # capped and a huge log would evict the very lines that matter.
-        self.assertIn("| head -80", annotation)
+        self.assertIn("| head -25", annotation)
 
     def test_the_annotation_step_is_what_fails_the_job(self):
         # Both build steps are continue-on-error so their output can be captured;

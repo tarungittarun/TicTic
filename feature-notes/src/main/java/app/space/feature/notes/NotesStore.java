@@ -31,7 +31,8 @@ public final class NotesStore {
             for (int i = 0; i < a.length(); i++) {
                 JSONObject o = a.getJSONObject(i);
                 out.add(new NotesRules.Note(
-                        o.optString("id"), o.optString("title"), o.optString("body"), o.optLong("updatedAt")));
+                        o.optString("id"), o.optString("title"), o.optString("body"), o.optLong("updatedAt"),
+                        o.optInt("color", 0), o.optBoolean("pinned", false), o.optBoolean("archived", false)));
             }
         } catch (Exception e) {
             // Corrupt or absent data reads as an empty list rather than crashing the screen.
@@ -45,7 +46,8 @@ public final class NotesStore {
         try {
             for (NotesRules.Note n : NotesRules.capped(notes, CAP)) {
                 a.put(new JSONObject().put("id", n.id).put("title", n.title)
-                        .put("body", n.body).put("updatedAt", n.updatedAt));
+                        .put("body", n.body).put("updatedAt", n.updatedAt)
+                        .put("color", n.color).put("pinned", n.pinned).put("archived", n.archived));
             }
         } catch (Exception e) {
             return;

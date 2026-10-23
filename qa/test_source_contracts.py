@@ -3670,6 +3670,45 @@ class InAppNavigationContracts(unittest.TestCase):
         self.assertIn("case APPS:", view)
 
 
+class GoogleNotesParityContracts(unittest.TestCase):
+    """The owner's line: "For notes, recreate google notes." Google Notes is a wall of coloured
+    cards with pins, an archive drawer and checklists -- not a list of titled rows, which is what
+    this was. These pin the pieces of that parity, structure here and behaviour in the JVM suite.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-notes/src/main/java/app/space/feature/notes/NotesScreen.java").read_text())
+        self.rules = java_code_only(
+            (ROOT / "feature-notes/src/main/java/app/space/feature/notes/NotesRules.java").read_text())
+
+    def test_the_wall_is_a_two_column_grid_of_coloured_cards(self):
+        self.assertIn("if (i % 2 == 0) {", self.screen)
+        self.assertIn("card.setBackground(ui.shape(noteColor(ui, note.color), 16));", self.screen)
+        self.assertIn("public static final int COLOR_COUNT = 7;", self.rules)
+        self.assertIn("ui.palette().dark ? dark[i] : light[i]", self.screen)
+
+    def test_pins_reach_the_top_and_the_archive_files_rather_than_deletes(self):
+        self.assertIn("if (a.pinned != b.pinned) return a.pinned ? -1 : 1;", self.rules)
+        self.assertIn("public static List<Note> archived(List<Note> notes)", self.rules)
+        self.assertIn('ui.pillButton(showArchived ? "Notes" : "Archive"', self.screen)
+
+    def test_checklists_live_in_the_note_text_so_they_survive_everything(self):
+        # Plain-text markers mean export, search and sync-free storage all keep working.
+        self.assertIn('line.startsWith("[ ] ")', self.rules)
+        self.assertIn("public static String toggleChecklistLineAt(String body, int lineIndex)", self.rules)
+        self.assertIn("NotesRules.toggleChecklistLineAt(text, line)", self.screen)
+
+    def test_search_submits_instead_of_rebuilding_per_keystroke(self):
+        # A search box that loses focus after one character is a search box nobody uses.
+        self.assertIn("search.setOnEditorActionListener(", self.screen)
+        self.assertNotIn("search.addTextChangedListener(", self.screen)
+
+    def test_leaving_the_editor_saves_and_an_empty_new_note_is_discarded(self):
+        self.assertIn("private void saveDraft(Context context)", self.screen)
+        self.assertIn("if (title.isEmpty() && bodyText.trim().isEmpty()) return;", self.screen)
+
+
 class DocumentViewerContracts(unittest.TestCase):
     """The owner withdrew the Documents app and folded its viewing into Files: "just add that
     into files app". A spreadsheet must render as a table, an image as an image, a PDF as pages --

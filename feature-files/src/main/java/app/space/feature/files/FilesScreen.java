@@ -50,6 +50,11 @@ public final class FilesScreen implements Screen {
     private String query = "";
     private int sortMode = FileRules.SORT_NAME;
     private String viewingPath;
+    // Shared-storage (SAF) browse state. The tree URI lives in prefs so the grant outlives
+    // the screen; the parent document id and the descent stack are per-session, like `relative`.
+    private boolean safBrowse;
+    private String safParent;
+    private final java.util.ArrayDeque<String> safStack = new java.util.ArrayDeque<>();
     private android.graphics.pdf.PdfRenderer pdfRenderer;
     private int pdfPage;
     private String editingPath;
@@ -76,6 +81,7 @@ public final class FilesScreen implements Screen {
         if (viewingPath != null) return buildViewer(context, ui);
         // Samsung My Files opens on categories, not on a folder: Images, Videos, Audio,
         // Documents. The folder browser is one row down, where that app keeps storage locations.
+        if (safBrowse) return inScroll(buildSafPage(context, ui));
         if (category != null) return inScroll(buildCategoryPage(context, ui));
         if (!browsing) return inScroll(buildHome(context, ui));
         final File root = context.getFilesDir();
@@ -687,6 +693,31 @@ public final class FilesScreen implements Screen {
             @Override public void onClick(View v) { browsing = true; relative = ""; host.invalidate(); }
         });
 
+        // ---- shared storage: the user picks ONE folder; no all-files permission is taken ----
+        LinearLayout shared = ui.card();
+        page.addView(shared, cardParams(ui));
+        LinearLayout hrow = ui.hbox();
+        hrow.setGravity(Gravity.CENTER_VERTICAL);
+        shared.addView(hrow, ui.lp(-1, -2));
+        hrow.addView(ui.label("Shared folder", 15, ui.palette().text, true),
+                new LinearLayout.LayoutParams(0, -2, 1f));
+        final boolean hasTree = safTree(context) != null;
+        hrow.addView(ui.label(hasTree ? "browse the folder you chose" : "choose a folder",
+                11, ui.palette().muted, false), ui.lp(-2, -2));
+        hrow.addView(ui.label("\u203a", 16, ui.palette().accent, true), ui.lp(-2, -2));
+        shared.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (hasTree) {
+                    safBrowse = true;
+                    safParent = null;
+                    safStack.clear();
+                    host.invalidate();
+                } else {
+                    pickSafTree(context);
+                }
+            }
+        });
+
         // ---- backup: the full data round-trip lives where the owner already thinks in files ----
         ui.sectionTitle(page, "Backup", "settings, notes, recordings -- everything");
         LinearLayout backupRow = ui.hbox();
@@ -711,6 +742,9 @@ public final class FilesScreen implements Screen {
     }
 
     private static final int IMPORT_BACKUP = 94;
+    /** 96, inside the 90-99 band the host forwards and clear of 94 (import) and 95 (music). */
+    private static final int SAF_TREE = 96;
+    private static final String SAF_KEY = "files_saf_tree";
 
     /** Zips every preference file and every data file, then offers the zip to the world. */
     private void exportData(Context context) {
@@ -748,8 +782,280 @@ public final class FilesScreen implements Screen {
         }
     }
 
+    // ---- shared storage via SAF: framework DocumentsContract only, no new dependency ----
+
+    private android.net.Uri safTree(Context context) {
+        String saved = app.space.core.data.AppPrefs.prefs(context).getString(SAF_KEY, "");
+        if (saved.isEmpty()) return null;
+        try {
+            return android.net.Uri.parse(saved);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void pickSafTree(Context context) {
+        android.content.Intent intent =
+                new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT_TREE);
+        try {
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).startActivityForResult(intent, SAF_TREE);
+            } else {
+                host.toast("Cannot open the picker here.");
+            }
+        } catch (Exception e) {
+            host.toast("No folder picker is available.");
+        }
+    }
+
+    private void removeSafAccess(Context context) {
+        android.net.Uri tree = safTree(context);
+        if (tree != null) {
+            try {
+                context.getContentResolver().releasePersistableUriPermission(tree,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            } catch (Exception ignored) {
+            }
+        }
+        app.space.core.data.AppPrefs.prefs(context).edit().remove(SAF_KEY).apply();
+        safBrowse = false;
+        safParent = null;
+        safStack.clear();
+        host.invalidate();
+        host.toast("MySpace can no longer see that folder.");
+    }
+
+    private static final class SafRow {
+        final String docId;
+        final String name;
+        final String mime;
+        final boolean dir;
+        final long size;
+        SafRow(String docId, String name, String mime, boolean dir, long size) {
+            this.docId = docId;
+            this.name = name;
+            this.mime = mime;
+            this.dir = dir;
+            this.size = size;
+        }
+    }
+
+    private View buildSafPage(final Context context, final UiKit ui) {
+        final android.net.Uri tree = safTree(context);
+        if (tree == null) safBrowse = false;
+        LinearLayout page = ui.vbox();
+        page.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(14));
+        TextView back = ui.pillButton(safParent == null ? "\u2039 MySpace files" : "\u2039 Up a folder",
+                ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams bp = ui.lp(-2, 40);
+        bp.bottomMargin = ui.dp(6);
+        page.addView(back, bp);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (safParent == null) {
+                    safBrowse = false;
+                } else {
+                    String up = safStack.isEmpty() ? "" : safStack.pop();
+                    safParent = up.isEmpty() ? null : up;
+                }
+                host.invalidate();
+            }
+        });
+        if (tree == null) {
+            page.addView(ui.label("Access to the shared folder was removed.",
+                    13, ui.palette().muted, false), ui.lp(-1, -2));
+            return page;
+        }
+        ui.sectionTitle(page, "Shared folder",
+                "tap a file to open it \u00b7 long-press to copy it into MySpace");
+        String parentId = safParent == null
+                ? android.provider.DocumentsContract.getTreeDocumentId(tree)
+                : safParent;
+        List<SafRow> rows = new ArrayList<>();
+        android.database.Cursor cursor = null;
+        try {
+            android.net.Uri children = android.provider.DocumentsContract
+                    .buildChildDocumentsUriUsingTree(tree, parentId);
+            cursor = context.getContentResolver().query(children, new String[]{
+                    android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    android.provider.DocumentsContract.Document.COLUMN_SIZE}, null, null, null);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String mime = cursor.isNull(2) ? null : cursor.getString(2);
+                    rows.add(new SafRow(cursor.getString(0), cursor.getString(1), mime,
+                            android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(mime),
+                            cursor.isNull(3) ? 0L : cursor.getLong(3)));
+                }
+            }
+        } catch (Exception e) {
+            page.addView(ui.label("That folder cannot be read: " + e.getClass().getSimpleName(),
+                    13, ui.palette().muted, false), ui.lp(-1, -2));
+            return page;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        java.util.Collections.sort(rows, new java.util.Comparator<SafRow>() {
+            @Override public int compare(SafRow a, SafRow b) {
+                if (a.dir != b.dir) return a.dir ? -1 : 1;
+                return a.name.compareToIgnoreCase(b.name);
+            }
+        });
+        if (rows.isEmpty()) {
+            page.addView(ui.label("Nothing in this folder yet.", 13, ui.palette().muted, false),
+                    ui.lp(-1, -2));
+        }
+        for (final SafRow row : rows) {
+            LinearLayout card = ui.card();
+            page.addView(card, cardParams(ui));
+            LinearLayout line = ui.hbox();
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            card.addView(line, ui.lp(-1, -2));
+            line.addView(ui.label(row.name, 14, ui.palette().text, false),
+                    new LinearLayout.LayoutParams(0, -2, 1f));
+            line.addView(ui.label(row.dir ? "\u203a" : FileRules.formatBytes(row.size),
+                    row.dir ? 16 : 11, row.dir ? ui.palette().accent : ui.palette().muted, row.dir),
+                    ui.lp(-2, -2));
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (row.dir) {
+                        safStack.push(safParent == null ? "" : safParent);
+                        safParent = row.docId;
+                        host.invalidate();
+                    } else {
+                        openSafFile(context, tree, row);
+                    }
+                }
+            });
+            card.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override public boolean onLongClick(View v) {
+                    if (row.dir) return false;
+                    copySafIntoApp(context, tree, row);
+                    return true;
+                }
+            });
+        }
+        LinearLayout actions = ui.hbox();
+        LinearLayout.LayoutParams ap = ui.lp(-1, 46);
+        ap.topMargin = ui.dp(10);
+        page.addView(actions, ap);
+        TextView change = ui.pillButton("Choose a different folder", ui.palette().surface,
+                ui.palette().text);
+        LinearLayout.LayoutParams chp = ui.lp(0, 46);
+        chp.weight = 1f;
+        actions.addView(change, chp);
+        change.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                android.net.Uri old = safTree(context);
+                if (old != null) {
+                    try {
+                        context.getContentResolver().releasePersistableUriPermission(old,
+                                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                        | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    } catch (Exception ignored) {
+                    }
+                }
+                safBrowse = false;
+                safParent = null;
+                safStack.clear();
+                pickSafTree(context);
+            }
+        });
+        TextView remove = ui.pillButton("Remove access", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams rmp = ui.lp(0, 46);
+        rmp.weight = 1f;
+        rmp.leftMargin = ui.dp(6);
+        actions.addView(remove, rmp);
+        remove.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { removeSafAccess(context); }
+        });
+        return page;
+    }
+
+    private void openSafFile(Context context, android.net.Uri tree, SafRow row) {
+        try {
+            android.net.Uri doc = android.provider.DocumentsContract
+                    .buildDocumentUriUsingTree(tree, row.docId);
+            android.content.Intent open = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+            open.setDataAndType(doc, row.mime == null ? "*/*" : row.mime);
+            open.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            android.content.Intent chooser = android.content.Intent.createChooser(open, "Open " + row.name);
+            chooser.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.startActivity(chooser);
+        } catch (Exception e) {
+            host.toast("Nothing here can open " + row.name + ".");
+        }
+    }
+
+    /** Copies into filesDir/shared, so the file joins the browser, viewer and editor stacks as-is. */
+    private void copySafIntoApp(Context context, android.net.Uri tree, SafRow row) {
+        String name = FileRules.safeDocumentName(row.name);
+        if (name.isEmpty()) {
+            host.toast("That file has no usable name.");
+            return;
+        }
+        File dir = new File(context.getFilesDir(), "shared");
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            host.toast("Cannot prepare the shared folder.");
+            return;
+        }
+        int dot = name.lastIndexOf('.');
+        String stem = dot <= 0 ? name : name.substring(0, dot);
+        String suffix = dot <= 0 ? "" : name.substring(dot);
+        String chosen = name;
+        int n = 1;
+        while (new File(dir, chosen).exists()) {
+            chosen = stem + " (" + n + ")" + suffix;
+            n++;
+        }
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = context.getContentResolver().openInputStream(
+                    android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, row.docId));
+            if (in == null) {
+                host.toast("That file cannot be read.");
+                return;
+            }
+            out = new FileOutputStream(new File(dir, chosen));
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) > 0) out.write(buffer, 0, read);
+            host.toast("Copied to Files / shared / " + chosen);
+        } catch (Exception e) {
+            host.toast("The copy failed: " + e.getClass().getSimpleName());
+        } finally {
+            try { if (in != null) in.close(); } catch (Exception ignored) { }
+            try { if (out != null) out.close(); } catch (Exception ignored) { }
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        if (requestCode == SAF_TREE) {
+            if (resultCode != android.app.Activity.RESULT_OK || data == null || data.getData() == null) {
+                host.toast("No folder chosen.");
+                return;
+            }
+            android.net.Uri tree = data.getData();
+            try {
+                host.context().getContentResolver().takePersistableUriPermission(tree,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            } catch (Exception e) {
+                host.toast("Could not keep access to that folder.");
+                return;
+            }
+            app.space.core.data.AppPrefs.prefs(host.context()).edit()
+                    .putString(SAF_KEY, tree.toString()).apply();
+            safBrowse = true;
+            safParent = null;
+            safStack.clear();
+            host.invalidate();
+            return;
+        }
         if (requestCode != IMPORT_BACKUP) return;
         if (resultCode != android.app.Activity.RESULT_OK || data == null || data.getData() == null) {
             host.toast("No backup chosen.");

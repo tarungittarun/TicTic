@@ -147,4 +147,27 @@ public class FileRulesTest {
         assertTrue(FileRules.matchesQuery("Notes.txt", "   "));
         assertFalse(FileRules.matchesQuery(null, "x"));
     }
+    @Test public void safeDocumentNameKeepsOrdinaryNames() {
+        assertEquals("photo.jpg", FileRules.safeDocumentName("photo.jpg"));
+        assertEquals("my report (final).pdf", FileRules.safeDocumentName("my report (final).pdf"));
+    }
+
+    @Test public void safeDocumentNameDefangsSeparatorsAndDots() {
+        // A provider is another app; its display name is untrusted input bound for new File().
+        assertEquals("_evil_name.txt", FileRules.safeDocumentName("../evil/name.txt"));
+        assertEquals("a_b", FileRules.safeDocumentName("a\\b"));
+        assertEquals("", FileRules.safeDocumentName(".."));
+        assertEquals("", FileRules.safeDocumentName("..."));
+        assertEquals("", FileRules.safeDocumentName(null));
+        assertEquals("", FileRules.safeDocumentName("   "));
+    }
+
+    @Test public void safeDocumentNameCapsFromTheFrontSoTheExtensionSurvives() {
+        StringBuilder longName = new StringBuilder();
+        for (int i = 0; i < 200; i++) longName.append('x');
+        longName.append(".pdf");
+        String capped = FileRules.safeDocumentName(longName.toString());
+        assertEquals(120, capped.length());
+        assertTrue(capped.endsWith(".pdf"));
+    }
 }

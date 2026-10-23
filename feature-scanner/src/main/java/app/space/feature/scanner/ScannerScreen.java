@@ -46,7 +46,7 @@ import app.space.core.suite.ScreenHost;
 public final class ScannerScreen implements Screen {
 
     private static final int PICK_IMAGES = 90;
-    private static final int TAKE_PHOTO = 91;
+    private static final int TAKE_PHOTO = 97;
     /** Longest edge decoded when drawing. Larger bitmaps risk an OutOfMemoryError mid-write. */
     private static final int MAX_DECODE_EDGE = 1600;
 

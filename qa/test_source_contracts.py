@@ -3398,7 +3398,7 @@ class DeviceTestReadinessContracts(unittest.TestCase):
         codes = []
         for path in (ROOT).glob("feature-*/src/main/java/app/space/feature/*/*Screen.java"):
             body = path.read_text()
-            for match in re.finditer(r"(PICK_IMAGES|PICK_AUDIO|PERMISSION_REQUEST)\s*=\s*(\d+)", body):
+            for match in re.finditer(r"(PICK_IMAGES|PICK_AUDIO|PERMISSION_REQUEST|TAKE_PHOTO|IMPORT_BACKUP|SAF_TREE)\s*=\s*(\d+)", body):
                 codes.append((path.name, match.group(1), int(match.group(2))))
         self.assertTrue(codes, "no screen request codes found")
         for name, constant, code in codes:
@@ -3881,7 +3881,7 @@ class ScannerCaptureContracts(unittest.TestCase):
         self.assertIn("intent.resolveActivity(context.getPackageManager())", self.screen)
 
     def test_the_capture_round_trip_lands_the_page_in_the_list(self):
-        self.assertIn("private static final int TAKE_PHOTO = 91;", self.screen)
+        self.assertIn("private static final int TAKE_PHOTO = 97;", self.screen)
         self.assertIn("intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, destination);", self.screen)
         self.assertIn("Intent.FLAG_GRANT_WRITE_URI_PERMISSION", self.screen)
         self.assertIn("if (requestCode == TAKE_PHOTO) {", self.screen)
@@ -4057,6 +4057,57 @@ class RoomAdoptionContracts(unittest.TestCase):
         screen = java_code_only(
             (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
         self.assertIn("RoomBridge.resetAfterRestore(context);", screen)
+
+
+class SafBrowseContracts(unittest.TestCase):
+    """The plan's SAF line: Files reaches shared storage through the Storage Access
+    Framework -- the user picks one folder, the grant persists, and no all-files
+    permission is taken. Framework DocumentsContract only: the suite gains capability
+    without gaining a dependency, and the copy-in path treats the provider's display
+    name as the untrusted input it is.
+    """
+
+    def setUp(self):
+        files = ROOT / "feature-files/src/main/java/app/space/feature/files"
+        self.screen = java_code_only((files / "FilesScreen.java").read_text())
+        self.rules = java_code_only((files / "FileRules.java").read_text())
+        self.ruleTests = (ROOT / "feature-files/src/test/java/app/space/feature/files"
+                          / "FileRulesTest.java").read_text()
+
+    def test_the_tree_picker_uses_a_reserved_code_and_the_framework_intent(self):
+        self.assertIn("private static final int SAF_TREE = 96;", self.screen)
+        self.assertIn("ACTION_OPEN_DOCUMENT_TREE", self.screen)
+        self.assertIn("startActivityForResult(intent, SAF_TREE)", self.screen)
+
+    def test_the_grant_is_taken_persisted_released_and_remembered_in_prefs(self):
+        self.assertIn("takePersistableUriPermission(tree,", self.screen)
+        self.assertIn("releasePersistableUriPermission(", self.screen)
+        self.assertIn('"files_saf_tree"', self.screen)
+        self.assertIn(".remove(SAF_KEY).apply()", self.screen)
+
+    def test_browsing_goes_through_tree_uris_only(self):
+        self.assertIn("DocumentsContract.getTreeDocumentId(tree)", self.screen)
+        self.assertIn("buildChildDocumentsUriUsingTree(tree, parentId)", self.screen)
+        self.assertIn("buildDocumentUriUsingTree(tree, row.docId)", self.screen)
+        self.assertIn("COLUMN_DOCUMENT_ID", self.screen)
+        # The SAF page must be reachable from build() ahead of the category page.
+        self.assertLess(self.screen.index("if (safBrowse) return inScroll(buildSafPage(context, ui));"),
+                        self.screen.index("if (category != null)"))
+        # And the result handler must branch on SAF_TREE before the import early-return.
+        self.assertLess(self.screen.index("if (requestCode == SAF_TREE) {"),
+                        self.screen.index("if (requestCode != IMPORT_BACKUP) return;"))
+
+    def test_copied_names_pass_through_the_untrusted_name_rule(self):
+        self.assertIn("public static String safeDocumentName(String display)", self.rules)
+        self.assertIn("FileRules.safeDocumentName(row.name)", self.screen)
+        self.assertIn('new File(context.getFilesDir(), "shared")', self.screen)
+        self.assertIn("safeDocumentNameDefangsSeparatorsAndDots", self.ruleTests)
+        self.assertIn("safeDocumentNameCapsFromTheFrontSoTheExtensionSurvives", self.ruleTests)
+
+    def test_saf_lands_without_a_single_new_dependency(self):
+        for gradle in ROOT.glob("*/build.gradle"):
+            self.assertNotIn("documentfile", gradle.read_text().lower(),
+                             "%s must not add androidx.documentfile -- DocumentsContract is framework" % gradle)
 
 
 class DataBackupContracts(unittest.TestCase):

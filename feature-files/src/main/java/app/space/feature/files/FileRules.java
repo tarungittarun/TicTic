@@ -86,6 +86,24 @@ public final class FileRules {
      * <p>{@code ..} and separators are the dangerous cases: a rename accepting them writes
      * outside app-private storage, which is not recoverable and not visible to the user.
      */
+    /**
+     * Defangs a display name that arrives from a document provider.
+     *
+     * <p>A SAF provider is another app: its COLUMN_DISPLAY_NAME is untrusted input on its
+     * way to {@code new File(...)}, which is exactly the shape isSafeName guards renames
+     * against. Separators become underscores, leading dots are stripped so {@code ..} can
+     * never climb out of the destination folder, and the length is capped from the front so
+     * the extension survives. Empty means "no usable name" and the caller must refuse.
+     */
+    public static String safeDocumentName(String display) {
+        if (display == null) return "";
+        String cleaned = display.replace('/', '_').replace('\\', '_').trim();
+        while (cleaned.startsWith(".")) cleaned = cleaned.substring(1);
+        if (cleaned.isEmpty()) return "";
+        if (cleaned.length() > 120) cleaned = cleaned.substring(cleaned.length() - 120);
+        return cleaned;
+    }
+
     public static boolean isSafeName(String name) {
         if (name == null) return false;
         String trimmed = name.trim();

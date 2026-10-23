@@ -161,4 +161,95 @@ public final class ScannerRules {
     public static String pageLabel(int count) {
         return count + (count == 1 ? " page" : " pages");
     }
+
+    // ---- crop and enhance: the pure maths of straightening a photographed page ----
+
+    public static final int MODE_ORIGINAL = 0;
+    public static final int MODE_GRAY = 1;
+    public static final int MODE_MAGIC = 2;
+
+    public static float clamp01(float value) {
+        return value < 0f ? 0f : (value > 1f ? 1f : value);
+    }
+
+    /**
+     * Four points in any order, out as top-left, top-right, bottom-right, bottom-left.
+     * The perspective map is only correct when source and destination corners correspond,
+     * and "correspond" needs a canonical order: TL minimises x+y, BR maximises it,
+     * TR maximises x-y, BL minimises it. True for any convex quad, which a dragged crop
+     * frame always is until the user crosses the corners -- and crossing them just mirrors
+     * the output rather than crashing anything.
+     */
+    public static float[] orderQuad(float[] pts) {
+        if (pts == null || pts.length < 8) return new float[8];
+        int tl = 0, tr = 0, br = 0, bl = 0;
+        float minSum = Float.MAX_VALUE, maxSum = -Float.MAX_VALUE;
+        float maxDiff = -Float.MAX_VALUE, minDiff = Float.MAX_VALUE;
+        for (int i = 0; i < 4; i++) {
+            float x = pts[2 * i], y = pts[2 * i + 1];
+            float sum = x + y, diff = x - y;
+            if (sum < minSum) { minSum = sum; tl = i; }
+            if (sum > maxSum) { maxSum = sum; br = i; }
+            if (diff > maxDiff) { maxDiff = diff; tr = i; }
+            if (diff < minDiff) { minDiff = diff; bl = i; }
+        }
+        return new float[]{
+                pts[2 * tl], pts[2 * tl + 1],
+                pts[2 * tr], pts[2 * tr + 1],
+                pts[2 * br], pts[2 * br + 1],
+                pts[2 * bl], pts[2 * bl + 1]};
+    }
+
+    /**
+     * The output size of a corrected crop: the longer horizontal edge becomes the width, the
+     * longer vertical edge the height, so no source pixel is squeezed. Ordered TL,TR,BR,BL.
+     */
+    public static int[] correctedSize(float[] orderedQuad) {
+        if (orderedQuad == null || orderedQuad.length < 8) return new int[]{1, 1};
+        double top = edge(orderedQuad, 0, 1);
+        double right = edge(orderedQuad, 1, 2);
+        double bottom = edge(orderedQuad, 2, 3);
+        double left = edge(orderedQuad, 3, 0);
+        int width = (int) Math.ceil(Math.max(top, bottom));
+        int height = (int) Math.ceil(Math.max(left, right));
+        return new int[]{Math.max(1, width), Math.max(1, height)};
+    }
+
+    private static double edge(float[] pts, int a, int b) {
+        double dx = pts[2 * b] - pts[2 * a];
+        double dy = pts[2 * b + 1] - pts[2 * a + 1];
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    /**
+     * The 4x5 colour matrix for an enhance mode. Gray is the standard luma projection;
+     * "magic" is a contrast stretch -- documents photographed under room light come out
+     * washed gray, and pulling the blacks down and the whites up is what makes text readable.
+     */
+    public static float[] correctionMatrix(int mode) {
+        if (mode == MODE_GRAY) {
+            return new float[]{
+                    0.2126f, 0.7152f, 0.0722f, 0, 0,
+                    0.2126f, 0.7152f, 0.0722f, 0, 0,
+                    0.2126f, 0.7152f, 0.0722f, 0, 0,
+                    0, 0, 0, 1, 0};
+        }
+        if (mode == MODE_MAGIC) {
+            return new float[]{
+                    1.4f, 0, 0, 0, -50f,
+                    0, 1.4f, 0, 0, -50f,
+                    0, 0, 1.4f, 0, -50f,
+                    0, 0, 0, 1, 0};
+        }
+        return new float[]{
+                1, 0, 0, 0, 0,
+                0, 1, 0, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 0, 1, 0};
+    }
+
+    /** A page whose pixels were re-made: same identity and rotation, new source and size. */
+    public static Page resourced(Page page, String newUri, int width, int height) {
+        return new Page(page.id, newUri, width, height, page.rotation);
+    }
 }

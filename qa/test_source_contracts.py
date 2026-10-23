@@ -3764,6 +3764,54 @@ class CalendarParityContracts(unittest.TestCase):
         self.assertIn("public static String timeLabel(", self.rules)
 
 
+class ScannerCropEnhanceContracts(unittest.TestCase):
+    """CamScanner's loop is capture-crop-enhance-PDF. Capture shipped last slice and the PDF
+    writer already existed; these pin the middle two: a four-handle crop frame whose corners
+    live normalised, the perspective map applied through the rules' canonical ordering, and
+    enhance modes whose colour matrices are exact, JVM-tested numbers rather than vibes.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/ScannerScreen.java").read_text())
+        self.rules = java_code_only(
+            (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/ScannerRules.java").read_text())
+
+    def test_the_editor_opens_from_the_page_row_and_owns_the_screen(self):
+        self.assertIn("addStep(row, ui, \"\\u2702\", true,", self.screen)
+        self.assertIn("if (editingPage != null) {", self.screen)
+        self.assertIn("private View buildEditor(final Context context, final UiKit ui)", self.screen)
+
+    def test_corners_are_draggable_and_normalised(self):
+        self.assertIn("private final class CropView extends View", self.screen)
+        self.assertIn("private final float[] corners =", self.screen)
+        self.assertIn("ScannerRules.clamp01((x - content.left) / content.width())", self.screen)
+        self.assertIn("private int nearestHandle(float x, float y)", self.screen)
+
+    def test_the_perspective_map_goes_through_the_ordered_quad(self):
+        self.assertIn("float[] ordered = ScannerRules.orderQuad(crop.quadPixels());", self.screen)
+        self.assertIn("int[] size = ScannerRules.correctedSize(ordered);", self.screen)
+        self.assertIn("map.setPolyToPoly(ordered, 0,", self.screen)
+        self.assertIn("public static float[] orderQuad(float[] pts)", self.rules)
+
+    def test_enhance_modes_are_pinned_numbers_not_vibes(self):
+        self.assertIn("public static float[] correctionMatrix(int mode)", self.rules)
+        self.assertIn("0.2126f, 0.7152f, 0.0722f", self.rules)
+        self.assertIn("1.4f, 0, 0, 0, -50f,", self.rules)
+        self.assertIn("String[] modeLabels = {\"Original\", \"Gray\", \"Magic colour\"};", self.screen)
+        self.assertIn("ScannerRules.correctionMatrix(enhanceMode)", self.screen)
+
+    def test_switching_modes_keeps_the_dragged_corners(self):
+        # A rebuild that resets the crop frame teaches the owner to hate the enhance row.
+        self.assertIn("editQuad = crop.quad();", self.screen)
+        self.assertIn("crop.setQuad(editQuad);", self.screen)
+
+    def test_the_straightened_page_replaces_the_old_one_by_id(self):
+        self.assertIn("ScannerRules.Page updated = ScannerRules.resourced(editingPage,", self.screen)
+        self.assertIn("if (pages.get(i).id.equals(editingPage.id)) { pages.set(i, updated); break; }", self.screen)
+        self.assertIn("public static Page resourced(Page page, String newUri, int width, int height)", self.rules)
+
+
 class ScannerCaptureContracts(unittest.TestCase):
     """Defect 20: "Scanner does not capture like CamScanner." The capture half of the
     capture-crop-enhance-PDF loop: the system camera writes into a private inbox through a

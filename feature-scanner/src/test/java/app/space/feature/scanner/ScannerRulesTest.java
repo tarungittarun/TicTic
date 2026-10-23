@@ -149,4 +149,59 @@ public class ScannerRulesTest {
         for (ScannerRules.Page p : pages) out.add(p.id);
         return out;
     }
+
+    @Test public void cornersComeOutInCanonicalOrderFromAnyOrder() {
+        // BR, TL, TR, BL in; TL, TR, BR, BL out.
+        float[] shuffled = {9f, 9f, 1f, 1f, 9f, 1f, 1f, 9f};
+        float[] ordered = ScannerRules.orderQuad(shuffled);
+        assertTrue(Arrays.equals(new float[]{1f, 1f, 9f, 1f, 9f, 9f, 1f, 9f}, ordered));
+        // Already ordered stays ordered.
+        assertTrue(Arrays.equals(ordered, ScannerRules.orderQuad(ordered)));
+    }
+
+    @Test public void theCorrectedSizeIsTheLongerEdgeEachWay() {
+        float[] quad = {0f, 0f, 10f, 0f, 10f, 8f, 0f, 8f};
+        int[] size = ScannerRules.correctedSize(ScannerRules.orderQuad(quad));
+        assertEquals(10, size[0]);
+        assertEquals(8, size[1]);
+        // A tilted page: the top edge is longer than the bottom, and wins.
+        float[] tilted = {0f, 0f, 12f, 1f, 10f, 9f, 1f, 8f};
+        int[] tiltedSize = ScannerRules.correctedSize(ScannerRules.orderQuad(tilted));
+        assertEquals((int) Math.ceil(Math.hypot(12, 1)), tiltedSize[0]);
+        assertEquals((int) Math.ceil(Math.hypot(1, 8)), tiltedSize[1]);
+        // Degenerate input cannot produce a zero-sized bitmap.
+        assertTrue(ScannerRules.correctedSize(new float[8])[0] >= 1);
+    }
+
+    @Test public void enhanceModesAreExactMatrices() {
+        float[] original = ScannerRules.correctionMatrix(ScannerRules.MODE_ORIGINAL);
+        assertEquals(20, original.length);
+        assertEquals(1f, original[0], 0.0001f);
+        assertEquals(0f, original[4], 0.0001f);
+        float[] gray = ScannerRules.correctionMatrix(ScannerRules.MODE_GRAY);
+        // The luma row sums to one: gray never brightens or darkens the page as a whole.
+        assertEquals(1f, gray[0] + gray[1] + gray[2], 0.001f);
+        assertTrue(Arrays.equals(new float[]{gray[0], gray[1], gray[2], gray[3], gray[4]},
+                new float[]{gray[5], gray[6], gray[7], gray[8], gray[9]}));
+        float[] magic = ScannerRules.correctionMatrix(ScannerRules.MODE_MAGIC);
+        assertEquals(1.4f, magic[0], 0.0001f);
+        assertEquals(-50f, magic[4], 0.0001f);
+        assertEquals(1f, magic[18], 0.0001f);
+    }
+
+    @Test public void resourcingKeepsIdentityAndRotation() {
+        ScannerRules.Page page = new ScannerRules.Page("p1", "content://old", 100, 200, 90);
+        ScannerRules.Page cropped = ScannerRules.resourced(page, "file:///new.jpg", 80, 160);
+        assertEquals("p1", cropped.id);
+        assertEquals("file:///new.jpg", cropped.sourceUri);
+        assertEquals(80, cropped.pixelWidth);
+        assertEquals(160, cropped.pixelHeight);
+        assertEquals(90, cropped.rotation);
+    }
+
+    @Test public void clampKeepsHandlesOnThePage() {
+        assertEquals(0f, ScannerRules.clamp01(-0.5f), 0.0001f);
+        assertEquals(1f, ScannerRules.clamp01(1.5f), 0.0001f);
+        assertEquals(0.42f, ScannerRules.clamp01(0.42f), 0.0001f);
+    }
 }

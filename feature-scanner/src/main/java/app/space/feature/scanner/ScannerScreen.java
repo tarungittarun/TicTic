@@ -55,6 +55,10 @@ public final class ScannerScreen implements Screen {
     private boolean a4 = true;
     /** Where the camera was told to write; held across the activity round-trip. */
     private Uri pendingCapture;
+    /** The page under the crop editor; null means the normal screen. */
+    private ScannerRules.Page editingPage;
+    private float[] editQuad;
+    private int enhanceMode = ScannerRules.MODE_ORIGINAL;
 
     public ScannerScreen(ScreenHost host) { this.host = host; }
 
@@ -63,6 +67,11 @@ public final class ScannerScreen implements Screen {
     @Override
     public View build(final Context context) {
         final UiKit ui = new UiKit(context, host.palette());
+        if (editingPage != null) {
+            View editor = buildEditor(context, ui);
+            if (editor != null) return editor;
+            // buildEditor clears editingPage when the decode fails; fall through to the list.
+        }
         ScrollView scroll = new ScrollView(context);
         scroll.setVerticalScrollBarEnabled(false);
         LinearLayout root = ui.vbox();
@@ -153,6 +162,14 @@ public final class ScannerScreen implements Screen {
             addStep(row, ui, "\u2193", position < usable.size() - 1, new View.OnClickListener() {
                 @Override public void onClick(View v) { reorder(position, position + 1); }
             });
+            addStep(row, ui, "\u2702", true, new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    editingPage = page;
+                    editQuad = null;
+                    enhanceMode = ScannerRules.MODE_ORIGINAL;
+                    host.invalidate();
+                }
+            });
             addStep(row, ui, "\u21bb", true, new View.OnClickListener() {
                 @Override public void onClick(View v) { rotate(page); }
             });
@@ -223,6 +240,256 @@ public final class ScannerScreen implements Screen {
             }
         } catch (Exception e) {
             host.toast("No document picker is available.");
+        }
+    }
+
+
+    /**
+     * Crop and enhance, the CamScanner loop's middle two steps: drag the four corners onto the
+     * page's real corners, pick how hard to push the contrast, and the perspective map does the
+     * rest. The maths lives in ScannerRules where the JVM can see it; this is the canvas half.
+     */
+    private View buildEditor(final Context context, final UiKit ui) {
+        final Bitmap source = decode(context, editingPage);
+        if (source == null) {
+            editingPage = null;
+            host.toast("That page could not be decoded.");
+            return null;
+        }
+        LinearLayout root = ui.vbox();
+        root.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(12));
+
+        LinearLayout head = ui.hbox();
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        root.addView(head, ui.lp(-1, 44));
+        TextView back = ui.pillButton("\u2039", ui.palette().surface, ui.palette().text);
+        head.addView(back, ui.lp(44, 40));
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                editingPage = null;
+                source.recycle();
+                host.invalidate();
+            }
+        });
+        TextView heading = ui.label("Crop \u00b7 enhance", 16, ui.palette().text, true);
+        heading.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams hlp = ui.lp(0, -2);
+        hlp.weight = 1f;
+        head.addView(heading, hlp);
+
+        final CropView crop = new CropView(context, source, ui);
+        crop.setQuad(editQuad);
+        crop.setEnhance(enhanceMode);
+        LinearLayout.LayoutParams cvp = new LinearLayout.LayoutParams(-1, 0, 1f);
+        cvp.topMargin = ui.dp(8);
+        root.addView(crop, cvp);
+
+        LinearLayout modes = ui.hbox();
+        LinearLayout.LayoutParams mlp = ui.lp(-1, 40);
+        mlp.topMargin = ui.dp(8);
+        root.addView(modes, mlp);
+        String[] modeLabels = {"Original", "Gray", "Magic colour"};
+        int[] modeValues = {ScannerRules.MODE_ORIGINAL, ScannerRules.MODE_GRAY,
+                ScannerRules.MODE_MAGIC};
+        for (int i = 0; i < modeLabels.length; i++) {
+            final int mode = modeValues[i];
+            TextView pill = ui.pillButton(modeLabels[i],
+                    enhanceMode == mode ? ui.palette().accent : ui.palette().surface,
+                    enhanceMode == mode ? android.graphics.Color.WHITE : ui.palette().muted);
+            LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(0, -2, 1f);
+            pp.leftMargin = ui.dp(3);
+            pp.rightMargin = ui.dp(3);
+            modes.addView(pill, pp);
+            pill.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    // The rebuild must not cost the owner their dragged corners.
+                    editQuad = crop.quad();
+                    enhanceMode = mode;
+                    host.invalidate();
+                }
+            });
+        }
+
+        LinearLayout buttons = ui.hbox();
+        LinearLayout.LayoutParams blp = ui.lp(-1, 46);
+        blp.topMargin = ui.dp(8);
+        root.addView(buttons, blp);
+        TextView reset = ui.pillButton("Reset corners", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams rlp = ui.lp(0, 46);
+        rlp.weight = 1f;
+        buttons.addView(reset, rlp);
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { crop.resetCorners(); }
+        });
+        TextView apply = ui.pillButton("Apply to page", ui.palette().accent, android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams alp = ui.lp(0, 46);
+        alp.weight = 1f;
+        alp.leftMargin = ui.dp(6);
+        buttons.addView(apply, alp);
+        apply.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { applyCrop(context, source, crop); }
+        });
+        return root;
+    }
+
+    /** Straightens the dragged quad into a new bitmap, enhanced, and swaps it into the page. */
+    private void applyCrop(Context context, Bitmap source, CropView crop) {
+        Bitmap output = null;
+        try {
+            float[] ordered = ScannerRules.orderQuad(crop.quadPixels());
+            int[] size = ScannerRules.correctedSize(ordered);
+            output = Bitmap.createBitmap(size[0], size[1], Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+            android.graphics.Matrix map = new android.graphics.Matrix();
+            map.setPolyToPoly(ordered, 0, new float[]{
+                    0f, 0f, size[0], 0f, size[0], size[1], 0f, size[1]}, 0, 4);
+            Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+            paint.setColorFilter(new android.graphics.ColorMatrixColorFilter(
+                    ScannerRules.correctionMatrix(enhanceMode)));
+            canvas.drawBitmap(source, map, paint);
+
+            File outFile = new File(CaptureProvider.inbox(context),
+                    "page-" + editingPage.id + "-" + System.currentTimeMillis() + ".jpg");
+            FileOutputStream out = new FileOutputStream(outFile);
+            try {
+                output.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+            } finally {
+                out.close();
+            }
+            ScannerRules.Page updated = ScannerRules.resourced(editingPage,
+                    Uri.fromFile(outFile).toString(), size[0], size[1]);
+            for (int i = 0; i < pages.size(); i++) {
+                if (pages.get(i).id.equals(editingPage.id)) { pages.set(i, updated); break; }
+            }
+            editQuad = crop.quad();
+            editingPage = null;
+            enhanceMode = ScannerRules.MODE_ORIGINAL;
+            host.toast("Page straightened (" + size[0] + "\u00d7" + size[1] + ").");
+            host.invalidate();
+        } catch (Exception e) {
+            host.toast("Could not apply the crop: " + e.getClass().getSimpleName());
+        } finally {
+            if (output != null) output.recycle();
+            source.recycle();
+        }
+    }
+
+    /**
+     * The crop frame: the page drawn to fit, a quad over it, and four handles that follow a
+     * finger. Corners live normalised (0..1) so a view resize cannot move the crop.
+     */
+    private final class CropView extends View {
+        private final Bitmap bitmap;
+        private final UiKit ui;
+        private final Paint imagePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        private final Paint quadPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final float[] corners = {0.04f, 0.04f, 0.96f, 0.04f, 0.96f, 0.96f, 0.04f, 0.96f};
+        private RectF content;
+        private int dragIndex = -1;
+
+        CropView(Context c, Bitmap bitmap, UiKit ui) {
+            super(c);
+            this.bitmap = bitmap;
+            this.ui = ui;
+            quadPaint.setStyle(Paint.Style.STROKE);
+            quadPaint.setStrokeWidth(ui.dp(2));
+            quadPaint.setColor(ui.palette().accent);
+            handlePaint.setColor(ui.palette().accent);
+        }
+
+        void setQuad(float[] quad) {
+            if (quad != null && quad.length == 8) System.arraycopy(quad, 0, corners, 0, 8);
+        }
+
+        float[] quad() { return corners.clone(); }
+
+        void resetCorners() {
+            System.arraycopy(new float[]{0.04f, 0.04f, 0.96f, 0.04f,
+                    0.96f, 0.96f, 0.04f, 0.96f}, 0, corners, 0, 8);
+            invalidate();
+        }
+
+        void setEnhance(int mode) {
+            float[] matrix = ScannerRules.correctionMatrix(mode);
+            imagePaint.setColorFilter(mode == ScannerRules.MODE_ORIGINAL ? null
+                    : new android.graphics.ColorMatrixColorFilter(matrix));
+            invalidate();
+        }
+
+        /** The corners in bitmap pixels, ordered for setPolyToPoly by the rules. */
+        float[] quadPixels() {
+            float[] out = new float[8];
+            for (int i = 0; i < 4; i++) {
+                out[2 * i] = corners[2 * i] * bitmap.getWidth();
+                out[2 * i + 1] = corners[2 * i + 1] * bitmap.getHeight();
+            }
+            return out;
+        }
+
+        @Override protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            if (bitmap == null || getWidth() == 0 || getHeight() == 0) return;
+            float scale = Math.min(getWidth() / (float) bitmap.getWidth(),
+                    getHeight() / (float) bitmap.getHeight());
+            float width = bitmap.getWidth() * scale;
+            float height = bitmap.getHeight() * scale;
+            content = new RectF((getWidth() - width) / 2f, (getHeight() - height) / 2f,
+                    (getWidth() + width) / 2f, (getHeight() + height) / 2f);
+            canvas.drawBitmap(bitmap, null, content, imagePaint);
+            android.graphics.Path path = new android.graphics.Path();
+            for (int i = 0; i < 4; i++) {
+                float x = content.left + corners[2 * i] * content.width();
+                float y = content.top + corners[2 * i + 1] * content.height();
+                if (i == 0) path.moveTo(x, y);
+                else path.lineTo(x, y);
+            }
+            path.close();
+            canvas.drawPath(path, quadPaint);
+            for (int i = 0; i < 4; i++) {
+                float x = content.left + corners[2 * i] * content.width();
+                float y = content.top + corners[2 * i + 1] * content.height();
+                canvas.drawCircle(x, y, ui.dp(9), handlePaint);
+            }
+        }
+
+        @Override public boolean onTouchEvent(android.view.MotionEvent event) {
+            if (content == null) return false;
+            float x = event.getX();
+            float y = event.getY();
+            switch (event.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    dragIndex = nearestHandle(x, y);
+                    return dragIndex >= 0;
+                case android.view.MotionEvent.ACTION_MOVE:
+                    if (dragIndex < 0) return false;
+                    corners[2 * dragIndex] =
+                            ScannerRules.clamp01((x - content.left) / content.width());
+                    corners[2 * dragIndex + 1] =
+                            ScannerRules.clamp01((y - content.top) / content.height());
+                    invalidate();
+                    return true;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    dragIndex = -1;
+                    invalidate();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private int nearestHandle(float x, float y) {
+            int best = -1;
+            float bestDistance = ui.dp(36);
+            for (int i = 0; i < 4; i++) {
+                float hx = content.left + corners[2 * i] * content.width();
+                float hy = content.top + corners[2 * i + 1] * content.height();
+                float distance = (float) Math.hypot(x - hx, y - hy);
+                if (distance < bestDistance) { bestDistance = distance; best = i; }
+            }
+            return best;
         }
     }
 

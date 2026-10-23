@@ -3149,7 +3149,9 @@ class FinalFourAppsContracts(unittest.TestCase):
         self.assertIn("case MusicActionReceiver.ACTION_STOP:", service)
 
     def test_the_scanner_adds_no_dependencies(self):
-        # CameraX plus ML Kit would add roughly 50 MB, which a lite flavour cannot carry.
+        # CameraX plus ML Kit would add roughly 50 MB, which a lite flavour cannot carry --
+        # and integrating a live camera preview with no device to see it on is a gamble.
+        # AndroidX arriving in Sprint 4 removes the technical blocker, not the blind one.
         for mod in self.MODS:
             g = self.gradle(mod)
             for forbidden in ("camera", "mlkit", "ml-kit", "androidx"):
@@ -3207,11 +3209,30 @@ class FinalFourAppsContracts(unittest.TestCase):
         # A comma inside a display name must not split the recipient.
         self.assertIn("if (c == ',' && !inQuotes && !inAngle)", rules)
 
-    def test_no_module_reaches_for_androidx(self):
-        for mod in self.MODS:
-            for path in (ROOT / ("feature-" + mod)).rglob("*.java"):
-                body = path.read_text()
-                self.assertNotIn("import androidx.", body, "%s imports androidx" % path.name)
+    def test_androidx_is_adopted_by_declaration_and_never_by_accident(self):
+        # Sprint 4 flipped a long-standing rule: useAndroidX is now true, because the owner
+        # asked for AndroidX adoption and the plan gave it its own sprint. The ban this
+        # replaces was load-bearing -- it kept blind-written code off APIs nobody could
+        # compile locally -- so the replacement keeps the discipline: the flag is declared
+        # exactly once, no module reaches for the dead support library, and a module may
+        # import androidx only if its own build.gradle declares the dependency, so an
+        # import can never compile by accident on another module's classpath.
+        props = (ROOT / "gradle.properties").read_text()
+        self.assertIn("android.useAndroidX=true", props)
+        for path in sorted(ROOT.rglob("*.java")):
+            if ".git" in path.parts:
+                continue
+            body = path.read_text(encoding="utf-8")
+            self.assertNotIn("import android.support.", body,
+                             "%s imports the dead support library" % path.name)
+            if "import androidx." not in body:
+                continue
+            module = path
+            while module.parent != ROOT and not (module / "build.gradle").exists():
+                module = module.parent
+            gradle = (module / "build.gradle").read_text(encoding="utf-8")
+            self.assertIn("androidx", gradle,
+                          "%s imports androidx without declaring the dependency" % path.name)
 
 
 class RebrandAndLauncherIconContracts(unittest.TestCase):
@@ -3719,8 +3740,10 @@ class CalendarSettingsAndRingingContracts(unittest.TestCase):
         self.assertIn("EventReminderReceiver.rescheduleAll(c);", self.boot)
         self.assertIn("public static void rescheduleAll(Context context)", self.receiver)
 
-    def test_the_receiver_stays_framework_only_until_sprint_4(self):
-        # useAndroidX=false is still the shell's rule; androidx imports here would not compile.
+    def test_the_calendar_receiver_stays_framework_only(self):
+        # AndroidX is adopted repo-wide as of Sprint 4, but this receiver has no reason to
+        # grow a dependency: framework notifications are all it posts, and every dependency
+        # a lite flavour carries is a dependency the owner installs.
         self.assertNotIn("import androidx.", self.receiver)
         self.assertNotIn("NotificationCompat", self.receiver)
 

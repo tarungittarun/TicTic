@@ -89,8 +89,8 @@ public final class ScannerScreen implements Screen {
         card.addView(ui.label("Pick images, then save them as one PDF.", 13, ui.palette().text, true));
         TextView note = ui.label("Take a page with the system camera or pick existing images, "
                 + "then save them as one PDF. Captures land in a private inbox through a "
-                + "hand-rolled provider -- AndroidX FileProvider stays unavailable until the "
-                + "migration, and in-app live-preview capture comes with it.",
+                + "hand-rolled provider. In-app live-preview capture stays deferred: wiring "
+                + "a camera pipeline with no device to see it on is a gamble, not a slice.",
                 11, ui.palette().muted, false);
         note.setPadding(0, ui.dp(4), 0, ui.dp(8));
         card.addView(note);

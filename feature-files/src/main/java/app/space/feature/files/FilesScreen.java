@@ -685,7 +685,116 @@ public final class FilesScreen implements Screen {
         store.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { browsing = true; relative = ""; host.invalidate(); }
         });
+
+        // ---- backup: the full data round-trip lives where the owner already thinks in files ----
+        ui.sectionTitle(page, "Backup", "settings, notes, recordings -- everything");
+        LinearLayout backupRow = ui.hbox();
+        page.addView(backupRow, ui.lp(-1, 46));
+        TextView export = ui.pillButton("Export data", ui.palette().accent,
+                android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams exp = ui.lp(0, 46);
+        exp.weight = 1f;
+        backupRow.addView(export, exp);
+        export.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { exportData(context); }
+        });
+        TextView restore = ui.pillButton("Import data", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams imp = ui.lp(0, 46);
+        imp.weight = 1f;
+        imp.leftMargin = ui.dp(6);
+        backupRow.addView(restore, imp);
+        restore.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { importPicker(context); }
+        });
         return page;
+    }
+
+    private static final int IMPORT_BACKUP = 94;
+
+    /** Zips every preference file and every data file, then offers the zip to the world. */
+    private void exportData(Context context) {
+        File zip = app.space.core.data.DataBackup.exportZip(context);
+        if (zip == null) {
+            host.toast("The export failed; nothing was written.");
+            return;
+        }
+        host.toast("Backup saved: " + zip.getName() + " ("
+                + app.space.core.data.DataExportRules.formatBytes(zip.length()) + ").");
+        try {
+            context.startActivity(android.content.Intent.createChooser(
+                    app.space.core.data.FileShare.shareIntent(context, zip, "MySpace backup"),
+                    "Share backup"));
+        } catch (Exception e) {
+            host.toast("Saved to " + zip.getAbsolutePath());
+        }
+    }
+
+    private void importPicker(Context context) {
+        android.content.Intent intent =
+                new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(android.content.Intent.EXTRA_MIME_TYPES,
+                new String[]{"application/zip", "application/octet-stream"});
+        try {
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).startActivityForResult(intent, IMPORT_BACKUP);
+            } else {
+                host.toast("Cannot open the picker here.");
+            }
+        } catch (Exception e) {
+            host.toast("No document picker is available.");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        if (requestCode != IMPORT_BACKUP) return;
+        if (resultCode != android.app.Activity.RESULT_OK || data == null || data.getData() == null) {
+            host.toast("No backup chosen.");
+            return;
+        }
+        final Context context = host.context();
+        final android.net.Uri zip = data.getData();
+        final UiKit ui = new UiKit(context, host.palette());
+        new AppAlertBuilder(context, ui).setTitle("Replace everything with this backup?")
+                .setView(ui.label("Settings, notes, calendar, recordings and files in this "
+                        + "install are overwritten, and MySpace restarts.", 13,
+                        ui.palette().text, false))
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Import and restart", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) { runImport(context, zip); }
+                }).show();
+    }
+
+    /** Overwrites in place, then restarts: the prefs cache in memory must not outlive the restore. */
+    private void runImport(Context context, android.net.Uri zip) {
+        InputStream in = null;
+        try {
+            in = context.getContentResolver().openInputStream(zip);
+            app.space.core.data.DataBackup.Result result =
+                    app.space.core.data.DataBackup.importZip(context, in);
+            if (!result.ok()) {
+                host.toast("The import failed: " + result.failure);
+                return;
+            }
+            host.toast("Imported " + app.space.core.data.DataExportRules.summary(
+                    result.prefsCount, result.filesCount, result.bytes) + ". Restarting\u2026");
+            android.content.Intent restart = context.getPackageManager()
+                    .getLaunchIntentForPackage(context.getPackageName());
+            if (restart != null) {
+                restart.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                        | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                context.startActivity(restart);
+            }
+            android.os.Process.killProcess(android.os.Process.myPid());
+        } catch (Exception e) {
+            host.toast("Could not read that file: " + e.getClass().getSimpleName());
+        } finally {
+            if (in != null) {
+                try { in.close(); } catch (Exception ignored) { }
+            }
+        }
     }
 
     private View buildCategoryPage(final Context context, final UiKit ui) {

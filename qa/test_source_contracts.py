@@ -3982,6 +3982,58 @@ class MusicLibraryContracts(unittest.TestCase):
         self.assertIn("MusicRules.librarySubtitle(track)", self.screen)
 
 
+class DataBackupContracts(unittest.TestCase):
+    """The Sprint 4 acceptance line: "a full data round-trip through export/import on a fresh
+    install." The map is total -- every prefs XML, every file under getFilesDir() -- and import
+    refuses anything outside the two roots, because a backup zip may travel through anyone's
+    hands on the way back. The rules are JVM-tested; these pin the wiring and the refusals.
+    """
+
+    def setUp(self):
+        self.rules = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/DataExportRules.java").read_text())
+        self.backup = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/DataBackup.java").read_text())
+        self.screen = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+        self.paths = (
+            ROOT / "core-data/src/main/res/xml/myspace_paths.xml").read_text()
+
+    def test_the_backup_is_total_not_a_highlight_reel(self):
+        self.assertIn("File[] prefFiles = prefs.listFiles();", self.backup)
+        self.assertIn("addTree(zip, context.getFilesDir(), context.getFilesDir());", self.backup)
+        self.assertIn("DataExportRules.prefsEntry(f.getName())", self.backup)
+        self.assertIn("DataExportRules.filesEntry(relative)", self.backup)
+
+    def test_import_refuses_entries_outside_the_two_roots(self):
+        self.assertIn("if (entry.isDirectory() || !DataExportRules.isAllowedEntry(name))", self.backup)
+        self.assertIn("if (entry.contains(\"..\")) return false;", self.rules)
+        # Belt behind the rules' braces: canonical containment is re-checked per entry.
+        self.assertIn("target.getCanonicalPath().startsWith(root.getCanonicalPath() + File.separator)", self.backup)
+
+    def test_zip_bombs_meet_a_ceiling(self):
+        self.assertIn("public static final long MAX_TOTAL_BYTES = 512L * 1024L * 1024L;", self.rules)
+        self.assertIn("public static final int MAX_ENTRIES = 20000;", self.rules)
+        self.assertIn("entries > DataExportRules.MAX_ENTRIES", self.backup)
+        self.assertIn("bytes > DataExportRules.MAX_TOTAL_BYTES", self.backup)
+
+    def test_exports_are_shareable_and_survive_a_cache_clear(self):
+        self.assertIn("context.getExternalFilesDir(null)", self.backup)
+        self.assertIn('<external-files-path name="external_files" path="." />', self.paths)
+        self.assertIn("FileShare.shareIntent(context, zip, \"MySpace backup\")", self.screen)
+
+    def test_restore_restarts_because_the_prefs_cache_must_not_outlive_it(self):
+        self.assertIn("android.os.Process.killProcess(android.os.Process.myPid());", self.screen)
+        self.assertIn("FLAG_ACTIVITY_CLEAR_TASK", self.screen)
+        self.assertIn('"Replace everything with this backup?"', self.screen)
+
+    def test_the_map_rules_are_jvm_tested(self):
+        test = (ROOT / "core-data/src/test/java/app/space/core/data/DataExportRulesTest.java").read_text()
+        self.assertIn("importRefusesEverythingOutsideTheRoots", test)
+        self.assertIn("entriesLiveUnderExactlyTwoRoots", test)
+        self.assertIn("stripDotsIsTheSecondLineOfDefence", test)
+
+
 class RecorderClosureAndSharingContracts(unittest.TestCase):
     """Defect 15 (recorded file would not play) was instrumented, not fixed, and the owner's
     log still has not arrived. This closes what can be closed blind: the recorder proves at

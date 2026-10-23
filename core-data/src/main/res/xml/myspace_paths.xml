@@ -5,4 +5,7 @@
      outside it with an IllegalArgumentException instead of a served file. -->
 <paths>
     <files-path name="files" path="." />
+    <!-- App-specific external storage: where export zips land so they survive a cache clear
+         and are reachable over USB. Still nothing any other app can write to. -->
+    <external-files-path name="external_files" path="." />
 </paths>

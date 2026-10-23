@@ -98,6 +98,13 @@ public final class CalculatorRules {
             }
             return close < open ? current + c : null;
         }
+        if (c == '%') {
+            // Google's percent is postfix: it belongs to the number just typed. After an
+            // operator or at the start there is no number for it to belong to, so it is
+            // refused rather than guessed -- the same discipline as every other key here.
+            if (Character.isDigit(last) || last == ')') return current + c;
+            return null;
+        }
         if (c == '+' || c == '-' || c == '*' || c == '/') {
             if (current.isEmpty()) return c == '-' ? "-" : null;
             if (isOperator(last)) {
@@ -144,12 +151,17 @@ public final class CalculatorRules {
 
     public static boolean isInputCharacter(char c) {
         return (c >= '0' && c <= '9') || c == '.' || c == '+' || c == '-' || c == '*'
-                || c == '/' || c == '(' || c == ')';
+                || c == '/' || c == '(' || c == ')' || c == '%';
     }
 
     /**
      * Recursive descent: expression = term (('+'|'-') term)*, term = factor
-     * (('*'|'/') factor)*, factor = ('-')* (number | '(' expression ')').
+     * (('*'|'/') factor)*, factor = ('-')* (number | '(' expression ')') ['%'].
+     *
+     * <p>The percent is Google's, not the primary-school one: under '+' and '-' it means
+     * "that percent OF THE RUNNING SUM" -- 200+10% is 220, because 10% of 200 is 20 -- while
+     * under '*' and '/', or on its own, it is plain hundredths: 200*10% is 20. The running
+     * sum therefore travels down the parse as percentBase, NaN where there is none.
      */
     static final class Parser {
         private final String src;
@@ -166,27 +178,27 @@ public final class CalculatorRules {
         void skipWhitespace() { while (pos < src.length() && Character.isWhitespace(src.charAt(pos))) pos++; }
 
         double parseExpression() {
-            double value = parseTerm();
+            double value = parseTerm(Double.NaN);
             while (true) {
                 skipWhitespace();
                 if (atEnd()) return value;
                 char op = src.charAt(pos);
                 if (op != '+' && op != '-') return value;
                 pos++;
-                double rhs = parseTerm();
+                double rhs = parseTerm(value);
                 value = op == '+' ? value + rhs : value - rhs;
             }
         }
 
-        double parseTerm() {
-            double value = parseFactor();
+        double parseTerm(double percentBase) {
+            double value = parseFactor(percentBase);
             while (true) {
                 skipWhitespace();
                 if (atEnd()) return value;
                 char op = src.charAt(pos);
                 if (op != '*' && op != '/') return value;
                 pos++;
-                double rhs = parseFactor();
+                double rhs = parseFactor(percentBase);
                 if (op == '/') {
                     if (rhs == 0d) throw new ArithmeticException("division by zero");
                     value = value / rhs;
@@ -196,20 +208,28 @@ public final class CalculatorRules {
             }
         }
 
-        double parseFactor() {
+        double parseFactor(double percentBase) {
             skipWhitespace();
             if (atEnd()) throw new ArithmeticException("missing operand");
-            if (src.charAt(pos) == '-') { pos++; return -parseFactor(); }
-            if (src.charAt(pos) == '+') { pos++; return parseFactor(); }
+            if (src.charAt(pos) == '-') { pos++; return -parseFactor(percentBase); }
+            if (src.charAt(pos) == '+') { pos++; return parseFactor(percentBase); }
             if (src.charAt(pos) == '(') {
                 pos++;
                 double inner = parseExpression();
                 skipWhitespace();
                 if (atEnd() || src.charAt(pos) != ')') throw new ArithmeticException("unbalanced parentheses");
                 pos++;
-                return inner;
+                return applyPercent(inner, percentBase);
             }
-            return parseNumber();
+            return applyPercent(parseNumber(), percentBase);
+        }
+
+        /** Consumes a postfix '%' if one follows: of percentBase under + and -, else hundredths. */
+        private double applyPercent(double value, double percentBase) {
+            skipWhitespace();
+            if (atEnd() || src.charAt(pos) != '%') return value;
+            pos++;
+            return Double.isNaN(percentBase) ? value / 100d : percentBase * value / 100d;
         }
 
         private double parseNumber() {

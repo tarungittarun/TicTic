@@ -153,4 +153,24 @@ public class CalculatorRulesTest {
         // Evaluating a very long expression must not hang or overflow the stack.
         CalculatorRules.evaluate(sb.toString());
     }
+
+    @Test public void percentIsGoogleNotPrimarySchool() {
+        // On its own and under * and /: plain hundredths.
+        assertEquals(0.5, CalculatorRules.evaluate("50%"), 1e-9);
+        assertEquals(20d, CalculatorRules.evaluate("200*10%"), 1e-9);
+        assertEquals(0.5, CalculatorRules.evaluate("(50)%"), 1e-9);
+        // Under + and -: that percent OF THE RUNNING SUM, which is what Google computes.
+        assertEquals(220d, CalculatorRules.evaluate("200+10%"), 1e-9);
+        assertEquals(180d, CalculatorRules.evaluate("200-10%"), 1e-9);
+        assertEquals(2.24, CalculatorRules.evaluate("2+3*4%"), 1e-9);
+        assertEquals(180d, CalculatorRules.evaluate("200+-10%"), 1e-9);
+    }
+
+    @Test public void percentIsPostfixAndRefusedWithoutANumber() {
+        assertEquals("5%", CalculatorRules.append("5", "%"));
+        assertEquals("(5)%", CalculatorRules.append("(5)", "%"));
+        assertNull(CalculatorRules.append("", "%"));
+        assertNull(CalculatorRules.append("5+", "%"));
+        assertNull(CalculatorRules.append("5%", "%"));
+    }
 }

@@ -11,13 +11,28 @@ import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
 
 /**
- * A calculator laid out the way Google's is: the display owns the top third, the keypad owns
- * the rest and sits against the bottom of the screen, never floating in the middle of it.
+ * The calculator, recreated key for key after Google's, on the owner's instruction:
+ * "Exact interface and working as Google calculator."
  *
- * <p>The previous layout stacked a fixed-height display and four fixed-height rows at the top
- * of the screen and left the lower half empty, which on a phone reads as a broken screen.
- * Heights here are weights, so the keypad fills whatever the display does not take, on any
- * screen size.
+ * <p>Google's arrangement: the display owns the top of the screen with what is typed large and
+ * the live result beneath it in grey; the keypad owns everything below and sits against the
+ * bottom edge. Five rows of four: clear, backspace, percent, divide; then three digit rows with
+ * the operators down the right side; then zero, point and a double-width equals. There is no
+ * bracket key on Google's pad, so there is none here -- the rules still understand brackets,
+ * but the keyboard offers exactly what the calculator it recreates offers.
+ *
+ * <p>Google's look, in this suite's palette: digit keys are bare -- no button chrome at all,
+ * just large light glyphs on the dark background; the function and operator keys are bare too
+ * but coloured with the accent; only equals is a filled pill, spanning its two cells. Nothing
+ * floats in the middle of the screen and nothing is outlined like a 2013 keypad.
+ *
+ * <p>The layout bug this rewrite kills: the previous keypad gave every key a height of zero
+ * inside a horizontal row, where weight does not govern height -- so on a real phone the
+ * calculator rendered as an empty screen with a stray glyph. Keys now take their height from
+ * the row (MATCH_PARENT inside a weighted row) and the rows take theirs from weights, so the
+ * pad fills whatever the display does not take, on any screen. The owner's screenshot was the
+ * first time anyone's eyes had been on this screen; it is why "delivered" and "works" are
+ * different words.
  *
  * <p>State lives in this object rather than in the views, so the expression survives a
  * re-render. Results are formatted by {@link CalculatorRules#format} and errors show as
@@ -27,12 +42,11 @@ import app.space.core.suite.ScreenHost;
 public final class CalculatorScreen implements Screen {
 
     /**
-     * The keypad, Google's arrangement: clear / group / backspace / divide across the top,
-     * digits in three rows with the operators down the right side, and zero, point and a
-     * double-width equals along the bottom. A null cell means the previous key spans it.
+     * The keypad, Google's arrangement. A null cell means the key to its left spans it, which
+     * is how equals takes the last two cells of the bottom row.
      */
     private static final String[][] ROWS = {
-            {"C", "( )", "\u232b", "\u00f7"},
+            {"C", "\u232b", "%", "\u00f7"},
             {"7", "8", "9", "\u00d7"},
             {"4", "5", "6", "\u2212"},
             {"1", "2", "3", "+"},
@@ -54,46 +68,64 @@ public final class CalculatorScreen implements Screen {
     public View build(Context context) {
         final UiKit ui = new UiKit(context, host.palette());
         LinearLayout root = ui.vbox();
-        root.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(10));
+        root.setPadding(ui.dp(16), ui.dp(10), ui.dp(16), ui.dp(10));
 
-        // The display: what is typed, large, and beneath it what it would evaluate to. Google
-        // shows the live result while you type; a calculator that stays silent until equals
-        // makes you discover mistakes at the worst moment.
+        // The display: what is typed, large and right-aligned like Google's, with the live
+        // result beneath in grey. A calculator that stays silent until equals makes you
+        // discover mistakes at the worst moment. Long expressions truncate at the START so
+        // the end you are typing stays visible, the way Google's scroller does.
         LinearLayout display = ui.vbox();
         root.addView(display, new LinearLayout.LayoutParams(-1, 0, 2f));
 
-        final TextView expressionView = ui.label(typed(), 34, ui.palette().text, true);
+        final TextView expressionView = ui.label(typed(), 40, ui.palette().text, false);
         expressionView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
-        expressionView.setMaxLines(2);
+        expressionView.setSingleLine(true);
+        expressionView.setEllipsize(android.text.TextUtils.TruncateAt.START);
         LinearLayout.LayoutParams ep = ui.lp(-1, -2);
-        ep.bottomMargin = ui.dp(4);
+        ep.bottomMargin = ui.dp(6);
         display.addView(expressionView, ep);
 
-        final TextView previewView = ui.label(preview(), 15, ui.palette().muted, false);
+        final TextView previewView = ui.label(preview(), 17, ui.palette().muted, false);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
+        previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
         display.addView(previewView, ui.lp(-1, -2));
 
-        // The keypad: five rows sharing the remaining height equally, so the keys grow with the
-        // screen instead of leaving dead space under them.
+        // The keypad: five rows sharing the remaining height equally. Each KEY fills its row's
+        // height -- the zero-height params that made this screen invisible on device are gone.
         for (String[] rowKeys : ROWS) {
             LinearLayout row = ui.hbox();
             for (int col = 0; col < rowKeys.length; col++) {
                 final String key = rowKeys[col];
                 if (key == null) continue; // spanned by the key to its left
-                boolean accentKey = "=".equals(key);
-                TextView button = ui.pillButton(key,
-                        accentKey ? ui.palette().accent : ui.palette().surface,
-                        accentKey ? android.graphics.Color.WHITE : ui.palette().text);
-                if ("( )".equals(key) || "\u232b".equals(key)) {
-                    button.setTextSize(18);
+                final boolean equalsKey = "=".equals(key);
+                final boolean fnKey = "C".equals(key) || "\u232b".equals(key) || "%".equals(key);
+                final boolean opKey = "\u00f7".equals(key) || "\u00d7".equals(key)
+                        || "\u2212".equals(key) || "+".equals(key);
+                TextView button = new TextView(context);
+                button.setText(key);
+                button.setGravity(Gravity.CENTER);
+                button.setSingleLine(true);
+                if (equalsKey) {
+                    button.setTextSize(24);
+                    button.setTextColor(android.graphics.Color.WHITE);
+                    android.graphics.drawable.GradientDrawable pill =
+                            new android.graphics.drawable.GradientDrawable();
+                    pill.setCornerRadius(ui.dp(30));
+                    pill.setColor(ui.palette().accent);
+                    button.setBackground(pill);
+                } else {
+                    button.setTextSize(fnKey || opKey ? 22 : 27);
+                    button.setTextColor(fnKey || opKey
+                            ? ui.palette().accent : ui.palette().text);
                 }
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, 0, 1f);
-                if (accentKey) params.weight = 2f; // equals spans the last two cells
-                params.leftMargin = ui.dp(3);
-                params.rightMargin = ui.dp(3);
-                params.topMargin = ui.dp(3);
-                params.bottomMargin = ui.dp(3);
+                button.setContentDescription(key);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -1, 1f);
+                if (equalsKey) params.weight = 2f; // equals spans the last two cells
+                params.leftMargin = ui.dp(4);
+                params.rightMargin = ui.dp(4);
+                params.topMargin = ui.dp(4);
+                params.bottomMargin = ui.dp(4);
                 row.addView(button, params);
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
@@ -156,29 +188,19 @@ public final class CalculatorScreen implements Screen {
             if (expression.length() > 0) expression.setLength(expression.length() - 1);
             return;
         }
-        // After equals, a digit or an open bracket starts a new expression while an operator
-        // carries on from the result; after Error, everything starts over, because there is no
-        // result to carry on from.
+        // After equals, a digit or a point starts a new expression while an operator or a
+        // percent carries on from the result; after Error, everything starts over, because
+        // there is no result to carry on from.
         if (justEvaluated) {
             boolean fresh;
             if ("Error".equals(result)) {
                 fresh = true;
             } else {
-                fresh = "( )".equals(key)
-                        || (key.length() == 1
-                            && (Character.isDigit(key.charAt(0)) || key.charAt(0) == '.'
-                                || key.charAt(0) == '('));
+                fresh = key.length() == 1
+                        && (Character.isDigit(key.charAt(0)) || key.charAt(0) == '.');
             }
             if (fresh) { expression.setLength(0); result = ""; }
             justEvaluated = false;
-        }
-        if ("( )".equals(key)) {
-            // One key, both brackets: the rules say which one fits here, opening first.
-            String next = CalculatorRules.append(expression.toString(), "(");
-            if (next == null) next = CalculatorRules.append(expression.toString(), ")");
-            if (next == null) return;
-            accept(next);
-            return;
         }
         if ("=".equals(key)) {
             String typed = trimmed();
@@ -196,7 +218,8 @@ public final class CalculatorScreen implements Screen {
             return;
         }
         // The rules decide, not the keyboard: an unacceptable key is simply not typed, so the
-        // display can never hold a sequence that is not a number in progress.
+        // display can never hold a sequence that is not a number in progress. Percent included
+        // -- it is postfix in the rules, exactly as it is on Google's pad.
         String next = CalculatorRules.append(expression.toString(), key);
         if (next == null) return;
         accept(next);

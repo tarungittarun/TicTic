@@ -2562,7 +2562,14 @@ class CalculatorAppContracts(unittest.TestCase):
         # the top half of the screen with dead space under it. Fixed heights are what caused the
         # second half, so the rows must take their height from weights, and the display from a
         # larger one, on any screen.
-        self.assertIn('{"C", "( )", "\\u232b", "\\u00f7"},', self.screen)
+        self.assertIn('{"C", "\\u232b", "%", "\\u00f7"},', self.screen)
+        # The on-device bug this contract now owns: keys once had height ZERO inside a
+        # horizontal row, where weight does not govern height, so the whole keypad was
+        # invisible on the owner's phone. MATCH_PARENT inside a weighted row is the fix.
+        self.assertIn("new LinearLayout.LayoutParams(0, -1, 1f)", self.screen)
+        # Google's pad has no bracket key, so the recreation must not invent one.
+        self.assertNotIn('" ( )"', self.screen)
+        self.assertNotIn('"( )"', self.screen)
         self.assertIn('{"0", ".", "=", null},', self.screen)
         self.assertIn("root.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));", self.screen)
         self.assertIn("new LinearLayout.LayoutParams(-1, 0, 2f)", self.screen)
@@ -2584,6 +2591,11 @@ class CalculatorAppContracts(unittest.TestCase):
         # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.
         self.assertIn("if (c == '(') {", rules)
         self.assertIn("if (c == ')') {", rules)
+        # Google's percent, pinned where it lives: postfix in append, context-aware in the
+        # parser via a percent base that travels down from the additive level.
+        self.assertIn("if (c == '%') {", rules)
+        self.assertIn("double parseTerm(double percentBase)", rules)
+        self.assertIn("private double applyPercent(double value, double percentBase)", rules)
 
     def test_a_settings_crash_renders_a_page_that_describes_itself(self):
         # The net used to wrap only buildSettings; the owner's crash is on the tap that opens
@@ -2593,6 +2605,28 @@ class CalculatorAppContracts(unittest.TestCase):
                       main)
         self.assertIn("private void renderSettingsFallback(Throwable failure){", main)
         self.assertIn("AppLog.crash(this,settingsCrash);", main)
+
+    def test_the_settings_nav_describes_every_group_it_can_index(self):
+        # Defect 12 from the owner's phone: the nav drew ten groups but the content
+        # descriptions came from an eight-name array left over from before Navigation and
+        # Diagnostics existed, so tapping Diagnostics threw ArrayIndexOutOfBounds and the
+        # whole settings page fell into its fallback. The array and the guard are the fix.
+        main = read("MainActivity.java")
+        self.assertIn('"Navigation","About and permissions","Diagnostics"};', main)
+        self.assertIn("index>=0&&index<full.length?full[index]", main)
+
+    def test_the_apps_switcher_holds_the_middle_of_both_bars(self):
+        # 2026-10-23 owner revision of his own "Apps first": the switcher sits in the
+        # thumb-reachable middle -- flanked by two equal weight zones in-app, woven into the
+        # middle of the destination row on the clock's rail.
+        main = read("MainActivity.java")
+        bar = main[main.index("void buildAppNav(){"):]
+        bar = bar[:bar.index("\n    }\n")]
+        self.assertLess(bar.index('navTile("Clock",TicIconView.CLOCK,false)'),
+                        bar.index('navTile("Apps",TicIconView.APPS,false)'))
+        self.assertLess(bar.index('navTile("Apps",TicIconView.APPS,false)'),
+                        bar.index("TextView title=label("))
+        self.assertIn("if(!appsPlaced&&i>=(destinations.size()-1)/2){content.addView(appsSlot,lp(item,54));appsPlaced=true;}", main)
 
     def test_the_apps_tile_holds_the_first_slot_of_the_picker_grid(self):
         # Owner's ordering: the apps icon where the clock app used to be, clock app second. The

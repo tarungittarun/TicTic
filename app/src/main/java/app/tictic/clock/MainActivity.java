@@ -276,7 +276,7 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     }
     private TextView settingsNavItem(String name,int index){
         TextView item=label(name,10,index==settingsGroup?Color.WHITE:text,index==settingsGroup);item.setGravity(Gravity.CENTER);item.setPadding(dp(4),dp(5),dp(4),dp(5));item.setBackground(shape(index==settingsGroup?accent:(DataStore.dark(this)?0xff202f2b:0xfff1f5f3),15));
-        String[] full={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency and data","About and permissions"};item.setContentDescription(full[index]+" settings");item.setOnClickListener(v->{settingsGroup=index;settingsScrollY=0;settingsScrollView=null;render();});return item;
+        String[] full={"Design","Alarms","Reminders","Routines","Timer","Stopwatch","Efficiency and data","Navigation","About and permissions","Diagnostics"};item.setContentDescription(index>=0&&index<full.length?full[index]+" settings":name+" settings");item.setOnClickListener(v->{settingsGroup=index;settingsScrollY=0;settingsScrollView=null;render();});return item;
     }
     @Override public void onBackPressed(){if(settings){settings=false;settingsScrollView=null;settingsScrollY=0;render();return;}super.onBackPressed();}
     private void buildNav(){
@@ -291,12 +291,14 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout content=hbox();rail.addView(content,new HorizontalScrollView.LayoutParams(-2,-1));
         int screen=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);int item=76;int lead=Math.max(20,(screen-item)/2);content.addView(new View(this),new LinearLayout.LayoutParams(dp(lead),dp(54)));
         List<NavRoute> destinations=visibleRoutes();
-        for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});}
         LinearLayout appsSlot=vbox();appsSlot.setGravity(Gravity.CENTER);appsSlot.setPadding(dp(4),dp(4),dp(4),dp(3));
             TicIconView appsIcon=new TicIconView(this,TicIconView.APPS,muted);appsSlot.addView(appsIcon,lp(24,24));
             TextView appsLabel=label("Apps",10,muted,false);appsLabel.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams anp=lp(-1,18);anp.topMargin=dp(1);appsSlot.addView(appsLabel,anp);
-            content.addView(appsSlot,lp(item,54));appsSlot.setOnClickListener(v->showAppPicker());
+            appsSlot.setOnClickListener(v->showAppPicker());
+        boolean appsPlaced=false;
+        for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});if(!appsPlaced&&i>=(destinations.size()-1)/2){content.addView(appsSlot,lp(item,54));appsPlaced=true;}}
+        if(!appsPlaced)content.addView(appsSlot,lp(item,54));
         content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp(tab*item),0));
     }
 
@@ -345,14 +347,20 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     void buildAppNav(){
         LinearLayout bar=hbox();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackground(shape(surface,24));bar.setPadding(dp(10),dp(5),dp(10),dp(6));
         navBarView=bar;
-        // Apps first, on the owner's instruction: the switcher is the control that reaches
-        // everything else, so it gets the leading position rather than the way home.
-        View apps=navTile("Apps",TicIconView.APPS,false);bar.addView(apps,lp(76,54));
-        apps.setOnClickListener(v->showAppPicker());
-        TextView title=label(activeApp==null?"":activeApp.label(),14,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);bar.addView(title,tp);
-        View home=navTile("Clock",TicIconView.CLOCK,false);bar.addView(home,lp(76,54));
+        // 2026-10-23, owner's revision of his own earlier "Apps first": the switcher holds the
+        // MIDDLE of the bar -- the thumb-reachable centre, like a launcher's home button -- with
+        // the way home on the left and the name of where you are on the right. Two equal weight
+        // zones flank the fixed centre tile, so centre means centre on any screen width.
+        LinearLayout leftZone=hbox();leftZone.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
+        View home=navTile("Clock",TicIconView.CLOCK,false);leftZone.addView(home,lp(76,54));
         home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
+        bar.addView(leftZone,new LinearLayout.LayoutParams(0,-1,1f));
+        View apps=navTile("Apps",TicIconView.APPS,false);bar.addView(apps,lp(84,54));
+        apps.setOnClickListener(v->showAppPicker());
+        LinearLayout rightZone=hbox();rightZone.setGravity(Gravity.CENTER_VERTICAL|Gravity.RIGHT);
+        TextView title=label(activeApp==null?"":activeApp.label(),13,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        rightZone.addView(title,lp(-2,-2));
+        bar.addView(rightZone,new LinearLayout.LayoutParams(0,-1,1f));
         root.addView(bar,lp(-1,64));
     }
     /** One nav tile, shared by hub mode, the drawer list and the in-app bar. */

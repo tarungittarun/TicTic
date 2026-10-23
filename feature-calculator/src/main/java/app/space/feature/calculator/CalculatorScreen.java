@@ -82,10 +82,43 @@ public final class CalculatorScreen implements Screen {
         final UiKit ui = new UiKit(context, host.palette());
         LinearLayout root = ui.vbox();
         root.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(10));
+        // The shell hands every screen's root wrap-content params, and a wrap-content
+        // parent gives weighted children nothing to distribute: on one device the keypad
+        // vanished, on the owner's it collapsed to text height and floated mid-screen with
+        // dead space below -- the opposite of Google, whose pad sits against the bottom.
+        // Claiming the viewport height here is what makes the weights real: the display
+        // takes its share of the top and the pad owns everything down to the bottom bar.
+        root.setMinimumHeight(context.getResources().getDisplayMetrics().heightPixels);
+
+        // ---- mode row first, small and quiet at the top where it reads as chrome, not as
+        //      part of the calculator; Google shows nothing here and the pad must own the eye ----
+        LinearLayout modes = ui.hbox();
+        modes.setGravity(Gravity.CENTER_VERTICAL);
+        root.addView(modes, ui.lp(-1, 30));
+        TextView page = ui.pillButton(scientificOpen ? "Basic" : "Scientific",
+                ui.palette().surface, ui.palette().muted);
+        page.setTextSize(10);
+        modes.addView(page, ui.lp(-2, 28));
+        page.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { scientificOpen = !scientificOpen; host.invalidate(); }
+        });
+        TextView angle = ui.pillButton(degrees ? "DEG" : "RAD",
+                ui.palette().surface, ui.palette().muted);
+        angle.setTextSize(10);
+        LinearLayout.LayoutParams apm = ui.lp(-2, 28);
+        apm.leftMargin = ui.dp(6);
+        modes.addView(angle, apm);
+        angle.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { degrees = !degrees; host.invalidate(); }
+        });
+        TextView hint = ui.label("hold display: copy \u00b7 swipe down: history",
+                9, ui.palette().muted, false);
+        hint.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        modes.addView(hint, new LinearLayout.LayoutParams(0, 30, 1f));
 
         // ---- the display: swipe down for history, hold to copy, scroll when long ----
         LinearLayout display = ui.vbox();
-        root.addView(display, new LinearLayout.LayoutParams(-1, 0, 2f));
+        root.addView(display, new LinearLayout.LayoutParams(-1, 0, 3f));
         display.setOnTouchListener(new SwipeDownListener() {
             @Override void onSwipeDown() { historyOpen = !historyOpen; host.invalidate(); }
         });
@@ -101,30 +134,6 @@ public final class CalculatorScreen implements Screen {
         } else {
             buildDisplay(context, ui, display);
         }
-
-        // ---- mode row: the page swap and the angle mode, both small and both explicit ----
-        LinearLayout modes = ui.hbox();
-        LinearLayout.LayoutParams mp = ui.lp(-1, 38);
-        mp.topMargin = ui.dp(4);
-        root.addView(modes, mp);
-        TextView page = ui.pillButton(scientificOpen ? "Basic" : "Scientific",
-                ui.palette().surface, ui.palette().text);
-        modes.addView(page, ui.lp(-2, 38));
-        page.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { scientificOpen = !scientificOpen; host.invalidate(); }
-        });
-        TextView angle = ui.pillButton(degrees ? "DEG" : "RAD",
-                ui.palette().surface, ui.palette().accent);
-        LinearLayout.LayoutParams ap2 = ui.lp(-2, 38);
-        ap2.leftMargin = ui.dp(6);
-        modes.addView(angle, ap2);
-        angle.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { degrees = !degrees; host.invalidate(); }
-        });
-        TextView hint = ui.label(historyOpen ? "" : "hold the display to copy \u00b7 swipe it down for history",
-                10, ui.palette().muted, false);
-        hint.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-        modes.addView(hint, new LinearLayout.LayoutParams(0, 38, 1f));
 
         // ---- the keypad: basic page or scientific page, rows weighted, keys row-high ----
         String[][] rows = scientificOpen ? SCIENTIFIC_ROWS : ROWS;
@@ -167,11 +176,20 @@ public final class CalculatorScreen implements Screen {
                     pill.setColor(ui.palette().accent);
                     button.setBackground(pill);
                 } else {
-                    button.setTextSize(sciKey ? 17 : fnKey || opKey ? 22 : 27);
+                    button.setTextSize(sciKey ? 18 : fnKey || opKey ? 24 : 30);
                     button.setTextColor(fnKey || opKey || sciKey
                             ? ui.palette().accent : ui.palette().text);
                 }
                 button.setContentDescription(key);
+                // Google's keys answer the finger: the borderless ripple is the platform's
+                // own touch feedback, drawn over the bare glyph without adding chrome.
+                try {
+                    android.util.TypedValue tv = new android.util.TypedValue();
+                    context.getTheme().resolveAttribute(
+                            android.R.attr.selectableItemBackgroundBorderless, tv, true);
+                    button.setForeground(context.getDrawable(tv.resourceId));
+                } catch (Exception ignored) {
+                }
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -1, 1f);
                 if (equalsKey) params.weight = 2f; // equals spans the last two cells
                 params.leftMargin = ui.dp(4);
@@ -198,7 +216,7 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        final TextView expressionView = ui.label(typed(), 40, ui.palette().text, false);
+        final TextView expressionView = ui.label(typed(), 46, ui.palette().text, false);
         expressionView.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
         expressionView.setSingleLine(true);
         exprScroll.addView(expressionView, new LinearLayout.LayoutParams(-2, -1));

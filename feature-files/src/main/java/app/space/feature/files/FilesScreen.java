@@ -577,7 +577,7 @@ public final class FilesScreen implements Screen {
     }
 
 
-    private View inScroll(LinearLayout page) {
+    private View inScroll(View page) {
         ScrollView scroll = new ScrollView(page.getContext());
         scroll.setVerticalScrollBarEnabled(false);
         scroll.addView(page, new LinearLayout.LayoutParams(-1, -2));

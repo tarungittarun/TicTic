@@ -3764,6 +3764,52 @@ class CalendarParityContracts(unittest.TestCase):
         self.assertIn("public static String timeLabel(", self.rules)
 
 
+class ScannerCaptureContracts(unittest.TestCase):
+    """Defect 20: "Scanner does not capture like CamScanner." The capture half of the
+    capture-crop-enhance-PDF loop: the system camera writes into a private inbox through a
+    hand-rolled writable provider, because useAndroidX=false rules out FileProvider and a
+    file:// EXTRA_OUTPUT throws on API 24+.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/ScannerScreen.java").read_text())
+        self.provider = java_code_only(
+            (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/CaptureProvider.java").read_text())
+        self.manifest = (ROOT / "feature-scanner/src/main/AndroidManifest.xml").read_text()
+
+    def test_the_capture_door_is_declared_writable_and_contained(self):
+        self.assertIn('android:name=".CaptureProvider"', self.manifest)
+        self.assertIn('android:authorities="${applicationId}.myspace_capture"', self.manifest)
+        self.assertIn('android:grantUriPermissions="true"', self.manifest)
+        self.assertIn("ParcelFileDescriptor.MODE_WRITE_ONLY", self.provider)
+        self.assertIn("ShareRules.isInsideRoot(rootPath, file.getCanonicalPath())", self.provider)
+
+    def test_package_visibility_cannot_make_the_camera_button_lie(self):
+        # API 30+: resolveActivity returns null without this, on devices that have a camera.
+        self.assertIn('<action android:name="android.media.action.IMAGE_CAPTURE" />', self.manifest)
+        self.assertIn("intent.resolveActivity(context.getPackageManager())", self.screen)
+
+    def test_the_capture_round_trip_lands_the_page_in_the_list(self):
+        self.assertIn("private static final int TAKE_PHOTO = 91;", self.screen)
+        self.assertIn("intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, destination);", self.screen)
+        self.assertIn("Intent.FLAG_GRANT_WRITE_URI_PERMISSION", self.screen)
+        self.assertIn("if (requestCode == TAKE_PHOTO) {", self.screen)
+        self.assertIn("ScannerRules.Page page = measure(photoContext, captured);", self.screen)
+
+    def test_the_inbox_empties_once_the_pdf_holds_the_pages(self):
+        self.assertIn("private void cleanInbox(Context context, List<ScannerRules.Page> selected)", self.screen)
+        self.assertIn("cleanInbox(context, selected);", self.screen)
+        self.assertIn("page.sourceUri.contains(CaptureProvider.AUTHORITY_SUFFIX)", self.screen)
+
+    def test_no_camera_permission_is_declared_for_delegated_capture(self):
+        # Delegating to the system camera needs no CAMERA permission; declaring it would
+        # force a runtime prompt every install has to answer for nothing.
+        self.assertNotIn("android.permission.CAMERA", self.manifest)
+        app_manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+        self.assertNotIn("android.permission.CAMERA", app_manifest)
+
+
 class MusicPlaybackServiceContracts(unittest.TestCase):
     """The plan's music player: "queue with shuffle/repeat, seek bar with position, foreground
     service with a notification transport so playback survives leaving the app." Surviving the

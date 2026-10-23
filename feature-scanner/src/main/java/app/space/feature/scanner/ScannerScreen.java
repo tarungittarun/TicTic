@@ -46,12 +46,15 @@ import app.space.core.suite.ScreenHost;
 public final class ScannerScreen implements Screen {
 
     private static final int PICK_IMAGES = 90;
+    private static final int TAKE_PHOTO = 91;
     /** Longest edge decoded when drawing. Larger bitmaps risk an OutOfMemoryError mid-write. */
     private static final int MAX_DECODE_EDGE = 1600;
 
     private final ScreenHost host;
     private final List<ScannerRules.Page> pages = new ArrayList<>();
     private boolean a4 = true;
+    /** Where the camera was told to write; held across the activity round-trip. */
+    private Uri pendingCapture;
 
     public ScannerScreen(ScreenHost host) { this.host = host; }
 
@@ -75,38 +78,49 @@ public final class ScannerScreen implements Screen {
         cp.topMargin = ui.dp(8);
         root.addView(card, cp);
         card.addView(ui.label("Pick images, then save them as one PDF.", 13, ui.palette().text, true));
-        TextView note = ui.label("Pages come from the picker rather than the camera: full-resolution "
-                + "capture needs a FileProvider, which ships with AndroidX, and this project has "
-                + "AndroidX disabled. Nothing here adds the 50 MB a CameraX and ML Kit build would.",
+        TextView note = ui.label("Take a page with the system camera or pick existing images, "
+                + "then save them as one PDF. Captures land in a private inbox through a "
+                + "hand-rolled provider -- AndroidX FileProvider stays unavailable until the "
+                + "migration, and in-app live-preview capture comes with it.",
                 11, ui.palette().muted, false);
         note.setPadding(0, ui.dp(4), 0, ui.dp(8));
         card.addView(note);
 
         LinearLayout actions = ui.hbox();
         card.addView(actions, ui.lp(-1, 46));
-        TextView pick = ui.pillButton("Pick images", ui.palette().accent, android.graphics.Color.WHITE);
+        TextView photo = ui.pillButton("Take a photo", ui.palette().accent, android.graphics.Color.WHITE);
+        LinearLayout.LayoutParams php = ui.lp(0, 46);
+        php.weight = 1f;
+        actions.addView(photo, php);
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { takePhoto(context); }
+        });
+        TextView pick = ui.pillButton("Pick images", ui.palette().surface, ui.palette().text);
         LinearLayout.LayoutParams pp = ui.lp(0, 46);
         pp.weight = 1f;
+        pp.leftMargin = ui.dp(6);
         actions.addView(pick, pp);
         pick.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { pickImages(context); }
         });
+
+        LinearLayout saveRow = ui.hbox();
+        LinearLayout.LayoutParams srp = ui.lp(-1, 48);
+        srp.topMargin = ui.dp(8);
+        root.addView(saveRow, srp);
         TextView sheet = ui.pillButton(a4 ? "A4" : "Letter", ui.palette().surface, ui.palette().text);
-        LinearLayout.LayoutParams spp = ui.lp(0, 46);
-        spp.weight = 1f;
-        spp.leftMargin = ui.dp(6);
-        actions.addView(sheet, spp);
+        saveRow.addView(sheet, ui.lp(-2, 48));
         sheet.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { a4 = !a4; host.invalidate(); }
         });
-
         TextView save = ui.pillButton(usable.isEmpty() ? "Save PDF" : "Save " + usable.size()
                         + (usable.size() == 1 ? " page" : " pages") + " as PDF",
                 usable.isEmpty() ? ui.palette().surface : ui.palette().accent,
                 usable.isEmpty() ? ui.palette().muted : android.graphics.Color.WHITE);
-        LinearLayout.LayoutParams svp = ui.lp(-1, 48);
-        svp.topMargin = ui.dp(8);
-        root.addView(save, svp);
+        LinearLayout.LayoutParams svp = ui.lp(0, 48);
+        svp.weight = 1f;
+        svp.leftMargin = ui.dp(6);
+        saveRow.addView(save, svp);
         save.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 if (usable.isEmpty()) { host.toast("Pick at least one image first."); return; }
@@ -212,8 +226,53 @@ public final class ScannerScreen implements Screen {
         }
     }
 
+    /** Hands the system camera a private destination and waits for the result. */
+    private void takePhoto(Context context) {
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(context.getPackageManager()) == null) {
+            host.toast("This device has no camera app to delegate to.");
+            return;
+        }
+        Uri destination = CaptureProvider.newCapture(context);
+        if (destination == null) {
+            host.toast("Could not prepare a destination for the capture.");
+            return;
+        }
+        pendingCapture = destination;
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, destination);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).startActivityForResult(intent, TAKE_PHOTO);
+            } else {
+                host.toast("Cannot open the camera from here.");
+            }
+        } catch (Exception e) {
+            host.toast("The camera refused to open: " + e.getClass().getSimpleName());
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == TAKE_PHOTO) {
+            Uri captured = pendingCapture;
+            pendingCapture = null;
+            if (resultCode != android.app.Activity.RESULT_OK || captured == null) {
+                host.toast("No photo taken.");
+                return;
+            }
+            Context photoContext = host.context();
+            ScannerRules.Page page = measure(photoContext, captured);
+            if (page == null) {
+                host.toast("The camera wrote nothing readable.");
+                return;
+            }
+            pages.add(page);
+            host.toast("Page added.");
+            host.invalidate();
+            return;
+        }
         if (requestCode != PICK_IMAGES || data == null) return;
         if (resultCode != android.app.Activity.RESULT_OK) {
             // A cancelled pick must still reach here, or the screen stays in a state where
@@ -379,9 +438,22 @@ public final class ScannerScreen implements Screen {
             document.close();
         }
         pages.clear();
+        cleanInbox(context, selected);
         host.toast("Saved " + output.getName() + " (" + written
                 + (written == 1 ? " page)." : " pages)."));
         host.invalidate();
+    }
+
+    /** Captured pages have served their purpose once the PDF holds them; the inbox empties. */
+    private void cleanInbox(Context context, List<ScannerRules.Page> selected) {
+        for (ScannerRules.Page page : selected) {
+            if (page.sourceUri.contains(CaptureProvider.AUTHORITY_SUFFIX)) {
+                try {
+                    File file = new File(Uri.parse(page.sourceUri).getPath());
+                    if (file.isFile()) file.delete();
+                } catch (Exception ignored) { }
+            }
+        }
     }
 
     /** Decodes at a bounded size so a very large photo cannot exhaust memory mid-write. */

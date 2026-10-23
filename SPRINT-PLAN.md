@@ -91,7 +91,20 @@ a plain-text editor with wrap, encoding-safe save, find/replace and no markup.
 **Acceptance on device:** create a text file from the category view, edit it like Notepad, find a
 word, replace it, save; open a CSV and see columns; the old Documents tile is gone.
 
-## Sprint 2 — Notes and Calendar to the standard they were named against (5 slices, ~2 days)
+## Sprint 2 — DELIVERED: Notes is the wall, Calendar has years, weeks and settings (build 3.9.0)
+
+Delivered in full, in four slices instead of the planned five: the Notes card wall (two columns,
+seven colours, pins on top, archive drawer, IME-submit search, plain-text checklists with a
+toggle-the-line-under-the-caret button and a done tally), and the calendar the owner described --
+the year as a tappable picker plus \u00ab/\u00bb year steps, a Today pill, event dots under busy
+days, month/week/day views, a timed editor with reminder offsets, and the settings sheet (week
+start, opening view, default reminder) with reminders that actually ring through
+EventReminderReceiver and survive reboot. JVM tests cover the display order, archive halves,
+checklist maths, week-start offsets and time labels. One plan deviation: "theme follow" and the
+undo snackbar were dropped -- the suite themes globally already, and undo lives in Notes'
+auto-save-on-back model instead. The original plan text follows, for the record.
+
+## Sprint 2 — original plan: Notes and Calendar to the standard they were named against (5 slices, ~2 days)
 
 Research basis: Google Notes = coloured note cards in a two-column grid, pin/archive/delete,
 search, checklist notes, undo snackbar. Popular calendar (Google Calendar) = month grid with

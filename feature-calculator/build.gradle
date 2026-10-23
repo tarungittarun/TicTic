@@ -23,6 +23,9 @@ android {
 
 dependencies {
     api project(':core-suite')
+    // History persists in the shared preference store, the same door the rest of the
+    // suite's data lives behind, so it survives the screen and the process like Google's.
+    implementation project(':core-data')
 
     implementation project(':core-data')
     implementation project(':core-design')

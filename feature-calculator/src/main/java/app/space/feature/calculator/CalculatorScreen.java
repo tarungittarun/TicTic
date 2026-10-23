@@ -2,49 +2,47 @@ package app.space.feature.calculator;
 
 import android.content.Context;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import app.space.core.data.AppPrefs;
 import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
 
 /**
- * The calculator, recreated key for key after Google's, on the owner's instruction:
- * "Exact interface and working as Google calculator."
+ * The calculator, recreated after Google's and then compared against it feature by feature
+ * on the owner's instruction: "List all features available in Google calculator and compare
+ * with yours in each aspects and pick the findings and work on them."
  *
- * <p>Google's arrangement: the display owns the top of the screen with what is typed large and
- * the live result beneath it in grey; the keypad owns everything below and sits against the
- * bottom edge. Five rows of four: clear, backspace, percent, divide; then three digit rows with
- * the operators down the right side; then zero, point and a double-width equals. There is no
- * bracket key on Google's pad, so there is none here -- the rules still understand brackets,
- * but the keyboard offers exactly what the calculator it recreates offers.
+ * <p>What the comparison found and this revision closes: Google's scientific panel (sin cos
+ * tan and their inverses, ln, log, sqrt, factorial, power, pi and e, with a DEG/RAD toggle)
+ * behind a page swap the way Google's portrait swipe does it; Google's history (swipe down on
+ * the display, tap a line to reuse its result, clear it when you want) persisted in prefs so
+ * it survives like Google's does; Google's hold-to-copy on the display; Google's swipeable
+ * display for numbers longer than the screen (a filling HorizontalScrollView that scrolls to
+ * the end you are typing); and Google's key haptics.
  *
- * <p>Google's look, in this suite's palette: digit keys are bare -- no button chrome at all,
- * just large light glyphs on the dark background; the function and operator keys are bare too
- * but coloured with the accent; only equals is a filled pill, spanning its two cells. Nothing
- * floats in the middle of the screen and nothing is outlined like a 2013 keypad.
+ * <p>What it keeps from the 3.11.1 rebuild: Google's basic pad key for key -- display on top
+ * with the live result in grey beneath, five rows of four, double-width filled equals, no
+ * bracket key on the basic page -- and Google's percent, which is postfix and contextual.
  *
- * <p>The layout bug this rewrite kills: the previous keypad gave every key a height of zero
- * inside a horizontal row, where weight does not govern height -- so on a real phone the
- * calculator rendered as an empty screen with a stray glyph. Keys now take their height from
- * the row (MATCH_PARENT inside a weighted row) and the rows take theirs from weights, so the
- * pad fills whatever the display does not take, on any screen. The owner's screenshot was the
- * first time anyone's eyes had been on this screen; it is why "delivered" and "works" are
- * different words.
+ * <p>The layout rule this screen already died once for: keys take their height from the row
+ * (MATCH_PARENT inside a weighted row). The first version gave keys height zero inside a
+ * horizontal row, where weight governs width only, and shipped an invisible keypad to a real
+ * phone. The contract pins the params line.
  *
  * <p>State lives in this object rather than in the views, so the expression survives a
  * re-render. Results are formatted by {@link CalculatorRules#format} and errors show as
- * "Error" instead of crashing: a malformed expression is what a user types by accident,
- * not an exceptional condition.
+ * "Error" instead of crashing.
  */
 public final class CalculatorScreen implements Screen {
 
-    /**
-     * The keypad, Google's arrangement. A null cell means the key to its left spans it, which
-     * is how equals takes the last two cells of the bottom row.
-     */
+    /** The basic page, Google's arrangement. A null cell means the key to its left spans it. */
     private static final String[][] ROWS = {
             {"C", "\u232b", "%", "\u00f7"},
             {"7", "8", "9", "\u00d7"},
@@ -53,10 +51,25 @@ public final class CalculatorScreen implements Screen {
             {"0", ".", "=", null},
     };
 
+    /** The scientific page, the way Google's portrait panel swaps the whole keypad over. */
+    private static final String[][] SCIENTIFIC_ROWS = {
+            {"sin(", "cos(", "tan(", "\u221a("},
+            {"asin(", "acos(", "atan(", "ln("},
+            {"log(", "^", "!", "\u03c0"},
+            {"e", "(", ")", "C"},
+            {"DEG", "\u232b", "=", null},
+    };
+
+    private static final String HISTORY_KEY = "calculator_history";
+    private static final int HISTORY_CAP = 50;
+
     private final ScreenHost host;
     private final StringBuilder expression = new StringBuilder();
     private String result = "";
     private boolean justEvaluated;
+    private boolean historyOpen;
+    private boolean scientificOpen;
+    private boolean degrees = true;
 
     public CalculatorScreen(ScreenHost host) {
         this.host = host;
@@ -65,43 +78,82 @@ public final class CalculatorScreen implements Screen {
     @Override public String title() { return "Calculator"; }
 
     @Override
-    public View build(Context context) {
+    public View build(final Context context) {
         final UiKit ui = new UiKit(context, host.palette());
         LinearLayout root = ui.vbox();
-        root.setPadding(ui.dp(16), ui.dp(10), ui.dp(16), ui.dp(10));
+        root.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(10));
 
-        // The display: what is typed, large and right-aligned like Google's, with the live
-        // result beneath in grey. A calculator that stays silent until equals makes you
-        // discover mistakes at the worst moment. Long expressions truncate at the START so
-        // the end you are typing stays visible, the way Google's scroller does.
+        // ---- the display: swipe down for history, hold to copy, scroll when long ----
         LinearLayout display = ui.vbox();
         root.addView(display, new LinearLayout.LayoutParams(-1, 0, 2f));
+        display.setOnTouchListener(new SwipeDownListener() {
+            @Override void onSwipeDown() { historyOpen = !historyOpen; host.invalidate(); }
+        });
+        display.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) {
+                copy(context, displayValue());
+                return true;
+            }
+        });
 
-        final TextView expressionView = ui.label(typed(), 40, ui.palette().text, false);
-        expressionView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
-        expressionView.setSingleLine(true);
-        expressionView.setEllipsize(android.text.TextUtils.TruncateAt.START);
-        LinearLayout.LayoutParams ep = ui.lp(-1, -2);
-        ep.bottomMargin = ui.dp(6);
-        display.addView(expressionView, ep);
+        if (historyOpen) {
+            buildHistoryPage(context, ui, display);
+        } else {
+            buildDisplay(context, ui, display);
+        }
 
-        final TextView previewView = ui.label(preview(), 17, ui.palette().muted, false);
-        previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
-        previewView.setMaxLines(1);
-        previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
-        display.addView(previewView, ui.lp(-1, -2));
+        // ---- mode row: the page swap and the angle mode, both small and both explicit ----
+        LinearLayout modes = ui.hbox();
+        LinearLayout.LayoutParams mp = ui.lp(-1, 38);
+        mp.topMargin = ui.dp(4);
+        root.addView(modes, mp);
+        TextView page = ui.pillButton(scientificOpen ? "Basic" : "Scientific",
+                ui.palette().surface, ui.palette().text);
+        modes.addView(page, ui.lp(-2, 38));
+        page.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { scientificOpen = !scientificOpen; host.invalidate(); }
+        });
+        TextView angle = ui.pillButton(degrees ? "DEG" : "RAD",
+                ui.palette().surface, ui.palette().accent);
+        LinearLayout.LayoutParams ap2 = ui.lp(-2, 38);
+        ap2.leftMargin = ui.dp(6);
+        modes.addView(angle, ap2);
+        angle.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { degrees = !degrees; host.invalidate(); }
+        });
+        TextView hint = ui.label(historyOpen ? "" : "hold the display to copy \u00b7 swipe it down for history",
+                10, ui.palette().muted, false);
+        hint.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        modes.addView(hint, new LinearLayout.LayoutParams(0, 38, 1f));
 
-        // The keypad: five rows sharing the remaining height equally. Each KEY fills its row's
-        // height -- the zero-height params that made this screen invisible on device are gone.
-        for (String[] rowKeys : ROWS) {
+        // ---- the keypad: basic page or scientific page, rows weighted, keys row-high ----
+        String[][] rows = scientificOpen ? SCIENTIFIC_ROWS : ROWS;
+        for (String[] rowKeys : rows) {
             LinearLayout row = ui.hbox();
             for (int col = 0; col < rowKeys.length; col++) {
                 final String key = rowKeys[col];
                 if (key == null) continue; // spanned by the key to its left
+                if ("DEG".equals(key)) {
+                    TextView toggle = ui.pillButton(degrees ? "DEG" : "RAD",
+                            ui.palette().surface, ui.palette().accent);
+                    toggle.setGravity(Gravity.CENTER);
+                    LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, -1, 1f);
+                    tp.leftMargin = ui.dp(4);
+                    tp.rightMargin = ui.dp(4);
+                    tp.topMargin = ui.dp(4);
+                    tp.bottomMargin = ui.dp(4);
+                    row.addView(toggle, tp);
+                    toggle.setOnClickListener(new View.OnClickListener() {
+                        @Override public void onClick(View v) { degrees = !degrees; host.invalidate(); }
+                    });
+                    continue;
+                }
                 final boolean equalsKey = "=".equals(key);
                 final boolean fnKey = "C".equals(key) || "\u232b".equals(key) || "%".equals(key);
                 final boolean opKey = "\u00f7".equals(key) || "\u00d7".equals(key)
                         || "\u2212".equals(key) || "+".equals(key);
+                final boolean sciKey = key.endsWith("(") || "^".equals(key) || "!".equals(key)
+                        || "\u03c0".equals(key) || "e".equals(key) || "(".equals(key) || ")".equals(key);
                 TextView button = new TextView(context);
                 button.setText(key);
                 button.setGravity(Gravity.CENTER);
@@ -115,8 +167,8 @@ public final class CalculatorScreen implements Screen {
                     pill.setColor(ui.palette().accent);
                     button.setBackground(pill);
                 } else {
-                    button.setTextSize(fnKey || opKey ? 22 : 27);
-                    button.setTextColor(fnKey || opKey
+                    button.setTextSize(sciKey ? 17 : fnKey || opKey ? 22 : 27);
+                    button.setTextColor(fnKey || opKey || sciKey
                             ? ui.palette().accent : ui.palette().text);
                 }
                 button.setContentDescription(key);
@@ -129,9 +181,9 @@ public final class CalculatorScreen implements Screen {
                 row.addView(button, params);
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        press(key);
-                        expressionView.setText(typed());
-                        previewView.setText(preview());
+                        v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                        press(context, key);
+                        host.invalidate();
                     }
                 });
             }
@@ -140,9 +192,150 @@ public final class CalculatorScreen implements Screen {
         return root;
     }
 
+    /** The live display: typed expression in a filling scroller, live result beneath in grey. */
+    private void buildDisplay(Context context, UiKit ui, LinearLayout display) {
+        final HorizontalScrollView exprScroll = new HorizontalScrollView(context);
+        exprScroll.setHorizontalScrollBarEnabled(false);
+        exprScroll.setFillViewport(true);
+        exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        final TextView expressionView = ui.label(typed(), 40, ui.palette().text, false);
+        expressionView.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        expressionView.setSingleLine(true);
+        exprScroll.addView(expressionView, new LinearLayout.LayoutParams(-2, -1));
+        LinearLayout.LayoutParams sp = ui.lp(-1, 0);
+        sp.weight = 1f;
+        display.addView(exprScroll, sp);
+        exprScroll.post(new Runnable() {
+            @Override public void run() { exprScroll.fullScroll(View.FOCUS_RIGHT); }
+        });
+
+        final TextView previewView = ui.label(preview(), 17, ui.palette().muted, false);
+        previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
+        previewView.setMaxLines(1);
+        previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
+        display.addView(previewView, ui.lp(-1, -2));
+    }
+
+    /** Google's history: newest first, tap a line to reuse its result, clear when you want. */
+    private void buildHistoryPage(final Context context, UiKit ui, LinearLayout display) {
+        LinearLayout head = ui.hbox();
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        display.addView(head, ui.lp(-1, 34));
+        head.addView(ui.label("History", 14, ui.palette().text, true),
+                new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
+        head.addView(clear, ui.lp(-2, 32));
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                AppPrefs.prefs(context).edit().remove(HISTORY_KEY).apply();
+                host.invalidate();
+            }
+        });
+        TextView close = ui.pillButton("\u2303", ui.palette().surface, ui.palette().accent);
+        LinearLayout.LayoutParams cp = ui.lp(-2, 32);
+        cp.leftMargin = ui.dp(6);
+        head.addView(close, cp);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { historyOpen = false; host.invalidate(); }
+        });
+
+        ScrollView scroll = new ScrollView(context);
+        scroll.setVerticalScrollBarEnabled(false);
+        LinearLayout list = ui.vbox();
+        scroll.addView(list, new LinearLayout.LayoutParams(-1, -2));
+        display.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        String[][] entries = CalculatorRules.historyEntries(
+                AppPrefs.prefs(context).getString(HISTORY_KEY, ""));
+        if (entries.length == 0) {
+            list.addView(ui.label("No calculations yet. Results land here as you make them.",
+                    13, ui.palette().muted, false), ui.lp(-1, -2));
+        }
+        for (String[] entry : entries) {
+            final String value = entry[1];
+            LinearLayout line = ui.hbox();
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            line.setPadding(0, ui.dp(5), 0, ui.dp(5));
+            list.addView(line, ui.lp(-1, -2));
+            line.addView(ui.label(entry[0] + "  =  ", 14, ui.palette().muted, false),
+                    ui.lp(-2, -2));
+            line.addView(ui.label(value, 16, ui.palette().text, true),
+                    new LinearLayout.LayoutParams(0, -2, 1f));
+            line.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    insertNumber(value);
+                    historyOpen = false;
+                    host.invalidate();
+                }
+            });
+            line.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override public boolean onLongClick(View v) {
+                    copy(context, value);
+                    return true;
+                }
+            });
+        }
+    }
+
+    /** A vertical swipe on the display, which is how Google opens and closes the history. */
+    private abstract static class SwipeDownListener implements View.OnTouchListener {
+        private float downY;
+        abstract void onSwipeDown();
+        // DOWN must return false: consuming it here would stop the view's own touch
+        // handling, and the hold-to-copy long click is exactly that handling. The swipe
+        // is claimed only on UP, and only when it was unmistakably downward.
+        @Override public boolean onTouch(View v, MotionEvent e) {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) { downY = e.getY(); return false; }
+            if (e.getAction() == MotionEvent.ACTION_UP && e.getY() - downY > 60) {
+                onSwipeDown();
+                return true;
+            }
+            return false;
+        }
+    }
+
     @Override public void onResume() { }
 
     @Override public void onPause() { }
+
+    /** What a hold-copy puts on the clipboard: the result if there is one, else what is typed. */
+    private String displayValue() {
+        if (justEvaluated) return result;
+        String candidate = trimmed();
+        if (!candidate.isEmpty()) {
+            try {
+                return CalculatorRules.format(CalculatorRules.evaluate(candidate, degrees));
+            } catch (Exception e) {
+                // fall through to the typed text
+            }
+        }
+        return typed();
+    }
+
+    private void copy(Context context, String text) {
+        try {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                    context.getSystemService(Context.CLIPBOARD_SERVICE);
+            cm.setPrimaryClip(android.content.ClipData.newPlainText("MySpace calculation", text));
+            host.toast("Copied " + text);
+        } catch (Exception e) {
+            host.toast("Could not copy.");
+        }
+    }
+
+    /** History reuse: the stored result is typed in one character at a time, so the rules
+     *  validate it exactly as if your thumb had typed it. */
+    private void insertNumber(String value) {
+        String current = justEvaluated ? "" : expression.toString();
+        justEvaluated = false;
+        result = "";
+        for (int i = 0; i < value.length(); i++) {
+            String next = CalculatorRules.append(current, String.valueOf(value.charAt(i)));
+            if (next == null) continue;
+            current = next;
+        }
+        expression.setLength(0);
+        expression.append(current);
+    }
 
     /** The main display: the result just after equals, otherwise what is typed. */
     private String typed() {
@@ -156,7 +349,7 @@ public final class CalculatorScreen implements Screen {
         String candidate = trimmed();
         if (candidate.isEmpty()) return " ";
         try {
-            return "= " + CalculatorRules.format(CalculatorRules.evaluate(candidate));
+            return "= " + CalculatorRules.format(CalculatorRules.evaluate(candidate, degrees));
         } catch (Exception e) {
             return " ";
         }
@@ -171,7 +364,7 @@ public final class CalculatorScreen implements Screen {
         return typed;
     }
 
-    private void press(String key) {
+    private void press(Context context, String key) {
         if ("C".equals(key)) {
             expression.setLength(0);
             result = "";
@@ -189,8 +382,7 @@ public final class CalculatorScreen implements Screen {
             return;
         }
         // After equals, a digit or a point starts a new expression while an operator or a
-        // percent carries on from the result; after Error, everything starts over, because
-        // there is no result to carry on from.
+        // percent carries on from the result; after Error, everything starts over.
         if (justEvaluated) {
             boolean fresh;
             if ("Error".equals(result)) {
@@ -205,22 +397,27 @@ public final class CalculatorScreen implements Screen {
         if ("=".equals(key)) {
             String typed = trimmed();
             if (typed.isEmpty()) return;
+            String evaluated;
             try {
-                result = CalculatorRules.format(CalculatorRules.evaluate(typed));
+                evaluated = CalculatorRules.format(CalculatorRules.evaluate(typed, degrees));
             } catch (Exception e) {
                 result = "Error";
                 justEvaluated = true;
                 return;
             }
+            AppPrefs.prefs(context).edit().putString(HISTORY_KEY,
+                    CalculatorRules.pushHistory(
+                            AppPrefs.prefs(context).getString(HISTORY_KEY, ""),
+                            readable(typed), evaluated, HISTORY_CAP)).apply();
+            result = evaluated;
             expression.setLength(0);
             expression.append(result);
             justEvaluated = true;
             return;
         }
         // The rules decide, not the keyboard: an unacceptable key is simply not typed, so the
-        // display can never hold a sequence that is not a number in progress. Percent included
-        // -- it is postfix in the rules, exactly as it is on Google's pad.
-        String next = CalculatorRules.append(expression.toString(), key);
+        // display can never hold a sequence that is not a number in progress.
+        String next = CalculatorRules.appendToken(expression.toString(), key);
         if (next == null) return;
         accept(next);
     }

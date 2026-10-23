@@ -173,4 +173,72 @@ public class CalculatorRulesTest {
         assertNull(CalculatorRules.append("5+", "%"));
         assertNull(CalculatorRules.append("5%", "%"));
     }
+
+    @Test public void scientificPanelIsDegreesByDefaultWithARadianEscape() {
+        assertEquals(0.5, CalculatorRules.evaluate("sin(30)"), 1e-9);
+        assertEquals(0.5, CalculatorRules.evaluate("cos(60)"), 1e-9);
+        assertEquals(1d, CalculatorRules.evaluate("tan(45)"), 1e-9);
+        assertEquals(30d, CalculatorRules.evaluate("asin(0.5)"), 1e-9);
+        assertEquals(Math.sin(30), CalculatorRules.evaluate("sin(30)", false), 1e-9);
+        assertEquals(1d, CalculatorRules.evaluate("ln(e)"), 1e-9);
+        assertEquals(2d, CalculatorRules.evaluate("log(100)"), 1e-9);
+        assertEquals(3d, CalculatorRules.evaluate("sqrt(9)"), 1e-9);
+        assertEquals(3d, CalculatorRules.evaluate("\u221a(9)"), 1e-9);
+        assertEquals(Math.PI, CalculatorRules.evaluate("\u03c0"), 1e-9);
+    }
+
+    @Test public void powerIsRightAssociativeAndBindsTighterThanMultiply() {
+        assertEquals(512d, CalculatorRules.evaluate("2^3^2"), 1e-9);
+        assertEquals(1024d, CalculatorRules.evaluate("2^10"), 1e-9);
+        assertEquals(50d, CalculatorRules.evaluate("2+3*4^2"), 1e-9);
+        assertEquals(-4d, CalculatorRules.evaluate("-2^2"), 1e-9);
+    }
+
+    @Test public void factorialIsIntegersOnlyWithinDoubleRange() {
+        assertEquals(120d, CalculatorRules.evaluate("5!"), 1e-9);
+        assertEquals(1d, CalculatorRules.evaluate("0!"), 1e-9);
+        try { CalculatorRules.evaluate("171!"); fail("171! overflows a double"); }
+        catch (ArithmeticException expected) { }
+        try { CalculatorRules.evaluate("(-1)!"); fail("negative factorial"); }
+        catch (ArithmeticException expected) { }
+        try { CalculatorRules.evaluate("asin(2)"); fail("asin domain"); }
+        catch (ArithmeticException expected) { }
+        try { CalculatorRules.evaluate("sqrt(-1)"); fail("sqrt domain"); }
+        catch (ArithmeticException expected) { }
+    }
+
+    @Test public void scientificTokensObeyTheSameRefusalDisciplineAsKeys() {
+        assertEquals("sin(", CalculatorRules.appendToken("", "sin("));
+        assertEquals("5+sin(", CalculatorRules.appendToken("5+", "sin("));
+        assertNull(CalculatorRules.appendToken("5", "sin("));
+        assertEquals("5!", CalculatorRules.appendToken("5", "!"));
+        assertNull(CalculatorRules.appendToken("", "!"));
+        assertNull(CalculatorRules.appendToken("5!", "!"));
+        assertEquals("5^", CalculatorRules.appendToken("5", "^"));
+        assertNull(CalculatorRules.appendToken("5+", "^"));
+        assertEquals("\u03c0", CalculatorRules.appendToken("", "\u03c0"));
+        assertNull(CalculatorRules.appendToken("5", "e"));
+    }
+
+    @Test public void historyIsNewestFirstDeduplicatedAndCapped() {
+        String store = CalculatorRules.pushHistory("", "1+1", "2", 50);
+        store = CalculatorRules.pushHistory(store, "2+2", "4", 50);
+        String[][] entries = CalculatorRules.historyEntries(store);
+        assertEquals(2, entries.length);
+        assertEquals("2+2", entries[0][0]);
+        assertEquals("4", entries[0][1]);
+        // A repeat moves to the top instead of duplicating.
+        store = CalculatorRules.pushHistory(store, "1+1", "2", 50);
+        entries = CalculatorRules.historyEntries(store);
+        assertEquals(2, entries.length);
+        assertEquals("1+1", entries[0][0]);
+        // The cap drops the oldest, never the newest.
+        store = CalculatorRules.pushHistory(store, "3+3", "6", 2);
+        assertEquals(2, CalculatorRules.historyEntries(store).length);
+        assertEquals("3+3", CalculatorRules.historyEntries(store)[0][0]);
+        // A corrupt line is skipped, not crashed on: history is prefs text, and prefs text
+        // is whatever an older version or a restored backup left behind.
+        assertEquals(1, CalculatorRules.historyEntries("corrupt\n1+1=2").length);
+        assertEquals(0, CalculatorRules.historyEntries("").length);
+    }
 }

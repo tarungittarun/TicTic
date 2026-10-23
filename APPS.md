@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.11.1** (versionCode 36) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.12.0** (versionCode 37) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -39,8 +39,16 @@ the host. Each app has its own icon glyph — no two share one.
 and an activity log. Its seven destinations are navigation routes, so they can be reordered,
 pinned or hidden individually from Settings ▸ Navigation, and widgets deep-link into them.
 
-**Calculator** — a recursive-descent parser, so `2+3*4` is 14 and not 20. Malformed input throws
-and displays `Error` rather than silently evaluating to zero.
+**Calculator** — recreated key for key after Google's calculator and then compared against it
+feature by feature (3.12.0): the basic pad with Google's contextual percent (`200+10%` is 220),
+live grey result under the display, double-width filled equals; a scientific page with sin, cos,
+tan and their inverses, ln, log, sqrt, factorial, power, pi and e behind a DEG/RAD toggle;
+history you open by swiping the display down, tap to reuse, long-press to copy and clear when
+you want, persisted like Google's; hold-the-display to copy; a display that scrolls for long
+numbers; key haptics. A recursive-descent parser underneath, so `2+3*4` is 14 and not 20, and
+malformed input throws and displays `Error` rather than silently evaluating to zero. Keys refuse
+sequences the grammar cannot hold, one tap at a time -- the rule that came from a real phone
+typing `0/0------85522*3*-`.
 
 **Notes** — titled notes with a case-insensitive search over title and body, newest first with
 ties broken on id so the list cannot reshuffle under your finger.

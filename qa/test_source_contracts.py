@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.11.1'", gradle)
-        self.assertIn("versionCode 36", gradle)
+        self.assertIn("versionName '3.12.0'", gradle)
+        self.assertIn("versionCode 37", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2520,6 +2520,7 @@ class CalculatorAppContracts(unittest.TestCase):
         for forbidden in ("project(':app')", "project(':shell')", "project(':feature-clock')"):
             self.assertNotIn(forbidden, self.gradle_code)
         self.assertIn("api project(':core-suite')", self.gradle_code)
+        self.assertIn("implementation project(':core-data')", self.gradle_code)
         self.assertIn("namespace 'app.space.feature.calculator'", self.gradle_code)
         self.assertIn("include ':feature-calculator'",
                       (ROOT / "settings.gradle").read_text())
@@ -2549,7 +2550,8 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("if (c == '\\u00d7') return \"*\";", rules)
         self.assertIn("if (c == '\\u2212') return \"-\";", rules)
         self.assertIn("String k = normaliseKey(key);", rules)
-        self.assertIn("CalculatorRules.append(expression.toString(), key)", self.screen)
+        self.assertIn("CalculatorRules.appendToken(expression.toString(), key)", self.screen)
+        self.assertIn("return append(current, token);", rules)
 
     def test_errors_are_shown_not_thrown_at_the_user(self):
         self.assertIn("catch (Exception e)", self.screen)
@@ -2577,6 +2579,16 @@ class CalculatorAppContracts(unittest.TestCase):
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.
         self.assertIn('"= " + CalculatorRules.format(', self.screen)
+        # Google's remaining features, pinned so they cannot silently regress: key haptics,
+        # hold-to-copy through the clipboard, the persisted history and its swipe gesture,
+        # the scientific page, and a display that scrolls instead of truncating.
+        self.assertIn("HapticFeedbackConstants.KEYBOARD_TAP", self.screen)
+        self.assertIn("android.content.ClipboardManager", self.screen)
+        self.assertIn('"calculator_history"', self.screen)
+        self.assertIn("SCIENTIFIC_ROWS", self.screen)
+        self.assertIn("e.getY() - downY > 60", self.screen)
+        self.assertIn("exprScroll.setFillViewport(true)", self.screen)
+        self.assertIn("CalculatorRules.evaluate(candidate, degrees)", self.screen)
 
     def test_the_input_rules_refuse_the_sequences_typed_on_device(self):
         rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
@@ -2595,7 +2607,17 @@ class CalculatorAppContracts(unittest.TestCase):
         # parser via a percent base that travels down from the additive level.
         self.assertIn("if (c == '%') {", rules)
         self.assertIn("double parseTerm(double percentBase)", rules)
-        self.assertIn("private double applyPercent(double value, double percentBase)", rules)
+        self.assertIn("private double parsePostfix(double value, double percentBase)", rules)
+        # The feature comparison against Google Calculator (owner's instruction, 2026-10-24):
+        # everything Google's pad has that the rebuild lacked lives in the tested rules, not
+        # the screen -- scientific functions with a degree mode, right-associative power,
+        # bounded factorial, token-level refusal, and a history store that is plain text.
+        self.assertIn("public static double evaluate(String expression, boolean degrees)", rules)
+        self.assertIn("double parsePower(double percentBase)", rules)
+        self.assertIn("private double factorial(double v)", rules)
+        self.assertIn("public static String appendToken(String expression, String token)", rules)
+        self.assertIn("public static String pushHistory(String store, String expression, String result, int cap)", rules)
+        self.assertIn("public static String[][] historyEntries(String store)", rules)
 
     def test_a_settings_crash_renders_a_page_that_describes_itself(self):
         # The net used to wrap only buildSettings; the owner's crash is on the tap that opens

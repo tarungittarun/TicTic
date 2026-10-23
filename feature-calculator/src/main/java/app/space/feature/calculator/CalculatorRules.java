@@ -26,7 +26,15 @@ public final class CalculatorRules {
      *         Callers show "Error" rather than crashing: a typo is an ordinary outcome.
      */
     public static double evaluate(String expression) {
-        Parser p = new Parser(expression);
+        return evaluate(expression, true);
+    }
+
+    /**
+     * Google's scientific panel is degrees by default with a DEG/RAD toggle, so the mode
+     * travels with the evaluation rather than living in a global.
+     */
+    public static double evaluate(String expression, boolean degrees) {
+        Parser p = new Parser(expression, degrees);
         double value = p.parseExpression();
         p.skipWhitespace();
         if (!p.atEnd()) throw new ArithmeticException("unexpected trailing input");
@@ -146,12 +154,61 @@ public final class CalculatorRules {
     }
 
     public static boolean isOperator(char c) {
-        return c == '+' || c == '-' || c == '*' || c == '/';
+        return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
     }
 
     public static boolean isInputCharacter(char c) {
         return (c >= '0' && c <= '9') || c == '.' || c == '+' || c == '-' || c == '*'
-                || c == '/' || c == '(' || c == ')' || c == '%';
+                || c == '/' || c == '(' || c == ')' || c == '%' || c == '^' || c == '!'
+                || c == '\u03c0' || c == 'e' || Character.isLetter(c);
+    }
+
+    /**
+     * Multi-character scientific tokens, validated the same way single keys are: a function
+     * opens an operand slot, a constant is an operand, postfix '!' and infix '^' need an
+     * operand already on screen. Anything else is refused rather than guessed.
+     */
+    public static String appendToken(String expression, String token) {
+        String current = expression == null ? "" : expression;
+        if (token == null || token.isEmpty()) return null;
+        char last = current.isEmpty() ? 0 : current.charAt(current.length() - 1);
+        boolean operandBefore = Character.isDigit(last) || last == ')'
+                || last == '\u03c0' || last == 'e' || last == '!';
+        boolean slotOpen = current.isEmpty() || isOperator(last) || last == '(';
+        if (token.endsWith("(")) return slotOpen ? current + token : null;
+        if ("\u03c0".equals(token) || "e".equals(token)) return slotOpen ? current + token : null;
+        if ("!".equals(token) || "^".equals(token)) return operandBefore ? current + token : null;
+        return append(current, token);
+    }
+
+    /**
+     * The history store, as pure text so it can be tested without a device: one line per
+     * calculation, "expression=result", newest first, deduplicated, capped. The characters
+     * an expression and a formatted result can contain never include '=' or newline, so the
+     * encoding cannot lie about where a line ends.
+     */
+    public static String pushHistory(String store, String expression, String result, int cap) {
+        String line = expression + "=" + result;
+        java.util.List<String> out = new java.util.ArrayList<>();
+        out.add(line);
+        if (store != null) {
+            for (String s : store.split("\n")) {
+                if (!s.isEmpty() && !s.equals(line)) out.add(s);
+            }
+        }
+        while (out.size() > cap) out.remove(out.size() - 1);
+        return String.join("\n", out);
+    }
+
+    public static String[][] historyEntries(String store) {
+        java.util.List<String[]> out = new java.util.ArrayList<>();
+        if (store == null || store.isEmpty()) return out.toArray(new String[0][]);
+        for (String line : store.split("\n")) {
+            int eq = line.indexOf('=');
+            if (eq <= 0 || eq == line.length() - 1) continue;
+            out.add(new String[]{line.substring(0, eq), line.substring(eq + 1)});
+        }
+        return out.toArray(new String[0][]);
     }
 
     /**
@@ -167,10 +224,13 @@ public final class CalculatorRules {
         private final String src;
         private int pos;
 
-        Parser(String src) {
+        private final boolean degrees;
+
+        Parser(String src, boolean degrees) {
             if (src == null) throw new ArithmeticException("empty expression");
             this.src = src.trim();
             if (this.src.isEmpty()) throw new ArithmeticException("empty expression");
+            this.degrees = degrees;
         }
 
         boolean atEnd() { return pos >= src.length(); }
@@ -191,14 +251,14 @@ public final class CalculatorRules {
         }
 
         double parseTerm(double percentBase) {
-            double value = parseFactor(percentBase);
+            double value = parsePower(percentBase);
             while (true) {
                 skipWhitespace();
                 if (atEnd()) return value;
                 char op = src.charAt(pos);
                 if (op != '*' && op != '/') return value;
                 pos++;
-                double rhs = parseFactor(percentBase);
+                double rhs = parsePower(percentBase);
                 if (op == '/') {
                     if (rhs == 0d) throw new ArithmeticException("division by zero");
                     value = value / rhs;
@@ -208,28 +268,106 @@ public final class CalculatorRules {
             }
         }
 
+        /** power binds tighter than * and / and is right-associative: 2^3^2 is 512. */
+        double parsePower(double percentBase) {
+            double value = parsePostfix(parseFactor(percentBase), percentBase);
+            skipWhitespace();
+            if (!atEnd() && src.charAt(pos) == '^') {
+                pos++;
+                value = Math.pow(value, parsePower(Double.NaN));
+            }
+            return value;
+        }
+
         double parseFactor(double percentBase) {
             skipWhitespace();
             if (atEnd()) throw new ArithmeticException("missing operand");
-            if (src.charAt(pos) == '-') { pos++; return -parseFactor(percentBase); }
-            if (src.charAt(pos) == '+') { pos++; return parseFactor(percentBase); }
+            if (src.charAt(pos) == '-') { pos++; return -parsePower(percentBase); }
+            if (src.charAt(pos) == '+') { pos++; return parsePower(percentBase); }
             if (src.charAt(pos) == '(') {
                 pos++;
                 double inner = parseExpression();
                 skipWhitespace();
                 if (atEnd() || src.charAt(pos) != ')') throw new ArithmeticException("unbalanced parentheses");
                 pos++;
-                return applyPercent(inner, percentBase);
+                return inner;
             }
-            return applyPercent(parseNumber(), percentBase);
+            if (src.charAt(pos) == '\u03c0') { pos++; return Math.PI; }
+            if (Character.isLetter(src.charAt(pos)) || src.charAt(pos) == '\u221a') {
+                return parseFunctionOrConstant();
+            }
+            return parseNumber();
         }
 
-        /** Consumes a postfix '%' if one follows: of percentBase under + and -, else hundredths. */
-        private double applyPercent(double value, double percentBase) {
+        /** The scientific panel's vocabulary: constants and prefix functions over a group. */
+        private double parseFunctionOrConstant() {
+            int start = pos;
+            while (pos < src.length()
+                    && (Character.isLetter(src.charAt(pos)) || src.charAt(pos) == '\u221a')) pos++;
+            String name = src.substring(start, pos);
+            if ("e".equals(name)) return Math.E;
             skipWhitespace();
-            if (atEnd() || src.charAt(pos) != '%') return value;
+            if (atEnd() || src.charAt(pos) != '(') throw new ArithmeticException("function needs ( )");
             pos++;
-            return Double.isNaN(percentBase) ? value / 100d : percentBase * value / 100d;
+            double arg = parseExpression();
+            skipWhitespace();
+            if (atEnd() || src.charAt(pos) != ')') throw new ArithmeticException("unbalanced parentheses");
+            pos++;
+            if ("sin".equals(name)) return degrees ? Math.sin(Math.toRadians(arg)) : Math.sin(arg);
+            if ("cos".equals(name)) return degrees ? Math.cos(Math.toRadians(arg)) : Math.cos(arg);
+            if ("tan".equals(name)) return degrees ? Math.tan(Math.toRadians(arg)) : Math.tan(arg);
+            if ("asin".equals(name)) {
+                if (arg < -1 || arg > 1) throw new ArithmeticException("asin domain");
+                return degrees ? Math.toDegrees(Math.asin(arg)) : Math.asin(arg);
+            }
+            if ("acos".equals(name)) {
+                if (arg < -1 || arg > 1) throw new ArithmeticException("acos domain");
+                return degrees ? Math.toDegrees(Math.acos(arg)) : Math.acos(arg);
+            }
+            if ("atan".equals(name)) return degrees ? Math.toDegrees(Math.atan(arg)) : Math.atan(arg);
+            if ("ln".equals(name)) {
+                if (arg <= 0) throw new ArithmeticException("ln domain");
+                return Math.log(arg);
+            }
+            if ("log".equals(name)) {
+                if (arg <= 0) throw new ArithmeticException("log domain");
+                return Math.log10(arg);
+            }
+            if ("sqrt".equals(name) || "\u221a".equals(name)) {
+                if (arg < 0) throw new ArithmeticException("sqrt domain");
+                return Math.sqrt(arg);
+            }
+            throw new ArithmeticException("unknown function " + name);
+        }
+
+        /**
+         * The postfix family: Google's percent plus factorial. Percent under + and - means
+         * that percent of the running sum; factorial is integers only, 0 to 170, because
+         * 171! overflows a double into infinity and a calculator that shows infinity for a
+         * factorial has stopped calculating.
+         */
+        private double parsePostfix(double value, double percentBase) {
+            while (true) {
+                skipWhitespace();
+                if (!atEnd() && src.charAt(pos) == '%') {
+                    pos++;
+                    value = Double.isNaN(percentBase) ? value / 100d : percentBase * value / 100d;
+                    continue;
+                }
+                if (!atEnd() && src.charAt(pos) == '!') {
+                    pos++;
+                    value = factorial(value);
+                    continue;
+                }
+                return value;
+            }
+        }
+
+        private double factorial(double v) {
+            if (v < 0 || v > 170 || v != Math.rint(v)) throw new ArithmeticException("factorial domain");
+            double r = 1;
+            for (int i = 2; i <= (int) v; i++) r *= i;
+            return r;
         }
 
         private double parseNumber() {

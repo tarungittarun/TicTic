@@ -17,6 +17,8 @@ android {
 dependencies {
     api project(':core-suite')
     implementation project(':core-data')
+    // The CSV contract lives in core-domain since Documents folded into Files.
+    implementation project(':core-domain')
     implementation project(':core-design')
     testImplementation 'junit:junit:4.13.2'
 }

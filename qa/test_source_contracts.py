@@ -2872,6 +2872,11 @@ class FourMoreAppsContracts(unittest.TestCase):
              "files": "FileRules", "documents": "DocumentRules"}
 
     def src(self, mod, name):
+        # Documents' rules moved to core-domain when the owner folded the app into Files; the
+        # resolver follows the code rather than the module list, so the purity and CSV contracts
+        # keep guarding it wherever it lives.
+        if mod == "documents":
+            return (ROOT / ("core-domain/src/main/java/app/space/core/domain/%s.java" % name)).read_text()
         return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
 
     def gradle(self, mod):
@@ -2917,8 +2922,12 @@ class FourMoreAppsContracts(unittest.TestCase):
 
     def test_each_new_app_has_a_jvm_test_suite(self):
         for mod in self.MODS:
-            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
-                           % (mod, mod, self.RULES[mod]))
+            if mod == "documents":
+                path = ROOT / ("core-domain/src/test/java/app/space/core/domain/%sTest.java"
+                               % self.RULES[mod])
+            else:
+                path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
+                               % (mod, mod, self.RULES[mod]))
             self.assertTrue(path.exists(), "missing %s" % path)
             self.assertIn("@Test", path.read_text())
 
@@ -3050,8 +3059,12 @@ class FinalFourAppsContracts(unittest.TestCase):
 
     def test_each_new_app_has_a_jvm_test_suite(self):
         for mod in self.MODS:
-            path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
-                           % (mod, mod, self.RULES[mod]))
+            if mod == "documents":
+                path = ROOT / ("core-domain/src/test/java/app/space/core/domain/%sTest.java"
+                               % self.RULES[mod])
+            else:
+                path = ROOT / ("feature-%s/src/test/java/app/space/feature/%s/%sTest.java"
+                               % (mod, mod, self.RULES[mod]))
             self.assertTrue(path.exists(), "missing %s" % path)
             self.assertIn("@Test", path.read_text())
 
@@ -3655,6 +3668,40 @@ class InAppNavigationContracts(unittest.TestCase):
         view = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
         self.assertRegex(view, r"\bAPPS=\d+")
         self.assertIn("case APPS:", view)
+
+
+class DocumentViewerContracts(unittest.TestCase):
+    """The owner withdrew the Documents app and folded its viewing into Files: "just add that
+    into files app". A spreadsheet must render as a table, an image as an image, a PDF as pages --
+    inside the files browser, with no app of their own.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-files/src/main/java/app/space/feature/files/FilesScreen.java").read_text())
+
+    def test_sheets_render_as_tables_through_the_rfc4180_decoder(self):
+        self.assertIn("private View sheetTable(", self.screen)
+        self.assertIn("app.space.core.domain.DocumentRules.decodeSheet(text)", self.screen)
+        # Bounded rendering: a ten-thousand-row export must not become a ten-thousand-view layout.
+        self.assertIn("if (shown >= 200) {", self.screen)
+
+    def test_images_are_downscaled_before_they_are_decoded(self):
+        # A 12-megapixel photo decoded at full size is an out-of-memory crash on a cheap phone.
+        self.assertIn("o.inJustDecodeBounds = true;", self.screen)
+        self.assertIn("o.inSampleSize = scale;", self.screen)
+
+    def test_pdfs_render_through_the_framework_without_androidx(self):
+        self.assertIn("android.graphics.pdf.PdfRenderer", self.screen)
+        self.assertIn("RENDER_MODE_FOR_DISPLAY", self.screen)
+        # The renderer holds a file descriptor; leaving it open across navigation leaks it.
+        self.assertIn("@Override public void onPause() { closePdf(); }", self.screen)
+
+    def test_the_csv_contract_moved_with_the_code(self):
+        rules = (ROOT / "core-domain/src/main/java/app/space/core/domain/DocumentRules.java").read_text()
+        self.assertIn("package app.space.core.domain;", rules)
+        screen = (ROOT / "feature-documents/src/main/java/app/space/feature/documents/DocumentsScreen.java").read_text()
+        self.assertIn("import app.space.core.domain.DocumentRules;", screen)
 
 
 class CategoryBrowserContracts(unittest.TestCase):

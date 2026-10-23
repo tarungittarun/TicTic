@@ -1,4 +1,4 @@
-package app.space.feature.documents;
+package app.space.core.domain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

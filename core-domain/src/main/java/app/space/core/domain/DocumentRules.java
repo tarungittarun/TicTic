@@ -1,4 +1,4 @@
-package app.space.feature.documents;
+package app.space.core.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,10 @@ import java.util.Locale;
 
 /**
  * CSV encoding and decoding, and plain-text statistics.
+ *
+ * <p>Moved out of :feature-documents when the owner withdrew the Documents app and folded its
+ * spreadsheet and document viewing into Files: the CSV contract outlived the app that first
+ * carried it, and core-domain is where suite-wide rules live.
  *
  * <p>The CSV half is the part worth testing hard. Quoting is where a hand-rolled writer
  * silently corrupts data: a comma inside a field that is not quoted shifts every later

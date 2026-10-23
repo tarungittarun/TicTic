@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.space.core.data.AppPrefs;
+import app.space.core.domain.DocumentRules;
 import app.space.core.design.AppAlertBuilder;
 import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;

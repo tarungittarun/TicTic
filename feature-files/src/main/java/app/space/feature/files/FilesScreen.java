@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.content.DialogInterface;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -46,6 +48,9 @@ public final class FilesScreen implements Screen {
     private String category;
     private String query = "";
     private int sortMode = FileRules.SORT_NAME;
+    private String viewingPath;
+    private android.graphics.pdf.PdfRenderer pdfRenderer;
+    private int pdfPage;
     private String editingPath;
     private String editorText = "";
     private String savedText = "";
@@ -67,6 +72,7 @@ public final class FilesScreen implements Screen {
     public View build(final Context context) {
         final UiKit ui = new UiKit(context, host.palette());
         if (editingPath != null) return buildEditor(context, ui);
+        if (viewingPath != null) return buildViewer(context, ui);
         // Samsung My Files opens on categories, not on a folder: Images, Videos, Audio,
         // Documents. The folder browser is one row down, where that app keeps storage locations.
         if (category != null) return inScroll(buildCategoryPage(context, ui));
@@ -774,9 +780,210 @@ public final class FilesScreen implements Screen {
                 @Override public void onClick(View v) { openEditor(context, f.path); }
             });
         }
+        // The viewing half of the owner's fold: spreadsheets as tables, documents and images
+        // in place, inside Files rather than in an app of their own.
+        String kind = FileRules.kindOf(f.entry.name);
+        if (kind.equals("Sheet") || kind.equals("Image") || kind.equals("PDF")) {
+            TextView open = ui.label(kind.equals("Sheet") ? "View \u203a" : "Open \u203a",
+                    12, ui.palette().accent, true);
+            row.addView(open, ui.lp(-2, -2));
+            open.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    viewingPath = f.path;
+                    pdfPage = 0;
+                    host.invalidate();
+                }
+            });
+        }
         return card;
     }
 
+
+    // ---- viewers: the document half of "fold spreadsheet/doc viewing into Files" ----
+
+    private View buildViewer(final Context context, final UiKit ui) {
+        final File target = new File(context.getFilesDir(), viewingPath);
+        final String kind = FileRules.kindOf(viewingPath);
+        LinearLayout page = ui.vbox();
+        page.setPadding(ui.dp(10), ui.dp(8), ui.dp(10), ui.dp(10));
+        LinearLayout top = ui.hbox();
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        page.addView(top, ui.lp(-1, 44));
+        TextView back = ui.label("‹", 30, ui.palette().accent, true);
+        back.setGravity(Gravity.CENTER);
+        top.addView(back, ui.lp(40, 40));
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { closeViewer(); }
+        });
+        TextView nameView = ui.label(viewingPath, 14, ui.palette().text, true);
+        nameView.setMaxLines(1);
+        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0, -2, 1f);
+        np.leftMargin = ui.dp(8);
+        np.rightMargin = ui.dp(8);
+        top.addView(nameView, np);
+        top.addView(ui.label(kind, 11, ui.palette().muted, false), ui.lp(-2, -2));
+        if (!target.isFile()) {
+            page.addView(ui.label("That file is missing.", 13, ui.palette().muted, false),
+                    ui.lp(-1, -2));
+            return page;
+        }
+        if (kind.equals("Sheet")) {
+            page.addView(sheetTable(context, ui, readText(target)),
+                    new LinearLayout.LayoutParams(-1, 0, 1f));
+            return page;
+        }
+        if (kind.equals("Image")) {
+            page.addView(imageView(context, ui, target), new LinearLayout.LayoutParams(-1, 0, 1f));
+            return page;
+        }
+        if (kind.equals("PDF")) {
+            return pdfViewer(context, ui, page, target);
+        }
+        page.addView(ui.label("No viewer for " + kind + " files. Text and markup open in the "
+                + "editor instead.", 13, ui.palette().muted, false), ui.lp(-1, -2));
+        return page;
+    }
+
+    private void closeViewer() {
+        viewingPath = null;
+        closePdf();
+        host.invalidate();
+    }
+
+    /**
+     * A spreadsheet as an actual table: one row of cells per record, header emphasised, wide
+     * enough to scroll sideways. Parsed with the suite's RFC-4180 decoder, so a quoted comma
+     * stays inside its cell instead of shifting every column after it.
+     */
+    private View sheetTable(Context context, UiKit ui, String text) {
+        List<List<String>> rows = app.space.core.domain.DocumentRules.decodeSheet(text);
+        HorizontalScrollView h = new HorizontalScrollView(context);
+        h.setHorizontalScrollBarEnabled(true);
+        LinearLayout table = ui.vbox();
+        table.setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(12));
+        int shown = 0;
+        for (List<String> row : rows) {
+            if (shown >= 200) {
+                table.addView(ui.label((rows.size() - 200) + " more rows not shown", 11,
+                        ui.palette().muted, false), ui.lp(-2, -2));
+                break;
+            }
+            LinearLayout r = ui.hbox();
+            for (String cell : row) {
+                TextView c = ui.label(cell == null ? "" : cell, 12,
+                        shown == 0 ? ui.palette().text : ui.palette().muted, shown == 0);
+                c.setMinWidth(ui.dp(96));
+                c.setPadding(ui.dp(8), ui.dp(5), ui.dp(8), ui.dp(5));
+                r.addView(c, ui.lp(-2, -2));
+            }
+            table.addView(r, ui.lp(-2, -2));
+            shown++;
+        }
+        if (shown == 0) {
+            table.addView(ui.label("The sheet is empty.", 13, ui.palette().muted, false),
+                    ui.lp(-2, -2));
+        }
+        h.addView(table, new LinearLayout.LayoutParams(-2, -2));
+        return h;
+    }
+
+    /** Decoded downscaled to fit memory: a 12-megapixel photo must not take the app down. */
+    private View imageView(Context context, UiKit ui, File target) {
+        android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        android.graphics.BitmapFactory.decodeFile(target.getAbsolutePath(), o);
+        int scale = 1;
+        while (o.outWidth / scale > 2048 || o.outHeight / scale > 2048) scale *= 2;
+        o.inJustDecodeBounds = false;
+        o.inSampleSize = scale;
+        android.graphics.Bitmap bmp =
+                android.graphics.BitmapFactory.decodeFile(target.getAbsolutePath(), o);
+        if (bmp == null) {
+            return ui.label("Could not decode that image.", 13, ui.palette().muted, false);
+        }
+        ImageView view = new ImageView(context);
+        view.setImageBitmap(bmp);
+        view.setAdjustViewBounds(true);
+        view.setContentDescription(target.getName());
+        return view;
+    }
+
+    /**
+     * PDF pages through the framework renderer -- no AndroidX, no third-party kit. One page on
+     * screen with prev/next under it, which is what a phone-sized document viewer needs.
+     */
+    private View pdfViewer(Context context, UiKit ui, LinearLayout page, File target) {
+        closePdf();
+        try {
+            pdfRenderer = new android.graphics.pdf.PdfRenderer(
+                    android.os.ParcelFileDescriptor.open(target,
+                            android.os.ParcelFileDescriptor.MODE_READ_ONLY));
+        } catch (Exception e) {
+            page.addView(ui.label("Could not open that PDF: " + e.getClass().getSimpleName(),
+                    13, ui.palette().muted, false), ui.lp(-1, -2));
+            return page;
+        }
+        final ImageView pageView = new ImageView(context);
+        pageView.setBackgroundColor(0xffffffff);
+        page.addView(pageView, new LinearLayout.LayoutParams(-1, 0, 1f));
+        final TextView pageLabel = ui.label("", 12, ui.palette().muted, false);
+        pageLabel.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams lp = ui.lp(-1, 26);
+        lp.topMargin = ui.dp(6);
+        page.addView(pageLabel, lp);
+        LinearLayout nav = ui.hbox();
+        page.addView(nav, ui.lp(-1, 44));
+        TextView prev = ui.pillButton("‹ previous", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(0, -2, 1f);
+        pp.rightMargin = ui.dp(4);
+        nav.addView(prev, pp);
+        TextView next = ui.pillButton("next ›", ui.palette().surface, ui.palette().text);
+        LinearLayout.LayoutParams npp = new LinearLayout.LayoutParams(0, -2, 1f);
+        npp.leftMargin = ui.dp(4);
+        nav.addView(next, npp);
+        renderPdfPage(pageView, pageLabel);
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (pdfPage > 0) { pdfPage--; renderPdfPage(pageView, pageLabel); }
+            }
+        });
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (pdfRenderer != null && pdfPage < pdfRenderer.getPageCount() - 1) {
+                    pdfPage++;
+                    renderPdfPage(pageView, pageLabel);
+                }
+            }
+        });
+        return page;
+    }
+
+    private void renderPdfPage(ImageView view, TextView label) {
+        if (pdfRenderer == null) return;
+        android.graphics.pdf.PdfRenderer.Page page = null;
+        try {
+            page = pdfRenderer.openPage(pdfPage);
+            android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                    page.getWidth(), page.getHeight(), android.graphics.Bitmap.Config.ARGB_8888);
+            bmp.eraseColor(0xffffffff);
+            page.render(bmp, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            view.setImageBitmap(bmp);
+            label.setText("Page " + (pdfPage + 1) + " of " + pdfRenderer.getPageCount());
+        } catch (Exception e) {
+            label.setText("Page " + (pdfPage + 1) + " could not be rendered.");
+        } finally {
+            if (page != null) { try { page.close(); } catch (Exception ignored) { } }
+        }
+    }
+
+    private void closePdf() {
+        if (pdfRenderer != null) {
+            try { pdfRenderer.close(); } catch (Exception ignored) { }
+            pdfRenderer = null;
+        }
+        pdfPage = 0;
+    }
+
     @Override public void onResume() { }
-    @Override public void onPause() { }
+    @Override public void onPause() { closePdf(); }
 }

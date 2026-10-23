@@ -22,7 +22,7 @@ checking did.
 | Test discipline | **C−** | 269 contracts is real coverage, and the JVM rules suites are genuine. But the suite was **green while ten device defects shipped**, seven assertions matched their own documentation, one contract pinned the exact grep pattern that was hiding a compile error, and a missing `assertNull` import reached CI because nothing compiles locally. |
 | Process hygiene | **C−** | Pushed with qa red twice. One commit message described a fix that had not been applied. **Five** self-inflicted compile errors, the fifth in a test file that therefore never ran. Six patch scripts aborted mid-way and wrote nothing. |
 | Reporting honesty | **A−** | Blockers were surfaced, limits stated on screen, failures named in commit messages. This document is written to the same standard. |
-| Owner requirements met | **B−** | Multi-module ✓ · customisable navigation ✓ · rebrand ✓ · apps-first bar with recents ✓ · log collector ✓ · Email and Documents removed as directed ✗ *not yet* · **AndroidX ✗ not done** · Play items ✗ (yours). Graded down because "rich, not lightweight" is the stated bar and four apps are below the ones they imitate. |
+| Owner requirements met | **B−** | Multi-module ✓ · customisable navigation ✓ · rebrand ✓ · apps-first bar with recents ✓ · log collector ✓ · Email and Documents removed as directed ✓ (3.8.0) · **AndroidX ✗ not done** · Play items ✗ (yours). Graded down because "rich, not lightweight" is the stated bar and four apps are below the ones they imitate. |
 
 ---
 
@@ -64,8 +64,8 @@ Twelve through twenty-one were found by the owner in **one session**, with scree
 | 13 | Calculator accepted any key sequence — display could hold `-+-++-52***-+++` | owner, on device | **Fixed at input.** `CalculatorRules.append` refuses the key rather than typing it; pinned by a JVM test. |
 | 14 | Recorder screen **blinked every second** while recording | owner, on device | **Fixed.** The ticker rebuilt the whole view each second; it now updates two TextViews in place. |
 | 15 | Recorded file **would not play** | owner, on device | **Not fixed — instrumented.** `play()` now logs bytes and the exception class, and the toast names it. The log distinguishes empty file / missing file / decoder refusal; I cannot reproduce it without a device. |
-| 16 | Notes not comparable to Google Notes | owner, on device | **Not started.** Queued. |
-| 17 | Calendar has no quick year change and no settings | owner, on device | **Not started.** Queued. |
+| 16 | Notes not comparable to Google Notes | owner, on device | **Rewritten in 3.9.0 (33).** Card wall, colours, pins, archive, checklists, submit-search. Awaits the owner's device verdict. |
+| 17 | Calendar has no quick year change and no settings | owner, on device | **Delivered in 3.9.0 (33).** Year picker + double-arrow steps, week/day views, event dots, settings sheet, reminders that ring and survive reboot. Awaits the owner's device verdict. |
 | 18 | Files' text creation is not a real editor | owner, on device | **Not started.** Queued — Notepad-grade editor, plus Samsung My Files parity. |
 | 19 | Music player **worse** than before | owner, on device | **Not started.** Queued for rebuild. |
 | 20 | Scanner does not capture like CamScanner | owner, on device | **Not started.** Queued. |
@@ -79,6 +79,31 @@ slices of work I still cannot tell you why it happens. I can only tell you that 
 does, it will write down what it was.
 
 ---
+
+## Sprint 2 — DELIVERED: Notes and Calendar rebuilt to the named standards (4 slices, build 3.9.0 (33))
+
+Defects 16 and 17 closed in code; both now wait on the only judge that has ever caught what
+matters here — the owner's device. Notes became the two-column coloured card wall Google Notes
+is, with pins held on top, an archive drawer that files instead of deleting, checklists stored as
+plain text so search and export keep working, and a search box that submits instead of rebuilding
+the screen per keystroke (the same focus-destroying defect family Files' old search had — it was
+sitting in Notes unnoticed since Notes first shipped). Calendar grew the year jump the owner
+asked for by name — a tappable year picker plus double-arrow year steps — a Today pill, event
+dots under busy days, month/week/day views, a timed editor with reminder offsets, and the
+settings sheet (week start, opening view, default reminder). Reminders ring through a new
+EventReminderReceiver and are re-armed on boot.
+
+Plan deviations, stated plainly: the undo snackbar and "theme follow" from the Sprint 2 plan were
+dropped — the suite themes globally already, and Notes auto-saves on back, where an undo of an
+unshown state would undo nothing. Four slices shipped instead of five.
+
+**CI caught zero new compile errors this sprint** — the ledger stays at (9). Not luck alone: two
+known traps were defused before pushing (a forward-referenced local in the Notes editor, an
+invented PendingIntent flag in the receiver), and every fixture ran locally first. The sprint was
+not clean anyway: the first Notes push was lost to a mid-turn HEAD reset and rebuilt on the
+origin tip — the second time that has happened — and a qa contract edit once swallowed a class
+attribute (MODS) that four tests needed, caught only because the gate ran before the push.
+Routine recovery from self-inflicted wounds is still a wound.
 
 ## My own error ledger
 

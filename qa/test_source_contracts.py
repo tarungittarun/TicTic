@@ -3663,6 +3663,57 @@ class InAppNavigationContracts(unittest.TestCase):
         self.assertIn("case APPS:", view)
 
 
+class CalendarSettingsAndRingingContracts(unittest.TestCase):
+    """The owner: "Basic settings are also not there." And a reminder that never rings is a lie,
+    so the settings sheet and the alarm half of reminders are pinned together -- the sheet stores
+    three choices, and the receiver is the reason one of them means anything.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarScreen.java").read_text())
+        self.store = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarStore.java").read_text())
+        self.receiver = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/EventReminderReceiver.java").read_text())
+        self.manifest = (
+            ROOT / "feature-calendar/src/main/AndroidManifest.xml").read_text()
+        self.boot = java_code_only(
+            (ROOT / "app/src/main/java/app/tictic/clock/BootReceiver.java").read_text())
+
+    def test_the_settings_sheet_stores_week_start_open_view_and_default_reminder(self):
+        self.assertIn("private void settings(final Context context, final UiKit ui)", self.screen)
+        self.assertIn('"Week starts: device default", "Week starts: Sunday",', self.screen)
+        self.assertIn("CalendarStore.setFirstDay(context,", self.screen)
+        self.assertIn("CalendarStore.setDefaultView(context, openOn.getSelectedItemPosition());", self.screen)
+        self.assertIn("CalendarStore.setDefaultReminder(context,", self.screen)
+        for key in ("calendar_first_day", "calendar_default_view", "calendar_default_reminder"):
+            self.assertIn(key, self.store)
+
+    def test_stored_defaults_drive_the_next_open(self):
+        self.assertIn("if (!modeTouched) viewMode = CalendarStore.getDefaultView(context);", self.screen)
+        self.assertIn("final int firstDay = setting > 0 ? setting : locale.getFirstDayOfWeek();", self.screen)
+        self.assertIn("int preset = CalendarStore.getDefaultReminder(context);", self.screen)
+
+    def test_saving_arms_the_alarm_and_deleting_disarms_it(self):
+        self.assertIn("EventReminderReceiver.schedule(context, id, t, at, reminder);", self.screen)
+        self.assertIn("EventReminderReceiver.cancel(context, event.id);", self.screen)
+        self.assertIn("alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAt, fire);", self.receiver)
+        self.assertIn("long fireAt = when - reminderMinutes * 60000L;", self.receiver)
+        self.assertIn("if (fireAt <= System.currentTimeMillis()) return;", self.receiver)
+
+    def test_the_receiver_is_declared_and_survives_a_reboot(self):
+        self.assertIn('android:name=".EventReminderReceiver"', self.manifest)
+        self.assertIn('android:name="app.space.feature.calendar.EVENT_REMINDER"', self.manifest)
+        self.assertIn("EventReminderReceiver.rescheduleAll(c);", self.boot)
+        self.assertIn("public static void rescheduleAll(Context context)", self.receiver)
+
+    def test_the_receiver_stays_framework_only_until_sprint_4(self):
+        # useAndroidX=false is still the shell's rule; androidx imports here would not compile.
+        self.assertNotIn("import androidx.", self.receiver)
+        self.assertNotIn("NotificationCompat", self.receiver)
+
+
 class CalendarParityContracts(unittest.TestCase):
     """The owner: "what if I need to change the year quickly. Basic settings are also not there.
     Recreate popular calender app." A month grid with month-only paging is the answer to none of
@@ -3693,7 +3744,7 @@ class CalendarParityContracts(unittest.TestCase):
     def test_the_editor_stores_a_time_and_a_reminder_offset(self):
         self.assertIn("time.setIs24HourView(true);", self.screen)
         self.assertIn("dayFrom + time.getHour() * 3600000L + time.getMinute() * 60000L", self.screen)
-        self.assertIn("int[] offsets = {-1, 5, 10, 30, 60};", self.screen)
+        self.assertIn("static final int[] REMINDER_OFFSETS = {-1, 5, 10, 30, 60};", self.screen)
         self.assertIn("public final int reminderMinutes;", self.rules)
 
     def test_week_math_lives_in_the_rules_where_the_jvm_can_reach_it(self):

@@ -36,6 +36,8 @@ public final class CalendarScreen implements Screen {
     private int selectedDay;
     /** 0 month grid, 1 week columns, 2 day list. The owner's "basic settings" pick the default. */
     private int viewMode;
+    /** False until the owner taps a mode pill; until then the stored default view decides. */
+    private boolean modeTouched;
 
     public CalendarScreen(ScreenHost host) {
         this.host = host;
@@ -111,9 +113,20 @@ public final class CalendarScreen implements Screen {
             pp.rightMargin = ui.dp(3);
             modes.addView(pill, pp);
             pill.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) { viewMode = mode; host.invalidate(); }
+                @Override public void onClick(View v) {
+                    viewMode = mode;
+                    modeTouched = true;
+                    host.invalidate();
+                }
             });
         }
+        TextView gear = ui.pillButton("\u2699", ui.palette().surface, ui.palette().muted);
+        LinearLayout.LayoutParams gp = ui.lp(40, 36);
+        gp.leftMargin = ui.dp(4);
+        modes.addView(gear, gp);
+        gear.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { settings(context, ui); }
+        });
         TextView today = ui.pillButton("Today", ui.palette().surface, ui.palette().accent);
         LinearLayout.LayoutParams tp2 = ui.lp(-2, 36);
         tp2.leftMargin = ui.dp(4);
@@ -128,9 +141,12 @@ public final class CalendarScreen implements Screen {
             }
         });
 
+        if (!modeTouched) viewMode = CalendarStore.getDefaultView(context);
+
         // ---- weekday headers ----
         Calendar locale = Calendar.getInstance();
-        final int firstDay = locale.getFirstDayOfWeek();
+        int setting = CalendarStore.getFirstDay(context);
+        final int firstDay = setting > 0 ? setting : locale.getFirstDayOfWeek();
         if (viewMode == 1) {
             buildWeek(context, ui, root, zone, firstDay);
         }
@@ -243,6 +259,7 @@ public final class CalendarScreen implements Screen {
                         if (all.get(i).id.equals(event.id)) { all.remove(i); break; }
                     }
                     CalendarStore.save(context, all);
+                    EventReminderReceiver.cancel(context, event.id);
                     host.invalidate();
                 }
             });
@@ -260,6 +277,64 @@ public final class CalendarScreen implements Screen {
     }
 
     /** Moves the month, carrying the year over, and keeps the selection a valid day. */
+
+    static final int[] REMINDER_OFFSETS = {-1, 5, 10, 30, 60};
+    static final String[] REMINDER_LABELS = {"No reminder", "5 min before", "10 min before",
+            "30 min before", "1 hour before"};
+
+    /**
+     * The calendar's own settings sheet: when the week starts, which view the app opens on, and
+     * the reminder new events pre-pick. Stored beside the events, applied on the next build.
+     */
+    private void settings(final Context context, final UiKit ui) {
+        LinearLayout form = ui.vbox();
+        form.setPadding(ui.dp(14), ui.dp(6), ui.dp(14), ui.dp(6));
+        final android.widget.Spinner weekStart = spinner(context,
+                new String[]{"Week starts: device default", "Week starts: Sunday",
+                        "Week starts: Monday"});
+        int storedFirst = CalendarStore.getFirstDay(context);
+        weekStart.setSelection(storedFirst == Calendar.SUNDAY ? 1
+                : storedFirst == Calendar.MONDAY ? 2 : 0);
+        final android.widget.Spinner openOn = spinner(context,
+                new String[]{"Open on: month", "Open on: week", "Open on: day"});
+        openOn.setSelection(Math.max(0, Math.min(2, CalendarStore.getDefaultView(context))));
+        final android.widget.Spinner defaultRemind = spinner(context, REMINDER_LABELS);
+        int preset = CalendarStore.getDefaultReminder(context);
+        for (int i = 0; i < REMINDER_OFFSETS.length; i++) {
+            if (REMINDER_OFFSETS[i] == preset) { defaultRemind.setSelection(i); break; }
+        }
+        form.addView(weekStart, ui.lp(-1, -2));
+        LinearLayout.LayoutParams p2 = ui.lp(-1, -2);
+        p2.topMargin = ui.dp(10);
+        form.addView(openOn, p2);
+        LinearLayout.LayoutParams p3 = ui.lp(-1, -2);
+        p3.topMargin = ui.dp(10);
+        form.addView(defaultRemind, p3);
+
+        new AppAlertBuilder(context, ui).setTitle("Calendar settings").setView(form)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        int choice = weekStart.getSelectedItemPosition();
+                        CalendarStore.setFirstDay(context,
+                                choice == 1 ? Calendar.SUNDAY : choice == 2 ? Calendar.MONDAY : -1);
+                        CalendarStore.setDefaultView(context, openOn.getSelectedItemPosition());
+                        int offset = defaultRemind.getSelectedItemPosition();
+                        CalendarStore.setDefaultReminder(context,
+                                REMINDER_OFFSETS[Math.max(0,
+                                        Math.min(REMINDER_OFFSETS.length - 1, offset))]);
+                        if (openOn.getSelectedItemPosition() != viewMode) modeTouched = false;
+                        host.invalidate();
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
+    }
+
+    private static android.widget.Spinner spinner(Context context, String[] labels) {
+        android.widget.Spinner s = new android.widget.Spinner(context);
+        s.setAdapter(new android.widget.ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_dropdown_item, labels));
+        return s;
+    }
 
     /** A year picker: the fast road between 2026 and 2030 the owner asked for. */
     private void yearPicker(final Context context, final UiKit ui) {
@@ -389,8 +464,11 @@ public final class CalendarScreen implements Screen {
         final android.widget.Spinner remind = new android.widget.Spinner(context);
         remind.setAdapter(new android.widget.ArrayAdapter<>(context,
                 android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"No reminder", "5 min before", "10 min before",
-                        "30 min before", "1 hour before"}));
+                REMINDER_LABELS));
+        int preset = CalendarStore.getDefaultReminder(context);
+        for (int i = 0; i < REMINDER_OFFSETS.length; i++) {
+            if (REMINDER_OFFSETS[i] == preset) { remind.setSelection(i); break; }
+        }
         LinearLayout.LayoutParams rmp = ui.lp(-1, -2);
         rmp.topMargin = ui.dp(8);
         form.addView(remind, rmp);
@@ -406,14 +484,13 @@ public final class CalendarScreen implements Screen {
                 List<CalendarRules.Event> all = new ArrayList<>(CalendarStore.load(context));
                 // Stored at noon rather than midnight so the event cannot fall on the
                 // neighbouring day if the device's zone or offset changes later.
-                int[] offsets = {-1, 5, 10, 30, 60};
-                int reminder = offsets[Math.max(0, Math.min(offsets.length - 1,
-                        remind.getSelectedItemPosition()))];
-                all.add(new CalendarRules.Event(CalendarStore.newId(), t,
-                        notes.getText().toString(),
-                        dayFrom + time.getHour() * 3600000L + time.getMinute() * 60000L,
-                        reminder));
+                int reminder = REMINDER_OFFSETS[Math.max(0,
+                        Math.min(REMINDER_OFFSETS.length - 1, remind.getSelectedItemPosition()))];
+                String id = CalendarStore.newId();
+                long at = dayFrom + time.getHour() * 3600000L + time.getMinute() * 60000L;
+                all.add(new CalendarRules.Event(id, t, notes.getText().toString(), at, reminder));
                 CalendarStore.save(context, all);
+                EventReminderReceiver.schedule(context, id, t, at, reminder);
                 host.invalidate();
             }
         });

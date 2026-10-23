@@ -56,6 +56,33 @@ public static List<CalendarRules.Event> load(Context c) {
         AppPrefs.prefs(c).edit().putString(KEY, a.toString()).apply();
     }
 
+    // ---- the owner's "basic settings": week start, the view the app opens on, and the
+    //      reminder the editor pre-picks. -1 / defaults mean "follow the device". ----
+
+    public static int getFirstDay(Context c) {
+        return AppPrefs.prefs(c).getInt("calendar_first_day", -1);
+    }
+
+    public static void setFirstDay(Context c, int firstDay) {
+        AppPrefs.prefs(c).edit().putInt("calendar_first_day", firstDay).apply();
+    }
+
+    public static int getDefaultView(Context c) {
+        return AppPrefs.prefs(c).getInt("calendar_default_view", 0);
+    }
+
+    public static void setDefaultView(Context c, int view) {
+        AppPrefs.prefs(c).edit().putInt("calendar_default_view", view).apply();
+    }
+
+    public static int getDefaultReminder(Context c) {
+        return AppPrefs.prefs(c).getInt("calendar_default_reminder", -1);
+    }
+
+    public static void setDefaultReminder(Context c, int minutes) {
+        AppPrefs.prefs(c).edit().putInt("calendar_default_reminder", minutes).apply();
+    }
+
     public static String newId() {
         return Long.toString(System.currentTimeMillis(), 36)
                 + Integer.toString((int) (Math.random() * 1679616), 36);

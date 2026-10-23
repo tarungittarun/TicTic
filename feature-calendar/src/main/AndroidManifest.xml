@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The calendar's one component: the receiver that rings event reminders. Library manifests
+     merge into :app, so this needs no package attribute (the namespace lives in build.gradle). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver
+            android:name=".EventReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.space.feature.calendar.EVENT_REMINDER" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

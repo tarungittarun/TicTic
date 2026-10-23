@@ -348,7 +348,7 @@ public final class ScannerScreen implements Screen {
                     ScannerRules.correctionMatrix(enhanceMode)));
             canvas.drawBitmap(source, map, paint);
 
-            File outFile = new File(CaptureProvider.inbox(context),
+            File outFile = new File(app.space.core.data.FileShare.scannerInbox(context),
                     "page-" + editingPage.id + "-" + System.currentTimeMillis() + ".jpg");
             FileOutputStream out = new FileOutputStream(outFile);
             try {
@@ -500,7 +500,7 @@ public final class ScannerScreen implements Screen {
             host.toast("This device has no camera app to delegate to.");
             return;
         }
-        Uri destination = CaptureProvider.newCapture(context);
+        Uri destination = app.space.core.data.FileShare.newCapture(context);
         if (destination == null) {
             host.toast("Could not prepare a destination for the capture.");
             return;
@@ -714,7 +714,7 @@ public final class ScannerScreen implements Screen {
     /** Captured pages have served their purpose once the PDF holds them; the inbox empties. */
     private void cleanInbox(Context context, List<ScannerRules.Page> selected) {
         for (ScannerRules.Page page : selected) {
-            if (page.sourceUri.contains(CaptureProvider.AUTHORITY_SUFFIX)) {
+            if (page.sourceUri.contains(app.space.core.data.FileShare.AUTHORITY_SUFFIX)) {
                 try {
                     File file = new File(Uri.parse(page.sourceUri).getPath());
                     if (file.isFile()) file.delete();

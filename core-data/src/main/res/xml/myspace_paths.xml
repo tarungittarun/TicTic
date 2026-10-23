@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The one containment rule for every URI this suite hands to another app: anything under
+     getFilesDir() and nothing else. Replaces the hand-rolled canonical-path checks the
+     Sprint 3 providers carried; FileProvider enforces this table and refuses everything
+     outside it with an IllegalArgumentException instead of a served file. -->
+<paths>
+    <files-path name="files" path="." />
+</paths>

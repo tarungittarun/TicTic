@@ -3837,24 +3837,28 @@ class ScannerCropEnhanceContracts(unittest.TestCase):
 
 class ScannerCaptureContracts(unittest.TestCase):
     """Defect 20: "Scanner does not capture like CamScanner." The capture half of the
-    capture-crop-enhance-PDF loop: the system camera writes into a private inbox through a
-    hand-rolled writable provider, because useAndroidX=false rules out FileProvider and a
-    file:// EXTRA_OUTPUT throws on API 24+.
+    capture-crop-enhance-PDF loop: the system camera writes into a private inbox. Sprint 3
+    did that through a hand-rolled writable provider; Sprint 4 adopted AndroidX and the
+    inbox URI is minted by the standard FileProvider, whose paths table is the containment
+    rule. No CAMERA permission, then or now.
     """
 
     def setUp(self):
         self.screen = java_code_only(
             (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/ScannerScreen.java").read_text())
-        self.provider = java_code_only(
-            (ROOT / "feature-scanner/src/main/java/app/space/feature/scanner/CaptureProvider.java").read_text())
+        self.share = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/FileShare.java").read_text())
         self.manifest = (ROOT / "feature-scanner/src/main/AndroidManifest.xml").read_text()
+        self.paths = (
+            ROOT / "core-data/src/main/res/xml/myspace_paths.xml").read_text()
 
-    def test_the_capture_door_is_declared_writable_and_contained(self):
-        self.assertIn('android:name=".CaptureProvider"', self.manifest)
-        self.assertIn('android:authorities="${applicationId}.myspace_capture"', self.manifest)
-        self.assertIn('android:grantUriPermissions="true"', self.manifest)
-        self.assertIn("ParcelFileDescriptor.MODE_WRITE_ONLY", self.provider)
-        self.assertIn("ShareRules.isInsideRoot(rootPath, file.getCanonicalPath())", self.provider)
+    def test_the_capture_destination_is_minted_by_the_standard_provider(self):
+        self.assertIn("public static Uri newCapture(Context context)", self.share)
+        self.assertIn("public static File scannerInbox(Context context)", self.share)
+        self.assertIn('new File(context.getFilesDir(), "scanner" + File.separator + "inbox")', self.share)
+        # The inbox lives under getFilesDir(), which the paths table is the only rule for.
+        self.assertIn('<files-path name="files" path="." />', self.paths)
+        self.assertIn("app.space.core.data.FileShare.newCapture(context)", self.screen)
 
     def test_package_visibility_cannot_make_the_camera_button_lie(self):
         # API 30+: resolveActivity returns null without this, on devices that have a camera.
@@ -3871,7 +3875,7 @@ class ScannerCaptureContracts(unittest.TestCase):
     def test_the_inbox_empties_once_the_pdf_holds_the_pages(self):
         self.assertIn("private void cleanInbox(Context context, List<ScannerRules.Page> selected)", self.screen)
         self.assertIn("cleanInbox(context, selected);", self.screen)
-        self.assertIn("page.sourceUri.contains(CaptureProvider.AUTHORITY_SUFFIX)", self.screen)
+        self.assertIn("page.sourceUri.contains(app.space.core.data.FileShare.AUTHORITY_SUFFIX)", self.screen)
 
     def test_no_camera_permission_is_declared_for_delegated_capture(self):
         # Delegating to the system camera needs no CAMERA permission; declaring it would
@@ -3980,39 +3984,56 @@ class MusicLibraryContracts(unittest.TestCase):
 
 class RecorderClosureAndSharingContracts(unittest.TestCase):
     """Defect 15 (recorded file would not play) was instrumented, not fixed, and the owner's
-    log still has not arrived. This closes what can be closed blind: the recorder now proves at
-    save time that the device can decode its own recording, names a silent media stream instead
-    of letting it read as broken, and grows the rename and share the plan asked for. Sharing
-    needs a content:// door because useAndroidX=false rules out FileProvider -- so the door,
-    its manifest and its containment rule are pinned here.
+    log still has not arrived. This closes what can be closed blind: the recorder proves at
+    save time that the device can decode its own recording, names a silent media stream
+    instead of letting it read as broken, and grows the rename and share the plan asked for.
+    Sharing went through two eras: Sprint 3 hand-rolled a provider because useAndroidX=false;
+    Sprint 4 adopted AndroidX and the standard FileProvider replaced it -- the pins above the
+    fold are the Sprint 4 shape, and the rename/mime rules stay JVM-tested where providers
+    cannot be.
     """
 
     def setUp(self):
         self.screen = java_code_only(
             (ROOT / "feature-recorder/src/main/java/app/space/feature/recorder/RecorderScreen.java").read_text())
-        self.provider = java_code_only(
-            (ROOT / "core-data/src/main/java/app/space/core/data/ShareProvider.java").read_text())
+        self.share = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/FileShare.java").read_text())
         self.rules = java_code_only(
             (ROOT / "core-data/src/main/java/app/space/core/data/ShareRules.java").read_text())
-        self.manifest = (ROOT / "core-data/src/main/AndroidManifest.xml").read_text()
+        self.manifest = (
+            ROOT / "core-data/src/main/AndroidManifest.xml").read_text()
+        self.paths = (
+            ROOT / "core-data/src/main/res/xml/myspace_paths.xml").read_text()
 
-    def test_the_provider_is_declared_unexported_and_grant_based(self):
-        self.assertIn('android:name="app.space.core.data.ShareProvider"', self.manifest)
-        self.assertIn('android:authorities="${applicationId}.myspace_share"', self.manifest)
+    def test_the_standard_provider_is_declared_once_for_the_whole_suite(self):
+        self.assertIn('android:name="androidx.core.content.FileProvider"', self.manifest)
+        self.assertIn('android:authorities="${applicationId}.myspace_files"', self.manifest)
         self.assertIn('android:exported="false"', self.manifest)
         self.assertIn('android:grantUriPermissions="true"', self.manifest)
+        self.assertIn('android:name="android.support.FILE_PROVIDER_PATHS"', self.manifest)
+        gradle = (ROOT / "core-data/build.gradle").read_text()
+        self.assertIn("implementation 'androidx.core:core:1.12.0'", gradle)
 
-    def test_reads_are_confined_to_our_own_data_directory(self):
-        self.assertIn("ShareRules.isInsideRoot(rootPath, file.getCanonicalPath())", self.provider)
-        self.assertIn("requestedCanonical.startsWith(dataRootCanonical + \"/\")", self.rules)
-        self.assertIn("ParcelFileDescriptor.MODE_READ_ONLY", self.provider)
-        self.assertIn("public Uri insert(Uri uri, ContentValues values) { return null; }", self.provider)
+    def test_containment_is_the_paths_table_and_nothing_else(self):
+        # One rule for what a URI may expose: everything under getFilesDir(), nothing beyond.
+        self.assertIn('<files-path name="files" path="." />', self.paths)
+        self.assertNotIn("external-path", self.paths)
+        self.assertNotIn("root-path", self.paths)
+        self.assertIn("FileProvider.getUriForFile(context, authority(context), file)", self.share)
 
     def test_share_grants_read_and_names_a_mime(self):
-        self.assertIn("Intent.FLAG_GRANT_READ_URI_PERMISSION", self.provider)
-        self.assertIn("send.setType(ShareRules.mimeFor(file.getName()));", self.provider)
+        self.assertIn("Intent.FLAG_GRANT_READ_URI_PERMISSION", self.share)
+        self.assertIn("send.setType(ShareRules.mimeFor(file.getName()));", self.share)
         self.assertIn('return "application/octet-stream";', self.rules)
-        self.assertIn("ShareProvider.shareIntent(context, target,", self.screen)
+        self.assertIn("FileShare.shareIntent(context, target,", self.screen)
+
+    def test_the_sharing_rules_are_jvm_tested_where_they_can_be_reached(self):
+        test = (ROOT / "core-data/src/test/java/app/space/core/data/ShareRulesTest.java").read_text()
+        self.assertIn("mimeLookupHasAFloorNotAHole", test)
+        self.assertIn("renamesKeepTheExtensionAndRefuseRubbish", test)
+        self.assertIn("sanitiseDropsWhatCannotTravelInAFileName", test)
+        gradle = (ROOT / "core-data/build.gradle").read_text()
+        self.assertIn("testImplementation 'junit:junit:4.13.2'", gradle)
 
     def test_the_recorder_proves_its_own_recordings_decode(self):
         self.assertIn("private void selfTest(Context context, File file)", self.screen)
@@ -4034,13 +4055,6 @@ class RecorderClosureAndSharingContracts(unittest.TestCase):
         self.assertIn("if (to.exists())", self.screen)
         self.assertIn("private void forgetIndex(Context context, String name)", self.screen)
         self.assertIn("forgetIndex(context, item.fileName);", self.screen)
-
-    def test_the_sharing_rules_are_jvm_tested_where_they_can_be_reached(self):
-        test = (ROOT / "core-data/src/test/java/app/space/core/data/ShareRulesTest.java").read_text()
-        self.assertIn("containmentRefusesEverythingOutsideTheRoot", test)
-        self.assertIn("renamesKeepTheExtensionAndRefuseRubbish", test)
-        gradle = (ROOT / "core-data/build.gradle").read_text()
-        self.assertIn("testImplementation 'junit:junit:4.13.2'", gradle)
 
 
 class GoogleNotesParityContracts(unittest.TestCase):

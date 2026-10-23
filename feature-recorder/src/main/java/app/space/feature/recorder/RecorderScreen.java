@@ -157,7 +157,7 @@ public final class RecorderScreen implements Screen {
                     if (!target.isFile()) { host.toast("That file is missing."); return; }
                     try {
                         context.startActivity(android.content.Intent.createChooser(
-                                app.space.core.data.ShareProvider.shareIntent(context, target,
+                                app.space.core.data.FileShare.shareIntent(context, target,
                                         item.label.isEmpty() ? item.fileName : item.label),
                                 "Share recording"));
                     } catch (Exception e) {

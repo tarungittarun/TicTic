@@ -10,26 +10,6 @@ import org.junit.Test;
 /** The sharing door's rules: URI shape, containment, mime lookup and rename hygiene. */
 public class ShareRulesTest {
 
-    @Test public void uriShapeCarriesTheAbsolutePath() {
-        assertEquals("content://app.space.one.myspace_share/data/user/0/app.space.one/files/x.m4a",
-                ShareRules.uriString("app.space.one", "/data/user/0/app.space.one/files/x.m4a"));
-        assertEquals("app.space.one.myspace_share", ShareRules.authority("app.space.one"));
-        // Double slashes collapse: the path is rebuilt segment by segment.
-        assertEquals("content://p.myspace_share/a/b", ShareRules.uriString("p", "//a//b"));
-    }
-
-    @Test public void containmentRefusesEverythingOutsideTheRoot() {
-        String root = "/data/user/0/app.space.one";
-        assertTrue(ShareRules.isInsideRoot(root, root + "/files/recordings/a.m4a"));
-        assertTrue(ShareRules.isInsideRoot(root, root));
-        assertFalse(ShareRules.isInsideRoot(root, "/data/user/0/other.app/files/a.m4a"));
-        assertFalse(ShareRules.isInsideRoot(root, "/sdcard/Download/a.m4a"));
-        assertFalse(ShareRules.isInsideRoot(root, ""));
-        assertFalse(ShareRules.isInsideRoot(null, root + "/x"));
-        // A sibling directory that merely starts with the root string is still outside.
-        assertFalse(ShareRules.isInsideRoot(root, root + ".backup/x"));
-    }
-
     @Test public void mimeLookupHasAFloorNotAHole() {
         assertEquals("audio/mp4", ShareRules.mimeFor("recording-x.m4a"));
         assertEquals("audio/mpeg", ShareRules.mimeFor("song.MP3"));

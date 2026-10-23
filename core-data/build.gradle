@@ -29,6 +29,8 @@ android {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
 
-    // No AndroidX yet: SharedPreferences and Resources.Configuration are
-    // framework APIs. Room arrives with the collection data in step 1d-3.
+    // The suite's first AndroidX dependency, Sprint 4: FileProvider, the standard door for
+    // handing private files to other apps. Pinned to 1.12.0, the last line that is happy on
+    // AGP 7.4. SharedPreferences and Resources.Configuration stay framework APIs.
+    implementation 'androidx.core:core:1.12.0'
 }

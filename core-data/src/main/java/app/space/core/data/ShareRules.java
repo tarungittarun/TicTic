@@ -12,39 +12,9 @@ public final class ShareRules {
 
     private ShareRules() { }
 
-    /** Suffix on the package name; matches the provider declared in core-data's manifest. */
-    public static final String AUTHORITY_SUFFIX = ".myspace_share";
-
-    public static String authority(String packageName) {
-        return (packageName == null ? "" : packageName) + AUTHORITY_SUFFIX;
-    }
-
-    /**
-     * content://&lt;pkg&gt;.myspace_share/data/user/0/&lt;pkg&gt;/files/... -- the absolute path
-     * travels as the URI path, which is exactly how the platform FileProvider encodes it, minus
-     * the xml path tree (we enforce containment in code instead).
-     */
-    public static String uriString(String packageName, String absolutePath) {
-        StringBuilder out = new StringBuilder("content://").append(authority(packageName));
-        if (absolutePath != null && !absolutePath.isEmpty()) {
-            for (String segment : absolutePath.split("/")) {
-                if (segment.isEmpty()) continue;
-                out.append('/').append(segment);
-            }
-        }
-        return out.toString();
-    }
-
-    /**
-     * True only when the requested path is the data root itself or lives inside it. Canonical
-     * paths are compared, so ".." and symlink games lose.
-     */
-    public static boolean isInsideRoot(String dataRootCanonical, String requestedCanonical) {
-        if (dataRootCanonical == null || requestedCanonical == null) return false;
-        if (requestedCanonical.isEmpty()) return false;
-        return requestedCanonical.equals(dataRootCanonical)
-                || requestedCanonical.startsWith(dataRootCanonical + "/");
-    }
+    // Authority naming and URI shape moved to FileShare: with AndroidX adopted, the
+    // platform FileProvider builds the URIs and its paths table is the containment rule.
+    // What stays here is the part no provider owns: mime lookup and rename hygiene.
 
     /** Mime by extension; the fallback is octet-stream so no receiver ever sees null. */
     public static String mimeFor(String fileName) {

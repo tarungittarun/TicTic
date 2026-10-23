@@ -134,4 +134,32 @@ public class CalendarRulesTest {
     private static CalendarRules.Event ev(String id, long when) {
         return new CalendarRules.Event(id, id, "", when);
     }
+
+    @Test public void theWeekStartsOnTheChosenDay() {
+        java.util.TimeZone utc = java.util.TimeZone.getTimeZone("UTC");
+        // 2026-10-23 is a Friday. A Monday week starts on the 19th; a Sunday week on the 18th.
+        long mondayWeek = CalendarRules.startOfWeek(2026, 9, 23, Calendar.MONDAY, utc);
+        long sundayWeek = CalendarRules.startOfWeek(2026, 9, 23, Calendar.SUNDAY, utc);
+        assertEquals(19, CalendarRules.dayOfMonth(mondayWeek, utc));
+        assertEquals(18, CalendarRules.dayOfMonth(sundayWeek, utc));
+        // A week starting on the day itself when that day is the first day.
+        long same = CalendarRules.startOfWeek(2026, 9, 19, Calendar.MONDAY, utc);
+        assertEquals(19, CalendarRules.dayOfMonth(same, utc));
+    }
+
+    @Test public void timeLabelsAndMonthNamesAreStable() {
+        java.util.TimeZone utc = java.util.TimeZone.getTimeZone("UTC");
+        long when = CalendarRules.dayStart(2026, 9, 23, utc) + 14 * 3600000L + 5 * 60000L;
+        assertEquals("14:05", CalendarRules.timeLabel(when, utc));
+        assertEquals(23, CalendarRules.dayOfMonth(when, utc));
+        assertEquals("October", CalendarRules.monthName(2026, 9));
+        assertEquals("October 2026", CalendarRules.monthLabel(2026, 9));
+    }
+
+    @Test public void eventsCarryAReminderOffsetThatDefaultsToNone() {
+        CalendarRules.Event plain = new CalendarRules.Event("i", "t", "", 123L);
+        assertEquals(-1, plain.reminderMinutes);
+        CalendarRules.Event timed = new CalendarRules.Event("i", "t", "", 123L, 10);
+        assertEquals(10, timed.reminderMinutes);
+    }
 }

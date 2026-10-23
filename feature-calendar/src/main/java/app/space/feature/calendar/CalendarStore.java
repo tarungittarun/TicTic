@@ -32,7 +32,8 @@ public static List<CalendarRules.Event> load(Context c) {
             for (int i = 0; i < a.length(); i++) {
                 JSONObject o = a.getJSONObject(i);
                 out.add(new CalendarRules.Event(o.optString("id"), o.optString("title"),
-                        o.optString("notes"), o.has("when") ? o.optLong("when") : CalendarRules.NO_TIME));
+                        o.optString("notes"), o.has("when") ? o.optLong("when") : CalendarRules.NO_TIME,
+                        o.optInt("reminderMinutes", -1)));
             }
         } catch (Exception e) {
             return new ArrayList<>();
@@ -46,7 +47,8 @@ public static List<CalendarRules.Event> load(Context c) {
         try {
             for (CalendarRules.Event e : events) {
                 a.put(new JSONObject().put("id", e.id).put("title", e.title)
-                        .put("notes", e.notes).put("when", e.when));
+                        .put("notes", e.notes).put("when", e.when)
+                        .put("reminderMinutes", e.reminderMinutes));
             }
         } catch (Exception e) {
             return;

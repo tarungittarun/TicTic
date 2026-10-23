@@ -31,12 +31,19 @@ public final class CalendarRules {
         public final String title;
         public final String notes;
         public final long when;
+        /** Minutes before the event to remind; -1 means no reminder. */
+        public final int reminderMinutes;
 
         public Event(String id, String title, String notes, long when) {
+            this(id, title, notes, when, -1);
+        }
+
+        public Event(String id, String title, String notes, long when, int reminderMinutes) {
             this.id = id == null ? "" : id;
             this.title = title == null || title.trim().isEmpty() ? "Untitled event" : title.trim();
             this.notes = notes == null ? "" : notes;
             this.when = when;
+            this.reminderMinutes = reminderMinutes;
         }
 
         public boolean allDay() { return when == NO_TIME; }
@@ -118,6 +125,44 @@ public final class CalendarRules {
     /** Whether an event falls today, which is what the grid marks with a dot. */
     public static boolean isToday(long when, long todayStart, long tomorrowStart) {
         return when != NO_TIME && when >= todayStart && when < tomorrowStart;
+    }
+
+    /** The month's name alone; the year travels separately so the header can make it a button. */
+    public static String monthName(int year, int monthZeroBased) {
+        Calendar c = utc();
+        c.clear();
+        c.set(year, monthZeroBased, 1);
+        return c.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+    }
+
+    /**
+     * Midnight of the first day of the week holding the given date. The week view is seven
+     * columns from here; getting the offset wrong shifts every column by a day, which is the
+     * whole view.
+     */
+    public static long startOfWeek(int year, int monthZeroBased, int day,
+                                   int firstDayOfWeek, TimeZone zone) {
+        Calendar c = Calendar.getInstance(zone == null ? TimeZone.getDefault() : zone);
+        c.clear();
+        c.set(year, monthZeroBased, day, 0, 0, 0);
+        int offset = (c.get(Calendar.DAY_OF_WEEK) - firstDayOfWeek + 7) % 7;
+        c.add(Calendar.DAY_OF_YEAR, -offset);
+        return c.getTimeInMillis();
+    }
+
+    /** The day-of-month a timestamp falls on, in the zone the user lives in. */
+    public static int dayOfMonth(long millis, TimeZone zone) {
+        Calendar c = Calendar.getInstance(zone == null ? TimeZone.getDefault() : zone);
+        c.setTimeInMillis(millis);
+        return c.get(Calendar.DAY_OF_MONTH);
+    }
+
+    /** "14:05" for a day view row; the locale's 24/12 choice is left to the platform format. */
+    public static String timeLabel(long millis, TimeZone zone) {
+        Calendar c = Calendar.getInstance(zone == null ? TimeZone.getDefault() : zone);
+        c.setTimeInMillis(millis);
+        return String.format(Locale.ROOT, "%02d:%02d",
+                c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
     }
 
     public static String monthLabel(int year, int monthZeroBased) {

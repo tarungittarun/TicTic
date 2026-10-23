@@ -2787,6 +2787,10 @@ class CalendarAndTasksContracts(unittest.TestCase):
     "minimum access, and why" promise would then have to justify.
     """
 
+    MODS = ("weather", "recorder", "files", "documents")
+    RULES = {"weather": "WeatherRules", "recorder": "RecorderRules",
+             "files": "FileRules", "documents": "DocumentRules"}
+
     def src(self, mod, name):
         return (ROOT / ("feature-%s/src/main/java/app/space/feature/%s/%s.java" % (mod, mod, name))).read_text()
 
@@ -2851,25 +2855,14 @@ class CalendarAndTasksContracts(unittest.TestCase):
         self.assertIn("long due = TasksRules.NO_DUE;", screen)
         self.assertIn("A blank due date means NO_DUE, not today", screen)
 
-    def test_events_are_stored_at_midday_not_midnight(self):
-        # Midnight is the boundary of the day range, so an event stored there can fall on
-        # the neighbouring day if the device's zone or offset changes later.
-        screen = self.src("calendar", "CalendarScreen")
-        self.assertIn("dayFrom + 43200000L", screen)
-
-
-class FourMoreAppsContracts(unittest.TestCase):
-    """Apps eight to eleven: Weather, Recorder, Files and Documents.
-
-    These are the remaining requested apps that carry no owner-blocked obligation. Email,
-    Messages and a commercial music streamer still sit behind Gmail OAuth verification,
-    Play's SMS policy and catalogue licensing, and a document scanner behind a ~50 MB
-    CameraX/ML Kit dependency -- all recorded in SUITE-PLAN.md §5.9.
-    """
-
-    MODS = ("weather", "recorder", "files", "documents")
-    RULES = {"weather": "WeatherRules", "recorder": "RecorderRules",
-             "files": "FileRules", "documents": "DocumentRules"}
+    def test_events_are_stored_at_the_time_the_user_picked(self):
+        # The midday constant this pinned was a stand-in for "the editor had no clock". The
+        # editor has one now, so the stored instant is the chosen hour and minute, and the
+        # boundary risk the constant guarded is the user's own choice rather than a default.
+        screen = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarScreen.java").read_text())
+        self.assertIn("time.setIs24HourView(true);", screen)
+        self.assertIn("dayFrom + time.getHour() * 3600000L + time.getMinute() * 60000L", screen)
 
     def src(self, mod, name):
         # Documents' rules moved to core-domain when the owner folded the app into Files; the
@@ -3668,6 +3661,45 @@ class InAppNavigationContracts(unittest.TestCase):
         view = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
         self.assertRegex(view, r"\bAPPS=\d+")
         self.assertIn("case APPS:", view)
+
+
+class CalendarParityContracts(unittest.TestCase):
+    """The owner: "what if I need to change the year quickly. Basic settings are also not there.
+    Recreate popular calender app." A month grid with month-only paging is the answer to none of
+    that; these pin the year jump, the three views and the reminder the editor now stores.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarScreen.java").read_text())
+        self.rules = java_code_only(
+            (ROOT / "feature-calendar/src/main/java/app/space/feature/calendar/CalendarRules.java").read_text())
+
+    def test_the_year_is_a_button_and_the_arrows_jump_twelve_months(self):
+        self.assertIn("private void yearPicker(final Context context, final UiKit ui)", self.screen)
+        self.assertIn("picker.setMinValue(1970);", self.screen)
+        self.assertIn("@Override public void onClick(View v) { page(-12); }", self.screen)
+        self.assertIn("@Override public void onClick(View v) { page(12); }", self.screen)
+
+    def test_three_views_and_a_today_button(self):
+        self.assertIn('String[] modeLabels = {"Month", "Week", "Day"};', self.screen)
+        self.assertIn('TextView today = ui.pillButton("Today"', self.screen)
+        self.assertIn("private void buildWeek(", self.screen)
+
+    def test_days_carry_a_dot_when_they_hold_something(self):
+        self.assertIn("java.util.HashSet<Integer> busy = new java.util.HashSet<>();", self.screen)
+        self.assertIn("dot.setBackground(ui.shape(busy.contains(day) ? ui.palette().accent : 0x00000000, 3));", self.screen)
+
+    def test_the_editor_stores_a_time_and_a_reminder_offset(self):
+        self.assertIn("time.setIs24HourView(true);", self.screen)
+        self.assertIn("dayFrom + time.getHour() * 3600000L + time.getMinute() * 60000L", self.screen)
+        self.assertIn("int[] offsets = {-1, 5, 10, 30, 60};", self.screen)
+        self.assertIn("public final int reminderMinutes;", self.rules)
+
+    def test_week_math_lives_in_the_rules_where_the_jvm_can_reach_it(self):
+        self.assertIn("public static long startOfWeek(", self.rules)
+        self.assertIn("public static int dayOfMonth(", self.rules)
+        self.assertIn("public static String timeLabel(", self.rules)
 
 
 class GoogleNotesParityContracts(unittest.TestCase):

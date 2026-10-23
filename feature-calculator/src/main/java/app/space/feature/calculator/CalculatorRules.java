@@ -172,12 +172,17 @@ public final class CalculatorRules {
         String current = expression == null ? "" : expression;
         if (token == null || token.isEmpty()) return null;
         char last = current.isEmpty() ? 0 : current.charAt(current.length() - 1);
-        boolean operandBefore = Character.isDigit(last) || last == ')'
-                || last == '\u03c0' || last == 'e' || last == '!';
+        boolean valueBefore = Character.isDigit(last) || last == ')'
+                || last == '\u03c0' || last == 'e';
+        boolean operandBefore = valueBefore || last == '!';
         boolean slotOpen = current.isEmpty() || isOperator(last) || last == '(';
         if (token.endsWith("(")) return slotOpen ? current + token : null;
         if ("\u03c0".equals(token) || "e".equals(token)) return slotOpen ? current + token : null;
-        if ("!".equals(token) || "^".equals(token)) return operandBefore ? current + token : null;
+        // One factorial per value: 5!! is double-factorial mathematics Google's pad does not
+        // offer, so the second '!' is refused. A power over a factorialed value is ordinary
+        // mathematics, so '^' keeps the wider notion of "an operand is on screen".
+        if ("!".equals(token)) return valueBefore ? current + token : null;
+        if ("^".equals(token)) return operandBefore ? current + token : null;
         return append(current, token);
     }
 

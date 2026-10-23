@@ -135,7 +135,8 @@ public class CalculatorRulesTest {
     }
 
     @Test public void onlyArithmeticCharactersMayBeAppended() {
-        for (char ok : new char[]{'0', '9', '.', '+', '-', '*', '/', '(', ')'}) {
+        for (char ok : new char[]{'0', '9', '.', '+', '-', '*', '/', '(', ')', '%', '^', '!',
+                '\u03c0', 'e'}) {
             assertTrue("should accept " + ok, CalculatorRules.isInputCharacter(ok));
         }
         // The keypad's typographic glyphs must be rejected here, which is what forces the
@@ -143,7 +144,10 @@ public class CalculatorRulesTest {
         assertFalse(CalculatorRules.isInputCharacter('\u00f7'));
         assertFalse(CalculatorRules.isInputCharacter('\u00d7'));
         assertFalse(CalculatorRules.isInputCharacter('\u2212'));
-        assertFalse(CalculatorRules.isInputCharacter('a'));
+        // Letters became input characters with the scientific page: function names type
+        // straight into the expression. 'a' was a refusal case when the vocabulary was
+        // digits and operators; it is the second letter of "tan" now.
+        assertTrue(CalculatorRules.isInputCharacter('a'));
     }
 
     @Test public void inputIsBounded() {
@@ -214,6 +218,7 @@ public class CalculatorRulesTest {
         assertEquals("5!", CalculatorRules.appendToken("5", "!"));
         assertNull(CalculatorRules.appendToken("", "!"));
         assertNull(CalculatorRules.appendToken("5!", "!"));
+        assertEquals("5!^", CalculatorRules.appendToken("5!", "^"));
         assertEquals("5^", CalculatorRules.appendToken("5", "^"));
         assertNull(CalculatorRules.appendToken("5+", "^"));
         assertEquals("\u03c0", CalculatorRules.appendToken("", "\u03c0"));

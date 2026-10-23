@@ -2085,8 +2085,18 @@ class CiDiagnosticsContracts(unittest.TestCase):
         # else entirely -- an OOM, a daemon crash, a task that never printed FAILED -- the
         # summary at the end of the log is what says so.
         annotation = self.yml.split("Surface compile and test errors as annotations")[1].split("      - name:")[0]
-        self.assertIn("tail -30 /tmp/unit.log", annotation)
-        self.assertIn("unit-log-tail", annotation)
+        # 2026-10-23: a red run arrived with ZERO annotations and no APKs -- even the
+        # old unconditional unit tail never surfaced. The hardened surfacer tails BOTH
+        # logs (a daemon/OOM/disk death leaves its verdict in the last lines, not in a
+        # greppable FAILED), states outcomes and log sizes in a notice, and escapes %
+        # because a literal percent corrupts the workflow command.
+        self.assertIn('tail -50 "$f"', annotation)
+        self.assertIn("for f in /tmp/unit.log /tmp/build.log", annotation)
+        self.assertIn("outcomes unit=", annotation)
+        self.assertIn("%25", annotation)
+        self.assertIn("Could not resolve", annotation)
+        self.assertIn("No space left", annotation)
+        self.assertIn('-tail::', annotation)
         # Still bounded: an unbounded dump is its own failure mode, because annotations are
         # capped and a huge log would evict the very lines that matter.
         self.assertIn("| head -80", annotation)

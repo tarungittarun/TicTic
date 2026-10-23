@@ -132,21 +132,28 @@ jobs:
         # loop. The final `exit 1` is what actually fails the job, since the two
         # build steps are continue-on-error.
         run: |
+          # 2026-10-23: a red run reached the review sandbox with ZERO emitted
+          # annotations and no APKs -- both greps matched nothing and even the
+          # unconditional unit-log tail never appeared, so the surfacer itself was
+          # flying blind. Three hardenings: (1) a notice line stating the outcomes
+          # and both log byte-counts, so "log missing" is distinguishable from
+          # "log silent"; (2) percent-escaping, because a literal % in an annotation
+          # message corrupts the workflow command; (3) tails of BOTH logs, not just
+          # unit, because a daemon/disk/OOM death leaves its verdict in the last
+          # lines, not in a greppable "FAILED".
+          esc() { local s="$1"; s="${s//'%'/'%25'}"; printf '%s' "$s"; }
+          echo "::notice::outcomes unit=${{ steps.unit.outcome }} build=${{ steps.build.outcome }} unitlog=$([ -f /tmp/unit.log ] && wc -c < /tmp/unit.log || echo MISSING) buildlog=$([ -f /tmp/build.log ] && wc -c < /tmp/build.log || echo MISSING)"
           for f in /tmp/unit.log /tmp/build.log; do
-            [ -f "$f" ] || continue
-            grep -nE "^e: |error:|Execution failed|What went wrong|FAILED|Caused by:|AssertionError|expected:" "$f" \
+            [ -f "$f" ] || { echo "::error title=log-missing::$(esc "$f") does not exist on the runner"; continue; }
+            grep -nE "^e: |error:|Execution failed|What went wrong|FAILURE|FAILED|Caused by:|AssertionError|expected:|Could not resolve|No space left|Daemon" "$f" \
               | head -80 \
               | while IFS= read -r line; do
-                  echo "::error title=$(basename "$f")::${line}"
+                  echo "::error title=$(basename "$f")::$(esc "$line")"
                 done
-          done
-          # Context when the greps above are not enough: the tail of the unit log, where a
-          # failing test's stack and the summary line live.
-          if [ -f /tmp/unit.log ]; then
-            tail -30 /tmp/unit.log | while IFS= read -r line; do
-              echo "::error title=unit-log-tail::${line}"
+            tail -50 "$f" | while IFS= read -r line; do
+              echo "::error title=$(basename "$f")-tail::$(esc "$line")"
             done
-          fi
+          done
           exit 1
 
       - name: Upload debug APK

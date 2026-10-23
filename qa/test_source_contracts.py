@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.10.0'", gradle)
-        self.assertIn("versionCode 34", gradle)
+        self.assertIn("versionName '3.11.0'", gradle)
+        self.assertIn("versionCode 35", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3579,7 +3579,7 @@ class AppsInventoryDocContracts(unittest.TestCase):
         # The gaps are owner-side obligations. Documenting them is what stops a partial app
         # being read as a finished one.
         for gap in ("Email — receiving", "Messages — Play distribution",
-                    "Music — commercial catalogue", "Scanner — live camera capture"):
+                    "Music — commercial catalogue", "Scanner — in-app live preview"):
             self.assertIn(gap, self.doc)
 
     def test_it_records_which_permissions_are_requested_and_when(self):

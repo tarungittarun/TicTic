@@ -172,6 +172,18 @@ stores, and export/import moves data between installs.
 **Acceptance on device:** no visual change — that is the point; plus a full data round-trip
 through export/import on a fresh install.
 
+**Status at 3.11.0 (2026-10-23).** Shipped: AndroidX flip and support-type migration (slice 1);
+one androidx `FileProvider` replacing both hand-rolled providers (slice 2); export/import with
+traversal refusals, zip-bomb ceilings and a restore that resets the Room database (slice 3); Room
+as the in-app store of record for notes and calendar events, with the prefs JSON kept as the
+mirror/exchange format and population keyed on emptiness because a migrated-flag cannot survive
+a restore (slice 4); SAF shared-folder browse in Files, framework-only (slice 5). Deferred with
+the reason recorded in REPORT-CARD "What I did not do": CameraX in-app preview, the clock-screen
+extraction and `:core-widgets` — all three are visual or daily-driver refactors that a blind
+environment cannot verify, so they wait for the device loop after 3.11.0. The plan's "24 widget
+providers" was a wrong count; the real inventory is 3 providers, an engine, a config activity
+and a variants class.
+
 ## Sprint 5 — Play readiness and the polish pass (3 slices, ~1 day)
 
 Dark mode and text scaling audited screen by screen, landscape checks, TalkBack walk of the five
@@ -187,7 +199,7 @@ OAuth (moot if Email stays removed), music licensing (moot for local files).
 | 1 Files | 4 | ~1 day | 3.8.0 |
 | 2 Notes + Calendar | 5 | ~2 days | 3.9.0 |
 | 3 Music + Recorder + Scanner | 5 | ~2 days | 3.10.0 |
-| 4 Structural | 6 | ~3 days | 3.11.0 |
+| 4 Structural | 5 shipped + 3 deferred to the device loop | ~3 days | 3.11.0 |
 | 5 Polish + Play | 3 | ~1 day | 4.0.0 |
 
 **26 slices, roughly 9 working days of agent work, six APKs**, each one an upgrade of the last

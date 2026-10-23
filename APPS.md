@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.10.0** (versionCode 34) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.11.0** (versionCode 35) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*
@@ -73,10 +73,13 @@ playable in-app. One hour cap. The recorder is released when the screen goes awa
 holds the microphone in the background.
 
 **Files** — a browser for the files this app owns, with sizes, kinds, folder navigation and
-breadcrumbs, plus creating and deleting text files. Uses app-private storage rather than the Storage Access Framework, because
-`useAndroidX=false` means `DocumentFile` is unavailable — so it needs **no permission at all**.
-Every navigation step is guarded, so `..` and absolute paths are refused and nothing can walk
-outside the root.
+breadcrumbs, a Notepad-grade text editor, sheet/image/PDF viewers, and whole-app export/import
+as a zip (Files ▸ Backup). Since 3.11.0 it also reaches shared storage the honest way: the user
+picks ONE folder through the Storage Access Framework (framework `DocumentsContract`,
+persistable grant, no new dependency), Files browses it, opens files through the system, and
+long-press copies them into app storage where the editor and viewers already live. It still
+declares **no storage permission at all**. Every navigation step is guarded, so `..` and
+absolute paths are refused and nothing can walk outside the root.
 
 **Documents** — plain-text documents and CSV spreadsheets. CSV follows RFC 4180 quoting, so a
 comma inside a cell does not shift every later column. Sheets report row and column counts and a
@@ -118,7 +121,7 @@ otherwise.
 | **Email — receiving** | Reading a mailbox needs IMAP, which needs either an app password held by this app or a verified OAuth sign-in | Gmail OAuth verification: a privacy policy, and possibly a security assessment |
 | **Messages — Play distribution** | Play restricts SMS and Call Log permissions to apps whose *core function* is messaging | Filing Play's SMS and Call Log declaration form. The direct-APK build is unaffected and works now |
 | **Music — commercial catalogue** | Streaming a catalogue needs partner agreements or a licensed SDK | A licensing deal. Local files and user-supplied URLs work now |
-| **Scanner — live camera capture** | Full-resolution capture needs a `FileProvider` to hand the camera app a writable URI, and `FileProvider` ships with AndroidX, which this project has disabled | Enabling AndroidX. Picking images works now and produces the same PDF |
+| **Scanner — in-app live preview** | AndroidX is now ON (3.11.0) and capture through the system camera works (3.10.0); what remains is CameraX preview inside the app, which is a visual change | The device loop: visual changes ship only where a regression can be seen. System-camera capture and image picking both work now and produce the same PDF |
 
 ## Permissions
 
@@ -137,16 +140,19 @@ wake lock, vibrate, full-screen intent, foreground service and `BIND_JOB_SERVICE
 ## Where your data lives
 
 Every app stores its own data under a stable key in the shared `tictic_local_v1` preferences
-file, or as files under app-private storage. Data outlives its module: the formats are plain JSON
-and plain files with no module-specific encoding, so they survive a module being excluded from a
-build and are readable by the export/import bundle that is still to come.
+file, or as files under app-private storage. Since 3.11.0 notes and calendar events also live in
+a Room database (`myspace.db`) — the app reads Room, and the prefs JSON stays as the mirror,
+which is what the export bundle carries and what repopulates the database after a restore. Data
+outlives its module: the formats are plain JSON and plain files with no module-specific
+encoding, so they survive a module being excluded from a build, and the export/import bundle
+(Files ▸ Backup) moves all of it between installs.
 
 | Module | Pref key(s) or files | Cap |
 |---|---|---:|
-| `:feature-calendar` | `calendar_items` | 1000 |
+| `:feature-calendar` | Room `events` table, mirrored in `calendar_items` | 1000 |
 | `:feature-expenses` | `expenses_items` | 2000 |
 | `:feature-habits` | `habits_items` | 100 |
-| `:feature-notes` | `notes_items` | 500 |
+| `:feature-notes` | Room `notes` table, mirrored in `notes_items` | 500 |
 | `:feature-tasks` | `tasks_items` | 1000 |
 | `:feature-weather` | `weather_city`, `weather_payload`, `weather_fetched_at`, `weather_celsius` | — |
 | `:feature-music` | `music_streams`, `music_picked`, `music_repeat`, `music_shuffle` | — |
@@ -154,7 +160,7 @@ build and are readable by the export/import bundle that is still to come.
 | `:feature-documents` | `documents_items` | — |
 | `:feature-email` | `email_items` | — |
 | `:feature-scanner` | PDFs under `files/scans/` | — |
-| `:feature-files` | nothing of its own — it browses `filesDir` | — |
+| `:feature-files` | `files_saf_tree` (the shared-folder grant); otherwise it browses `filesDir` | — |
 
 ## Navigating it
 

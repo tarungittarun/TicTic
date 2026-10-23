@@ -61,7 +61,17 @@ device gate at the end of every sprint, never by a size limit.
 **Need from you:** uninstall once, install 3.7.0, enable Diagnostics, reproduce the settings
 crash and the recorder playback failure, share the log.
 
-## Sprint 1 — Files becomes a file manager and an editor (4 slices, ~1 day)
+## Sprint 1 — DELIVERED: Files is a file manager and an editor (3 slices + contracts, build 3.8.0)
+
+Delivered in full: the Notepad-grade editor (save, save-as, find, replace, grouped undo, wrap,
+mono, status line), the Samsung-style category home (six categories with live counts, storage row,
+search across every folder, three sort modes with folders pinned on top), and the folded-in
+viewers -- sheets as RFC-4180 tables, images downscaled to a memory-safe bound, PDFs page by page
+through the framework renderer. DocumentRules moved from the withdrawn Documents app into
+:core-domain, where a contract that outlives its app belongs. Cost: three slices and three red CI
+runs, each diagnosed on its first annotation.
+
+### Original sprint text, kept for the record
 
 Research basis: Samsung My Files organises by *category* (Images, Videos, Audio, Documents,
 Downloads, Storage locations) with search and sort, not by a bare folder tree; Windows Notepad is

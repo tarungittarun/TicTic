@@ -84,7 +84,7 @@ does, it will write down what it was.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (6):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (9):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -100,6 +100,12 @@ concluded the build was fine. **My own debug channel lied to me by telling the t
 thing.** Fixed by making the pattern match failures only, dumping the log tail alongside it, pinning
 that behaviourally, and adding a contract that scans every test file for helpers called but not
 imported — verified with a negative control.
+
+**The eighth and ninth** arrived inside the Files editor, one hour apart: a one-element view
+holder passed where the view itself was expected, and a scroll helper typed narrower than the two
+callers that fed it. The surfacer named both on their first red run. The eighth cost one push; the
+ninth was first caught by a run my next push superseded, and I only found it by going back to read
+a run I had already replaced -- superseded runs still carry the first verdict on your code.
 
 **The seventh** came an hour later: the new bracket rule read `last`, a variable declared inside
 the operator branch below it. And with it, the first *wrong assertion* this project ever shipped --

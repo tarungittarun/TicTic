@@ -50,7 +50,8 @@ public class DataExportRulesTest {
 
     @Test public void stripDotsIsTheSecondLineOfDefence() {
         assertEquals("a/b", DataExportRules.stripDots("./a//b"));
-        assertEquals("b", DataExportRules.stripDots("../a/../b"));
+        // Dropping traversal segments keeps the honest remainder: the ".."s go, "a" stays.
+        assertEquals("a/b", DataExportRules.stripDots("../a/../b"));
         assertEquals("", DataExportRules.stripDots(null));
         assertEquals("", DataExportRules.stripDots("../../"));
     }

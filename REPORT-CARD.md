@@ -20,7 +20,7 @@ checking did.
 | **On-device readiness** | **D** | It has now been run on a device — once, by you. That single run found **ten defects**: a crash, a calculator that accepted any key sequence, a recorder that blinked and produced files that would not play, and four apps judged worse than the ones they imitate. Every layout number is still a guess, and the guess has now been measured. |
 | Structural plan adherence | **D** | 78 slices in, **one of six** clock screens is extracted. I said "stay on plan" was your instruction and then spent the slices on apps and chrome. The clock still can't be excluded from a `lite` build. |
 | Test discipline | **C−** | 269 contracts is real coverage, and the JVM rules suites are genuine. But the suite was **green while ten device defects shipped**, seven assertions matched their own documentation, one contract pinned the exact grep pattern that was hiding a compile error, and a missing `assertNull` import reached CI because nothing compiles locally. |
-| Process hygiene | **C−** | Pushed with qa red twice. One commit message described a fix that had not been applied. **Five** self-inflicted compile errors, the fifth in a test file that therefore never ran. Six patch scripts aborted mid-way and wrote nothing. |
+| Process hygiene | **C−** | Pushed with qa red twice. **Two** commit messages described work that had not been applied -- the second caught within the hour, confessed in the ledger, corrected in the next commit. **Five** self-inflicted compile errors, the fifth in a test file that therefore never ran. Six patch scripts aborted mid-way and wrote nothing. |
 | Reporting honesty | **A−** | Blockers were surfaced, limits stated on screen, failures named in commit messages. This document is written to the same standard. |
 | Owner requirements met | **B−** | Multi-module ✓ · customisable navigation ✓ · rebrand ✓ · apps-first bar with recents ✓ · log collector ✓ · Email and Documents removed as directed ✓ (3.8.0) · **AndroidX ✗ not done** · Play items ✗ (yours). Graded down because "rich, not lightweight" is the stated bar and four apps are below the ones they imitate. |
 
@@ -137,7 +137,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (9):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (10):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -159,6 +159,15 @@ holder passed where the view itself was expected, and a scroll helper typed narr
 callers that fed it. The surfacer named both on their first red run. The eighth cost one push; the
 ninth was first caught by a run my next push superseded, and I only found it by going back to read
 a run I had already replaced -- superseded runs still carry the first verdict on your code.
+
+**The tenth** arrived in Sprint 4's export slice: `InputStream` used with only `InputStreamReader`
+imported -- one word apart from a symbol that WAS imported, which is how it walked past a
+read-through. And behind it a smaller, uglier story: the fix commit's message said "the ledger
+says so" while the script that was supposed to update the ledger had crashed on a wrong anchor
+and written nothing. The ledger entry you are reading is therefore written one commit late, and
+the grades table below now counts *two* commit messages that described work not applied. The
+gate was green both times because the gate is Python; only javac and the JVM suites can see
+Java, and only a re-read of what actually landed can see a lie.
 
 **The seventh** came an hour later: the new bracket rule read `last`, a variable declared inside
 the operator branch below it. And with it, the first *wrong assertion* this project ever shipped --

@@ -3753,6 +3753,46 @@ class CalendarParityContracts(unittest.TestCase):
         self.assertIn("public static String timeLabel(", self.rules)
 
 
+class MusicLibraryContracts(unittest.TestCase):
+    """Defect 19: "music player is worse than before." A player with no library is the reason:
+    it could only see files added by hand. MediaStore scan, the permission ask, the render cap
+    and the not-removable library rows are the load-bearing lines; the rules behind them are
+    JVM-tested in feature-music.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/MusicScreen.java").read_text())
+        self.rules = java_code_only(
+            (ROOT / "feature-music/src/main/java/app/space/feature/music/MusicRules.java").read_text())
+        self.manifest = (ROOT / "app/src/main/AndroidManifest.xml").read_text()
+
+    def test_the_library_is_scanned_from_mediastore(self):
+        self.assertIn("private static List<MusicRules.Track> scanMediaStore(Context context)", self.screen)
+        self.assertIn("android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI", self.screen)
+        self.assertIn("android.provider.MediaStore.Audio.Media.IS_MUSIC + \"!=0\"", self.screen)
+        self.assertIn("if (canScan) library.addAll(scanMediaStore(context));", self.screen)
+        self.assertIn('return "content://media/external/audio/media/" + mediaStoreId;', self.rules)
+
+    def test_the_permission_is_declared_capped_and_asked_with_a_reason(self):
+        self.assertIn('android:name="android.permission.READ_MEDIA_AUDIO"', self.manifest)
+        self.assertIn('android:name="android.permission.READ_EXTERNAL_STORAGE"', self.manifest)
+        self.assertIn('android:maxSdkVersion="32"', self.manifest)
+        self.assertIn('"Grant music access"', self.screen)
+        self.assertIn("Without it the player can only see files you add by hand.", self.screen)
+        self.assertIn("public void onRequestPermissionsResult(", self.screen)
+
+    def test_ten_thousand_songs_cannot_hang_the_ui_thread(self):
+        self.assertIn("public static final int MAX_RENDER = 500;", self.rules)
+        self.assertIn("int rendered = Math.min(queue.size(), MusicRules.MAX_RENDER);", self.screen)
+        self.assertIn('"Showing the first " + rendered + " of " + queue.size()', self.screen)
+
+    def test_library_rows_do_not_offer_a_remove_that_means_nothing(self):
+        self.assertIn("public static boolean isLibrarySource(String source)", self.rules)
+        self.assertIn("&& !MusicRules.isLibrarySource(track.source));", self.screen)
+        self.assertIn("MusicRules.librarySubtitle(track)", self.screen)
+
+
 class RecorderClosureAndSharingContracts(unittest.TestCase):
     """Defect 15 (recorded file would not play) was instrumented, not fixed, and the owner's
     log still has not arrived. This closes what can be closed blind: the recorder now proves at

@@ -23,20 +23,68 @@ public final class MusicRules {
     public static final int REPEAT_ALL = 2;
 
     /** A playable item: a file this app owns, or a URL the user supplied. */
+    /**
+     * Rows past this are not drawn. A device library can hold ten thousand songs, and
+     * building ten thousand rows on the UI thread is an ANR, not a list. The queue still
+     * plays every track; the wall stops at the cap and says so.
+     */
+    public static final int MAX_RENDER = 500;
+
     public static final class Track {
         public final String id;
         public final String title;
         public final String source;
         public final boolean remote;
         public final long bytes;
+        /** MediaStore extras; empty/zero for picked files and streams, which do not carry them. */
+        public final String artist;
+        public final String album;
+        public final long durationMillis;
 
         public Track(String id, String title, String source, boolean remote, long bytes) {
+            this(id, title, source, remote, bytes, "", "", 0L);
+        }
+
+        public Track(String id, String title, String source, boolean remote, long bytes,
+                     String artist, String album, long durationMillis) {
             this.id = id == null ? "" : id;
             this.title = title == null || title.trim().isEmpty() ? "Untitled" : title.trim();
             this.source = source == null ? "" : source;
             this.remote = remote;
             this.bytes = Math.max(0, bytes);
+            this.artist = artist == null ? "" : artist.trim();
+            this.album = album == null ? "" : album.trim();
+            this.durationMillis = Math.max(0, durationMillis);
         }
+    }
+
+    /** The MediaStore playback URI for an audio row id; content-resolver playable, no file path. */
+    public static String mediaUri(long mediaStoreId) {
+        return "content://media/external/audio/media/" + mediaStoreId;
+    }
+
+    /**
+     * Library rows are content:// like picked rows, but they must NOT offer Remove: the list is
+     * the device's, not ours, and "removing" a song from it means nothing this app can do.
+     */
+    public static boolean isLibrarySource(String source) {
+        return source != null && source.startsWith("content://media/");
+    }
+
+    /** The second line of a library row: what the metadata actually knows, joined honestly. */
+    public static String librarySubtitle(Track track) {
+        if (track == null) return "";
+        StringBuilder out = new StringBuilder();
+        if (!track.artist.isEmpty() && !track.artist.equals("<unknown>")) out.append(track.artist);
+        if (!track.album.isEmpty() && !track.album.equals("<unknown>")) {
+            if (out.length() > 0) out.append("  \u00b7  ");
+            out.append(track.album);
+        }
+        if (track.durationMillis > 0) {
+            if (out.length() > 0) out.append("  \u00b7  ");
+            out.append(formatDuration(track.durationMillis));
+        }
+        return out.length() > 0 ? out.toString() : formatBytes(track.bytes);
     }
 
     /** Alphabetical by title, then id, so the list never reshuffles between renders. */

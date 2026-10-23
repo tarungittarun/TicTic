@@ -2,6 +2,9 @@ package app.space.feature.music;
 
 import android.content.Context;
 import android.content.Intent;
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
@@ -47,6 +50,8 @@ public final class MusicScreen implements Screen {
     /** Audio the user picked through the system picker, stored as persistable content URIs. */
     static final String KEY_PICKED = "music_picked";
     private static final int PICK_AUDIO = 93;
+    /** In the 90-99 range the Screen contract reserves for screens. */
+    private static final int PERMISSION_REQUEST = 95;
     /** Fixed seed: the shuffle is reproducible, so the queue is stable across renders. */
     static final long SHUFFLE_SEED = 20260101L;
 
@@ -69,6 +74,10 @@ public final class MusicScreen implements Screen {
         final int repeat = AppPrefs.prefs(context).getInt(KEY_REPEAT, MusicRules.REPEAT_ALL);
 
         List<MusicRules.Track> library = new ArrayList<>();
+        // The device's own library first: MediaStore knows every song on the phone, which is
+        // the difference between a player and a file list with a play button.
+        boolean canScan = hasAudioPermission(context);
+        if (canScan) library.addAll(scanMediaStore(context));
         File[] files = folder(context).listFiles();
         if (files != null) {
             for (File f : files) {
@@ -95,6 +104,22 @@ public final class MusicScreen implements Screen {
 
         ui.sectionTitle(root, "Music", queue.size() + (queue.size() == 1 ? " track" : " tracks")
                 + "  \u00b7  " + MusicRules.repeatLabel(repeat));
+
+        if (!canScan) {
+            TextView grant = ui.pillButton("Grant music access", ui.palette().accent,
+                    android.graphics.Color.WHITE);
+            LinearLayout.LayoutParams gtp = ui.lp(-1, 46);
+            gtp.topMargin = ui.dp(8);
+            root.addView(grant, gtp);
+            grant.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { requestAudioPermission(context); }
+            });
+            TextView why = ui.label("Without it the player can only see files you add by hand.",
+                    11, ui.palette().muted, false);
+            LinearLayout.LayoutParams wp = ui.lp(-1, -2);
+            wp.topMargin = ui.dp(4);
+            root.addView(why, wp);
+        }
 
         // ---- now playing ----
         LinearLayout card = ui.card();
@@ -174,7 +199,8 @@ public final class MusicScreen implements Screen {
             root.addView(empty, ep);
         }
 
-        for (int i = 0; i < queue.size(); i++) {
+        int rendered = Math.min(queue.size(), MusicRules.MAX_RENDER);
+        for (int i = 0; i < rendered; i++) {
             final MusicRules.Track track = queue.get(i);
             final int position = i;
             LinearLayout row = ui.hbox();
@@ -192,8 +218,12 @@ public final class MusicScreen implements Screen {
             copy.addView(ui.label(track.title, 13,
                     position == index ? ui.palette().accent : ui.palette().text, position == index));
             copy.addView(ui.label(track.remote ? track.source
-                    : MusicRules.formatBytes(track.bytes), 10, ui.palette().muted, false));
-            boolean removable = track.remote || MusicRules.isPickedSource(track.source);
+                    : MusicRules.isLibrarySource(track.source)
+                        ? MusicRules.librarySubtitle(track)
+                        : MusicRules.formatBytes(track.bytes), 10, ui.palette().muted, false));
+            boolean removable = track.remote
+                    || (MusicRules.isPickedSource(track.source)
+                        && !MusicRules.isLibrarySource(track.source));
             TextView remove = ui.label(removable ? "Remove" : "", 12, ui.palette().muted, false);
             row.addView(remove, ui.lp(-2, -2));
             if (track.remote) {
@@ -208,6 +238,15 @@ public final class MusicScreen implements Screen {
             row.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) { playAt(context, position); }
             });
+        }
+        if (queue.size() > rendered) {
+            TextView more = ui.label("Showing the first " + rendered + " of " + queue.size()
+                    + " \u2014 the queue still plays them all. Search is a later slice.",
+                    11, ui.palette().muted, false);
+            more.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams mlp = ui.lp(-1, -2);
+            mlp.topMargin = ui.dp(10);
+            root.addView(more, mlp);
         }
         return scroll;
     }
@@ -399,6 +438,66 @@ public final class MusicScreen implements Screen {
         host.invalidate();
     }
 
+    /** READ_MEDIA_AUDIO on 33+, the capped storage permission below it. */
+    private static boolean hasAudioPermission(Context context) {
+        String permission = android.os.Build.VERSION.SDK_INT >= 33
+                ? "android.permission.READ_MEDIA_AUDIO"
+                : Manifest.permission.READ_EXTERNAL_STORAGE;
+        return context.checkSelfPermission(permission)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestAudioPermission(Context context) {
+        // Asked at the moment of use; the answer arrives in onRequestPermissionsResult below.
+        if (context instanceof Activity) {
+            String permission = android.os.Build.VERSION.SDK_INT >= 33
+                    ? "android.permission.READ_MEDIA_AUDIO"
+                    : Manifest.permission.READ_EXTERNAL_STORAGE;
+            ((Activity) context).requestPermissions(new String[]{permission}, PERMISSION_REQUEST);
+        } else {
+            host.toast("Music access is needed to scan your library.");
+        }
+    }
+
+    /**
+     * Every audio row MediaStore calls music. Queried on the UI thread because the screen is
+     * built there anyway and the projection is narrow; a device with a pathological library
+     * pays once per open, and the render cap keeps the view tree sane.
+     */
+    private static List<MusicRules.Track> scanMediaStore(Context context) {
+        List<MusicRules.Track> out = new ArrayList<>();
+        android.database.Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(
+                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    new String[]{
+                            android.provider.MediaStore.Audio.Media._ID,
+                            android.provider.MediaStore.Audio.Media.TITLE,
+                            android.provider.MediaStore.Audio.Media.ARTIST,
+                            android.provider.MediaStore.Audio.Media.ALBUM,
+                            android.provider.MediaStore.Audio.Media.DURATION,
+                            android.provider.MediaStore.Audio.Media.SIZE},
+                    android.provider.MediaStore.Audio.Media.IS_MUSIC + "!=0",
+                    null,
+                    android.provider.MediaStore.Audio.Media.TITLE);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(0);
+                    out.add(new MusicRules.Track("media:" + id, cursor.getString(1),
+                            MusicRules.mediaUri(id), false, cursor.getLong(5),
+                            cursor.getString(2), cursor.getString(3), cursor.getLong(4)));
+                }
+            }
+        } catch (Exception ignored) {
+            // A device that refuses the query still has the hand-added files and streams.
+        } finally {
+            if (cursor != null) {
+                try { cursor.close(); } catch (Exception ignored) { }
+            }
+        }
+        return out;
+    }
+
     private void playAt(Context context, int position) {
         release();
         index = MusicRules.clampIndex(position, queue.size());
@@ -492,6 +591,17 @@ public final class MusicScreen implements Screen {
         e.setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10));
         e.setBackground(ui.shape(ui.palette().surface, 14));
         return e;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode != PERMISSION_REQUEST) return;
+        boolean granted = grantResults.length > 0;
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) { granted = false; break; }
+        }
+        host.toast(granted ? "Scanning your library." : "Without access, only hand-added files play.");
+        host.invalidate();
     }
 
     @Override public void onResume() { }

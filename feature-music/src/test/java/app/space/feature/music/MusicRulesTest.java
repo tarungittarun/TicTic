@@ -136,4 +136,43 @@ public class MusicRulesTest {
         assertEquals("Untitled", t("1", "  ", "/a.mp3", false).title);
         assertEquals(0, new MusicRules.Track("1", "a", "/a.mp3", false, -99).bytes);
     }
+
+    @Test public void libraryTracksCarryMetadataAndOldOnesDoNotMind() {
+        MusicRules.Track plain = new MusicRules.Track("i", "t", "content://x", false, 10);
+        assertEquals("", plain.artist);
+        assertEquals("", plain.album);
+        assertEquals(0L, plain.durationMillis);
+        MusicRules.Track rich = new MusicRules.Track("media:7", "Song", MusicRules.mediaUri(7),
+                false, 4000000L, "  Artist ", "Album", 214000L);
+        assertEquals("Artist", rich.artist);
+        assertEquals("Album", rich.album);
+        assertEquals(214000L, rich.durationMillis);
+        assertEquals("content://media/external/audio/media/7", rich.source);
+    }
+
+    @Test public void librarySourcesAreNotRemovablePicks() {
+        assertTrue(MusicRules.isLibrarySource("content://media/external/audio/media/12"));
+        assertFalse(MusicRules.isLibrarySource("content://com.android.providers/downloads/x"));
+        assertFalse(MusicRules.isLibrarySource("/storage/emulated/0/song.mp3"));
+        assertFalse(MusicRules.isLibrarySource(null));
+        // Both are content://, so the player path is shared but the Remove affordance is not.
+        assertTrue(MusicRules.isPickedSource("content://media/external/audio/media/12"));
+    }
+
+    @Test public void theSubtitleSaysOnlyWhatTheMetadataKnows() {
+        MusicRules.Track full = new MusicRules.Track("i", "t", "s", false, 900,
+                "Artist", "Album", 65000L);
+        assertEquals("Artist  \u00b7  Album  \u00b7  1:05", MusicRules.librarySubtitle(full));
+        MusicRules.Track noAlbum = new MusicRules.Track("i", "t", "s", false, 900,
+                "Artist", "", 0L);
+        assertEquals("Artist", MusicRules.librarySubtitle(noAlbum));
+        MusicRules.Track unknown = new MusicRules.Track("i", "t", "s", false, 2048,
+                "<unknown>", "<unknown>", 0L);
+        // MediaStore's placeholder is noise; the byte count is the honest fallback.
+        assertEquals("2 KB", MusicRules.librarySubtitle(unknown));
+    }
+
+    @Test public void theRenderCapIsAFloorOnResponsivenessNotOnTheQueue() {
+        assertEquals(500, MusicRules.MAX_RENDER);
+    }
 }

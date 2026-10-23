@@ -3753,6 +3753,71 @@ class CalendarParityContracts(unittest.TestCase):
         self.assertIn("public static String timeLabel(", self.rules)
 
 
+class RecorderClosureAndSharingContracts(unittest.TestCase):
+    """Defect 15 (recorded file would not play) was instrumented, not fixed, and the owner's
+    log still has not arrived. This closes what can be closed blind: the recorder now proves at
+    save time that the device can decode its own recording, names a silent media stream instead
+    of letting it read as broken, and grows the rename and share the plan asked for. Sharing
+    needs a content:// door because useAndroidX=false rules out FileProvider -- so the door,
+    its manifest and its containment rule are pinned here.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-recorder/src/main/java/app/space/feature/recorder/RecorderScreen.java").read_text())
+        self.provider = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/ShareProvider.java").read_text())
+        self.rules = java_code_only(
+            (ROOT / "core-data/src/main/java/app/space/core/data/ShareRules.java").read_text())
+        self.manifest = (ROOT / "core-data/src/main/AndroidManifest.xml").read_text()
+
+    def test_the_provider_is_declared_unexported_and_grant_based(self):
+        self.assertIn('android:name="app.space.core.data.ShareProvider"', self.manifest)
+        self.assertIn('android:authorities="${applicationId}.myspace_share"', self.manifest)
+        self.assertIn('android:exported="false"', self.manifest)
+        self.assertIn('android:grantUriPermissions="true"', self.manifest)
+
+    def test_reads_are_confined_to_our_own_data_directory(self):
+        self.assertIn("ShareRules.isInsideRoot(rootPath, file.getCanonicalPath())", self.provider)
+        self.assertIn("requestedCanonical.startsWith(dataRootCanonical + \"/\")", self.rules)
+        self.assertIn("ParcelFileDescriptor.MODE_READ_ONLY", self.provider)
+        self.assertIn("public Uri insert(Uri uri, ContentValues values) { return null; }", self.provider)
+
+    def test_share_grants_read_and_names_a_mime(self):
+        self.assertIn("Intent.FLAG_GRANT_READ_URI_PERMISSION", self.provider)
+        self.assertIn("send.setType(ShareRules.mimeFor(file.getName()));", self.provider)
+        self.assertIn('return "application/octet-stream";', self.rules)
+        self.assertIn("ShareProvider.shareIntent(context, target,", self.screen)
+
+    def test_the_recorder_proves_its_own_recordings_decode(self):
+        self.assertIn("private void selfTest(Context context, File file)", self.screen)
+        self.assertIn("selfTest(context, renamed);", self.screen)
+        self.assertIn('"selftest FAIL "', self.screen)
+        self.assertIn('"selftest ok "', self.screen)
+
+    def test_silent_playback_is_named_instead_of_mysterious(self):
+        self.assertIn("private void logMediaVolume(Context context)", self.screen)
+        self.assertIn("if (level == 0)", self.screen)
+        self.assertIn("ADJUST_RAISE", self.screen)
+        self.assertIn("player.setOnErrorListener(", self.screen)
+        self.assertIn("USAGE_MEDIA", self.screen)
+
+    def test_rename_keeps_the_index_and_the_extension(self):
+        self.assertIn("private void renameDialog(final Context context,", self.screen)
+        self.assertIn("ShareRules.renamedFile(", self.screen)
+        self.assertIn("private void renameIndex(Context context, String oldName, String newName)", self.screen)
+        self.assertIn("if (to.exists())", self.screen)
+        self.assertIn("private void forgetIndex(Context context, String name)", self.screen)
+        self.assertIn("forgetIndex(context, item.fileName);", self.screen)
+
+    def test_the_sharing_rules_are_jvm_tested_where_they_can_be_reached(self):
+        test = (ROOT / "core-data/src/test/java/app/space/core/data/ShareRulesTest.java").read_text()
+        self.assertIn("containmentRefusesEverythingOutsideTheRoot", test)
+        self.assertIn("renamesKeepTheExtensionAndRefuseRubbish", test)
+        gradle = (ROOT / "core-data/build.gradle").read_text()
+        self.assertIn("testImplementation 'junit:junit:4.13.2'", gradle)
+
+
 class GoogleNotesParityContracts(unittest.TestCase):
     """The owner's line: "For notes, recreate google notes." Google Notes is a wall of coloured
     cards with pins, an archive drawer and checklists -- not a list of titled rows, which is what

@@ -147,6 +147,32 @@ public final class RecorderScreen implements Screen {
                             + "  \u00b7  " + new java.text.SimpleDateFormat("d MMM HH:mm",
                                     java.util.Locale.getDefault()).format(new java.util.Date(item.createdAt)),
                     11, ui.palette().muted, false));
+            TextView share = ui.label("Share", 12, ui.palette().accent, true);
+            LinearLayout.LayoutParams sp = ui.lp(-2, -2);
+            sp.rightMargin = ui.dp(12);
+            row.addView(share, sp);
+            share.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    File target = new File(folder(context), item.fileName);
+                    if (!target.isFile()) { host.toast("That file is missing."); return; }
+                    try {
+                        context.startActivity(android.content.Intent.createChooser(
+                                app.space.core.data.ShareProvider.shareIntent(context, target,
+                                        item.label.isEmpty() ? item.fileName : item.label),
+                                "Share recording"));
+                    } catch (Exception e) {
+                        AppLog.event(context, "recorder", "share failed " + e);
+                        host.toast("Nothing on this device accepts a shared recording.");
+                    }
+                }
+            });
+            TextView rename = ui.label("Rename", 12, ui.palette().muted, false);
+            LinearLayout.LayoutParams rp = ui.lp(-2, -2);
+            rp.rightMargin = ui.dp(12);
+            row.addView(rename, rp);
+            rename.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { renameDialog(context, item); }
+            });
             TextView delete = ui.label("Delete", 12, ui.palette().muted, false);
             row.addView(delete, ui.lp(-2, -2));
             delete.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +180,7 @@ public final class RecorderScreen implements Screen {
                     stopPlayback();
                     File target = new File(folder(context), item.fileName);
                     boolean ok = target.isFile() && target.delete();
+                    if (ok) forgetIndex(context, item.fileName);
                     host.toast(ok ? "Deleted." : "Could not delete that file.");
                     host.invalidate();
                 }
@@ -231,8 +258,34 @@ public final class RecorderScreen implements Screen {
                 RecorderRules.fileName(startedAt, String.valueOf(duration)));
         if (!finished.renameTo(renamed)) renamed = finished;
         index(context, renamed, duration);
+        selfTest(context, renamed);
         host.toast("Saved " + RecorderRules.formatDuration(duration) + ".");
         host.invalidate();
+    }
+
+    /**
+     * Decodes the first frame of what was just recorded. If this device cannot play its own
+     * recording, the log says so at save time -- with the exception -- instead of waiting for
+     * the owner to press play and shrug.
+     */
+    private void selfTest(Context context, File file) {
+        MediaPlayer probe = null;
+        try {
+            probe = new MediaPlayer();
+            probe.setDataSource(file.getAbsolutePath());
+            probe.prepare();
+            AppLog.event(context, "recorder", "selftest ok " + file.getName()
+                    + " decodedMs=" + probe.getDuration());
+        } catch (Exception e) {
+            AppLog.event(context, "recorder", "selftest FAIL " + file.getName()
+                    + " bytes=" + file.length() + " " + e.getClass().getName()
+                    + ": " + String.valueOf(e.getMessage()));
+            host.toast("Saved, but this device cannot decode it -- the log has the reason.");
+        } finally {
+            if (probe != null) {
+                try { probe.release(); } catch (Exception ignored) { }
+            }
+        }
     }
 
     private void releaseRecorder() {
@@ -298,14 +351,28 @@ public final class RecorderScreen implements Screen {
         stopPlayback();
         File file = new File(folder(context), item.fileName);
         if (!file.isFile()) { host.toast("That file is missing."); return; }
+        logMediaVolume(context);
         try {
             player = new MediaPlayer();
+            player.setAudioAttributes(new android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build());
             player.setDataSource(file.getAbsolutePath());
             player.prepare();
-            player.start();
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override public void onCompletion(MediaPlayer mp) { stopPlayback(); }
             });
+            player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override public boolean onError(MediaPlayer mp, int what, int extra) {
+                    AppLog.event(pauseContext == null ? context : pauseContext, "recorder",
+                            "playback error what=" + what + " extra=" + extra);
+                    stopPlayback();
+                    return true;
+                }
+            });
+            player.start();
+            AppLog.event(context, "recorder", "play started decodedMs=" + player.getDuration());
         } catch (Exception e) {
             AppLog.event(context, "recorder", "play failed " + item.fileName + " "
                     + e.getClass().getName() + ": " + String.valueOf(e.getMessage()));
@@ -315,12 +382,93 @@ public final class RecorderScreen implements Screen {
         AppLog.event(context, "recorder", "play " + item.fileName + " bytes=" + file.length());
     }
 
+    /**
+     * Plays are silent when the media stream is at zero, and "silent" reads as "broken". The
+     * level goes to the log, and a zero stream gets the volume slider raised so the fix is
+     * visible on screen instead of mysterious.
+     */
+    private void logMediaVolume(Context context) {
+        try {
+            android.media.AudioManager audio =
+                    (android.media.AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (audio == null) return;
+            int level = audio.getStreamVolume(android.media.AudioManager.STREAM_MUSIC);
+            int max = audio.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC);
+            AppLog.event(context, "recorder", "media volume " + level + "/" + max);
+            if (level == 0) {
+                audio.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC,
+                        android.media.AudioManager.ADJUST_RAISE,
+                        android.media.AudioManager.FLAG_SHOW_UI);
+                host.toast("Media volume was zero -- playback was silent, not broken.");
+            }
+        } catch (Exception ignored) { }
+    }
+
     private void stopPlayback() {
         if (player != null) {
             try { if (player.isPlaying()) player.stop(); } catch (Exception ignored) { }
             try { player.release(); } catch (Exception ignored) { }
             player = null;
         }
+    }
+
+    /** Rename keeps the file, its duration and its index row intact; only the name moves. */
+    private void renameDialog(final Context context, final RecorderRules.Recording item) {
+        final UiKit ui = new UiKit(context, host.palette());
+        final EditText input = new EditText(context);
+        input.setText(item.fileName.replace(".m4a", ""));
+        input.setSingleLine(true);
+        input.setTextColor(ui.palette().text);
+        input.setHintTextColor(ui.palette().muted);
+        input.setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10));
+        input.setBackground(ui.shape(ui.palette().surface, 14));
+        LinearLayout box = ui.vbox();
+        box.setPadding(ui.dp(14), ui.dp(6), ui.dp(14), ui.dp(6));
+        box.addView(input, ui.lp(-1, -2));
+        new app.space.core.design.AppAlertBuilder(context, ui).setTitle("Rename recording")
+                .setView(box)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Rename", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        String wanted = app.space.core.data.ShareRules.renamedFile(
+                                input.getText().toString(), item.fileName);
+                        if (wanted == null) { host.toast("That name is empty."); return; }
+                        File from = new File(folder(context), item.fileName);
+                        File to = new File(folder(context), wanted);
+                        if (!from.isFile()) { host.toast("That file is missing."); return; }
+                        if (to.exists()) { host.toast("Another recording already has that name."); return; }
+                        if (!from.renameTo(to)) { host.toast("The system refused the rename."); return; }
+                        renameIndex(context, item.fileName, wanted);
+                        host.toast("Renamed.");
+                        host.invalidate();
+                    }
+                }).show();
+    }
+
+    private void renameIndex(Context context, String oldName, String newName) {
+        StringBuilder out = new StringBuilder();
+        for (String line : readIndex(context).split("\n")) {
+            if (line.isEmpty()) continue;
+            if (line.startsWith(oldName + "\t")) {
+                String[] parts = line.split("\t");
+                out.append(newName);
+                for (int i = 1; i < parts.length; i++) out.append('\t').append(parts[i]);
+                out.append('\n');
+            } else {
+                out.append(line).append('\n');
+            }
+        }
+        app.space.core.data.AppPrefs.prefs(context).edit()
+                .putString("recorder_index", out.toString()).apply();
+    }
+
+    private void forgetIndex(Context context, String name) {
+        StringBuilder out = new StringBuilder();
+        for (String line : readIndex(context).split("\n")) {
+            if (!line.isEmpty() && !line.startsWith(name + "\t")) out.append(line).append('\n');
+        }
+        app.space.core.data.AppPrefs.prefs(context).edit()
+                .putString("recorder_index", out.toString()).apply();
     }
 
     @Override

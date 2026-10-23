@@ -220,6 +220,10 @@ public final class PlaybackService extends Service {
             });
             player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override public boolean onError(MediaPlayer mp, int what, int extra) {
+                    // A failed track must leave a trace: the screen used to toast this, and a
+                    // service that skips in silence looks like the button did nothing.
+                    app.space.core.data.AppLog.event(PlaybackService.this, "music",
+                            "playback error " + track.title + " what=" + what + " extra=" + extra);
                     playing = false;
                     prepared = false;
                     skipOrFailQuietly();
@@ -228,6 +232,9 @@ public final class PlaybackService extends Service {
             });
             player.prepareAsync();
         } catch (Exception e) {
+            app.space.core.data.AppLog.event(this, "music",
+                    "open failed " + track.title + " " + e.getClass().getName()
+                    + ": " + String.valueOf(e.getMessage()));
             releasePlayer();
             skipOrFailQuietly();
         }

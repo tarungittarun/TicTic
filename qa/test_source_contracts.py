@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.1'", gradle)
-        self.assertIn("versionCode 38", gradle)
+        self.assertIn("versionName '3.12.2'", gradle)
+        self.assertIn("versionCode 39", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2578,7 +2578,8 @@ class CalculatorAppContracts(unittest.TestCase):
         # The shell wraps every screen root, and a wrapped parent starves weighted children:
         # that starvation is what floated the pad mid-screen on the owner's phone. The root
         # must claim the viewport height itself, or the weights are a promise nothing keeps.
-        self.assertIn("root.setMinimumHeight(context.getResources().getDisplayMetrics().heightPixels);", self.screen)
+        self.assertIn("int avail = ((View) parent).getHeight();", self.screen)
+        self.assertIn("lp.height = avail;", self.screen)
         self.assertIn("params.weight = 2f;", self.screen)  # equals spans the last two cells
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.

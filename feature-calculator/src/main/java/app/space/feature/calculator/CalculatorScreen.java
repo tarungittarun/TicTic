@@ -82,13 +82,30 @@ public final class CalculatorScreen implements Screen {
         final UiKit ui = new UiKit(context, host.palette());
         LinearLayout root = ui.vbox();
         root.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(10));
-        // The shell hands every screen's root wrap-content params, and a wrap-content
-        // parent gives weighted children nothing to distribute: on one device the keypad
-        // vanished, on the owner's it collapsed to text height and floated mid-screen with
-        // dead space below -- the opposite of Google, whose pad sits against the bottom.
-        // Claiming the viewport height here is what makes the weights real: the display
-        // takes its share of the top and the pad owns everything down to the bottom bar.
-        root.setMinimumHeight(context.getResources().getDisplayMetrics().heightPixels);
+        // The shell hands every screen's root wrap-content params, and a wrap-content parent
+        // gives weighted children nothing to distribute: on one device the keypad vanished,
+        // on the owner's it collapsed and floated mid-screen. Claiming the whole viewport
+        // overcorrected -- the host's real area is the viewport MINUS its header and bottom
+        // bar, so the claim pushed the mode row under the header and cut the equals row
+        // behind the bar. The durable answer is to stop guessing: at first layout, ask the
+        // actual parent for its actual height and fit it exactly. Weights then distribute
+        // real space, the display owns the top and the pad sits against the bottom, on any
+        // host chrome and any screen size.
+        root.post(new Runnable() {
+            @Override public void run() {
+                android.view.ViewParent parent = root.getParent();
+                if (parent instanceof View) {
+                    int avail = ((View) parent).getHeight();
+                    if (avail > 0) {
+                        android.view.ViewGroup.LayoutParams lp = root.getLayoutParams();
+                        if (lp != null && lp.height != avail) {
+                            lp.height = avail;
+                            root.setLayoutParams(lp);
+                        }
+                    }
+                }
+            }
+        });
 
         // ---- mode row first, small and quiet at the top where it reads as chrome, not as
         //      part of the calculator; Google shows nothing here and the pad must own the eye ----
@@ -172,11 +189,11 @@ public final class CalculatorScreen implements Screen {
                     button.setTextColor(android.graphics.Color.WHITE);
                     android.graphics.drawable.GradientDrawable pill =
                             new android.graphics.drawable.GradientDrawable();
-                    pill.setCornerRadius(ui.dp(30));
+                    pill.setCornerRadius(ui.dp(200)); // clamps to a stadium, Google's equals shape
                     pill.setColor(ui.palette().accent);
                     button.setBackground(pill);
                 } else {
-                    button.setTextSize(sciKey ? 18 : fnKey || opKey ? 24 : 30);
+                    button.setTextSize(sciKey ? 20 : fnKey || opKey ? 26 : 32);
                     button.setTextColor(fnKey || opKey || sciKey
                             ? ui.palette().accent : ui.palette().text);
                 }
@@ -217,7 +234,7 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         final TextView expressionView = ui.label(typed(), 46, ui.palette().text, false);
-        expressionView.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        expressionView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         expressionView.setSingleLine(true);
         exprScroll.addView(expressionView, new LinearLayout.LayoutParams(-2, -1));
         LinearLayout.LayoutParams sp = ui.lp(-1, 0);

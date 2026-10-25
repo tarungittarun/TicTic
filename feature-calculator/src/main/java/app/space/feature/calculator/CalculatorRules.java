@@ -50,7 +50,9 @@ public final class CalculatorRules {
         // or a run of zeroes. Rounding here is display only; the next calculation keeps the
         // full double.
         if (Math.abs(value) >= 1e15 || Math.abs(value) < 1e-9) {
-            return new java.math.BigDecimal(value).stripTrailingZeros().toString().replace('E', 'e');
+            // valueOf goes through Double.toString, the shortest decimal that round-trips:
+            // the raw BigDecimal(double) constructor would print the binary expansion.
+            return java.math.BigDecimal.valueOf(value).stripTrailingZeros().toString().replace('E', 'e');
         }
         String s = String.format(java.util.Locale.ROOT, "%.10f", value);
         while (s.endsWith("0")) s = s.substring(0, s.length() - 1);

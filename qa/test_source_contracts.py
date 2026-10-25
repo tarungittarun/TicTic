@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.4'", gradle)
-        self.assertIn("versionCode 41", gradle)
+        self.assertIn("versionName '3.12.5'", gradle)
+        self.assertIn("versionCode 42", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4206,6 +4206,50 @@ class CalcStandaloneContracts(unittest.TestCase):
         self.assertIn("int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;", self.screen)
         self.assertIn("CalculatorRules.toFraction(", self.screen)
         self.assertIn("public static String toFraction(double value)", self.rules)
+
+
+class SheetAndChevronContracts(unittest.TestCase):
+    """The owner's session of 2026-10-25 evening: eight points, three screenshots. The
+    chevron glyph was absent from his device font and collapsed to an unclickable sliver;
+    the history list could not scroll because the swipe container claimed every downward
+    drag; the sheet did not push the pad down the way Google's does; the M chip and the
+    Clear pill were unreadable; and the cursor still would not place. Each fix is pinned
+    here so none of them can regress quietly.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+
+    def test_the_chevron_is_drawn_not_typed(self):
+        # U+2303 rendered as nothing on his phone. A drawn double chevron renders on every
+        # device, and 48x40dp is a thumb target rather than a sliver.
+        self.assertIn("static final class ChevronView extends View", self.screen)
+        self.assertIn("protected void onDraw(android.graphics.Canvas c)", self.screen)
+        self.assertIn("chevronRow.addView(chevron, ui.lp(48, 40));", self.screen)
+
+    def test_the_history_list_scrolls_and_the_sheet_closes_like_googles(self):
+        # Stealing every downward drag is why three entries were all he could see. The drag
+        # belongs to the list unless the list is at its top; and an upward drag from the
+        # docked expression starts the collapse, his seventh point.
+        self.assertIn("sheetScroll.canScrollVertically(-1)", self.screen)
+        self.assertIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
+
+    def test_the_sheet_pushes_the_pad_down(self):
+        # Google's sheet fills the screen with the expression docked at the bottom and the
+        # keys gone below; the pad block animates to zero weight while it is open.
+        self.assertIn("animateWeight(padContainer, historyOpen ? 5f : 0f", self.screen)
+
+    def test_the_caret_is_placed_explicitly_on_tap(self):
+        # A selectable TextView swallowed the caret tap on his device, so the offset is
+        # computed from the layout and placed by hand, and the log records it.
+        self.assertIn("layout.getOffsetForHorizontal(line, x)", self.screen)
+        self.assertIn('"cursor placed at "', self.screen)
+
+    def test_the_chrome_controls_are_legible(self):
+        # The M chip was a speck in a pill; Clear was clipped by a fixed height.
+        self.assertIn("chip.setMinWidth(ui.dp(44));", self.screen)
+        self.assertIn("stack.setGravity(Gravity.LEFT);", self.screen)
 
 
 class OutcomeLogContracts(unittest.TestCase):

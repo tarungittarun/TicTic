@@ -135,8 +135,11 @@ public final class CalculatorScreen implements Screen {
     private View handle;
     private LinearLayout panelBox;
     private LinearLayout chipSlot;
-    private TextView chevron;
+    private ChevronView chevron;
     private PopupWindow menuPopup;
+    private LinearLayout padContainer;
+    private ScrollView historyScroll;
+    private SwipeBox displayArea;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
@@ -207,12 +210,13 @@ public final class CalculatorScreen implements Screen {
         });
 
         // ---- the display area: history sheet over a docked current expression ----
-        SwipeBox displayArea = new SwipeBox(context);
+        displayArea = new SwipeBox(context);
         displayArea.setOrientation(LinearLayout.VERTICAL);
         root.addView(displayArea, new LinearLayout.LayoutParams(-1, 0, 3f));
         displayArea.listener = new SwipeBox.Listener() {
             @Override public void onSwipeDown() { toggleHistory(context, ui); }
         };
+        displayArea.sheetOpen = historyOpen;
 
         historyBox = ui.vbox();
         historyBox.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
@@ -239,16 +243,16 @@ public final class CalculatorScreen implements Screen {
             LinearLayout chevronRow = ui.hbox();
             chevronRow.setGravity(Gravity.CENTER_VERTICAL);
             root.addView(chevronRow, ui.lp(-1, 40));
-            chevron = new TextView(context);
+            chevron = new ChevronView(context, ui.palette().accent, ui.palette().surface);
             styleChevron(ui);
-            chevronRow.addView(chevron, ui.lp(-2, 36));
+            chevronRow.addView(chevron, ui.lp(48, 40));
             chevron.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) { togglePanel(context, ui); }
             });
         }
 
         // ---- the pad: animated panel block over the always-present basic block ----
-        LinearLayout padContainer = ui.vbox();
+        padContainer = ui.vbox();
         root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
         panelBox = ui.vbox();
         panelBox.setVisibility(panelOpen && !landscape ? View.VISIBLE : View.GONE);
@@ -266,14 +270,57 @@ public final class CalculatorScreen implements Screen {
     }
 
     private void styleChevron(UiKit ui) {
-        chevron.setText(panelOpen ? "⌄" : "⌃");
-        chevron.setTextSize(18);
-        chevron.setTextColor(ui.palette().accent);
-        chevron.setGravity(Gravity.CENTER);
-        GradientDrawable border = pill(ui, ui.palette().surface, 18);
-        border.setStroke(ui.dp(1.5f), ui.palette().accent);
-        chevron.setBackground(border);
+        chevron.setDirection(panelOpen ? ChevronView.DOWN : ChevronView.UP);
         chevron.setContentDescription(panelOpen ? "Close the extra keys" : "Open the extra keys");
+    }
+
+    /**
+     * A chevron that is drawn, not typed. The U+2303/U+2304 glyphs the previous rounds used
+     * are absent from some device fonts -- on the owner's phone the pill collapsed to an
+     * unclickable sliver of border around nothing, which is his first point this round.
+     * Two stroked V's on a bordered pill render identically on every Android ever shipped,
+     * and the pill is now forty-eight by forty, comfortably a thumb target.
+     */
+    static final class ChevronView extends View {
+        static final int UP = 0, DOWN = 1;
+        private int direction = UP;
+        private final android.graphics.Paint paint = new android.graphics.Paint();
+
+        ChevronView(Context context, int color, int borderColor) {
+            super(context);
+            paint.setColor(color);
+            paint.setStyle(android.graphics.Paint.Style.STROKE);
+            paint.setStrokeWidth(context.getResources().getDisplayMetrics().density * 2.2f);
+            paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+            paint.setAntiAlias(true);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setCornerRadius(context.getResources().getDisplayMetrics().density * 20);
+            bg.setColor(borderColor);
+            bg.setStroke((int) (context.getResources().getDisplayMetrics().density * 1.5f), color);
+            setBackground(bg);
+        }
+
+        void setDirection(int d) { direction = d; invalidate(); }
+
+        @Override protected void onDraw(android.graphics.Canvas c) {
+            float w = getWidth(), h = getHeight();
+            float cx = w / 2f;
+            float dx = w * 0.15f;
+            float dy = h * 0.10f;
+            float rowGap = h * 0.16f;
+            // Two stacked V's: pointing up when the panel is closed (tap to grow the extra
+            // keys upward over the pad), pointing down when it is open (tap to fold them).
+            for (int i = 0; i < 2; i++) {
+                float y = h / 2f + (i == 0 ? -rowGap / 2 : rowGap / 2);
+                if (direction == UP) {
+                    c.drawLine(cx - dx, y + dy, cx, y - dy, paint);
+                    c.drawLine(cx, y - dy, cx + dx, y + dy, paint);
+                } else {
+                    c.drawLine(cx - dx, y - dy, cx, y + dy, paint);
+                    c.drawLine(cx, y + dy, cx + dx, y - dy, paint);
+                }
+            }
+        }
     }
 
     private static GradientDrawable pill(UiKit ui, int color, float radiusDp) {
@@ -413,6 +460,23 @@ public final class CalculatorScreen implements Screen {
         displayView.setFocusableInTouchMode(true);
         displayView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
         displayView.setTextColor(ui.palette().text);
+        displayView.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v, MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_UP && displayView.getLayout() != null) {
+                    android.text.Layout layout = displayView.getLayout();
+                    int x = (int) e.getX() - displayView.getCompoundPaddingLeft();
+                    int line = layout.getLineForVertical(
+                            (int) e.getY() - displayView.getCompoundPaddingTop());
+                    int off = layout.getOffsetForHorizontal(line, x);
+                    v.requestFocus();
+                    CharSequence cs = displayView.getText();
+                    if (cs instanceof Spannable) Selection.setSelection((Spannable) cs, off, off);
+                    caret = off;
+                    AppLog.event(lastContext, "calc", "cursor placed at " + off);
+                }
+                return false;
+            }
+        });
         exprScroll.addView(displayView, new LinearLayout.LayoutParams(-2, -1));
         LinearLayout.LayoutParams sp = ui.lp(-1, 0);
         sp.weight = 1f;
@@ -431,6 +495,7 @@ public final class CalculatorScreen implements Screen {
         if (displayView == null) return;
         String shown = typed();
         int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;
+        if (historyOpen) size = Math.min(size, 30);
         displayView.setTextSize(size);
         displayView.setText(shown);
         restoreCaret();
@@ -452,11 +517,15 @@ public final class CalculatorScreen implements Screen {
         LinearLayout head = ui.hbox();
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.setPadding(0, 0, 0, ui.dp(4));
-        historyBox.addView(head, ui.lp(-1, 34));
+        historyBox.addView(head, ui.lp(-1, 40));
         historyTitle = ui.label("", 14, ui.palette().text, true);
         head.addView(historyTitle, new LinearLayout.LayoutParams(0, -2, 1f));
         TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
-        head.addView(clear, ui.lp(-2, 32));
+        clear.setTextSize(13);
+        LinearLayout.LayoutParams clp = ui.lp(-2, -2);
+        clp.topMargin = ui.dp(3);
+        clp.bottomMargin = ui.dp(3);
+        head.addView(clear, clp);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 int entries = entryCount(context);
@@ -466,14 +535,17 @@ public final class CalculatorScreen implements Screen {
                 populateHistory(context, ui);
             }
         });
-        TextView close = ui.pillButton("⌃", ui.palette().surface, ui.palette().accent);
-        LinearLayout.LayoutParams cp = ui.lp(-2, 32);
+        ChevronView close = new ChevronView(context, ui.palette().accent, ui.palette().surface);
+        close.setDirection(ChevronView.UP);
+        close.setContentDescription("Close history");
+        LinearLayout.LayoutParams cp = ui.lp(40, 34);
         cp.leftMargin = ui.dp(6);
         head.addView(close, cp);
         close.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { toggleHistory(context, ui); }
         });
-        ScrollView scroll = new ScrollView(context);
+        historyScroll = new ScrollView(context);
+        final ScrollView scroll = historyScroll;
         scroll.setVerticalScrollBarEnabled(false);
         historyList = ui.vbox();
         scroll.addView(historyList, new LinearLayout.LayoutParams(-1, -2));
@@ -501,12 +573,13 @@ public final class CalculatorScreen implements Screen {
             pair.setGravity(Gravity.CENTER_VERTICAL);
             line.addView(pair, ui.lp(-1, -2));
             LinearLayout stack = ui.vbox();
+            stack.setGravity(Gravity.LEFT);
             pair.addView(stack, new LinearLayout.LayoutParams(0, -2, 1f));
             TextView e = ui.label(expr, 13, ui.palette().muted, false);
-            e.setGravity(Gravity.RIGHT);
+            e.setGravity(Gravity.LEFT);
             stack.addView(e, ui.lp(-1, -2));
             TextView r = ui.label(value, 17, ui.palette().text, true);
-            r.setGravity(Gravity.RIGHT);
+            r.setGravity(Gravity.LEFT);
             stack.addView(r, ui.lp(-1, -2));
             TextView when = ui.label(stamp(context, entry[2]), 10, ui.palette().muted, false);
             when.setGravity(Gravity.RIGHT | Gravity.TOP);
@@ -571,6 +644,16 @@ public final class CalculatorScreen implements Screen {
                 : "history collapsed: display back to full height");
         handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
         historyBox.setVisibility(View.VISIBLE);
+        if (!historyOpen) padContainer.setVisibility(View.VISIBLE);
+        animateWeight(padContainer, historyOpen ? 5f : 0f, historyOpen ? 0f : 5f,
+                new Runnable() {
+                    @Override public void run() {
+                        if (historyOpen) padContainer.setVisibility(View.GONE);
+                    }
+                });
+        displayArea.sheetOpen = historyOpen;
+        displayArea.sheetScroll = historyScroll;
+        displayArea.dock = currentBox;
         animateWeight(historyBox, historyOpen ? 0f : 2.2f, historyOpen ? 2.2f : 0f,
                 new Runnable() {
                     @Override public void run() {
@@ -632,8 +715,10 @@ public final class CalculatorScreen implements Screen {
         chipSlot.removeAllViews();
         if (!AppPrefs.prefs(context).contains(MEMORY_KEY)) return;
         TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
-        chip.setTextSize(10);
-        LinearLayout.LayoutParams chp = ui.lp(-2, 28);
+        chip.setTextSize(15);
+        chip.setTypeface(chip.getTypeface(), android.graphics.Typeface.BOLD);
+        chip.setMinWidth(ui.dp(44));
+        LinearLayout.LayoutParams chp = ui.lp(-2, 34);
         chp.leftMargin = ui.dp(6);
         chipSlot.addView(chip, chp);
         chip.setOnClickListener(new View.OnClickListener() {
@@ -708,8 +793,11 @@ public final class CalculatorScreen implements Screen {
     static final class SwipeBox extends LinearLayout {
         interface Listener { void onSwipeDown(); }
         Listener listener;
+        boolean sheetOpen;
+        ScrollView sheetScroll;
+        View dock;
         private float downX, downY;
-        private boolean claimed;
+        private boolean claimed, downInDock;
 
         SwipeBox(Context context) { super(context); }
 
@@ -719,11 +807,27 @@ public final class CalculatorScreen implements Screen {
                     downX = e.getX();
                     downY = e.getY();
                     claimed = false;
+                    downInDock = dock != null && e.getY() >= dock.getTop();
                     return false;
                 case MotionEvent.ACTION_MOVE:
                     float dy = e.getY() - downY;
                     float dx = e.getX() - downX;
-                    if (!claimed && dy > 60 && dy > Math.abs(dx) * 2) {
+                    boolean downward = dy > 60 && dy > Math.abs(dx) * 2;
+                    boolean upwardFromDock = sheetOpen && downInDock
+                            && dy < -60 && -dy > Math.abs(dx) * 2;
+                    if (!claimed && downward) {
+                        // With the sheet open the drag belongs to the history list unless
+                        // the list is already at its top -- then it is Google's
+                        // drag-down-to-close. Stealing every downward drag is exactly why
+                        // the owner could not scroll past three entries.
+                        if (sheetOpen && sheetScroll != null
+                                && sheetScroll.canScrollVertically(-1)) return false;
+                        claimed = true;
+                        return true;
+                    }
+                    if (!claimed && upwardFromDock) {
+                        // His seventh point: scrolling up from the expression dock starts
+                        // the collapse that brings the keys back.
                         claimed = true;
                         return true;
                     }

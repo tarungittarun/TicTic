@@ -174,7 +174,11 @@ public class CalculatorRulesTest {
         assertEquals("5%", CalculatorRules.append("5", "%"));
         assertEquals("(5)%", CalculatorRules.append("(5)", "%"));
         assertNull(CalculatorRules.append("", "%"));
-        assertNull(CalculatorRules.append("5+", "%"));
+        // Over a pending operator the percent is a changed mind like any other operator:
+        // 10+ then % is 10% (owner, 2026-10-26). Without an operand before the operator it
+        // is still refused: a percent with nothing to belong to is not mathematics.
+        assertEquals("5%", CalculatorRules.append("5+", "%"));
+        assertNull(CalculatorRules.append("+", "%"));
         assertNull(CalculatorRules.append("5%", "%"));
     }
 

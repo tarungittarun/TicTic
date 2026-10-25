@@ -1,5 +1,6 @@
 package app.space.feature.calculator;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Selection;
@@ -7,66 +8,72 @@ import android.text.Spannable;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import app.space.core.data.AppLog;
 import app.space.core.data.AppPrefs;
+import app.space.core.design.TicIconView;
 import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;
 import app.space.core.suite.ScreenHost;
 
 /**
- * The calculator, rebuilt a third time against the owner's side-by-side screenshots of
- * Google's calculator (2026-10-25): "Even after giving you proper reference app to recreate,
- * still you are too behind to adopt the same."
+ * The calculator, rebuilt a fourth time against the owner's on-device session of
+ * 2026-10-25 -- thirteen numbered points, seven screenshots, and a shared log that
+ * convicted the previous architecture: one "calc laid out" line after EVERY key press,
+ * because every key press rebuilt the entire screen.
  *
- * <p>What the screenshots showed and this revision adopts, point by point:
+ * <p>That rebuild was the root of four of his complaints at once. It is why the screen
+ * blinked on every tap (point 4); why the cursor could never be placed or moved, because
+ * the view holding the caret was destroyed and recreated between the tap and the next
+ * (point 12); why transitions were impossible, because nothing survived to animate
+ * (points 2 and 11); and why the display could look empty while the log showed keys
+ * landing. So the rule of this revision: <b>a key press updates views in place and
+ * rebuilds nothing.</b> The screen is built once per structural change -- orientation,
+ * history open or closed, the memory chip appearing -- and everything else is a setText,
+ * a weight, an alpha.
+ *
+ * <p>His other points, against his words:
  * <ul>
- *   <li><b>Keys are buttons.</b> Google's pad is filled shapes with gaps between them --
- *       circles and stadiums on a dark ground, digits one fill, operators a lighter fill,
- *       AC saturated, equals saturated. Ours was bare glyphs floating on the background,
- *       which read as text, not as something to press. Every key here is a filled stadium
- *       with a margin on all four sides, in four visual classes.</li>
- *   <li><b>Google's key order.</b> AC, ( ), %, divide / 7 8 9 times / 4 5 6 minus /
- *       1 2 3 plus / 0 . backspace equals -- the bracket key on the basic pad and the
- *       backspace in the bottom row are exactly where Google keeps them, and equals is one
- *       cell, not a double-width slab.</li>
- *   <li><b>The expandable scientific panel.</b> Google's portrait keeps the basic pad and
- *       grows three rows above it from a chevron at the pad's top edge -- sqrt, pi, power,
- *       factorial / Deg, sin, cos, tan / Inv, e, ln, log -- and collapses them again. The
- *       old page-swap is gone; the chevron opens and closes the panel over the same pad.</li>
- *   <li><b>An editable expression.</b> The display is selectable text with a caret: tap to
- *       place the cursor, drag or hold to select, and every key inserts at the cursor --
- *       validated by replaying the whole expression through the rules, so an insertion that
- *       would break the grammar is refused exactly as appending it would be.</li>
- *   <li><b>Gestures that fire.</b> The swipe-down and the hold lived on a container whose
- *       children consumed every touch, so neither ever ran on a real phone -- which is what
- *       "not working" meant in the owner's report. The swipe now lives in a container that
- *       intercepts its own gesture, and the hold is the framework's own select-and-copy,
- *       because selecting text is what the owner actually wanted the hold to do.</li>
+ *   <li><b>Bigger keys, his shapes</b> (1): the pad's margins tightened and the display's
+ *       share trimmed so the keys get the space; basic keys are rounded SQUARES, the
+ *       scientific panel's shorter rows rounded RECTANGLES, the two radii distinct.</li>
+ *   <li><b>Smooth transitions</b> (2, 7, 11): the scientific panel grows and collapses by
+ *       animating its row-block's weight; the history sheet expands into the display area
+ *       the same way, with the current expression docked beneath it so the calculator is
+ *       never more than a scroll up (8); the menu rises as a popup. Every one carries an
+ *       alpha with it, and history rows, dock and pad keep separate colours, sizes and
+ *       borders so the sections never blur into each other.</li>
+ *   <li><b>No captions</b> (3): nothing on screen says "scientific" or "basic".</li>
+ *   <li><b>A visible chevron</b> (5): a bordered, accent-coloured pill with a double
+ *       chevron, flip-facing for open and closed.</li>
+ *   <li><b>The mystery dot is gone</b> (6): the top-left pill that read as a button and a
+ *       dot is replaced by a real History button carrying the clock-with-arrow glyph; the
+ *       overflow became a labelled Menu pill, because an unlabelled dot was exactly what
+ *       he could not read.</li>
+ *   <li><b>History as Google sheets it</b> (7, 8, 9, 10): entries expand over the display
+ *       with the current expression docked at the bottom; each line carries its timestamp
+ *       -- "25th Oct, 17:15" -- to the right of the expression; tapping a line puts that
+ *       line's EXPRESSION into the expression view, not merely its result; Clear and close
+ *       sit in the sheet's header.</li>
  * </ul>
  *
- * <p>What earlier rounds built and this keeps: the live grey result under the display,
- * postfix contextual percent, history persisted in prefs with tap-to-reuse and a Clear
- * button while it is shown, the memory slot with its M chip, the decimal/fraction view,
- * hardware-keyboard entry through {@link #typeKey}, the landscape six-column combined grid,
- * the three-step display shrink, haptics, and the parent-fit layout rule this screen died
- * once for (keys take their height from the row; the root asks its real parent for its real
- * height at first layout).
- *
- * <p>Every user action writes an outcome line to the diagnostics log -- what was pressed,
- * what the expression became, what was refused and why, what history showed, what copy put
- * on the clipboard, what size the layout actually got. The owner's instruction of
- * 2026-10-25: "let the logs record in detail about user activity and whether those actions
- * got happened or not." A log line that cannot fail is not an outcome, so each one carries
- * the result of the action it describes.
+ * <p>What earlier rounds built and this keeps: Google's key order and filled separated
+ * buttons, the editable caret with whole-expression replay validation, the intercepted
+ * swipe-down, framework select-and-copy on the display, postfix percent, the memory slot,
+ * the fraction view, hardware keys through {@link #typeKey}, the landscape combined grid,
+ * the three-step display shrink, haptics, and the parent-fit rule this screen died once
+ * for. Every action still writes its outcome to the diagnostics log -- now one line per
+ * action instead of two, because the layout no longer re-measures on every tap.
  */
 public final class CalculatorScreen implements Screen {
 
-    /** The basic pad in Google's order. The bracket key and the bottom-row backspace are his. */
+    /** The basic pad in Google's order. Rounded squares. */
     private static final String[][] BASE_ROWS = {
             {"AC", "( )", "%", "÷"},
             {"7", "8", "9", "×"},
@@ -75,24 +82,14 @@ public final class CalculatorScreen implements Screen {
             {"0", ".", "⌫", "="},
     };
 
-    /**
-     * The scientific panel Google grows above the basic pad from the chevron: three rows,
-     * his order, with the Deg and Inv toggles living inside the panel as keys, which is
-     * where his screenshot keeps them. Labels are resolved at build time so Inv renames
-     * the trigonometric row in place.
-     */
+    /** Google's scientific rows, grown over the pad by the chevron. Rounded rectangles. */
     private static final String[][] PANEL_ROWS = {
             {"√(", "π", "^", "!"},
             {"Deg", "sin(", "cos(", "tan("},
             {"Inv", "e", "ln(", "log("},
     };
 
-    /**
-     * Landscape, the way Google does it: the scientific column-pair joins the basic pad in
-     * one six-column grid, because a rotated phone has the width and nobody should page
-     * between halves of a calculator. Deg and Inv come along as keys; ln and e stay in the
-     * portrait panel, the two constants a rotated phone can spare.
-     */
+    /** Landscape: the scientific column-pair joined to the basic pad, Google's way. */
     private static final String[][] LANDSCAPE_ROWS = {
             {"√(", "π", "AC", "( )", "%", "÷"},
             {"Deg", "Inv", "7", "8", "9", "×"},
@@ -104,6 +101,7 @@ public final class CalculatorScreen implements Screen {
     private static final String HISTORY_KEY = "calculator_history";
     private static final String MEMORY_KEY = "calculator_memory";
     private static final int HISTORY_CAP = 50;
+    private static final int ANIM_MS = 220;
 
     /** Key visual classes: four fills, the way Google's pad reads at a glance. */
     private static final int DIGIT = 0, OP = 1, CMD = 2, EQ = 3, TOG = 4;
@@ -126,7 +124,19 @@ public final class CalculatorScreen implements Screen {
     private boolean showFraction;
     private int caret;
     private Context lastContext;
+
+    // View references, so a key press never rebuilds anything.
     private TextView displayView;
+    private TextView previewView;
+    private LinearLayout historyBox;
+    private LinearLayout historyList;
+    private TextView historyTitle;
+    private LinearLayout currentBox;
+    private View handle;
+    private LinearLayout panelBox;
+    private LinearLayout chipSlot;
+    private TextView chevron;
+    private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
         this.host = host;
@@ -137,22 +147,16 @@ public final class CalculatorScreen implements Screen {
     @Override
     public View build(final Context context) {
         lastContext = context;
-        displayView = null;
+        capButtons = new java.util.HashMap<>();
         final UiKit ui = new UiKit(context, host.palette());
-        LinearLayout root = ui.vbox();
-        root.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(10));
-        // The shell hands every screen's root wrap-content params, and a wrap-content parent
-        // gives weighted children nothing to distribute: on one device the keypad vanished,
-        // on the owner's it collapsed and floated mid-screen. Claiming the whole viewport
-        // overcorrected -- the host's real area is the viewport MINUS its header and bottom
-        // bar, so the claim pushed the mode row under the header and cut the equals row
-        // behind the bar. The durable answer is to stop guessing: at first layout, ask the
-        // actual parent for its actual height and fit it exactly. Weights then distribute
-        // real space, the display owns the top and the pad sits against the bottom, on any
-        // host chrome and any screen size.
-        final boolean landscapeAtBuild = context.getResources().getConfiguration().orientation
+        final boolean landscape = context.getResources().getConfiguration().orientation
                 == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-        final int rowsAtBuild = padRowCount(landscapeAtBuild);
+        LinearLayout root = ui.vbox();
+        root.setPadding(ui.dp(12), ui.dp(8), ui.dp(12), ui.dp(10));
+        // The shell hands every screen's root wrap-content params, and a wrap-content parent
+        // gives weighted children nothing to distribute. At first layout, ask the actual
+        // parent for its actual height and fit it exactly; weights then distribute real
+        // space on any host chrome and any screen size.
         root.post(new Runnable() {
             @Override public void run() {
                 android.view.ViewParent parent = root.getParent();
@@ -164,129 +168,143 @@ public final class CalculatorScreen implements Screen {
                             lp.height = avail;
                             root.setLayoutParams(lp);
                         }
-                        // The outcome line: not "the screen built" but what the layout
-                        // actually became, which is the half a build log cannot see.
                         AppLog.event(context, "calc", "laid out: parent " + avail
-                                + "px tall, pad " + rowsAtBuild + " rows, panel "
-                                + (panelOpen ? "open" : "closed"));
+                                + "px tall, pad " + (landscape ? LANDSCAPE_ROWS.length
+                                : BASE_ROWS.length + (panelOpen ? PANEL_ROWS.length : 0))
+                                + " rows, panel " + (panelOpen ? "open" : "closed"));
                     }
                 }
             }
         });
 
-        // ---- the quiet chrome row: memory chip, overflow menu, and the gesture hint ----
+        // ---- chrome row: a real History button, the memory chip, a labelled Menu ----
         LinearLayout modes = ui.hbox();
         modes.setGravity(Gravity.CENTER_VERTICAL);
-        root.addView(modes, ui.lp(-1, 30));
-        if (AppPrefs.prefs(context).contains(MEMORY_KEY)) {
-            TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
-            chip.setTextSize(10);
-            modes.addView(chip, ui.lp(-2, 28));
-            chip.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
-                    insertNumber(context, stored);
-                    AppLog.event(context, "calc", "memory recalled: " + stored
-                            + " inserted, expression now " + readable(expression.toString()));
-                    host.invalidate();
-                }
-            });
-        }
-        TextView menu = ui.pillButton("⋮", ui.palette().surface, ui.palette().muted);
+        root.addView(modes, ui.lp(-1, 38));
+        LinearLayout historyBtn = new LinearLayout(context);
+        historyBtn.setOrientation(LinearLayout.HORIZONTAL);
+        historyBtn.setGravity(Gravity.CENTER);
+        historyBtn.setBackground(pill(ui, ui.palette().surface, 19));
+        historyBtn.setPadding(ui.dp(10), ui.dp(6), ui.dp(10), ui.dp(6));
+        historyBtn.addView(new TicIconView(context, TicIconView.HISTORY, ui.palette().accent),
+                ui.lp(18, 18));
+        historyBtn.setContentDescription("History");
+        modes.addView(historyBtn, ui.lp(-2, 34));
+        historyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { toggleHistory(context, ui); }
+        });
+        chipSlot = ui.hbox();
+        modes.addView(chipSlot, ui.lp(-2, 34));
+        rebuildChip(context, ui);
+        TextView menu = ui.pillButton("Menu", ui.palette().surface, ui.palette().muted);
         menu.setTextSize(12);
-        LinearLayout.LayoutParams mnp = ui.lp(-2, 28);
+        LinearLayout.LayoutParams mnp = ui.lp(-2, 34);
         mnp.leftMargin = ui.dp(6);
         modes.addView(menu, mnp);
         menu.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { openMenu(context); }
+            @Override public void onClick(View v) { openMenu(context, ui, v); }
         });
-        TextView hint = ui.label("tap: cursor · hold: select/copy · swipe down: history",
-                9, ui.palette().muted, false);
-        hint.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-        modes.addView(hint, new LinearLayout.LayoutParams(0, 30, 1f));
 
-        // ---- the display area: a container that owns the swipe-down gesture itself ----
-        SwipeBox display = new SwipeBox(context);
-        display.setOrientation(LinearLayout.VERTICAL);
-        root.addView(display, new LinearLayout.LayoutParams(-1, 0, 3f));
-        display.listener = new SwipeBox.Listener() {
-            @Override public void onSwipeDown() {
-                historyOpen = !historyOpen;
-                AppLog.event(context, "calc", (historyOpen ? "swipe down: history shown, "
-                        + entryCount(context) + " entries" : "swipe up: history closed"));
-                host.invalidate();
-            }
+        // ---- the display area: history sheet over a docked current expression ----
+        SwipeBox displayArea = new SwipeBox(context);
+        displayArea.setOrientation(LinearLayout.VERTICAL);
+        root.addView(displayArea, new LinearLayout.LayoutParams(-1, 0, 3f));
+        displayArea.listener = new SwipeBox.Listener() {
+            @Override public void onSwipeDown() { toggleHistory(context, ui); }
         };
 
-        if (historyOpen) {
-            buildHistoryPage(context, ui, display);
-        } else {
-            buildDisplay(context, ui, display);
-        }
+        historyBox = ui.vbox();
+        historyBox.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
+        displayArea.addView(historyBox, new LinearLayout.LayoutParams(-1, 0, historyOpen ? 2.2f : 0f));
+        buildHistoryChrome(context, ui);
 
-        // ---- Google's chevron: the scientific panel grows over the basic pad ----
-        if (!landscapeAtBuild) {
+        currentBox = ui.vbox();
+        displayArea.addView(currentBox, new LinearLayout.LayoutParams(-1, 0, historyOpen ? 0.8f : 3f));
+        handle = new View(context);
+        GradientDrawable hb = new GradientDrawable();
+        hb.setCornerRadius(ui.dp(2));
+        hb.setColor(ui.palette().muted);
+        handle.setBackground(hb);
+        handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
+        LinearLayout.LayoutParams hp = ui.lp(40, 4);
+        hp.topMargin = ui.dp(4);
+        hp.bottomMargin = ui.dp(2);
+        hp.gravity = Gravity.CENTER_HORIZONTAL;
+        currentBox.addView(handle, hp);
+        buildDisplay(context, ui, currentBox);
+
+        // ---- Google's chevron, bordered and accent-coloured so it reads at a glance ----
+        if (!landscape) {
             LinearLayout chevronRow = ui.hbox();
             chevronRow.setGravity(Gravity.CENTER_VERTICAL);
-            root.addView(chevronRow, ui.lp(-1, 30));
-            TextView chevron = ui.pillButton(panelOpen ? "⌄" : "⌃",
-                    ui.palette().surface, ui.palette().accent);
-            chevron.setTextSize(12);
-            chevron.setContentDescription(panelOpen ? "Close scientific keys"
-                    : "Open scientific keys");
-            chevronRow.addView(chevron, ui.lp(-2, 28));
+            root.addView(chevronRow, ui.lp(-1, 40));
+            chevron = new TextView(context);
+            styleChevron(ui);
+            chevronRow.addView(chevron, ui.lp(-2, 36));
             chevron.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    panelOpen = !panelOpen;
-                    AppLog.event(context, "calc", panelOpen
-                            ? "scientific panel expanded: 3 rows added above the pad"
-                            : "scientific panel collapsed: back to the basic pad");
-                    host.invalidate();
-                }
+                @Override public void onClick(View v) { togglePanel(context, ui); }
             });
-            chevronRow.addView(ui.label(panelOpen ? "scientific" : "",
-                    9, ui.palette().muted, false), ui.lp(-2, -2));
         }
 
-        // ---- the pad: filled, separated buttons, Google's order ----
-        String[][] rows = landscapeAtBuild ? LANDSCAPE_ROWS
-                : panelOpen ? combined(PANEL_ROWS, BASE_ROWS) : BASE_ROWS;
-        for (String[] rowKeys : rows) {
-            LinearLayout row = ui.hbox();
-            for (String rawKey : rowKeys) {
-                final String key = labelFor(rawKey);
-                TextView button = keyButton(context, ui, key);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -1, 1f);
-                // Separated buttons: a gap on every side, which is what makes each key read
-                // as its own button instead of a glyph in a grid of nothing.
-                params.leftMargin = ui.dp(5);
-                params.rightMargin = ui.dp(5);
-                params.topMargin = ui.dp(5);
-                params.bottomMargin = ui.dp(5);
-                row.addView(button, params);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
-                        press(context, key);
-                        host.invalidate();
-                    }
-                });
-            }
-            root.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));
+        // ---- the pad: animated panel block over the always-present basic block ----
+        LinearLayout padContainer = ui.vbox();
+        root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
+        panelBox = ui.vbox();
+        panelBox.setVisibility(panelOpen && !landscape ? View.VISIBLE : View.GONE);
+        padContainer.addView(panelBox, new LinearLayout.LayoutParams(-1, 0,
+                panelOpen && !landscape ? 3f : 0f));
+        if (!landscape) {
+            for (String[] row : PANEL_ROWS) addPadRow(context, ui, panelBox, row, 12);
+        }
+        LinearLayout baseBox = ui.vbox();
+        padContainer.addView(baseBox, new LinearLayout.LayoutParams(-1, 0, 5f));
+        for (String[] row : (landscape ? LANDSCAPE_ROWS : BASE_ROWS)) {
+            addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);
         }
         return root;
     }
 
-    private int padRowCount(boolean landscape) {
-        if (landscape) return LANDSCAPE_ROWS.length;
-        return BASE_ROWS.length + (panelOpen ? PANEL_ROWS.length : 0);
+    private void styleChevron(UiKit ui) {
+        chevron.setText(panelOpen ? "⌄" : "⌃");
+        chevron.setTextSize(18);
+        chevron.setTextColor(ui.palette().accent);
+        chevron.setGravity(Gravity.CENTER);
+        GradientDrawable border = pill(ui, ui.palette().surface, 18);
+        border.setStroke(ui.dp(1.5f), ui.palette().accent);
+        chevron.setBackground(border);
+        chevron.setContentDescription(panelOpen ? "Close the extra keys" : "Open the extra keys");
     }
 
-    private static String[][] combined(String[][] a, String[][] b) {
-        String[][] out = new String[a.length + b.length][];
-        System.arraycopy(a, 0, out, 0, a.length);
-        System.arraycopy(b, 0, out, a.length, b.length);
-        return out;
+    private static GradientDrawable pill(UiKit ui, int color, float radiusDp) {
+        GradientDrawable d = new GradientDrawable();
+        d.setCornerRadius(ui.dp(radiusDp));
+        d.setColor(color);
+        return d;
+    }
+
+    /** One pad row of filled, separated buttons. Radius differs by block: the owner asked
+     *  for rounded squares on the basic pad and rounded rectangles on the scientific one. */
+    private void addPadRow(Context context, UiKit ui, LinearLayout parent, String[] rowKeys,
+                           float radiusDp) {
+        LinearLayout row = ui.hbox();
+        for (String rawKey : rowKeys) {
+            final String key = labelFor(rawKey);
+            TextView button = keyButton(context, ui, key, radiusDp);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -1, 1f);
+            params.leftMargin = ui.dp(4);
+            params.rightMargin = ui.dp(4);
+            params.topMargin = ui.dp(4);
+            params.bottomMargin = ui.dp(4);
+            row.addView(button, params);
+            capButtons.put(rawKey, button);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                    press(context, key);
+                }
+            });
+        }
+        parent.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));
     }
 
     /** Inv renames the trigonometric caps in place, the way Google's Inv toggle does. */
@@ -299,13 +317,14 @@ public final class CalculatorScreen implements Screen {
         return key;
     }
 
-    /**
-     * One filled stadium button. Four visual classes, because Google's pad is not one colour
-     * of key: digits sit on the card fill, operators on a lighter tinted fill, AC and the
-     * active toggles on a saturated tint, equals on the accent itself. Bare glyphs on the
-     * background -- what this screen had until now -- read as text, not as buttons.
-     */
-    private TextView keyButton(Context context, UiKit ui, String key) {
+    /** Relabel the toggle-driven caps without rebuilding a single view. */
+    private void relabelCaps() {
+        for (java.util.Map.Entry<String, TextView> e : capButtons.entrySet()) {
+            e.getValue().setText(labelFor(e.getKey()));
+        }
+    }
+
+    private TextView keyButton(Context context, UiKit ui, String key, float radiusDp) {
         int kind = kindOf(key);
         boolean toggleOn = ("Deg".equals(key) && !degrees) || ("Inv".equals(key) && invMode);
         int fill;
@@ -315,28 +334,28 @@ public final class CalculatorScreen implements Screen {
             case EQ:
                 fill = ui.palette().accent;
                 ink = android.graphics.Color.WHITE;
-                size = 24;
+                size = 26;
                 break;
             case CMD:
                 fill = mix(ui.palette().surface, ui.palette().accent, 0.42f);
                 ink = android.graphics.Color.WHITE;
-                size = 20;
+                size = 22;
                 break;
             case TOG:
                 fill = toggleOn ? mix(ui.palette().surface, ui.palette().accent, 0.42f)
                         : mix(ui.palette().surface, ui.palette().accent, 0.16f);
                 ink = toggleOn ? android.graphics.Color.WHITE : ui.palette().accent;
-                size = 15;
+                size = 16;
                 break;
             case OP:
                 fill = mix(ui.palette().surface, ui.palette().accent, 0.16f);
                 ink = ui.palette().accent;
-                size = isScientificCap(key) ? 18 : "( )".equals(key) || "⌫".equals(key) ? 20 : 24;
+                size = isScientificCap(key) ? 19 : "( )".equals(key) || "⌫".equals(key) ? 22 : 26;
                 break;
             default:
                 fill = ui.palette().surface;
                 ink = ui.palette().text;
-                size = isScientificCap(key) ? 18 : 28;
+                size = isScientificCap(key) ? 19 : 30;
                 break;
         }
         TextView button = new TextView(context);
@@ -346,9 +365,7 @@ public final class CalculatorScreen implements Screen {
         button.setTextSize(size);
         button.setTextColor(ink);
         GradientDrawable shape = new GradientDrawable();
-        // A stadium: the radius clamps to half the height, which is Google's expanded-key
-        // silhouette and reads as a button at any cell proportion.
-        shape.setCornerRadius(ui.dp(200));
+        shape.setCornerRadius(ui.dp(radiusDp));
         shape.setColor(fill);
         button.setBackground(shape);
         button.setContentDescription(key);
@@ -377,76 +394,75 @@ public final class CalculatorScreen implements Screen {
                 | ((int) (ag + (bg - ag) * t) << 8) | (int) (ab + (bb - ab) * t);
     }
 
-    /**
-     * The live display: selectable text with a caret, in a filling scroller.
-     *
-     * <p>Selectable is the whole point: the owner's third complaint was that the display
-     * would not even let him select what he wanted. The framework gives a selectable
-     * TextView the caret, the drag handles and the copy menu for free, and every key
-     * inserts at the caret, so the typed equation is editable exactly like his second
-     * complaint asked. The caret is restored after every rebuild, because the views are
-     * rebuilt on each invalidate but the position is the user's, not ours.
-     */
-    private void buildDisplay(Context context, UiKit ui, LinearLayout display) {
+    // ---- the docked current expression ----------------------------------------------------
+
+    /** Selectable text with a caret: tap places the cursor, hold and drag select, and every
+     *  key inserts at the cursor. The view is created once and only ever setText afterwards,
+     *  which is what finally lets the caret survive between taps. */
+    private void buildDisplay(Context context, UiKit ui, LinearLayout parent) {
         final HorizontalScrollView exprScroll = new HorizontalScrollView(context);
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        // Long numbers shrink instead of scrolling away: three sizes, chosen by length,
-        // so a twelve-digit result is still legible and a forty-character expression fits.
-        int shown = typed().length();
-        int size = shown > 20 ? 26 : shown > 12 ? 34 : 46;
-        final TextView expressionView = ui.label(typed(), size, ui.palette().text, false);
-        expressionView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
-        expressionView.setSingleLine(true);
-        expressionView.setTextIsSelectable(true);
-        expressionView.setFocusable(true);
-        expressionView.setFocusableInTouchMode(true);
-        expressionView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
-        displayView = expressionView;
-        restoreCaret(expressionView);
-        exprScroll.addView(expressionView, new LinearLayout.LayoutParams(-2, -1));
+        displayView = new TextView(context);
+        displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
+        displayView.setMaxLines(1);
+        displayView.setTextIsSelectable(true);
+        displayView.setFocusable(true);
+        displayView.setFocusableInTouchMode(true);
+        displayView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
+        displayView.setTextColor(ui.palette().text);
+        exprScroll.addView(displayView, new LinearLayout.LayoutParams(-2, -1));
         LinearLayout.LayoutParams sp = ui.lp(-1, 0);
         sp.weight = 1f;
-        display.addView(exprScroll, sp);
-        exprScroll.post(new Runnable() {
-            @Override public void run() { exprScroll.fullScroll(View.FOCUS_RIGHT); }
-        });
-
-        final TextView previewView = ui.label(preview(), 17, ui.palette().muted, false);
+        parent.addView(exprScroll, sp);
+        previewView = ui.label(" ", 17, ui.palette().muted, false);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
-        display.addView(previewView, ui.lp(-1, -2));
+        parent.addView(previewView, ui.lp(-1, -2));
+        refreshDisplay(context);
+        displayView.requestFocus();
     }
 
-    private void restoreCaret(TextView view) {
-        if (justEvaluated) return;
-        CharSequence cs = view.getText();
+    /** The in-place refresh: new text, new size, caret restored. No view is created here. */
+    private void refreshDisplay(Context context) {
+        if (displayView == null) return;
+        String shown = typed();
+        int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;
+        displayView.setTextSize(size);
+        displayView.setText(shown);
+        restoreCaret();
+        previewView.setText(preview());
+    }
+
+    private void restoreCaret() {
+        if (justEvaluated || displayView == null) return;
+        CharSequence cs = displayView.getText();
         if (cs instanceof Spannable) {
             int pos = Math.max(0, Math.min(caret, cs.length()));
             Selection.setSelection((Spannable) cs, pos, pos);
         }
     }
 
-    /** Google's history: newest first, tap a line to reuse its result, clear when you want. */
-    private void buildHistoryPage(final Context context, UiKit ui, LinearLayout display) {
+    // ---- the history sheet -----------------------------------------------------------------
+
+    private void buildHistoryChrome(final Context context, final UiKit ui) {
         LinearLayout head = ui.hbox();
         head.setGravity(Gravity.CENTER_VERTICAL);
-        display.addView(head, ui.lp(-1, 34));
-        final int entries = entryCount(context);
-        head.addView(ui.label("History" + (entries > 0 ? " · " + entries : ""),
-                14, ui.palette().text, true), new LinearLayout.LayoutParams(0, -2, 1f));
-        // The owner's fifth point, verbatim: when history is shown there is a button to
-        // clear it. It counts what it is about to delete, in the log and on the toast.
+        head.setPadding(0, 0, 0, ui.dp(4));
+        historyBox.addView(head, ui.lp(-1, 34));
+        historyTitle = ui.label("", 14, ui.palette().text, true);
+        head.addView(historyTitle, new LinearLayout.LayoutParams(0, -2, 1f));
         TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
         head.addView(clear, ui.lp(-2, 32));
         clear.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                int entries = entryCount(context);
                 AppPrefs.prefs(context).edit().remove(HISTORY_KEY).apply();
                 AppLog.event(context, "calc", "history cleared: " + entries + " entries removed");
                 host.toast("History cleared");
-                host.invalidate();
+                populateHistory(context, ui);
             }
         });
         TextView close = ui.pillButton("⌃", ui.palette().surface, ui.palette().accent);
@@ -454,41 +470,66 @@ public final class CalculatorScreen implements Screen {
         cp.leftMargin = ui.dp(6);
         head.addView(close, cp);
         close.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                historyOpen = false;
-                AppLog.event(context, "calc", "history closed by button");
-                host.invalidate();
-            }
+            @Override public void onClick(View v) { toggleHistory(context, ui); }
         });
-
         ScrollView scroll = new ScrollView(context);
         scroll.setVerticalScrollBarEnabled(false);
-        LinearLayout list = ui.vbox();
-        scroll.addView(list, new LinearLayout.LayoutParams(-1, -2));
-        display.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        historyList = ui.vbox();
+        scroll.addView(historyList, new LinearLayout.LayoutParams(-1, -2));
+        historyBox.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        populateHistory(context, ui);
+    }
+
+    private void populateHistory(final Context context, final UiKit ui) {
+        historyList.removeAllViews();
         String[][] rows = CalculatorRules.historyEntries(
                 AppPrefs.prefs(context).getString(HISTORY_KEY, ""));
+        historyTitle.setText(rows.length == 0 ? "History" : "History · " + rows.length);
         if (rows.length == 0) {
-            list.addView(ui.label("No calculations yet. Results land here as you make them.",
+            historyList.addView(ui.label("No calculations yet. Results land here as you make them.",
                     13, ui.palette().muted, false), ui.lp(-1, -2));
+            return;
         }
         for (String[] entry : rows) {
+            final String expr = entry[0];
             final String value = entry[1];
-            LinearLayout line = ui.hbox();
-            line.setGravity(Gravity.CENTER_VERTICAL);
-            line.setPadding(0, ui.dp(5), 0, ui.dp(5));
-            list.addView(line, ui.lp(-1, -2));
-            line.addView(ui.label(entry[0] + "  =  ", 14, ui.palette().muted, false),
-                    ui.lp(-2, -2));
-            line.addView(ui.label(value, 16, ui.palette().text, true),
-                    new LinearLayout.LayoutParams(0, -2, 1f));
+            LinearLayout line = ui.vbox();
+            line.setPadding(0, ui.dp(7), 0, ui.dp(7));
+            historyList.addView(line, ui.lp(-1, -2));
+            LinearLayout pair = ui.hbox();
+            pair.setGravity(Gravity.CENTER_VERTICAL);
+            line.addView(pair, ui.lp(-1, -2));
+            LinearLayout stack = ui.vbox();
+            pair.addView(stack, new LinearLayout.LayoutParams(0, -2, 1f));
+            TextView e = ui.label(expr, 13, ui.palette().muted, false);
+            e.setGravity(Gravity.RIGHT);
+            stack.addView(e, ui.lp(-1, -2));
+            TextView r = ui.label(value, 17, ui.palette().text, true);
+            r.setGravity(Gravity.RIGHT);
+            stack.addView(r, ui.lp(-1, -2));
+            TextView when = ui.label(stamp(context, entry[2]), 10, ui.palette().muted, false);
+            when.setGravity(Gravity.RIGHT | Gravity.TOP);
+            LinearLayout.LayoutParams wp = ui.lp(-2, -2);
+            wp.leftMargin = ui.dp(8);
+            pair.addView(when, wp);
+            // A hairline between entries: the owner asked for borders enough to tell the
+            // sections apart, and a list without them reads as one long smear.
+            View divider = new View(context);
+            divider.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.12f));
+            line.addView(divider, new LinearLayout.LayoutParams(-1, 1));
             line.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    insertNumber(context, value);
-                    historyOpen = false;
-                    AppLog.event(context, "calc", "history line reused: " + value
-                            + ", expression now " + readable(expression.toString()));
-                    host.invalidate();
+                    // His ninth point: the stored EXPRESSION comes into the expression view,
+                    // not merely its result, so it can be edited and carried on from.
+                    expression.setLength(0);
+                    expression.append(expr.replace('×', '*').replace('÷', '/').replace('−', '-'));
+                    justEvaluated = false;
+                    result = "";
+                    caret = expression.length();
+                    AppLog.event(context, "calc", "history line reused: expression "
+                            + expr + " into the expression view");
+                    toggleHistory(context, ui);
+                    refreshDisplay(context);
                 }
             });
             line.setOnLongClickListener(new View.OnLongClickListener() {
@@ -500,6 +541,160 @@ public final class CalculatorScreen implements Screen {
         }
     }
 
+    /** "25th Oct, 17:15" -- the owner's format, ordinal day and all. */
+    static String stamp(Context context, String millis) {
+        if (millis == null || millis.isEmpty()) return "";
+        try {
+            long ts = Long.parseLong(millis);
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.setTimeInMillis(ts);
+            int day = c.get(java.util.Calendar.DAY_OF_MONTH);
+            String suffix = day % 100 >= 11 && day % 100 <= 13 ? "th"
+                    : day % 10 == 1 ? "st" : day % 10 == 2 ? "nd" : day % 10 == 3 ? "rd" : "th";
+            String month = new java.text.SimpleDateFormat("MMM", java.util.Locale.ENGLISH)
+                    .format(c.getTime());
+            String time = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.ENGLISH)
+                    .format(c.getTime());
+            return day + suffix + " " + month + ", " + time;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /** Expand or collapse the sheet over the docked expression, animated both ways. */
+    private void toggleHistory(final Context context, final UiKit ui) {
+        historyOpen = !historyOpen;
+        if (historyOpen) populateHistory(context, ui);
+        AppLog.event(context, "calc", historyOpen
+                ? "history expanded: " + entryCount(context) + " entries over the display"
+                : "history collapsed: display back to full height");
+        handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
+        historyBox.setVisibility(View.VISIBLE);
+        animateWeight(historyBox, historyOpen ? 0f : 2.2f, historyOpen ? 2.2f : 0f,
+                new Runnable() {
+                    @Override public void run() {
+                        if (!historyOpen) historyBox.setVisibility(View.GONE);
+                    }
+                });
+        animateWeight(currentBox, historyOpen ? 3f : 0.8f, historyOpen ? 0.8f : 3f, null);
+        displayView.requestFocus();
+    }
+
+    /** The scientific panel grows over the basic pad by animating its block's weight, with
+     *  an alpha ride so the caps arrive instead of popping. */
+    private void togglePanel(final Context context, final UiKit ui) {
+        panelOpen = !panelOpen;
+        AppLog.event(context, "calc", panelOpen
+                ? "scientific panel expanded: 3 rows added above the pad"
+                : "scientific panel collapsed: back to the basic pad");
+        styleChevron(ui);
+        panelBox.setVisibility(View.VISIBLE);
+        panelBox.setAlpha(panelOpen ? 0f : 1f);
+        animateWeight(panelBox, panelOpen ? 0f : 3f, panelOpen ? 3f : 0f,
+                new Runnable() {
+                    @Override public void run() {
+                        if (!panelOpen) panelBox.setVisibility(View.GONE);
+                    }
+                });
+        ValueAnimator fade = ValueAnimator.ofFloat(panelOpen ? 0f : 1f, panelOpen ? 1f : 0f);
+        fade.setDuration(ANIM_MS);
+        fade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(ValueAnimator a) {
+                panelBox.setAlpha((Float) a.getAnimatedValue());
+            }
+        });
+        fade.start();
+    }
+
+    private static void animateWeight(final View view, float from, float to, final Runnable end) {
+        final android.view.ViewGroup.LayoutParams lp = view.getLayoutParams();
+        if (!(lp instanceof LinearLayout.LayoutParams)) { if (end != null) end.run(); return; }
+        final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lp;
+        ValueAnimator a = ValueAnimator.ofFloat(from, to);
+        a.setDuration(ANIM_MS);
+        a.setInterpolator(new DecelerateInterpolator());
+        a.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(ValueAnimator animator) {
+                params.weight = (Float) animator.getAnimatedValue();
+                view.setLayoutParams(params);
+            }
+        });
+        if (end != null) a.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override public void onAnimationEnd(android.animation.Animator animator) { end.run(); }
+        });
+        a.start();
+    }
+
+    // ---- chrome actions --------------------------------------------------------------------
+
+    private void rebuildChip(Context context, UiKit ui) {
+        chipSlot.removeAllViews();
+        if (!AppPrefs.prefs(context).contains(MEMORY_KEY)) return;
+        TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
+        chip.setTextSize(10);
+        LinearLayout.LayoutParams chp = ui.lp(-2, 28);
+        chp.leftMargin = ui.dp(6);
+        chipSlot.addView(chip, chp);
+        chip.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
+                insertNumber(stored);
+                AppLog.event(context, "calc", "memory recalled: " + stored
+                        + " inserted, expression now " + readable(expression.toString()));
+                refreshDisplay(context);
+            }
+        });
+    }
+
+    /** The overflow, labelled and themed: a popup in the app's own palette, not a white
+     *  system dialog dropped onto a dark screen. */
+    private void openMenu(final Context context, UiKit ui, View anchor) {
+        AppLog.event(context, "calc", "menu opened");
+        final boolean memorySet = AppPrefs.prefs(context).contains(MEMORY_KEY);
+        java.util.List<String> items = new java.util.ArrayList<>();
+        items.add(showFraction ? "Show as decimal" : "Show as fraction");
+        items.add(memorySet ? "Store again in memory" : "Store in memory");
+        if (memorySet) items.add("Clear memory");
+        LinearLayout box = ui.vbox();
+        GradientDrawable bg = pill(ui, ui.palette().surface, 16);
+        box.setBackground(bg);
+        box.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
+        for (String item : items) {
+            final String choice = item;
+            TextView row = ui.label(item, 14, ui.palette().text, false);
+            row.setPadding(ui.dp(14), ui.dp(11), ui.dp(14), ui.dp(11));
+            box.addView(row, ui.lp(-1, -2));
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    onMenuChoice(context, ui, choice);
+                    popup.dismiss();
+                }
+            });
+        }
+        final PopupWindow popup = new PopupWindow(box, ui.dp(220), -2, true);
+        popup.setElevation(ui.dp(8));
+        popup.showAsDropDown(anchor, 0, ui.dp(4), Gravity.RIGHT);
+    }
+
+    private void onMenuChoice(Context context, UiKit ui, String choice) {
+        if (choice.startsWith("Show as")) {
+            showFraction = !showFraction;
+            AppLog.event(context, "calc", showFraction
+                    ? "result view: fraction" : "result view: decimal");
+            refreshDisplay(context);
+        } else if (choice.startsWith("Store")) {
+            AppPrefs.prefs(context).edit().putString(MEMORY_KEY, displayValue()).apply();
+            AppLog.event(context, "calc", "memory stored: " + displayValue());
+            host.toast("Stored in memory");
+            rebuildChip(context, ui);
+        } else {
+            AppPrefs.prefs(context).edit().remove(MEMORY_KEY).apply();
+            AppLog.event(context, "calc", "memory cleared");
+            host.toast("Memory cleared");
+            rebuildChip(context, ui);
+        }
+    }
+
     private static int entryCount(Context context) {
         return CalculatorRules.historyEntries(
                 AppPrefs.prefs(context).getString(HISTORY_KEY, "")).length;
@@ -508,9 +703,6 @@ public final class CalculatorScreen implements Screen {
     /**
      * A container that claims the vertical swipe itself, in {@code onInterceptTouchEvent},
      * because a swipe listener on a parent whose children consume every touch never fires.
-     * That is precisely why the owner's phone never opened history on a swipe down: the old
-     * listener sat on the display box while the scroller inside it ate the gesture.
-     * Intercepting mid-gesture cancels the child, which is what claiming a gesture means.
      */
     static final class SwipeBox extends LinearLayout {
         interface Listener { void onSwipeDown(); }
@@ -530,8 +722,6 @@ public final class CalculatorScreen implements Screen {
                 case MotionEvent.ACTION_MOVE:
                     float dy = e.getY() - downY;
                     float dx = e.getX() - downX;
-                    // Unmistakably downward and more vertical than a selection drag, or the
-                    // gesture that selects text would also flip the history open.
                     if (!claimed && dy > 60 && dy > Math.abs(dx) * 2) {
                         claimed = true;
                         return true;
@@ -568,44 +758,6 @@ public final class CalculatorScreen implements Screen {
         return true;
     }
 
-    /** The overflow menu: history, the fraction view, and the memory slot's store and clear. */
-    private void openMenu(final Context context) {
-        final boolean memorySet = AppPrefs.prefs(context).contains(MEMORY_KEY);
-        java.util.List<String> items = new java.util.ArrayList<>();
-        items.add("History");
-        items.add(showFraction ? "Show as decimal" : "Show as fraction");
-        items.add(memorySet ? "Store again in memory" : "Store in memory");
-        if (memorySet) items.add("Clear memory");
-        final String[] labels = items.toArray(new String[0]);
-        new android.app.AlertDialog.Builder(context)
-                .setTitle(displayValue())
-                .setItems(labels, new android.content.DialogInterface.OnClickListener() {
-                    @Override public void onClick(android.content.DialogInterface d, int which) {
-                        String choice = labels[which];
-                        if ("History".equals(choice)) {
-                            historyOpen = !historyOpen;
-                            AppLog.event(context, "calc", (historyOpen ? "history opened from menu, "
-                                    + entryCount(context) + " entries" : "history closed from menu"));
-                        } else if (choice.startsWith("Show as")) {
-                            showFraction = !showFraction;
-                            AppLog.event(context, "calc", showFraction
-                                    ? "result view: fraction" : "result view: decimal");
-                        } else if (choice.startsWith("Store")) {
-                            AppPrefs.prefs(context).edit()
-                                    .putString(MEMORY_KEY, displayValue()).apply();
-                            AppLog.event(context, "calc", "memory stored: " + displayValue());
-                            host.toast("Stored in memory");
-                        } else {
-                            AppPrefs.prefs(context).edit().remove(MEMORY_KEY).apply();
-                            AppLog.event(context, "calc", "memory cleared");
-                            host.toast("Memory cleared");
-                        }
-                        host.invalidate();
-                    }
-                })
-                .show();
-    }
-
     /** What a copy puts on the clipboard: the result if there is one, else what is typed. */
     private String displayValue() {
         if (justEvaluated) return result;
@@ -635,7 +787,7 @@ public final class CalculatorScreen implements Screen {
 
     /** History and memory reuse: typed in one character at a time, so the rules validate
      *  the stored value exactly as if your thumb had typed it. */
-    private void insertNumber(Context context, String value) {
+    private void insertNumber(String value) {
         String current = justEvaluated ? "" : expression.toString();
         justEvaluated = false;
         result = "";
@@ -689,7 +841,6 @@ public final class CalculatorScreen implements Screen {
 
     // ---- editing at the cursor -------------------------------------------------------------
 
-    /** The selection the framework is holding in the display, or the caret we restored. */
     private int[] selection() {
         if (!justEvaluated && displayView != null) {
             int s = displayView.getSelectionStart();
@@ -703,11 +854,9 @@ public final class CalculatorScreen implements Screen {
     }
 
     /**
-     * The whole edited expression replayed through the rules, token by token. Appending only
-     * ever validates the join at the end; an insertion in the middle makes two joins, and the
-     * one after the caret is exactly the one appending can never see. Replaying the finished
-     * string left to right checks every join there is, so an insertion that would break the
-     * grammar is refused with the same discipline as a key that would.
+     * The whole edited expression replayed through the rules, token by token: an insertion
+     * in the middle makes a join after the caret that appending can never see, so the
+     * finished string is re-validated left to right before it is accepted.
      */
     static boolean wholeExpressionValid(String raw) {
         String display = readable(raw);
@@ -726,8 +875,7 @@ public final class CalculatorScreen implements Screen {
         return built.equals(raw);
     }
 
-    /** The cap a backspace deletes: a whole function token when one ends at the caret,
-     *  because deleting half of "sin(" leaves "sin", which is not mathematics. */
+    /** The cap a backspace deletes: a whole function token when one ends at the cursor. */
     private static int deletableUnit(String raw, int at) {
         for (String token : TOKENS) {
             if (token.length() > 1 && at >= token.length()
@@ -747,11 +895,14 @@ public final class CalculatorScreen implements Screen {
             caret = 0;
             AppLog.event(context, "calc", was.isEmpty()
                     ? "key AC: nothing to clear" : "key AC: cleared " + was);
+            refreshDisplay(context);
             return;
         }
         if ("Deg".equals(key)) {
             degrees = !degrees;
             AppLog.event(context, "calc", "angle mode → " + (degrees ? "DEG" : "RAD"));
+            relabelCaps();
+            refreshDisplay(context);
             return;
         }
         if ("Inv".equals(key)) {
@@ -759,12 +910,10 @@ public final class CalculatorScreen implements Screen {
             AppLog.event(context, "calc", invMode
                     ? "inverse on: sin cos tan show their inverses"
                     : "inverse off: sin cos tan show themselves");
+            relabelCaps();
             return;
         }
         if ("( )".equals(key)) {
-            // Google's single bracket key chooses for you: open where a group may open,
-            // close where one is open and closable. Both choices go through the same whole
-            // expression validation as any insertion.
             if (insertAtCaret(context, "(")) return;
             if (insertAtCaret(context, ")")) return;
             AppLog.event(context, "calc", "key ( ) refused: neither bracket fits at the cursor");
@@ -780,6 +929,7 @@ public final class CalculatorScreen implements Screen {
                 caret = expression.length();
                 AppLog.event(context, "calc", "key ⌫: editing the result, now "
                         + readable(expression.toString()));
+                refreshDisplay(context);
                 return;
             }
             if (sel[0] != sel[1]) {
@@ -789,6 +939,7 @@ public final class CalculatorScreen implements Screen {
                 caret = sel[0];
                 AppLog.event(context, "calc", "key ⌫: deleted selection, now "
                         + readable(expression.toString()));
+                refreshDisplay(context);
                 return;
             }
             if (sel[0] == 0) {
@@ -802,6 +953,7 @@ public final class CalculatorScreen implements Screen {
             caret = sel[0] - unit;
             AppLog.event(context, "calc", "key ⌫ at " + caret + ": now "
                     + readable(expression.toString()));
+            refreshDisplay(context);
             return;
         }
         if ("=".equals(key)) {
@@ -819,6 +971,7 @@ public final class CalculatorScreen implements Screen {
                 caret = 0;
                 AppLog.event(context, "calc", "key = on " + readable(typed)
                         + " → Error: the expression does not evaluate");
+                refreshDisplay(context);
                 return;
             }
             AppPrefs.prefs(context).edit().putString(HISTORY_KEY,
@@ -832,6 +985,8 @@ public final class CalculatorScreen implements Screen {
             expression.append(result);
             justEvaluated = true;
             caret = 0;
+            refreshDisplay(context);
+            if (historyOpen) populateHistory(context, new UiKit(context, host.palette()));
             return;
         }
         insertAtCaret(context, key);
@@ -846,8 +1001,6 @@ public final class CalculatorScreen implements Screen {
         int[] sel = selection();
         String raw = expression.toString();
         if (justEvaluated) {
-            // After equals, a digit or a point starts a new expression while an operator or
-            // a percent carries on from the result; after Error, everything starts over.
             boolean fresh = "Error".equals(result)
                     || (key.length() == 1 && (Character.isDigit(key.charAt(0)) || key.charAt(0) == '.'));
             if (fresh) {
@@ -859,11 +1012,7 @@ public final class CalculatorScreen implements Screen {
         }
         int at = sel[0];
         String rawKey = key.replace('×', '*').replace('÷', '/').replace('−', '-');
-        String candidate = raw.substring(0, at) + (sel[1] > sel[0] ? "" : rawKey)
-                + (sel[1] > sel[0] ? rawKey : "") + raw.substring(sel[1]);
-        if (sel[1] > sel[0]) {
-            candidate = raw.substring(0, at) + rawKey + raw.substring(sel[1]);
-        }
+        String candidate = raw.substring(0, at) + rawKey + raw.substring(sel[1]);
         if (!wholeExpressionValid(candidate)) {
             char before = at == 0 ? ' ' : raw.charAt(at - 1);
             AppLog.event(context, "calc", "key " + key + " refused at " + at
@@ -875,6 +1024,7 @@ public final class CalculatorScreen implements Screen {
         caret = at + rawKey.length();
         AppLog.event(context, "calc", "key " + key + " at " + at + " → "
                 + readable(expression.toString()));
+        refreshDisplay(context);
         return true;
     }
 

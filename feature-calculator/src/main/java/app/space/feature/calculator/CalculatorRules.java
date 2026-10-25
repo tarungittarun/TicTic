@@ -227,12 +227,26 @@ public final class CalculatorRules {
      * encoding cannot lie about where a line ends.
      */
     public static String pushHistory(String store, String expression, String result, int cap) {
-        String line = expression + "=" + result;
+        // The owner's 2026-10-25 tenth point: every history line carries when it happened,
+        // "25th Oct, 17:15", so a calculation from last Tuesday says so. The timestamp rides
+        // the line after an '@' -- neither an expression nor a formatted result can contain
+        // one, so the encoding still cannot lie about where a field ends. Lines written by
+        // older builds carry no '@' and read back with an empty timestamp rather than
+        // vanishing: history is the user's, not a migration casualty.
+        String line = expression + "=" + result + "@" + System.currentTimeMillis();
         java.util.List<String> out = new java.util.ArrayList<>();
         out.add(line);
         if (store != null) {
             for (String s : store.split("\n")) {
-                if (!s.isEmpty() && !s.equals(line)) out.add(s);
+                if (s.isEmpty()) continue;
+                int eq = s.indexOf('=');
+                if (eq <= 0) continue;
+                String rest = s.substring(eq + 1);
+                int at = rest.lastIndexOf('@');
+                String older = at > 0 ? rest.substring(0, at) : rest;
+                // A repeat moves to the top instead of duplicating, timestamp refreshed.
+                if (s.substring(0, eq).equals(expression) && older.equals(result)) continue;
+                out.add(s);
             }
         }
         while (out.size() > cap) out.remove(out.size() - 1);
@@ -245,7 +259,19 @@ public final class CalculatorRules {
         for (String line : store.split("\n")) {
             int eq = line.indexOf('=');
             if (eq <= 0 || eq == line.length() - 1) continue;
-            out.add(new String[]{line.substring(0, eq), line.substring(eq + 1)});
+            String rest = line.substring(eq + 1);
+            int at = rest.lastIndexOf('@');
+            String ts = "";
+            String result = rest;
+            if (at > 0) {
+                String maybe = rest.substring(at + 1);
+                // A timestamp that is not digits is not a timestamp; it is old or corrupt
+                // text, and the result keeps the whole field rather than losing a suffix.
+                boolean digits = !maybe.isEmpty();
+                for (int i = 0; i < maybe.length(); i++) digits &= Character.isDigit(maybe.charAt(i));
+                if (digits) { ts = maybe; result = rest.substring(0, at); }
+            }
+            out.add(new String[]{line.substring(0, eq), result, ts});
         }
         return out.toArray(new String[0][]);
     }

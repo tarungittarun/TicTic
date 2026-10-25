@@ -247,6 +247,21 @@ public class CalculatorRulesTest {
         assertEquals(0, CalculatorRules.historyEntries("").length);
     }
 
+    @Test public void historyLinesCarryWhenTheyHappened() {
+        // The owner's tenth point, 2026-10-25: a timestamp beside every entry.
+        String store = CalculatorRules.pushHistory("", "1+1", "2", 50);
+        String[][] entries = CalculatorRules.historyEntries(store);
+        assertEquals(1, entries.length);
+        assertFalse(entries[0][2].isEmpty());
+        long ts = Long.parseLong(entries[0][2]);
+        assertTrue(Math.abs(ts - System.currentTimeMillis()) < 60000);
+        // A line from before timestamps existed still reads: empty stamp, nothing lost.
+        String[][] old = CalculatorRules.historyEntries("5+5=10");
+        assertEquals(1, old.length);
+        assertEquals("10", old[0][1]);
+        assertEquals("", old[0][2]);
+    }
+
     @Test public void fractionsAreContinuedFractionConvergents() {
         assertEquals("1/2", CalculatorRules.toFraction(0.5));
         assertEquals("5/2", CalculatorRules.toFraction(2.5));

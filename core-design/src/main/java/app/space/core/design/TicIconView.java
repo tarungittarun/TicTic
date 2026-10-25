@@ -33,6 +33,9 @@ public final class TicIconView extends View {
             // apart at a glance, which is the whole job of an icon.
             NOTES=10,HABITS=11,EXPENSES=12,CALENDAR=13,TASKS=14,WEATHER=15,RECORDER=16,
             FILES=17,DOCUMENTS=18,MESSAGES=19,MUSIC=20,SCANNER=21,EMAIL=22,
+            // Not an app: the calculator's history button borrows a slot of its own,
+            // because a clock-with-arrow is the one mark every calculator user knows.
+            HISTORY=23,
             // Chrome, not an app: the drawer handle, and the app switcher.
             MENU=23,APPS=24;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;
@@ -62,6 +65,7 @@ public final class TicIconView extends View {
             case MESSAGES: Path bubble=new Path();bubble.moveTo(3.4f,6.6f);bubble.lineTo(20.6f,6.6f);bubble.lineTo(20.6f,16.2f);bubble.lineTo(11.4f,16.2f);bubble.lineTo(7.4f,20.2f);bubble.lineTo(7.4f,16.2f);bubble.lineTo(3.4f,16.2f);bubble.close();c.drawPath(bubble,p);c.drawLine(7,10,17,10,p);c.drawLine(7,13,14,13,p);break;
             case MUSIC: c.drawOval(4,15.4f,9.4f,19.6f,p);c.drawOval(14,13.4f,19.4f,17.6f,p);c.drawLine(9.4f,17.4f,9.4f,5.4f,p);c.drawLine(19.4f,15.4f,19.4f,3.4f,p);c.drawLine(9.4f,5.4f,19.4f,3.4f,p);break;
             case SCANNER: c.drawLine(3.6f,8.4f,3.6f,3.6f,p);c.drawLine(3.6f,3.6f,8.4f,3.6f,p);c.drawLine(15.6f,3.6f,20.4f,3.6f,p);c.drawLine(20.4f,3.6f,20.4f,8.4f,p);c.drawLine(20.4f,15.6f,20.4f,20.4f,p);c.drawLine(20.4f,20.4f,15.6f,20.4f,p);c.drawLine(8.4f,20.4f,3.6f,20.4f,p);c.drawLine(3.6f,20.4f,3.6f,15.6f,p);c.drawLine(5.6f,12,18.4f,12,p);break;
+            case HISTORY: c.drawArc(4.8f,4.8f,19.2f,19.2f,200,280,false,p);c.drawLine(5.2f,9.5f,5.2f,6.4f,p);c.drawLine(5.2f,9.5f,8.3f,9.5f,p);c.drawLine(12,12,12,8.4f,p);c.drawLine(12,12,15,13.6f,p);break;
             case EMAIL: c.drawRoundRect(3,6,21,18,1.8f,1.8f,p);c.drawLine(3.6f,7,12,13.2f,p);c.drawLine(12,13.2f,20.4f,7,p);break;
             case MENU: c.drawLine(4,7,20,7,p);c.drawLine(4,12,20,12,p);c.drawLine(4,17,20,17,p);break;
             case APPS: c.drawRoundRect(4,4,10.4f,10.4f,1.4f,1.4f,p);c.drawRoundRect(13.6f,4,20,10.4f,1.4f,1.4f,p);c.drawRoundRect(4,13.6f,10.4f,20,1.4f,1.4f,p);c.drawRoundRect(13.6f,13.6f,20,20,1.4f,1.4f,p);break;

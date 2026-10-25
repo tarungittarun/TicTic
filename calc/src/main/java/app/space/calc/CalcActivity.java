@@ -157,16 +157,13 @@ public final class CalcActivity extends android.app.Activity implements ScreenHo
             case KeyEvent.KEYCODE_DEL:
             case KeyEvent.KEYCODE_FORWARD_DEL:
                 screen.typeKey("\u232b");
-                invalidate();
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
-                screen.typeKey("C");
-                invalidate();
+                screen.typeKey("AC");
                 return true;
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_NUMPAD_ENTER:
                 screen.typeKey("=");
-                invalidate();
                 return true;
             default:
                 break;
@@ -210,7 +207,6 @@ public final class CalcActivity extends android.app.Activity implements ScreenHo
         }
         if (key != null) {
             screen.typeKey(key);
-            invalidate();
             return true;
         }
         return super.onKeyDown(code, event);

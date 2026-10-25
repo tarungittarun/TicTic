@@ -2575,7 +2575,7 @@ class CalculatorAppContracts(unittest.TestCase):
         # from memory of an older Google build, not from his reference images.
         self.assertIn('"( )"', self.screen)
         self.assertIn('{"0", ".", "⌫", "="},', self.screen)
-        self.assertIn("root.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));", self.screen)
+        self.assertIn("parent.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));", self.screen)
         self.assertIn("new LinearLayout.LayoutParams(-1, 0, 3f)", self.screen)
         # The shell wraps every screen root, and a wrapped parent starves weighted children:
         # that starvation is what floated the pad mid-screen on the owner's phone. The root
@@ -2587,8 +2587,11 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertNotIn("params.weight = 2f", self.screen)
         # Separated, filled buttons: a stadium fill per key with a margin on every side.
         # Bare glyphs on the background -- what shipped until 2026-10-25 -- read as text.
-        self.assertIn("shape.setCornerRadius(ui.dp(200));", self.screen)
-        self.assertIn("params.leftMargin = ui.dp(5);", self.screen)
+        # His first point this round: rounded SQUARES on the basic pad, rounded RECTANGLES
+        # on the shorter scientific rows -- two radii, chosen per block, not one stadium.
+        self.assertIn("shape.setCornerRadius(ui.dp(radiusDp));", self.screen)
+        self.assertIn("addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);", self.screen)
+        self.assertIn("params.leftMargin = ui.dp(4);", self.screen)
         self.assertIn("GradientDrawable shape = new GradientDrawable();", self.screen)
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.
@@ -2610,7 +2613,7 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("scientific panel collapsed", self.screen)
         # The display is selectable text with a caret: selection, the framework copy menu,
         # and insertion at the cursor, which is the owner's "edit the already typed equation".
-        self.assertIn("expressionView.setTextIsSelectable(true);", self.screen)
+        self.assertIn("displayView.setTextIsSelectable(true);", self.screen)
         self.assertIn("static boolean wholeExpressionValid(String raw)", self.screen)
         self.assertIn("Selection.setSelection((Spannable) cs, pos, pos);", self.screen)
         # History shown means a button that clears it, counting what it deletes.
@@ -4200,7 +4203,7 @@ class CalcStandaloneContracts(unittest.TestCase):
         self.assertIn("LANDSCAPE_ROWS", self.screen)
         self.assertIn("private static final String MEMORY_KEY", self.screen)
         self.assertIn("public boolean typeKey(String key)", self.screen)
-        self.assertIn("int size = shown > 20 ? 26 : shown > 12 ? 34 : 46;", self.screen)
+        self.assertIn("int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;", self.screen)
         self.assertIn("CalculatorRules.toFraction(", self.screen)
         self.assertIn("public static String toFraction(double value)", self.rules)
 
@@ -4230,6 +4233,66 @@ class OutcomeLogContracts(unittest.TestCase):
                 "laid out: parent ",    # the layout reports the size it actually became
         ):
             self.assertIn('"' + outcome + '"', self.screen)
+
+    def test_a_key_press_never_rebuilds_the_screen(self):
+        # The owner's shared log convicted the old architecture: one "laid out" line after
+        # EVERY key press, because every press rebuilt every view. That rebuild was the
+        # blink he saw, the cursor that could not survive, and the transition that could
+        # not exist. The press path now ends in refreshDisplay, which sets text and caret
+        # on views that were created once.
+        screen = self.screen
+        press = screen[screen.index("private void press(Context context, String key) {"):]
+        press = press[:press.index("private boolean insertAtCaret(Context context, String key) {")]
+        self.assertNotIn("host.invalidate()", press)
+        self.assertIn("refreshDisplay(context);", press)
+        self.assertIn("private void refreshDisplay(Context context)", screen)
+
+    def test_state_changes_animate_instead_of_popping(self):
+        # His second and eleventh points: smooth transitions, and sections distinct enough
+        # to tell apart. Weights and alphas are animated; history rows carry hairlines.
+        self.assertIn("ValueAnimator.ofFloat(from, to)", self.screen)
+        self.assertIn("private void togglePanel(final Context context, final UiKit ui)", self.screen)
+        self.assertIn("private void toggleHistory(final Context context, final UiKit ui)", self.screen)
+        self.assertIn("divider.setBackgroundColor(", self.screen)
+
+    def test_history_is_a_sheet_with_timestamps_and_a_docked_expression(self):
+        # His seventh to tenth points: the sheet expands over the display while the current
+        # expression stays docked beneath it; every line carries "25th Oct, 17:15"; tapping
+        # a line puts that line's expression, not its result, into the expression view.
+        self.assertIn('"history expanded: "', self.screen)
+        self.assertIn('"history collapsed: ', self.screen)
+        self.assertIn("static String stamp(Context context, String millis)", self.screen)
+        self.assertIn('"history line reused: expression "', self.screen)
+        rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
+        self.assertIn('String line = expression + "=" + result + "@" + System.currentTimeMillis();', rules)
+        self.assertIn("int at = rest.lastIndexOf('@');", rules)
+
+    def test_the_mystery_dot_became_a_history_button(self):
+        # His sixth point: a pill and a single dot that meant nothing. The top-left control
+        # is now the clock-with-arrow glyph every calculator user knows, and the overflow
+        # carries a label instead of being a dot.
+        self.assertIn("TicIconView.HISTORY", self.screen)
+        self.assertIn('ui.pillButton("Menu"', self.screen)
+        glyph = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
+        self.assertIn("HISTORY=23", glyph)
+        self.assertIn("case HISTORY:", glyph)
+
+    def test_diagnostics_can_save_the_log_to_a_local_file(self):
+        # His line under the list: sharing left nothing on the device. The picker writes
+        # the log wherever he points it, and the outcome lands in the log itself.
+        main = self.main
+        self.assertIn("Intent.ACTION_CREATE_DOCUMENT", main)
+        self.assertIn('"saved to local file: "', main)
+        self.assertIn('"save FAILED: "', main)
+
+    def test_the_rail_keeps_its_lead_tile_visible_at_open(self):
+        # His bar complaint, second half: with a 12dp lead and a one-tile scroll offset the
+        # Apps tile sat off-screen to the left at open. The centring lead is back, so the
+        # lead tile is visible and the rail still scrolls both ways.
+        main = self.main
+        rail = main[main.index("void buildRailNav(){"):]
+        rail = rail[:rail.index("\n    }\n")]
+        self.assertIn("int lead=Math.max(20,(screen-item)/2);", rail)
 
     def test_opening_an_app_logs_that_it_rendered_and_at_what_size(self):
         self.assertIn('"open "+opened+" rendered at "', self.main)

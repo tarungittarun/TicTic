@@ -165,7 +165,9 @@ public final class CalculatorRules {
                 // a negation (5+-) is exactly what read to him as "not taking"; negation now
                 // lives behind the bracket key, 10+(-3), where it is visible and editable.
                 // A lone leading minus is not an operand to swap operators over.
-                if ("-".equals(current)) return null;
+                // A lone leading minus is not an operand to swap operators over; minus over
+                // itself is simply the same pending operator, so it stands.
+                if ("-".equals(current)) return c == '-' ? "-" : null;
                 // A minus sitting after another operator is the legacy negation slot, from
                 // stores and editors that predate this rule. Swapping operators drops it
                 // with them -- 5*- then + is 5+, not 5*-+ -- because stacked operators are

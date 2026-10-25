@@ -3,8 +3,8 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.8 (versionCode 45) · 2,078,376 bytes · SHA-256 `b610cef4123e8f17c7bcbed16a47e488d1d299c3951cc250af78ab58aebb9eec` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.6 (versionCode 7) · 1,293,907 bytes · SHA-256 `82602644c161ff16346bc60e6ae5fb362703a0eb955d324d3c218b97633a8e79` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Build (MySpace):** 3.12.9 (versionCode 46) · 2,078,484 bytes · SHA-256 `f491fec8de4209e6e54d853b211df8a5be62e28f9bb84377267d860ff10c5e0a` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.7 (versionCode 8) · 1,294,551 bytes · SHA-256 `29521f558b669bde948748ae9a2e3b0089ccc3db5f6c1b5b5b289181e7dfda26` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
 **Effort:** 23 modules · 20,425 lines of Java · 354 Python contracts · 20 JVM test files
 **CI:** 118 recorded runs — **84 green, 33 red, 1 cancelled** (71% green; every red read)
 **Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other

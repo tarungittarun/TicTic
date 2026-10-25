@@ -80,7 +80,16 @@ jobs:
       # emulator exists, then inside the emulator step run only the tests, daemonless
       # and heap-bounded, reusing the compiled outputs.
       - name: Prebuild the app and test APKs
-        run: ./gradlew :calc:assembleDebug :calc:assembleDebugAndroidTest --stacktrace
+        run: ./gradlew :calc:assembleDebug :calc:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/pre.log; exit ${PIPESTATUS[0]}
+      - name: Surface prebuild errors as annotations
+        if: failure()
+        run: |
+          if [ -f /tmp/pre.log ]; then
+            body=$(grep -E "error:|FAILED|Exception|expected|Caused by" /tmp/pre.log | head -60 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            tailb=$(tail -c 40000 /tmp/pre.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=pre.log::$body%%0A== tail ==%%0A$tailb"
+          fi
+          exit 1
       - name: Instrumented tests on a real Android screen
         uses: ReactiveCircus/android-emulator-runner@v2
         with:

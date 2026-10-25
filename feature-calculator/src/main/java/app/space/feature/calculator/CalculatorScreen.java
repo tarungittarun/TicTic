@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import app.space.core.data.AppLog;
 import app.space.core.data.AppPrefs;
+import app.space.core.design.GelMotion;
 import app.space.core.design.TicIconView;
 import app.space.core.design.UiKit;
 import app.space.core.suite.Screen;
@@ -138,7 +139,6 @@ public final class CalculatorScreen implements Screen {
     private PopupWindow historyPopup;
     private View rootView;
     private LinearLayout panelBox;
-    private LinearLayout chipSlot;
     private ChevronView chevron;
     private PopupWindow menuPopup;
     private LinearLayout padContainer;
@@ -192,9 +192,6 @@ public final class CalculatorScreen implements Screen {
         LinearLayout modes = ui.hbox();
         modes.setGravity(Gravity.CENTER_VERTICAL);
         root.addView(modes, ui.lp(-1, 38));
-        View modesRule = new View(context);
-        modesRule.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.18f));
-        root.addView(modesRule, ui.lp(-1, 1));
         LinearLayout historyBtn = new LinearLayout(context);
         historyBtn.setOrientation(LinearLayout.HORIZONTAL);
         historyBtn.setGravity(Gravity.CENTER);
@@ -214,15 +211,27 @@ public final class CalculatorScreen implements Screen {
         historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { toggleHistory(context, ui); }
         });
-        chipSlot = ui.hbox();
-        modes.addView(chipSlot, ui.lp(-2, 34));
-        rebuildChip(context, ui);
-        TextView menu = ui.pillButton("Menu", ui.palette().surface, ui.palette().muted);
-        menu.setTextSize(12);
-        LinearLayout.LayoutParams mnp = ui.lp(-2, 34);
-        mnp.leftMargin = ui.dp(6);
-        modes.addView(menu, mnp);
-        menu.setOnClickListener(new View.OnClickListener() {
+        View spacer = new View(context);
+        modes.addView(spacer, new LinearLayout.LayoutParams(0, -2, 1f));
+        // Round 9: "keep only history button at left side and 3 dots in the right side
+        // instead of menu." Nothing else lives in this row any more.
+        LinearLayout dots = ui.vbox();
+        dots.setGravity(Gravity.CENTER);
+        dots.setId(R.id.calc_menu_btn);
+        dots.setContentDescription("More options");
+        dots.setPadding(ui.dp(12), ui.dp(5), ui.dp(6), ui.dp(5));
+        for (int i = 0; i < 3; i++) {
+            View d = new View(context);
+            GradientDrawable dot = new GradientDrawable();
+            dot.setShape(GradientDrawable.OVAL);
+            dot.setColor(ui.palette().muted);
+            d.setBackground(dot);
+            LinearLayout.LayoutParams dzp = ui.lp(4, 4);
+            if (i > 0) dzp.topMargin = ui.dp(3);
+            dots.addView(d, dzp);
+        }
+        modes.addView(dots, ui.lp(-2, -2));
+        dots.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { openMenu(context, ui, v); }
         });
 
@@ -239,11 +248,9 @@ public final class CalculatorScreen implements Screen {
         // window with a real ScrollView, no parent left to fight over his drags.
         currentBox = ui.vbox();
         currentBox.setId(R.id.calc_dock);
-        GradientDrawable dockBg = new GradientDrawable();
-        dockBg.setCornerRadius(ui.dp(14));
-        dockBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.28f));
-        dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));
-        currentBox.setBackground(dockBg);
+        // Round 9: "no need of borders, instead keep it simple" and "make it like Google
+        // calculator, plain and simple" -- the expression sits on the background itself,
+        // no card, no stroke, no rule above or below.
         displayArea.logContext = context;
         LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(-1, 0, 3f);
         cbp.topMargin = ui.dp(3);
@@ -274,9 +281,6 @@ public final class CalculatorScreen implements Screen {
         padContainer = ui.vbox();
         padContainer.setId(R.id.calc_pad);
         root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
-        View padRule = new View(context);
-        padRule.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.18f));
-        padContainer.addView(padRule, ui.lp(-1, 1));
         panelBox = ui.vbox();
         panelBox.setVisibility(panelOpen && !landscape ? View.VISIBLE : View.GONE);
         padContainer.addView(panelBox, new LinearLayout.LayoutParams(-1, 0,
@@ -289,6 +293,10 @@ public final class CalculatorScreen implements Screen {
         for (String[] row : (landscape ? LANDSCAPE_ROWS : BASE_ROWS)) {
             addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);
         }
+        // Round 9: "have some animations in each button click" -- the suite's own press
+        // motion (style and intensity from Settings, reduce-motion honoured) over every
+        // clickable view the screen just built, so MyCalc gets it without a host too.
+        GelMotion.apply(root, ui.palette().accent);
         rootView = root;
         return root;
     }
@@ -321,8 +329,9 @@ public final class CalculatorScreen implements Screen {
             paint.setAntiAlias(true);
             GradientDrawable bg = new GradientDrawable();
             bg.setCornerRadius(context.getResources().getDisplayMetrics().density * 20);
-            bg.setColor(borderColor);
-            bg.setStroke((int) (context.getResources().getDisplayMetrics().density * 1.5f), color);
+            // Round 9: "no need of borders" reaches the chevron too -- the arrow floats
+            // on the background with no ring around it.
+            bg.setColor(0x00000000);
             setBackground(bg);
         }
 
@@ -376,7 +385,7 @@ public final class CalculatorScreen implements Screen {
                     if (AppPrefs.prefs(v.getContext()).getBoolean(HAPTICS_KEY, true)) {
                         v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
                     }
-                    press(context, key);
+                    press(context, labelFor(rawKey));
                 }
             });
         }
@@ -387,16 +396,48 @@ public final class CalculatorScreen implements Screen {
     private String labelFor(String key) {
         if ("Deg".equals(key)) return degrees ? "Deg" : "Rad";
         if (!invMode) return key;
-        if ("sin(".equals(key)) return "asin(";
-        if ("cos(".equals(key)) return "acos(";
-        if ("tan(".equals(key)) return "atan(";
+        // Round 9: "when inv is clicked in keypad, am able to see many other changes in
+        // Google calculator, but not in our app" -- Google swaps the whole panel, not just
+        // the trig row: sqrt becomes square, ln becomes e to the x, log becomes ten to the x.
+        if ("sin(".equals(key)) return "sin⁻¹";
+        if ("cos(".equals(key)) return "cos⁻¹";
+        if ("tan(".equals(key)) return "tan⁻¹";
+        if ("√(".equals(key)) return "x²";
+        if ("ln(".equals(key)) return "eˣ";
+        if ("log(".equals(key)) return "10ˣ";
         return key;
     }
 
-    /** Relabel the toggle-driven caps without rebuilding a single view. */
+    /** What an Inv-swapped cap actually inserts, or null for an ordinary key. */
+    private static String invToken(String label) {
+        if ("sin⁻¹".equals(label)) return "asin(";
+        if ("cos⁻¹".equals(label)) return "acos(";
+        if ("tan⁻¹".equals(label)) return "atan(";
+        if ("x²".equals(label)) return "^2";
+        if ("eˣ".equals(label)) return "e^(";
+        if ("10ˣ".equals(label)) return "10^(";
+        return null;
+    }
+
+    /** Relabel the toggle-driven caps without rebuilding a single view, and repaint the
+     *  two toggles so Inv and Deg read as ON the way Google fills them. */
     private void relabelCaps() {
         for (java.util.Map.Entry<String, TextView> e : capButtons.entrySet()) {
             e.getValue().setText(labelFor(e.getKey()));
+        }
+        if (lastContext == null) return;
+        UiKit ui = new UiKit(lastContext, host.palette());
+        String[] toggles = {"Inv", "Deg"};
+        for (String k : toggles) {
+            TextView b = capButtons.get(k);
+            if (b == null) continue;
+            boolean on = ("Deg".equals(k) && !degrees) || ("Inv".equals(k) && invMode);
+            GradientDrawable shape = new GradientDrawable();
+            shape.setCornerRadius(ui.dp(12));
+            shape.setColor(on ? mix(ui.palette().surface, ui.palette().accent, 0.42f)
+                    : mix(ui.palette().surface, ui.palette().accent, 0.16f));
+            b.setBackground(shape);
+            b.setTextColor(on ? android.graphics.Color.WHITE : ui.palette().accent);
         }
     }
 
@@ -460,7 +501,8 @@ public final class CalculatorScreen implements Screen {
 
     private static boolean isScientificCap(String key) {
         return key.endsWith("(") || "^".equals(key) || "!".equals(key)
-                || "π".equals(key) || "e".equals(key);
+                || "π".equals(key) || "e".equals(key)
+                || key.endsWith("⁻¹") || "x²".equals(key) || key.endsWith("ˣ");
     }
 
     private static int mix(int a, int b, float t) {
@@ -523,7 +565,8 @@ public final class CalculatorScreen implements Screen {
                     // landed, after it has landed.
                     displayView.post(new Runnable() {
                         @Override public void run() {
-                            caret = Math.max(0, displayView.getSelectionStart());
+                            caret = Math.max(0,
+                                    dispToRaw(displayView.getSelectionStart()));
                             AppLog.event(lastContext, "calc", "cursor placed at " + caret);
                         }
                     });
@@ -540,14 +583,14 @@ public final class CalculatorScreen implements Screen {
                 // What validates joins the expression; what does not is reverted, and both
                 // outcomes are logged, because a silent revert is a lie in the log.
                 String txt = s.toString();
-                String raw = txt.replace('\u00d7', '*').replace('\u00f7', '/')
-                        .replace('\u2212', '-');
+                String raw = txt.replace(",", "").replace('\u00d7', '*')
+                        .replace('\u00f7', '/').replace('\u2212', '-');
                 if (wholeExpressionValid(raw)) {
                     expression.setLength(0);
                     expression.append(raw);
                     justEvaluated = false;
                     result = "";
-                    caret = Math.max(0, displayView.getSelectionStart());
+                    caret = Math.max(0, dispToRaw(displayView.getSelectionStart()));
                     AppLog.event(lastContext, "calc", "expression edited by hand to "
                             + readable(raw));
                     previewView.setText(preview());
@@ -591,7 +634,8 @@ public final class CalculatorScreen implements Screen {
         if (justEvaluated || displayView == null) return;
         CharSequence cs = displayView.getText();
         if (cs instanceof Spannable) {
-            int pos = Math.max(0, Math.min(caret, cs.length()));
+            int rawLen = dispToRaw(cs.length());
+            int pos = rawToDisp(Math.max(0, Math.min(caret, rawLen)));
             Selection.setSelection((Spannable) cs, pos, pos);
         }
     }
@@ -610,7 +654,6 @@ public final class CalculatorScreen implements Screen {
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(ui.dp(16));
         bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.6f));
-        bg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));
         box.setBackground(bg);
         box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
         LinearLayout head = ui.hbox();
@@ -696,10 +739,10 @@ public final class CalculatorScreen implements Screen {
             LinearLayout stack = ui.vbox();
             stack.setGravity(Gravity.LEFT);
             pair.addView(stack, new LinearLayout.LayoutParams(0, -2, 1f));
-            TextView e = ui.label(expr, 13, ui.palette().muted, false);
+            TextView e = ui.label(groupIndian(expr), 13, ui.palette().muted, false);
             e.setGravity(Gravity.LEFT);
             stack.addView(e, ui.lp(-1, -2));
-            TextView r = ui.label(value, 17, ui.palette().text, true);
+            TextView r = ui.label(groupIndian(value), 17, ui.palette().text, true);
             r.setGravity(Gravity.LEFT);
             stack.addView(r, ui.lp(-1, -2));
             TextView when = ui.label(stamp(context, entry[2]), 10, ui.palette().muted, false);
@@ -707,11 +750,6 @@ public final class CalculatorScreen implements Screen {
             LinearLayout.LayoutParams wp = ui.lp(-2, -2);
             wp.leftMargin = ui.dp(8);
             pair.addView(when, wp);
-            // A hairline between entries: the owner asked for borders enough to tell the
-            // sections apart, and a list without them reads as one long smear.
-            View divider = new View(context);
-            divider.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.12f));
-            line.addView(divider, new LinearLayout.LayoutParams(-1, 1));
             line.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     // His ninth point: the stored EXPRESSION comes into the expression view,
@@ -773,6 +811,7 @@ public final class CalculatorScreen implements Screen {
         int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.62f);
         historyPopup = new PopupWindow(content, width, height, true);
         historyPopup.setElevation(ui.dp(10));
+        historyPopup.setAnimationStyle(R.style.CalcPopupAnim);
         int[] loc = new int[2];
         displayArea.getLocationInWindow(loc);
         historyPopup.showAtLocation(rootView, Gravity.TOP | Gravity.CENTER_HORIZONTAL,
@@ -856,47 +895,46 @@ public final class CalculatorScreen implements Screen {
 
     // ---- chrome actions --------------------------------------------------------------------
 
-    private void rebuildChip(Context context, UiKit ui) {
-        chipSlot.removeAllViews();
-        if (!AppPrefs.prefs(context).contains(MEMORY_KEY)) return;
-        final String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
-        TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
-        chip.setTextSize(15);
-        chip.setTypeface(chip.getTypeface(), android.graphics.Typeface.BOLD);
-        chip.setMinWidth(ui.dp(44));
-        chip.setContentDescription("Memory holds " + stored);
-        LinearLayout.LayoutParams chp = ui.lp(-2, 34);
-        chp.leftMargin = ui.dp(6);
-        chipSlot.addView(chip, chp);
-        chip.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                insertNumber(stored);
-                AppLog.event(context, "calc", "memory recalled: " + stored
-                        + " inserted, expression now " + readable(expression.toString()));
-                refreshDisplay(context);
+    // ---- memory: a list the owner arranges himself ----------------------------------------
+
+    private static java.util.List<String> memoryList(Context context) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "");
+        if (stored != null && !stored.isEmpty()) {
+            for (String part : stored.split("\n")) {
+                if (!part.isEmpty()) out.add(part);
             }
-        });
+        }
+        return out;
     }
 
-    /** The overflow, labelled and themed: a popup in the app's own palette, not a white
-     *  system dialog dropped onto a dark screen. */
-    private void openMenu(final Context context, UiKit ui, View anchor) {
-        AppLog.event(context, "calc", "menu opened");
-        final boolean memorySet = AppPrefs.prefs(context).contains(MEMORY_KEY);
-        java.util.List<String> items = new java.util.ArrayList<>();
-        items.add(showFraction ? "Show as decimal" : "Show as fraction");
-        items.add(memorySet ? "Store again in memory" : "Store in memory");
-        if (memorySet) {
-            items.add("Recall memory");
-            items.add("Add to memory");
-            items.add("Subtract from memory");
-            items.add("Clear memory");
+    private static void saveMemory(Context context, java.util.List<String> list) {
+        StringBuilder b = new StringBuilder();
+        for (String v : list) {
+            if (b.length() > 0) b.append('\n');
+            b.append(v);
         }
+        android.content.SharedPreferences.Editor ed = AppPrefs.prefs(context).edit();
+        if (b.length() == 0) ed.remove(MEMORY_KEY);
+        else ed.putString(MEMORY_KEY, b.toString());
+        ed.apply();
+    }
+
+    /**
+     * Round 9: the three dots carry exactly five things -- haptics on/off, add to memory,
+     * clear memory, view memory, show as fraction -- and nothing else.
+     */
+    private void openMenu(final Context context, UiKit ui, View anchor) {
+        AppLog.event(context, "calc", "menu opened from the three dots");
+        java.util.List<String> items = new java.util.ArrayList<>();
         items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)
                 ? "Haptics: On" : "Haptics: Off");
+        items.add("Add to memory");
+        items.add("Clear memory");
+        items.add("View memory");
+        items.add(showFraction ? "Show as decimal" : "Show as fraction");
         LinearLayout box = ui.vbox();
-        GradientDrawable bg = pill(ui, ui.palette().surface, 16);
-        box.setBackground(bg);
+        box.setBackground(pill(ui, ui.palette().surface, 16));
         box.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
         for (String item : items) {
             final String choice = item;
@@ -912,52 +950,156 @@ public final class CalculatorScreen implements Screen {
         }
         menuPopup = new PopupWindow(box, ui.dp(220), -2, true);
         menuPopup.setElevation(ui.dp(8));
+        menuPopup.setAnimationStyle(R.style.CalcPopupAnim);
         menuPopup.showAsDropDown(anchor, 0, ui.dp(4), Gravity.RIGHT);
     }
 
     private void onMenuChoice(Context context, UiKit ui, String choice) {
-        if (choice.startsWith("Show as")) {
-            showFraction = !showFraction;
-            AppLog.event(context, "calc", showFraction
-                    ? "result view: fraction" : "result view: decimal");
-            refreshDisplay(context);
-        } else if (choice.startsWith("Store")) {
-            AppPrefs.prefs(context).edit().putString(MEMORY_KEY, displayValue()).apply();
-            AppLog.event(context, "calc", "memory stored: " + displayValue());
-            host.toast("Stored in memory");
-            rebuildChip(context, ui);
-        } else if (choice.startsWith("Haptics")) {
+        if (choice.startsWith("Haptics")) {
             boolean on = !AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true);
             AppPrefs.prefs(context).edit().putBoolean(HAPTICS_KEY, on).apply();
             AppLog.event(context, "calc", "haptics " + (on ? "on" : "off") + ", persisted");
             host.toast(on ? "Haptics on" : "Haptics off");
-        } else if (choice.startsWith("Recall")) {
-            String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
-            insertNumber(stored);
-            refreshDisplay(context);
-            AppLog.event(context, "calc", "memory recalled into the expression: " + stored);
-        } else if (choice.startsWith("Add to memory") || choice.startsWith("Subtract")) {
+        } else if (choice.equals("Add to memory")) {
+            String v = displayValue();
             try {
-                double stored = Double.parseDouble(
-                        AppPrefs.prefs(context).getString(MEMORY_KEY, "0"));
-                double shown = Double.parseDouble(displayValue());
-                double next = choice.startsWith("Add") ? stored + shown : stored - shown;
-                String formatted = CalculatorRules.format(next);
-                AppPrefs.prefs(context).edit().putString(MEMORY_KEY, formatted).apply();
-                AppLog.event(context, "calc", (choice.startsWith("Add") ? "memory + " : "memory - ")
-                        + shown + " → " + formatted);
-                host.toast("Memory is " + formatted);
-                rebuildChip(context, ui);
+                Double.parseDouble(v);
             } catch (Exception e) {
-                AppLog.event(context, "calc", "memory math refused: no number on the display");
-                host.toast("Nothing to use on the display");
+                AppLog.event(context, "calc", "memory add refused: display holds " + v);
+                host.toast("Nothing to store on the display");
+                return;
             }
-        } else {
-            AppPrefs.prefs(context).edit().remove(MEMORY_KEY).apply();
-            AppLog.event(context, "calc", "memory cleared");
+            java.util.List<String> list = memoryList(context);
+            list.add(v);
+            saveMemory(context, list);
+            AppLog.event(context, "calc", "memory added: " + v
+                    + ", memory now holds " + list.size());
+            host.toast("Added to memory");
+        } else if (choice.equals("Clear memory")) {
+            int n = memoryList(context).size();
+            saveMemory(context, new java.util.ArrayList<String>());
+            AppLog.event(context, "calc", "memory cleared: " + n + " entries removed");
             host.toast("Memory cleared");
-            rebuildChip(context, ui);
+        } else if (choice.equals("View memory")) {
+            openMemory(context, ui);
+        } else if (choice.startsWith("Show as")) {
+            showFraction = !showFraction;
+            AppLog.event(context, "calc", showFraction
+                    ? "result view: fraction" : "result view: decimal");
+            refreshDisplay(context);
         }
+    }
+
+    /**
+     * Round 9, his fourth dot item: "a small popup window should be opened for seeing
+     * memory available and user should be able keep required memory and arrange in
+     * required order like move from one place to up/down." Tap a value to keep using it;
+     * the two chevrons move it through the list, and the order persists.
+     */
+    private void openMemory(final Context context, final UiKit ui) {
+        LinearLayout box = ui.vbox();
+        box.setBackground(pill(ui, ui.palette().surface, 16));
+        box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
+        LinearLayout head = ui.hbox();
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        box.addView(head, ui.lp(-1, 40));
+        head.addView(ui.label("Memory", 14, ui.palette().text, true),
+                new LinearLayout.LayoutParams(0, -2, 1f));
+        ChevronView close = new ChevronView(context, ui.palette().accent, ui.palette().surface);
+        close.setDirection(ChevronView.UP);
+        close.setId(R.id.calc_memory_close);
+        close.setContentDescription("Close memory");
+        head.addView(close, ui.lp(36, 30));
+        final ScrollView scroll = new ScrollView(context);
+        final LinearLayout list = ui.vbox();
+        list.setId(R.id.calc_memory_list);
+        scroll.addView(list, new LinearLayout.LayoutParams(-1, -2));
+        box.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        final PopupWindow[] holder = new PopupWindow[1];
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (holder[0] != null) holder[0].dismiss();
+                AppLog.event(context, "calc", "memory popup closed by button");
+            }
+        });
+        fillMemory(context, ui, list, holder);
+        int width = context.getResources().getDisplayMetrics().widthPixels - ui.dp(72);
+        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.42f);
+        PopupWindow popup = new PopupWindow(box, width, height, true);
+        popup.setElevation(ui.dp(10));
+        popup.setAnimationStyle(R.style.CalcPopupAnim);
+        int[] loc = new int[2];
+        displayArea.getLocationInWindow(loc);
+        popup.showAtLocation(rootView, Gravity.TOP | Gravity.CENTER_HORIZONTAL,
+                0, loc[1] + ui.dp(2));
+        holder[0] = popup;
+        AppLog.event(context, "calc", "memory popup opened: "
+                + memoryList(context).size() + " entries, movable up and down");
+    }
+
+    private void fillMemory(final Context context, final UiKit ui,
+                            final LinearLayout list, final PopupWindow[] holder) {
+        list.removeAllViews();
+        final java.util.List<String> values = memoryList(context);
+        if (values.isEmpty()) {
+            list.addView(ui.label("Nothing stored yet. Add the display to memory from "
+                    + "the three dots.", 13, ui.palette().muted, false), ui.lp(-1, -2));
+            return;
+        }
+        for (int i = 0; i < values.size(); i++) {
+            final int at = i;
+            final String value = values.get(i);
+            LinearLayout row = ui.hbox();
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(0, ui.dp(5), 0, ui.dp(5));
+            list.addView(row, ui.lp(-1, -2));
+            TextView label = ui.label(groupIndian(value), 17, ui.palette().text, false);
+            row.addView(label, new LinearLayout.LayoutParams(0, -2, 1f));
+            label.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    insertNumber(value);
+                    refreshDisplay(context);
+                    AppLog.event(context, "calc", "memory recalled: " + value
+                            + " inserted, expression now " + readable(expression.toString()));
+                    if (holder[0] != null) holder[0].dismiss();
+                }
+            });
+            ChevronView up = new ChevronView(context, at == 0
+                    ? mix(ui.palette().surface, ui.palette().text, 0.35f) : ui.palette().accent,
+                    ui.palette().surface);
+            up.setDirection(ChevronView.UP);
+            up.setContentDescription("Move up from place " + (at + 1));
+            row.addView(up, ui.lp(32, 28));
+            up.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { moveMemory(context, ui, list, holder, at, -1); }
+            });
+            ChevronView down = new ChevronView(context, at == values.size() - 1
+                    ? mix(ui.palette().surface, ui.palette().text, 0.35f) : ui.palette().accent,
+                    ui.palette().surface);
+            down.setDirection(ChevronView.DOWN);
+            down.setContentDescription("Move down from place " + (at + 1));
+            row.addView(down, ui.lp(32, 28));
+            down.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { moveMemory(context, ui, list, holder, at, 1); }
+            });
+        }
+    }
+
+    private void moveMemory(Context context, UiKit ui, LinearLayout list,
+                            PopupWindow[] holder, int at, int dir) {
+        java.util.List<String> values = memoryList(context);
+        int to = at + dir;
+        if (at < 0 || at >= values.size() || to < 0 || to >= values.size()) {
+            AppLog.event(context, "calc", "memory move refused: entry " + at
+                    + " cannot go " + (dir < 0 ? "up" : "down"));
+            return;
+        }
+        String moved = values.remove(at);
+        values.add(to, moved);
+        saveMemory(context, values);
+        AppLog.event(context, "calc", "memory moved: " + moved + " from place "
+                + (at + 1) + " to place " + (to + 1));
+        fillMemory(context, ui, list, holder);
     }
 
     private static int entryCount(Context context) {
@@ -993,6 +1135,22 @@ public final class CalculatorScreen implements Screen {
             caretWidth = widthPx;
             caretPaint.setStyle(android.graphics.Paint.Style.FILL);
             selPaint.setStyle(android.graphics.Paint.Style.FILL);
+            // Round 9, his first line: "when tried to move the cursor, the device keyboard
+            // is coming and not able to operate the calculator." This constructor -- the
+            // one the screen actually uses -- never carried the suppression the unused
+            // one-arg constructor had. Now the view is not a text editor at all: no input
+            // connection, no IME attachment, touch selection and caret placement stay.
+            setInputType(android.text.InputType.TYPE_NULL);
+            setShowSoftInputOnFocus(false);
+            setBackground(null);
+        }
+
+        @Override public boolean onCheckIsTextEditor() { return false; }
+
+        @Override public android.view.inputmethod.InputConnection onCreateInputConnection(
+                android.view.inputmethod.EditorInfo outAttrs) {
+            if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;
+            return null;
         }
 
         void setCaretColors(int caretColor, int selectionColor) {
@@ -1010,7 +1168,10 @@ public final class CalculatorScreen implements Screen {
             android.text.Layout lo = getLayout();
             if (lo == null) return;
             int padL = getCompoundPaddingLeft();
-            int padT = getCompoundPaddingTop();
+            // getCompoundPaddingTop misses the gravity offset: with the text sitting at
+            // the BOTTOM of a tall box, the hand-drawn caret landed at the top of an empty
+            // box in his screenshot. Extended padding is where the layout really starts.
+            int padT = getExtendedPaddingTop();
             int s = getSelectionStart();
             int en = getSelectionEnd();
             if (s >= 0 && en > s) {
@@ -1158,7 +1319,7 @@ public final class CalculatorScreen implements Screen {
                     // fall through to the decimal
                 }
             }
-            return result;
+            return groupIndian(result);
         }
         return expression.length() == 0 ? "0" : readable(expression.toString());
     }
@@ -1169,7 +1330,8 @@ public final class CalculatorScreen implements Screen {
         String candidate = trimmed();
         if (candidate.isEmpty()) return " ";
         try {
-            return "= " + CalculatorRules.format(CalculatorRules.evaluate(candidate, degrees));
+            return "= " + groupIndian(
+                    CalculatorRules.format(CalculatorRules.evaluate(candidate, degrees)));
         } catch (Exception e) {
             return " ";
         }
@@ -1191,7 +1353,8 @@ public final class CalculatorScreen implements Screen {
             int s = displayView.getSelectionStart();
             int e = displayView.getSelectionEnd();
             if (s >= 0 && e >= 0) {
-                return new int[]{Math.min(s, expression.length()), Math.min(e, expression.length())};
+                return new int[]{Math.min(dispToRaw(s), expression.length()),
+                        Math.min(dispToRaw(e), expression.length())};
             }
         }
         int c = Math.max(0, Math.min(caret, expression.length()));
@@ -1243,7 +1406,18 @@ public final class CalculatorScreen implements Screen {
             refreshDisplay(context);
             return;
         }
-        if ("Deg".equals(key)) {
+        String inverse = invToken(key);
+        if (inverse != null) {
+            // The swapped caps insert their own little sequences: x² appends the power,
+            // eˣ and 10ˣ open their exponent, the inverses insert their function.
+            for (int i = 0; i < inverse.length(); i++) {
+                if (!insertAtCaret(context, String.valueOf(inverse.charAt(i)))) break;
+            }
+            AppLog.event(context, "calc", "key " + key + " inserted " + inverse
+                    + ": now " + readable(expression.toString()));
+            return;
+        }
+        if ("Deg".equals(key) || "Rad".equals(key)) {
             degrees = !degrees;
             AppPrefs.prefs(context).edit().putBoolean(DEGREES_KEY, degrees).apply();
             AppLog.event(context, "calc", "angle mode → " + (degrees ? "DEG" : "RAD")
@@ -1399,6 +1573,67 @@ public final class CalculatorScreen implements Screen {
 
     /** The display glyphs are typographic; the parser takes ASCII operators. */
     private static String readable(String raw) {
-        return raw.replace('*', '×').replace('/', '÷').replace('-', '−');
+        return groupIndian(
+                raw.replace('*', '×').replace('/', '÷').replace('-', '−'));
+    }
+
+    /**
+     * Round 9: "when numbers are typed, use commas as per Indian numbering." Every run of
+     * digits on the display is grouped the Indian way -- three from the right, then twos:
+     * 1234567 reads 12,34,567. The expression itself stays raw; commas live only in what
+     * the eye sees, and the two offset spaces are mapped below so taps and the caret keep
+     * landing where the thumb meant.
+     */
+    static String groupIndian(String s) {
+        if (s == null) return "";
+        StringBuilder out = new StringBuilder();
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') { out.append(c); i++; continue; }
+            int j = i;
+            while (j < s.length() && s.charAt(j) >= '0' && s.charAt(j) <= '9') j++;
+            out.append(groupRun(s.substring(i, j)));
+            i = j;
+        }
+        return out.toString();
+    }
+
+    private static String groupRun(String digits) {
+        int n = digits.length();
+        if (n < 4) return digits;
+        StringBuilder b = new StringBuilder();
+        int lead = (n - 3) % 2 == 1 ? 1 : 2;
+        b.append(digits, 0, lead);
+        int k = lead;
+        while (k < n - 3) {
+            b.append(',');
+            b.append(digits, k, k + 2);
+            k += 2;
+        }
+        b.append(',');
+        b.append(digits, k, n);
+        return b.toString();
+    }
+
+    /** Display offset (with commas) to expression offset (without). */
+    private int dispToRaw(int off) {
+        CharSequence d = displayView == null ? "" : displayView.getText();
+        int raw = 0;
+        for (int i = 0; i < off && i < d.length(); i++) {
+            if (d.charAt(i) != ',') raw++;
+        }
+        return raw;
+    }
+
+    /** Expression offset to display offset, walking past the commas. */
+    private int rawToDisp(int off) {
+        CharSequence d = displayView == null ? "" : displayView.getText();
+        int raw = 0;
+        for (int i = 0; i < d.length(); i++) {
+            if (raw == off) return i;
+            if (d.charAt(i) != ',') raw++;
+        }
+        return d.length();
     }
 }

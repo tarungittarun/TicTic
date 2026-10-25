@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.10'", gradle)
-        self.assertIn("versionCode 47", gradle)
+        self.assertIn("versionName '3.12.11'", gradle)
+        self.assertIn("versionCode 48", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2595,7 +2595,7 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("GradientDrawable shape = new GradientDrawable();", self.screen)
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.
-        self.assertIn('"= " + CalculatorRules.format(', self.screen)
+        self.assertIn('"= " + groupIndian(', self.screen)
         # Google's remaining features, pinned so they cannot silently regress: key haptics,
         # hold-to-copy through the clipboard, the persisted history and its swipe gesture,
         # the scientific page, and a display that scrolls instead of truncating.
@@ -4299,11 +4299,14 @@ class SheetAndChevronContracts(unittest.TestCase):
         # His fifth point: colour and border differentiation between sections. The sheet and
         # the dock carry their own tinted, bordered surfaces; hairlines rule off the chrome
         # row and the pad.
-        self.assertIn("bg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));", self.screen)
-        self.assertIn("bg.setCornerRadius(ui.dp(16));", self.screen)
-        self.assertIn("dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));", self.screen)
-        self.assertIn("root.addView(modesRule, ui.lp(-1, 1));", self.screen)
-        self.assertIn("padContainer.addView(padRule, ui.lp(-1, 1));", self.screen)
+        # Round 9 reversed this test's meaning: "no need of borders, instead keep it
+        # simple" -- nothing in the calculator draws a stroke or a hairline any more, and
+        # the sections read apart by spacing alone.
+        self.assertNotIn("setStroke(", self.screen)
+        self.assertNotIn("modesRule", self.screen)
+        self.assertNotIn("padRule", self.screen)
+        self.assertNotIn("divider.setBackgroundColor(", self.screen)
+        self.assertIn("line.setPadding(0, ui.dp(7), 0, ui.dp(7));", self.screen)
 
     def test_the_adopted_spec_behaviours_are_wired(self):
         # From the owner's reference sheet of 2026-10-26, the gaps that were adopted:
@@ -4314,15 +4317,19 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("putBoolean(DEGREES_KEY, degrees)", self.screen)
         self.assertIn("HAPTICS_KEY", self.screen)
         self.assertIn("getBoolean(HAPTICS_KEY, true)", self.screen)
-        self.assertIn("Recall memory", self.screen)
-        self.assertIn("Add to memory", self.screen)
-        self.assertIn("Subtract from memory", self.screen)
+        self.assertIn("items.add(\"Add to memory\");", self.screen)
+        self.assertIn("items.add(\"Clear memory\");", self.screen)
+        self.assertIn("items.add(\"View memory\");", self.screen)
+        self.assertNotIn("Subtract from memory", self.screen)
         self.assertIn("if (!ValueAnimator.areAnimatorsEnabled()) {", self.screen)
-        self.assertIn('chip.setContentDescription("Memory holds " + stored);', self.screen)
+        self.assertIn("memory moved: ", self.screen)
 
     def test_the_chrome_controls_are_legible(self):
-        # The M chip was a speck in a pill; Clear was clipped by a fixed height.
-        self.assertIn("chip.setMinWidth(ui.dp(44));", self.screen)
+        # Round 9: history at the left, three dots at the right, both described for
+        # TalkBack; the Clear pill keeps its guaranteed height in the popup head.
+        self.assertIn("historyBtn.setContentDescription(\"History\");", self.screen)
+        self.assertIn("dots.setContentDescription(\"More options\");", self.screen)
+        self.assertIn("LinearLayout.LayoutParams clp = ui.lp(-2, 34);", self.screen)
         self.assertIn("stack.setGravity(Gravity.LEFT);", self.screen)
 
 
@@ -4341,6 +4348,56 @@ class TestInfrastructureContracts(unittest.TestCase):
         # because the runner cannot host Gradle and the emulator at once.
         self.assertIn("adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk", wf)
         self.assertIn("am instrument -w app.space.calc.debug.test", wf)
+
+    def test_indian_grouping_reaches_every_displayed_number(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 9: "when numbers are typed, use commas as per Indian numbering."
+        self.assertIn("static String groupIndian(String s) {", screen)
+        self.assertIn("int lead = (n - 3) % 2 == 1 ? 1 : 2;", screen)
+        self.assertIn("return groupIndian(result);", screen)
+        self.assertIn("ui.label(groupIndian(expr), 13, ui.palette().muted, false);", screen)
+        # and the commas never leak into the expression itself
+        self.assertIn('String raw = txt.replace(",", "")', screen)
+        self.assertIn("private int dispToRaw(int off) {", screen)
+        self.assertIn("private int rawToDisp(int off) {", screen)
+
+    def test_the_keyboard_can_never_rise_over_the_pad(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 9, his first line: moving the cursor summoned the device keyboard and the
+        # calculator became inoperable. The display is not a text editor at all now.
+        self.assertIn("@Override public boolean onCheckIsTextEditor() { return false; }", screen)
+        self.assertIn("if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;", screen)
+        self.assertIn("setShowSoftInputOnFocus(false);", screen)
+        self.assertIn("int padT = getExtendedPaddingTop();", screen)
+
+    def test_the_three_dots_carry_exactly_the_five_asked_items(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 9: haptics, add to memory, clear memory, view memory, show as fraction --
+        # and nothing else in that menu.
+        self.assertIn("items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)", screen)
+        self.assertIn("items.add(showFraction ? \"Show as decimal\" : \"Show as fraction\");", screen)
+        self.assertNotIn("Recall memory", screen)
+        self.assertNotIn("Store in memory", screen)
+
+    def test_memory_is_a_list_the_owner_arranges(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 9: the memory popup lists what is stored, tap keeps one, chevrons move it.
+        self.assertIn("private void moveMemory(Context context, UiKit ui, LinearLayout list,", screen)
+        self.assertIn("saveMemory(context, values);", screen)
+        self.assertIn("list.setId(R.id.calc_memory_list);", screen)
+        self.assertIn("up.setContentDescription(\"Move up from place \" + (at + 1));", screen)
+        self.assertIn("close.setId(R.id.calc_memory_close);", screen)
+
+    def test_inv_swaps_the_whole_panel_the_way_google_does(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 9: Inv must change more than the trig row -- sqrt squares, ln and log
+        # become their exponentials, and the swapped caps insert their own sequences.
+        self.assertIn('if ("√(".equals(key)) return "x²";', screen)
+        self.assertIn('if ("ln(".equals(key)) return "eˣ";', screen)
+        self.assertIn('if ("log(".equals(key)) return "10ˣ";', screen)
+        self.assertIn('if ("x²".equals(label)) return "^2";', screen)
+        self.assertIn('if ("eˣ".equals(label)) return "e^(";', screen)
+        self.assertIn("press(context, labelFor(rawKey));", screen)
 
     def test_the_chevron_strip_is_centred_and_the_whole_strip_toggles(self):
         # His round-8 message: the chevron is not centered, "the direction should be
@@ -4368,6 +4425,10 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("historyOpensAtTheNewestAndScrollsToTheOldest", ui)
         self.assertIn("theHistoryPopupShowsClearFullyAndKeepsThePad", ui)
         self.assertIn("historyPopupClosesWithItsCloseButton", ui)
+        self.assertIn("indianGroupingAppearsAsYouType", ui)
+        self.assertIn("theDisplayNeverOffersTheKeyboard", ui)
+        self.assertIn("invSwapsThePanelAndComputesTheInverse", ui)
+        self.assertIn("memoryStoresAndRecallsFromItsPopup", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):
@@ -4410,7 +4471,7 @@ class OutcomeLogContracts(unittest.TestCase):
                 "history cleared: ",    # clearing counts what it deleted
                 "copied ",              # copy names the length and the text
                 "copy FAILED: ",        # and a failed copy says it failed
-                "memory stored: ",
+                "memory added: ",
                 "laid out: parent ",    # the layout reports the size it actually became
         ):
             self.assertIn('"' + outcome + '"', self.screen)
@@ -4434,7 +4495,14 @@ class OutcomeLogContracts(unittest.TestCase):
         self.assertIn("ValueAnimator.ofFloat(from, to)", self.screen)
         self.assertIn("private void togglePanel(final Context context, final UiKit ui)", self.screen)
         self.assertIn("private void toggleHistory(final Context context, final UiKit ui)", self.screen)
-        self.assertIn("divider.setBackgroundColor(", self.screen)
+        # Round 9: every key carries the suite's press motion, and every popup arrives and
+        # leaves through a fade-and-rise transition instead of a jump cut.
+        self.assertIn("GelMotion.apply(root, ui.palette().accent);", self.screen)
+        self.assertIn("historyPopup.setAnimationStyle(R.style.CalcPopupAnim);", self.screen)
+        anim = (ROOT / "feature-calculator/src/main/res/anim/calc_popup_in.xml").read_text()
+        self.assertIn("android:fromAlpha=\"0.0\" android:toAlpha=\"1.0\"", anim)
+        style = (ROOT / "feature-calculator/src/main/res/values/styles.xml").read_text()
+        self.assertIn("<style name=\"CalcPopupAnim\" parent=\"@android:style/Animation\">", style)
 
     def test_history_is_a_sheet_with_timestamps_and_a_docked_expression(self):
         # His seventh to tenth points: the sheet expands over the display while the current
@@ -4453,7 +4521,10 @@ class OutcomeLogContracts(unittest.TestCase):
         # is now the clock-with-arrow glyph every calculator user knows, and the overflow
         # carries a label instead of being a dot.
         self.assertIn("TicIconView.HISTORY", self.screen)
-        self.assertIn('ui.pillButton("Menu"', self.screen)
+        # Round 9: the labelled Menu pill became three drawn dots at the right.
+        self.assertIn("dots.setId(R.id.calc_menu_btn);", self.screen)
+        self.assertIn("dot.setShape(GradientDrawable.OVAL);", self.screen)
+        self.assertNotIn('ui.pillButton("Menu"', self.screen)
         glyph = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
         self.assertIn("HISTORY=25", glyph)
         self.assertIn("case HISTORY:", glyph)

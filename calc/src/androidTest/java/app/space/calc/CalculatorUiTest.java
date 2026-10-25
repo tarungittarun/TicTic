@@ -6,8 +6,10 @@ import static androidx.test.espresso.action.ViewActions.swipeDown;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -45,6 +47,9 @@ public class CalculatorUiTest {
     private static final int HISTORY_BTN = app.space.feature.calculator.R.id.calc_history_btn;
     private static final int CHEVRON_ROW = app.space.feature.calculator.R.id.calc_chevron_row;
     private static final int HISTORY_CLOSE = app.space.feature.calculator.R.id.calc_history_close;
+    private static final int MENU_BTN = app.space.feature.calculator.R.id.calc_menu_btn;
+    private static final int MEMORY_LIST = app.space.feature.calculator.R.id.calc_memory_list;
+    private static final int MEMORY_CLOSE = app.space.feature.calculator.R.id.calc_memory_close;
 
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
@@ -141,6 +146,75 @@ public class CalculatorUiTest {
         onView(withText("Clear")).check(matches(isCompletelyDisplayed()));
         onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
         onView(key("7")).check(matches(isDisplayed()));
+    }
+
+    @Test public void indianGroupingAppearsAsYouType() {
+        // Round 9: "when numbers are typed, use commas as per Indian numbering."
+        type("1", "2", "3", "4", "5", "6", "7");
+        onView(withId(DISPLAY)).check(matches(withText("12,34,567")));
+        type("8", "9", "0");
+        onView(withId(DISPLAY)).check(matches(withText("1,23,45,67,890")));
+    }
+
+    @Test public void theDisplayNeverOffersTheKeyboard() {
+        // Round 9, his first line: moving the cursor summoned the device keyboard and the
+        // calculator became inoperable. The display must not be a text editor at all.
+        onView(withId(DISPLAY)).perform(click());
+        onView(withId(DISPLAY)).check(matches(hasFocus()));
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                assertTrue("the display must never attach an IME",
+                        !view.onCheckIsTextEditor());
+            }
+        });
+    }
+
+    @Test public void invSwapsThePanelAndComputesTheInverse() {
+        // Round 9: Inv must change the whole panel Google's way, and the swapped caps
+        // must really compute the inverse: asin(1) is 90 in degrees.
+        onView(withId(CHEVRON_ROW)).perform(click());
+        onView(key("Inv")).perform(click());
+        onView(key("sin⁻¹")).check(matches(isDisplayed()));
+        onView(key("x²")).check(matches(isDisplayed()));
+        onView(key("eˣ")).check(matches(isDisplayed()));
+        onView(key("sin⁻¹")).perform(click());
+        type("1", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("90")));
+    }
+
+    @Test public void memoryStoresAndRecallsFromItsPopup() {
+        // Round 9: the three dots store the display, and View memory opens a small popup
+        // where entries can be moved up and down and tapped back into the expression.
+        type("5", "=");
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Add to memory")).perform(click());
+        type("AC", "7", "=");
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Add to memory")).perform(click());
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("View memory")).perform(click());
+        onView(withId(MEMORY_LIST)).check(matches(isDisplayed()));
+        onView(allOf(withText("5"), isDescendantOfA(withId(MEMORY_LIST))))
+                .check(matches(isDisplayed()));
+        onView(allOf(withText("7"), isDescendantOfA(withId(MEMORY_LIST))))
+                .check(matches(isDisplayed()));
+        // move the first entry (5) down, so 7 becomes place 1
+        onView(withContentDescription("Move down from place 1")).perform(click());
+        onView(withId(MEMORY_LIST)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.LinearLayout list = (android.widget.LinearLayout) view;
+                android.widget.LinearLayout firstRow = (android.widget.LinearLayout) list.getChildAt(0);
+                String first = ((android.widget.TextView) firstRow.getChildAt(0)).getText().toString();
+                assertTrue("7 must hold place 1 after the move, not " + first,
+                        "7".equals(first));
+            }
+        });
+        // tapping an entry keeps it: it lands in the expression and the popup leaves
+        onView(allOf(withText("5"), isDescendantOfA(withId(MEMORY_LIST)))).perform(click());
+        onView(withId(MEMORY_LIST)).check(doesNotExist());
+        onView(withId(DISPLAY)).check(matches(withText("5")));
     }
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {

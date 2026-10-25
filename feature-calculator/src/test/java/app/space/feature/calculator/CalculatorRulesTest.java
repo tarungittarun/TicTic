@@ -50,7 +50,9 @@ public class CalculatorRulesTest {
         assertEquals("(2", CalculatorRules.append("(", "2"));
         assertEquals("(2)", CalculatorRules.append("(2", ")"));
         assertEquals("(2+3)*", CalculatorRules.append("(2+3)", "*"));
-        assertNull(CalculatorRules.append("2", "("));
+        // Implicit multiplication (owner, 2026-10-26): a group after a value means
+        // multiply -- 2(5+2)2 is 28 -- so this is accepted, not refused.
+        assertEquals("2(", CalculatorRules.append("2", "("));
         assertNull(CalculatorRules.append("", ")"));
         assertNull(CalculatorRules.append("()", ")"));
         assertNull(CalculatorRules.append("5.2", "."));

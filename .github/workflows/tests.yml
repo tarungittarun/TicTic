@@ -40,7 +40,19 @@ jobs:
           key: gradle-${{ runner.os }}-jdk17-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
           restore-keys: gradle-${{ runner.os }}-jdk17-
       - name: Unit tests, all modules
-        run: ./gradlew test --stacktrace
+        run: ./gradlew test --stacktrace 2>&1 | tee /tmp/unit.log; exit ${PIPESTATUS[0]}
+      - name: Surface unit test errors as annotations
+        if: failure()
+        run: |
+          # Run logs are not downloadable from the review sandbox, so a red run re-emits
+          # its own tail as a check-run annotation -- the same trick android-ci uses.
+          if [ -f /tmp/unit.log ]; then
+            body=$(tail -c 60000 /tmp/unit.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=unit.log::$body"
+          else
+            echo "::error title=unit.log::unit log missing"
+          fi
+          exit 1
   ui-e2e:
     name: UI end-to-end on emulator
     runs-on: ubuntu-latest
@@ -69,4 +81,18 @@ jobs:
           api-level: 34
           arch: x86_64
           disable-animations: true
-          script: ./gradlew :calc:connectedDebugAndroidTest --stacktrace
+          script: |
+            ./gradlew :calc:connectedDebugAndroidTest --stacktrace > /tmp/ui.log 2>&1
+            code=$?
+            tail -60 /tmp/ui.log
+            exit $code
+      - name: Surface emulator test errors as annotations
+        if: failure()
+        run: |
+          if [ -f /tmp/ui.log ]; then
+            body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=ui.log::$body"
+          else
+            echo "::error title=ui.log::emulator log missing; the runner failed before gradle wrote anything"
+          fi
+          exit 1

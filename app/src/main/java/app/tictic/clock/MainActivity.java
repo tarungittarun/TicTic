@@ -184,7 +184,13 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         if(screen==null)return false;
         activeScreen=screen;activeApp=app;settings=false;routeCache=null;
         NavPrefs.pushRecent(this,id);AppLog.event(this,"app","open "+id+(route==null?"":" route="+route));
-        render();return true;
+        render();
+        // The outcome half of the log the owner asked for on 2026-10-25: not "open calculator"
+        // but "open calculator, and here is the size it actually rendered at", after layout.
+        final String opened=id;
+        root.post(()->{AppLog.event(this,"app","open "+opened+" rendered at "
+                +root.getWidth()+"x"+root.getHeight()+"px");});
+        return true;
     }
     @Override public void openSettings(){openSettingsPage();}
     /** Group ids are not mapped until the settings surface moves in step 1h-v. */
@@ -224,7 +230,9 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         ScrollView scroll=new AliveScrollView(this);scroll.setFillViewport(true);scroll.setClipChildren(true);scroll.setClipToPadding(false);body=vbox();body.setClipChildren(true);body.setClipToPadding(true);body.setPadding(dp(20),dp(8),dp(20),dp(28));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if((settings||!routeIs("stopwatch"))&&stopwatchScreen!=null){stopwatchScreen.onPause();stopwatchScreen=null;}if(settings)buildSettings();else if(activeScreen!=null){body.addView(activeScreen.build(this));}else{String route=currentRoute();if("reminders".equals(route))buildReminders();else if("timer".equals(route))buildTimer();else if("stopwatch".equals(route))buildStopwatch();else if("routines".equals(route))buildRoutines();else if("usage".equals(route))buildActivity();else buildClock();}
         if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}GelMotion.apply(root,accent);if(body!=null){if(hasRendered&&!batterySaverOptimization()){body.setAlpha(0f);body.animate().alpha(1f).setDuration(180).start();}else body.setAlpha(1f);}hasRendered=true;updateLive();handler.removeCallbacks(ticker);handler.post(ticker);
     }
-    private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;AppLog.event(this,"settings","open");render();}
+    private void openSettingsPage(){settings=true;settingsGroup=0;settingsScrollY=0;settingsScrollView=null;AppLog.event(this,"settings","open");render();
+        root.post(()->{AppLog.event(this,"settings","page rendered at "
+                +root.getWidth()+"x"+root.getHeight()+"px");});}
     private void renderSettingsPage(){try{renderSettingsPageInner();}catch(Throwable settingsCrash){AppLog.crash(this,settingsCrash);settingsError=String.valueOf(settingsCrash);renderSettingsFallback(settingsCrash);}}
     private void renderSettingsPageInner(){
         applyPalette();renderedDark=DataStore.dark(this);renderedAccent=accent;
@@ -289,17 +297,20 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout bar=hbox();bar.setBackground(shape(surface,24));bar.setPadding(0,dp(5),0,dp(6));
         HorizontalScrollView rail=new HorizontalScrollView(this);rail.setHorizontalScrollBarEnabled(false);rail.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout content=hbox();rail.addView(content,new HorizontalScrollView.LayoutParams(-2,-1));
-        int screen=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);int item=76;int lead=Math.max(20,(screen-item)/2);content.addView(new View(this),new LinearLayout.LayoutParams(dp(lead),dp(54)));
+        int screen=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);int item=76;int lead=12;content.addView(new View(this),new LinearLayout.LayoutParams(dp(lead),dp(54)));
         List<NavRoute> destinations=visibleRoutes();
         LinearLayout appsSlot=vbox();appsSlot.setGravity(Gravity.CENTER);appsSlot.setPadding(dp(4),dp(4),dp(4),dp(3));
             TicIconView appsIcon=new TicIconView(this,TicIconView.APPS,muted);appsSlot.addView(appsIcon,lp(24,24));
             TextView appsLabel=label("Apps",10,muted,false);appsLabel.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams anp=lp(-1,18);anp.topMargin=dp(1);appsSlot.addView(appsLabel,anp);
             appsSlot.setOnClickListener(v->showAppPicker());
-        boolean appsPlaced=false;
-        for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});if(!appsPlaced&&i>=(destinations.size()-1)/2){content.addView(appsSlot,lp(item,54));appsPlaced=true;}}
-        if(!appsPlaced)content.addView(appsSlot,lp(item,54));
-        content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp(tab*item),0));
+        // 2026-10-25, owner: "when MySpace app is opened, in the bottom bar where many clock
+        // is first one. Make the first Apps as first one." The rail opened with the clock's
+        // own destinations and wove Apps into their middle; now Apps leads the bar and the
+        // rail left-aligns instead of centring, because first means first, not centred.
+        content.addView(appsSlot,lp(item,54));
+        for(int i=0;i<destinations.size();i++){final NavRoute route=destinations.get(i);final boolean on=route.id().equals(currentRoute());LinearLayout slot=vbox();slot.setGravity(Gravity.CENTER);slot.setPadding(dp(4),dp(4),dp(4),dp(3));slot.setBackground(shape(on?accent:Color.TRANSPARENT,17));TicIconView icon=new TicIconView(this,glyphFor(route.id()),on?Color.WHITE:("routines".equals(route.id())?accent:muted));LinearLayout.LayoutParams ip=lp(24,24);slot.addView(icon,ip);TextView name=label(route.label(),10,on?Color.WHITE:muted,on);name.setGravity(Gravity.CENTER);LinearLayout.LayoutParams np=lp(-1,18);np.topMargin=dp(1);slot.addView(name,np);content.addView(slot,lp(item,54));slot.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});}
+        content.addView(new View(this),new LinearLayout.LayoutParams(dp(20),dp(54)));bar.addView(rail,new LinearLayout.LayoutParams(-1,dp(54)));root.addView(bar,lp(-1,64));rail.post(()->rail.scrollTo(dp((tab+1)*item),0));
     }
 
     /**
@@ -314,20 +325,23 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
         LinearLayout top=hbox();LinearLayout bottom=hbox();stack.addView(top,lp(-2,54));stack.addView(bottom,lp(-2,54));
         List<NavRoute> destinations=visibleRoutes();
         int placed=0;
-        for(int i=0;i<destinations.size();i++){
-            final NavRoute route=destinations.get(i);
-            View tile=navTile(route.label(),glyphFor(route.id()),route.id().equals(currentRoute()));
-            ((placed++)%2==0?top:bottom).addView(tile,lp(76,54));
-            tile.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});
-        }
-        // Apps rather than a single Apps slot: in hub mode there is room for them, and reading
-        // availableApps() means a newly registered app appears with no change here.
+        // 2026-10-25, same instruction as the rail: "make the first Apps as first one." The
+        // hub listed the clock's destinations first and the apps after; now the app tiles
+        // lead the grid and the destinations follow. Apps rather than a single Apps slot:
+        // in hub mode there is room for them, and reading availableApps() means a newly
+        // registered app appears with no change here.
         for(SuiteApp app:availableApps()){
             if(clockApp.id().equals(app.id()))continue;
             final String id=app.id();
             View tile=navTile(app.label(),app.iconGlyph(),false);
             ((placed++)%2==0?top:bottom).addView(tile,lp(76,54));
             tile.setOnClickListener(v->openApp(id));
+        }
+        for(int i=0;i<destinations.size();i++){
+            final NavRoute route=destinations.get(i);
+            View tile=navTile(route.label(),glyphFor(route.id()),route.id().equals(currentRoute()));
+            ((placed++)%2==0?top:bottom).addView(tile,lp(76,54));
+            tile.setOnClickListener(v->{if("usage".equals(route.id())&&!routeIs("usage"))activityHistoryLimit=20;showRoute(route.id());settings=false;render();});
         }
         root.addView(scroll,lp(-1,118));
     }
@@ -347,16 +361,17 @@ private List<SuiteApp> suiteApps(){return java.util.Arrays.<SuiteApp>asList(cloc
     void buildAppNav(){
         LinearLayout bar=hbox();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackground(shape(surface,24));bar.setPadding(dp(10),dp(5),dp(10),dp(6));
         navBarView=bar;
-        // 2026-10-23, owner's revision of his own earlier "Apps first": the switcher holds the
-        // MIDDLE of the bar -- the thumb-reachable centre, like a launcher's home button -- with
-        // the way home on the left and the name of where you are on the right. Two equal weight
-        // zones flank the fixed centre tile, so centre means centre on any screen width.
+        // 2026-10-25, the owner's second revision of this bar, reversing his own 2026-10-23
+        // "apps folder in the middle": "when MySpace app is opened, in the bottom bar where
+        // many clock is first one. Make the first Apps as first one." So the switcher leads
+        // the bar on the left, the way home holds the middle, and the name of where you are
+        // keeps the right. Two equal weight zones flank the fixed middle tile on any width.
         LinearLayout leftZone=hbox();leftZone.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
-        View home=navTile("Clock",TicIconView.CLOCK,false);leftZone.addView(home,lp(76,54));
-        home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
-        bar.addView(leftZone,new LinearLayout.LayoutParams(0,-1,1f));
-        View apps=navTile("Apps",TicIconView.APPS,false);bar.addView(apps,lp(84,54));
+        View apps=navTile("Apps",TicIconView.APPS,false);leftZone.addView(apps,lp(84,54));
         apps.setOnClickListener(v->showAppPicker());
+        bar.addView(leftZone,new LinearLayout.LayoutParams(0,-1,1f));
+        View home=navTile("Clock",TicIconView.CLOCK,false);bar.addView(home,lp(76,54));
+        home.setOnClickListener(v->{activeScreen=null;activeApp=null;showRoute("clock");settings=false;render();});
         LinearLayout rightZone=hbox();rightZone.setGravity(Gravity.CENTER_VERTICAL|Gravity.RIGHT);
         TextView title=label(activeApp==null?"":activeApp.label(),13,text,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         rightZone.addView(title,lp(-2,-2));

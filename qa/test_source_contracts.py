@@ -2550,7 +2550,7 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("if (c == '\\u00d7') return \"*\";", rules)
         self.assertIn("if (c == '\\u2212') return \"-\";", rules)
         self.assertIn("String k = normaliseKey(key);", rules)
-        self.assertIn("CalculatorRules.appendToken(expression.toString(), key)", self.screen)
+        self.assertIn("CalculatorRules.appendToken(built, token)", self.screen)
         self.assertIn("return append(current, token);", rules)
 
     def test_errors_are_shown_not_thrown_at_the_user(self):
@@ -2564,15 +2564,17 @@ class CalculatorAppContracts(unittest.TestCase):
         # the top half of the screen with dead space under it. Fixed heights are what caused the
         # second half, so the rows must take their height from weights, and the display from a
         # larger one, on any screen.
-        self.assertIn('{"C", "\\u232b", "%", "\\u00f7"},', self.screen)
+        self.assertIn('{"AC", "( )", "%", "÷"},', self.screen)
         # The on-device bug this contract now owns: keys once had height ZERO inside a
         # horizontal row, where weight does not govern height, so the whole keypad was
         # invisible on the owner's phone. MATCH_PARENT inside a weighted row is the fix.
         self.assertIn("new LinearLayout.LayoutParams(0, -1, 1f)", self.screen)
-        # Google's pad has no bracket key, so the recreation must not invent one.
-        self.assertNotIn('" ( )"', self.screen)
-        self.assertNotIn('"( )"', self.screen)
-        self.assertIn('{"0", ".", "=", null},', self.screen)
+        # Google's pad DOES carry a bracket key -- the owner's 2026-10-25 screenshot shows
+        # "( )" second in the top row -- and his backspace sits in the bottom row beside a
+        # single-cell equals. The earlier pins said the opposite because they were written
+        # from memory of an older Google build, not from his reference images.
+        self.assertIn('"( )"', self.screen)
+        self.assertIn('{"0", ".", "⌫", "="},', self.screen)
         self.assertIn("root.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));", self.screen)
         self.assertIn("new LinearLayout.LayoutParams(-1, 0, 3f)", self.screen)
         # The shell wraps every screen root, and a wrapped parent starves weighted children:
@@ -2580,7 +2582,14 @@ class CalculatorAppContracts(unittest.TestCase):
         # must claim the viewport height itself, or the weights are a promise nothing keeps.
         self.assertIn("int avail = ((View) parent).getHeight();", self.screen)
         self.assertIn("lp.height = avail;", self.screen)
-        self.assertIn("params.weight = 2f;", self.screen)  # equals spans the last two cells
+        # Equals is one cell in Google's grid, not a double-width slab: the owner's
+        # screenshot is explicit, and a two-cell equals is what made our pad read as ours.
+        self.assertNotIn("params.weight = 2f", self.screen)
+        # Separated, filled buttons: a stadium fill per key with a margin on every side.
+        # Bare glyphs on the background -- what shipped until 2026-10-25 -- read as text.
+        self.assertIn("shape.setCornerRadius(ui.dp(200));", self.screen)
+        self.assertIn("params.leftMargin = ui.dp(5);", self.screen)
+        self.assertIn("GradientDrawable shape = new GradientDrawable();", self.screen)
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.
         self.assertIn('"= " + CalculatorRules.format(', self.screen)
@@ -2590,8 +2599,25 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("HapticFeedbackConstants.KEYBOARD_TAP", self.screen)
         self.assertIn("android.content.ClipboardManager", self.screen)
         self.assertIn('"calculator_history"', self.screen)
-        self.assertIn("SCIENTIFIC_ROWS", self.screen)
-        self.assertIn("e.getY() - downY > 60", self.screen)
+        self.assertIn("PANEL_ROWS", self.screen)
+        # The swipe lives in onInterceptTouchEvent now: a listener on a parent whose children
+        # consume every touch never fired, which is exactly why the owner's swipe-down did
+        # nothing on his phone while every CI run believed it existed.
+        self.assertIn("public boolean onInterceptTouchEvent(MotionEvent e)", self.screen)
+        self.assertIn("dy > 60 && dy > Math.abs(dx) * 2", self.screen)
+        # Google's chevron grows the scientific rows over the basic pad and closes them again.
+        self.assertIn("scientific panel expanded", self.screen)
+        self.assertIn("scientific panel collapsed", self.screen)
+        # The display is selectable text with a caret: selection, the framework copy menu,
+        # and insertion at the cursor, which is the owner's "edit the already typed equation".
+        self.assertIn("expressionView.setTextIsSelectable(true);", self.screen)
+        self.assertIn("static boolean wholeExpressionValid(String raw)", self.screen)
+        self.assertIn("Selection.setSelection((Spannable) cs, pos, pos);", self.screen)
+        # History shown means a button that clears it, counting what it deletes.
+        self.assertIn('"history cleared: " + entries + " entries removed"', self.screen)
+        # Every action writes its outcome: what was pressed, what became, what was refused.
+        self.assertIn('AppLog.event(context, "calc",', self.screen)
+        self.assertIn('"laid out: parent "', self.screen)
         self.assertIn("exprScroll.setFillViewport(true)", self.screen)
         self.assertIn("CalculatorRules.evaluate(candidate, degrees)", self.screen)
 
@@ -2642,18 +2668,28 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn('"Navigation","About and permissions","Diagnostics"};', main)
         self.assertIn("index>=0&&index<full.length?full[index]", main)
 
-    def test_the_apps_switcher_holds_the_middle_of_both_bars(self):
-        # 2026-10-23 owner revision of his own "Apps first": the switcher sits in the
-        # thumb-reachable middle -- flanked by two equal weight zones in-app, woven into the
-        # middle of the destination row on the clock's rail.
+    def test_the_apps_switcher_leads_every_bar(self):
+        # 2026-10-25, the owner's second reversal of this bar and the one that stands:
+        # "when MySpace app is opened, in the bottom bar where many clock is first one.
+        # Make the first Apps as first one." Apps leads the in-app bar, leads the clock's
+        # rail, and leads the hub grid; the way home and the current title follow.
         main = read("MainActivity.java")
         bar = main[main.index("void buildAppNav(){"):]
         bar = bar[:bar.index("\n    }\n")]
-        self.assertLess(bar.index('navTile("Clock",TicIconView.CLOCK,false)'),
-                        bar.index('navTile("Apps",TicIconView.APPS,false)'))
         self.assertLess(bar.index('navTile("Apps",TicIconView.APPS,false)'),
+                        bar.index('navTile("Clock",TicIconView.CLOCK,false)'))
+        self.assertLess(bar.index('navTile("Clock",TicIconView.CLOCK,false)'),
                         bar.index("TextView title=label("))
-        self.assertIn("if(!appsPlaced&&i>=(destinations.size()-1)/2){content.addView(appsSlot,lp(item,54));appsPlaced=true;}", main)
+        rail = main[main.index("void buildRailNav(){"):]
+        rail = rail[:rail.index("\n    }\n")]
+        self.assertLess(rail.index("content.addView(appsSlot,lp(item,54));"),
+                        rail.index("for(int i=0;i<destinations.size();i++)"))
+        hub = main[main.index("void buildHubNav(){"):]
+        hub = hub[:hub.index("\n    }\n")]
+        # The hub lists every app directly (no picker tile), so "Apps first" there means the
+        # app tiles lead the grid and the clock's destinations follow them.
+        self.assertLess(hub.index("for(SuiteApp app:availableApps())"),
+                        hub.index("for(int i=0;i<destinations.size();i++)"))
 
     def test_the_apps_tile_holds_the_first_slot_of_the_picker_grid(self):
         # Owner's ordering: the apps icon where the clock app used to be, clock app second. The
@@ -3679,7 +3715,7 @@ class NavigationModesContracts(unittest.TestCase):
         # The rail is the default and the mode every existing user has. Splitting buildNav into
         # a dispatcher must not alter it, so the declaration the older contracts pin survives.
         self.assertEqual(self.main.count("HorizontalScrollView rail=new HorizontalScrollView(this);"), 1)
-        self.assertIn("rail.post(()->rail.scrollTo(dp(tab*item),0));", self.main)
+        self.assertIn("rail.post(()->rail.scrollTo(dp((tab+1)*item),0));", self.main)
 
     def test_hub_lists_apps_directly_rather_than_behind_a_picker(self):
         hub = self.main[self.main.index("void buildHubNav(){"):self.main.index("void buildAppNav(){")]
@@ -4167,6 +4203,37 @@ class CalcStandaloneContracts(unittest.TestCase):
         self.assertIn("int size = shown > 20 ? 26 : shown > 12 ? 34 : 46;", self.screen)
         self.assertIn("CalculatorRules.toFraction(", self.screen)
         self.assertIn("public static String toFraction(double value)", self.rules)
+
+
+class OutcomeLogContracts(unittest.TestCase):
+    """The owner's first instruction of 2026-10-25: "let the logs record in detail about
+    user activity and whether those actions got happened or not." A log line that names an
+    intention is not an outcome; each of these pins carries the result of the action --
+    the expression after the key, the count history showed, the size the layout became,
+    the refusal and its reason -- so a shared log reads as a transcript of what happened,
+    not of what was attempted.
+    """
+
+    def setUp(self):
+        self.screen = java_code_only(
+            (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        self.main = read("MainActivity.java")
+
+    def test_every_calculator_action_writes_its_result(self):
+        for outcome in (
+                "key = on ",            # equals names what it evaluated and what it got
+                " refused at ",         # a refusal says where and why, not nothing
+                "history cleared: ",    # clearing counts what it deleted
+                "copied ",              # copy names the length and the text
+                "copy FAILED: ",        # and a failed copy says it failed
+                "memory stored: ",
+                "laid out: parent ",    # the layout reports the size it actually became
+        ):
+            self.assertIn('"' + outcome + '"', self.screen)
+
+    def test_opening_an_app_logs_that_it_rendered_and_at_what_size(self):
+        self.assertIn('"open "+opened+" rendered at "', self.main)
+        self.assertIn('"page rendered at "', self.main)
 
 
 class SafBrowseContracts(unittest.TestCase):

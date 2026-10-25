@@ -97,10 +97,19 @@ jobs:
           arch: x86_64
           disable-animations: true
           ram-size: 2048M
+          # No Gradle inside the emulator step: two attempts died there mid-build with the
+          # log stopping between tasks -- the runner hosts the emulator AND the JVM, and
+          # the pair does not fit. The prebuilt APKs install with adb and run through
+          # am instrument, which is all connectedAndroidTest would have done anyway.
           script: |
-            ./gradlew :calc:connectedDebugAndroidTest --stacktrace --no-daemon -Dorg.gradle.jvmargs=-Xmx1536m > /tmp/ui.log 2>&1
+            set -x
+            adb wait-for-device
+            adb install -r calc/build/outputs/apk/debug/calc-debug.apk
+            adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk
+            adb shell am instrument -w app.space.calc.debug.test/androidx.test.runner.AndroidJUnitRunner > /tmp/ui.log 2>&1
             code=$?
-            tail -60 /tmp/ui.log
+            cat /tmp/ui.log
+            grep -q "OK (" /tmp/ui.log || code=1
             exit $code
       - name: Surface emulator test errors as annotations
         if: failure()

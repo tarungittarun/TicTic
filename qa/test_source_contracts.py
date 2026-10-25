@@ -2639,7 +2639,7 @@ class CalculatorAppContracts(unittest.TestCase):
         # what read to him as the key "not taking"; negation lives behind the bracket key.
         self.assertIn("if (isOperator(last)) {", rules)
         self.assertIn("return current.substring(0, current.length() - 1) + c;", rules)
-        self.assertIn('if ("-".equals(current)) return c == '-' ? "-" : null;', rules)
+        self.assertIn("if (\"-\".equals(current)) return c == '-' ? \"-\" : null;", rules)
         # Percent joins the changeable set over a pending operator: 10+ then % is 10%.
         self.assertIn("if (isOperator(last) && current.length() >= 2) {", rules)
         # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.

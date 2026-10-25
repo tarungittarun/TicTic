@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.7'", gradle)
-        self.assertIn("versionCode 44", gradle)
+        self.assertIn("versionName '3.12.8'", gradle)
+        self.assertIn("versionCode 45", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4256,11 +4256,23 @@ class SheetAndChevronContracts(unittest.TestCase):
         # keys gone below; the pad block animates to zero weight while it is open.
         self.assertIn("animateWeight(padContainer, historyOpen ? 5f : 0f", self.screen)
 
-    def test_the_caret_is_placed_explicitly_on_tap(self):
-        # A selectable TextView swallowed the caret tap on his device, so the offset is
-        # computed from the layout and placed by hand, and the log records it.
-        self.assertIn("layout.getOffsetForHorizontal(line, x)", self.screen)
-        self.assertIn('"cursor placed at "', self.screen)
+    def test_the_caret_is_the_editors_own_and_is_visible(self):
+        # Hand-rolled offset math pinned every tap to 0 on his device ("cursor placed at 0",
+        # 103 times in his log). The editor places its own caret now; the screen only logs
+        # where it landed, draws the caret in the accent colour so it is VISIBLE, and the
+        # pad door goes through the rules so the changeable mind works where thumbs type.
+        self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
+        self.assertIn('"cursor placed at " + caret', self.screen)
+        self.assertIn("displayView.setTextCursorDrawable(cursorMark);", self.screen)
+        self.assertIn("displayView.setCursorVisible(true);", self.screen)
+        self.assertNotIn("layout.getOffsetForHorizontal", self.screen)
+
+    def test_the_gestures_write_their_outcomes_to_the_log(self):
+        # The standing logging directive: outcomes, not intents. A swipe that is passed to
+        # the list, claimed downward or claimed upward each says so in the log.
+        self.assertIn('"swipe passed to the history list: it can still scroll up"', self.screen)
+        self.assertIn('"swipe claimed downward: sheet gesture"', self.screen)
+        self.assertIn('"swipe claimed upward from "', self.screen)
 
     def test_history_reads_oldest_first_and_opens_at_the_newest(self):
         # His third point: newest at the BOTTOM, scrolling up walks back through time; the
@@ -4296,6 +4308,45 @@ class SheetAndChevronContracts(unittest.TestCase):
         # The M chip was a speck in a pill; Clear was clipped by a fixed height.
         self.assertIn("chip.setMinWidth(ui.dp(44));", self.screen)
         self.assertIn("stack.setGravity(Gravity.LEFT);", self.screen)
+
+
+class TestInfrastructureContracts(unittest.TestCase):
+    """The owner's 2026-10-26 demand: end-to-end tests of all aspects, in a separate
+    workflow for testing alone. These pins keep that infrastructure from quietly
+    disappearing -- a test workflow nobody re-reads is a test workflow somebody deletes.
+    """
+
+    def test_the_tests_workflow_is_separate_and_real(self):
+        wf = (ROOT / ".github/workflows/tests.yml").read_text()
+        self.assertIn("python -m unittest discover -s qa", wf)
+        self.assertIn("./gradlew test --stacktrace", wf)
+        self.assertIn("reactive-circus/android-emulator-runner@v2", wf)
+        self.assertIn("./gradlew :calc:connectedDebugAndroidTest", wf)
+
+    def test_the_ui_suite_walks_the_owners_stories_on_an_emulator(self):
+        ui = java_code_only((ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text())
+        self.assertIn("implicitMultiplicationAnswersTwentyEightOnThePad", ui)
+        self.assertIn("aPendingOperatorIsAChangeableMindOnThePad", ui)
+        self.assertIn("historyOpensAndCollapsesFromAnUpwardSwipeOnTheDock", ui)
+        self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
+
+    def test_the_jvm_journeys_walk_whole_pipelines(self):
+        j = java_code_only((ROOT / "feature-calculator/src/test/java/app/space/feature/calculator/CalculatorEndToEndTest.java").read_text())
+        self.assertIn("theOwnersLogSequenceNowEndsInAnAnswer", j)
+        self.assertIn("implicitMultiplicationAnswersTwentyEight", j)
+        self.assertIn("invalidMathIsAnErrorStateNeverACrashOrAGuess", j)
+        self.assertIn("historyIsACappedOrderedDeduplicatedStore", j)
+
+    def test_the_screen_views_carry_stable_ids_for_the_suite(self):
+        ids = (ROOT / "feature-calculator/src/main/res/values/ids.xml").read_text()
+        for name in ("calc_display", "calc_history_scroll", "calc_history_btn"):
+            self.assertIn(name, ids)
+
+    def test_implicit_multiplication_is_engine_truth(self):
+        rules = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text())
+        self.assertIn("static String withImplicitMultiplication(String expression)", rules)
+        self.assertIn('if ("cbrt".equals(name)) return Math.cbrt(arg);', rules)
+        self.assertIn('if ("(".equals(token)) return append(current, token);', rules)
 
 
 class OutcomeLogContracts(unittest.TestCase):

@@ -17,8 +17,10 @@ android {
         applicationId 'app.space.calc'
         minSdk 26
         targetSdk 34
-        versionCode 6
-        versionName '1.0.5'
+        versionCode 7
+        versionName '1.0.6'
+        // The UI suite on the emulator needs a runner; this is the standard one.
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     signingConfigs {
@@ -63,4 +65,11 @@ dependencies {
     // AppTheme/AppPrefs: the same dark-mode and accent resolution MySpace's settings drive,
     // so the standalone follows the suite's design decisions from day one.
     implementation project(':core-data')
+
+    // The Tests workflow's emulator suite: real touches on a real screen, walking the
+    // owner's stories end to end rather than asserting source text about them.
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

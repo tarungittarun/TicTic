@@ -30,11 +30,21 @@ public final class CalculatorRules {
     }
 
     /**
+     * Implicit multiplication the way Google reads it: a value directly before an open
+     * group, or a close group directly before a value or another group, gains the '*'
+     * the thumb left out. 2(5+2)2 parses as 2*(5+2)*2 and answers 28.
+     */
+    static String withImplicitMultiplication(String expression) {
+        String s = expression.replaceAll("(?<=[0-9!%)\u03c0])(?=\()", "*");
+        return s.replaceAll("(?<=\))(?=[0-9(\u03c0e])", "*");
+    }
+
+    /**
      * Google's scientific panel is degrees by default with a DEG/RAD toggle, so the mode
      * travels with the evaluation rather than living in a global.
      */
     public static double evaluate(String expression, boolean degrees) {
-        Parser p = new Parser(expression, degrees);
+        Parser p = new Parser(withImplicitMultiplication(expression), degrees);
         double value = p.parseExpression();
         p.skipWhitespace();
         if (!p.atEnd()) throw new ArithmeticException("unexpected trailing input");
@@ -134,9 +144,12 @@ public final class CalculatorRules {
         }
         if (c == '(') {
             // An open group starts an operand: at the beginning, after an operator, or nested.
-            // After a digit or a close paren it would mean implicit multiplication, which this
-            // grammar does not have, so it is refused rather than guessed.
+            // And after a value it is implicit multiplication, the owner's 2026-10-26 point:
+            // 2(5+2)2 is 28 on Google's calculator, so the grammar accepts what the thumb
+            // means and the evaluator supplies the '*' that was left out.
             if (current.isEmpty() || isOperator(last) || last == '(') return current + c;
+            if (Character.isDigit(last) || last == ')' || last == '!' || last == '%'
+                    || last == '\u03c0' || last == 'e') return current + c;
             return null;
         }
         if (c == ')') {
@@ -227,7 +240,12 @@ public final class CalculatorRules {
                 || last == '\u03c0' || last == 'e';
         boolean operandBefore = valueBefore || last == '!';
         boolean slotOpen = current.isEmpty() || isOperator(last) || last == '(';
-        if (token.endsWith("(")) return slotOpen ? current + token : null;
+        if (token.endsWith("(")) {
+            // A bare group is append's decision, because append now speaks implicit
+            // multiplication; a named function still needs an operand slot to open in.
+            if ("(".equals(token)) return append(current, token);
+            return slotOpen ? current + token : null;
+        }
         if ("\u03c0".equals(token) || "e".equals(token)) return slotOpen ? current + token : null;
         // One factorial per value: 5!! is double-factorial mathematics Google's pad does not
         // offer, so the second '!' is refused. A power over a factorialed value is ordinary
@@ -419,6 +437,10 @@ public final class CalculatorRules {
                 if (arg < 0) throw new ArithmeticException("sqrt domain");
                 return Math.sqrt(arg);
             }
+            // The reference sheet requires a cube root; the owner's panel design has no key
+            // for one, so it lives in the engine, reachable by paste and by the editor,
+            // and is documented here rather than crowding the designed pad.
+            if ("cbrt".equals(name)) return Math.cbrt(arg);
             throw new ArithmeticException("unknown function " + name);
         }
 

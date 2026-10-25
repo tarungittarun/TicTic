@@ -205,6 +205,7 @@ public final class CalculatorScreen implements Screen {
                     + (degrees ? "DEG" : "RAD"));
         }
         historyBtn.setContentDescription("History");
+        historyBtn.setId(R.id.calc_history_btn);
         modes.addView(historyBtn, ui.lp(-2, 34));
         historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { toggleHistory(context, ui); }
@@ -244,11 +245,15 @@ public final class CalculatorScreen implements Screen {
         buildHistoryChrome(context, ui);
 
         currentBox = ui.vbox();
+        currentBox.setId(R.id.calc_dock);
         GradientDrawable dockBg = new GradientDrawable();
         dockBg.setCornerRadius(ui.dp(14));
         dockBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.28f));
         dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));
         currentBox.setBackground(dockBg);
+        displayArea.sheetScroll = historyScroll;
+        displayArea.dock = currentBox;
+        displayArea.logContext = context;
         LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(-1, 0, historyOpen ? 0.8f : 3f);
         cbp.topMargin = ui.dp(3);
         displayArea.addView(currentBox, cbp);
@@ -280,6 +285,7 @@ public final class CalculatorScreen implements Screen {
 
         // ---- the pad: animated panel block over the always-present basic block ----
         padContainer = ui.vbox();
+        padContainer.setId(R.id.calc_pad);
         root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
         View padRule = new View(context);
         padRule.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.18f));
@@ -485,25 +491,49 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         displayView = new DisplayEditText(context);
+        displayView.setId(R.id.calc_display);
         displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
         displayView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
         displayView.setTextColor(ui.palette().text);
+        // The caret must be VISIBLE, his point: the theme's default was not showing on his
+        // device, so it is drawn explicitly in the accent colour, two density pixels wide.
+        displayView.setCursorVisible(true);
+        final android.graphics.drawable.GradientDrawable cursorMark =
+                new android.graphics.drawable.GradientDrawable();
+        cursorMark.setColor(ui.palette().accent);
+        cursorMark.setSize(ui.dp(2), ui.dp(24));
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            displayView.setTextCursorDrawable(cursorMark);
+        } else {
+            try {
+                java.lang.reflect.Field f =
+                        android.widget.TextView.class.getDeclaredField("mCursorDrawable");
+                f.setAccessible(true);
+                f.set(displayView,
+                        new android.graphics.drawable.Drawable[]{cursorMark, cursorMark});
+            } catch (Exception ignored) {
+                // Below Q without the field, the theme's own cursor stands.
+            }
+        }
+        displayView.post(new Runnable() {
+            @Override public void run() { displayView.requestFocus(); }
+        });
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_UP && displayView.getLayout() != null) {
-                    android.text.Layout layout = displayView.getLayout();
-                    int x = (int) e.getX() - displayView.getCompoundPaddingLeft();
-                    int line = layout.getLineForVertical(
-                            (int) e.getY() - displayView.getCompoundPaddingTop());
-                    int off = layout.getOffsetForHorizontal(line, x);
-                    v.requestFocus();
-                    CharSequence cs = displayView.getText();
-                    if (cs instanceof Spannable) Selection.setSelection((Spannable) cs, off, off);
-                    caret = off;
-                    AppLog.event(lastContext, "calc", "cursor placed at " + off);
+                if (e.getAction() == MotionEvent.ACTION_UP) {
+                    // The editor places its own caret; the hand-rolled offset math that used
+                    // to run here pinned every tap to 0 on the device -- "cursor placed at 0",
+                    // 103 times in his log. Now the log records where the editor actually
+                    // landed, after it has landed.
+                    displayView.post(new Runnable() {
+                        @Override public void run() {
+                            caret = Math.max(0, displayView.getSelectionStart());
+                            AppLog.event(lastContext, "calc", "cursor placed at " + caret);
+                        }
+                    });
                 }
                 return false;
             }
@@ -625,6 +655,7 @@ public final class CalculatorScreen implements Screen {
             @Override public void onClick(View v) { toggleHistory(context, ui); }
         });
         historyScroll = new ScrollView(context);
+        historyScroll.setId(R.id.calc_history_scroll);
         final ScrollView scroll = historyScroll;
         scroll.setVerticalScrollBarEnabled(false);
         historyList = ui.vbox();
@@ -950,8 +981,9 @@ public final class CalculatorScreen implements Screen {
         boolean sheetOpen;
         ScrollView sheetScroll;
         View dock;
+        Context logContext;
         private float downX, downY;
-        private boolean claimed, downInDock;
+        private boolean claimed, downInDock, passedLogged;
 
         SwipeBox(Context context) { super(context); }
 
@@ -961,6 +993,7 @@ public final class CalculatorScreen implements Screen {
                     downX = e.getX();
                     downY = e.getY();
                     claimed = false;
+                    passedLogged = false;
                     downInDock = dock != null && e.getY() >= dock.getTop();
                     return false;
                 case MotionEvent.ACTION_MOVE:
@@ -977,14 +1010,25 @@ public final class CalculatorScreen implements Screen {
                         // drag-down-to-close. Stealing every downward drag is exactly why
                         // the owner could not scroll past three entries.
                         if (sheetOpen && sheetScroll != null
-                                && sheetScroll.canScrollVertically(-1)) return false;
+                                && sheetScroll.canScrollVertically(-1)) {
+                            if (!passedLogged) {
+                                passedLogged = true;
+                                AppLog.event(logContext, "calc",
+                                        "swipe passed to the history list: it can still scroll up");
+                            }
+                            return false;
+                        }
                         claimed = true;
+                        AppLog.event(logContext, "calc", "swipe claimed downward: sheet gesture"
+                                + (sheetOpen ? " from the list top" : " to open the sheet"));
                         return true;
                     }
                     if (!claimed && upwardFromDock) {
                         // His seventh point: scrolling up from the expression dock starts
                         // the collapse that brings the keys back.
                         claimed = true;
+                        AppLog.event(logContext, "calc", "swipe claimed upward from "
+                                + (downInDock ? "the dock" : "the list bottom") + ": collapsing");
                         return true;
                     }
                     return claimed;
@@ -1275,16 +1319,32 @@ public final class CalculatorScreen implements Screen {
         }
         int at = sel[0];
         String rawKey = key.replace('×', '*').replace('÷', '/').replace('−', '-');
-        String candidate = raw.substring(0, at) + rawKey + raw.substring(sel[1]);
-        if (!wholeExpressionValid(candidate)) {
-            char before = at == 0 ? ' ' : raw.charAt(at - 1);
-            AppLog.event(context, "calc", "key " + key + " refused at " + at
-                    + " (after '" + before + "'): the expression would not evaluate");
-            return false;
+        String candidate;
+        if (sel[1] == at && at == raw.length()) {
+            // Typing at the end goes through the rules themselves -- the changeable-mind
+            // operator replacement, percent over a pending operator, implicit multiplication.
+            // The old splice-and-replay refused all of them at the pad door, which is what
+            // his log showed thirty times over: "key + refused at 7 (after '+')".
+            candidate = CalculatorRules.appendToken(raw, rawKey);
+            if (candidate == null) {
+                char before = at == 0 ? ' ' : raw.charAt(at - 1);
+                AppLog.event(context, "calc", "key " + key + " refused at " + at
+                        + " (after '" + before + "'): the rules declined it");
+                return false;
+            }
+        } else {
+            // A caret edit inside the expression splices and replays, as before.
+            candidate = raw.substring(0, at) + rawKey + raw.substring(sel[1]);
+            if (!wholeExpressionValid(candidate)) {
+                char before = at == 0 ? ' ' : raw.charAt(at - 1);
+                AppLog.event(context, "calc", "key " + key + " refused at " + at
+                        + " (after '" + before + "'): the expression would not evaluate");
+                return false;
+            }
         }
         expression.setLength(0);
         expression.append(candidate);
-        caret = at + rawKey.length();
+        caret = candidate.length();
         AppLog.event(context, "calc", "key " + key + " at " + at + " → "
                 + readable(expression.toString()));
         refreshDisplay(context);

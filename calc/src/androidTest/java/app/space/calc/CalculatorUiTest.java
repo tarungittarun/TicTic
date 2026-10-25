@@ -18,6 +18,9 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.test.espresso.action.CoordinatesProvider;
+import androidx.test.espresso.action.GeneralClickAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Tap;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -74,11 +77,12 @@ public class CalculatorUiTest {
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {
         type("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(click(new CoordinatesProvider() {
-            @Override public float[] calculateCoordinates(View view) {
-                return new float[]{view.getWidth() * 0.5f, view.getHeight() * 0.5f};
-            }
-        }));
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * 0.5f, view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
         onView(withId(DISPLAY)).check(matches(hasFocus()));
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {

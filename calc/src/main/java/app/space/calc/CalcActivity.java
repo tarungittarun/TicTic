@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,7 +96,8 @@ public final class CalcActivity extends android.app.Activity implements ScreenHo
         header.addView(new TicIconView(this, TicIconView.CALCULATOR, palette().accent),
                 ui.lp(34, 34));
         TextView word = ui.label("MyCalc", 20, palette().text, true);
-        LinearLayout.LayoutParams wp = ui.lp(0, -2, 1f);
+        LinearLayout.LayoutParams wp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         wp.leftMargin = ui.dp(10);
         header.addView(word, wp);
         TextView cap = ui.label("STANDALONE", 10, palette().accent, true);
@@ -149,43 +151,60 @@ public final class CalcActivity extends android.app.Activity implements ScreenHo
 
     @Override
     public boolean onKeyDown(int code, KeyEvent event) {
-        if (screen == null) return super.onKeyDown(code, event);
+        // A physical keyboard routes through the same door as a thumb: typeKey() applies the
+        // very same rules, so a keyboard can never enter what a finger would be refused.
+        switch (code) {
+            case KeyEvent.KEYCODE_DEL:
+            case KeyEvent.KEYCODE_FORWARD_DEL:
+                screen.typeKey("\u232b");
+                invalidate();
+                return true;
+            case KeyEvent.KEYCODE_ESCAPE:
+                screen.typeKey("C");
+                invalidate();
+                return true;
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                screen.typeKey("=");
+                invalidate();
+                return true;
+            default:
+                break;
+        }
+        // Unicode first: this covers digits, '.' and every shift-combination a real keyboard
+        // produces ('%' is shift+5, '^' is shift+6, '(' is shift+9 -- none of those have
+        // their own key code, and pretending otherwise is how a keyboard mapping rots).
+        int uni = event.getUnicodeChar(event.getMetaState());
+        char ch = (char) uni;
         String key = null;
-        if (code >= KeyEvent.KEYCODE_0 && code <= KeyEvent.KEYCODE_9) {
-            key = String.valueOf(code - KeyEvent.KEYCODE_0);
-        } else if (code >= KeyEvent.KEYCODE_NUMPAD_0 && code <= KeyEvent.KEYCODE_NUMPAD_9) {
-            key = String.valueOf(code - KeyEvent.KEYCODE_NUMPAD_0);
-        } else {
+        if (ch >= '0' && ch <= '9') key = String.valueOf(ch);
+        else if (ch == '.') key = ".";
+        else if (ch == '+') key = "+";
+        else if (ch == '-') key = "\u2212";
+        else if (ch == '*') key = "\u00d7";
+        else if (ch == '/') key = "\u00f7";
+        else if (ch == '%') key = "%";
+        else if (ch == '^') key = "^";
+        else if (ch == '(') key = "(";
+        else if (ch == ')') key = ")";
+        else if (ch == '=') key = "=";
+        else if (uni == 0) {
+            // Numpad and phone-keypad codes that carry no printable character of their own.
             switch (code) {
-                case KeyEvent.KEYCODE_PERIOD:
-                case KeyEvent.KEYCODE_NUMPAD_DOT: key = "."; break;
-                case KeyEvent.KEYCODE_PLUS:
+                case KeyEvent.KEYCODE_STAR: key = "\u00d7"; break;
+                case KeyEvent.KEYCODE_SLASH: key = "\u00f7"; break;
+                case KeyEvent.KEYCODE_PLUS: key = "+"; break;
+                case KeyEvent.KEYCODE_MINUS: key = "\u2212"; break;
+                case KeyEvent.KEYCODE_PERIOD: key = "."; break;
+                case KeyEvent.KEYCODE_EQUALS: key = "="; break;
                 case KeyEvent.KEYCODE_NUMPAD_ADD: key = "+"; break;
-                case KeyEvent.KEYCODE_MINUS:
                 case KeyEvent.KEYCODE_NUMPAD_SUBTRACT: key = "\u2212"; break;
-                case KeyEvent.KEYCODE_STAR:
                 case KeyEvent.KEYCODE_NUMPAD_MULTIPLY: key = "\u00d7"; break;
-                case KeyEvent.KEYCODE_SLASH:
                 case KeyEvent.KEYCODE_NUMPAD_DIVIDE: key = "\u00f7"; break;
-                case KeyEvent.KEYCODE_PERCENT: key = "%"; break;
-                case KeyEvent.KEYCODE_CARET: key = "^"; break;
-                case KeyEvent.KEYCODE_LEFT_PAREN: key = "("; break;
-                case KeyEvent.KEYCODE_RIGHT_PAREN: key = ")"; break;
-                case KeyEvent.KEYCODE_EQUALS:
-                case KeyEvent.KEYCODE_NUMPAD_EQUALS:
-                case KeyEvent.KEYCODE_ENTER:
-                    screen.typeKey("=");
-                    invalidate();
-                    return true;
-                case KeyEvent.KEYCODE_DEL:
-                case KeyEvent.KEYCODE_FORWARD_DEL:
-                    screen.typeKey("\u232b");
-                    invalidate();
-                    return true;
-                case KeyEvent.KEYCODE_ESCAPE:
-                    screen.typeKey("C");
-                    invalidate();
-                    return true;
+                case KeyEvent.KEYCODE_NUMPAD_DOT: key = "."; break;
+                case KeyEvent.KEYCODE_NUMPAD_EQUALS: key = "="; break;
+                case KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN: key = "("; break;
+                case KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN: key = ")"; break;
                 default: break;
             }
         }

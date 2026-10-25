@@ -4274,7 +4274,7 @@ class OutcomeLogContracts(unittest.TestCase):
         self.assertIn("TicIconView.HISTORY", self.screen)
         self.assertIn('ui.pillButton("Menu"', self.screen)
         glyph = (ROOT / "core-design/src/main/java/app/space/core/design/TicIconView.java").read_text()
-        self.assertIn("HISTORY=23", glyph)
+        self.assertIn("HISTORY=25", glyph)
         self.assertIn("case HISTORY:", glyph)
 
     def test_diagnostics_can_save_the_log_to_a_local_file(self):

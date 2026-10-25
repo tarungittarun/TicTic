@@ -35,7 +35,7 @@ public final class TicIconView extends View {
             FILES=17,DOCUMENTS=18,MESSAGES=19,MUSIC=20,SCANNER=21,EMAIL=22,
             // Not an app: the calculator's history button borrows a slot of its own,
             // because a clock-with-arrow is the one mark every calculator user knows.
-            HISTORY=23,
+            HISTORY=25,
             // Chrome, not an app: the drawer handle, and the app switcher.
             MENU=23,APPS=24;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private final int kind,color;private final float den;

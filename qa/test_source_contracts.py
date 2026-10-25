@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.9'", gradle)
-        self.assertIn("versionCode 46", gradle)
+        self.assertIn("versionName '3.12.10'", gradle)
+        self.assertIn("versionCode 47", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2768,7 +2768,8 @@ class SecondAppIntegrationContracts(unittest.TestCase):
     def test_a_foreign_app_replaces_the_clock_screen_and_its_rail(self):
         # The clock's rail would otherwise stay on screen over another app's UI, and its
         # slots would switch back mid-use.
-        self.assertIn("else if(activeScreen!=null){body.addView(activeScreen.build(this));}", self.main)
+        self.assertIn("else if(activeScreen!=null){if(fullBleed)root.addView(activeScreen.build(this),new LinearLayout.LayoutParams(-1,0,1));else body.addView(activeScreen.build(this));}", self.main)
+        self.assertIn("boolean fullBleed=activeScreen!=null&&!activeScreen.scrollHost();", self.main)
         self.assertIn("if(!settings){if(activeScreen==null)buildNav();else buildAppNav();}", self.main)
 
     def test_there_is_always_a_way_back_to_the_clock(self):
@@ -4243,50 +4244,50 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("protected void onDraw(android.graphics.Canvas c)", self.screen)
         self.assertIn("chevronRow.addView(chevron, ui.lp(48, 40));", self.screen)
 
-    def test_the_history_list_scrolls_and_the_sheet_closes_like_googles(self):
-        # Stealing every downward drag is why three entries were all he could see. The drag
-        # belongs to the list unless the list is at its top; and an upward drag from the
-        # docked expression starts the collapse, his seventh point.
-        # The scroller owns scrolling AND the closing gestures at its edges; the parent
-        # keeps only the open gesture and the dock collapse, because on his device the
-        # parent's interception never saw the list drags at all.
-        self.assertIn("edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;", self.screen)
-        self.assertIn("edgeUp = sv.canScrollVertically(1) ? 0 : edgeUp + ddy;", self.screen)
-        self.assertIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
+    def test_history_is_its_own_scrollable_popup_window(self):
+        # His verdict of 2026-10-26 night: "open a pop window where I should be able to see
+        # the history of expressions and there it should be able to scroll." A PopupWindow
+        # with a real ScrollView has no parent left to steal his drags.
+        self.assertIn("historyPopup = new PopupWindow(content, width, height, true);", self.screen)
+        self.assertIn("historyScroll.setId(R.id.calc_history_scroll);", self.screen)
+        self.assertIn("historyScroll.fullScroll(View.FOCUS_DOWN);", self.screen)
+        self.assertNotIn("edgeDown = sv.canScrollVertically", self.screen)
+        self.assertNotIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
 
-    def test_the_sheet_pushes_the_pad_down(self):
-        # Google's sheet fills the screen with the expression docked at the bottom and the
-        # keys gone below; the pad block animates to zero weight while it is open.
-        self.assertIn("animateWeight(padContainer, historyOpen ? 5f : 0f", self.screen)
+
+    def test_the_pad_never_moves_for_history(self):
+        # History is a window over the pad now: the pad's weight is never animated, and the
+        # popup takes 62% of the screen height in its own window.
+        self.assertNotIn("animateWeight(padContainer", self.screen)
+        self.assertIn("root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));", self.screen)
+        self.assertIn("int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.62f);", self.screen)
+        self.assertIn("historyPopup.showAtLocation(rootView, Gravity.TOP | Gravity.CENTER_HORIZONTAL,", self.screen)
+
 
     def test_the_caret_is_the_editors_own_and_is_visible(self):
-        # Hand-rolled offset math pinned every tap to 0 on his device ("cursor placed at 0",
-        # 103 times in his log). The editor places its own caret now; the screen only logs
-        # where it landed, draws the caret in the accent colour so it is VISIBLE, and the
-        # pad door goes through the rules so the changeable mind works where thumbs type.
+        # His third point, four nights running: the caret stays invisible and text will not
+        # select. The editor now DRAWS its caret and selection band itself, every frame,
+        # on top of the framework machinery that never showed up on his device.
+        self.assertIn("@Override protected void onDraw(android.graphics.Canvas c) {", self.screen)
+        self.assertIn("caretPaint.setColor(caretColor);", self.screen)
+        self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
+        self.assertIn("c.drawRect(x, padT + lo.getLineTop(ln) + 2,", self.screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().text,", self.screen)
         self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
-        self.assertIn('"cursor placed at " + caret', self.screen)
         self.assertIn("displayView.setTextCursorDrawable(cursorMark);", self.screen)
         self.assertIn("displayView.setCursorVisible(true);", self.screen)
-        self.assertNotIn("layout.getOffsetForHorizontal", self.screen)
+
 
     def test_the_gestures_write_their_outcomes_to_the_log(self):
-        # The standing logging directive: outcomes, not intents. A swipe that is passed to
-        # the list, claimed downward or claimed upward each says so in the log.
-        self.assertIn('"swipe claimed downward: sheet gesture to open the sheet"', self.screen)
-        self.assertIn('"swipe claimed upward from "', self.screen)
-        # The scroller owns its own edges now: parent interception never saw his drags.
-        self.assertIn('"history sheet closed by edge drag: "', self.screen)
-        self.assertIn("edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;", self.screen)
-        # One bracket button opens and closes, Google's way.
+        # Standing directive of 2026-10-25: the log records the OUTCOME of every gesture.
+        self.assertIn('"swipe claimed downward: opening the history popup"', self.screen)
+        self.assertIn('"history popup opened: "', self.screen)
+        self.assertIn('"history popup closed by button"', self.screen)
+        self.assertIn('"history popup dismissed"', self.screen)
         self.assertIn("CalculatorRules.smartBracket(expression.toString())", self.screen)
-        rules = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text())
+        rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
         self.assertIn("public static String smartBracket(String expression)", rules)
-        # The expand chevron leaves with the pad while the sheet owns the screen.
-        self.assertIn("chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);", self.screen)
-        # And the Clear pill can no longer be clipped by its header.
-        self.assertIn("historyBox.addView(head, ui.lp(-1, 46));", self.screen)
-        self.assertIn("LinearLayout.LayoutParams clp = ui.lp(-2, 34);", self.screen)
+
 
     def test_history_reads_oldest_first_and_opens_at_the_newest(self):
         # His third point: newest at the BOTTOM, scrolling up walks back through time; the
@@ -4298,7 +4299,8 @@ class SheetAndChevronContracts(unittest.TestCase):
         # His fifth point: colour and border differentiation between sections. The sheet and
         # the dock carry their own tinted, bordered surfaces; hairlines rule off the chrome
         # row and the pad.
-        self.assertIn("sheetBg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));", self.screen)
+        self.assertIn("bg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));", self.screen)
+        self.assertIn("bg.setCornerRadius(ui.dp(16));", self.screen)
         self.assertIn("dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));", self.screen)
         self.assertIn("root.addView(modesRule, ui.lp(-1, 1));", self.screen)
         self.assertIn("padContainer.addView(padRule, ui.lp(-1, 1));", self.screen)
@@ -4340,11 +4342,32 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk", wf)
         self.assertIn("am instrument -w app.space.calc.debug.test", wf)
 
+    def test_the_chevron_strip_is_centred_and_the_whole_strip_toggles(self):
+        # His round-8 message: the chevron is not centered, "the direction should be
+        # opposite of what it is right now", and any tap on the strip must toggle the
+        # scientific keys.
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        self.assertIn("chevronRow.setGravity(Gravity.CENTER);", screen)
+        self.assertIn("chevronRow.setContentDescription(\"Toggle the scientific keys\");", screen)
+        self.assertIn("chevronRow.setOnClickListener(new View.OnClickListener() {", screen)
+        self.assertIn("chevron.setDirection(panelOpen ? ChevronView.UP : ChevronView.DOWN);", screen)
+
+    def test_the_screen_opted_out_of_the_host_scroll(self):
+        # His round-8 message: dragging anywhere made the WHOLE screen jiggle -- the host's
+        # AliveScrollView wrapped every app screen with 36dp of padding slack underneath.
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        self.assertIn("@Override public boolean scrollHost() { return false; }", screen)
+        suite = (ROOT / "core-suite/src/main/java/app/space/core/suite/Screen.java").read_text()
+        self.assertIn("default boolean scrollHost() { return true; }", suite)
+
     def test_the_ui_suite_walks_the_owners_stories_on_an_emulator(self):
         ui = java_code_only((ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text())
         self.assertIn("implicitMultiplicationAnswersTwentyEightOnThePad", ui)
         self.assertIn("aPendingOperatorIsAChangeableMindOnThePad", ui)
-        self.assertIn("historyOpensAndCollapsesFromAnUpwardSwipeOnTheDock", ui)
+        self.assertIn("swipeDownOnDisplayOpensTheHistoryPopup", ui)
+        self.assertIn("historyOpensAtTheNewestAndScrollsToTheOldest", ui)
+        self.assertIn("theHistoryPopupShowsClearFullyAndKeepsThePad", ui)
+        self.assertIn("historyPopupClosesWithItsCloseButton", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):
@@ -4417,8 +4440,8 @@ class OutcomeLogContracts(unittest.TestCase):
         # His seventh to tenth points: the sheet expands over the display while the current
         # expression stays docked beneath it; every line carries "25th Oct, 17:15"; tapping
         # a line puts that line's expression, not its result, into the expression view.
-        self.assertIn('"history expanded: "', self.screen)
-        self.assertIn('"history collapsed: ', self.screen)
+        self.assertIn('"history popup opened: "', self.screen)
+        self.assertIn('"history popup closed by button"', self.screen)
         self.assertIn("static String stamp(Context context, String millis)", self.screen)
         self.assertIn('"history line reused: expression "', self.screen)
         rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()

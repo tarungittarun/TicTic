@@ -131,12 +131,12 @@ public final class CalculatorScreen implements Screen {
     // View references, so a key press never rebuilds anything.
     private DisplayEditText displayView;
     private TextView previewView;
-    private LinearLayout historyBox;
     private LinearLayout historyList;
     private TextView historyTitle;
     private LinearLayout chevronRow;
     private LinearLayout currentBox;
-    private View handle;
+    private PopupWindow historyPopup;
+    private View rootView;
     private LinearLayout panelBox;
     private LinearLayout chipSlot;
     private ChevronView chevron;
@@ -151,6 +151,9 @@ public final class CalculatorScreen implements Screen {
     }
 
     @Override public String title() { return "Calculator"; }
+
+    /** The calculator owns its full height and its own gestures: no host ScrollView. */
+    @Override public boolean scrollHost() { return false; }
 
     @Override
     public View build(final Context context) {
@@ -230,21 +233,10 @@ public final class CalculatorScreen implements Screen {
         displayArea.listener = new SwipeBox.Listener() {
             @Override public void onSwipeDown() { toggleHistory(context, ui); }
         };
-        displayArea.sheetOpen = historyOpen;
 
-        historyBox = ui.vbox();
-        GradientDrawable sheetBg = new GradientDrawable();
-        sheetBg.setCornerRadius(ui.dp(14));
-        sheetBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));
-        sheetBg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));
-        historyBox.setBackground(sheetBg);
-        historyBox.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
-        LinearLayout.LayoutParams hbp = new LinearLayout.LayoutParams(-1, 0, historyOpen ? 2.2f : 0f);
-        hbp.topMargin = ui.dp(3);
-        hbp.bottomMargin = ui.dp(3);
-        displayArea.addView(historyBox, hbp);
-        buildHistoryChrome(context, ui);
-
+        // The owner's verdict of 2026-10-26 night: the in-layout sheet never earned his
+        // trust for scrolling, so history lives in its own PopupWindow now -- a real
+        // window with a real ScrollView, no parent left to fight over his drags.
         currentBox = ui.vbox();
         currentBox.setId(R.id.calc_dock);
         GradientDrawable dockBg = new GradientDrawable();
@@ -252,36 +244,28 @@ public final class CalculatorScreen implements Screen {
         dockBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.28f));
         dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));
         currentBox.setBackground(dockBg);
-        displayArea.sheetScroll = historyScroll;
-        displayArea.dock = currentBox;
         displayArea.logContext = context;
-        LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(-1, 0, historyOpen ? 0.8f : 3f);
+        LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(-1, 0, 3f);
         cbp.topMargin = ui.dp(3);
         displayArea.addView(currentBox, cbp);
-        handle = new View(context);
-        GradientDrawable hb = new GradientDrawable();
-        hb.setCornerRadius(ui.dp(2));
-        hb.setColor(ui.palette().muted);
-        handle.setBackground(hb);
-        handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
-        LinearLayout.LayoutParams hp = ui.lp(40, 4);
-        hp.topMargin = ui.dp(4);
-        hp.bottomMargin = ui.dp(2);
-        hp.gravity = Gravity.CENTER_HORIZONTAL;
-        currentBox.addView(handle, hp);
         buildDisplay(context, ui, currentBox);
 
         // ---- Google's chevron, bordered and accent-coloured so it reads at a glance ----
         if (!landscape) {
             chevronRow = ui.hbox();
-            chevronRow.setGravity(Gravity.CENTER_VERTICAL);
+            // His point tonight: the strip sits centred between display and pad, and ANY
+            // tap in that strip toggles the scientific rows, not only the 48dp pill.
+            chevronRow.setGravity(Gravity.CENTER);
             chevronRow.setId(R.id.calc_chevron_row);
-            chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);
+            chevronRow.setContentDescription("Toggle the scientific keys");
             root.addView(chevronRow, ui.lp(-1, 40));
             chevron = new ChevronView(context, ui.palette().accent, ui.palette().surface);
             styleChevron(ui);
             chevronRow.addView(chevron, ui.lp(48, 40));
             chevron.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { togglePanel(context, ui); }
+            });
+            chevronRow.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) { togglePanel(context, ui); }
             });
         }
@@ -305,11 +289,14 @@ public final class CalculatorScreen implements Screen {
         for (String[] row : (landscape ? LANDSCAPE_ROWS : BASE_ROWS)) {
             addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);
         }
+        rootView = root;
         return root;
     }
 
     private void styleChevron(UiKit ui) {
-        chevron.setDirection(panelOpen ? ChevronView.DOWN : ChevronView.UP);
+        // His point: the arrow read backwards. Closed means the extra rows are waiting
+        // BELOW the strip, so the arrow points down; open, they fold away upward.
+        chevron.setDirection(panelOpen ? ChevronView.UP : ChevronView.DOWN);
         chevron.setContentDescription(panelOpen ? "Close the extra keys" : "Open the extra keys");
     }
 
@@ -493,7 +480,8 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        displayView = new DisplayEditText(context);
+        displayView = new DisplayEditText(context,
+                Math.max(2, (int) (3 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
         displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         displayView.setMaxLines(1);
@@ -508,6 +496,8 @@ public final class CalculatorScreen implements Screen {
                 new android.graphics.drawable.GradientDrawable();
         cursorMark.setColor(ui.palette().accent);
         cursorMark.setSize(ui.dp(3), ui.dp(24));
+        displayView.setCaretColors(ui.palette().text,
+                mix(ui.palette().accent, ui.palette().background, 0.55f));
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
         } else {
@@ -588,7 +578,6 @@ public final class CalculatorScreen implements Screen {
         if (displayView == null) return;
         String shown = typed();
         int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;
-        if (historyOpen) size = Math.min(size, 30);
         displayView.setTextSize(size);
         displayView.applying = true;
         displayView.setText(shown);
@@ -607,13 +596,26 @@ public final class CalculatorScreen implements Screen {
         }
     }
 
-    // ---- the history sheet -----------------------------------------------------------------
+    // ---- history: its own window ----------------------------------------------------------
 
-    private void buildHistoryChrome(final Context context, final UiKit ui) {
+    /**
+     * History as its own PopupWindow, the owner's verdict of 2026-10-26 night: "open a pop
+     * window where I should be able to see the history of expressions and there it should
+     * be able to scroll. Don't message here." A real window with a real ScrollView has no
+     * parent layout left to fight over his drags -- every scroll failure so far lived in a
+     * parent stealing or losing touches, and a popup window has no such parent.
+     */
+    private View buildHistoryPopup(final Context context, final UiKit ui) {
+        LinearLayout box = ui.vbox();
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(ui.dp(16));
+        bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.6f));
+        bg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));
+        box.setBackground(bg);
+        box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
         LinearLayout head = ui.hbox();
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.setPadding(0, 0, 0, ui.dp(4));
-        historyBox.addView(head, ui.lp(-1, 46));
+        box.addView(head, ui.lp(-1, 46));
         historyTitle = ui.label("", 14, ui.palette().text, true);
         head.addView(historyTitle, new LinearLayout.LayoutParams(0, -2, 1f));
         TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
@@ -651,56 +653,21 @@ public final class CalculatorScreen implements Screen {
         });
         ChevronView close = new ChevronView(context, ui.palette().accent, ui.palette().surface);
         close.setDirection(ChevronView.UP);
+        close.setId(R.id.calc_history_close);
         close.setContentDescription("Close history");
         LinearLayout.LayoutParams cp = ui.lp(40, 34);
         cp.leftMargin = ui.dp(6);
         head.addView(close, cp);
         close.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { toggleHistory(context, ui); }
+            @Override public void onClick(View v) { closeHistory(context); }
         });
         historyScroll = new ScrollView(context);
         historyScroll.setId(R.id.calc_history_scroll);
-        // His third point tonight, root-caused: parent interception never saw his drags on
-        // the device, so the list never scrolled and never closed. The scroller now owns
-        // both: it scrolls natively everywhere, and a deliberate pull past either edge
-        // closes the sheet -- down at the oldest, up at the newest, Google's edges.
-        historyScroll.setOnTouchListener(new View.OnTouchListener() {
-            private float lastY, edgeDown, edgeUp;
-            @Override public boolean onTouch(View v, MotionEvent e) {
-                ScrollView sv = (ScrollView) v;
-                switch (e.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        lastY = e.getY();
-                        edgeDown = 0;
-                        edgeUp = 0;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        float ddy = e.getY() - lastY;
-                        lastY = e.getY();
-                        edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;
-                        edgeUp = sv.canScrollVertically(1) ? 0 : edgeUp + ddy;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (edgeDown > 120 || edgeUp < -120) {
-                            AppLog.event(context, "calc", "history sheet closed by edge drag: "
-                                    + (edgeDown > 120
-                                            ? "pulled down at the oldest entry"
-                                            : "pushed up at the newest entry"));
-                            toggleHistory(context, ui);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                return false;
-            }
-        });
-        final ScrollView scroll = historyScroll;
-        scroll.setVerticalScrollBarEnabled(false);
         historyList = ui.vbox();
-        scroll.addView(historyList, new LinearLayout.LayoutParams(-1, -2));
-        historyBox.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1f));
+        historyScroll.addView(historyList, new LinearLayout.LayoutParams(-1, -2));
+        box.addView(historyScroll, new LinearLayout.LayoutParams(-1, 0, 1f));
         populateHistory(context, ui);
+        return box;
     }
 
     private void populateHistory(final Context context, final UiKit ui) {
@@ -796,38 +763,42 @@ public final class CalculatorScreen implements Screen {
 
     /** Expand or collapse the sheet over the docked expression, animated both ways. */
     private void toggleHistory(final Context context, final UiKit ui) {
-        historyOpen = !historyOpen;
-        if (historyOpen) populateHistory(context, ui);
-        AppLog.event(context, "calc", historyOpen
-                ? "history expanded: " + entryCount(context) + " entries over the display"
-                : "history collapsed: display back to full height");
-        handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
-        // His fourth point tonight: while the sheet owns the screen the pad's expand
-        // chevron has nothing to expand and only eats the bottom edge. Gone with the pad.
-        chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);
-        historyBox.setVisibility(View.VISIBLE);
-        if (!historyOpen) padContainer.setVisibility(View.VISIBLE);
-        animateWeight(padContainer, historyOpen ? 5f : 0f, historyOpen ? 0f : 5f,
-                new Runnable() {
-                    @Override public void run() {
-                        if (historyOpen) padContainer.setVisibility(View.GONE);
-                    }
-                });
-        displayArea.sheetOpen = historyOpen;
-        displayArea.sheetScroll = historyScroll;
-        displayArea.dock = currentBox;
-        animateWeight(historyBox, historyOpen ? 0f : 2.2f, historyOpen ? 2.2f : 0f,
-                new Runnable() {
-                    @Override public void run() {
-                        if (!historyOpen) {
-                            historyBox.setVisibility(View.GONE);
-                        } else if (historyScroll != null) {
-                            historyScroll.fullScroll(View.FOCUS_DOWN);
-                        }
-                    }
-                });
-        animateWeight(currentBox, historyOpen ? 3f : 0.8f, historyOpen ? 0.8f : 3f, null);
-        displayView.requestFocus();
+        if (historyPopup != null && historyPopup.isShowing()) {
+            closeHistory(context);
+            return;
+        }
+        historyOpen = true;
+        View content = buildHistoryPopup(context, ui);
+        int width = context.getResources().getDisplayMetrics().widthPixels - ui.dp(24);
+        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.62f);
+        historyPopup = new PopupWindow(content, width, height, true);
+        historyPopup.setElevation(ui.dp(10));
+        int[] loc = new int[2];
+        displayArea.getLocationInWindow(loc);
+        historyPopup.showAtLocation(rootView, Gravity.TOP | Gravity.CENTER_HORIZONTAL,
+                0, loc[1] + ui.dp(2));
+        historyPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override public void onDismiss() {
+                historyOpen = false;
+                if (displayArea != null) displayArea.historyShowing = false;
+                AppLog.event(context, "calc", "history popup dismissed");
+            }
+        });
+        if (displayArea != null) displayArea.historyShowing = true;
+        AppLog.event(context, "calc", "history popup opened: " + entryCount(context)
+                + " entries in their own scrollable window");
+        if (historyScroll != null) {
+            historyScroll.post(new Runnable() {
+                @Override public void run() { historyScroll.fullScroll(View.FOCUS_DOWN); }
+            });
+        }
+    }
+
+    private void closeHistory(Context context) {
+        if (historyPopup != null && historyPopup.isShowing()) historyPopup.dismiss();
+        historyOpen = false;
+        if (displayArea != null) displayArea.historyShowing = false;
+        AppLog.event(context, "calc", "history popup closed by button");
     }
 
     /** The scientific panel grows over the basic pad by animating its block's weight, with
@@ -1012,6 +983,55 @@ public final class CalculatorScreen implements Screen {
             setBackground(null);
         }
 
+        private final android.graphics.Paint caretPaint =
+                new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Paint selPaint = new android.graphics.Paint();
+        private int caretWidth = 3;
+
+        DisplayEditText(Context context, int widthPx) {
+            super(context);
+            caretWidth = widthPx;
+            caretPaint.setStyle(android.graphics.Paint.Style.FILL);
+            selPaint.setStyle(android.graphics.Paint.Style.FILL);
+        }
+
+        void setCaretColors(int caretColor, int selectionColor) {
+            caretPaint.setColor(caretColor);
+            selPaint.setColor(selectionColor);
+        }
+
+        /**
+         * The caret the owner could never find: drawn by hand, every frame, focused or
+         * not, because three rounds of framework cursor machinery stayed invisible on his
+         * device. The selection band is drawn too, so selecting text is finally visible.
+         */
+        @Override protected void onDraw(android.graphics.Canvas c) {
+            super.onDraw(c);
+            android.text.Layout lo = getLayout();
+            if (lo == null) return;
+            int padL = getCompoundPaddingLeft();
+            int padT = getCompoundPaddingTop();
+            int s = getSelectionStart();
+            int en = getSelectionEnd();
+            if (s >= 0 && en > s) {
+                int l1 = lo.getLineForOffset(s);
+                int l2 = lo.getLineForOffset(en);
+                for (int ln = l1; ln <= l2; ln++) {
+                    float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
+                    float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
+                    c.drawRect(padL + x1, padT + lo.getLineTop(ln),
+                            padL + x2, padT + lo.getLineBottom(ln), selPaint);
+                }
+            }
+            int cs = Math.max(0, s);
+            if (cs <= length()) {
+                int ln = lo.getLineForOffset(cs);
+                float x = padL + lo.getPrimaryHorizontal(cs);
+                c.drawRect(x, padT + lo.getLineTop(ln) + 2,
+                        x + caretWidth, padT + lo.getLineBottom(ln) - 2, caretPaint);
+            }
+        }
+
         @Override public boolean onKeyDown(int code, android.view.KeyEvent e) {
             return false;
         }
@@ -1024,12 +1044,10 @@ public final class CalculatorScreen implements Screen {
     static final class SwipeBox extends LinearLayout {
         interface Listener { void onSwipeDown(); }
         Listener listener;
-        boolean sheetOpen;
-        ScrollView sheetScroll;
-        View dock;
+        boolean historyShowing;
         Context logContext;
         private float downX, downY;
-        private boolean claimed, downInDock, passedLogged;
+        private boolean claimed;
 
         SwipeBox(Context context) { super(context); }
 
@@ -1039,30 +1057,17 @@ public final class CalculatorScreen implements Screen {
                     downX = e.getX();
                     downY = e.getY();
                     claimed = false;
-                    passedLogged = false;
-                    downInDock = dock != null && e.getY() >= dock.getTop();
                     return false;
                 case MotionEvent.ACTION_MOVE:
                     float dy = e.getY() - downY;
                     float dx = e.getX() - downX;
-                    boolean downward = dy > 60 && dy > Math.abs(dx) * 2;
-                    boolean upwardFromDock = sheetOpen && downInDock
-                            && dy < -60 && -dy > Math.abs(dx) * 2;
-                    if (!claimed && downward && !sheetOpen) {
-                        // The open gesture lives here; everything inside an open sheet lives
-                        // in the scroller itself (SheetScroll below), because parent
-                        // interception never saw his drags on the device.
+                    // The only gesture left here: a downward drag on the expression opens
+                    // the history popup. Everything inside the popup scrolls in its own
+                    // window, where no parent can steal it.
+                    if (!claimed && !historyShowing && dy > 60 && dy > Math.abs(dx) * 2) {
                         claimed = true;
                         AppLog.event(logContext, "calc",
-                                "swipe claimed downward: sheet gesture to open the sheet");
-                        return true;
-                    }
-                    if (!claimed && upwardFromDock) {
-                        // Scrolling up from the expression dock starts the collapse that
-                        // brings the keys back.
-                        claimed = true;
-                        AppLog.event(logContext, "calc", "swipe claimed upward from "
-                                + (downInDock ? "the dock" : "the list bottom") + ": collapsing");
+                                "swipe claimed downward: opening the history popup");
                         return true;
                     }
                     return claimed;
@@ -1073,7 +1078,8 @@ public final class CalculatorScreen implements Screen {
 
         @Override public boolean onTouchEvent(MotionEvent e) {
             if (claimed) {
-                if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL) {
+                if (e.getAction() == MotionEvent.ACTION_UP
+                        || e.getAction() == MotionEvent.ACTION_CANCEL) {
                     claimed = false;
                     if (listener != null) listener.onSwipeDown();
                 }

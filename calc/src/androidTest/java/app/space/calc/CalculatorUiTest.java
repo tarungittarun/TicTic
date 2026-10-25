@@ -2,13 +2,12 @@ package app.space.calc;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.action.ViewActions.swipeDown;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.Visibility.GONE;
 import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -35,7 +34,8 @@ import org.junit.runner.RunWith;
  * application in terms of all aspects". These run on a real emulator in the Tests
  * workflow and walk the exact stories his log told: implicit multiplication through
  * the pad door, the changeable-mind operator, the history sheet opening and
- * collapsing from the dock, and a caret that exists, is focused and is visible.
+ * the history popup opening on a downward swipe and closing on its own button, and a
+ * caret that exists, is focused and is visible.
  */
 @RunWith(AndroidJUnit4.class)
 public class CalculatorUiTest {
@@ -44,6 +44,7 @@ public class CalculatorUiTest {
     private static final int HISTORY_SCROLL = app.space.feature.calculator.R.id.calc_history_scroll;
     private static final int HISTORY_BTN = app.space.feature.calculator.R.id.calc_history_btn;
     private static final int CHEVRON_ROW = app.space.feature.calculator.R.id.calc_chevron_row;
+    private static final int HISTORY_CLOSE = app.space.feature.calculator.R.id.calc_history_close;
 
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
@@ -68,13 +69,20 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("5")));
     }
 
-    @Test public void historyOpensAndCollapsesFromAnUpwardSwipeOnTheDock() {
+    @Test public void swipeDownOnDisplayOpensTheHistoryPopup() {
+        // His round-8 message: the history is a popup window now, and dragging down on the
+        // expression opens it. The scroller lives inside that popup's own window.
+        type("1", "+", "1", "=");
+        onView(withId(DISPLAY)).perform(swipeDown());
+        onView(withId(HISTORY_SCROLL)).check(matches(isDisplayed()));
+    }
+
+    @Test public void historyPopupClosesWithItsCloseButton() {
         type("1", "+", "1", "=");
         onView(withId(HISTORY_BTN)).perform(click());
         onView(withId(HISTORY_SCROLL)).check(matches(isDisplayed()));
-        // His fourth point: scrolling up from the expression box collapses the sheet.
-        onView(withId(DISPLAY)).perform(swipeUp());
-        onView(withId(HISTORY_SCROLL)).check(matches(withEffectiveVisibility(GONE)));
+        onView(withId(HISTORY_CLOSE)).perform(click());
+        onView(withId(HISTORY_SCROLL)).check(doesNotExist());
     }
 
     @Test public void theBracketKeyClosesWhatItOpened() {
@@ -124,13 +132,15 @@ public class CalculatorUiTest {
         onView(withText("1+0")).check(matches(isDisplayed()));
     }
 
-    @Test public void theSheetHidesTheChevronAndShowsClearFully() {
-        // His fourth and fifth points tonight.
+    @Test public void theHistoryPopupShowsClearFullyAndKeepsThePad() {
+        // His round-7 points carried into the popup: Clear fully visible, and -- because
+        // the history floats in its own window -- the chevron strip and the pad never move.
         type("1", "+", "1", "=");
         onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
         onView(withId(HISTORY_BTN)).perform(click());
-        onView(withId(CHEVRON_ROW)).check(matches(withEffectiveVisibility(GONE)));
         onView(withText("Clear")).check(matches(isCompletelyDisplayed()));
+        onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
+        onView(key("7")).check(matches(isDisplayed()));
     }
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {

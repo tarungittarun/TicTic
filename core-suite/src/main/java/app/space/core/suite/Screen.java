@@ -21,6 +21,14 @@ public interface Screen {
     String title();
 
     /**
+     * Whether the host may wrap this screen in its scrolling container. Screens that own
+     * their full height and their own gestures -- the calculator, with its popup history
+     * and its swipe-to-open -- say no, because a host ScrollView turned the owner's whole
+     * screen into a jiggle on 2026-10-26 night.
+     */
+    default boolean scrollHost() { return true; }
+
+    /**
      * Builds this screen's view tree.
      *
      * <p>Called each time the screen is shown, matching the current clock behaviour

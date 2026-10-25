@@ -122,6 +122,24 @@ public class CalculatorRulesTest {
         assertEquals("0", CalculatorRules.format(0d));
     }
 
+    @Test public void formatsUnreadableMagnitudesInScientificNotation() {
+        // The reference spec's number handling: no 21-digit strings, no runs of zeroes,
+        // and no floating-point artifacts -- display rounding stays separate from the
+        // double the next calculation keeps.
+        assertEquals("1e+20", CalculatorRules.format(1e20));
+        assertEquals("1.5e-12", CalculatorRules.format(1.5e-12));
+        assertEquals("0.3", CalculatorRules.format(0.1 + 0.2));
+        assertEquals("-2.5e+16", CalculatorRules.format(-2.5e16));
+    }
+
+    @Test public void percentFollowsTheGoogleSemanticsEndToEnd() {
+        // The reference spec's worked examples, which are also the shipped rule.
+        assertEquals(220d, CalculatorRules.evaluate("200+10%"), 1e-9);
+        assertEquals(180d, CalculatorRules.evaluate("200-10%"), 1e-9);
+        assertEquals(20d, CalculatorRules.evaluate("200*10%"), 1e-9);
+        assertEquals(0.25d, CalculatorRules.evaluate("25%"), 1e-9);
+    }
+
     @Test public void formatsFractionsWithoutTrailingZeros() {
         assertEquals("2.5", CalculatorRules.format(2.5d));
         assertEquals("0.3", CalculatorRules.format(0.3d));

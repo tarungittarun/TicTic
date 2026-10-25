@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.6'", gradle)
-        self.assertIn("versionCode 43", gradle)
+        self.assertIn("versionName '3.12.7'", gradle)
+        self.assertIn("versionCode 44", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2622,7 +2622,11 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("static boolean wholeExpressionValid(String raw)", self.screen)
         self.assertIn("Selection.setSelection((Spannable) cs, pos, pos);", self.screen)
         # History shown means a button that clears it, counting what it deletes.
-        self.assertIn('"history cleared: " + entries + " entries removed"', self.screen)
+        # The reference spec, adopted: destroying every entry asks first, and the log keeps
+        # counting what it deleted.
+        self.assertIn('"Clear history?"', self.screen)
+        self.assertIn('"history clear asked for confirmation: "', self.screen)
+        self.assertIn('"history cleared: " + entries', self.screen)
         # Every action writes its outcome: what was pressed, what became, what was refused.
         self.assertIn('AppLog.event(context, "calc",', self.screen)
         self.assertIn('"laid out: parent "', self.screen)
@@ -2642,6 +2646,9 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("if (\"-\".equals(current)) return c == '-' ? \"-\" : null;", rules)
         # Percent joins the changeable set over a pending operator: 10+ then % is 10%.
         self.assertIn("if (isOperator(last) && current.length() >= 2) {", rules)
+        # The reference spec's number handling, adopted: unreadable magnitudes leave as
+        # scientific notation, and display rounding never touches the stored double.
+        self.assertIn("stripTrailingZeros", rules)
         # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.
         self.assertIn("if (c == '(') {", rules)
         self.assertIn("if (c == ')') {", rules)
@@ -4269,6 +4276,21 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));", self.screen)
         self.assertIn("root.addView(modesRule, ui.lp(-1, 1));", self.screen)
         self.assertIn("padContainer.addView(padRule, ui.lp(-1, 1));", self.screen)
+
+    def test_the_adopted_spec_behaviours_are_wired(self):
+        # From the owner's reference sheet of 2026-10-26, the gaps that were adopted:
+        # angle mode and haptics persist as preferences; the memory set is complete
+        # (store, recall, add, subtract, clear); reduced-motion is respected; and the
+        # chip tells TalkBack what it holds.
+        self.assertIn("DEGREES_KEY", self.screen)
+        self.assertIn("putBoolean(DEGREES_KEY, degrees)", self.screen)
+        self.assertIn("HAPTICS_KEY", self.screen)
+        self.assertIn("getBoolean(HAPTICS_KEY, true)", self.screen)
+        self.assertIn("Recall memory", self.screen)
+        self.assertIn("Add to memory", self.screen)
+        self.assertIn("Subtract from memory", self.screen)
+        self.assertIn("if (!ValueAnimator.areAnimatorsEnabled()) {", self.screen)
+        self.assertIn('chip.setContentDescription("Memory holds " + stored);', self.screen)
 
     def test_the_chrome_controls_are_legible(self):
         # The M chip was a speck in a pill; Clear was clipped by a fixed height.

@@ -100,6 +100,8 @@ public final class CalculatorScreen implements Screen {
 
     private static final String HISTORY_KEY = "calculator_history";
     private static final String MEMORY_KEY = "calculator_memory";
+    private static final String DEGREES_KEY = "calculator_degrees";
+    private static final String HAPTICS_KEY = "calculator_haptics";
     private static final int HISTORY_CAP = 50;
     private static final int ANIM_MS = 220;
 
@@ -121,6 +123,7 @@ public final class CalculatorScreen implements Screen {
     private boolean panelOpen;
     private boolean invMode;
     private boolean degrees = true;
+    private boolean degreesLoaded;
     private boolean showFraction;
     private int caret;
     private Context lastContext;
@@ -195,6 +198,12 @@ public final class CalculatorScreen implements Screen {
         historyBtn.setPadding(ui.dp(10), ui.dp(6), ui.dp(10), ui.dp(6));
         historyBtn.addView(new TicIconView(context, TicIconView.HISTORY, ui.palette().accent),
                 ui.lp(18, 18));
+        if (!degreesLoaded) {
+            degrees = AppPrefs.prefs(context).getBoolean(DEGREES_KEY, true);
+            degreesLoaded = true;
+            AppLog.event(context, "calc", "angle mode loaded from prefs: "
+                    + (degrees ? "DEG" : "RAD"));
+        }
         historyBtn.setContentDescription("History");
         modes.addView(historyBtn, ui.lp(-2, 34));
         historyBtn.setOnClickListener(new View.OnClickListener() {
@@ -368,7 +377,9 @@ public final class CalculatorScreen implements Screen {
             capButtons.put(rawKey, button);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                    if (AppPrefs.prefs(v.getContext()).getBoolean(HAPTICS_KEY, true)) {
+                        v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                    }
                     press(context, key);
                 }
             });
@@ -579,11 +590,29 @@ public final class CalculatorScreen implements Screen {
         head.addView(clear, clp);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                int entries = entryCount(context);
-                AppPrefs.prefs(context).edit().remove(HISTORY_KEY).apply();
-                AppLog.event(context, "calc", "history cleared: " + entries + " entries removed");
-                host.toast("History cleared");
-                populateHistory(context, ui);
+                final int entries = entryCount(context);
+                if (entries == 0) {
+                    AppLog.event(context, "calc", "history clear skipped: already empty");
+                    host.toast("History is already empty");
+                    return;
+                }
+                AppLog.event(context, "calc", "history clear asked for confirmation: "
+                        + entries + " entries at stake");
+                new android.app.AlertDialog.Builder(context)
+                        .setTitle("Clear history?")
+                        .setMessage(entries + (entries == 1 ? " entry" : " entries")
+                                + " will be removed. This cannot be undone.")
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Clear",
+                                new android.content.DialogInterface.OnClickListener() {
+                            @Override public void onClick(android.content.DialogInterface d, int w) {
+                                AppPrefs.prefs(context).edit().remove(HISTORY_KEY).apply();
+                                AppLog.event(context, "calc", "history cleared: " + entries
+                                        + " entries removed, after confirmation");
+                                host.toast("History cleared");
+                                populateHistory(context, ui);
+                            }
+                        }).show();
             }
         });
         ChevronView close = new ChevronView(context, ui.palette().accent, ui.palette().surface);
@@ -754,6 +783,14 @@ public final class CalculatorScreen implements Screen {
         final android.view.ViewGroup.LayoutParams lp = view.getLayoutParams();
         if (!(lp instanceof LinearLayout.LayoutParams)) { if (end != null) end.run(); return; }
         final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lp;
+        // Android's reduced-motion setting is a user request, not a suggestion: with
+        // animators off the weights jump straight to their destination.
+        if (!ValueAnimator.areAnimatorsEnabled()) {
+            params.weight = to;
+            view.setLayoutParams(params);
+            if (end != null) end.run();
+            return;
+        }
         ValueAnimator a = ValueAnimator.ofFloat(from, to);
         a.setDuration(ANIM_MS);
         a.setInterpolator(new DecelerateInterpolator());
@@ -774,16 +811,17 @@ public final class CalculatorScreen implements Screen {
     private void rebuildChip(Context context, UiKit ui) {
         chipSlot.removeAllViews();
         if (!AppPrefs.prefs(context).contains(MEMORY_KEY)) return;
+        final String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
         TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
         chip.setTextSize(15);
         chip.setTypeface(chip.getTypeface(), android.graphics.Typeface.BOLD);
         chip.setMinWidth(ui.dp(44));
+        chip.setContentDescription("Memory holds " + stored);
         LinearLayout.LayoutParams chp = ui.lp(-2, 34);
         chp.leftMargin = ui.dp(6);
         chipSlot.addView(chip, chp);
         chip.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
                 insertNumber(stored);
                 AppLog.event(context, "calc", "memory recalled: " + stored
                         + " inserted, expression now " + readable(expression.toString()));
@@ -800,7 +838,14 @@ public final class CalculatorScreen implements Screen {
         java.util.List<String> items = new java.util.ArrayList<>();
         items.add(showFraction ? "Show as decimal" : "Show as fraction");
         items.add(memorySet ? "Store again in memory" : "Store in memory");
-        if (memorySet) items.add("Clear memory");
+        if (memorySet) {
+            items.add("Recall memory");
+            items.add("Add to memory");
+            items.add("Subtract from memory");
+            items.add("Clear memory");
+        }
+        items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)
+                ? "Haptics: On" : "Haptics: Off");
         LinearLayout box = ui.vbox();
         GradientDrawable bg = pill(ui, ui.palette().surface, 16);
         box.setBackground(bg);
@@ -833,6 +878,32 @@ public final class CalculatorScreen implements Screen {
             AppLog.event(context, "calc", "memory stored: " + displayValue());
             host.toast("Stored in memory");
             rebuildChip(context, ui);
+        } else if (choice.startsWith("Haptics")) {
+            boolean on = !AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true);
+            AppPrefs.prefs(context).edit().putBoolean(HAPTICS_KEY, on).apply();
+            AppLog.event(context, "calc", "haptics " + (on ? "on" : "off") + ", persisted");
+            host.toast(on ? "Haptics on" : "Haptics off");
+        } else if (choice.startsWith("Recall")) {
+            String stored = AppPrefs.prefs(context).getString(MEMORY_KEY, "0");
+            insertNumber(stored);
+            refreshDisplay(context);
+            AppLog.event(context, "calc", "memory recalled into the expression: " + stored);
+        } else if (choice.startsWith("Add to memory") || choice.startsWith("Subtract")) {
+            try {
+                double stored = Double.parseDouble(
+                        AppPrefs.prefs(context).getString(MEMORY_KEY, "0"));
+                double shown = Double.parseDouble(displayValue());
+                double next = choice.startsWith("Add") ? stored + shown : stored - shown;
+                String formatted = CalculatorRules.format(next);
+                AppPrefs.prefs(context).edit().putString(MEMORY_KEY, formatted).apply();
+                AppLog.event(context, "calc", (choice.startsWith("Add") ? "memory + " : "memory - ")
+                        + shown + " → " + formatted);
+                host.toast("Memory is " + formatted);
+                rebuildChip(context, ui);
+            } catch (Exception e) {
+                AppLog.event(context, "calc", "memory math refused: no number on the display");
+                host.toast("Nothing to use on the display");
+            }
         } else {
             AppPrefs.prefs(context).edit().remove(MEMORY_KEY).apply();
             AppLog.event(context, "calc", "memory cleared");
@@ -1090,7 +1161,9 @@ public final class CalculatorScreen implements Screen {
         }
         if ("Deg".equals(key)) {
             degrees = !degrees;
-            AppLog.event(context, "calc", "angle mode → " + (degrees ? "DEG" : "RAD"));
+            AppPrefs.prefs(context).edit().putBoolean(DEGREES_KEY, degrees).apply();
+            AppLog.event(context, "calc", "angle mode → " + (degrees ? "DEG" : "RAD")
+                    + ", persisted");
             relabelCaps();
             refreshDisplay(context);
             return;

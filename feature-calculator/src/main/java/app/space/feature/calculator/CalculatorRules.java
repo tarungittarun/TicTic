@@ -45,6 +45,13 @@ public final class CalculatorRules {
     public static String format(double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) return "Error";
         if (value == Math.rint(value) && Math.abs(value) < 1e15) return String.valueOf((long) value);
+        // The reference spec's number handling, adopted: a magnitude too big or too small to
+        // read as plain digits goes out in scientific notation instead of a 21-digit string
+        // or a run of zeroes. Rounding here is display only; the next calculation keeps the
+        // full double.
+        if (Math.abs(value) >= 1e15 || Math.abs(value) < 1e-9) {
+            return new java.math.BigDecimal(value).stripTrailingZeros().toString().replace('E', 'e');
+        }
         String s = String.format(java.util.Locale.ROOT, "%.10f", value);
         while (s.endsWith("0")) s = s.substring(0, s.length() - 1);
         if (s.endsWith(".")) s = s.substring(0, s.length() - 1);

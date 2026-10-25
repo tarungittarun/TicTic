@@ -40,14 +40,7 @@ jobs:
           key: gradle-${{ runner.os }}-jdk17-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
           restore-keys: gradle-${{ runner.os }}-jdk17-
       - name: Unit tests, all modules
-        run: ./gradlew test --stacktrace || { for f in $(find . -path '*build/reports/tests/*/classes/*.html' 2>/dev/null | head -20); do echo "== $f"; done; for f in $(find . -name 'TEST-*.xml' -path '*test-results*' 2>/dev/null); do python3 -c "
-import sys,xml.etree.ElementTree as ET
-t=ET.parse('$f')
-for tc in t.getroot().iter('testcase'):
-    for bad in list(tc.iter('failure'))+list(tc.iter('error')):
-        print(tc.get('classname'),tc.get('name')); print((bad.text or '')[:3000])
-"; done; exit 1; }
-
+        run: ./gradlew test --stacktrace
   ui-e2e:
     name: UI end-to-end on emulator
     runs-on: ubuntu-latest
@@ -63,8 +56,8 @@ for tc in t.getroot().iter('testcase'):
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-jdk17-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
-          restore-keys: gradle-${{ runner.os }}-jdk17-
+          key: gradle-${{ runner.os }}-emulator-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
+          restore-keys: gradle-${{ runner.os }}-emulator-
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

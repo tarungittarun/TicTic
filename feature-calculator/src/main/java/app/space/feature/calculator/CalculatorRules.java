@@ -35,8 +35,8 @@ public final class CalculatorRules {
      * the thumb left out. 2(5+2)2 parses as 2*(5+2)*2 and answers 28.
      */
     static String withImplicitMultiplication(String expression) {
-        String s = expression.replaceAll("(?<=[0-9!%)\u03c0])(?=\()", "*");
-        return s.replaceAll("(?<=\))(?=[0-9(\u03c0e])", "*");
+        String s = expression.replaceAll("(?<=[0-9!%)\u03c0])(?=\\()", "*");
+        return s.replaceAll("(?<=\\))(?=[0-9(\u03c0e])", "*");
     }
 
     /**

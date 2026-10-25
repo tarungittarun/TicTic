@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.5'", gradle)
-        self.assertIn("versionCode 42", gradle)
+        self.assertIn("versionName '3.12.6'", gradle)
+        self.assertIn("versionCode 43", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2613,7 +2613,12 @@ class CalculatorAppContracts(unittest.TestCase):
         self.assertIn("scientific panel collapsed", self.screen)
         # The display is selectable text with a caret: selection, the framework copy menu,
         # and insertion at the cursor, which is the owner's "edit the already typed equation".
-        self.assertIn("displayView.setTextIsSelectable(true);", self.screen)
+        self.assertIn("static final class DisplayEditText extends android.widget.EditText", self.screen)
+        self.assertIn("setInputType(android.text.InputType.TYPE_NULL);", self.screen)
+        # Cut, paste and drag-handle edits arrive through a watcher; what validates joins the
+        # expression, what does not is reverted, and both are logged.
+        self.assertIn('"expression edited by hand to "', self.screen)
+        self.assertIn('"hand edit refused: "', self.screen)
         self.assertIn("static boolean wholeExpressionValid(String raw)", self.screen)
         self.assertIn("Selection.setSelection((Spannable) cs, pos, pos);", self.screen)
         # History shown means a button that clears it, counting what it deletes.
@@ -2628,12 +2633,15 @@ class CalculatorAppContracts(unittest.TestCase):
         rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
         # "0/0------85522*3*-" reached a real display one tap at a time. The chain rule is the
         # fix: a negation minus appends once, and a minus after a minus replaces.
-        self.assertIn("if (c == '-') {", rules)
-        self.assertIn("if (last != '-') return current + c;", rules)
-        # And swapping operators over a pending negation must drop the negation, or 5*- then *
-        # stacks two operators -- expected:<5*[]> but was:<5*[*]> was a red CI run for exactly that.
-        self.assertIn("return current.substring(0, current.length() - 2) + c;", rules)
+        # The owner's 2026-10-26 first two points: a trailing operator with no operand after
+        # it is a changeable mind -- every operator key, MINUS INCLUDED, replaces it in one
+        # tap, so 10+ then - is 10- with no backspace. The old negation carve-out (5+-) is
+        # what read to him as the key "not taking"; negation lives behind the bracket key.
+        self.assertIn("if (isOperator(last)) {", rules)
+        self.assertIn("return current.substring(0, current.length() - 1) + c;", rules)
         self.assertIn('if ("-".equals(current)) return null;', rules)
+        # Percent joins the changeable set over a pending operator: 10+ then % is 10%.
+        self.assertIn("if (isOperator(last) && current.length() >= 2) {", rules)
         # The ( ) key needs rules behind both brackets or it is a key that sometimes lies.
         self.assertIn("if (c == '(') {", rules)
         self.assertIn("if (c == ')') {", rules)
@@ -4233,7 +4241,8 @@ class SheetAndChevronContracts(unittest.TestCase):
         # belongs to the list unless the list is at its top; and an upward drag from the
         # docked expression starts the collapse, his seventh point.
         self.assertIn("sheetScroll.canScrollVertically(-1)", self.screen)
-        self.assertIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
+        self.assertIn("boolean upwardFromDock = sheetOpen", self.screen)
+        self.assertIn("!sheetScroll.canScrollVertically(1)", self.screen)
 
     def test_the_sheet_pushes_the_pad_down(self):
         # Google's sheet fills the screen with the expression docked at the bottom and the
@@ -4245,6 +4254,21 @@ class SheetAndChevronContracts(unittest.TestCase):
         # computed from the layout and placed by hand, and the log records it.
         self.assertIn("layout.getOffsetForHorizontal(line, x)", self.screen)
         self.assertIn('"cursor placed at "', self.screen)
+
+    def test_history_reads_oldest_first_and_opens_at_the_newest(self):
+        # His third point: newest at the BOTTOM, scrolling up walks back through time; the
+        # sheet opens already scrolled to the newest line.
+        self.assertIn("for (int i = rows.length - 1; i >= 0; i--) {", self.screen)
+        self.assertIn("historyScroll.fullScroll(View.FOCUS_DOWN);", self.screen)
+
+    def test_the_sections_are_visibly_separate(self):
+        # His fifth point: colour and border differentiation between sections. The sheet and
+        # the dock carry their own tinted, bordered surfaces; hairlines rule off the chrome
+        # row and the pad.
+        self.assertIn("sheetBg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));", self.screen)
+        self.assertIn("dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));", self.screen)
+        self.assertIn("root.addView(modesRule, ui.lp(-1, 1));", self.screen)
+        self.assertIn("padContainer.addView(padRule, ui.lp(-1, 1));", self.screen)
 
     def test_the_chrome_controls_are_legible(self):
         # The M chip was a speck in a pill; Clear was clipped by a fixed height.

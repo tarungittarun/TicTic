@@ -26,23 +26,23 @@ public class CalculatorRulesTest {
         assertEquals("-", CalculatorRules.append("", "-"));
         assertEquals("5", CalculatorRules.append("", "5"));
         assertEquals("5+", CalculatorRules.append("5", "+"));
-        // A second operator replaces the first rather than stacking, except minus, which may
-        // follow an operator to make it negative.
+        // A pending operator is a changeable mind (owner, 2026-10-26, points 1-2): every
+        // operator key, minus included, replaces a trailing operator in one tap, and percent
+        // joins the number already typed.
         assertEquals("5*", CalculatorRules.append("5+", "*"));
-        assertEquals("5+-", CalculatorRules.append("5+", "-"));
+        assertEquals("5-", CalculatorRules.append("5+", "-"));
+        assertEquals("5%", CalculatorRules.append("5+", "%"));
+        assertNull(CalculatorRules.append("+", "%"));
         assertEquals("5+2", CalculatorRules.append("5+", "2"));
         // A minus chain was the exact garbage typed on device: "0/0------85522*3*-". One negation
         // minus may follow an operator; a second replaces it, so the chain cannot grow.
-        assertEquals("5+-", CalculatorRules.append("5+-", "-"));
+        assertEquals("5-", CalculatorRules.append("5+-", "-"));
         assertEquals("5-", CalculatorRules.append("5-", "-"));
         assertEquals("-", CalculatorRules.append("-", "-"));
         assertEquals("5*", CalculatorRules.append("5*-", "*"));
-        // Swapping operators over a pending negation drops the negation: replacing only the last
-        // character there stacks two operators, which is what the second red run of this slice was.
         assertEquals("5+", CalculatorRules.append("5*-", "+"));
         assertEquals("5+", CalculatorRules.append("5+-", "+"));
-        assertEquals("5*-", CalculatorRules.append("5*-", "-"));
-        // A lone leading minus is not an operand; only another minus may follow it.
+        // A lone leading minus is not an operand; nothing may swap over it.
         assertNull(CalculatorRules.append("-", "*"));
         assertNull(CalculatorRules.append("-", "+"));
         // Brackets open where an operand may start and close only over an open group.

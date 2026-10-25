@@ -145,27 +145,25 @@ public final class CalculatorRules {
             // operator or at the start there is no number for it to belong to, so it is
             // refused rather than guessed -- the same discipline as every other key here.
             if (Character.isDigit(last) || last == ')') return current + c;
+            // Except over a pending operator, where the owner's 2026-10-26 list puts it:
+            // 10+ then % becomes 10%, the percent joining the number already typed.
+            if (isOperator(last) && current.length() >= 2) {
+                char before = current.charAt(current.length() - 2);
+                if (Character.isDigit(before) || before == ')' || before == '!') {
+                    return current.substring(0, current.length() - 1) + c;
+                }
+            }
             return null;
         }
         if (c == '+' || c == '-' || c == '*' || c == '/') {
             if (current.isEmpty()) return c == '-' ? "-" : null;
             if (isOperator(last)) {
-                // Replace rather than stack, so 5 + * stays 5 *. A minus after an operator is the
-                // negation of the number being typed, so 5 * - appends once -- but a minus after a
-                // minus is not a deeper negation, it is a changed mind, so it replaces and the
-                // chain can never grow. On device, "0/0------85522*3*-" was typed one tap at a
-                // time under the rule that let every minus append.
-                if (c == '-') {
-                    if (last != '-') return current + c;
-                    return current.substring(0, current.length() - 1) + c;
-                }
-                // Swapping operators over a pending negation drops the negation with them:
-                // 5 * - then * is 5 *, not 5 * *. Replacing only the last character there would
-                // stack two operators, which is the one thing this method exists to prevent.
-                if (last == '-' && current.length() >= 2
-                        && isOperator(current.charAt(current.length() - 2))) {
-                    return current.substring(0, current.length() - 2) + c;
-                }
+                // The owner's first two points, 2026-10-26: he typed 10+ , changed his mind to
+                // minus, and had to backspace first. A trailing operator with no operand after
+                // it is a changeable mind: EVERY operator key -- minus included -- replaces it,
+                // so 10+ then - is 10- in one tap. The old carve-out that let a minus append as
+                // a negation (5+-) is exactly what read to him as "not taking"; negation now
+                // lives behind the bracket key, 10+(-3), where it is visible and editable.
                 // A lone leading minus is not an operand to swap operators over.
                 if ("-".equals(current)) return null;
                 return current.substring(0, current.length() - 1) + c;

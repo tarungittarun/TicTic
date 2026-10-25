@@ -126,7 +126,7 @@ public final class CalculatorScreen implements Screen {
     private Context lastContext;
 
     // View references, so a key press never rebuilds anything.
-    private TextView displayView;
+    private DisplayEditText displayView;
     private TextView previewView;
     private LinearLayout historyBox;
     private LinearLayout historyList;
@@ -185,6 +185,9 @@ public final class CalculatorScreen implements Screen {
         LinearLayout modes = ui.hbox();
         modes.setGravity(Gravity.CENTER_VERTICAL);
         root.addView(modes, ui.lp(-1, 38));
+        View modesRule = new View(context);
+        modesRule.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.18f));
+        root.addView(modesRule, ui.lp(-1, 1));
         LinearLayout historyBtn = new LinearLayout(context);
         historyBtn.setOrientation(LinearLayout.HORIZONTAL);
         historyBtn.setGravity(Gravity.CENTER);
@@ -219,12 +222,27 @@ public final class CalculatorScreen implements Screen {
         displayArea.sheetOpen = historyOpen;
 
         historyBox = ui.vbox();
+        GradientDrawable sheetBg = new GradientDrawable();
+        sheetBg.setCornerRadius(ui.dp(14));
+        sheetBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));
+        sheetBg.setStroke(1, mix(ui.palette().surface, ui.palette().text, 0.25f));
+        historyBox.setBackground(sheetBg);
         historyBox.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
-        displayArea.addView(historyBox, new LinearLayout.LayoutParams(-1, 0, historyOpen ? 2.2f : 0f));
+        LinearLayout.LayoutParams hbp = new LinearLayout.LayoutParams(-1, 0, historyOpen ? 2.2f : 0f);
+        hbp.topMargin = ui.dp(3);
+        hbp.bottomMargin = ui.dp(3);
+        displayArea.addView(historyBox, hbp);
         buildHistoryChrome(context, ui);
 
         currentBox = ui.vbox();
-        displayArea.addView(currentBox, new LinearLayout.LayoutParams(-1, 0, historyOpen ? 0.8f : 3f));
+        GradientDrawable dockBg = new GradientDrawable();
+        dockBg.setCornerRadius(ui.dp(14));
+        dockBg.setColor(mix(ui.palette().background, ui.palette().surface, 0.28f));
+        dockBg.setStroke(1, mix(ui.palette().surface, ui.palette().accent, 0.35f));
+        currentBox.setBackground(dockBg);
+        LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(-1, 0, historyOpen ? 0.8f : 3f);
+        cbp.topMargin = ui.dp(3);
+        displayArea.addView(currentBox, cbp);
         handle = new View(context);
         GradientDrawable hb = new GradientDrawable();
         hb.setCornerRadius(ui.dp(2));
@@ -254,6 +272,9 @@ public final class CalculatorScreen implements Screen {
         // ---- the pad: animated panel block over the always-present basic block ----
         padContainer = ui.vbox();
         root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
+        View padRule = new View(context);
+        padRule.setBackgroundColor(mix(ui.palette().surface, ui.palette().text, 0.18f));
+        padContainer.addView(padRule, ui.lp(-1, 1));
         panelBox = ui.vbox();
         panelBox.setVisibility(panelOpen && !landscape ? View.VISIBLE : View.GONE);
         padContainer.addView(panelBox, new LinearLayout.LayoutParams(-1, 0,
@@ -452,10 +473,9 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        displayView = new TextView(context);
+        displayView = new DisplayEditText(context);
         displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         displayView.setMaxLines(1);
-        displayView.setTextIsSelectable(true);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
         displayView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
@@ -475,6 +495,35 @@ public final class CalculatorScreen implements Screen {
                     AppLog.event(lastContext, "calc", "cursor placed at " + off);
                 }
                 return false;
+            }
+        });
+        displayView.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
+            @Override public void afterTextChanged(android.text.Editable s) {
+                if (displayView.applying) return;
+                // Cut, paste, drag-handle edits and IME-free hand typing all arrive here.
+                // What validates joins the expression; what does not is reverted, and both
+                // outcomes are logged, because a silent revert is a lie in the log.
+                String txt = s.toString();
+                String raw = txt.replace('\u00d7', '*').replace('\u00f7', '/')
+                        .replace('\u2212', '-');
+                if (wholeExpressionValid(raw)) {
+                    expression.setLength(0);
+                    expression.append(raw);
+                    justEvaluated = false;
+                    result = "";
+                    caret = Math.max(0, displayView.getSelectionStart());
+                    AppLog.event(lastContext, "calc", "expression edited by hand to "
+                            + readable(raw));
+                    previewView.setText(preview());
+                } else {
+                    AppLog.event(lastContext, "calc", "hand edit refused: " + txt);
+                    displayView.applying = true;
+                    displayView.setText(readable(expression.toString()));
+                    displayView.applying = false;
+                    restoreCaret();
+                }
             }
         });
         exprScroll.addView(displayView, new LinearLayout.LayoutParams(-2, -1));
@@ -497,7 +546,9 @@ public final class CalculatorScreen implements Screen {
         int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;
         if (historyOpen) size = Math.min(size, 30);
         displayView.setTextSize(size);
+        displayView.applying = true;
         displayView.setText(shown);
+        displayView.applying = false;
         restoreCaret();
         previewView.setText(preview());
     }
@@ -563,7 +614,11 @@ public final class CalculatorScreen implements Screen {
                     13, ui.palette().muted, false), ui.lp(-1, -2));
             return;
         }
-        for (String[] entry : rows) {
+        // His third point: the newest belongs at the BOTTOM, with older entries above it,
+        // so scrolling up walks back through time in the order it happened.
+        for (int i = rows.length - 1; i >= 0; i--) {
+            String[] rowEntry = rows[i];
+            final String[] entry = rowEntry;
             final String expr = entry[0];
             final String value = entry[1];
             LinearLayout line = ui.vbox();
@@ -611,6 +666,11 @@ public final class CalculatorScreen implements Screen {
                     copy(context, value);
                     return true;
                 }
+            });
+        }
+        if (historyOpen && historyScroll != null) {
+            historyScroll.post(new Runnable() {
+                @Override public void run() { historyScroll.fullScroll(View.FOCUS_DOWN); }
             });
         }
     }
@@ -787,6 +847,29 @@ public final class CalculatorScreen implements Screen {
     }
 
     /**
+     * The expression box as a real editor, the owner's sixth point: a visible blinking
+     * cursor where he is typing, handles he can drag to a position, and the framework's
+     * own select / copy / cut / paste menu over whatever he selected. Input type is null,
+     * so no soft keyboard ever rises between him and the pad, and every hardware key is
+     * handed straight back to the screen's typeKey door -- the editor displays and selects,
+     * the pad and the keyboard type.
+     */
+    static final class DisplayEditText extends android.widget.EditText {
+        boolean applying;
+
+        DisplayEditText(Context context) {
+            super(context);
+            setInputType(android.text.InputType.TYPE_NULL);
+            setShowSoftInputOnFocus(false);
+            setBackground(null);
+        }
+
+        @Override public boolean onKeyDown(int code, android.view.KeyEvent e) {
+            return false;
+        }
+    }
+
+    /**
      * A container that claims the vertical swipe itself, in {@code onInterceptTouchEvent},
      * because a swipe listener on a parent whose children consume every touch never fires.
      */
@@ -813,8 +896,10 @@ public final class CalculatorScreen implements Screen {
                     float dy = e.getY() - downY;
                     float dx = e.getX() - downX;
                     boolean downward = dy > 60 && dy > Math.abs(dx) * 2;
-                    boolean upwardFromDock = sheetOpen && downInDock
-                            && dy < -60 && -dy > Math.abs(dx) * 2;
+                    boolean upwardFromDock = sheetOpen
+                            && dy < -60 && -dy > Math.abs(dx) * 2
+                            && (downInDock || (sheetScroll != null
+                                    && !sheetScroll.canScrollVertically(1)));
                     if (!claimed && downward) {
                         // With the sheet open the drag belongs to the history list unless
                         // the list is already at its top -- then it is Google's

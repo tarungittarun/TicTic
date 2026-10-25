@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The standalone calculator declares NOTHING. A calculator needs no permission: not
+     storage, not network, not anything. The empty manifest is a promise, and the publish
+     step's permission scan checks it on every build. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="MyCalc"
+        android:icon="@mipmap/ic_calc"
+        android:theme="@style/CalcTheme"
+        android:allowBackup="true">
+
+        <activity
+            android:name=".CalcActivity"
+            android:exported="true"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

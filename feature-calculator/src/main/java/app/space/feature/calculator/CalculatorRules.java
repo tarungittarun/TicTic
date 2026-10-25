@@ -52,6 +52,40 @@ public final class CalculatorRules {
     }
 
     /**
+     * The nearest fraction with a denominator up to 10,000, via continued-fraction
+     * convergents, or null when the value is not a number. Integers return as integers;
+     * everything else returns reduced, sign first: 0.5 is "1/2", 2.5 is "5/2", because a
+     * calculator that shows 2.5 as "2 1/2" has picked a typography over an answer.
+     */
+    public static String toFraction(double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) return null;
+        if (value == Math.rint(value) && Math.abs(value) < 1e15) {
+            return String.valueOf((long) value);
+        }
+        double sign = value < 0 ? -1 : 1;
+        double x = Math.abs(value);
+        long bestNum = 0, bestDen = 1;
+        double bestErr = Double.MAX_VALUE;
+        long h0 = 0, k0 = 1, h1 = 1, k1 = 0;
+        double y = x;
+        for (int i = 0; i < 24; i++) {
+            long a = (long) Math.floor(y);
+            long h2 = a * h1 + h0;
+            long k2 = a * k1 + k0;
+            if (k2 > 10000) break;
+            h0 = h1; k0 = k1; h1 = h2; k1 = k2;
+            double err = Math.abs(x - (double) h1 / (double) k1);
+            if (err < bestErr) { bestErr = err; bestNum = h1; bestDen = k1; }
+            if (err < 1e-9) break;
+            double frac = y - a;
+            if (frac < 1e-9) break;
+            y = 1 / frac;
+        }
+        if (bestDen == 1) return String.valueOf((long) (sign * bestNum));
+        return (sign < 0 ? "-" : "") + bestNum + "/" + bestDen;
+    }
+
+    /**
      * The expression after pressing a key, or null when the key is not acceptable here.
      *
      * <p>A calculator that appends whatever is tapped will happily show "-+-++-52***-+++", which

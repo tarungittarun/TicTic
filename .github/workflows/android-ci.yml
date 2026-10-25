@@ -114,7 +114,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          sh gradlew --no-daemon --stacktrace assembleDebug assembleLiteDist 2>&1 | tee /tmp/build.log
+          sh gradlew --no-daemon --stacktrace assembleDebug assembleLiteDist :calc:assembleRelease 2>&1 | tee /tmp/build.log
 
       - name: Surface compile and test errors as annotations
         if: steps.unit.outcome == 'failure' || steps.build.outcome == 'failure'
@@ -202,6 +202,26 @@ jobs:
         if: github.event_name == 'push'
         run: |
           set -euo pipefail
+          # The standalone calculator publishes beside MySpace, under its own name and its
+          # own version line: the owner perfects it as a single app before it goes home.
+          if [ -f calc/build.gradle ]; then
+            CVERSION=$(grep -oE "versionName '[^']+'" calc/build.gradle | head -1 | cut -d"'" -f2)
+            CCODE=$(grep -oE "versionCode [0-9]+" calc/build.gradle | head -1 | awk '{print $2}')
+            CNAME="MyCalc-v${CVERSION}-${CCODE}.apk"
+            if [ -f "artifacts/$CNAME" ]; then
+              echo "$CNAME is already published."
+            else
+              CBUILT=$(find calc/build/outputs/apk -name '*release*.apk' 2>/dev/null | head -1)
+              if [ -n "$CBUILT" ]; then
+                python3 qa/check_apk_permissions.py "$CBUILT"
+                cp "$CBUILT" "artifacts/$CNAME"
+                sha256sum "artifacts/$CNAME" | awk '{print $1}' > "artifacts/$CNAME.sha256"
+                echo "staged $CNAME ($(stat -c %s "artifacts/$CNAME") bytes)"
+              else
+                echo "no standalone APK was produced"
+              fi
+            fi
+          fi
           VERSION=$(grep -oE "versionName '[^']+'" app/build.gradle | head -1 | cut -d"'" -f2)
           CODE=$(grep -oE "versionCode [0-9]+" app/build.gradle | head -1 | awk '{print $2}')
           NAME="MySpace-v${VERSION}-${CODE}-lite-dist.apk"

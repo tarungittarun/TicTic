@@ -57,6 +57,13 @@ include ':feature-clock'
 // implementor without special cases. Offline, no permissions, no :app coupling.
 include ':feature-calculator'
 
+// The standalone calculator: the same engine and screen as :feature-calculator, hosted in
+// its own application so it can be perfected as a single app on the owner's phone before
+// it returns home to MySpace. Owner's instruction, 2026-10-25: build it separately, make it
+// perfect, then integrate. It depends on the feature module rather than copying it, so the
+// two can never drift apart while they live side by side.
+include ':calc'
+
 // Notes and tasks: offline, no permissions, no network, no :app coupling.
 include ':feature-notes'
 

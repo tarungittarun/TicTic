@@ -60,7 +60,21 @@ public final class CalculatorScreen implements Screen {
             {"DEG", "\u232b", "=", null},
     };
 
+    /**
+     * Landscape, the way Google does it: the scientific column-pair joins the basic pad in
+     * one six-column grid, because a rotated phone has the width and nobody should page
+     * between halves of a calculator.
+     */
+    private static final String[][] LANDSCAPE_ROWS = {
+            {"sin(", "cos(", "C", "\u232b", "%", "\u00f7"},
+            {"asin(", "acos(", "7", "8", "9", "\u00d7"},
+            {"atan(", "ln(", "4", "5", "6", "\u2212"},
+            {"log(", "\u221a(", "1", "2", "3", "+"},
+            {"\u03c0", "e", "0", ".", "=", null},
+    };
+
     private static final String HISTORY_KEY = "calculator_history";
+    private static final String MEMORY_KEY = "calculator_memory";
     private static final int HISTORY_CAP = 50;
 
     private final ScreenHost host;
@@ -70,6 +84,8 @@ public final class CalculatorScreen implements Screen {
     private boolean historyOpen;
     private boolean scientificOpen;
     private boolean degrees = true;
+    private boolean showFraction;
+    private Context lastContext;
 
     public CalculatorScreen(ScreenHost host) {
         this.host = host;
@@ -79,6 +95,7 @@ public final class CalculatorScreen implements Screen {
 
     @Override
     public View build(final Context context) {
+        lastContext = context;
         final UiKit ui = new UiKit(context, host.palette());
         LinearLayout root = ui.vbox();
         root.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(10));
@@ -115,7 +132,12 @@ public final class CalculatorScreen implements Screen {
         TextView page = ui.pillButton(scientificOpen ? "Basic" : "Scientific",
                 ui.palette().surface, ui.palette().muted);
         page.setTextSize(10);
-        modes.addView(page, ui.lp(-2, 28));
+        // In landscape the combined grid already shows both halves; a page switch there
+        // would be a control that does nothing, which is worse than no control.
+        if (context.getResources().getConfiguration().orientation
+                != android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            modes.addView(page, ui.lp(-2, 28));
+        }
         page.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { scientificOpen = !scientificOpen; host.invalidate(); }
         });
@@ -127,6 +149,32 @@ public final class CalculatorScreen implements Screen {
         modes.addView(angle, apm);
         angle.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { degrees = !degrees; host.invalidate(); }
+        });
+        // Google's memory indicator: a small M while a value is stored, and tapping it is
+        // recall. The store and clear live in the display's hold menu, where Google keeps them.
+        final boolean memorySet = app.space.core.data.AppPrefs.prefs(context)
+                .contains(MEMORY_KEY);
+        if (memorySet) {
+            TextView chip = ui.pillButton("M", ui.palette().accent, android.graphics.Color.WHITE);
+            chip.setTextSize(10);
+            LinearLayout.LayoutParams chp = ui.lp(-2, 28);
+            chp.leftMargin = ui.dp(6);
+            modes.addView(chip, chp);
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    insertNumber(app.space.core.data.AppPrefs.prefs(context)
+                            .getString(MEMORY_KEY, "0"));
+                    host.invalidate();
+                }
+            });
+        }
+        TextView menu = ui.pillButton("\u22ee", ui.palette().surface, ui.palette().muted);
+        menu.setTextSize(12);
+        LinearLayout.LayoutParams mnp = ui.lp(-2, 28);
+        mnp.leftMargin = ui.dp(6);
+        modes.addView(menu, mnp);
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { openMenu(context, ui); }
         });
         TextView hint = ui.label("hold display: copy \u00b7 swipe down: history",
                 9, ui.palette().muted, false);
@@ -141,7 +189,7 @@ public final class CalculatorScreen implements Screen {
         });
         display.setOnLongClickListener(new View.OnLongClickListener() {
             @Override public boolean onLongClick(View v) {
-                copy(context, displayValue());
+                holdMenu(context, ui);
                 return true;
             }
         });
@@ -153,7 +201,9 @@ public final class CalculatorScreen implements Screen {
         }
 
         // ---- the keypad: basic page or scientific page, rows weighted, keys row-high ----
-        String[][] rows = scientificOpen ? SCIENTIFIC_ROWS : ROWS;
+        final boolean landscape = context.getResources().getConfiguration().orientation
+                == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        String[][] rows = landscape ? LANDSCAPE_ROWS : scientificOpen ? SCIENTIFIC_ROWS : ROWS;
         for (String[] rowKeys : rows) {
             LinearLayout row = ui.hbox();
             for (int col = 0; col < rowKeys.length; col++) {
@@ -233,7 +283,11 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        final TextView expressionView = ui.label(typed(), 46, ui.palette().text, false);
+        // Long numbers shrink instead of scrolling away: three sizes, chosen by length,
+        // so a twelve-digit result is still legible and a forty-character expression fits.
+        int shown = typed().length();
+        int size = shown > 20 ? 26 : shown > 12 ? 34 : 46;
+        final TextView expressionView = ui.label(typed(), size, ui.palette().text, false);
         expressionView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         expressionView.setSingleLine(true);
         exprScroll.addView(expressionView, new LinearLayout.LayoutParams(-2, -1));
@@ -332,6 +386,68 @@ public final class CalculatorScreen implements Screen {
 
     @Override public void onPause() { }
 
+    /**
+     * One key, from anywhere: a hardware keyboard in the standalone build types through
+     * here exactly as a thumb does, and the rules refuse what they would refuse a thumb.
+     */
+    public boolean typeKey(String key) {
+        if (lastContext == null || key == null) return false;
+        press(lastContext, key);
+        return true;
+    }
+
+    /** Google's hold menu on the display: copy, and the memory slot's store/recall/clear. */
+    private void holdMenu(final Context context, UiKit ui) {
+        final boolean memorySet = app.space.core.data.AppPrefs.prefs(context)
+                .contains(MEMORY_KEY);
+        java.util.List<String> items = new java.util.ArrayList<>();
+        items.add("Copy");
+        items.add(memorySet ? "Store again in memory" : "Store in memory");
+        if (memorySet) items.add("Clear memory");
+        final String[] labels = items.toArray(new String[0]);
+        new android.app.AlertDialog.Builder(context)
+                .setTitle(displayValue())
+                .setItems(labels, new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int which) {
+                        String choice = labels[which];
+                        if (choice.equals("Copy")) {
+                            copy(context, displayValue());
+                        } else if (choice.startsWith("Store")) {
+                            app.space.core.data.AppPrefs.prefs(context).edit()
+                                    .putString(MEMORY_KEY, displayValue()).apply();
+                            host.toast("Stored in memory");
+                            host.invalidate();
+                        } else {
+                            app.space.core.data.AppPrefs.prefs(context).edit()
+                                    .remove(MEMORY_KEY).apply();
+                            host.toast("Memory cleared");
+                            host.invalidate();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    /** The overflow menu: history, and the decimal/fraction view of a result. */
+    private void openMenu(final Context context, UiKit ui) {
+        final String[] labels = {
+                "History",
+                showFraction ? "Show as decimal" : "Show as fraction",
+        };
+        new android.app.AlertDialog.Builder(context)
+                .setItems(labels, new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int which) {
+                        if (which == 0) {
+                            historyOpen = !historyOpen;
+                        } else {
+                            showFraction = !showFraction;
+                        }
+                        host.invalidate();
+                    }
+                })
+                .show();
+    }
+
     /** What a hold-copy puts on the clipboard: the result if there is one, else what is typed. */
     private String displayValue() {
         if (justEvaluated) return result;
@@ -374,7 +490,18 @@ public final class CalculatorScreen implements Screen {
 
     /** The main display: the result just after equals, otherwise what is typed. */
     private String typed() {
-        if (justEvaluated) return result.isEmpty() ? "0" : result;
+        if (justEvaluated) {
+            if (result.isEmpty()) return "0";
+            if (showFraction) {
+                try {
+                    String fraction = CalculatorRules.toFraction(Double.parseDouble(result));
+                    if (fraction != null) return fraction;
+                } catch (Exception e) {
+                    // fall through to the decimal
+                }
+            }
+            return result;
+        }
         return expression.length() == 0 ? "0" : readable(expression.toString());
     }
 

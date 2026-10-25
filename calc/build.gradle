@@ -1,0 +1,66 @@
+plugins { id 'com.android.application' }
+
+// The standalone calculator. Own applicationId, own version line, own icon -- a real app on
+// the phone, not a flavour of MySpace -- because the owner's instruction (2026-10-25) is to
+// perfect it alone first: "builds calculator app seperately... try to make it perfect as a
+// single app then will integrate inside MySpace app."
+//
+// It consumes :feature-calculator rather than copying it. One engine, one screen, two hosts:
+// whatever is fixed here is fixed in MySpace at the same moment, and the integration later is
+// a deletion of this module's chrome, not a port.
+android {
+    namespace 'app.space.calc'
+    compileSdk 34
+    buildToolsVersion '34.0.0'
+
+    defaultConfig {
+        applicationId 'app.space.calc'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        // The same sideload key as MySpace: one certificate for everything handed to the
+        // owner's phone, so upgrades install over installs instead of conflicting with them.
+        sideload {
+            storeFile rootProject.file('signing/myspace.p12')
+            storeType 'pkcs12'
+            storePassword 'myspace-sideload'
+            keyAlias 'myspace'
+            keyPassword 'myspace-sideload'
+        }
+    }
+
+    buildTypes {
+        // release is the handed-over build: signed, not debuggable. A debuggable APK is what
+        // Play Protect calls a risk, and the verdict is correct when it says so.
+        release {
+            debuggable false
+            minifyEnabled false
+            signingConfig file("${rootDir}/signing/myspace.p12").exists()
+                    ? signingConfigs.sideload : null
+        }
+        debug {
+            applicationIdSuffix '.debug'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // The calculator itself: rules, screen, history, memory -- everything the parity work
+    // built, shared with the MySpace instance of the same screen.
+    implementation project(':feature-calculator')
+    // The design language: UiKit, Palette, TicIconView. Point 2 of the instruction is that
+    // this app already looks like MySpace, because it ends up inside MySpace.
+    implementation project(':core-design')
+    // AppTheme/AppPrefs: the same dark-mode and accent resolution MySpace's settings drive,
+    // so the standalone follows the suite's design decisions from day one.
+    implementation project(':core-data')
+}

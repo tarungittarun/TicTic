@@ -246,4 +246,15 @@ public class CalculatorRulesTest {
         assertEquals(1, CalculatorRules.historyEntries("corrupt\n1+1=2").length);
         assertEquals(0, CalculatorRules.historyEntries("").length);
     }
+
+    @Test public void fractionsAreContinuedFractionConvergents() {
+        assertEquals("1/2", CalculatorRules.toFraction(0.5));
+        assertEquals("5/2", CalculatorRules.toFraction(2.5));
+        assertEquals("-3/4", CalculatorRules.toFraction(-0.75));
+        assertEquals("1/3", CalculatorRules.toFraction(0.3333333333333));
+        assertEquals("355/113", CalculatorRules.toFraction(3.14159265));
+        assertEquals("2", CalculatorRules.toFraction(2d));
+        assertNull(CalculatorRules.toFraction(Double.NaN));
+        assertNull(CalculatorRules.toFraction(Double.POSITIVE_INFINITY));
+    }
 }

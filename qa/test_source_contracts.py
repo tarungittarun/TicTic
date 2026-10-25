@@ -4120,6 +4120,55 @@ class RoomAdoptionContracts(unittest.TestCase):
         self.assertIn("RoomBridge.resetAfterRestore(context);", screen)
 
 
+class CalcStandaloneContracts(unittest.TestCase):
+    """The owner's 2026-10-25 instruction: build the calculator separately, make it perfect
+    as a single app, then integrate it into MySpace. These pins hold the standalone honest
+    to that: a real application module that CONSUMES the shared feature module (so the two
+    can never drift), declares no permission at all, hosts the same screen through the same
+    ScreenHost contract, and carries the Google-parity features the comparison found --
+    landscape's combined grid, the memory slot, the fraction view, hardware keys.
+    """
+
+    def setUp(self):
+        self.gradle = (ROOT / "calc/build.gradle").read_text()
+        self.manifest = (ROOT / "calc/src/main/AndroidManifest.xml").read_text()
+        self.activity = java_code_only(
+            (ROOT / "calc/src/main/java/app/space/calc/CalcActivity.java").read_text())
+        self.screen = java_code_only(
+            (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        self.rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
+
+    def test_the_standalone_is_a_real_application_that_consumes_the_shared_feature(self):
+        self.assertIn("include ':calc'", (ROOT / "settings.gradle").read_text())
+        self.assertIn("plugins { id 'com.android.application' }", self.gradle)
+        self.assertIn("applicationId 'app.space.calc'", self.gradle)
+        self.assertIn("implementation project(':feature-calculator')", self.gradle)
+        self.assertIn("implementation project(':core-design')", self.gradle)
+        self.assertIn("implementation project(':core-data')", self.gradle)
+
+    def test_the_standalone_declares_no_permission_at_all(self):
+        self.assertNotIn("uses-permission", self.manifest)
+        self.assertIn('android:exported="true"', self.manifest)
+        # Rotation handled in place, so the expression survives turning the phone.
+        self.assertIn("android:configChanges=", self.manifest)
+
+    def test_the_host_speaks_the_suite_contract_and_the_suite_design_language(self):
+        self.assertIn("implements ScreenHost", self.activity)
+        self.assertIn("new CalculatorScreen(this)", self.activity)
+        self.assertIn("Palette.resolve(AppTheme.dark(this), AppTheme.accent(this))", self.activity)
+        self.assertIn("TicIconView.CALCULATOR", self.activity)
+        # Hardware keyboard types through the same door as a thumb.
+        self.assertIn("screen.typeKey(", self.activity)
+
+    def test_the_screen_carries_the_parity_features(self):
+        self.assertIn("LANDSCAPE_ROWS", self.screen)
+        self.assertIn("private static final String MEMORY_KEY", self.screen)
+        self.assertIn("public boolean typeKey(String key)", self.screen)
+        self.assertIn("int size = shown > 20 ? 26 : shown > 12 ? 34 : 46;", self.screen)
+        self.assertIn("CalculatorRules.toFraction(", self.screen)
+        self.assertIn("public static String toFraction(double value)", self.rules)
+
+
 class SafBrowseContracts(unittest.TestCase):
     """The plan's SAF line: Files reaches shared storage through the Storage Access
     Framework -- the user picks one folder, the grant persists, and no all-files

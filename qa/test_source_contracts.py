@@ -4320,7 +4320,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         wf = (ROOT / ".github/workflows/tests.yml").read_text()
         self.assertIn("python -m unittest discover -s qa", wf)
         self.assertIn("./gradlew test --stacktrace", wf)
-        self.assertIn("reactive-circus/android-emulator-runner@v2", wf)
+        self.assertIn("ReactiveCircus/android-emulator-runner@v2", wf)
         self.assertIn("./gradlew :calc:connectedDebugAndroidTest", wf)
 
     def test_the_ui_suite_walks_the_owners_stories_on_an_emulator(self):

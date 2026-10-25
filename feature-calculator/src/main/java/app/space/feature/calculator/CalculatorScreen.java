@@ -136,6 +136,7 @@ public final class CalculatorScreen implements Screen {
     private LinearLayout panelBox;
     private LinearLayout chipSlot;
     private TextView chevron;
+    private PopupWindow menuPopup;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
@@ -667,13 +668,13 @@ public final class CalculatorScreen implements Screen {
             row.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     onMenuChoice(context, ui, choice);
-                    popup.dismiss();
+                    if (menuPopup != null) menuPopup.dismiss();
                 }
             });
         }
-        final PopupWindow popup = new PopupWindow(box, ui.dp(220), -2, true);
-        popup.setElevation(ui.dp(8));
-        popup.showAsDropDown(anchor, 0, ui.dp(4), Gravity.RIGHT);
+        menuPopup = new PopupWindow(box, ui.dp(220), -2, true);
+        menuPopup.setElevation(ui.dp(8));
+        menuPopup.showAsDropDown(anchor, 0, ui.dp(4), Gravity.RIGHT);
     }
 
     private void onMenuChoice(Context context, UiKit ui, String choice) {

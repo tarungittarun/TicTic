@@ -4630,8 +4630,13 @@ class InstallabilityIsCheckedContracts(unittest.TestCase):
     def test_the_scan_is_validated_by_controls(self):
         # Without controls, a scan that finds nothing would pass for the wrong reason -- the
         # same failure mode as every vacuous assertion this suite has ever had.
-        self.assertIn('for control in ("INTERNET", "WAKE_LOCK"):', self.body)
+        self.assertIn('DEFAULT_CONTROLS = ("INTERNET", "WAKE_LOCK")', self.body)
+        self.assertIn("for control in controls:", self.body)
         self.assertIn("SCAN BROKEN", self.body)
+        # The standalone calculator declares zero permissions, so its scan is controlled on
+        # the launcher intent strings -- same storage class, guaranteed present.
+        self.assertIn('--control android.intent.action.MAIN', self.workflow)
+        self.assertIn('--control android.intent.category.LAUNCHER', self.workflow)
 
     def test_it_refuses_to_publish_an_uninstallable_apk(self):
         self.assertIn("REFUSED AT INSTALL", self.body)

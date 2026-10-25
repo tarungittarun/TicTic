@@ -213,7 +213,11 @@ jobs:
             else
               CBUILT=$(find calc/build/outputs/apk -name '*release*.apk' 2>/dev/null | head -1)
               if [ -n "$CBUILT" ]; then
-                python3 qa/check_apk_permissions.py "$CBUILT"
+                # MyCalc declares zero permissions, so the scan is controlled on the
+                # launcher intent strings instead of MySpace's INTERNET/WAKE_LOCK pair.
+                python3 qa/check_apk_permissions.py "$CBUILT" \
+                  --control android.intent.action.MAIN \
+                  --control android.intent.category.LAUNCHER
                 cp "$CBUILT" "artifacts/$CNAME"
                 sha256sum "artifacts/$CNAME" | awk '{print $1}' > "artifacts/$CNAME.sha256"
                 echo "staged $CNAME ($(stat -c %s "artifacts/$CNAME") bytes)"

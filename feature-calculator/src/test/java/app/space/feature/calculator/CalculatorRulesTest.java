@@ -134,6 +134,17 @@ public class CalculatorRulesTest {
         assertEquals("-2.5e+16", CalculatorRules.format(-2.5e16));
     }
 
+    @Test public void theBracketKeyDecidesWhichBracketFits() {
+        // One button opens and closes (owner, 2026-10-26 evening): with an unclosed group
+        // and a finished operand at the end it closes; otherwise it opens.
+        assertEquals("(", CalculatorRules.smartBracket(""));
+        assertEquals("(", CalculatorRules.smartBracket("5"));
+        assertEquals("(", CalculatorRules.smartBracket("5(1+"));
+        assertEquals(")", CalculatorRules.smartBracket("5(1+1"));
+        assertEquals("(", CalculatorRules.smartBracket("5(1+1)"));
+        assertEquals(")", CalculatorRules.smartBracket("5(1+1(2(33"));
+    }
+
     @Test public void percentFollowsTheGoogleSemanticsEndToEnd() {
         // The reference spec's worked examples, which are also the shipped rule.
         assertEquals(220d, CalculatorRules.evaluate("200+10%"), 1e-9);

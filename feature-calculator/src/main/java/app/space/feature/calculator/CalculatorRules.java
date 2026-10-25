@@ -256,6 +256,29 @@ public final class CalculatorRules {
     }
 
     /**
+     * The bracket key's decision, Google's way (owner, 2026-10-26 evening): one button
+     * opens AND closes. With an unclosed group on screen and a finished operand at the
+     * end, the next press closes it; otherwise it opens. Without this the key only ever
+     * opened, because implicit multiplication made '(' legal everywhere and the old
+     * try-open-then-try-close order never reached the close.
+     */
+    public static String smartBracket(String expression) {
+        String current = expression == null ? "" : expression;
+        int open = 0;
+        for (int i = 0; i < current.length(); i++) {
+            char c = current.charAt(i);
+            if (c == '(') open++;
+            else if (c == ')') open--;
+        }
+        if (open > 0 && !current.isEmpty()) {
+            char last = current.charAt(current.length() - 1);
+            if (Character.isDigit(last) || last == ')' || last == '!' || last == '%'
+                    || last == '\u03c0' || last == 'e') return ")";
+        }
+        return "(";
+    }
+
+    /**
      * The history store, as pure text so it can be tested without a device: one line per
      * calculation, "expression=result", newest first, deduplicated, capped. The characters
      * an expression and a formatted result can contain never include '=' or newline, so the

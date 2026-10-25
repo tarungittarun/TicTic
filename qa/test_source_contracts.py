@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.8'", gradle)
-        self.assertIn("versionCode 45", gradle)
+        self.assertIn("versionName '3.12.9'", gradle)
+        self.assertIn("versionCode 46", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4247,9 +4247,12 @@ class SheetAndChevronContracts(unittest.TestCase):
         # Stealing every downward drag is why three entries were all he could see. The drag
         # belongs to the list unless the list is at its top; and an upward drag from the
         # docked expression starts the collapse, his seventh point.
-        self.assertIn("sheetScroll.canScrollVertically(-1)", self.screen)
-        self.assertIn("boolean upwardFromDock = sheetOpen", self.screen)
-        self.assertIn("!sheetScroll.canScrollVertically(1)", self.screen)
+        # The scroller owns scrolling AND the closing gestures at its edges; the parent
+        # keeps only the open gesture and the dock collapse, because on his device the
+        # parent's interception never saw the list drags at all.
+        self.assertIn("edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;", self.screen)
+        self.assertIn("edgeUp = sv.canScrollVertically(1) ? 0 : edgeUp + ddy;", self.screen)
+        self.assertIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
 
     def test_the_sheet_pushes_the_pad_down(self):
         # Google's sheet fills the screen with the expression docked at the bottom and the
@@ -4270,9 +4273,20 @@ class SheetAndChevronContracts(unittest.TestCase):
     def test_the_gestures_write_their_outcomes_to_the_log(self):
         # The standing logging directive: outcomes, not intents. A swipe that is passed to
         # the list, claimed downward or claimed upward each says so in the log.
-        self.assertIn('"swipe passed to the history list: it can still scroll up"', self.screen)
-        self.assertIn('"swipe claimed downward: sheet gesture"', self.screen)
+        self.assertIn('"swipe claimed downward: sheet gesture to open the sheet"', self.screen)
         self.assertIn('"swipe claimed upward from "', self.screen)
+        # The scroller owns its own edges now: parent interception never saw his drags.
+        self.assertIn('"history sheet closed by edge drag: "', self.screen)
+        self.assertIn("edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;", self.screen)
+        # One bracket button opens and closes, Google's way.
+        self.assertIn("CalculatorRules.smartBracket(expression.toString())", self.screen)
+        rules = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text())
+        self.assertIn("public static String smartBracket(String expression)", rules)
+        # The expand chevron leaves with the pad while the sheet owns the screen.
+        self.assertIn("chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);", self.screen)
+        # And the Clear pill can no longer be clipped by its header.
+        self.assertIn("historyBox.addView(head, ui.lp(-1, 46));", self.screen)
+        self.assertIn("LinearLayout.LayoutParams clp = ui.lp(-2, 34);", self.screen)
 
     def test_history_reads_oldest_first_and_opens_at_the_newest(self):
         # His third point: newest at the BOTTOM, scrolling up walks back through time; the
@@ -4342,7 +4356,7 @@ class TestInfrastructureContracts(unittest.TestCase):
 
     def test_the_screen_views_carry_stable_ids_for_the_suite(self):
         ids = (ROOT / "feature-calculator/src/main/res/values/ids.xml").read_text()
-        for name in ("calc_display", "calc_history_scroll", "calc_history_btn"):
+        for name in ("calc_display", "calc_history_scroll", "calc_history_btn", "calc_chevron_row"):
             self.assertIn(name, ids)
 
     def test_implicit_multiplication_is_engine_truth(self):

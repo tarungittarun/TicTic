@@ -134,6 +134,7 @@ public final class CalculatorScreen implements Screen {
     private LinearLayout historyBox;
     private LinearLayout historyList;
     private TextView historyTitle;
+    private LinearLayout chevronRow;
     private LinearLayout currentBox;
     private View handle;
     private LinearLayout panelBox;
@@ -272,8 +273,10 @@ public final class CalculatorScreen implements Screen {
 
         // ---- Google's chevron, bordered and accent-coloured so it reads at a glance ----
         if (!landscape) {
-            LinearLayout chevronRow = ui.hbox();
+            chevronRow = ui.hbox();
             chevronRow.setGravity(Gravity.CENTER_VERTICAL);
+            chevronRow.setId(R.id.calc_chevron_row);
+            chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);
             root.addView(chevronRow, ui.lp(-1, 40));
             chevron = new ChevronView(context, ui.palette().accent, ui.palette().surface);
             styleChevron(ui);
@@ -504,7 +507,7 @@ public final class CalculatorScreen implements Screen {
         final android.graphics.drawable.GradientDrawable cursorMark =
                 new android.graphics.drawable.GradientDrawable();
         cursorMark.setColor(ui.palette().accent);
-        cursorMark.setSize(ui.dp(2), ui.dp(24));
+        cursorMark.setSize(ui.dp(3), ui.dp(24));
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
         } else {
@@ -591,6 +594,7 @@ public final class CalculatorScreen implements Screen {
         displayView.setText(shown);
         displayView.applying = false;
         restoreCaret();
+        if (!displayView.hasFocus()) displayView.requestFocus();
         previewView.setText(preview());
     }
 
@@ -609,14 +613,14 @@ public final class CalculatorScreen implements Screen {
         LinearLayout head = ui.hbox();
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.setPadding(0, 0, 0, ui.dp(4));
-        historyBox.addView(head, ui.lp(-1, 40));
+        historyBox.addView(head, ui.lp(-1, 46));
         historyTitle = ui.label("", 14, ui.palette().text, true);
         head.addView(historyTitle, new LinearLayout.LayoutParams(0, -2, 1f));
         TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
         clear.setTextSize(13);
-        LinearLayout.LayoutParams clp = ui.lp(-2, -2);
-        clp.topMargin = ui.dp(3);
-        clp.bottomMargin = ui.dp(3);
+        // A wrapped pill inside a fixed header was the clipping he kept seeing: the pill
+        // gets a fixed height that the header is guaranteed to contain.
+        LinearLayout.LayoutParams clp = ui.lp(-2, 34);
         head.addView(clear, clp);
         clear.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -656,6 +660,41 @@ public final class CalculatorScreen implements Screen {
         });
         historyScroll = new ScrollView(context);
         historyScroll.setId(R.id.calc_history_scroll);
+        // His third point tonight, root-caused: parent interception never saw his drags on
+        // the device, so the list never scrolled and never closed. The scroller now owns
+        // both: it scrolls natively everywhere, and a deliberate pull past either edge
+        // closes the sheet -- down at the oldest, up at the newest, Google's edges.
+        historyScroll.setOnTouchListener(new View.OnTouchListener() {
+            private float lastY, edgeDown, edgeUp;
+            @Override public boolean onTouch(View v, MotionEvent e) {
+                ScrollView sv = (ScrollView) v;
+                switch (e.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastY = e.getY();
+                        edgeDown = 0;
+                        edgeUp = 0;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        float ddy = e.getY() - lastY;
+                        lastY = e.getY();
+                        edgeDown = sv.canScrollVertically(-1) ? 0 : edgeDown + ddy;
+                        edgeUp = sv.canScrollVertically(1) ? 0 : edgeUp + ddy;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (edgeDown > 120 || edgeUp < -120) {
+                            AppLog.event(context, "calc", "history sheet closed by edge drag: "
+                                    + (edgeDown > 120
+                                            ? "pulled down at the oldest entry"
+                                            : "pushed up at the newest entry"));
+                            toggleHistory(context, ui);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+        });
         final ScrollView scroll = historyScroll;
         scroll.setVerticalScrollBarEnabled(false);
         historyList = ui.vbox();
@@ -763,6 +802,9 @@ public final class CalculatorScreen implements Screen {
                 ? "history expanded: " + entryCount(context) + " entries over the display"
                 : "history collapsed: display back to full height");
         handle.setVisibility(historyOpen ? View.VISIBLE : View.GONE);
+        // His fourth point tonight: while the sheet owns the screen the pad's expand
+        // chevron has nothing to expand and only eats the bottom edge. Gone with the pad.
+        chevronRow.setVisibility(historyOpen ? View.GONE : View.VISIBLE);
         historyBox.setVisibility(View.VISIBLE);
         if (!historyOpen) padContainer.setVisibility(View.VISIBLE);
         animateWeight(padContainer, historyOpen ? 5f : 0f, historyOpen ? 0f : 5f,
@@ -777,7 +819,11 @@ public final class CalculatorScreen implements Screen {
         animateWeight(historyBox, historyOpen ? 0f : 2.2f, historyOpen ? 2.2f : 0f,
                 new Runnable() {
                     @Override public void run() {
-                        if (!historyOpen) historyBox.setVisibility(View.GONE);
+                        if (!historyOpen) {
+                            historyBox.setVisibility(View.GONE);
+                        } else if (historyScroll != null) {
+                            historyScroll.fullScroll(View.FOCUS_DOWN);
+                        }
                     }
                 });
         animateWeight(currentBox, historyOpen ? 3f : 0.8f, historyOpen ? 0.8f : 3f, null);
@@ -1000,32 +1046,20 @@ public final class CalculatorScreen implements Screen {
                     float dy = e.getY() - downY;
                     float dx = e.getX() - downX;
                     boolean downward = dy > 60 && dy > Math.abs(dx) * 2;
-                    boolean upwardFromDock = sheetOpen
-                            && dy < -60 && -dy > Math.abs(dx) * 2
-                            && (downInDock || (sheetScroll != null
-                                    && !sheetScroll.canScrollVertically(1)));
-                    if (!claimed && downward) {
-                        // With the sheet open the drag belongs to the history list unless
-                        // the list is already at its top -- then it is Google's
-                        // drag-down-to-close. Stealing every downward drag is exactly why
-                        // the owner could not scroll past three entries.
-                        if (sheetOpen && sheetScroll != null
-                                && sheetScroll.canScrollVertically(-1)) {
-                            if (!passedLogged) {
-                                passedLogged = true;
-                                AppLog.event(logContext, "calc",
-                                        "swipe passed to the history list: it can still scroll up");
-                            }
-                            return false;
-                        }
+                    boolean upwardFromDock = sheetOpen && downInDock
+                            && dy < -60 && -dy > Math.abs(dx) * 2;
+                    if (!claimed && downward && !sheetOpen) {
+                        // The open gesture lives here; everything inside an open sheet lives
+                        // in the scroller itself (SheetScroll below), because parent
+                        // interception never saw his drags on the device.
                         claimed = true;
-                        AppLog.event(logContext, "calc", "swipe claimed downward: sheet gesture"
-                                + (sheetOpen ? " from the list top" : " to open the sheet"));
+                        AppLog.event(logContext, "calc",
+                                "swipe claimed downward: sheet gesture to open the sheet");
                         return true;
                     }
                     if (!claimed && upwardFromDock) {
-                        // His seventh point: scrolling up from the expression dock starts
-                        // the collapse that brings the keys back.
+                        // Scrolling up from the expression dock starts the collapse that
+                        // brings the keys back.
                         claimed = true;
                         AppLog.event(logContext, "calc", "swipe claimed upward from "
                                 + (downInDock ? "the dock" : "the list bottom") + ": collapsing");
@@ -1221,8 +1255,14 @@ public final class CalculatorScreen implements Screen {
             return;
         }
         if ("( )".equals(key)) {
-            if (insertAtCaret(context, "(")) return;
-            if (insertAtCaret(context, ")")) return;
+            // One button opens and closes, Google's way: the rules decide which bracket
+            // fits, so 5(1+1 then ( ) closes the group instead of stacking another.
+            String bracket = CalculatorRules.smartBracket(expression.toString());
+            if (insertAtCaret(context, bracket)) {
+                AppLog.event(context, "calc", "key ( ) inserted " + bracket
+                        + " at " + caret + ": now " + readable(expression.toString()));
+                return;
+            }
             AppLog.event(context, "calc", "key ( ) refused: neither bracket fits at the cursor");
             return;
         }

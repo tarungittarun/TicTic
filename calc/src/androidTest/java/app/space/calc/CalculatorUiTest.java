@@ -452,6 +452,53 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("5,68,854")));
     }
 
+    @Test public void draggingEitherHandleMovesThatBoundary() {
+        // Round 16: "not able our left and right boundary, how we do in Android." The
+        // teardrops under the band are real handles now: a thumb down on one and a drag
+        // moves exactly that end of the held text. Google's shape, Google's behaviour.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "drag the right handle left, then the left handle right"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.widget.EditText ed = (android.widget.EditText) view;
+                android.text.Layout lo = ed.getLayout();
+                float d = view.getResources().getDisplayMetrics().density;
+                float padL = ed.getCompoundPaddingLeft();
+                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 10 * d;
+                float xRight = padL + lo.getPrimaryHorizontal(ed.getSelectionEnd());
+                float xTo = padL + lo.getPrimaryHorizontal(4);
+                androidx.test.espresso.action.MotionEvents.Down down =
+                        androidx.test.espresso.action.MotionEvents.sendDown(ui, view,
+                                new float[]{xRight, y});
+                for (int i = 1; i <= 4; i++) {
+                    androidx.test.espresso.action.MotionEvents.sendMovement(ui, down,
+                            new float[]{xRight + (xTo - xRight) * i / 4f, y});
+                }
+                androidx.test.espresso.action.MotionEvents.sendUp(ui, down, new float[]{xTo, y});
+                ui.loopMainThreadForAtLeast(200);
+                float xLeft = padL + lo.getPrimaryHorizontal(0);
+                float xLeftTo = padL + lo.getPrimaryHorizontal(2);
+                down = androidx.test.espresso.action.MotionEvents.sendDown(ui, view,
+                        new float[]{xLeft, y});
+                for (int i = 1; i <= 4; i++) {
+                    androidx.test.espresso.action.MotionEvents.sendMovement(ui, down,
+                            new float[]{xLeft + (xLeftTo - xLeft) * i / 4f, y});
+                }
+                androidx.test.espresso.action.MotionEvents.sendUp(ui, down, new float[]{xLeftTo, y});
+            }
+        });
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                int held = ed.getSelectionEnd() - ed.getSelectionStart();
+                assertTrue("both boundaries must move, held=" + held, held == 2);
+            }
+        });
+    }
+
     @Test public void decimalsNeverCarryCommas() {
         // Round 13: his screenshot read 1.5,70,79,63,268. Decimals are not thousands.
         type("1", ".", "5", "7", "0");

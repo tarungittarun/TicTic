@@ -120,6 +120,9 @@ public final class CalculatorScreen implements Screen {
     private static final int DIGIT = 0, OP = 1, CMD = 2, EQ = 3, TOG = 4;
 
     /** The multi-character caps, longest first, for replaying an edited expression. */
+    /** The live answer under the expression: Google's preview pink, bright on dark. */
+    private static final int PREVIEW_PINK = 0xFFF48FB1;
+
     private static final String[] TOKENS = {
             "asin(", "acos(", "atan(", "sin(", "cos(", "tan(", "log(", "ln(", "√(",
             "π", "e", "^", "!", "%", "(", ")", "×", "÷", "−", "+", ".",
@@ -157,6 +160,7 @@ public final class CalculatorScreen implements Screen {
     private float lastTouchX, lastTouchY;
     private boolean longPressHeld;
     private boolean touchMoved;
+    private int dragHandle;
     private android.view.ActionMode currentSelectionMode;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
@@ -543,8 +547,12 @@ public final class CalculatorScreen implements Screen {
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
-        displayView.setHighlightColor(mix(ui.palette().surface, ui.palette().accent, 0.5f));
-        displayView.setTextColor(ui.palette().text);
+        // Round 16: the hand-drawn translucent band is the only highlight; the
+        // framework's opaque one is switched off rather than stacked underneath.
+        displayView.setHighlightColor(0x00000000);
+        // "The expression got typed are not looking enough poppy or bright. It looks
+        // dull." Pure white on the dark surface, the way Google's own display reads.
+        displayView.setTextColor(android.graphics.Color.WHITE);
         // The caret must be VISIBLE, his point: the theme's default was not showing on his
         // device, so it is drawn explicitly in the accent colour, two density pixels wide.
         displayView.setCursorVisible(true);
@@ -580,6 +588,32 @@ public final class CalculatorScreen implements Screen {
                     lastTouchY = e.getY();
                     longPressHeld = false;
                     touchMoved = false;
+                    // Round 16: a thumb landing on either teardrop handle drags that
+                    // boundary instead of placing the caret or starting anything else.
+                    dragHandle = displayView.handleAt(e.getX(), e.getY());
+                    if (dragHandle != 0) return true;
+                }
+                if (e.getAction() == MotionEvent.ACTION_MOVE && dragHandle != 0) {
+                    CharSequence held = displayView.getText();
+                    if (!(held instanceof Spannable)) return true;
+                    int off = displayView.getOffsetForPosition(e.getX(),
+                            displayView.getHeight() / 2f);
+                    off = Math.max(0, Math.min(off, held.length()));
+                    int a = displayView.getSelectionStart();
+                    int b = displayView.getSelectionEnd();
+                    if (dragHandle < 0) off = Math.min(off, b - 1);
+                    else off = Math.max(off, a + 1);
+                    Selection.setSelection((Spannable) held,
+                            dragHandle < 0 ? off : a, dragHandle < 0 ? b : off);
+                    displayView.invalidate();
+                    return true;
+                }
+                if (e.getAction() == MotionEvent.ACTION_UP && dragHandle != 0) {
+                    AppLog.event(lastContext, "calc", "handle drag ended: chars "
+                            + displayView.getSelectionStart() + ".."
+                            + displayView.getSelectionEnd() + " held");
+                    dragHandle = 0;
+                    return true;
                 }
                 if (e.getAction() == MotionEvent.ACTION_MOVE) {
                     if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
@@ -814,7 +848,7 @@ public final class CalculatorScreen implements Screen {
         LinearLayout.LayoutParams sp = ui.lp(-1, 0);
         sp.weight = 1f;
         parent.addView(exprScroll, sp);
-        previewView = ui.label(" ", 20, ui.palette().muted, false);
+        previewView = ui.label(" ", 20, PREVIEW_PINK, false);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -877,7 +911,7 @@ public final class CalculatorScreen implements Screen {
         LinearLayout box = ui.vbox();
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(ui.dp(16));
-        bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.72f));
+        bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.85f));
         box.setBackground(bg);
         box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
         LinearLayout head = ui.hbox();
@@ -960,7 +994,7 @@ public final class CalculatorScreen implements Screen {
             LinearLayout line = ui.vbox();
             GradientDrawable card = new GradientDrawable();
             card.setCornerRadius(ui.dp(14));
-            card.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));
+            card.setColor(mix(ui.palette().background, ui.palette().surface, 0.8f));
             line.setBackground(card);
             line.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(12));
             LinearLayout.LayoutParams lineLp = ui.lp(-1, -2);
@@ -969,7 +1003,7 @@ public final class CalculatorScreen implements Screen {
             LinearLayout top = ui.hbox();
             top.setGravity(Gravity.CENTER_VERTICAL);
             line.addView(top, ui.lp(-1, -2));
-            TextView e = ui.label(groupIndian(expr), 14, ui.palette().muted, false);
+            TextView e = ui.label(groupIndian(expr), 14, ui.palette().text, false);
             e.setGravity(Gravity.LEFT);
             top.addView(e, new LinearLayout.LayoutParams(0, -2, 1f));
             TextView when = ui.label(stamp(context, entry[2]), 11, ui.palette().muted, false);
@@ -977,7 +1011,7 @@ public final class CalculatorScreen implements Screen {
             LinearLayout.LayoutParams wp = ui.lp(-2, -2);
             wp.leftMargin = ui.dp(8);
             top.addView(when, wp);
-            TextView r = ui.label("=  " + groupIndian(value), 20, ui.palette().text, true);
+            TextView r = ui.label("=  " + groupIndian(value), 20, android.graphics.Color.WHITE, true);
             r.setGravity(Gravity.LEFT);
             LinearLayout.LayoutParams rp = ui.lp(-1, -2);
             rp.topMargin = ui.dp(2);
@@ -1535,6 +1569,37 @@ public final class CalculatorScreen implements Screen {
         void setCaretColors(int caretColor, int selectionColor) {
             caretPaint.setColor(caretColor);
             selPaint.setColor(selectionColor);
+            // Round 16: "when selected, the values or expression that got copied is not
+            // visible." The band used to be an opaque slab painted OVER the glyphs. It
+            // is translucent now, and drawn beneath them.
+            selPaint.setAlpha(92);
+            float d = getResources().getDisplayMetrics().density;
+            handleStem = 8 * d;
+            handleRadius = 10 * d;
+        }
+
+        /** Geometry of the last drawn band and handles, in view coordinates. */
+        float handleLX, handleRX, handleY;
+        boolean handlesUp;
+        private float bandL, bandR;
+        private int bandB;
+        private boolean bandUp;
+        private float handleStem, handleRadius;
+        private final android.graphics.Paint handlePaint = new android.graphics.Paint();
+        {
+            // The bulb colour from his Google screenshot: a pale periwinkle that reads
+            // as "held" on any dark surface.
+            handlePaint.setColor(0xFFB9BBF4);
+            handlePaint.setStyle(android.graphics.Paint.Style.FILL);
+        }
+
+        /** -1 for the left handle, 1 for the right, 0 for "not on a handle". */
+        int handleAt(float x, float y) {
+            if (!handlesUp) return 0;
+            float r = handleRadius * 2.6f;
+            if (Math.abs(x - handleLX) <= r && Math.abs(y - handleY) <= r) return -1;
+            if (Math.abs(x - handleRX) <= r && Math.abs(y - handleY) <= r) return 1;
+            return 0;
         }
 
         /**
@@ -1543,29 +1608,45 @@ public final class CalculatorScreen implements Screen {
          * device. The selection band is drawn too, so selecting text is finally visible.
          */
         @Override protected void onDraw(android.graphics.Canvas c) {
-            super.onDraw(c);
+            // Round 16: the band goes in FIRST, under the glyphs, so a held expression
+            // stays readable while it is held. The caret and the two drag handles go
+            // last, over everything, because they are furniture, not text.
             android.text.Layout lo = getLayout();
-            if (lo == null) return;
-            int padL = getCompoundPaddingLeft();
-            // Round 11: padding math kept missing his device's gravity offset -- the bar
-            // floated above the text in his screenshot. getBaseline() is where the first
-            // line is ACTUALLY drawn, so every caret and band coordinate is derived from
-            // it and cannot drift from the glyphs again.
-            int base = getBaseline();
-            int base0 = lo.getLineBaseline(0);
-            int s = getSelectionStart();
-            int en = getSelectionEnd();
-            if (s >= 0 && en > s) {
-                int l1 = lo.getLineForOffset(s);
-                int l2 = lo.getLineForOffset(en);
-                for (int ln = l1; ln <= l2; ln++) {
-                    float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
-                    float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
-                    int lb = base + lo.getLineBaseline(ln) - base0;
-                    c.drawRect(padL + x1, lb + lo.getLineAscent(ln),
-                            padL + x2, lb + lo.getLineDescent(ln), selPaint);
+            bandUp = false;
+            handlesUp = false;
+            int padL = 0, base = 0, base0 = 0;
+            int s = -1, en = -1;
+            if (lo != null) {
+                padL = getCompoundPaddingLeft();
+                // Round 11: padding math kept missing his device's gravity offset -- the bar
+                // floated above the text in his screenshot. getBaseline() is where the first
+                // line is ACTUALLY drawn, so every caret and band coordinate is derived from
+                // it and cannot drift from the glyphs again.
+                base = getBaseline();
+                base0 = lo.getLineBaseline(0);
+                s = getSelectionStart();
+                en = getSelectionEnd();
+                if (s >= 0 && en > s) {
+                    int l1 = lo.getLineForOffset(s);
+                    int l2 = lo.getLineForOffset(en);
+                    for (int ln = l1; ln <= l2; ln++) {
+                        float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
+                        float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
+                        int lb = base + lo.getLineBaseline(ln) - base0;
+                        float top = lb + lo.getLineAscent(ln);
+                        float bot = lb + lo.getLineDescent(ln);
+                        c.drawRect(padL + x1, top, padL + x2, bot, selPaint);
+                        if (ln == l1) bandL = padL + x1;
+                        if (ln == l2) {
+                            bandR = padL + x2;
+                            bandB = (int) bot;
+                            bandUp = true;
+                        }
+                    }
                 }
             }
+            super.onDraw(c);
+            if (lo == null) return;
             // His device reports placements while the framework selection reads empty, so
             // the screen's own caret offset is the fallback: the bar always stands exactly
             // where the next keypad key will land.
@@ -1576,6 +1657,23 @@ public final class CalculatorScreen implements Screen {
                 int lb = base + lo.getLineBaseline(ln) - base0;
                 c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
                         x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
+            }
+            if (bandUp) {
+                // Round 16: "not able our left and right boundary, how we do in Android."
+                // Google's teardrops: a stem down from each band corner and a bulb under
+                // it. They are drawn here AND hit-tested by the screen's touch listener,
+                // so dragging either one moves that boundary -- his device never showed
+                // the framework's handles, so these are the handles.
+                handleY = bandB + handleStem + handleRadius;
+                handleLX = bandL;
+                handleRX = bandR;
+                handlesUp = true;
+                c.drawRect(handleLX - handleRadius / 2f, bandB - 2,
+                        handleLX + handleRadius / 2f, bandB + handleStem, handlePaint);
+                c.drawCircle(handleLX, handleY, handleRadius, handlePaint);
+                c.drawRect(handleRX - handleRadius / 2f, bandB - 2,
+                        handleRX + handleRadius / 2f, bandB + handleStem, handlePaint);
+                c.drawCircle(handleRX, handleY, handleRadius, handlePaint);
             }
         }
 

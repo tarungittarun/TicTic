@@ -1,6 +1,6 @@
 # MySpace — what is in the build
 
-One install, fifteen apps. `applicationId app.space.one` · version **3.12.17** (versionCode 54) ·
+One install, fifteen apps. `applicationId app.space.one` · version **3.12.18** (versionCode 55) ·
 `minSdk 26` · `targetSdk 34` · 22 Gradle modules.
 
 Tagline: *One for many.*

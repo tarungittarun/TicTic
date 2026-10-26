@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.17'", gradle)
-        self.assertIn("versionCode 54", gradle)
+        self.assertIn("versionName '3.12.18'", gradle)
+        self.assertIn("versionCode 55", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4308,7 +4308,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertNotIn("modesRule", self.screen)
         self.assertNotIn("padRule", self.screen)
         self.assertNotIn("divider.setBackgroundColor(", self.screen)
-        self.assertIn("card.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));", self.screen)
+        self.assertIn("card.setColor(mix(ui.palette().background, ui.palette().surface, 0.8f));", self.screen)
 
     def test_the_adopted_spec_behaviours_are_wired(self):
         # From the owner's reference sheet of 2026-10-26, the gaps that were adopted:
@@ -4357,8 +4357,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("static String groupIndian(String s) {", screen)
         self.assertIn("int lead = (n - 3) % 2 == 1 ? 1 : 2;", screen)
         self.assertIn("return groupIndian(result);", screen)
-        self.assertIn("ui.label(groupIndian(expr), 14, ui.palette().muted, false);", screen)
-        self.assertIn("ui.label(\"=  \" + groupIndian(value), 20, ui.palette().text, true);", screen)
+        self.assertIn("ui.label(groupIndian(expr), 14, ui.palette().text, false);", screen)
+        self.assertIn("ui.label(\"=  \" + groupIndian(value), 20, android.graphics.Color.WHITE, true);", screen)
         # and the commas never leak into the expression itself
         self.assertIn('String raw = txt.replace(",", "")', screen)
         self.assertIn("private int dispToRaw(int off) {", screen)
@@ -4385,13 +4385,27 @@ class TestInfrastructureContracts(unittest.TestCase):
         # Round 15: the one bracket key asks the CARET, not the end, which
         # bracket fits -- it offers the other one when the first is refused.
         self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
+        # Round 16: the held expression stays readable -- translucent band
+        # UNDER the glyphs -- and the teardrop handles are drawn and draggable.
+        self.assertIn("selPaint.setAlpha(92);", screen)
+        self.assertLess(screen.index("c.drawRect(padL + x1, top, padL + x2, bot, selPaint);"),
+                        screen.index("super.onDraw(c);"))
+        self.assertIn("handlePaint.setColor(0xFFB9BBF4);", screen)
+        self.assertIn("int handleAt(float x, float y) {", screen)
+        self.assertIn("dragHandle = displayView.handleAt(e.getX(), e.getY());", screen)
+        self.assertIn("\"handle drag ended: chars \"", screen)
+        self.assertIn("displayView.setHighlightColor(0x00000000);", screen)
+        self.assertIn("displayView.setTextColor(android.graphics.Color.WHITE);", screen)
+        self.assertIn("private static final int PREVIEW_PINK = 0xFFF48FB1;", screen)
         self.assertIn('"selection started: chars "', screen)
         self.assertIn("int added = candidate.length() - (raw.length() - (sel[1] - at));", screen)
         self.assertIn("boolean fraction = out.length() > 0 && out.charAt(out.length() - 1) == '.';", screen)
         self.assertIn("line.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(12));", screen)
         self.assertIn("if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;", screen)
         self.assertIn("setShowSoftInputOnFocus(false);", screen)
-        self.assertIn("int base = getBaseline();", screen)
+        # Round 16: the baseline anchor is declared once for band, caret and
+        # handles, so the pin reads the assignment, not the declaration.
+        self.assertIn("base = getBaseline();", screen)
         self.assertIn("int off = ed.getOffsetForPosition(touchX,", screen)
         self.assertIn("PopupWindow self = menuPopup;", screen)
         self.assertIn("String typed = CalculatorRules.autoClose(trimmed());", screen)
@@ -4493,6 +4507,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("percentChainsAndNegationExactlyAsTheOwnersScreenshot", ui)
         self.assertIn("percentChainsMidExpressionToo", ui)
         self.assertIn("theBracketKeyFitsTheCaretNotJustTheEnd", ui)
+        self.assertIn("draggingEitherHandleMovesThatBoundary", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):
@@ -5204,6 +5219,13 @@ class DiagnosticsLogContracts(unittest.TestCase):
                     "public static void crash(", "public static String tail(", "public static void clear("):
             self.assertIn(api, self.log)
         self.assertIn("MAX_BYTES = 1000000", self.log)
+
+    def test_log_writes_never_touch_the_ui_thread(self):
+        # Round 16: "still the app feels little laggy or when pressed buttons on and
+        # on." Every key press logs; the file open-append-close used to run on the UI
+        # thread. One background writer thread now takes every line.
+        self.assertIn('new android.os.HandlerThread("AppLog")', self.log)
+        self.assertIn("writer.post(new Runnable() {", self.log)
 
     def test_crashes_are_recorded_even_when_logging_is_off(self):
         self.assertIn("if (c == null || t == null) return;", self.log)

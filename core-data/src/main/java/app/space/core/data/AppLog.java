@@ -46,7 +46,7 @@ public final class AppLog {
     /** One timestamped line. No-op unless logging is enabled. */
     public static void event(Context c, String tag, String message) {
         if (!enabled(c)) return;
-        write(c, tag + " " + message);
+        queue(c, tag + " " + message);
     }
 
     /**
@@ -64,7 +64,7 @@ public final class AppLog {
         for (int i = 0; i < st.length && i < MAX_STACK_LINES; i++) {
             b.append("\n  at ").append(st[i]);
         }
-        write(c, b.toString());
+        queue(c, b.toString());
     }
 
     public static void clear(Context c) {
@@ -94,6 +94,26 @@ public final class AppLog {
         while ((n = in.read(buf)) > 0) bos.write(buf, 0, n);
         in.close();
         return bos.toByteArray();
+    }
+
+    // Round 16: "still the app feels little laggy or when pressed buttons on and on."
+    // Every key press logs a line, and write() opened, appended and closed a file on
+    // the CALLING thread -- the UI thread, twelve times a second under a fast thumb.
+    // Lines now queue to one background writer; the UI thread only formats a string.
+    private static android.os.HandlerThread writerThread;
+    private static android.os.Handler writer;
+
+    private static synchronized void queue(Context c, String line) {
+        if (writerThread == null) {
+            writerThread = new android.os.HandlerThread("AppLog");
+            writerThread.start();
+            writer = new android.os.Handler(writerThread.getLooper());
+        }
+        final Context app = c.getApplicationContext();
+        final String text = line;
+        writer.post(new Runnable() {
+            @Override public void run() { write(app, text); }
+        });
     }
 
     private static synchronized void write(Context c, String line) {

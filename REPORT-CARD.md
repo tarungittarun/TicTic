@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.22 (versionCode 59) · 2,268,008 bytes · SHA-256 `6fc0270d52cd9c6852afd8ad11a058582c11f0b2a86930daf7a727cf37e79b00` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.20 (versionCode 21) · 1,305,571 bytes · SHA-256 `775585920c7c6bf6bc9efd14caa501162290406b19a6695a280df3f8d2439837` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23199 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 257 recorded runs — **174 green, 76 red, 7 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.23 (versionCode 60) · 2,269,828 bytes · SHA-256 `992b0e126d57a4cf622583b9784322d5063ef8865d1d02f6f1466b1b8bca987b` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.21 (versionCode 22) · 1,307,367 bytes · SHA-256 `006d62abb5de8201ceb05a0d02a495f32675708a82413c3c418dec45793ee17d` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23414 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 261 recorded runs — **177 green, 76 red, 7 cancelled, 1 running** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -23,6 +23,24 @@ screenshot with white digits on white keys and no caret at all: the round-19 col
 chosen for dark mode only. Every display ink now branches on the resolved palette -- LED-bright
 in dark, pitch black in light -- and a story draws the display to a bitmap in each theme and
 counts caret and ink pixels, because on this project "visible" has too often meant "intended".
+
+### Why the selection took nine rounds — the honest chain
+
+Round 13 concluded "the framework long-press never works on his device" from a log that
+could not distinguish the framework failing from our own listener shadowing it, and built a
+custom selection on top of that verdict. Rounds 16-18 then debugged the custom build against
+an emulator that never had the problem, inventing two wrong root causes (bulb hit-radius,
+parent interception) where the real one was that his thumb was never going to use our
+handles when the stock ones existed in every other app on his phone. Round 19 swung the
+other way and deleted everything on the assumption that stock works everywhere -- true on
+the emulator, false on his OEM, as his next log showed with fifty-five gestures and zero
+stock selections. The split only became visible when device log and emulator verdict were
+read side by side: the selection STATE is portable, the GESTURE layer is not. Round 21 keeps
+the framework's state and owns the gesture, and the caret -- invisible since round 10 --
+turns out to have been drawn off the visible window of a scroll container all along. The
+process lesson is the expensive one: for nine rounds I tested what I controlled and shipped
+what I could not see. The device now writes its geometry to the log on every refresh, and
+"visible" in the suite means pixels on a bitmap.
 
 ---
 

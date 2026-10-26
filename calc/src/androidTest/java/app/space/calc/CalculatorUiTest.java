@@ -294,7 +294,7 @@ public class CalculatorUiTest {
                 if (e != null) throw e;
                 android.widget.EditText ed = (android.widget.EditText) view;
                 android.text.Layout lo = ed.getLayout();
-                assertNotNull(lo);
+                assertTrue("the display must have a layout", lo != null);
                 float prim = lo.getPrimaryHorizontal(ed.getSelectionStart());
                 float onScreen = prim - ed.getScrollX()
                         + ed.getCompoundPaddingLeft();

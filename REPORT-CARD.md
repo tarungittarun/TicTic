@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.25 (versionCode 62) · 2,270,148 bytes · SHA-256 `c99d74c4fe8afdcecfe7ef9b0b1678d897ff1e7a15caafd6779387c6c1b7a746` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.23 (versionCode 24) · 1,307,795 bytes · SHA-256 `96ff713e977ae52aba66d4751805b1256ab7d1624f0355ce3f7ce4b45f3336f5` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23541 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 271 recorded runs — **185 green, 78 red, 8 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.26 (versionCode 63) · SHA-256 `c6170401a226e80fa4f894bac4411d4d4ded61b961e510cab711adb902ea8aab` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.24 (versionCode 25) · SHA-256 `8be6347ff26eeb5fbd364ef3346b2e87e803940dc84f4d1f07bba869eb4971e9` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23684 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 281 recorded runs — **190 green, 81 red, 10 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -58,6 +58,15 @@ calculator that gets this right uses. And the log's "selection started" followed
 later by "selection menu closed" proved my own tap-to-clear was firing on the UP of the
 long press that created the selection, killing it at finger lift; it now only clears a
 selection that existed before the gesture began. Both fixes carry regression stories.
+
+Round 24 read the next log line by line: innerScrollX=1047444 against my auto-scroll's 959
+proved the blinking-text complaint was my own scroll maths comparing on-screen pixels with
+layout-space pixels and yanking the text off the glass every refresh; the want is now
+computed in layout space and clamped to the true scroll range. The held portion's ends are
+hand-drawn bars with bulbs because his OEM paints the band but no teardrops, and a plain
+click now selects the content under the finger exactly as the long press does -- his words,
+this round -- with mid-expression insert becoming tap-tap-type, guide C3 rewritten to say
+so rather than pretending the old gesture survived.
 
 ---
 
@@ -187,7 +196,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (18):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (20):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -205,6 +214,10 @@ new pixel story reads across packages stayed package-private when the class went
 The eighteenth: a closing brace left standing when a batch patch consumed the `if` it had
 belonged to -- and it cost a full CI cycle because the local gate is Python. A brace-balance
 contract now runs at the gate, so that slip dies at home.
+The nineteenth and twentieth, both in round 24: a callback still local to buildDisplay
+when selectWordAt became a method, and an assertNotNull without its static import in the
+instrumented suite. Two misses in one round was two too many, so the gate gained a second
+sentinel: every unqualified assert* call in the suite must appear in its static imports.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules

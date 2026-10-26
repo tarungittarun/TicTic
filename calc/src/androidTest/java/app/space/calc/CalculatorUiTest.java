@@ -697,6 +697,18 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("5,68,854")));
     }
 
+    @Test public void longPressSelectionSurvivesTheFingerLifting() {
+        // Round 23 regression: on 22 the UP of the long press itself hit my
+        // tap-to-clear and the selection died a millisecond after birth
+        // (his log: "selection started" then "selection menu closed").
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(6));
+        // and it stays useful: typing over the held range replaces it
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("7")));
+    }
+
     @Test public void historyTapGivesAnExpressionThatStillEvaluates() {
         // Round 22, his screenshot: a history line came back into the box and
         // every equals after it said Error -- the stored DISPLAY form carries

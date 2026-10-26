@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.24'", gradle)
-        self.assertIn("versionCode 61", gradle)
+        self.assertIn("versionName '3.12.25'", gradle)
+        self.assertIn("versionCode 62", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2630,7 +2630,7 @@ class CalculatorAppContracts(unittest.TestCase):
         # Every action writes its outcome: what was pressed, what became, what was refused.
         self.assertIn('AppLog.event(context, "calc",', self.screen)
         self.assertIn('"laid out: parent "', self.screen)
-        self.assertIn("exprScroll.setFillViewport(true)", self.screen)
+        self.assertIn("parent.addView(displayView, dp2);", self.screen)
         self.assertIn("CalculatorRules.evaluate(candidate, degrees)", self.screen)
 
     def test_the_input_rules_refuse_the_sequences_typed_on_device(self):
@@ -3421,7 +3421,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.24", guide)
+        self.assertIn("3.12.25", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4434,7 +4434,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         # robust" -- the stock highlight, the stock gestures, and a scroller that
         # refuses to steal a handle drag while a selection is up.
         self.assertIn("displayView.setHighlightColor(0x66F48FB1);", screen)
-        self.assertIn("new SelectionSafeHorizontalScrollView(context);", screen)
+        # Round 23: the wrapper that made his OEM build a 2^20-wide layout is gone;
+        # the plain single-line EditText scrolls and selects for itself.
+        self.assertNotIn("exprScroll.addView(displayView", screen)
+        self.assertNotIn("exprScroller = exprScroll;", screen)
+        self.assertIn("float prim = lo.getPrimaryHorizontal(off) - getScrollX();", screen)
+        self.assertIn('"caret scrolled into view at innerScrollX="', screen)
+        self.assertIn("selectedAtDown && !downMoved && !longPressFired", screen)
+        self.assertIn('"long press seen on the display: len "', screen)
         self.assertIn("&& watched.hasSelection()) {", screen)
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
         # Round 19: "make it look stunning, colorful and bright" -- gradient
@@ -4449,14 +4456,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("private static final int PITCH_BLACK = 0xFF000000;", screen)
         self.assertIn("float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;", screen)
         self.assertIn('"caret at x="', screen)
-        self.assertIn('"caret scrolled into view at scrollX="', screen)
+        self.assertIn('"caret scrolled into view at innerScrollX="', screen)
         self.assertIn('"hold-then-drag began: extending the held portion"', screen)
         self.assertIn('"handle drag began on the "', screen)
         # Round 22: measured caret geometry (his Moto returned 2^20 from
         # getPrimaryHorizontal), tap-clears-selection, band-as-handle, and history
         # reuse without display commas.
         self.assertIn("public float caretX(android.text.Layout lo, int off, int ln) {", screen)
-        self.assertIn("float measured = left + getPaint().measureText(", screen)
+        self.assertIn("+ getPaint().measureText(getText().toString(), lineStart, o)", screen)
         self.assertIn('"tap cleared the selection, caret at "', screen)
         self.assertIn("dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;", screen)
         self.assertIn("expression.append(expr.replace(\",\", \"\")", screen)
@@ -4591,6 +4598,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)
         self.assertIn("historyTapGivesAnExpressionThatStillEvaluates", ui)
         self.assertIn("aPlainTapWhileHeldClearsTheSelectionAndParksTheCaret", ui)
         self.assertIn("draggingInsideTheBandMovesTheNearerEnd", ui)

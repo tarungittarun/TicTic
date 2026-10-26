@@ -165,8 +165,8 @@ public final class CalculatorScreen implements Screen {
     private boolean longPressFired;
     private boolean extending;
     private boolean downMoved;
+    private boolean selectedAtDown;
     private int extendAnchor;
-    private SelectionSafeHorizontalScrollView exprScroller;
     private boolean longPressHeld;
     private boolean touchMoved;
     private int dragHandle;
@@ -561,16 +561,16 @@ public final class CalculatorScreen implements Screen {
      *  key inserts at the cursor. The view is created once and only ever setText afterwards,
      *  which is what finally lets the caret survive between taps. */
     private void buildDisplay(Context context, UiKit ui, LinearLayout parent) {
-        final SelectionSafeHorizontalScrollView exprScroll =
-                new SelectionSafeHorizontalScrollView(context);
-        exprScroll.setHorizontalScrollBarEnabled(false);
-        exprScroll.setFillViewport(true);
-        exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        // Round 23, the research-backed rebuild: a single-line EditText already
+        // scrolls its own text and owns its selection -- every calculator that
+        // gets this right uses the plain widget. My HorizontalScrollView wrapper
+        // measured it UNSPECIFIED, so on his OEM the text layout was built 2^20
+        // px wide and never rebuilt: the caret lived a million pixels off the
+        // glass while emulators, which remeasure, said visible. Plain widget,
+        // MATCH_PARENT, native inner scrolling.
         displayView = new DisplayEditText(context,
                 Math.max(3, (int) (4 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
-        exprScroll.watched = displayView;
-        exprScroller = exprScroll;
         // Round 18: "first keep the expression typed in the top part of expression
         // box." It hung off the BOTTOM of a tall box, floating mid-air in his
         // screenshot. Top it is, with the live answer beneath it.
@@ -637,6 +637,11 @@ public final class CalculatorScreen implements Screen {
                     longPressFired = false;
                     extending = false;
                     downMoved = false;
+                    // Round 23: the tap-clear below must never fire on the UP of
+                    // the very long press that CREATED the selection -- that bug
+                    // killed every selection the instant his finger lifted (his
+                    // log: "selection started" then "menu closed" 1 ms later).
+                    selectedAtDown = displayView.hasSelection();
                     dragHandle = 0;
                     if (displayView.hasSelection()) {
                         android.text.Layout lo = displayView.getLayout();
@@ -730,7 +735,8 @@ public final class CalculatorScreen implements Screen {
                     // remove selected, its not allowing." A plain tap while a
                     // selection stands clears it OURSelves -- caret to the tap,
                     // menu gone -- because his OEM's editor will not do it.
-                    if (!downMoved && displayView.hasSelection()) {
+                    if (selectedAtDown && !downMoved && !longPressFired
+                            && displayView.hasSelection()) {
                         CharSequence held = displayView.getText();
                         if (held instanceof Spannable) {
                             int off = displayView.getOffsetForPosition(lastTouchX,
@@ -887,6 +893,8 @@ public final class CalculatorScreen implements Screen {
         // the pair that worked on his device in every earlier round.
         displayView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override public boolean onLongClick(View v) {
+                AppLog.event(lastContext, "calc", "long press seen on the display: len "
+                        + displayView.length());
                 if (dragHandle != 0) return true;
                 CharSequence txt = displayView.getText();
                 if (!(txt instanceof Spannable) || txt.length() == 0) return false;
@@ -940,10 +948,9 @@ public final class CalculatorScreen implements Screen {
                 }
             }
         });
-        exprScroll.addView(displayView, new LinearLayout.LayoutParams(-2, -1));
-        LinearLayout.LayoutParams sp = ui.lp(-1, 0);
-        sp.weight = 1f;
-        parent.addView(exprScroll, sp);
+        LinearLayout.LayoutParams dp2 = ui.lp(-1, 0);
+        dp2.weight = 1f;
+        parent.addView(displayView, dp2);
         previewView = ui.label(" ", 20, PREVIEW_PINK, false);
         // Round 19: the live answer glows pink-to-amber under the gradient
         // expression -- the two brightest things on the screen.
@@ -979,27 +986,28 @@ public final class CalculatorScreen implements Screen {
         displayView.post(new Runnable() {
             @Override public void run() {
                 android.text.Layout lo = displayView.getLayout();
-                if (lo == null || exprScroller == null) return;
+                if (lo == null) return;
                 int cs = displayView.getSelectionStart();
                 cs = Math.max(0, Math.min(cs, displayView.length()));
                 int ln = lo.getLineForOffset(cs);
                 float x = displayView.getCompoundPaddingLeft()
                         + displayView.caretX(lo, cs, ln);
-                int viewport = exprScroller.getWidth();
                 int childW = displayView.getWidth();
-                int scrollX = exprScroller.getScrollX();
+                int scrollX = displayView.getScrollX();
                 AppLog.event(context, "calc", "caret at x=" + (int) x
-                        + " viewW=" + childW + " scrollX=" + scrollX
-                        + " viewport=" + viewport);
+                        + " viewW=" + childW + " innerScrollX=" + scrollX
+                        + " layoutW=" + lo.getWidth());
+                // The EditText scrolls its own text now; keep the caret inside
+                // the visible part of that inner scroll.
                 float d = context.getResources().getDisplayMetrics().density;
-                int want = 0;
-                if (x + 40 * d > scrollX + viewport) want = (int) (x + 40 * d - viewport);
+                int want = scrollX;
+                if (x + 40 * d > scrollX + childW) want = (int) (x + 40 * d - childW);
                 else if (x < scrollX + 8 * d) want = (int) (x - 8 * d);
-                want = Math.max(0, Math.min(want, Math.max(0, childW - viewport)));
+                want = Math.max(0, want);
                 if (Math.abs(want - scrollX) > 4) {
-                    exprScroller.scrollTo(want, 0);
+                    displayView.scrollTo(want, 0);
                     AppLog.event(context, "calc",
-                            "caret scrolled into view at scrollX=" + want);
+                            "caret scrolled into view at innerScrollX=" + want);
                 }
             }
         });
@@ -1769,16 +1777,20 @@ public final class CalculatorScreen implements Screen {
          *  measuring the line's run with the view's own paint is the truth; the
          *  Layout is only a fallback when the measure lands outside the view. */
         public float caretX(android.text.Layout lo, int off, int ln) {
+            // Round 23: layout coordinates live in the layout's own space; the
+            // view draws them shifted by its INNER scrollX. Subtracting it is
+            // the difference between the caret sitting on its glyph and
+            // sitting a viewport away.
+            float prim = lo.getPrimaryHorizontal(off) - getScrollX();
+            if (prim >= -getWidth() && prim <= 2 * getWidth()) return prim;
             int lineStart = lo.getLineStart(ln);
             int lineEnd = lo.getLineEnd(ln);
             int o = Math.max(lineStart, Math.min(off, lineEnd));
-            float left = lo.getLineLeft(ln);
-            float measured = left + getPaint().measureText(
-                    getText().toString(), lineStart, o);
-            if (measured >= 0 && measured <= getWidth()) return measured;
-            float prim = lo.getPrimaryHorizontal(off);
-            if (prim >= 0 && prim <= getWidth()) return prim;
-            return left;
+            float measured = lo.getLineLeft(ln)
+                    + getPaint().measureText(getText().toString(), lineStart, o)
+                    - getScrollX();
+            if (measured >= -getWidth() && measured <= 2 * getWidth()) return measured;
+            return 0;
         }
 
         /** The colour the hand-drawn caret paints with, for the pixel story. */

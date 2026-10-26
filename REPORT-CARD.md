@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.15 (versionCode 52) · 2,087,020 bytes · SHA-256 `53d5a2de7f0e9fed6c70be57e259f7784b27a7d6c069ce8e60a824001343536d` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.13 (versionCode 14) · 1,304,483 bytes · SHA-256 `ed342155f4aa6fccdf4c5865e48df496d412a238210cb0cc64113efa3fcbb10f` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 22,563 lines of Java · 385 Python contracts · 22 JVM test files
-**CI:** 184 recorded runs — **130 green, 49 red, 5 cancelled** (71% green; every red read)
+**Build (MySpace):** 3.12.16 (versionCode 53) · 2,087,608 bytes · SHA-256 `33d646f99b70a229cf498358729c0b4a01d78e68df43930390143d4e8939a8ea` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.14 (versionCode 15) · 1,304,659 bytes · SHA-256 `4bc0f3bd8cc73615603ba8074cd43cebd55be5d21315bf3e3bc1f3275b65cf75` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 22,706 lines of Java · 385 Python contracts · 22 JVM test files
+**CI:** 186 recorded runs — **132 green, 49 red, 5 cancelled** (71% green; every red read)
 **Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other
 checking did.
 

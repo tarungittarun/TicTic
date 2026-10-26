@@ -57,6 +57,27 @@ public class CalculatorUiTest {
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
     /** A pad key by its label, never the display or the preview that may show the same text. */
+    /** A thumb down on a handle, four moves, a lift -- straight through dispatchTouchEvent,
+     *  which is the public door to the view's own touch listener. */
+    private static void drag(View view, float fromX, float toX, float y) {
+        long t0 = android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent e = android.view.MotionEvent.obtain(
+                t0, t0, android.view.MotionEvent.ACTION_DOWN, fromX, y, 0);
+        view.dispatchTouchEvent(e);
+        e.recycle();
+        for (int i = 1; i <= 4; i++) {
+            android.view.MotionEvent m = android.view.MotionEvent.obtain(
+                    t0, t0 + i * 40L, android.view.MotionEvent.ACTION_MOVE,
+                    fromX + (toX - fromX) * i / 4f, y, 0);
+            view.dispatchTouchEvent(m);
+            m.recycle();
+        }
+        android.view.MotionEvent u = android.view.MotionEvent.obtain(
+                t0, t0 + 200L, android.view.MotionEvent.ACTION_UP, toX, y, 0);
+        view.dispatchTouchEvent(u);
+        u.recycle();
+    }
+
     private static Matcher<View> key(String label) {
         return allOf(withText(label), not(withId(DISPLAY)));
     }
@@ -469,24 +490,11 @@ public class CalculatorUiTest {
                 float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 10 * d;
                 float xRight = padL + lo.getPrimaryHorizontal(ed.getSelectionEnd());
                 float xTo = padL + lo.getPrimaryHorizontal(4);
-                androidx.test.espresso.action.MotionEvents.Down down =
-                        androidx.test.espresso.action.MotionEvents.sendDown(ui, view,
-                                new float[]{xRight, y});
-                for (int i = 1; i <= 4; i++) {
-                    androidx.test.espresso.action.MotionEvents.sendMovement(ui, down,
-                            new float[]{xRight + (xTo - xRight) * i / 4f, y});
-                }
-                androidx.test.espresso.action.MotionEvents.sendUp(ui, down, new float[]{xTo, y});
+                drag(view, xRight, xTo, y);
                 ui.loopMainThreadForAtLeast(200);
                 float xLeft = padL + lo.getPrimaryHorizontal(0);
                 float xLeftTo = padL + lo.getPrimaryHorizontal(2);
-                down = androidx.test.espresso.action.MotionEvents.sendDown(ui, view,
-                        new float[]{xLeft, y});
-                for (int i = 1; i <= 4; i++) {
-                    androidx.test.espresso.action.MotionEvents.sendMovement(ui, down,
-                            new float[]{xLeft + (xLeftTo - xLeft) * i / 4f, y});
-                }
-                androidx.test.espresso.action.MotionEvents.sendUp(ui, down, new float[]{xLeftTo, y});
+                drag(view, xLeft, xLeftTo, y);
             }
         });
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {

@@ -1,12 +1,12 @@
-# MySpace 3.12.27 (64) · MyCalc 1.0.25 (26) — your test guide
+# MySpace 3.12.28 (65) · MyCalc 1.0.26 (27) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.27-64-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.27-64-lite-dist.apk) ·
-[MyCalc-v1.0.25-26.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.25-26.apk)
+Install: [MySpace-v3.12.28-65-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.28-65-lite-dist.apk) ·
+[MyCalc-v1.0.26-27.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.26-27.apk)
 (standalone calculator, same engine).
 
 ---
@@ -73,6 +73,7 @@ Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegatio
 | D7 | `AC` | Clears everything, including any held selection |
 | D8 | `⌫` | Deletes one character at the caret |
 | D9 | Tap any **history card** | Its expression lands in the box AND still evaluates: press `=` and the answer returns (no `Error`) -- commas never re-enter the maths |
+| D10 | Swipe the history open and tap the expression line in the same breath | Nothing crashes: a tap that lands while the popup repopulates is guarded, logged, and ignored |
 
 ## E. History, memory, effects
 
@@ -120,5 +121,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 387 Python contracts, 21 JVM suites
-and a 43-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 44-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

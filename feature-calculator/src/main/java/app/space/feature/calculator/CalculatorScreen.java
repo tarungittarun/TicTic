@@ -674,6 +674,7 @@ public final class CalculatorScreen implements Screen {
                     selectedAtDown = displayView.hasSelection();
                     dragHandle = 0;
                     scrollAtDown = displayView.getScrollX();
+                    try {
                     if (displayView.hasSelection()) {
                         android.text.Layout lo = displayView.getLayout();
                         if (lo != null) {
@@ -704,6 +705,9 @@ public final class CalculatorScreen implements Screen {
                                 }
                             }
                         }
+                    }
+                    } catch (Exception e) {
+                        dragHandle = 0;
                     }
                     if (dragHandle == 0) {
                         displayView.removeCallbacks(holdSelect);
@@ -1010,6 +1014,7 @@ public final class CalculatorScreen implements Screen {
         // guessing either way.
         displayView.post(new Runnable() {
             @Override public void run() {
+              try {
                 android.text.Layout lo = displayView.getLayout();
                 if (lo == null) return;
                 int cs = displayView.getSelectionStart();
@@ -1047,6 +1052,10 @@ public final class CalculatorScreen implements Screen {
                     AppLog.event(context, "calc",
                             "caret scrolled into view at innerScrollX=" + want);
                 }
+              } catch (Exception e) {
+                AppLog.event(context, "calc", "caret geometry guarded: "
+                        + e.getClass().getSimpleName());
+              }
             }
         });
         if (!displayView.hasFocus()) displayView.requestFocus();
@@ -1865,6 +1874,7 @@ public final class CalculatorScreen implements Screen {
                 s = getSelectionStart();
             }
             super.onDraw(c);
+            try {
             if (lo == null) return;
             int cs = s >= 0 ? s : Math.max(0, fallbackCaret);
             if (cs <= length()) {
@@ -1907,6 +1917,9 @@ public final class CalculatorScreen implements Screen {
                     c.drawCircle(bx + caretWidth / 2f, b2 + 14 * dd,
                             7 * dd, caretPaint);
                 }
+            }
+            } catch (Exception e) {
+                // Round 26: skip the frame; never the process.
             }
         }
 
@@ -2285,14 +2298,32 @@ public final class CalculatorScreen implements Screen {
      *  the inner scroll applied -- getOffsetForPosition ignored it on his
      *  device, which is why the handles dragged hit-or-miss. */
     private int offsetAt(float x, float y) {
-        android.text.Layout lo = displayView.getLayout();
-        if (lo == null) return 0;
-        int line = Math.max(0, Math.min(lo.getLineCount() - 1,
-                lo.getLineForVertical((int) Math.max(0,
-                        y - displayView.getCompoundPaddingTop()))));
-        float hx = x - displayView.getCompoundPaddingLeft()
-                + displayView.getScrollX();
-        return lo.getOffsetForHorizontal((int) hx, line);
+        // Round 26, his crash log, four times: "IndexOutOfBoundsException:
+        // 1048054, 0" out of PackedIntVector -- a tap landing while the text
+        // is being re-set (launch, history popup repopulating) hands back a
+        // DynamicLayout with an EMPTY line table, and getOffsetForHorizontal
+        // reads straight out of it. One funnel, guarded at every step.
+        try {
+            android.text.Layout lo = displayView.getLayout();
+            CharSequence txt = displayView.getText();
+            if (lo == null || txt == null || txt.length() == 0
+                    || lo.getLineCount() < 1) return 0;
+            int line = Math.max(0, Math.min(lo.getLineCount() - 1,
+                    lo.getLineForVertical((int) Math.max(0,
+                            y - displayView.getCompoundPaddingTop()))));
+            float hx = x - displayView.getCompoundPaddingLeft()
+                    + displayView.getScrollX();
+            return Math.max(0, Math.min(txt.length(),
+                    lo.getOffsetForHorizontal((int) hx, line)));
+        } catch (Exception e) {
+            AppLog.event(lastContext, "calc", "offsetAt guarded a torn layout: "
+                    + e.getClass().getSimpleName());
+            try {
+                return displayView.getOffsetForPosition(x, y);
+            } catch (Exception e2) {
+                return 0;
+            }
+        }
     }
 
     /** Round 25: the click-while-held clear, at the finger's point. */
@@ -2324,6 +2355,9 @@ public final class CalculatorScreen implements Screen {
      *  plain tap he asked for -- "if a we click somewhere in expression box
      *  than the content, it should get select as well". */
     private boolean selectWordAt(float x, float y) {
+        // Round 26: the 23:53:12 crash was a tap's UP landing while the
+        // history swipe was repopulating the popup; gestures wait for calm.
+        if (historyOpen) return false;
         CharSequence txt = displayView.getText();
         if (!(txt instanceof Spannable) || txt.length() == 0) return false;
         int off = offsetAt(x, y);

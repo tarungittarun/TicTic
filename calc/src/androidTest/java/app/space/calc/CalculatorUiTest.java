@@ -275,6 +275,18 @@ public class CalculatorUiTest {
                 }, Press.FINGER, 0, 0));
     }
 
+    @Test public void aTapWhileTheHistoryPopupRepopulatesDoesNotCrash() {
+        // Round 26 regression: his four "keeps stopping" crashes were tap
+        // UPs landing on a half-rebuilt DynamicLayout (PackedIntVector
+        // mRows=0) while the history swipe repopulated the popup.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(swipeDown());
+        onView(withId(HISTORY_SCROLL)).check(matches(isDisplayed()));
+        tapAt(0.5f);
+        onView(withId(DISPLAY)).check(matches(isDisplayed()));
+        onView(withId(DISPLAY)).check(held(0));
+    }
+
     @Test public void jitterTapStillClearsTheHeldSelection() {
         // Round 25: his "free but hit or miss" -- a thumb never lifts
         // perfectly still, so a click that wanders a few pixels while a

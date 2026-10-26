@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.27'", gradle)
-        self.assertIn("versionCode 64", gradle)
+        self.assertIn("versionName '3.12.28'", gradle)
+        self.assertIn("versionCode 65", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3435,7 +3435,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.27", guide)
+        self.assertIn("3.12.28", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4445,6 +4445,11 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("displayView.postDelayed(holdSelect, 350);", screen)
         self.assertIn('"hold timer fired: selecting at the held point"', screen)
         self.assertIn("private int offsetAt(float x, float y) {", screen)
+        # Round 26: four crashes on his glass, one funnel -- every layout read
+        # in the gesture path is guarded against a torn DynamicLayout.
+        self.assertIn('"offsetAt guarded a torn layout: "', screen)
+        self.assertIn('"caret geometry guarded: "', screen)
+        self.assertIn("if (historyOpen) return false;", screen)
         self.assertIn('"tap away from the expression cleared the selection, caret at end"', screen)
         self.assertIn("currentBox.setOnClickListener(awayClear);", screen)
         # Round 18: expression at the top of its box, with room below for the
@@ -4625,6 +4630,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("aTapWhileTheHistoryPopupRepopulatesDoesNotCrash", ui)
         self.assertIn("jitterTapStillClearsTheHeldSelection", ui)
         self.assertIn("tapAwayFromTheExpressionClears", ui)
         self.assertIn("aPlainTapSelectsTheContentAtTheTapPoint", ui)

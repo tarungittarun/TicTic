@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.18 (versionCode 55) · 2,088,900 bytes · SHA-256 `cd56a2b654dbe7d3a54c4dd291a06e2ec9d7150b6c399a89f93591b167d6e4e8` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.16 (versionCode 17) · 1,306,211 bytes · SHA-256 `115262253c5520521ff1450d07e27895c033e4ab470dd3ba71548374c15c0482` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23000 lines of Java · 386 Python contracts · 22 JVM test files
-**CI:** 194 recorded runs — **136 green, 53 red, 5 cancelled** (70% green; every red read, including one androidTest that assumed an Espresso API this project's Espresso does not have)
+**Build (MySpace):** 3.12.19 (versionCode 56) · 2,089,128 bytes · SHA-256 `bcdd1de4606348d1e318452002f9f9a4c28bc464af1fabeb9941ee22891da02a` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.17 (versionCode 18) · 1,306,491 bytes · SHA-256 `109c9ddcdf4aa0f53ef8cddc6beb8798a5f50a665cbbfa9ed897a31b716c661f` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23149 lines of Java · 386 Python contracts · 22 JVM test files
+**CI:** 196 recorded runs — **138 green, 53 red, 5 cancelled** (71% green; every red read)
 **Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other
 checking did.
 

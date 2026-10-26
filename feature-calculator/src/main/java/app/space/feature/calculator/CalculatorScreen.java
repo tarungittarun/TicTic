@@ -706,7 +706,7 @@ public final class CalculatorScreen implements Screen {
                             }
                         }
                     }
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         dragHandle = 0;
                     }
                     if (dragHandle == 0) {

@@ -2292,7 +2292,7 @@ public final class CalculatorScreen implements Screen {
                         y - displayView.getCompoundPaddingTop()))));
         float hx = x - displayView.getCompoundPaddingLeft()
                 + displayView.getScrollX();
-        return lo.getOffsetForHorizontal(hx, line);
+        return lo.getOffsetForHorizontal((int) hx, line);
     }
 
     /** Round 25: the click-while-held clear, at the finger's point. */

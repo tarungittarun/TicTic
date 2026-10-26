@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.17 (versionCode 54) · 2,087,820 bytes · SHA-256 `478581be0a1b14a53bb0044652e8a658b30348fe1e78e2cfd8458a54715e9758` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.15 (versionCode 16) · 1,305,191 bytes · SHA-256 `32da18cfcb50100d951f6950d14b80c015db27a0b7ae58973bdd922dfc047533` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 22,827 lines of Java · 385 Python contracts · 22 JVM test files
-**CI:** 191 recorded runs — **134 green, 52 red, 5 cancelled** (70% green; every red read, three of them my own matrix pinning the wrong side of a rule the owner had already approved)
+**Build (MySpace):** 3.12.18 (versionCode 55) · 2,088,900 bytes · SHA-256 `cd56a2b654dbe7d3a54c4dd291a06e2ec9d7150b6c399a89f93591b167d6e4e8` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.16 (versionCode 17) · 1,306,211 bytes · SHA-256 `115262253c5520521ff1450d07e27895c033e4ab470dd3ba71548374c15c0482` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23000 lines of Java · 386 Python contracts · 22 JVM test files
+**CI:** 194 recorded runs — **136 green, 53 red, 5 cancelled** (70% green; every red read, including one androidTest that assumed an Espresso API this project's Espresso does not have)
 **Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other
 checking did.
 

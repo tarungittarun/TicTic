@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.21'", gradle)
-        self.assertIn("versionCode 58", gradle)
+        self.assertIn("versionName '3.12.22'", gradle)
+        self.assertIn("versionCode 59", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3398,6 +3398,17 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         self.assertIn('name="ic_launcher_background"',
                       (ROOT / "app/src/main/res/values/colors.xml").read_text())
 
+    def test_every_build_ships_an_end_user_test_guide(self):
+        # Round 19, standing: each build shares a markdown guide listing every
+        # claim from the end-user seat -- how to check it and what should
+        # happen. Round 20: this contract is the thing that enforces that; the
+        # round-19 message claimed it existed a commit before it did.
+        guide = (ROOT / "TEST-GUIDE.md").read_text()
+        self.assertIn("3.12.22", guide)
+        self.assertIn("MyCalc", guide)
+        self.assertIn("Expected", guide)
+        self.assertIn("pitch black", guide)
+
     def test_the_honeycomb_mark_the_owner_picked_is_the_icon(self):
         # Round 19, his choice from the ten candidates: the honeycomb, logos/logo-08.png.
         # The adaptive foreground is the tile itself, full-bleed at 432x432 -- the
@@ -4278,7 +4289,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
         self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
         self.assertIn("c.drawRect(x, lb + lo.getLineAscent(ln) + 2,", self.screen)
-        self.assertIn("displayView.setCaretColors(ui.palette().accent,", self.screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,", self.screen)
         self.assertIn("int cs = s >= 0 ? s : Math.max(0, fallbackCaret);", self.screen)
         self.assertIn("displayView.fallbackCaret = pos;", self.screen)
         self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
@@ -4395,7 +4406,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
         # Round 16: the caret colours stay. The hand-drawn band and the teardrop
         # handles are GONE as of round 19 -- the framework paints both now.
-        self.assertIn("displayView.setCaretColors(ui.palette().accent, 0x66B9BBF4);", screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,", screen)
         self.assertNotIn("handlePaint", screen)
         self.assertNotIn("int handleAt(float x, float y) {", screen)
         self.assertNotIn("displayView.setOnLongClickListener", screen)
@@ -4412,10 +4423,17 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
         # Round 19: "make it look stunning, colorful and bright" -- gradient
         # expression, gradient preview, gradient equals key, amber operators.
-        self.assertIn("paintGradient(displayView, new int[]{0xFF4DD0E1, 0xFFB388FF, 0xFFFF80AB});", screen)
-        self.assertIn("paintGradient(previewView, new int[]{0xFFF48FB1, 0xFFFFB74D});", screen)
+        self.assertIn("themeInk(displayView, ui.palette().dark, LED_EXPRESSION, PITCH_BLACK);", screen)
+        self.assertIn("themeInk(previewView, ui.palette().dark, LED_PREVIEW, PITCH_BLACK);", screen)
         self.assertIn("shape.setColors(gradient);", screen)
-        self.assertIn("ink = 0xFFFFC94D;", screen)
+        self.assertIn("ink = dark ? 0xFFFFC94D : 0xFFB26A00;", screen)
+        # Round 20: "bright like led" in dark, "pitch black" in light, and a caret
+        # clamped inside the content box so RIGHT gravity can never park it in
+        # the padding where no eye looks.
+        self.assertIn("private static final int[] LED_EXPRESSION = {0xFF00E5FF, 0xFF7C4DFF, 0xFFFF2D78};", screen)
+        self.assertIn("private static final int PITCH_BLACK = 0xFF000000;", screen)
+        self.assertIn("float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;", screen)
+        self.assertIn("tv.getPaint().setShader(null);", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
         self.assertIn("private int menuSelA, menuSelB;", screen)
         self.assertIn("int a = dispToRaw(menuSelA);", screen)
@@ -4543,6 +4561,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("aTapElsewhereClosesTheMenuAndClearsTheSelection", ui)
         self.assertIn("acWhileHeldClearsTheHeldTextAndTheMenu", ui)
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
+        self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("stockHandleDrag", ui)
         self.assertIn("holdCenter(ui, view);", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)

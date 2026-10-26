@@ -106,6 +106,13 @@ public class CalculatorUiTest {
         };
     }
 
+    /** Force the app theme: 1 light, 2 dark, 0 follow system. */
+    private void setTheme(int mode) {
+        androidx.test.InstrumentationRegistry.getTargetContext().getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .edit().putInt("theme", mode).commit();
+    }
+
     /** A real long press at the middle of the display, window-injected. */
     private static void holdCenter(androidx.test.espresso.UiController ui, View view) {
         int[] loc = new int[2];
@@ -199,6 +206,57 @@ public class CalculatorUiTest {
 
     private static void type(String... keys) {
         for (String k : keys) onView(key(k)).perform(click());
+    }
+
+    @Test public void theCaretAndInkAreActuallyPaintedInBothThemes() {
+        // Round 20: his screenshot held NO caret and light mode wore white digits
+        // on white keys. A view can hold every right colour and still paint
+        // nothing, so this story draws the display to a bitmap in EACH theme and
+        // counts pixels of the caret colour: "visible" means painted on the
+        // canvas, not intended in code. In light mode the pitch-black ink of the
+        // digits is counted too, because black pixels are the digits and the
+        // caret together.
+        try {
+            for (int mode = 1; mode <= 2; mode++) {
+                setTheme(mode);
+                rule.getScenario().recreate();
+                type("1", "2", "3");
+                final int wantMode = mode;
+                onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+                    @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                        if (e != null) throw e;
+                        app.space.feature.calculator.CalculatorScreen.DisplayEditText ed =
+                                (app.space.feature.calculator.CalculatorScreen.DisplayEditText) view;
+                        android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                                view.getWidth(), view.getHeight(),
+                                android.graphics.Bitmap.Config.ARGB_8888);
+                        view.draw(new android.graphics.Canvas(bmp));
+                        int caretPixels = 0, inkPixels = 0;
+                        int caretWant = wantMode == 1 ? 0xFF000000 : 0xFF00E5FF;
+                        // Light: pitch-black expression ink (the caret shares it).
+                        // Dark: the LED gradient's pink end stop, where the
+                        // right-aligned glyphs sit.
+                        int inkWant = wantMode == 1 ? 0xFF000000 : 0xFFFF2D78;
+                        assertTrue("theme " + wantMode + " caret colour="
+                                + Integer.toHexString(ed.caretColor), ed.caretColor == caretWant);
+                        for (int y = 0; y < bmp.getHeight(); y++) {
+                            for (int x = 0; x < bmp.getWidth(); x++) {
+                                int px = bmp.getPixel(x, y);
+                                if (px == ed.caretColor) caretPixels++;
+                                if (px == inkWant) inkPixels++;
+                            }
+                        }
+                        assertTrue("theme " + wantMode + " caret pixels=" + caretPixels,
+                                caretPixels >= 20);
+                        assertTrue("theme " + wantMode + " ink pixels=" + inkPixels,
+                                inkPixels >= 20);
+                    }
+                });
+            }
+        } finally {
+            setTheme(0);
+            rule.getScenario().recreate();
+        }
     }
 
     @Test public void implicitMultiplicationAnswersTwentyEightOnThePad() {

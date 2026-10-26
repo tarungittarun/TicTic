@@ -122,6 +122,12 @@ public final class CalculatorScreen implements Screen {
     /** The multi-character caps, longest first, for replaying an edited expression. */
     /** The live answer under the expression: Google's preview pink, bright on dark. */
     private static final int PREVIEW_PINK = 0xFFF48FB1;
+    // Round 20, his words: "the content in expression box should be bright like
+    // led when in dark mode. And content should be pitch black when in light
+    // mode." Every display ink branches on the resolved palette from here.
+    private static final int[] LED_EXPRESSION = {0xFF00E5FF, 0xFF7C4DFF, 0xFFFF2D78};
+    private static final int[] LED_PREVIEW = {0xFFFF4081, 0xFFFFAB40};
+    private static final int PITCH_BLACK = 0xFF000000;
 
     private static final String[] TOKENS = {
             "asin(", "acos(", "atan(", "sin(", "cos(", "tan(", "log(", "ln(", "√(",
@@ -467,6 +473,7 @@ public final class CalculatorScreen implements Screen {
         int ink;
         float size;
         int[] gradient = null;
+        boolean dark = ui.palette().dark;
         switch (kind) {
             case EQ:
                 fill = ui.palette().accent;
@@ -476,7 +483,7 @@ public final class CalculatorScreen implements Screen {
                 break;
             case CMD:
                 fill = mix(ui.palette().surface, ui.palette().accent, 0.42f);
-                ink = android.graphics.Color.WHITE;
+                ink = ui.palette().text;
                 size = 22;
                 break;
             case TOG:
@@ -487,13 +494,18 @@ public final class CalculatorScreen implements Screen {
                 break;
             case OP:
                 // Round 19: bright amber operators against the cool digit keys.
-                fill = mix(ui.palette().surface, 0xFFFFC94D, 0.16f);
-                ink = 0xFFFFC94D;
+                // Round 20: light mode got cream keys with amber ink on them --
+                // invisible. Bright amber on dark, deep amber on light.
+                fill = mix(ui.palette().surface, dark ? 0xFFFFC94D : 0xFFB26A00, 0.16f);
+                ink = dark ? 0xFFFFC94D : 0xFFB26A00;
                 size = isScientificCap(key) ? 19 : "( )".equals(key) || "⌫".equals(key) ? 22 : 26;
                 break;
             default:
                 fill = ui.palette().surface;
-                ink = android.graphics.Color.WHITE;
+                // Round 20: white digits on white keys was the worst of it.
+                // Digits take the palette's own text colour: near-white on dark,
+                // near-black on light.
+                ink = ui.palette().text;
                 size = isScientificCap(key) ? 19 : 30;
                 break;
         }
@@ -576,18 +588,19 @@ public final class CalculatorScreen implements Screen {
         // Round 19: "the content text, expression, very thing looks dull. Make
         // it look stunning, colorful and bright." The typed expression is
         // painted with a cyan-violet-pink gradient across the box, not flat ink.
-        paintGradient(displayView, new int[]{0xFF4DD0E1, 0xFFB388FF, 0xFFFF80AB});
+        themeInk(displayView, ui.palette().dark, LED_EXPRESSION, PITCH_BLACK);
         // The caret must be VISIBLE, his point: the theme's default was not showing on his
         // device, so it is drawn explicitly in the accent colour, two density pixels wide.
         displayView.setCursorVisible(true);
         final android.graphics.drawable.GradientDrawable cursorMark =
                 new android.graphics.drawable.GradientDrawable();
-        cursorMark.setColor(ui.palette().accent);
+        cursorMark.setColor(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK);
         cursorMark.setSize(ui.dp(3), ui.dp(24));
         // Round 10: his log shows 181 "cursor placed" lines and still no caret seen, so
         // the caret stops being the text's own colour and becomes the accent, four density
         // pixels wide -- the one colour on the screen nothing else shares.
-        displayView.setCaretColors(ui.palette().accent, 0x66B9BBF4);
+        displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,
+                0x66B9BBF4);
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
         } else {
@@ -790,7 +803,7 @@ public final class CalculatorScreen implements Screen {
         previewView = ui.label(" ", 20, PREVIEW_PINK, false);
         // Round 19: the live answer glows pink-to-amber under the gradient
         // expression -- the two brightest things on the screen.
-        paintGradient(previewView, new int[]{0xFFF48FB1, 0xFFFFB74D});
+        themeInk(previewView, ui.palette().dark, LED_PREVIEW, PITCH_BLACK);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -1499,23 +1512,31 @@ public final class CalculatorScreen implements Screen {
         }
     }
 
-    /** Round 19: flat ink reads dull on his screen. A left-to-right gradient
-     *  across the view's own width, re-applied whenever that width changes. */
-    private static void paintGradient(final android.widget.TextView v, final int[] colors) {
+    /** Round 20: dark mode paints the view's text with a left-to-right LED
+     *  gradient across its own width; light mode clears the shader and takes
+     *  pitch-black ink. Re-applied whenever the width changes. */
+    private static void themeInk(final android.widget.TextView v, final boolean dark,
+            final int[] colors, final int lightInk) {
         v.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override public void onLayoutChange(View vv, int l, int t, int r, int b,
                     int ol, int ot, int or, int ob) {
                 int w = vv.getWidth();
                 if (w <= 0) return;
-                ((android.widget.TextView) vv).getPaint().setShader(
-                        new android.graphics.LinearGradient(
-                        0, 0, w, 0, colors, null, android.graphics.Shader.TileMode.CLAMP));
+                android.widget.TextView tv = (android.widget.TextView) vv;
+                if (dark) {
+                    tv.getPaint().setShader(new android.graphics.LinearGradient(
+                            0, 0, w, 0, colors, null,
+                            android.graphics.Shader.TileMode.CLAMP));
+                } else {
+                    tv.getPaint().setShader(null);
+                    tv.setTextColor(lightInk);
+                }
                 vv.invalidate();
             }
         });
     }
 
-    static final class DisplayEditText extends android.widget.EditText {
+    public static final class DisplayEditText extends android.widget.EditText {
         boolean applying;
 
         DisplayEditText(Context context) {
@@ -1553,7 +1574,11 @@ public final class CalculatorScreen implements Screen {
          *  fallback when the framework selection reads empty, as it does on his device. */
         int fallbackCaret;
 
+        /** The colour the hand-drawn caret paints with, for the pixel story. */
+        int caretColor;
+
         void setCaretColors(int caretColor, int selectionColor) {
+            this.caretColor = caretColor;
             caretPaint.setColor(caretColor);
             // Round 19: only the caret colour lives here now. The selection band and
             // the teardrop handles the previous rounds drew by hand are deleted --
@@ -1589,6 +1614,16 @@ public final class CalculatorScreen implements Screen {
                 int ln = lo.getLineForOffset(cs);
                 float x = padL + lo.getPrimaryHorizontal(cs);
                 int lb = base + lo.getLineBaseline(ln) - base0;
+                // Round 20: his screenshot holds no caret at all. With RIGHT
+                // gravity the layout's own maths can park the bar out in the
+                // reserved right padding -- drawn, but where no eye looks. The
+                // bar is clamped inside the content box now, and the instrumented
+                // suite draws the view to a bitmap and counts caret pixels, so
+                // "visible" means painted, not intended.
+                float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;
+                if (x > maxX) x = maxX;
+                float minX = getCompoundPaddingLeft();
+                if (x < minX) x = minX;
                 c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
                         x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
             }

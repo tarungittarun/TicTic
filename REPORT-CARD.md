@@ -233,6 +233,9 @@ mistake I make.
 - A batch patch that asserts on its first replacement **writes nothing if any one misses** — hit
   five times (twice more in round 18, both from grepping a remembered anchor instead of the file's
   current text). The assert is what made it loud instead of silent.
+- The round-19 report told the owner a contract "fails the build if a push ever ships without"
+  `TEST-GUIDE.md`. The contract did not exist; it landed in round 20, one commit after the claim.
+  A promise about a guard is not the guard.
 
 **Test-writing failures (~15):** nine-plus expectations written from intuition rather than computed
 from the fixture — `12000` minor units where the answer was `1200`; a tie-break test where every

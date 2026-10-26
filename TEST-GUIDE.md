@@ -1,12 +1,12 @@
-# MySpace 3.12.21 (58) · MyCalc 1.0.19 (20) — your test guide
+# MySpace 3.12.22 (59) · MyCalc 1.0.20 (21) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.21-58-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.21-58-lite-dist.apk) ·
-[MyCalc-v1.0.19-20.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.19-20.apk)
+Install: [MySpace-v3.12.22-59-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.22-59-lite-dist.apk) ·
+[MyCalc-v1.0.20-21.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.20-21.apk)
 (standalone calculator, same engine).
 
 ---
@@ -90,6 +90,19 @@ self-tests every save · Scanner capture → four-handle crop → PDF · Files w
 editor · Log collector in Settings ▸ Diagnostics with local save + share.
 
 ---
+
+## H. Light mode, dark mode, and the caret
+
+| # | Do this | Expected |
+|---|---|---|
+| H1 | Settings ▸ Theme ▸ **Light** | Pad digits near-black on white keys; the typed expression and the live answer are **pitch black**; the caret is a black bar; operators deep amber; AC label black on lavender |
+| H2 | Settings ▸ Theme ▸ **Dark** | The typed expression glows **LED-bright cyan → violet → pink**; the live answer glows pink → amber; operators bright amber; the caret is a cyan bar |
+| H3 | In either theme, tap into the expression | The caret bar stands visibly at the exact point the next key will land -- never parked out in the empty margin |
+| H4 | Switch themes with an expression typed | Every colour re-resolves at once; nothing keeps the other theme's ink |
+
+Automated: `theCaretAndInkAreActuallyPaintedInBothThemes` draws the display to a bitmap in
+each theme and counts caret and ink pixels -- a colour that exists in code but not on the
+canvas fails the build.
 
 ## If something fails
 

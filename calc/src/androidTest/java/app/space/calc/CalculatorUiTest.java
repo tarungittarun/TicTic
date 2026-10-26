@@ -106,6 +106,48 @@ public class CalculatorUiTest {
         };
     }
 
+    /** One finger: down, hold past the long-press timeout, slide, lift. */
+    private static ViewAction holdThenDragTo(final int toOffset) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() {
+                return "hold then drag to offset " + toOffset;
+            }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.widget.EditText ed = (android.widget.EditText) view;
+                int[] loc = new int[2];
+                view.getLocationInWindow(loc);
+                float cx = loc[0] + view.getWidth() / 2f;
+                float cy = loc[1] + view.getHeight() / 2f;
+                float toX = loc[0] + ed.getCompoundPaddingLeft()
+                        + ed.getLayout().getPrimaryHorizontal(toOffset);
+                long t = android.os.SystemClock.uptimeMillis();
+                try {
+                    android.view.MotionEvent dn = android.view.MotionEvent.obtain(
+                            t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
+                    ui.injectMotionEvent(dn);
+                    dn.recycle();
+                    ui.loopMainThreadForAtLeast(1300);
+                    for (int i = 1; i <= 4; i++) {
+                        android.view.MotionEvent m = android.view.MotionEvent.obtain(
+                                t, t + 1300 + i * 50L,
+                                android.view.MotionEvent.ACTION_MOVE,
+                                cx + (toX - cx) * i / 4f, cy, 0);
+                        ui.injectMotionEvent(m);
+                        m.recycle();
+                    }
+                    android.view.MotionEvent up = android.view.MotionEvent.obtain(
+                            t, t + 1600, android.view.MotionEvent.ACTION_UP, toX, cy, 0);
+                    ui.injectMotionEvent(up);
+                    up.recycle();
+                } catch (Exception failed) {
+                    throw new RuntimeException("hold-then-drag could not be injected", failed);
+                }
+                ui.loopMainThreadForAtLeast(250);
+            }
+        };
+    }
+
     /** Force the app theme: 1 light, 2 dark, 0 follow system. */
     private void setTheme(int mode) {
         androidx.test.InstrumentationRegistry.getTargetContext().getSharedPreferences(
@@ -220,7 +262,7 @@ public class CalculatorUiTest {
             for (int mode = 1; mode <= 2; mode++) {
                 setTheme(mode);
                 rule.getScenario().recreate();
-                type("1", "2", "3");
+                type("1", "+", "2");
                 final int wantMode = mode;
                 onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
                     @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
@@ -231,12 +273,13 @@ public class CalculatorUiTest {
                                 view.getWidth(), view.getHeight(),
                                 android.graphics.Bitmap.Config.ARGB_8888);
                         view.draw(new android.graphics.Canvas(bmp));
-                        int caretPixels = 0, inkPixels = 0;
-                        int caretWant = wantMode == 1 ? 0xFF000000 : 0xFF00E5FF;
+                        int caretPixels = 0, inkPixels = 0, opPixels = 0;
+                        int cyan = 0xFF00E5FF, pink = 0xFFFF2D78;
+                        int caretWant = wantMode == 1 ? 0xFF000000 : 0xFFFFFFFF;
                         // Light: pitch-black expression ink (the caret shares it).
                         // Dark: the LED gradient's pink end stop, where the
                         // right-aligned glyphs sit.
-                        int inkWant = wantMode == 1 ? 0xFF000000 : 0xFFFF2D78;
+                        int inkWant = wantMode == 1 ? 0xFF000000 : cyan;
                         assertTrue("theme " + wantMode + " caret colour="
                                 + Integer.toHexString(ed.caretColor), ed.caretColor == caretWant);
                         for (int y = 0; y < bmp.getHeight(); y++) {
@@ -244,12 +287,17 @@ public class CalculatorUiTest {
                                 int px = bmp.getPixel(x, y);
                                 if (px == ed.caretColor) caretPixels++;
                                 if (px == inkWant) inkPixels++;
+                                if (px == pink) opPixels++;
                             }
                         }
                         assertTrue("theme " + wantMode + " caret pixels=" + caretPixels,
                                 caretPixels >= 20);
                         assertTrue("theme " + wantMode + " ink pixels=" + inkPixels,
                                 inkPixels >= 20);
+                        if (wantMode == 2) {
+                            assertTrue("dark operator pixels=" + opPixels,
+                                    opPixels >= 20);
+                        }
                     }
                 });
             }
@@ -647,6 +695,17 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("663((5+853")));
         type("=");
         onView(withId(DISPLAY)).check(matches(withText("5,68,854")));
+    }
+
+    @Test public void holdThenDragExtendsTheHeldPortion() {
+        // Round 21, the gesture his thumb has been making all along: hold the
+        // number, then slide without lifting. One window-injected gesture --
+        // down, hold past the long-press timeout, four moves, lift -- exactly
+        // like a finger, through every interceptor on the way.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(holdThenDragTo(2));
+        onView(withId(DISPLAY)).check(held(2));
+        onView(withText("Copy")).check(matches(isDisplayed()));
     }
 
     @Test public void draggingEitherHandleMovesThatBoundary() {

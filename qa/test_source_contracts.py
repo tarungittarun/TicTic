@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.22'", gradle)
-        self.assertIn("versionCode 59", gradle)
+        self.assertIn("versionName '3.12.23'", gradle)
+        self.assertIn("versionCode 60", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3404,7 +3404,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.22", guide)
+        self.assertIn("3.12.23", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4289,7 +4289,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
         self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
         self.assertIn("c.drawRect(x, lb + lo.getLineAscent(ln) + 2,", self.screen)
-        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,", self.screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,", self.screen)
         self.assertIn("int cs = s >= 0 ? s : Math.max(0, fallbackCaret);", self.screen)
         self.assertIn("displayView.fallbackCaret = pos;", self.screen)
         self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
@@ -4393,9 +4393,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         # natively: we never start an action mode ourselves and no listener of
         # ours can collapse a selection as the thumb lifts -- the two old
         # workarounds must stay deleted.
-        self.assertNotIn("startActionMode(", screen)
-        self.assertNotIn("if (longPressHeld) {", screen)
-        self.assertNotIn("if (touchMoved && displayView.hasSelection()) {", screen)
+        self.assertIn("android.view.ActionMode.TYPE_FLOATING);", screen)
+        self.assertIn("if (dragHandle != 0) return true;", screen)
         self.assertIn("currentSelectionMode = mode;", screen)
         self.assertIn("currentSelectionMode = null;", screen)
         self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
@@ -4406,10 +4405,10 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
         # Round 16: the caret colours stay. The hand-drawn band and the teardrop
         # handles are GONE as of round 19 -- the framework paints both now.
-        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,", screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,", screen)
         self.assertNotIn("handlePaint", screen)
         self.assertNotIn("int handleAt(float x, float y) {", screen)
-        self.assertNotIn("displayView.setOnLongClickListener", screen)
+        self.assertIn("displayView.setOnLongClickListener", screen)
         # Round 18: expression at the top of its box, with room below for the
         # stock handles to live.
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
@@ -4423,17 +4422,21 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
         # Round 19: "make it look stunning, colorful and bright" -- gradient
         # expression, gradient preview, gradient equals key, amber operators.
-        self.assertIn("themeInk(displayView, ui.palette().dark, LED_EXPRESSION, PITCH_BLACK);", screen)
-        self.assertIn("themeInk(previewView, ui.palette().dark, LED_PREVIEW, PITCH_BLACK);", screen)
         self.assertIn("shape.setColors(gradient);", screen)
         self.assertIn("ink = dark ? 0xFFFFC94D : 0xFFB26A00;", screen)
-        # Round 20: "bright like led" in dark, "pitch black" in light, and a caret
-        # clamped inside the content box so RIGHT gravity can never park it in
-        # the padding where no eye looks.
-        self.assertIn("private static final int[] LED_EXPRESSION = {0xFF00E5FF, 0xFF7C4DFF, 0xFFFF2D78};", screen)
+        # Round 21: LED ink as per-character spans (no shader coordinates to get
+        # wrong) with a glow layer in dark; pitch black in light; and the caret
+        # scrolled into view plus its geometry logged every refresh.
+        self.assertIn("sp.setSpan(new android.text.style.ForegroundColorSpan(col),", screen)
+        self.assertIn("displayView.setShadowLayer(14f, 0f, 0f, 0x6600E5FF);", screen)
         self.assertIn("private static final int PITCH_BLACK = 0xFF000000;", screen)
         self.assertIn("float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;", screen)
-        self.assertIn("tv.getPaint().setShader(null);", screen)
+        self.assertIn('"caret at x="', screen)
+        self.assertIn('"caret scrolled into view at scrollX="', screen)
+        self.assertIn('"hold-then-drag began: extending the held portion"', screen)
+        self.assertIn('"handle drag began on the "', screen)
+        self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
+        self.assertIn("displayView.setOnLongClickListener", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
         self.assertIn("private int menuSelA, menuSelB;", screen)
         self.assertIn("int a = dispToRaw(menuSelA);", screen)
@@ -4562,6 +4565,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("acWhileHeldClearsTheHeldTextAndTheMenu", ui)
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
+        self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("holdThenDragTo", ui)
         self.assertIn("stockHandleDrag", ui)
         self.assertIn("holdCenter(ui, view);", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)

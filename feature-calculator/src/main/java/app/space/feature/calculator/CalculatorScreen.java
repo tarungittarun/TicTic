@@ -125,8 +125,6 @@ public final class CalculatorScreen implements Screen {
     // Round 20, his words: "the content in expression box should be bright like
     // led when in dark mode. And content should be pitch black when in light
     // mode." Every display ink branches on the resolved palette from here.
-    private static final int[] LED_EXPRESSION = {0xFF00E5FF, 0xFF7C4DFF, 0xFFFF2D78};
-    private static final int[] LED_PREVIEW = {0xFFFF4081, 0xFFFFAB40};
     private static final int PITCH_BLACK = 0xFF000000;
 
     private static final String[] TOKENS = {
@@ -164,6 +162,10 @@ public final class CalculatorScreen implements Screen {
     private ScrollView historyScroll;
     private SwipeBox displayArea;
     private float lastTouchX, lastTouchY;
+    private boolean longPressFired;
+    private boolean extending;
+    private int extendAnchor;
+    private SelectionSafeHorizontalScrollView exprScroller;
     private boolean longPressHeld;
     private boolean touchMoved;
     private int dragHandle;
@@ -567,6 +569,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
         exprScroll.watched = displayView;
+        exprScroller = exprScroll;
         // Round 18: "first keep the expression typed in the top part of expression
         // box." It hung off the BOTTOM of a tall box, floating mid-air in his
         // screenshot. Top it is, with the live answer beneath it.
@@ -588,18 +591,17 @@ public final class CalculatorScreen implements Screen {
         // Round 19: "the content text, expression, very thing looks dull. Make
         // it look stunning, colorful and bright." The typed expression is
         // painted with a cyan-violet-pink gradient across the box, not flat ink.
-        themeInk(displayView, ui.palette().dark, LED_EXPRESSION, PITCH_BLACK);
         // The caret must be VISIBLE, his point: the theme's default was not showing on his
         // device, so it is drawn explicitly in the accent colour, two density pixels wide.
         displayView.setCursorVisible(true);
         final android.graphics.drawable.GradientDrawable cursorMark =
                 new android.graphics.drawable.GradientDrawable();
-        cursorMark.setColor(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK);
+        cursorMark.setColor(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK);
         cursorMark.setSize(ui.dp(3), ui.dp(24));
         // Round 10: his log shows 181 "cursor placed" lines and still no caret seen, so
         // the caret stops being the text's own colour and becomes the accent, four density
         // pixels wide -- the one colour on the screen nothing else shares.
-        displayView.setCaretColors(ui.palette().dark ? 0xFF00E5FF : PITCH_BLACK,
+        displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,
                 0x66B9BBF4);
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
@@ -617,17 +619,109 @@ public final class CalculatorScreen implements Screen {
         displayView.post(new Runnable() {
             @Override public void run() { displayView.requestFocus(); }
         });
-        // Round 19: the screen no longer owns a single gesture. This listener
-        // only WATCHES -- it returns false for everything, so the stock editor
-        // receives every event and runs its own caret placement, its own
-        // long-press selection and its own handle drags. What it records is the
-        // outcome his log needs: what is held after each finger lift.
+        // Round 21: his log settled it -- fifty-five gestures on 3.12.22 and the
+        // stock long-press selection opened ZERO times on his device, while the
+        // same view passes every selection story on the emulator. The OEM edits
+        // the gesture, so the gesture layer is ours again, but the SELECTION is
+        // the framework's: real Selection spans, the framework highlight, the
+        // framework floating action mode. Three finger paths, all logged:
+        // hold-then-drag extends the held portion (Google's own behaviour),
+        // a thumb down near either end drags that boundary with live layout
+        // geometry, and everything else falls through to the editor.
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_UP) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastTouchX = e.getX();
+                    lastTouchY = e.getY();
+                    longPressFired = false;
+                    extending = false;
+                    dragHandle = 0;
+                    if (displayView.hasSelection()) {
+                        android.text.Layout lo = displayView.getLayout();
+                        if (lo != null) {
+                            float d = v.getResources().getDisplayMetrics().density;
+                            float padL = displayView.getCompoundPaddingLeft();
+                            int base = displayView.getBaseline();
+                            float top = base + lo.getLineAscent(0) - 28 * d;
+                            float bot = base + lo.getLineDescent(0) + 64 * d;
+                            if (e.getY() >= top && e.getY() <= bot) {
+                                float lx = padL + lo.getPrimaryHorizontal(
+                                        displayView.getSelectionStart());
+                                float rx = padL + lo.getPrimaryHorizontal(
+                                        displayView.getSelectionEnd());
+                                if (Math.abs(e.getX() - lx) <= 28 * d) dragHandle = -1;
+                                else if (Math.abs(e.getX() - rx) <= 28 * d) dragHandle = 1;
+                                if (dragHandle != 0 && displayView.getParent() != null) {
+                                    displayView.getParent()
+                                            .requestDisallowInterceptTouchEvent(true);
+                                    AppLog.event(lastContext, "calc",
+                                            "handle drag began on the "
+                                            + (dragHandle < 0 ? "left" : "right")
+                                            + " boundary (live geometry)");
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+                if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (dragHandle != 0) {
+                        CharSequence held = displayView.getText();
+                        if (held instanceof Spannable) {
+                            int off = displayView.getOffsetForPosition(e.getX(),
+                                    displayView.getHeight() / 2f);
+                            off = Math.max(0, Math.min(off, held.length()));
+                            int a = displayView.getSelectionStart();
+                            int b = displayView.getSelectionEnd();
+                            if (dragHandle < 0) off = Math.min(off, b - 1);
+                            else off = Math.max(off, a + 1);
+                            Selection.setSelection((Spannable) held,
+                                    dragHandle < 0 ? off : a,
+                                    dragHandle < 0 ? b : off);
+                            displayView.invalidate();
+                        }
+                        return true;
+                    }
+                    if (longPressFired && !extending
+                            && Math.abs(e.getX() - lastTouchX)
+                                    + Math.abs(e.getY() - lastTouchY)
+                            > android.view.ViewConfiguration.get(v.getContext())
+                                    .getScaledTouchSlop() * 2) {
+                        extending = true;
+                        AppLog.event(lastContext, "calc",
+                                "hold-then-drag began: extending the held portion");
+                    }
+                    if (extending) {
+                        CharSequence held = displayView.getText();
+                        if (held instanceof Spannable) {
+                            int off = displayView.getOffsetForPosition(e.getX(),
+                                    displayView.getHeight() / 2f);
+                            off = Math.max(0, Math.min(off, held.length()));
+                            Selection.setSelection((Spannable) held, extendAnchor, off);
+                            displayView.invalidate();
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+                if (e.getAction() == MotionEvent.ACTION_UP
+                        || e.getAction() == MotionEvent.ACTION_CANCEL) {
+                    if (dragHandle != 0 || extending) {
+                        AppLog.event(lastContext, "calc", "selection drag ended: chars "
+                                + displayView.getSelectionStart() + ".."
+                                + displayView.getSelectionEnd() + " held");
+                        dragHandle = 0;
+                        extending = false;
+                        if (displayView.getParent() != null) {
+                            displayView.getParent()
+                                    .requestDisallowInterceptTouchEvent(false);
+                        }
+                        return true;
+                    }
                     AppLog.event(lastContext, "calc", "display gesture ended: "
                             + "selection " + displayView.getSelectionStart()
                             + ".." + displayView.getSelectionEnd() + " held");
+                    return false;
                 }
                 return false;
             }
@@ -761,12 +855,36 @@ public final class CalculatorScreen implements Screen {
         // selects the whole number (or the operator) under the finger, raises the handles,
         // and starts the Cut/Copy/Paste/Select-all menu itself. Dragging the handles then
         // adjusts the length exactly as it does in any editor.
-        // Round 19: the app-owned long press is GONE, and with it the shadow it
-        // cast: a view whose long-click listener returns true never reaches
-        // TextView's own long-press selection, which is why thirteen rounds of
-        // "default android" never ran on his device. Hold-to-select, the
-        // teardrop handles and the whole drag machinery are Android's own now --
-        // "by hook or crook make it work" is answered by stepping out of the way.
+        // Round 21: the long press is ours again because his OEM never runs the
+        // stock one -- but it no longer draws anything itself. It sets the
+        // framework selection and raises the framework floating action mode,
+        // the pair that worked on his device in every earlier round.
+        displayView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) {
+                if (dragHandle != 0) return true;
+                CharSequence txt = displayView.getText();
+                if (!(txt instanceof Spannable) || txt.length() == 0) return false;
+                int off = displayView.getOffsetForPosition(lastTouchX, lastTouchY);
+                off = Math.max(0, Math.min(off, txt.length() - 1));
+                char c = txt.charAt(off);
+                int a = off, b = off + 1;
+                if (Character.isDigit(c) || c == ',' || c == '.') {
+                    while (a > 0 && (Character.isDigit(txt.charAt(a - 1))
+                            || txt.charAt(a - 1) == ',' || txt.charAt(a - 1) == '.')) a--;
+                    while (b < txt.length() && (Character.isDigit(txt.charAt(b))
+                            || txt.charAt(b) == ',' || txt.charAt(b) == '.')) b++;
+                }
+                Selection.setSelection((Spannable) txt, a, b);
+                extendAnchor = a;
+                longPressFired = true;
+                AppLog.event(lastContext, "calc", "selection started: chars " + a
+                        + ".." + b
+                        + " held by the app gesture, framework selection set");
+                displayView.startActionMode(selectionMenu,
+                        android.view.ActionMode.TYPE_FLOATING);
+                return true;
+            }
+        });
         displayView.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
@@ -803,7 +921,6 @@ public final class CalculatorScreen implements Screen {
         previewView = ui.label(" ", 20, PREVIEW_PINK, false);
         // Round 19: the live answer glows pink-to-amber under the gradient
         // expression -- the two brightest things on the screen.
-        themeInk(previewView, ui.palette().dark, LED_PREVIEW, PITCH_BLACK);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -825,6 +942,40 @@ public final class CalculatorScreen implements Screen {
         displayView.setText(shown);
         displayView.applying = false;
         restoreCaret();
+        applyLedInk(context, shown);
+        // Round 21: the caret mystery, closed by construction. The display lives
+        // in a horizontal scroller whose child grows with the text; with the
+        // scroller parked at zero a caret at the end of a long expression is
+        // drawn OFF the visible window -- invisible on his glass, perfectly
+        // present in code. Every refresh now scrolls the caret into view and
+        // writes its geometry to the log, so the next shared log ends the
+        // guessing either way.
+        displayView.post(new Runnable() {
+            @Override public void run() {
+                android.text.Layout lo = displayView.getLayout();
+                if (lo == null || exprScroller == null) return;
+                int cs = displayView.getSelectionStart();
+                cs = Math.max(0, Math.min(cs, displayView.length()));
+                float x = displayView.getCompoundPaddingLeft()
+                        + lo.getPrimaryHorizontal(cs);
+                int viewport = exprScroller.getWidth();
+                int childW = displayView.getWidth();
+                int scrollX = exprScroller.getScrollX();
+                AppLog.event(context, "calc", "caret at x=" + (int) x
+                        + " viewW=" + childW + " scrollX=" + scrollX
+                        + " viewport=" + viewport);
+                float d = context.getResources().getDisplayMetrics().density;
+                int want = 0;
+                if (x + 40 * d > scrollX + viewport) want = (int) (x + 40 * d - viewport);
+                else if (x < scrollX + 8 * d) want = (int) (x - 8 * d);
+                want = Math.max(0, Math.min(want, Math.max(0, childW - viewport)));
+                if (Math.abs(want - scrollX) > 4) {
+                    exprScroller.scrollTo(want, 0);
+                    AppLog.event(context, "calc",
+                            "caret scrolled into view at scrollX=" + want);
+                }
+            }
+        });
         if (!displayView.hasFocus()) displayView.requestFocus();
         previewView.setText(preview());
         // Google's two-line answer: while typing, the live result sits UNDER the
@@ -1512,28 +1663,33 @@ public final class CalculatorScreen implements Screen {
         }
     }
 
-    /** Round 20: dark mode paints the view's text with a left-to-right LED
-     *  gradient across its own width; light mode clears the shader and takes
-     *  pitch-black ink. Re-applied whenever the width changes. */
-    private static void themeInk(final android.widget.TextView v, final boolean dark,
-            final int[] colors, final int lightInk) {
-        v.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override public void onLayoutChange(View vv, int l, int t, int r, int b,
-                    int ol, int ot, int or, int ob) {
-                int w = vv.getWidth();
-                if (w <= 0) return;
-                android.widget.TextView tv = (android.widget.TextView) vv;
-                if (dark) {
-                    tv.getPaint().setShader(new android.graphics.LinearGradient(
-                            0, 0, w, 0, colors, null,
-                            android.graphics.Shader.TileMode.CLAMP));
-                } else {
-                    tv.getPaint().setShader(null);
-                    tv.setTextColor(lightInk);
+    /** Round 21: LED ink with nothing to get wrong. Per-character colour spans
+     *  carry no coordinates (the gradient shaders sampled the wrong space on his
+     *  device and printed one flat colour), and a glow layer in dark mode gives
+     *  the tubes their halo. Light mode: pitch black, no glow, his words. */
+    private void applyLedInk(Context context, String shown) {
+        if (displayView == null || previewView == null) return;
+        if (host.palette().dark) {
+            CharSequence cur = displayView.getText();
+            if (cur instanceof Spannable) {
+                Spannable sp = (Spannable) cur;
+                for (int i = 0; i < sp.length(); i++) {
+                    char c = sp.charAt(i);
+                    int col = "+-*/%^!\u00d7\u00f7\u2212".indexOf(c) >= 0 ? 0xFFFF2D78
+                            : c == '(' || c == ')' ? 0xFF7C4DFF : 0xFF00E5FF;
+                    sp.setSpan(new android.text.style.ForegroundColorSpan(col),
+                            i, i + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
-                vv.invalidate();
             }
-        });
+            displayView.setShadowLayer(14f, 0f, 0f, 0x6600E5FF);
+            previewView.setTextColor(0xFFFFAB40);
+            previewView.setShadowLayer(12f, 0f, 0f, 0x66FFAB40);
+        } else {
+            displayView.setShadowLayer(0f, 0f, 0f, 0);
+            displayView.setTextColor(PITCH_BLACK);
+            previewView.setShadowLayer(0f, 0f, 0f, 0);
+            previewView.setTextColor(PITCH_BLACK);
+        }
     }
 
     public static final class DisplayEditText extends android.widget.EditText {

@@ -663,6 +663,7 @@ public final class CalculatorScreen implements Screen {
         if (cs instanceof Spannable) {
             int rawLen = dispToRaw(cs.length());
             int pos = rawToDisp(Math.max(0, Math.min(caret, rawLen)));
+            displayView.fallbackCaret = pos;
             Selection.setSelection((Spannable) cs, pos, pos);
         }
     }
@@ -1320,6 +1321,10 @@ public final class CalculatorScreen implements Screen {
             return null;
         }
 
+        /** Where the screen's own caret stands, in display coordinates: the bar's
+         *  fallback when the framework selection reads empty, as it does on his device. */
+        int fallbackCaret;
+
         void setCaretColors(int caretColor, int selectionColor) {
             caretPaint.setColor(caretColor);
             selPaint.setColor(selectionColor);
@@ -1354,7 +1359,7 @@ public final class CalculatorScreen implements Screen {
             // His device reports placements while the framework selection reads empty, so
             // the screen's own caret offset is the fallback: the bar always stands exactly
             // where the next keypad key will land.
-            int cs = s >= 0 ? s : Math.max(0, rawToDisp(caret));
+            int cs = s >= 0 ? s : Math.max(0, fallbackCaret);
             if (cs <= length()) {
                 int ln = lo.getLineForOffset(cs);
                 float x = padL + lo.getPrimaryHorizontal(cs);

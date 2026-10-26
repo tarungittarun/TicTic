@@ -1507,7 +1507,8 @@ public final class CalculatorScreen implements Screen {
                     int ol, int ot, int or, int ob) {
                 int w = vv.getWidth();
                 if (w <= 0) return;
-                vv.getPaint().setShader(new android.graphics.LinearGradient(
+                ((android.widget.TextView) vv).getPaint().setShader(
+                        new android.graphics.LinearGradient(
                         0, 0, w, 0, colors, null, android.graphics.Shader.TileMode.CLAMP));
                 vv.invalidate();
             }
@@ -1554,7 +1555,6 @@ public final class CalculatorScreen implements Screen {
 
         void setCaretColors(int caretColor, int selectionColor) {
             caretPaint.setColor(caretColor);
-            selPaint.setColor(selectionColor);
             // Round 19: only the caret colour lives here now. The selection band and
             // the teardrop handles the previous rounds drew by hand are deleted --
             // the framework paints its own highlight and its own handles, which is

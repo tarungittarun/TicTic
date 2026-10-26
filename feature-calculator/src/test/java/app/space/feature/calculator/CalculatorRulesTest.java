@@ -43,8 +43,10 @@ public class CalculatorRulesTest {
         assertEquals(20d, CalculatorRules.evaluate("200*10%"), 1e-9);
         // A chained percent meeting a fresh number mid-expression multiplies implicitly.
         assertEquals(0.0408d, CalculatorRules.evaluate("12%%34"), 1e-9);
-        // Percent still refuses to float without a number to belong to.
-        assertNull(CalculatorRules.append("5*", "%"));
+        // Over a pending operator the percent joins the number already typed -- the
+        // owner's round-9 rule, 10+ then % is 10% -- under a multiply too: 5* then % is 5%.
+        assertEquals("5%", CalculatorRules.append("5*", "%"));
+        // But with no number anywhere it still refuses to float.
         assertNull(CalculatorRules.append("", "%"));
         // Screenshot 1: unclosed brackets are balanced, not punished. 663((5+853 = 568854.
         assertEquals(568854d,

@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.18'", gradle)
-        self.assertIn("versionCode 55", gradle)
+        self.assertIn("versionName '3.12.19'", gradle)
+        self.assertIn("versionCode 56", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4387,11 +4387,17 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
         # Round 16: the held expression stays readable -- translucent band
         # UNDER the glyphs -- and the teardrop handles are drawn and draggable.
-        self.assertIn("selPaint.setAlpha(92);", screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().accent, 0x66B9BBF4);", screen)
         self.assertLess(screen.index("c.drawRect(padL + x1, top, padL + x2, bot, selPaint);"),
                         screen.index("super.onDraw(c);"))
         self.assertIn("handlePaint.setColor(0xFFB9BBF4);", screen)
         self.assertIn("int handleAt(float x, float y) {", screen)
+        # Round 17: the whole end-strip grabs a boundary; the menu remembers what
+        # it was raised over; the menu dies when the screen moves on.
+        self.assertIn("float rx = 24 * handleD;", screen)
+        self.assertIn("private int menuSelA, menuSelB;", screen)
+        self.assertIn("int a = dispToRaw(menuSelA);", screen)
+        self.assertIn("private void closeSelectionMenu() {", screen)
         self.assertIn("dragHandle = displayView.handleAt(e.getX(), e.getY());", screen)
         self.assertIn("\"handle drag ended: chars \"", screen)
         self.assertIn("displayView.setHighlightColor(0x00000000);", screen)
@@ -4508,6 +4514,10 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("percentChainsMidExpressionToo", ui)
         self.assertIn("theBracketKeyFitsTheCaretNotJustTheEnd", ui)
         self.assertIn("draggingEitherHandleMovesThatBoundary", ui)
+        self.assertIn("copyPutsExactlyTheHeldSliceInTheClipboard", ui)
+        self.assertIn("cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere", ui)
+        self.assertIn("aTapElsewhereClosesTheMenuAndClearsTheSelection", ui)
+        self.assertIn("acWhileHeldClearsTheHeldTextAndTheMenu", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

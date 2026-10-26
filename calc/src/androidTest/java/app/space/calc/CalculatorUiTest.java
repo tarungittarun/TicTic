@@ -10,6 +10,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -17,9 +18,11 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.view.View;
+import androidx.test.espresso.ViewAction;
 import android.widget.EditText;
 
 import androidx.test.espresso.action.CoordinatesProvider;
@@ -57,6 +60,55 @@ public class CalculatorUiTest {
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
     /** A pad key by its label, never the display or the preview that may show the same text. */
+    /** Narrows the held range by dragging the right handle to a display offset. */
+    private static ViewAction narrowRightHandleTo(final int offset) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "drag the right handle to offset " + offset; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.widget.EditText ed = (android.widget.EditText) view;
+                android.text.Layout lo = ed.getLayout();
+                float d = view.getResources().getDisplayMetrics().density;
+                float padL = ed.getCompoundPaddingLeft();
+                float y = ed.getBaseline() + lo.getLineDescent(0) + 6 * d + 12 * d;
+                drag(view, padL + lo.getPrimaryHorizontal(ed.getSelectionEnd()),
+                        padL + lo.getPrimaryHorizontal(offset), y);
+                ui.loopMainThreadForAtLeast(200);
+            }
+        };
+    }
+
+    /** What the rest of the device would read after a Copy: the system clipboard. */
+    private static String clipboard() {
+        final String[] out = new String[]{""};
+        onView(isRoot()).perform(new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "read the system clipboard"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                        androidx.test.InstrumentationRegistry.getInstrumentation()
+                                .getTargetContext()
+                                .getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData d = cm == null ? null : cm.getPrimaryClip();
+                out[0] = d == null || d.getItemCount() == 0
+                        ? "" : String.valueOf(d.getItemAt(0).getText());
+            }
+        });
+        return out[0];
+    }
+
+    /** The held length must be exactly this, because the owner drags for a length. */
+    private static androidx.test.espresso.ViewAssertion held(final int want) {
+        return new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                int got = ed.getSelectionEnd() - ed.getSelectionStart();
+                assertTrue("held=" + got + " want=" + want, got == want);
+            }
+        };
+    }
+
     /** A thumb down on a handle, four moves, a lift -- straight through dispatchTouchEvent,
      *  which is the public door to the view's own touch listener. */
     private static void drag(View view, float fromX, float toX, float y) {
@@ -505,6 +557,62 @@ public class CalculatorUiTest {
                 assertTrue("both boundaries must move, held=" + held, held == 2);
             }
         });
+    }
+
+    @Test public void copyPutsExactlyTheHeldSliceInTheClipboard() {
+        // Round 17, end-user truth: what you see held is what lands in the clipboard.
+        // Not "a copy happened" -- the exact slice, commas and all, read back out of
+        // the system clipboard the way the next app would read it.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).perform(narrowRightHandleTo(5));
+        onView(withText("Copy")).perform(click());
+        // The clipboard carries the raw slice -- commas are display furniture, never
+        // part of what the next app pastes.
+        assertEquals("1234", clipboard());
+        onView(withId(DISPLAY)).check(matches(withText("123,456")));
+    }
+
+    @Test public void cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere() {
+        // Round 17: his log -- "selection cut: 0 chars removed" while a range stood
+        // held, then a second cut that ate the whole expression. Cut must remove
+        // exactly the held slice, leave the rest, and park the caret in the gap.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).perform(narrowRightHandleTo(3));
+        onView(withText("Cut")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("456")));
+        type("9");
+        onView(withId(DISPLAY)).check(matches(withText("9,456")));
+        assertEquals("123", clipboard());
+    }
+
+    @Test public void aTapElsewhereClosesTheMenuAndClearsTheSelection() {
+        // Round 17 lifecycle: the highlight is not furniture. Tapping away drops both
+        // the menu and the band, and the caret stands where the thumb landed.
+        type("1", "2", "3");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(3));
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).check(held(0));
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("7123")));
+    }
+
+    @Test public void acWhileHeldClearsTheHeldTextAndTheMenu() {
+        // Round 17 lifecycle: AC with a selection held clears the expression and the
+        // selection together -- no ghost band over an empty display.
+        type("1", "2", "3");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(3));
+        type("AC");
+        onView(withId(DISPLAY)).check(held(0));
+        onView(withId(DISPLAY)).check(matches(withText("")));
     }
 
     @Test public void decimalsNeverCarryCommas() {

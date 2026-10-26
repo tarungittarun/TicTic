@@ -161,6 +161,7 @@ public final class CalculatorScreen implements Screen {
     private boolean longPressHeld;
     private boolean touchMoved;
     private int dragHandle;
+    private int menuSelA, menuSelB;
     private android.view.ActionMode currentSelectionMode;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
@@ -563,8 +564,7 @@ public final class CalculatorScreen implements Screen {
         // Round 10: his log shows 181 "cursor placed" lines and still no caret seen, so
         // the caret stops being the text's own colour and becomes the accent, four density
         // pixels wide -- the one colour on the screen nothing else shares.
-        displayView.setCaretColors(ui.palette().accent,
-                mix(ui.palette().accent, ui.palette().background, 0.55f));
+        displayView.setCaretColors(ui.palette().accent, 0x66B9BBF4);
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
         } else {
@@ -685,6 +685,16 @@ public final class CalculatorScreen implements Screen {
             @Override public boolean onCreateActionMode(android.view.ActionMode mode,
                                                         android.view.Menu menu) {
                 currentSelectionMode = mode;
+                // Round 17: his log -- "selection cut: 0 chars removed" while the menu
+                // stood open over a held range. On his device the selection can read
+                // empty by the time the thumb reaches Cut, so the menu remembers what
+                // it was raised over and acts on THAT when the live selection is gone.
+                int ds = displayView.getSelectionStart();
+                int de = displayView.getSelectionEnd();
+                if (ds >= 0 && de > ds) {
+                    menuSelA = ds;
+                    menuSelB = de;
+                }
                 menu.clear();
                 menu.add(0, SEL_COPY, 0, "Copy");
                 menu.add(0, SEL_CUT, 1, "Cut");
@@ -702,10 +712,14 @@ public final class CalculatorScreen implements Screen {
 
             @Override public boolean onActionItemClicked(android.view.ActionMode mode,
                                                          android.view.MenuItem item) {
-                int a = dispToRaw(Math.min(displayView.getSelectionStart(),
-                        displayView.getSelectionEnd()));
-                int b = dispToRaw(Math.max(displayView.getSelectionStart(),
-                        displayView.getSelectionEnd()));
+                int ls = displayView.getSelectionStart();
+                int le = displayView.getSelectionEnd();
+                if (ls >= 0 && le > ls) {
+                    menuSelA = ls;
+                    menuSelB = le;
+                }
+                int a = dispToRaw(menuSelA);
+                int b = dispToRaw(menuSelB);
                 String raw = expression.toString();
                 a = Math.max(0, Math.min(a, raw.length()));
                 b = Math.max(a, Math.min(b, raw.length()));
@@ -1066,11 +1080,22 @@ public final class CalculatorScreen implements Screen {
     }
 
     /** Expand or collapse the sheet over the docked expression, animated both ways. */
+    /** Round 17, "over all it feels like not polished for its lifecycle": a held
+     *  selection belongs to the expression on screen. The moment the screen moves on
+     *  -- clear, equals, history, the three-dot menu -- the floating menu and its
+     *  highlight go with it instead of hanging over the next thing the thumb does. */
+    private void closeSelectionMenu() {
+        if (currentSelectionMode != null) currentSelectionMode.finish();
+        menuSelA = 0;
+        menuSelB = 0;
+    }
+
     private void toggleHistory(final Context context, final UiKit ui) {
         if (historyPopup != null && historyPopup.isShowing()) {
             closeHistory(context);
             return;
         }
+        closeSelectionMenu();
         historyOpen = true;
         View content = buildHistoryPopup(context, ui);
         int width = context.getResources().getDisplayMetrics().widthPixels - ui.dp(24);
@@ -1191,6 +1216,7 @@ public final class CalculatorScreen implements Screen {
      * clear memory, view memory, show as fraction -- and nothing else.
      */
     private void openMenu(final Context context, UiKit ui, View anchor) {
+        closeSelectionMenu();
         AppLog.event(context, "calc", "menu opened from the three dots");
         java.util.List<String> items = new java.util.ArrayList<>();
         items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)
@@ -1571,20 +1597,23 @@ public final class CalculatorScreen implements Screen {
             selPaint.setColor(selectionColor);
             // Round 16: "when selected, the values or expression that got copied is not
             // visible." The band used to be an opaque slab painted OVER the glyphs. It
-            // is translucent now, and drawn beneath them.
-            selPaint.setAlpha(92);
+            // is translucent now, and drawn beneath them. Round 17: "the selected is not
+            // that properly visible... implement the same build in Android selection
+            // design" -- the band is Android's own lavender at forty percent, the colour
+            // his Google screenshot shows, not a dim navy square.
             float d = getResources().getDisplayMetrics().density;
-            handleStem = 8 * d;
-            handleRadius = 10 * d;
+            handleD = d;
+            handleStem = 6 * d;
+            handleRadius = 12 * d;
         }
 
         /** Geometry of the last drawn band and handles, in view coordinates. */
         float handleLX, handleRX, handleY;
         boolean handlesUp;
         private float bandL, bandR;
-        private int bandB;
+        private int bandB, bandT;
         private boolean bandUp;
-        private float handleStem, handleRadius;
+        private float handleStem, handleRadius, handleD;
         private final android.graphics.Paint handlePaint = new android.graphics.Paint();
         {
             // The bulb colour from his Google screenshot: a pale periwinkle that reads
@@ -1593,12 +1622,18 @@ public final class CalculatorScreen implements Screen {
             handlePaint.setStyle(android.graphics.Paint.Style.FILL);
         }
 
-        /** -1 for the left handle, 1 for the right, 0 for "not on a handle". */
+        /** -1 for the left handle, 1 for the right, 0 for "not on a handle".
+         *  Round 17: his log holds fifteen selections and ZERO handle drags -- the bulb
+         *  alone was too small a target for a thumb on glass. The whole strip around
+         *  each end of the band, from above the text to below the bulb, now grabs that
+         *  boundary, the way Android's own handles forgive an imprecise thumb. */
         int handleAt(float x, float y) {
             if (!handlesUp) return 0;
-            float r = handleRadius * 2.6f;
-            if (Math.abs(x - handleLX) <= r && Math.abs(y - handleY) <= r) return -1;
-            if (Math.abs(x - handleRX) <= r && Math.abs(y - handleY) <= r) return 1;
+            float rx = 24 * handleD;
+            if (Math.abs(x - handleLX) <= rx
+                    && y >= bandT - 24 * handleD && y <= handleY + 24 * handleD) return -1;
+            if (Math.abs(x - handleRX) <= rx
+                    && y >= bandT - 24 * handleD && y <= handleY + 24 * handleD) return 1;
             return 0;
         }
 
@@ -1636,7 +1671,10 @@ public final class CalculatorScreen implements Screen {
                         float top = lb + lo.getLineAscent(ln);
                         float bot = lb + lo.getLineDescent(ln);
                         c.drawRect(padL + x1, top, padL + x2, bot, selPaint);
-                        if (ln == l1) bandL = padL + x1;
+                        if (ln == l1) {
+                            bandL = padL + x1;
+                            bandT = (int) top;
+                        }
                         if (ln == l2) {
                             bandR = padL + x2;
                             bandB = (int) bot;
@@ -1668,11 +1706,12 @@ public final class CalculatorScreen implements Screen {
                 handleLX = bandL;
                 handleRX = bandR;
                 handlesUp = true;
-                c.drawRect(handleLX - handleRadius / 2f, bandB - 2,
-                        handleLX + handleRadius / 2f, bandB + handleStem, handlePaint);
+                // Android's teardrop: a thin stem from the band corner into a round
+                // bulb, not the stubby square the last round drew on his glass.
+                float sw = 2 * handleD;
+                c.drawRect(handleLX - sw, bandB - 2, handleLX + sw, bandB + handleStem, handlePaint);
                 c.drawCircle(handleLX, handleY, handleRadius, handlePaint);
-                c.drawRect(handleRX - handleRadius / 2f, bandB - 2,
-                        handleRX + handleRadius / 2f, bandB + handleStem, handlePaint);
+                c.drawRect(handleRX - sw, bandB - 2, handleRX + sw, bandB + handleStem, handlePaint);
                 c.drawCircle(handleRX, handleY, handleRadius, handlePaint);
             }
         }
@@ -1897,6 +1936,7 @@ public final class CalculatorScreen implements Screen {
 
     private void press(Context context, String key) {
         if ("AC".equals(key)) {
+            closeSelectionMenu();
             String was = expression.length() == 0 && !justEvaluated ? "" : typed();
             expression.setLength(0);
             result = "";
@@ -2003,6 +2043,7 @@ public final class CalculatorScreen implements Screen {
             return;
         }
         if ("=".equals(key)) {
+            closeSelectionMenu();
             // Round 11: "scientific operations are giving error" -- sin(30 met a parser
             // that demands its closing bracket. Google simply closes what you left open
             // when you press equals, and so do we now.

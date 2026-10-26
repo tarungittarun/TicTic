@@ -544,7 +544,14 @@ public final class CalculatorScreen implements Screen {
         displayView = new DisplayEditText(context,
                 Math.max(3, (int) (4 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
-        displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
+        // Round 18: "first keep the expression typed in the top part of expression
+        // box." It hung off the BOTTOM of a tall box, floating mid-air in his
+        // screenshot. Top it is, with the live answer beneath it.
+        displayView.setGravity(Gravity.RIGHT | Gravity.TOP);
+        // The teardrop bulbs hang below the text line; without reserved room they
+        // clipped at the view's edge -- "the thing which user has to hold and change
+        // the selected portion is not completely visible".
+        displayView.setPadding(0, 0, 0, ui.dp(34));
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
@@ -591,7 +598,21 @@ public final class CalculatorScreen implements Screen {
                     // Round 16: a thumb landing on either teardrop handle drags that
                     // boundary instead of placing the caret or starting anything else.
                     dragHandle = displayView.handleAt(e.getX(), e.getY());
-                    if (dragHandle != 0) return true;
+                    if (dragHandle != 0) {
+                        // Round 18: his log held ZERO handle drags twice in a row while
+                        // the emulator story passed -- because the story dispatched
+                        // straight to this view, and his thumb goes through the
+                        // HorizontalScrollView parent, which intercepts a horizontal
+                        // drag and cancels the child. A handle drag forbids that.
+                        displayView.requestDisallowInterceptTouchEvent(true);
+                        AppLog.event(lastContext, "calc", "handle drag began on the "
+                                + (dragHandle < 0 ? "left" : "right") + " boundary");
+                        return true;
+                    }
+                }
+                if (e.getAction() == MotionEvent.ACTION_CANCEL && dragHandle != 0) {
+                    dragHandle = 0;
+                    return true;
                 }
                 if (e.getAction() == MotionEvent.ACTION_MOVE && dragHandle != 0) {
                     CharSequence held = displayView.getText();
@@ -613,6 +634,7 @@ public final class CalculatorScreen implements Screen {
                             + displayView.getSelectionStart() + ".."
                             + displayView.getSelectionEnd() + " held");
                     dragHandle = 0;
+                    displayView.requestDisallowInterceptTouchEvent(false);
                     return true;
                 }
                 if (e.getAction() == MotionEvent.ACTION_MOVE) {
@@ -1603,8 +1625,8 @@ public final class CalculatorScreen implements Screen {
             // his Google screenshot shows, not a dim navy square.
             float d = getResources().getDisplayMetrics().density;
             handleD = d;
-            handleStem = 6 * d;
-            handleRadius = 12 * d;
+            handleStem = 8 * d;
+            handleRadius = 14 * d;
         }
 
         /** Geometry of the last drawn band and handles, in view coordinates. */
@@ -2118,16 +2140,24 @@ public final class CalculatorScreen implements Screen {
         } else if (sel[1] == at && rawKey.length() == 1
                 && CalculatorRules.isOperator(rawKey.charAt(0))
                 && at > 0 && CalculatorRules.isOperator(raw.charAt(at - 1))) {
-            // Round 14: "when I try to put +,-,* like operations, then it's not allowing
-            // to change once typed." At the end of the expression appendToken already
-            // swaps a trailing operator for the new one; mid-expression the splice used
-            // to insert a SECOND operator ("11+-1+1"), the validator declined it, and
-            // his log holds three refusals in a row for one thumb movement. Over an
-            // operator, the operator left of the caret is replaced -- the same
-            // changeable mind, anywhere in the expression.
-            candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);
+            // Round 18: "user can type 10*-5 at first. But when he moves his cursor and
+            // tries to put * and - after that, - replaces *." At the END a minus under a
+            // multiply inserts as negation; mid-expression the replace-everything rule
+            // ate the multiply instead. Mid now mirrors the end exactly: a minus under
+            // *, / or ^ (or a binary minus) INSERTS as negation; over a plus it is the
+            // changeable mind; over a negation slot another operator takes the pair.
+            char before = raw.charAt(at - 1);
+            boolean unarySlot = before == '-'
+                    && (at == 1 || CalculatorRules.isOperator(raw.charAt(at - 2))
+                            || raw.charAt(at - 2) == '(');
+            if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {
+                candidate = raw.substring(0, at) + rawKey + raw.substring(sel[1]);
+            } else if (unarySlot && rawKey.charAt(0) != '-') {
+                candidate = raw.substring(0, at - 2) + rawKey + raw.substring(at);
+            } else {
+                candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);
+            }
             if (!wholeExpressionValid(candidate)) {
-                char before = at == 0 ? ' ' : raw.charAt(at - 1);
                 AppLog.event(context, "calc", "key " + key + " refused at " + at
                         + " (after '" + before + "'): the expression would not evaluate");
                 return false;

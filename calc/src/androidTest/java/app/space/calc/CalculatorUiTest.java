@@ -70,8 +70,8 @@ public class CalculatorUiTest {
                 android.text.Layout lo = ed.getLayout();
                 float d = view.getResources().getDisplayMetrics().density;
                 float padL = ed.getCompoundPaddingLeft();
-                float y = ed.getBaseline() + lo.getLineDescent(0) + 6 * d + 12 * d;
-                drag(view, padL + lo.getPrimaryHorizontal(ed.getSelectionEnd()),
+                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 14 * d;
+                drag(ui, view, padL + lo.getPrimaryHorizontal(ed.getSelectionEnd()),
                         padL + lo.getPrimaryHorizontal(offset), y);
                 ui.loopMainThreadForAtLeast(200);
             }
@@ -111,23 +111,34 @@ public class CalculatorUiTest {
 
     /** A thumb down on a handle, four moves, a lift -- straight through dispatchTouchEvent,
      *  which is the public door to the view's own touch listener. */
-    private static void drag(View view, float fromX, float toX, float y) {
+    private static void drag(androidx.test.espresso.UiController ui, View view,
+                             float fromX, float toX, float y) {
+        // Round 18: dispatching straight at the view let the story pass while his
+        // thumb died in the HorizontalScrollView parent, which intercepts a horizontal
+        // drag and cancels the child. Injecting at WINDOW level walks the real
+        // hierarchy -- every onInterceptTouchEvent on the way -- like a finger does.
+        int[] loc = new int[2];
+        view.getLocationInWindow(loc);
         long t0 = android.os.SystemClock.uptimeMillis();
-        android.view.MotionEvent e = android.view.MotionEvent.obtain(
-                t0, t0, android.view.MotionEvent.ACTION_DOWN, fromX, y, 0);
-        view.dispatchTouchEvent(e);
-        e.recycle();
-        for (int i = 1; i <= 4; i++) {
-            android.view.MotionEvent m = android.view.MotionEvent.obtain(
-                    t0, t0 + i * 40L, android.view.MotionEvent.ACTION_MOVE,
-                    fromX + (toX - fromX) * i / 4f, y, 0);
-            view.dispatchTouchEvent(m);
-            m.recycle();
+        try {
+            android.view.MotionEvent e = android.view.MotionEvent.obtain(t0, t0,
+                    android.view.MotionEvent.ACTION_DOWN, loc[0] + fromX, loc[1] + y, 0);
+            ui.injectMotionEvent(e);
+            e.recycle();
+            for (int i = 1; i <= 4; i++) {
+                android.view.MotionEvent m = android.view.MotionEvent.obtain(
+                        t0, t0 + i * 40L, android.view.MotionEvent.ACTION_MOVE,
+                        loc[0] + fromX + (toX - fromX) * i / 4f, loc[1] + y, 0);
+                ui.injectMotionEvent(m);
+                m.recycle();
+            }
+            android.view.MotionEvent u = android.view.MotionEvent.obtain(t0, t0 + 200L,
+                    android.view.MotionEvent.ACTION_UP, loc[0] + toX, loc[1] + y, 0);
+            ui.injectMotionEvent(u);
+            u.recycle();
+        } catch (Exception failed) {
+            throw new RuntimeException("handle drag could not be injected", failed);
         }
-        android.view.MotionEvent u = android.view.MotionEvent.obtain(
-                t0, t0 + 200L, android.view.MotionEvent.ACTION_UP, toX, y, 0);
-        view.dispatchTouchEvent(u);
-        u.recycle();
     }
 
     private static Matcher<View> key(String label) {
@@ -539,14 +550,14 @@ public class CalculatorUiTest {
                 android.text.Layout lo = ed.getLayout();
                 float d = view.getResources().getDisplayMetrics().density;
                 float padL = ed.getCompoundPaddingLeft();
-                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 10 * d;
+                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 14 * d;
                 float xRight = padL + lo.getPrimaryHorizontal(ed.getSelectionEnd());
                 float xTo = padL + lo.getPrimaryHorizontal(4);
-                drag(view, xRight, xTo, y);
+                drag(ui, view, xRight, xTo, y);
                 ui.loopMainThreadForAtLeast(200);
                 float xLeft = padL + lo.getPrimaryHorizontal(0);
                 float xLeftTo = padL + lo.getPrimaryHorizontal(2);
-                drag(view, xLeft, xLeftTo, y);
+                drag(ui, view, xLeft, xLeftTo, y);
             }
         });
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
@@ -613,6 +624,26 @@ public class CalculatorUiTest {
         type("AC");
         onView(withId(DISPLAY)).check(held(0));
         onView(withId(DISPLAY)).check(matches(withText("")));
+    }
+
+    @Test public void minusUnderAMultiplyMidExpressionKeepsBoth() {
+        // Round 18, his exact sequence: 10*-5 types fine at the end; with the caret
+        // moved after the multiply, * then - used to leave 10--5 -- the minus ate the
+        // multiply. Mid-expression now mirrors the end: the minus inserts as negation
+        // and the multiply stays where his thumb put it.
+        type("1", "0", "\u00d7", "\u2212", "5");
+        onView(withId(DISPLAY)).check(matches(withText("10\u00d7\u22125")));
+        onView(withId(DISPLAY)).perform(new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "park the caret after the multiply"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.text.Spannable s =
+                        (android.text.Spannable) ((android.widget.EditText) view).getText();
+                android.text.Selection.setSelection(s, 3, 3);
+            }
+        });
+        type("\u00d7", "\u2212");
+        onView(withId(DISPLAY)).check(matches(withText("10\u00d7\u2212\u22125")));
     }
 
     @Test public void decimalsNeverCarryCommas() {

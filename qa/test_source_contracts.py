@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.15'", gradle)
-        self.assertIn("versionCode 52", gradle)
+        self.assertIn("versionName '3.12.16'", gradle)
+        self.assertIn("versionCode 53", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4371,7 +4371,17 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("setCustomSelectionActionModeCallback", screen)
         self.assertIn("menu.add(0, SEL_CUT, 1, \"Cut\");", screen)
         self.assertIn("private static String clipboardText(Context context) {", screen)
-        self.assertIn("displayView.startActionMode(selectionMenu);", screen)
+        # Round 14: the floating toolbar over the selection, the selection that
+        # outlives the finger lift, and the changeable-mind operator at the caret.
+        self.assertIn("android.view.ActionMode.TYPE_FLOATING);", screen)
+        self.assertIn("private boolean longPressHeld;", screen)
+        self.assertIn("if (longPressHeld) {", screen)
+        self.assertIn("if (touchMoved && displayView.hasSelection()) {", screen)
+        self.assertIn("currentSelectionMode = mode;", screen)
+        self.assertIn("currentSelectionMode = null;", screen)
+        self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
+        self.assertIn("candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);", screen)
+        self.assertIn("candidate = raw.substring(0, at) + rawKey + raw.substring(at + 1);", screen)
         self.assertIn('"selection started: chars "', screen)
         self.assertIn("int added = candidate.length() - (raw.length() - (sel[1] - at));", screen)
         self.assertIn("boolean fraction = out.length() > 0 && out.charAt(out.length() - 1) == '.';", screen)
@@ -4474,6 +4484,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theCaretStaysWhereTheThumbInserted", ui)
         self.assertIn("longPressSelectsTheWholeNumberAndOffersTheMenu", ui)
         self.assertIn("decimalsNeverCarryCommas", ui)
+        self.assertIn("theSelectionSurvivesTheFingerLiftingAndTheMenuFollows", ui)
+        self.assertIn("anOperatorTypedOverAnOperatorReplacesItMidExpression", ui)
+        self.assertIn("aPlainTapAfterTheMenuClosesPlacesTheCaretAgain", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

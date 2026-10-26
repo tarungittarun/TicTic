@@ -155,6 +155,9 @@ public final class CalculatorScreen implements Screen {
     private ScrollView historyScroll;
     private SwipeBox displayArea;
     private float lastTouchX, lastTouchY;
+    private boolean longPressHeld;
+    private boolean touchMoved;
+    private android.view.ActionMode currentSelectionMode;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
@@ -575,8 +578,35 @@ public final class CalculatorScreen implements Screen {
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     lastTouchX = e.getX();
                     lastTouchY = e.getY();
+                    longPressHeld = false;
+                    touchMoved = false;
+                }
+                if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
+                            > android.view.ViewConfiguration.get(v.getContext())
+                                    .getScaledTouchSlop() * 2) touchMoved = true;
                 }
                 if (e.getAction() == MotionEvent.ACTION_UP) {
+                    // Round 14: a long press raises the selection and the finger lifting
+                    // afterwards must not collapse it again. His log showed exactly that
+                    // sequence twice a minute: "selection started: chars 0..6 held" then,
+                    // 200 ms later, "cursor placed at N" -- the highlight lived only while
+                    // his thumb was down, and what remained was an empty menu.
+                    if (longPressHeld) {
+                        longPressHeld = false;
+                        return false;
+                    }
+                    // Dragging a selection handle is a move followed by a lift while the
+                    // selection is live; that gesture adjusts the held length and must
+                    // never be mistaken for a tap that dismisses everything.
+                    if (touchMoved && displayView.hasSelection()) {
+                        touchMoved = false;
+                        return false;
+                    }
+                    touchMoved = false;
+                    // A plain tap while the selection menu is open dismisses it, exactly
+                    // like tapping elsewhere in any editor.
+                    if (currentSelectionMode != null) currentSelectionMode.finish();
                     // Round 11: his log shows four middle taps all landing at the END, so
                     // the editor's own placement cannot be trusted on his device. The
                     // screen maps the touch x through the layout itself and forces the
@@ -620,6 +650,7 @@ public final class CalculatorScreen implements Screen {
                 new android.view.ActionMode.Callback() {
             @Override public boolean onCreateActionMode(android.view.ActionMode mode,
                                                         android.view.Menu menu) {
+                currentSelectionMode = mode;
                 menu.clear();
                 menu.add(0, SEL_COPY, 0, "Copy");
                 menu.add(0, SEL_CUT, 1, "Cut");
@@ -704,6 +735,16 @@ public final class CalculatorScreen implements Screen {
             }
 
             @Override public void onDestroyActionMode(android.view.ActionMode mode) {
+                currentSelectionMode = null;
+                // Round 14: when the menu goes away the highlight goes with it, caret at
+                // the end of what was held -- otherwise a ghost band stays painted over
+                // the expression with nothing behind it.
+                CharSequence gone = displayView.getText();
+                if (gone instanceof Spannable && displayView.hasSelection()) {
+                    int end = Math.max(0, Selection.getSelectionEnd(gone));
+                    Selection.setSelection((Spannable) gone, end, end);
+                    caret = dispToRaw(end);
+                }
                 AppLog.event(lastContext, "calc", "selection menu closed");
             }
         };
@@ -730,7 +771,13 @@ public final class CalculatorScreen implements Screen {
                 Selection.setSelection((Spannable) txt, a, b);
                 AppLog.event(lastContext, "calc", "selection started: chars " + a + ".." + b
                         + " held, handles raised for the required length");
-                displayView.startActionMode(selectionMenu);
+                longPressHeld = true;
+                // Round 14: the floating toolbar -- the modern menu that hovers over the
+                // selection itself, the one Keep Notes and every current editor show.
+                // His words for the primary bar were "some old style copy cut option
+                // in top", and he was right: TYPE_PRIMARY is the 2009 bar.
+                displayView.startActionMode(selectionMenu,
+                        android.view.ActionMode.TYPE_FLOATING);
                 return true;
             }
         });
@@ -1915,6 +1962,35 @@ public final class CalculatorScreen implements Screen {
                 char before = at == 0 ? ' ' : raw.charAt(at - 1);
                 AppLog.event(context, "calc", "key " + key + " refused at " + at
                         + " (after '" + before + "'): the rules declined it");
+                return false;
+            }
+        } else if (sel[1] == at && rawKey.length() == 1
+                && CalculatorRules.isOperator(rawKey.charAt(0))
+                && at > 0 && CalculatorRules.isOperator(raw.charAt(at - 1))) {
+            // Round 14: "when I try to put +,-,* like operations, then it's not allowing
+            // to change once typed." At the end of the expression appendToken already
+            // swaps a trailing operator for the new one; mid-expression the splice used
+            // to insert a SECOND operator ("11+-1+1"), the validator declined it, and
+            // his log holds three refusals in a row for one thumb movement. Over an
+            // operator, the operator left of the caret is replaced -- the same
+            // changeable mind, anywhere in the expression.
+            candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);
+            if (!wholeExpressionValid(candidate)) {
+                char before = at == 0 ? ' ' : raw.charAt(at - 1);
+                AppLog.event(context, "calc", "key " + key + " refused at " + at
+                        + " (after '" + before + "'): the expression would not evaluate");
+                return false;
+            }
+        } else if (sel[1] == at && rawKey.length() == 1
+                && CalculatorRules.isOperator(rawKey.charAt(0))
+                && at < raw.length() && CalculatorRules.isOperator(raw.charAt(at))) {
+            // Same changeable mind from the other side: caret parked just LEFT of an
+            // operator replaces the one on its right.
+            candidate = raw.substring(0, at) + rawKey + raw.substring(at + 1);
+            if (!wholeExpressionValid(candidate)) {
+                char before = at == 0 ? ' ' : raw.charAt(at - 1);
+                AppLog.event(context, "calc", "key " + key + " refused at " + at
+                        + " (after '" + before + "'): the expression would not evaluate");
                 return false;
             }
         } else {

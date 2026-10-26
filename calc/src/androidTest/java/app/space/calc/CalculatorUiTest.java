@@ -336,6 +336,73 @@ public class CalculatorUiTest {
         onView(withText("Copy")).perform(click());
     }
 
+    @Test public void theSelectionSurvivesTheFingerLiftingAndTheMenuFollows() {
+        // Round 14: his log collapsed the selection 200 ms after every long press --
+        // "selection started: chars 0..6 held" then "cursor placed at N" as the thumb
+        // lifted, so the highlight lived only while he held his finger down. The lift
+        // must leave the held number highlighted; Copy then closes the menu and the
+        // caret stands where the held text ended, so the next key appends there.
+        type("1", "2", "3");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                int held = ed.getSelectionEnd() - ed.getSelectionStart();
+                assertTrue("the number must still be held after the finger lifts, held="
+                        + held, held == ed.getText().length());
+            }
+        });
+        onView(withText("Copy")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("123")));
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                assertTrue("the menu closing must leave a caret, not a ghost selection",
+                        ed.getSelectionStart() == ed.getSelectionEnd());
+            }
+        });
+        type("9");
+        onView(withId(DISPLAY)).check(matches(withText("1,239")));
+    }
+
+    @Test public void anOperatorTypedOverAnOperatorReplacesItMidExpression() {
+        // Round 14: "when I try to put +,-,* like operations, then it's not allowing to
+        // change once typed." His log holds three refusals for one thumb movement --
+        // mid-expression the splice inserted a SECOND operator and the validator
+        // declined it. Over an operator, the one left of the caret is replaced now.
+        type("1", "+", "1");
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "park the caret after the plus"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.text.Spannable s =
+                        (android.text.Spannable) ((android.widget.EditText) view).getText();
+                android.text.Selection.setSelection(s, 2, 2);
+            }
+        });
+        type("−");
+        onView(withId(DISPLAY)).check(matches(withText("1−1")));
+        type("×");
+        onView(withId(DISPLAY)).check(matches(withText("1×1")));
+    }
+
+    @Test public void aPlainTapAfterTheMenuClosesPlacesTheCaretAgain() {
+        // Round 14: tapping elsewhere dismisses the selection menu, puts the caret where
+        // the thumb landed, and the next key goes exactly there -- not to the end.
+        type("1", "2");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+        type("3");
+        onView(withId(DISPLAY)).check(matches(withText("312")));
+    }
+
     @Test public void decimalsNeverCarryCommas() {
         // Round 13: his screenshot read 1.5,70,79,63,268. Decimals are not thousands.
         type("1", ".", "5", "7", "0");

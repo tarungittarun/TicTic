@@ -1,12 +1,12 @@
-# MySpace 3.12.23 (60) · MyCalc 1.0.21 (22) — your test guide
+# MySpace 3.12.24 (61) · MyCalc 1.0.22 (23) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.23-60-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.23-60-lite-dist.apk) ·
-[MyCalc-v1.0.21-22.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.21-22.apk)
+Install: [MySpace-v3.12.24-61-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.24-61-lite-dist.apk) ·
+[MyCalc-v1.0.22-23.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.22-23.apk)
 (standalone calculator, same engine).
 
 ---
@@ -26,10 +26,10 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 |---|---|---|
 | B1 | Type `123456`, then **hold your finger down** on the number | The whole number gets a bright pink highlight and a floating Copy/Cut/Paste/Select all pill appears |
 | B2 | **Without lifting**, slide your finger left or right | The held portion grows and shrinks with your finger, character by character — this is the gesture that changes the selected portion |
-| B3 | Lift, then **press near either end** of the highlight and drag | That boundary follows your finger; the other end stays put |
+| B3 | Lift, then **press anywhere on the held band** (or just past either end) and drag | The nearer boundary follows your finger; the other end stays put -- this is how you select more or less |
 | B4 | With a portion held, tap **Copy**, then open Notes or Messages and long-press ▸ Paste | Exactly the held characters arrive (no commas — commas are display-only) |
 | B5 | Hold a portion, tap **Cut**, then type a digit | The held part disappears and your digit lands in the gap |
-| B6 | With the menu open, tap somewhere else on the display | Menu closes, highlight clears, the caret stands where you tapped |
+| B6 | With a selection held, **tap once** anywhere in the expression box | The selection clears, the menu closes, and the caret parks exactly where you tapped -- ready to type there |
 | B7 | Hold a portion, then tap **AC** | Held text and menu both clear |
 | B8 | While a selection is held, swipe the display horizontally | The selection drag wins over scrolling (the scroller yields while handles are up); with **no** selection the long expression still scrolls sideways |
 
@@ -52,7 +52,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 | C5 | Type `200+10%` then `=` | `220` (Google's percent semantics) |
 | C6 | Type `5+3×2` without closing anything, press `=` | `11`; unclosed brackets auto-balance: `(5+3` `=` → `8` |
 | C7 | Press `( )` repeatedly with the caret mid-expression | The key offers `(` or `)` whichever fits at the caret |
-| C8 | Watch the caret | A solid bar — white in dark, black in light — stands at the exact point the next key will land; type an expression longer than the screen and the box **scrolls itself** to keep the caret in view |
+| C8 | Watch the caret | A solid bar — white in dark, black in light — stands at the exact point the next key will land; type an expression longer than the screen and the box **scrolls itself** to keep the caret in view. Its position is now measured from the glyphs themselves, not from the layout maths your phone mis-reports |
 | C9 | Never at any point | No device keyboard appears |
 
 Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegationExactlyAsTheOwnersScreenshot`, `theBracketKeyFitsTheCaretNotJustTheEnd`, `midNumberTapInsertsThere`-family, `theCaretExistsIsFocusedAndIsVisible`.
@@ -69,6 +69,7 @@ Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegatio
 | D6 | `Inv` then `sin` | `sin⁻¹` and it evaluates; `Deg` toggles Deg/Rad |
 | D7 | `AC` | Clears everything, including any held selection |
 | D8 | `⌫` | Deletes one character at the caret |
+| D9 | Tap any **history card** | Its expression lands in the box AND still evaluates: press `=` and the answer returns (no `Error`) -- commas never re-enter the maths |
 
 ## E. History, memory, effects
 
@@ -116,5 +117,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 387 Python contracts, 21 JVM suites
-and a 34-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 37-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

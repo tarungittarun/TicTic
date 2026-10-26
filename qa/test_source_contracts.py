@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.23'", gradle)
-        self.assertIn("versionCode 60", gradle)
+        self.assertIn("versionName '3.12.24'", gradle)
+        self.assertIn("versionCode 61", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3404,7 +3404,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.23", guide)
+        self.assertIn("3.12.24", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4287,7 +4287,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         # on top of the framework machinery that never showed up on his device.
         self.assertIn("@Override protected void onDraw(android.graphics.Canvas c) {", self.screen)
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
-        self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
+        self.assertIn("float x = padL + caretX(lo, cs, ln);", self.screen)
         self.assertIn("c.drawRect(x, lb + lo.getLineAscent(ln) + 2,", self.screen)
         self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,", self.screen)
         self.assertIn("int cs = s >= 0 ? s : Math.max(0, fallbackCaret);", self.screen)
@@ -4435,6 +4435,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn('"caret scrolled into view at scrollX="', screen)
         self.assertIn('"hold-then-drag began: extending the held portion"', screen)
         self.assertIn('"handle drag began on the "', screen)
+        # Round 22: measured caret geometry (his Moto returned 2^20 from
+        # getPrimaryHorizontal), tap-clears-selection, band-as-handle, and history
+        # reuse without display commas.
+        self.assertIn("public float caretX(android.text.Layout lo, int off, int ln) {", screen)
+        self.assertIn("float measured = left + getPaint().measureText(", screen)
+        self.assertIn('"tap cleared the selection, caret at "', screen)
+        self.assertIn("dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;", screen)
+        self.assertIn("expression.append(expr.replace(\",\", \"\")", screen)
         self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
         self.assertIn("displayView.setOnLongClickListener", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
@@ -4566,6 +4574,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("historyTapGivesAnExpressionThatStillEvaluates", ui)
+        self.assertIn("aPlainTapWhileHeldClearsTheSelectionAndParksTheCaret", ui)
+        self.assertIn("draggingInsideTheBandMovesTheNearerEnd", ui)
         self.assertIn("holdThenDragTo", ui)
         self.assertIn("stockHandleDrag", ui)
         self.assertIn("holdCenter(ui, view);", ui)

@@ -164,6 +164,7 @@ public final class CalculatorScreen implements Screen {
     private float lastTouchX, lastTouchY;
     private boolean longPressFired;
     private boolean extending;
+    private boolean downMoved;
     private int extendAnchor;
     private SelectionSafeHorizontalScrollView exprScroller;
     private boolean longPressHeld;
@@ -635,6 +636,7 @@ public final class CalculatorScreen implements Screen {
                     lastTouchY = e.getY();
                     longPressFired = false;
                     extending = false;
+                    downMoved = false;
                     dragHandle = 0;
                     if (displayView.hasSelection()) {
                         android.text.Layout lo = displayView.getLayout();
@@ -642,15 +644,23 @@ public final class CalculatorScreen implements Screen {
                             float d = v.getResources().getDisplayMetrics().density;
                             float padL = displayView.getCompoundPaddingLeft();
                             int base = displayView.getBaseline();
-                            float top = base + lo.getLineAscent(0) - 28 * d;
-                            float bot = base + lo.getLineDescent(0) + 64 * d;
-                            if (e.getY() >= top && e.getY() <= bot) {
-                                float lx = padL + lo.getPrimaryHorizontal(
-                                        displayView.getSelectionStart());
-                                float rx = padL + lo.getPrimaryHorizontal(
-                                        displayView.getSelectionEnd());
-                                if (Math.abs(e.getX() - lx) <= 28 * d) dragHandle = -1;
-                                else if (Math.abs(e.getX() - rx) <= 28 * d) dragHandle = 1;
+                            float top = base + lo.getLineAscent(0) - 40 * d;
+                            float bot = base + lo.getLineDescent(0) + 80 * d;
+                            int hln = lo.getLineForOffset(
+                                    displayView.getSelectionStart());
+                            float lx = padL + displayView.caretX(
+                                    lo, displayView.getSelectionStart(), hln);
+                            float rx = padL + displayView.caretX(
+                                    lo, displayView.getSelectionEnd(), hln);
+                            // Round 22: "if user wants to select some more or
+                            // less, it's not allowing" -- the whole held band is
+                            // now a handle: down inside it grabs the NEARER end,
+                            // and the strip reaches 40dp past each end.
+                            if (Math.abs(e.getX() - lx) <= 40 * d) dragHandle = -1;
+                            else if (Math.abs(e.getX() - rx) <= 40 * d) dragHandle = 1;
+                            else if (e.getX() > lx && e.getX() < rx) {
+                                dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;
+                            }
                                 if (dragHandle != 0 && displayView.getParent() != null) {
                                     displayView.getParent()
                                             .requestDisallowInterceptTouchEvent(true);
@@ -682,11 +692,10 @@ public final class CalculatorScreen implements Screen {
                         }
                         return true;
                     }
-                    if (longPressFired && !extending
-                            && Math.abs(e.getX() - lastTouchX)
-                                    + Math.abs(e.getY() - lastTouchY)
+                    if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
                             > android.view.ViewConfiguration.get(v.getContext())
-                                    .getScaledTouchSlop() * 2) {
+                                    .getScaledTouchSlop() * 2) downMoved = true;
+                    if (longPressFired && !extending && downMoved) {
                         extending = true;
                         AppLog.event(lastContext, "calc",
                                 "hold-then-drag began: extending the held portion");
@@ -717,6 +726,24 @@ public final class CalculatorScreen implements Screen {
                                     .requestDisallowInterceptTouchEvent(false);
                         }
                         return true;
+                    }
+                    // Round 22: "if user clicks somewhere in the expression box to
+                    // remove selected, its not allowing." A plain tap while a
+                    // selection stands clears it OURSelves -- caret to the tap,
+                    // menu gone -- because his OEM's editor will not do it.
+                    if (!downMoved && displayView.hasSelection()) {
+                        CharSequence held = displayView.getText();
+                        if (held instanceof Spannable) {
+                            int off = displayView.getOffsetForPosition(lastTouchX,
+                                    displayView.getHeight() / 2f);
+                            off = Math.max(0, Math.min(off, held.length()));
+                            Selection.setSelection((Spannable) held, off, off);
+                            caret = dispToRaw(off);
+                            if (currentSelectionMode != null) currentSelectionMode.finish();
+                            AppLog.event(lastContext, "calc",
+                                    "tap cleared the selection, caret at " + caret);
+                            displayView.invalidate();
+                        }
                     }
                     AppLog.event(lastContext, "calc", "display gesture ended: "
                             + "selection " + displayView.getSelectionStart()
@@ -956,8 +983,9 @@ public final class CalculatorScreen implements Screen {
                 if (lo == null || exprScroller == null) return;
                 int cs = displayView.getSelectionStart();
                 cs = Math.max(0, Math.min(cs, displayView.length()));
+                int ln = lo.getLineForOffset(cs);
                 float x = displayView.getCompoundPaddingLeft()
-                        + lo.getPrimaryHorizontal(cs);
+                        + displayView.caretX(lo, cs, ln);
                 int viewport = exprScroller.getWidth();
                 int childW = displayView.getWidth();
                 int scrollX = exprScroller.getScrollX();
@@ -1127,7 +1155,12 @@ public final class CalculatorScreen implements Screen {
                     // His ninth point: the stored EXPRESSION comes into the expression view,
                     // not merely its result, so it can be edited and carried on from.
                     expression.setLength(0);
-                    expression.append(expr.replace('×', '*').replace('÷', '/').replace('−', '-'));
+                    // Round 22: his log and screenshot -- a history line came back
+                    // as "35,353-4,353" and every equals after it said Error. The
+                    // stored expression is the DISPLAY form; commas are display
+                    // furniture and must not re-enter the raw expression.
+                    expression.append(expr.replace(",", "")
+                            .replace('×', '*').replace('÷', '/').replace('−', '-'));
                     justEvaluated = false;
                     result = "";
                     caret = expression.length();
@@ -1730,6 +1763,25 @@ public final class CalculatorScreen implements Screen {
          *  fallback when the framework selection reads empty, as it does on his device. */
         int fallbackCaret;
 
+        /** Round 22: the caret mystery, solved by his own log -- on his Moto,
+         *  Layout.getPrimaryHorizontal() returned values near 2^20 (x=1048501 for
+         *  a 1132px view), so the caret was drawn a million pixels off the glass
+         *  while every emulator said "visible". Colour spans carry no metrics, so
+         *  measuring the line's run with the view's own paint is the truth; the
+         *  Layout is only a fallback when the measure lands outside the view. */
+        public float caretX(android.text.Layout lo, int off, int ln) {
+            int lineStart = lo.getLineStart(ln);
+            int lineEnd = lo.getLineEnd(ln);
+            int o = Math.max(lineStart, Math.min(off, lineEnd));
+            float left = lo.getLineLeft(ln);
+            float measured = left + getPaint().measureText(
+                    getText().toString(), lineStart, o);
+            if (measured >= 0 && measured <= getWidth()) return measured;
+            float prim = lo.getPrimaryHorizontal(off);
+            if (prim >= 0 && prim <= getWidth()) return prim;
+            return left;
+        }
+
         /** The colour the hand-drawn caret paints with, for the pixel story. */
         public int caretColor;
 
@@ -1768,7 +1820,7 @@ public final class CalculatorScreen implements Screen {
             int cs = s >= 0 ? s : Math.max(0, fallbackCaret);
             if (cs <= length()) {
                 int ln = lo.getLineForOffset(cs);
-                float x = padL + lo.getPrimaryHorizontal(cs);
+                float x = padL + caretX(lo, cs, ln);
                 int lb = base + lo.getLineBaseline(ln) - base0;
                 // Round 20: his screenshot holds no caret at all. With RIGHT
                 // gravity the layout's own maths can park the bar out in the

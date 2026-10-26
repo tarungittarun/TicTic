@@ -697,6 +697,58 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("5,68,854")));
     }
 
+    @Test public void historyTapGivesAnExpressionThatStillEvaluates() {
+        // Round 22, his screenshot: a history line came back into the box and
+        // every equals after it said Error -- the stored DISPLAY form carries
+        // commas, and commas are not mathematics. Reuse must hand back raw.
+        type("3", "5", "3", "5", "3", "−", "4", "3", "5", "3", "=");
+        onView(withId(DISPLAY)).check(matches(withText("31,000")));
+        onView(withId(HISTORY_BTN)).perform(click());
+        onView(withText("35,353−4,353")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("35,353−4,353")));
+        type("=");
+        onView(withId(DISPLAY)).check(matches(withText("31,000")));
+    }
+
+    @Test public void aPlainTapWhileHeldClearsTheSelectionAndParksTheCaret() {
+        // Round 22: "if user clicks somewhere in the expression box to remove
+        // selected, its not allowing." Tap = down+up without travel: the held
+        // range collapses to the caret at the tap and the menu goes.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(6));
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).check(held(0));
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("71,23,456")));
+    }
+
+    @Test public void draggingInsideTheBandMovesTheNearerEnd() {
+        // Round 22: "selects some more or less, it's not allowing" -- the held
+        // band itself is a handle now: down inside it grabs the nearer end.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "drag inside the band to offset 2"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.widget.EditText ed = (android.widget.EditText) view;
+                android.text.Layout lo = ed.getLayout();
+                float padL = ed.getCompoundPaddingLeft();
+                float y = ed.getBaseline() + lo.getLineAscent(0) / 2f;
+                drag(ui, view, padL + lo.getPrimaryHorizontal(4),
+                        padL + lo.getPrimaryHorizontal(2), y);
+                ui.loopMainThreadForAtLeast(200);
+            }
+        });
+        onView(withId(DISPLAY)).check(held(2));
+    }
+
     @Test public void holdThenDragExtendsTheHeldPortion() {
         // Round 21, the gesture his thumb has been making all along: hold the
         // number, then slide without lifting. One window-injected gesture --

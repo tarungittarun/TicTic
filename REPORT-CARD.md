@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.23 (versionCode 60) · 2,269,828 bytes · SHA-256 `992b0e126d57a4cf622583b9784322d5063ef8865d1d02f6f1466b1b8bca987b` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.21 (versionCode 22) · 1,307,367 bytes · SHA-256 `006d62abb5de8201ceb05a0d02a495f32675708a82413c3c418dec45793ee17d` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23414 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 261 recorded runs — **177 green, 76 red, 7 cancelled, 1 running** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.24 (versionCode 61) · 2,270,160 bytes · SHA-256 `bd6f3850b659ee8c9c37c17055e9d688caa7ca5c298a28487c475ae0c948e986` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.22 (versionCode 23) · 1,307,931 bytes · SHA-256 `4465b0f0d7ff4c3e4fbdb9a9a09db88b0e4fffcbb02ce4f3e27d73a0b12510fa` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23517 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 267 recorded runs — **181 green, 78 red, 8 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -41,6 +41,14 @@ turns out to have been drawn off the visible window of a scroll container all al
 process lesson is the expensive one: for nine rounds I tested what I controlled and shipped
 what I could not see. The device now writes its geometry to the log on every refresh, and
 "visible" in the suite means pixels on a bitmap.
+
+Round 22 added the two defects his 15:55 log and screenshots named, both invisible to any
+emulator: on his Moto, `Layout.getPrimaryHorizontal()` returns values near 2^20 -- the caret
+was drawn a million pixels off the glass for twelve rounds while every check said visible,
+and the caret now measures its x from the glyphs with the view's own paint; and history
+reuse re-inserted the DISPLAY form commas and all, so every equals after a history tap said
+Error. The log line `caret at x=1048501 viewW=1132` is the single most valuable line this
+project has produced: one number, and twelve rounds of guessing ended.
 
 ---
 
@@ -170,7 +178,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (17):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (18):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -185,6 +193,9 @@ a new test helper injecting motion events without catching the checked
 kind: code written against what I meant, not against what the compiler sees -- and the local
 gate is Python, so only CI's javac can say so. The seventeenth: the caret-colour field the
 new pixel story reads across packages stayed package-private when the class went public.
+The eighteenth: a closing brace left standing when a batch patch consumed the `if` it had
+belonged to -- and it cost a full CI cycle because the local gate is Python. A brace-balance
+contract now runs at the gate, so that slip dies at home.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules

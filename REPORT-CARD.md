@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.27 (versionCode 64) · SHA-256 `04fb07e7429ba9d36f1d082df95f1904ca20e5aeb7d9764eb443e682b3d36564` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.25 (versionCode 26) · SHA-256 `667cf279378db11afeb837b13b8fe921f044d52f84df331173426ce2c46396c1` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23798 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 289 recorded runs — **194 green, 84 red, 11 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.28 (versionCode 65) · SHA-256 `93802e97a1f03df9fa2f9d740715f419b7a500af6c1a4e78b9d56e2090adab65` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.26 (versionCode 27) · SHA-256 `ced8372a7d38031a39538771d733c30c748120c05fb94393b0ccb71026cf5f38` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23844 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 295 recorded runs — **198 green, 85 red, 12 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -77,6 +77,17 @@ of that hold is consumed and the range re-asserted so nothing can collapse it, e
 offset maps through the layout with the inner scroll applied (the handles' hit-or-miss),
 a wobbling tap still clears a held selection, a tap away from the expression line clears
 selection and menu, and a second pointer is ignored instead of resetting the machine.
+
+Round 26 answered the worst message of the project -- "MySpace keeps stopping" -- from
+the owner's own crash stack: IndexOutOfBoundsException 1048054, 0 out of PackedIntVector,
+four times, always getOffsetForHorizontal reading a DynamicLayout whose line table was
+empty because a tap's UP landed while the text was being re-set (launch settling, or the
+history swipe repopulating its popup). The offset mapper introduced in round 25 was the
+only caller, so it is guarded at every step now, selection gestures refuse to start while
+the history popup is open, and the caret pass, the geometry runnable and the handle strip
+each skip a frame rather than the process when the layout tears. A crash that reaches the
+owner's screen is the one defect no amount of green CI excuses; the emulator never tore a
+ layout because its taps are injected politely, his thumbs are not.
 
 ---
 
@@ -206,7 +217,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (23):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (24):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -231,6 +242,7 @@ sentinel: every unqualified assert* call in the suite must appear in its static 
 The twenty-first to twenty-third, all in round 25: two lossy float-to-int conversions in
 the new offset mapper and one SDK signature that takes ints where memory said floats --
 type errors, the one class the brace and import sentinels cannot see without a JDK.
+The twenty-fourth: a catch parameter named e shadowing onTouch's MotionEvent e.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules

@@ -172,6 +172,9 @@ public final class CalculatorScreen implements Screen {
     private int dragHandle;
     private int menuSelA, menuSelB;
     private android.view.ActionMode currentSelectionMode;
+    // Round 24 (javac 19): selectWordAt() is a method now, shared by the long
+    // press and the plain click, so the menu callback outlives buildDisplay.
+    private android.view.ActionMode.Callback selectionMenu;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
@@ -775,7 +778,7 @@ public final class CalculatorScreen implements Screen {
         // ... like Android by default". The handles and the floating menu are the
         // framework's own; this callback guarantees the four actions on every OEM and
         // writes the outcome of each to the log.
-        final android.view.ActionMode.Callback selectionMenu =
+        selectionMenu =
                 new android.view.ActionMode.Callback() {
             @Override public boolean onCreateActionMode(android.view.ActionMode mode,
                                                         android.view.Menu menu) {

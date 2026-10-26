@@ -104,6 +104,8 @@ public final class CalculatorScreen implements Screen {
     private static final String DEGREES_KEY = "calculator_degrees";
     private static final String HAPTICS_KEY = "calculator_haptics";
     private static final String EFFECTS_KEY = "calculator_effects";
+    private static final int SEL_COPY = 9101, SEL_CUT = 9102,
+            SEL_PASTE = 9103, SEL_ALL = 9104;
 
     /** Round 10: the press-effect names offered under three dots ▸ Effects. */
     private static final String[] EFFECT_NAMES =
@@ -603,6 +605,100 @@ public final class CalculatorScreen implements Screen {
                     });
                 }
                 return false;
+            }
+        });
+        // Round 12: "select the expression in the required length ... copy / paste / cut
+        // ... like Android by default". The handles and the floating menu are the
+        // framework's own; this callback guarantees the four actions on every OEM and
+        // writes the outcome of each to the log.
+        displayView.setCustomSelectionActionModeCallback(new android.view.ActionMode.Callback() {
+            @Override public boolean onCreateActionMode(android.view.ActionMode mode,
+                                                        android.view.Menu menu) {
+                menu.clear();
+                menu.add(0, SEL_COPY, 0, "Copy");
+                menu.add(0, SEL_CUT, 1, "Cut");
+                menu.add(0, SEL_PASTE, 2, "Paste");
+                menu.add(0, SEL_ALL, 3, "Select all");
+                AppLog.event(lastContext, "calc",
+                        "selection menu opened: Copy, Cut, Paste, Select all");
+                return true;
+            }
+
+            @Override public boolean onPrepareActionMode(android.view.ActionMode mode,
+                                                         android.view.Menu menu) {
+                return true;
+            }
+
+            @Override public boolean onActionItemClicked(android.view.ActionMode mode,
+                                                         android.view.MenuItem item) {
+                int a = dispToRaw(Math.min(displayView.getSelectionStart(),
+                        displayView.getSelectionEnd()));
+                int b = dispToRaw(Math.max(displayView.getSelectionStart(),
+                        displayView.getSelectionEnd()));
+                String raw = expression.toString();
+                a = Math.max(0, Math.min(a, raw.length()));
+                b = Math.max(a, Math.min(b, raw.length()));
+                switch (item.getItemId()) {
+                    case SEL_COPY:
+                        copy(context, raw.substring(a, b));
+                        AppLog.event(context, "calc", "selection copied: "
+                                + (b - a) + " chars");
+                        mode.finish();
+                        return true;
+                    case SEL_CUT:
+                        copy(context, raw.substring(a, b));
+                        String cut = raw.substring(0, a) + raw.substring(b);
+                        expression.setLength(0);
+                        expression.append(cut);
+                        justEvaluated = false;
+                        result = "";
+                        caret = a;
+                        refreshDisplay(context);
+                        AppLog.event(context, "calc", "selection cut: " + (b - a)
+                                + " chars removed, now " + readable(cut));
+                        mode.finish();
+                        return true;
+                    case SEL_PASTE: {
+                        String clip = clipboardText(context);
+                        if (clip == null || clip.isEmpty()) {
+                            AppLog.event(context, "calc", "paste refused: clipboard empty");
+                            mode.finish();
+                            return true;
+                        }
+                        String clean = clip.replace(",", "").replace("\n", "")
+                                .replace("\r", "").replace('\u00d7', '*')
+                                .replace('\u00f7', '/').replace('\u2212', '-');
+                        String candidate = raw.substring(0, a) + clean + raw.substring(b);
+                        if (wholeExpressionValid(candidate)) {
+                            expression.setLength(0);
+                            expression.append(candidate);
+                            justEvaluated = false;
+                            result = "";
+                            caret = a + clean.length();
+                            refreshDisplay(context);
+                            AppLog.event(context, "calc", "paste inserted "
+                                    + clean.length() + " chars at " + a);
+                        } else {
+                            AppLog.event(context, "calc", "paste refused: "
+                                    + clean + " is not a valid expression here");
+                        }
+                        mode.finish();
+                        return true;
+                    }
+                    case SEL_ALL: {
+                        CharSequence txt = displayView.getText();
+                        Selection.setSelection((Spannable) txt, 0, txt.length());
+                        AppLog.event(context, "calc", "select all: "
+                                + txt.length() + " display chars held");
+                        return true;
+                    }
+                    default:
+                        return false;
+                }
+            }
+
+            @Override public void onDestroyActionMode(android.view.ActionMode mode) {
+                AppLog.event(lastContext, "calc", "selection menu closed");
             }
         });
         displayView.addTextChangedListener(new android.text.TextWatcher() {
@@ -1338,8 +1434,6 @@ public final class CalculatorScreen implements Screen {
             setBackground(null);
         }
 
-        @Override public boolean onCheckIsTextEditor() { return false; }
-
         @Override public android.view.inputmethod.InputConnection onCreateInputConnection(
                 android.view.inputmethod.EditorInfo outAttrs) {
             if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;
@@ -1482,6 +1576,19 @@ public final class CalculatorScreen implements Screen {
         return typed();
     }
 
+    private static String clipboardText(Context context) {
+        try {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                    context.getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = cm.getPrimaryClip();
+            if (clip == null || clip.getItemCount() == 0) return null;
+            CharSequence cs = clip.getItemAt(0).coerceToText(context);
+            return cs == null ? null : cs.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private void copy(Context context, String text) {
         try {
             android.content.ClipboardManager cm = (android.content.ClipboardManager)
@@ -1571,7 +1678,11 @@ public final class CalculatorScreen implements Screen {
      * finished string is re-validated left to right before it is accepted.
      */
     static boolean wholeExpressionValid(String raw) {
-        String display = readable(raw);
+        // Round 12: his log -- "key 3 refused at 4 ... the expression would not evaluate",
+        // every time the caret stood inside a grouped number. readable() now carries Indian
+        // commas, and the tokenizer knows no comma; validate the PLAIN display form.
+        String display = raw.replace('*', '\u00d7').replace('/', '\u00f7')
+                .replace('-', '\u2212');
         String built = "";
         int i = 0;
         while (i < display.length()) {
@@ -1612,10 +1723,16 @@ public final class CalculatorScreen implements Screen {
         }
         String inverse = invToken(key);
         if (inverse != null) {
-            // The swapped caps insert their own little sequences: x² appends the power,
-            // eˣ and 10ˣ open their exponent, the inverses insert their function.
-            for (int i = 0; i < inverse.length(); i++) {
-                if (!insertAtCaret(context, String.valueOf(inverse.charAt(i)))) break;
+            // Round 12: sin⁻¹ cos⁻¹ tan⁻¹ were dead on the pad -- their text was inserted
+            // one CHAR at a time, and the very first 'a' is no token, so the rules refused
+            // it. A function name goes in as ONE token; the power and exponential caps
+            // still type their little sequences char by char.
+            if (inverse.endsWith("(") && inverse.length() > 2) {
+                insertAtCaret(context, inverse);
+            } else {
+                for (int i = 0; i < inverse.length(); i++) {
+                    if (!insertAtCaret(context, String.valueOf(inverse.charAt(i)))) break;
+                }
             }
             AppLog.event(context, "calc", "key " + key + " inserted " + inverse
                     + ": now " + readable(expression.toString()));

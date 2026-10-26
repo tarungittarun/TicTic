@@ -17,6 +17,25 @@ public class CalculatorRulesTest {
 
     private static final double EPS = 1e-9;
 
+    @Test public void everyScientificCapEvaluates() {
+        // Round 12: "test each of the buttons combination option available" -- every cap
+        // the scientific panel can show, base and Inv, evaluated through the rules.
+        assertEquals("0.5", CalculatorRules.format(CalculatorRules.evaluate("sin(30)", true)));
+        assertEquals("0.5", CalculatorRules.format(CalculatorRules.evaluate("cos(60)", true)));
+        assertEquals("1", CalculatorRules.format(CalculatorRules.evaluate("tan(45)", true)));
+        assertEquals("90", CalculatorRules.format(CalculatorRules.evaluate("asin(1)", true)));
+        assertEquals("0", CalculatorRules.format(CalculatorRules.evaluate("acos(1)", true)));
+        assertEquals("45", CalculatorRules.format(CalculatorRules.evaluate("atan(1)", true)));
+        assertEquals("0", CalculatorRules.format(CalculatorRules.evaluate("ln(1)", true)));
+        assertEquals("2", CalculatorRules.format(CalculatorRules.evaluate("log(100)", true)));
+        assertEquals("3", CalculatorRules.format(CalculatorRules.evaluate("√(9)", true)));
+        assertEquals("8", CalculatorRules.format(CalculatorRules.evaluate("2^3", true)));
+        assertEquals("120", CalculatorRules.format(CalculatorRules.evaluate("5!", true)));
+        assertEquals("100", CalculatorRules.format(CalculatorRules.evaluate("10^(2)", true)));
+        assertEquals("25", CalculatorRules.format(CalculatorRules.evaluate("5^2", true)));
+        assertEquals("1", CalculatorRules.format(CalculatorRules.evaluate("e^(0)", true)));
+    }
+
     @Test public void autoCloseClosesWhatTheThumbLeftOpen() {
         // Round 11: sin(30 must evaluate like sin(30); equals closes what was left open.
         assertEquals("sin(30)", CalculatorRules.autoClose("sin(30"));

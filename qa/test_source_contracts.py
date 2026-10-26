@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.13'", gradle)
-        self.assertIn("versionCode 50", gradle)
+        self.assertIn("versionName '3.12.14'", gradle)
+        self.assertIn("versionCode 51", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4367,7 +4367,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
         # Round 9, his first line: moving the cursor summoned the device keyboard and the
         # calculator became inoperable. The display is not a text editor at all now.
-        self.assertIn("@Override public boolean onCheckIsTextEditor() { return false; }", screen)
+        self.assertIn("setCustomSelectionActionModeCallback", screen)
+        self.assertIn("menu.add(0, SEL_CUT, 1, \"Cut\");", screen)
+        self.assertIn("private static String clipboardText(Context context) {", screen)
         self.assertIn("if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;", screen)
         self.assertIn("setShowSoftInputOnFocus(false);", screen)
         self.assertIn("int base = getBaseline();", screen)
@@ -4461,6 +4463,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("effectsPickerListsFivePressFeelsAndPersists", ui)
         self.assertIn("theAnswerReadsAtDisplayGrade", ui)
         self.assertIn("scientificEqualsAutoClosesOpenBrackets", ui)
+        self.assertIn("inverseTrigAndPowerButtonsWorkFromThePanel", ui)
+        self.assertIn("selectionMenuOffersCutCopyPasteAndSelectAll", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):
@@ -4469,6 +4473,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("implicitMultiplicationAnswersTwentyEight", j)
         self.assertIn("invalidMathIsAnErrorStateNeverACrashOrAGuess", j)
         self.assertIn("historyIsACappedOrderedDeduplicatedStore", j)
+        rt = java_code_only((ROOT / "feature-calculator/src/test/java/app/space/feature/calculator/CalculatorRulesTest.java").read_text())
+        self.assertIn("everyScientificCapEvaluates", rt)
 
     def test_the_screen_views_carry_stable_ids_for_the_suite(self):
         ids = (ROOT / "feature-calculator/src/main/res/values/ids.xml").read_text()

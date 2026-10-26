@@ -2,6 +2,7 @@ package app.space.calc;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.swipeDown;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -256,6 +257,50 @@ public class CalculatorUiTest {
         onView(key("sin(")).perform(click());
         type("3", "0", "=");
         onView(withId(DISPLAY)).check(matches(withText("0.5")));
+    }
+
+    @Test public void inverseTrigAndPowerButtonsWorkFromThePanel() {
+        // Round 12: sin⁻¹ cos¹ tan⁻¹ were dead -- their name was typed char by char and
+        // the first 'a' was refused. Each Inv cap now inserts as one token and computes.
+        onView(withId(CHEVRON_ROW)).perform(click());
+        onView(key("Inv")).perform(click());
+        onView(key("sin⁻¹")).perform(click());
+        type("1", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("90")));
+        type("AC");
+        onView(key("cos⁻¹")).perform(click());
+        type("1", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("0")));
+        type("AC");
+        onView(key("tan⁻¹")).perform(click());
+        type("1", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("45")));
+        type("AC");
+        type("5");
+        onView(key("x²")).perform(click());
+        type("=");
+        onView(withId(DISPLAY)).check(matches(withText("25")));
+        type("AC");
+        onView(key("10ˣ")).perform(click());
+        type("2", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("100")));
+        type("AC");
+        onView(key("eˣ")).perform(click());
+        type("0", "( )", "=");
+        onView(withId(DISPLAY)).check(matches(withText("1")));
+    }
+
+    @Test public void selectionMenuOffersCutCopyPasteAndSelectAll() {
+        // Round 12: select any length of the expression and get Android's own actions.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withText("Select all")).perform(click());
+        onView(withText("Copy")).perform(click());
+        // cut removes the held part and leaves the rest in the expression
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withText("Select all")).perform(click());
+        onView(withText("Cut")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("0")));
     }
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {

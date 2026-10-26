@@ -3,12 +3,17 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.19 (versionCode 56) · 2,089,128 bytes · SHA-256 `bcdd1de4606348d1e318452002f9f9a4c28bc464af1fabeb9941ee22891da02a` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.17 (versionCode 18) · 1,306,491 bytes · SHA-256 `109c9ddcdf4aa0f53ef8cddc6beb8798a5f50a665cbbfa9ed897a31b716c661f` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23149 lines of Java · 386 Python contracts · 22 JVM test files
-**CI:** 196 recorded runs — **138 green, 53 red, 5 cancelled** (71% green; every red read)
-**Device runs:** 1 — by the owner, on 2026-10-22/23. It found ten defects. None of my other
-checking did.
+**Build (MySpace):** 3.12.20 (versionCode 57) · 2,089,380 bytes · SHA-256 `74cbf8cda447f7c073f2a9b7d667634e7b06122e84da5a76f8f5dec29acaa2ca` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.18 (versionCode 19) · 1,306,675 bytes · SHA-256 `5b32a1222eaf6e987f24ed67a75e0eca3ffac1876f986b206c6c7c419a95ebfc` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23216 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories)
+**CI:** 243 recorded runs — **165 green, 72 red, 6 cancelled** (68% green; every red read). Recounted
+from the full run history, and the recount is a correction: the previous card's "196 runs" was a
+mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
+true total was 239. This line is now re-measured from the API at every card update.
+**Device runs:** the owner, every round since 2026-10-22 — shared logs and screenshots. The first
+session found ten defects; round 18's fixes were driven by his 2026-10-26 log (twenty selection
+starts, **zero** recorded handle drags) and a screenshot of the expression floating mid-box with
+half-clipped handles. None of my other checking found either.
 
 ---
 
@@ -138,11 +143,14 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (12):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (13):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
-the field it needed was `body`.
+the field it needed was `body`. **The thirteenth** arrived round 18: `requestDisallowInterceptTouchEvent`
+called on the display view itself, when the method lives on `ViewParent`, not `View` — the very fix
+for the stolen handle drags did not compile until CI's javac said so (red run 40285557148; fixed by
+going through `getParent()` with a null guard).
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules
@@ -212,7 +220,8 @@ mistake I make.
   unusable.
 - Broke a workflow with a nested heredoc whose terminator was indented, so bash never closed it.
 - A batch patch that asserts on its first replacement **writes nothing if any one misses** — hit
-  three times. The assert is what made it loud instead of silent.
+  five times (twice more in round 18, both from grepping a remembered anchor instead of the file's
+  current text). The assert is what made it loud instead of silent.
 
 **Test-writing failures (~15):** nine-plus expectations written from intuition rather than computed
 from the fixture — `12000` minor units where the answer was `1200`; a tie-break test where every

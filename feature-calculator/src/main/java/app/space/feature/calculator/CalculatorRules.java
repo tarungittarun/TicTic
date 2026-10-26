@@ -198,6 +198,13 @@ public final class CalculatorRules {
                 if (unarySlot) {
                     // No stacked signs: a second minus over the sign changes nothing.
                     if (c == '-') return current;
+                    // Any other operator takes the place of the operator-sign pair --
+                    // 5*- then * is 5*, 5*- then + is 5+ -- the sign belonged to an
+                    // operand that was never typed. Over an open bracket only the sign
+                    // goes: (- then + is (+.
+                    if (isOperator(current.charAt(current.length() - 2))) {
+                        return current.substring(0, current.length() - 2) + c;
+                    }
                     return current.substring(0, current.length() - 1) + c;
                 }
                 // Round 15, his screenshot 1%%x-1+2: "how Google calculator allows *-

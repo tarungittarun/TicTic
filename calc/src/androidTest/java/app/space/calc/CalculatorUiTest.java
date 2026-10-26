@@ -275,6 +275,49 @@ public class CalculatorUiTest {
                 }, Press.FINGER, 0, 0));
     }
 
+    @Test public void jitterTapStillClearsTheHeldSelection() {
+        // Round 25: his "free but hit or miss" -- a thumb never lifts
+        // perfectly still, so a click that wanders a few pixels while a
+        // selection stands must STILL clear it.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(6));
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "jittery tap"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                float x = view.getWidth() * 0.3f, y = view.getHeight() * 0.5f;
+                long now = android.os.SystemClock.uptimeMillis();
+                view.dispatchTouchEvent(android.view.MotionEvent.obtain(
+                        now, now, android.view.MotionEvent.ACTION_DOWN, x, y, 0));
+                view.dispatchTouchEvent(android.view.MotionEvent.obtain(
+                        now, now + 40, android.view.MotionEvent.ACTION_MOVE,
+                        x + 9, y + 6, 0));
+                view.dispatchTouchEvent(android.view.MotionEvent.obtain(
+                        now, now + 90, android.view.MotionEvent.ACTION_UP, x + 9, y + 6, 0));
+                ui.loopMainThreadForAtLeast(200);
+            }
+        });
+        onView(withId(DISPLAY)).check(held(0));
+    }
+
+    @Test public void tapAwayFromTheExpressionClears() {
+        // Round 25: "once I click anywhere little away from expression in the
+        // expression box then the selection and the options ... should go".
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(6));
+        onView(withId(app.space.feature.calculator.R.id.calc_dock))
+                .perform(new GeneralClickAction(Tap.SINGLE,
+                        new CoordinatesProvider() {
+                            @Override public float[] calculateCoordinates(View view) {
+                                return new float[]{view.getWidth() * 0.5f,
+                                        view.getHeight() - 6f};
+                            }
+                        }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).check(held(0));
+    }
+
     @Test public void aPlainTapSelectsTheContentAtTheTapPoint() {
         // Round 24, his words: "if a we click somewhere in expression box than
         // the content, it should get select as well".

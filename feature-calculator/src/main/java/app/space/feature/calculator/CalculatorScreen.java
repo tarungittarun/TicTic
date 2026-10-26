@@ -166,6 +166,19 @@ public final class CalculatorScreen implements Screen {
     private boolean extending;
     private boolean downMoved;
     private boolean selectedAtDown;
+    private boolean multiTouch;
+    private float downX, downY;
+    private int scrollAtDown;
+    private int heldA, heldB;
+    // Round 25: the hold timer that replaces every OEM long press.
+    private final Runnable holdSelect = new Runnable() {
+        @Override public void run() {
+            if (longPressFired || dragHandle != 0 || multiTouch) return;
+            AppLog.event(lastContext, "calc",
+                    "hold timer fired: selecting at the held point");
+            if (selectWordAt(downX, downY)) longPressFired = true;
+        }
+    };
     private int extendAnchor;
     private boolean longPressHeld;
     private boolean touchMoved;
@@ -632,20 +645,35 @@ public final class CalculatorScreen implements Screen {
         // hold-then-drag extends the held portion (Google's own behaviour),
         // a thumb down near either end drags that boundary with live layout
         // geometry, and everything else falls through to the editor.
+        // Round 25, "take reference of Android and polish it": the hit-or-miss
+        // was a RACE -- our listener selected, then the framework Editor's own
+        // UP handling collapsed the selection ~80 ms later (his log: "selection
+        // 0..5 held" then "selection 5..5 held"), and getOffsetForPosition
+        // ignored the inner scroll so handle drags landed where they liked.
+        // One state machine owns the gesture now: our own 350 ms hold timer
+        // (no reliance on any OEM long press), every UP we acted on is
+        // CONSUMED so the Editor cannot undo it, and every offset is mapped
+        // through the layout with the inner scroll applied.
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                int act = e.getActionMasked();
+                if (act == MotionEvent.ACTION_DOWN) {
+                    if (e.getPointerCount() > 1) {
+                        multiTouch = true;
+                        displayView.removeCallbacks(holdSelect);
+                        return false;
+                    }
+                    multiTouch = false;
                     lastTouchX = e.getX();
                     lastTouchY = e.getY();
+                    downX = e.getX();
+                    downY = e.getY();
                     longPressFired = false;
                     extending = false;
                     downMoved = false;
-                    // Round 23: the tap-clear below must never fire on the UP of
-                    // the very long press that CREATED the selection -- that bug
-                    // killed every selection the instant his finger lifted (his
-                    // log: "selection started" then "menu closed" 1 ms later).
                     selectedAtDown = displayView.hasSelection();
                     dragHandle = 0;
+                    scrollAtDown = displayView.getScrollX();
                     if (displayView.hasSelection()) {
                         android.text.Layout lo = displayView.getLayout();
                         if (lo != null) {
@@ -654,21 +682,18 @@ public final class CalculatorScreen implements Screen {
                             int base = displayView.getBaseline();
                             float top = base + lo.getLineAscent(0) - 40 * d;
                             float bot = base + lo.getLineDescent(0) + 80 * d;
-                            int hln = lo.getLineForOffset(
-                                    displayView.getSelectionStart());
-                            float lx = padL + displayView.caretX(
-                                    lo, displayView.getSelectionStart(), hln);
-                            float rx = padL + displayView.caretX(
-                                    lo, displayView.getSelectionEnd(), hln);
-                            // Round 22: "if user wants to select some more or
-                            // less, it's not allowing" -- the whole held band is
-                            // now a handle: down inside it grabs the NEARER end,
-                            // and the strip reaches 40dp past each end.
-                            if (Math.abs(e.getX() - lx) <= 40 * d) dragHandle = -1;
-                            else if (Math.abs(e.getX() - rx) <= 40 * d) dragHandle = 1;
-                            else if (e.getX() > lx && e.getX() < rx) {
-                                dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;
-                            }
+                            if (e.getY() >= top && e.getY() <= bot) {
+                                int hln = lo.getLineForOffset(
+                                        displayView.getSelectionStart());
+                                float lx = padL + displayView.caretX(
+                                        lo, displayView.getSelectionStart(), hln);
+                                float rx = padL + displayView.caretX(
+                                        lo, displayView.getSelectionEnd(), hln);
+                                if (Math.abs(e.getX() - lx) <= 40 * d) dragHandle = -1;
+                                else if (Math.abs(e.getX() - rx) <= 40 * d) dragHandle = 1;
+                                else if (e.getX() > lx && e.getX() < rx) {
+                                    dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;
+                                }
                                 if (dragHandle != 0 && displayView.getParent() != null) {
                                     displayView.getParent()
                                             .requestDisallowInterceptTouchEvent(true);
@@ -677,16 +702,32 @@ public final class CalculatorScreen implements Screen {
                                             + (dragHandle < 0 ? "left" : "right")
                                             + " boundary (live geometry)");
                                 }
+                            }
                         }
                     }
+                    if (dragHandle == 0) {
+                        displayView.removeCallbacks(holdSelect);
+                        displayView.postDelayed(holdSelect, 350);
+                    }
+                    return dragHandle != 0;
+                }
+                if (act == MotionEvent.ACTION_POINTER_DOWN) {
+                    multiTouch = true;
+                    displayView.removeCallbacks(holdSelect);
                     return false;
                 }
-                if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                if (act == MotionEvent.ACTION_MOVE) {
+                    if (multiTouch) return false;
+                    if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
+                            > android.view.ViewConfiguration.get(v.getContext())
+                                    .getScaledTouchSlop() * 2) {
+                        downMoved = true;
+                        displayView.removeCallbacks(holdSelect);
+                    }
                     if (dragHandle != 0) {
                         CharSequence held = displayView.getText();
                         if (held instanceof Spannable) {
-                            int off = displayView.getOffsetForPosition(e.getX(),
-                                    displayView.getHeight() / 2f);
+                            int off = offsetAt(e.getX(), e.getY());
                             off = Math.max(0, Math.min(off, held.length()));
                             int a = displayView.getSelectionStart();
                             int b = displayView.getSelectionEnd();
@@ -699,9 +740,6 @@ public final class CalculatorScreen implements Screen {
                         }
                         return true;
                     }
-                    if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
-                            > android.view.ViewConfiguration.get(v.getContext())
-                                    .getScaledTouchSlop() * 2) downMoved = true;
                     if (longPressFired && !extending && downMoved) {
                         extending = true;
                         AppLog.event(lastContext, "calc",
@@ -710,8 +748,7 @@ public final class CalculatorScreen implements Screen {
                     if (extending) {
                         CharSequence held = displayView.getText();
                         if (held instanceof Spannable) {
-                            int off = displayView.getOffsetForPosition(e.getX(),
-                                    displayView.getHeight() / 2f);
+                            int off = offsetAt(e.getX(), e.getY());
                             off = Math.max(0, Math.min(off, held.length()));
                             Selection.setSelection((Spannable) held, extendAnchor, off);
                             displayView.invalidate();
@@ -720,8 +757,16 @@ public final class CalculatorScreen implements Screen {
                     }
                     return false;
                 }
-                if (e.getAction() == MotionEvent.ACTION_UP
-                        || e.getAction() == MotionEvent.ACTION_CANCEL) {
+                if (act == MotionEvent.ACTION_UP
+                        || act == MotionEvent.ACTION_CANCEL) {
+                    displayView.removeCallbacks(holdSelect);
+                    if (multiTouch) {
+                        multiTouch = false;
+                        dragHandle = 0;
+                        extending = false;
+                        longPressFired = false;
+                        return false;
+                    }
                     if (dragHandle != 0 || extending) {
                         AppLog.event(lastContext, "calc", "selection drag ended: chars "
                                 + displayView.getSelectionStart() + ".."
@@ -734,36 +779,32 @@ public final class CalculatorScreen implements Screen {
                         }
                         return true;
                     }
-                    // Round 22: "if user clicks somewhere in the expression box to
-                    // remove selected, its not allowing." A plain tap while a
-                    // selection stands clears it OURSelves -- caret to the tap,
-                    // menu gone -- because his OEM's editor will not do it.
-                    // Round 24: with nothing held, a plain click in the box
-                    // selects the content under the finger, the same way the
-                    // long press does; with something held, the tap below
-                    // still clears it.
-                    if (!selectedAtDown && !downMoved && !longPressFired
-                            && dragHandle == 0 && !extending
-                            && !displayView.hasSelection()) {
-                        if (selectWordAt(lastTouchX, lastTouchY)) {
+                    if (longPressFired) {
+                        // Re-assert what the hold selected and CONSUME the up so
+                        // the Editor's tap caret can never collapse it again.
+                        CharSequence held = displayView.getText();
+                        if (held instanceof Spannable && heldB > heldA) {
+                            Selection.setSelection((Spannable) held, heldA, heldB);
+                        }
+                        longPressFired = false;
+                        AppLog.event(lastContext, "calc", "hold released: chars "
+                                + displayView.getSelectionStart() + ".."
+                                + displayView.getSelectionEnd() + " stay held");
+                        return true;
+                    }
+                    if (act == MotionEvent.ACTION_CANCEL) return false;
+                    boolean panned = Math.abs(displayView.getScrollX() - scrollAtDown) > 4;
+                    if (selectedAtDown && displayView.hasSelection()) {
+                        // A click while a selection stands clears it -- jitter
+                        // and all; the caret parks where the finger lifted.
+                        clearSelectionAt(e.getX(), e.getY());
+                        return true;
+                    }
+                    if (!selectedAtDown && !panned && displayView.length() > 0) {
+                        if (selectWordAt(e.getX(), e.getY())) {
                             AppLog.event(lastContext, "calc",
                                     "tap selected the content at the tap point");
                             return true;
-                        }
-                    }
-                    if (selectedAtDown && !downMoved && !longPressFired
-                            && displayView.hasSelection()) {
-                        CharSequence held = displayView.getText();
-                        if (held instanceof Spannable) {
-                            int off = displayView.getOffsetForPosition(lastTouchX,
-                                    displayView.getHeight() / 2f);
-                            off = Math.max(0, Math.min(off, held.length()));
-                            Selection.setSelection((Spannable) held, off, off);
-                            caret = dispToRaw(off);
-                            if (currentSelectionMode != null) currentSelectionMode.finish();
-                            AppLog.event(lastContext, "calc",
-                                    "tap cleared the selection, caret at " + caret);
-                            displayView.invalidate();
                         }
                     }
                     AppLog.event(lastContext, "calc", "display gesture ended: "
@@ -774,10 +815,15 @@ public final class CalculatorScreen implements Screen {
                 return false;
             }
         });
-        // Round 12: "select the expression in the required length ... copy / paste / cut
-        // ... like Android by default". The handles and the floating menu are the
-        // framework's own; this callback guarantees the four actions on every OEM and
-        // writes the outcome of each to the log.
+        // Round 25: a click anywhere else in the expression box -- the live
+        // answer row, the margins -- clears the held portion and the menu.
+        View.OnClickListener awayClear = new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                clearSelectionAway();
+            }
+        };
+        currentBox.setOnClickListener(awayClear);
+        displayArea.setOnClickListener(awayClear);
         selectionMenu =
                 new android.view.ActionMode.Callback() {
             @Override public boolean onCreateActionMode(android.view.ActionMode mode,
@@ -898,25 +944,6 @@ public final class CalculatorScreen implements Screen {
             }
         };
         displayView.setCustomSelectionActionModeCallback(selectionMenu);
-        // Round 13: on his device the framework long-press never opened a selection at all
-        // -- the log holds zero selection lines. So the screen runs its own: a long press
-        // selects the whole number (or the operator) under the finger, raises the handles,
-        // and starts the Cut/Copy/Paste/Select-all menu itself. Dragging the handles then
-        // adjusts the length exactly as it does in any editor.
-        // Round 21: the long press is ours again because his OEM never runs the
-        // stock one -- but it no longer draws anything itself. It sets the
-        // framework selection and raises the framework floating action mode,
-        // the pair that worked on his device in every earlier round.
-        displayView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View v) {
-                AppLog.event(lastContext, "calc", "long press seen on the display: len "
-                        + displayView.length());
-                if (dragHandle != 0) return true;
-                if (!selectWordAt(lastTouchX, lastTouchY)) return false;
-                longPressFired = true;
-                return true;
-            }
-        });
         displayView.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
@@ -1850,7 +1877,10 @@ public final class CalculatorScreen implements Screen {
                 // bar is clamped inside the content box now, and the instrumented
                 // suite draws the view to a bitmap and counts caret pixels, so
                 // "visible" means painted, not intended.
-                float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;
+                // Round 25: the caret may stand in the right margin; clamping
+                // it inside the content put it UNDER the last glyph, where
+                // his eye never found it.
+                float maxX = getWidth() - 4 - caretWidth;
                 if (x > maxX) x = maxX;
                 float minX = getCompoundPaddingLeft();
                 if (x < minX) x = minX;
@@ -2251,13 +2281,52 @@ public final class CalculatorScreen implements Screen {
      * expression. Returns whether the insertion happened, so the bracket key can try its
      * second choice and every refusal can be logged as a refusal rather than a silence.
      */
-    /** Round 24: one word-selection routine for the long press and for the
-     *  plain tap he asked for -- "if we click somewhere in expression box than
-     *  the content, it should get select as well". */
+    /** Round 25: map a touch point to a text offset through the layout with
+     *  the inner scroll applied -- getOffsetForPosition ignored it on his
+     *  device, which is why the handles dragged hit-or-miss. */
+    private int offsetAt(float x, float y) {
+        android.text.Layout lo = displayView.getLayout();
+        if (lo == null) return 0;
+        int line = Math.max(0, Math.min(lo.getLineCount() - 1,
+                lo.getLineForVertical(Math.max(0,
+                        y - displayView.getCompoundPaddingTop()))));
+        float hx = x - displayView.getCompoundPaddingLeft()
+                + displayView.getScrollX();
+        return lo.getOffsetForHorizontal(hx, line);
+    }
+
+    /** Round 25: the click-while-held clear, at the finger's point. */
+    private void clearSelectionAt(float x, float y) {
+        CharSequence held = displayView.getText();
+        if (!(held instanceof Spannable)) return;
+        int off = Math.max(0, Math.min(offsetAt(x, y), held.length()));
+        Selection.setSelection((Spannable) held, off, off);
+        caret = dispToRaw(off);
+        if (currentSelectionMode != null) currentSelectionMode.finish();
+        AppLog.event(lastContext, "calc",
+                "tap cleared the selection, caret at " + caret);
+        displayView.invalidate();
+    }
+
+    /** Round 25: a click away from the expression clears to the end. */
+    private void clearSelectionAway() {
+        CharSequence held = displayView.getText();
+        if (!(held instanceof Spannable) || !displayView.hasSelection()) return;
+        Selection.setSelection((Spannable) held, held.length(), held.length());
+        caret = dispToRaw(held.length());
+        if (currentSelectionMode != null) currentSelectionMode.finish();
+        AppLog.event(lastContext, "calc",
+                "tap away from the expression cleared the selection, caret at end");
+        displayView.invalidate();
+    }
+
+    /** Round 24: one word-selection routine for the hold and for the
+     *  plain tap he asked for -- "if a we click somewhere in expression box
+     *  than the content, it should get select as well". */
     private boolean selectWordAt(float x, float y) {
         CharSequence txt = displayView.getText();
         if (!(txt instanceof Spannable) || txt.length() == 0) return false;
-        int off = displayView.getOffsetForPosition(x, y);
+        int off = offsetAt(x, y);
         off = Math.max(0, Math.min(off, txt.length() - 1));
         char ch = txt.charAt(off);
         int a = off, b = off + 1;
@@ -2269,6 +2338,8 @@ public final class CalculatorScreen implements Screen {
         }
         Selection.setSelection((Spannable) txt, a, b);
         extendAnchor = a;
+        heldA = a;
+        heldB = b;
         AppLog.event(lastContext, "calc", "selection started: chars " + a
                 + ".." + b
                 + " held by the app gesture, framework selection set");

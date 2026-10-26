@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.26'", gradle)
-        self.assertIn("versionCode 63", gradle)
+        self.assertIn("versionName '3.12.27'", gradle)
+        self.assertIn("versionCode 64", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3435,7 +3435,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.26", guide)
+        self.assertIn("3.12.27", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4425,7 +4425,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         # ours can collapse a selection as the thumb lifts -- the two old
         # workarounds must stay deleted.
         self.assertIn("android.view.ActionMode.TYPE_FLOATING);", screen)
-        self.assertIn("if (dragHandle != 0) return true;", screen)
+        self.assertIn("if (longPressFired || dragHandle != 0 || multiTouch) return;", screen)
         self.assertIn("currentSelectionMode = mode;", screen)
         self.assertIn("currentSelectionMode = null;", screen)
         self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
@@ -4439,7 +4439,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,", screen)
         self.assertNotIn("handlePaint", screen)
         self.assertNotIn("int handleAt(float x, float y) {", screen)
-        self.assertIn("displayView.setOnLongClickListener", screen)
+        # Round 25: the OEM long press is out entirely; our 350 ms hold timer owns
+        # the gesture and consumes every UP it acted on.
+        self.assertNotIn("displayView.setOnLongClickListener", screen)
+        self.assertIn("displayView.postDelayed(holdSelect, 350);", screen)
+        self.assertIn('"hold timer fired: selecting at the held point"', screen)
+        self.assertIn("private int offsetAt(float x, float y) {", screen)
+        self.assertIn('"tap away from the expression cleared the selection, caret at end"', screen)
+        self.assertIn("currentBox.setOnClickListener(awayClear);", screen)
         # Round 18: expression at the top of its box, with room below for the
         # stock handles to live.
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
@@ -4454,8 +4461,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertNotIn("exprScroller = exprScroll;", screen)
         self.assertIn("float prim = lo.getPrimaryHorizontal(off) - getScrollX();", screen)
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
-        self.assertIn("selectedAtDown && !downMoved && !longPressFired", screen)
-        self.assertIn('"long press seen on the display: len "', screen)
+        self.assertIn("if (selectedAtDown && displayView.hasSelection()) {", screen)
+        self.assertIn('"hold released: chars "', screen)
         # Round 24: layout-space scroll clamp (the blinking-text fix), the
         # hand-drawn end markers, and click-selects like the long press.
         self.assertIn("int maxScroll = Math.max(0,", screen)
@@ -4474,7 +4481,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("sp.setSpan(new android.text.style.ForegroundColorSpan(col),", screen)
         self.assertIn("displayView.setShadowLayer(14f, 0f, 0f, 0x6600E5FF);", screen)
         self.assertIn("private static final int PITCH_BLACK = 0xFF000000;", screen)
-        self.assertIn("float maxX = getWidth() - getCompoundPaddingRight() - caretWidth;", screen)
+        self.assertIn("float maxX = getWidth() - 4 - caretWidth;", screen)
         self.assertIn('"caret at x="', screen)
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
         self.assertIn('"hold-then-drag began: extending the held portion"', screen)
@@ -4488,7 +4495,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;", screen)
         self.assertIn("expression.append(expr.replace(\",\", \"\")", screen)
         self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
-        self.assertIn("displayView.setOnLongClickListener", screen)
+        self.assertIn("private final Runnable holdSelect = new Runnable() {", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
         self.assertIn("private int menuSelA, menuSelB;", screen)
         self.assertIn("int a = dispToRaw(menuSelA);", screen)
@@ -4618,6 +4625,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("jitterTapStillClearsTheHeldSelection", ui)
+        self.assertIn("tapAwayFromTheExpressionClears", ui)
         self.assertIn("aPlainTapSelectsTheContentAtTheTapPoint", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)

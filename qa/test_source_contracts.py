@@ -4400,7 +4400,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
         self.assertIn("displayView.setPadding(0, 0, 0, ui.dp(34));", screen)
         self.assertIn("handleRadius = 14 * d;", screen)
-        self.assertIn("displayView.requestDisallowInterceptTouchEvent(true);", screen)
+        self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
         self.assertIn("\"handle drag began on the \"", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
         self.assertIn("private int menuSelA, menuSelB;", screen)

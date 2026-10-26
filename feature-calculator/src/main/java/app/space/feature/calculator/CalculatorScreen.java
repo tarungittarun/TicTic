@@ -604,7 +604,10 @@ public final class CalculatorScreen implements Screen {
                         // straight to this view, and his thumb goes through the
                         // HorizontalScrollView parent, which intercepts a horizontal
                         // drag and cancels the child. A handle drag forbids that.
-                        displayView.requestDisallowInterceptTouchEvent(true);
+                        if (displayView.getParent() != null) {
+                            displayView.getParent()
+                                    .requestDisallowInterceptTouchEvent(true);
+                        }
                         AppLog.event(lastContext, "calc", "handle drag began on the "
                                 + (dragHandle < 0 ? "left" : "right") + " boundary");
                         return true;
@@ -634,7 +637,10 @@ public final class CalculatorScreen implements Screen {
                             + displayView.getSelectionStart() + ".."
                             + displayView.getSelectionEnd() + " held");
                     dragHandle = 0;
-                    displayView.requestDisallowInterceptTouchEvent(false);
+                    if (displayView.getParent() != null) {
+                        displayView.getParent()
+                                .requestDisallowInterceptTouchEvent(false);
+                    }
                     return true;
                 }
                 if (e.getAction() == MotionEvent.ACTION_MOVE) {

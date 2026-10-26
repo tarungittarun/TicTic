@@ -103,6 +103,14 @@ public final class CalculatorScreen implements Screen {
     private static final String MEMORY_KEY = "calculator_memory";
     private static final String DEGREES_KEY = "calculator_degrees";
     private static final String HAPTICS_KEY = "calculator_haptics";
+    private static final String EFFECTS_KEY = "calculator_effects";
+
+    /** Round 10: the press-effect names offered under three dots ▸ Effects. */
+    private static final String[] EFFECT_NAMES =
+            {"Spring", "Squeeze", "Glow", "Lift", "Pulse"};
+    private static final String[] EFFECT_HINTS = {
+            "bounce back with overshoot", "squash like gel", "soften and dim",
+            "rise off the pad", "quick fade pulse"};
     private static final int HISTORY_CAP = 50;
     private static final int ANIM_MS = 220;
 
@@ -475,7 +483,7 @@ public final class CalculatorScreen implements Screen {
                 size = isScientificCap(key) ? 19 : 30;
                 break;
         }
-        TextView button = new TextView(context);
+        PadButton button = new PadButton(context);
         button.setText(key);
         button.setGravity(Gravity.CENTER);
         button.setSingleLine(true);
@@ -523,7 +531,7 @@ public final class CalculatorScreen implements Screen {
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         displayView = new DisplayEditText(context,
-                Math.max(2, (int) (3 * context.getResources().getDisplayMetrics().density)));
+                Math.max(3, (int) (4 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
         displayView.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         displayView.setMaxLines(1);
@@ -538,7 +546,10 @@ public final class CalculatorScreen implements Screen {
                 new android.graphics.drawable.GradientDrawable();
         cursorMark.setColor(ui.palette().accent);
         cursorMark.setSize(ui.dp(3), ui.dp(24));
-        displayView.setCaretColors(ui.palette().text,
+        // Round 10: his log shows 181 "cursor placed" lines and still no caret seen, so
+        // the caret stops being the text's own colour and becomes the accent, four density
+        // pixels wide -- the one colour on the screen nothing else shares.
+        displayView.setCaretColors(ui.palette().accent,
                 mix(ui.palette().accent, ui.palette().background, 0.55f));
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             displayView.setTextCursorDrawable(cursorMark);
@@ -607,7 +618,7 @@ public final class CalculatorScreen implements Screen {
         LinearLayout.LayoutParams sp = ui.lp(-1, 0);
         sp.weight = 1f;
         parent.addView(exprScroll, sp);
-        previewView = ui.label(" ", 17, ui.palette().muted, false);
+        previewView = ui.label(" ", 20, ui.palette().muted, false);
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -620,7 +631,10 @@ public final class CalculatorScreen implements Screen {
     private void refreshDisplay(Context context) {
         if (displayView == null) return;
         String shown = typed();
-        int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;
+        // Round 10: "both are little small and not looking good" -- the expression and the
+        // answer read at display grade now: 56sp until it gets long, then stepping down.
+        int size = shown.length() > 24 ? 28 : shown.length() > 16 ? 40
+                : shown.length() > 10 ? 48 : 56;
         displayView.setTextSize(size);
         displayView.applying = true;
         displayView.setText(shown);
@@ -628,6 +642,19 @@ public final class CalculatorScreen implements Screen {
         restoreCaret();
         if (!displayView.hasFocus()) displayView.requestFocus();
         previewView.setText(preview());
+        // Google's two-line answer: while typing, the live result sits UNDER the
+        // expression; once equals has spoken, the expression moves ABOVE the big answer.
+        LinearLayout hostRow = (LinearLayout) previewView.getParent();
+        int want = justEvaluated ? 0 : 1;
+        if (hostRow != null && hostRow.indexOfChild(previewView) != want) {
+            hostRow.removeView(previewView);
+            hostRow.addView(previewView, want, ui_lp_wrap(hostRow));
+        }
+        previewView.setTextSize(justEvaluated ? 18 : 20);
+    }
+
+    private static LinearLayout.LayoutParams ui_lp_wrap(LinearLayout parent) {
+        return new LinearLayout.LayoutParams(-1, -2);
     }
 
     private void restoreCaret() {
@@ -933,6 +960,7 @@ public final class CalculatorScreen implements Screen {
         items.add("Clear memory");
         items.add("View memory");
         items.add(showFraction ? "Show as decimal" : "Show as fraction");
+        items.add("Effects");
         LinearLayout box = ui.vbox();
         box.setBackground(pill(ui, ui.palette().surface, 16));
         box.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
@@ -987,7 +1015,48 @@ public final class CalculatorScreen implements Screen {
             AppLog.event(context, "calc", showFraction
                     ? "result view: fraction" : "result view: decimal");
             refreshDisplay(context);
+        } else if (choice.equals("Effects")) {
+            openEffects(context, ui);
         }
+    }
+
+    /**
+     * Round 10: "have atleast 4 animations and keep in in 3 dots as settings >> effects."
+     * Five press feels, picked here, persisted, and honoured by every pad key from the next
+     * press onward; reduce-motion and disabled animator scales still win over all of them.
+     */
+    private void openEffects(final Context context, UiKit ui) {
+        final int current = PadButton.effectStyle(context);
+        LinearLayout box = ui.vbox();
+        box.setBackground(pill(ui, ui.palette().surface, 16));
+        box.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
+        TextView head = ui.label("Button effects", 13, ui.palette().muted, false);
+        head.setPadding(ui.dp(14), ui.dp(8), ui.dp(14), ui.dp(4));
+        box.addView(head, ui.lp(-1, -2));
+        for (int i = 0; i < EFFECT_NAMES.length; i++) {
+            final int idx = i;
+            TextView row = ui.label((i == current ? "✓  " : "     ") + EFFECT_NAMES[i]
+                    + "  ·  " + EFFECT_HINTS[i], 14,
+                    i == current ? ui.palette().accent : ui.palette().text,
+                    i == current);
+            row.setPadding(ui.dp(14), ui.dp(11), ui.dp(14), ui.dp(11));
+            box.addView(row, ui.lp(-1, -2));
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    AppPrefs.prefs(context).edit().putInt(EFFECTS_KEY, idx).apply();
+                    AppLog.event(context, "calc", "effects style → " + EFFECT_NAMES[idx]
+                            + ", persisted");
+                    host.toast(EFFECT_NAMES[idx] + " press effect on");
+                    if (menuPopup != null) menuPopup.dismiss();
+                }
+            });
+        }
+        menuPopup = new PopupWindow(box, ui.dp(250), -2, true);
+        menuPopup.setElevation(ui.dp(8));
+        menuPopup.setAnimationStyle(R.style.CalcPopupAnim);
+        menuPopup.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        AppLog.event(context, "calc", "effects picker opened: current style "
+                + EFFECT_NAMES[current]);
     }
 
     /**
@@ -1115,6 +1184,104 @@ public final class CalculatorScreen implements Screen {
      * handed straight back to the screen's typeKey door -- the editor displays and selects,
      * the pad and the keyboard type.
      */
+    /**
+     * Round 10: "the way how button react or animate is not good for now. Change it make it
+     * look good." The pad keys own their press feel here -- dispatchTouchEvent is taken
+     * over outright, so neither host's generic motion layer can sand it away -- and the
+     * style comes from three dots ▸ Effects: Spring, Squeeze, Glow, Lift or Pulse.
+     */
+    static final class PadButton extends TextView {
+
+        PadButton(Context context) {
+            super(context);
+        }
+
+        static int effectStyle(Context c) {
+            return Math.max(0, Math.min(4, AppPrefs.prefs(c).getInt(EFFECTS_KEY, 0)));
+        }
+
+        static boolean motionOff(Context c) {
+            if (AppPrefs.prefs(c).getBoolean("app_reduce_motion", false)) return true;
+            try {
+                return !android.animation.ValueAnimator.areAnimatorsEnabled();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @Override public boolean dispatchTouchEvent(MotionEvent e) {
+            switch (e.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (!isEnabled()) return false;
+                    setPressed(true);
+                    press(this, true);
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    if (e.getX() < 0 || e.getY() < 0
+                            || e.getX() > getWidth() || e.getY() > getHeight()) {
+                        setPressed(false);
+                        press(this, false);
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    setPressed(false);
+                    press(this, false);
+                    performClick();
+                    return true;
+                case MotionEvent.ACTION_CANCEL:
+                    setPressed(false);
+                    press(this, false);
+                    return true;
+                default:
+                    return true;
+            }
+        }
+
+        private static void prep(View v) {
+            v.setPivotX(v.getWidth() / 2f);
+            v.setPivotY(v.getHeight() / 2f);
+        }
+
+        private static void press(View view, boolean down) {
+            Context c = view.getContext();
+            if (motionOff(c)) {
+                view.setScaleX(1f);
+                view.setScaleY(1f);
+                view.setAlpha(1f);
+                view.setTranslationZ(0f);
+                return;
+            }
+            prep(view);
+            float z = 6f * c.getResources().getDisplayMetrics().density;
+            view.animate().cancel();
+            if (down) {
+                switch (effectStyle(c)) {
+                    case 1: view.animate().scaleX(1.08f).scaleY(0.86f).setDuration(70).start(); break;
+                    case 2: view.animate().scaleX(0.94f).scaleY(0.94f).alpha(0.72f).setDuration(70).start(); break;
+                    case 3: view.animate().scaleX(1.05f).scaleY(1.05f).translationZ(z).setDuration(80).start(); break;
+                    case 4: view.animate().alpha(0.55f).setDuration(50).start(); break;
+                    default: view.animate().scaleX(0.88f).scaleY(0.88f).setDuration(60).start(); break;
+                }
+                return;
+            }
+            switch (effectStyle(c)) {
+                case 1: view.animate().scaleX(1f).scaleY(1f).setDuration(180)
+                        .setInterpolator(new DecelerateInterpolator()).start(); break;
+                case 2: view.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(160).start(); break;
+                case 3: view.animate().scaleX(1f).scaleY(1f).translationZ(0f).setDuration(200).start(); break;
+                case 4: view.animate().alpha(1f).scaleX(1.04f).scaleY(1.04f).setDuration(90)
+                        .withEndAction(new Runnable() {
+                            @Override public void run() {
+                                view.animate().scaleX(1f).scaleY(1f).setDuration(130).start();
+                            }
+                        }).start(); break;
+                default: view.animate().scaleX(1f).scaleY(1f).setDuration(260)
+                        .setInterpolator(new android.view.animation.OvershootInterpolator(2.6f))
+                        .start(); break;
+            }
+        }
+    }
+
     static final class DisplayEditText extends android.widget.EditText {
         boolean applying;
 
@@ -1184,7 +1351,10 @@ public final class CalculatorScreen implements Screen {
                             padL + x2, padT + lo.getLineBottom(ln), selPaint);
                 }
             }
-            int cs = Math.max(0, s);
+            // His device reports placements while the framework selection reads empty, so
+            // the screen's own caret offset is the fallback: the bar always stands exactly
+            // where the next keypad key will land.
+            int cs = s >= 0 ? s : Math.max(0, rawToDisp(caret));
             if (cs <= length()) {
                 int ln = lo.getLineForOffset(cs);
                 float x = padL + lo.getPrimaryHorizontal(cs);

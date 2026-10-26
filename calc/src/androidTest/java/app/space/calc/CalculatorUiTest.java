@@ -13,6 +13,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertTrue;
 
@@ -215,6 +217,36 @@ public class CalculatorUiTest {
         onView(allOf(withText("5"), isDescendantOfA(withId(MEMORY_LIST)))).perform(click());
         onView(withId(MEMORY_LIST)).check(doesNotExist());
         onView(withId(DISPLAY)).check(matches(withText("5")));
+    }
+
+    @Test public void effectsPickerListsFivePressFeelsAndPersists() {
+        // Round 10: at least four animations, kept in three dots as settings >> effects.
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Effects")).perform(click());
+        onView(withText(containsString("Spring"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Squeeze"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Glow"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Lift"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Pulse"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Lift"))).perform(click());
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Effects")).perform(click());
+        onView(withText(startsWith("✓  Lift"))).check(matches(isDisplayed()));
+    }
+
+    @Test public void theAnswerReadsAtDisplayGrade() {
+        // Round 10: the answer must not read small -- 56sp on a short result.
+        type("1", "+", "1", "=");
+        onView(withId(DISPLAY)).check(matches(withText("2")));
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.TextView tv = (android.widget.TextView) view;
+                float sp = tv.getTextSize() / view.getResources().getDisplayMetrics().scaledDensity;
+                assertTrue("the answer must read at display grade, was " + sp + "sp",
+                        sp >= 50f);
+            }
+        });
     }
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {

@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.11'", gradle)
-        self.assertIn("versionCode 48", gradle)
+        self.assertIn("versionName '3.12.12'", gradle)
+        self.assertIn("versionCode 49", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4219,7 +4219,7 @@ class CalcStandaloneContracts(unittest.TestCase):
         self.assertIn("LANDSCAPE_ROWS", self.screen)
         self.assertIn("private static final String MEMORY_KEY", self.screen)
         self.assertIn("public boolean typeKey(String key)", self.screen)
-        self.assertIn("int size = shown.length() > 20 ? 26 : shown.length() > 12 ? 34 : 46;", self.screen)
+        self.assertIn("int size = shown.length() > 24 ? 28 : shown.length() > 16 ? 40", self.screen)
         self.assertIn("CalculatorRules.toFraction(", self.screen)
         self.assertIn("public static String toFraction(double value)", self.rules)
 
@@ -4272,7 +4272,8 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
         self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
         self.assertIn("c.drawRect(x, padT + lo.getLineTop(ln) + 2,", self.screen)
-        self.assertIn("displayView.setCaretColors(ui.palette().text,", self.screen)
+        self.assertIn("displayView.setCaretColors(ui.palette().accent,", self.screen)
+        self.assertIn("int cs = s >= 0 ? s : Math.max(0, rawToDisp(caret));", self.screen)
         self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
         self.assertIn("displayView.setTextCursorDrawable(cursorMark);", self.screen)
         self.assertIn("displayView.setCursorVisible(true);", self.screen)
@@ -4370,14 +4371,36 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("setShowSoftInputOnFocus(false);", screen)
         self.assertIn("int padT = getExtendedPaddingTop();", screen)
 
-    def test_the_three_dots_carry_exactly_the_five_asked_items(self):
+    def test_the_three_dots_carry_the_asked_items_plus_effects(self):
         screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
-        # Round 9: haptics, add to memory, clear memory, view memory, show as fraction --
-        # and nothing else in that menu.
+        # Round 9: haptics, add to memory, clear memory, view memory, show as fraction.
+        # Round 10 adds the sixth: settings >> effects, the press-animation picker.
         self.assertIn("items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)", screen)
         self.assertIn("items.add(showFraction ? \"Show as decimal\" : \"Show as fraction\");", screen)
+        self.assertIn("items.add(\"Effects\");", screen)
+        self.assertIn('{"Spring", "Squeeze", "Glow", "Lift", "Pulse"};', screen)
+        self.assertIn("putInt(EFFECTS_KEY, idx).apply();", screen)
         self.assertNotIn("Recall memory", screen)
         self.assertNotIn("Store in memory", screen)
+
+    def test_the_pad_keys_own_their_press_feel(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 10: "the way how button react or animate is not good for now" -- the pad
+        # takes its touches over outright and answers with the picked effect.
+        self.assertIn("static final class PadButton extends TextView {", screen)
+        self.assertIn("@Override public boolean dispatchTouchEvent(MotionEvent e) {", screen)
+        self.assertIn("performClick();", screen)
+        self.assertIn("OvershootInterpolator(2.6f)", screen)
+        self.assertIn("AppPrefs.prefs(c).getInt(EFFECTS_KEY, 0)", screen)
+        self.assertIn("app_reduce_motion", screen)
+
+    def test_the_expression_and_answer_read_at_display_grade(self):
+        screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
+        # Round 10: "both are little small and not looking good" -- 56sp until it grows,
+        # and the two lines swap sides the way Google's do after equals.
+        self.assertIn("int size = shown.length() > 24 ? 28 : shown.length() > 16 ? 40", screen)
+        self.assertIn("int want = justEvaluated ? 0 : 1;", screen)
+        self.assertIn("previewView.setTextSize(justEvaluated ? 18 : 20);", screen)
 
     def test_memory_is_a_list_the_owner_arranges(self):
         screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
@@ -4429,6 +4452,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theDisplayNeverOffersTheKeyboard", ui)
         self.assertIn("invSwapsThePanelAndComputesTheInverse", ui)
         self.assertIn("memoryStoresAndRecallsFromItsPopup", ui)
+        self.assertIn("effectsPickerListsFivePressFeelsAndPersists", ui)
+        self.assertIn("theAnswerReadsAtDisplayGrade", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

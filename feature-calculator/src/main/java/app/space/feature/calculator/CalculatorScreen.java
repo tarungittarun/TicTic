@@ -581,8 +581,8 @@ public final class CalculatorScreen implements Screen {
                             android.text.Layout lo = ed.getLayout();
                             CharSequence txt = ed.getText();
                             if (lo == null || !(txt instanceof Spannable)) return;
-                            int off = lo.getOffsetForHorizontal(
-                                    touchX - ed.getCompoundPaddingLeft());
+                            int off = ed.getOffsetForPosition(touchX,
+                                    ed.getHeight() / 2f);
                             off = Math.max(0, Math.min(off, txt.length()));
                             Selection.setSelection((Spannable) txt, off, off);
                             caret = dispToRaw(off);
@@ -1380,8 +1380,8 @@ public final class CalculatorScreen implements Screen {
                     float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
                     float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
                     int lb = base + lo.getLineBaseline(ln) - base0;
-                    c.drawRect(padL + x1, lb + lo.getAscent(ln),
-                            padL + x2, lb + lo.getDescent(ln), selPaint);
+                    c.drawRect(padL + x1, lb + lo.getLineAscent(ln),
+                            padL + x2, lb + lo.getLineDescent(ln), selPaint);
                 }
             }
             // His device reports placements while the framework selection reads empty, so
@@ -1392,8 +1392,8 @@ public final class CalculatorScreen implements Screen {
                 int ln = lo.getLineForOffset(cs);
                 float x = padL + lo.getPrimaryHorizontal(cs);
                 int lb = base + lo.getLineBaseline(ln) - base0;
-                c.drawRect(x, lb + lo.getAscent(ln) + 2,
-                        x + caretWidth, lb + lo.getDescent(ln) - 2, caretPaint);
+                c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
+                        x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
             }
         }
 

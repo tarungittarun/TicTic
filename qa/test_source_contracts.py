@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.14'", gradle)
-        self.assertIn("versionCode 51", gradle)
+        self.assertIn("versionName '3.12.15'", gradle)
+        self.assertIn("versionCode 52", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4308,7 +4308,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertNotIn("modesRule", self.screen)
         self.assertNotIn("padRule", self.screen)
         self.assertNotIn("divider.setBackgroundColor(", self.screen)
-        self.assertIn("line.setPadding(0, ui.dp(7), 0, ui.dp(7));", self.screen)
+        self.assertIn("card.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));", self.screen)
 
     def test_the_adopted_spec_behaviours_are_wired(self):
         # From the owner's reference sheet of 2026-10-26, the gaps that were adopted:
@@ -4332,7 +4332,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("historyBtn.setContentDescription(\"History\");", self.screen)
         self.assertIn("dots.setContentDescription(\"More options\");", self.screen)
         self.assertIn("LinearLayout.LayoutParams clp = ui.lp(-2, 34);", self.screen)
-        self.assertIn("stack.setGravity(Gravity.LEFT);", self.screen)
+        self.assertIn("top.setGravity(Gravity.CENTER_VERTICAL);", self.screen)
 
 
 class TestInfrastructureContracts(unittest.TestCase):
@@ -4357,7 +4357,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("static String groupIndian(String s) {", screen)
         self.assertIn("int lead = (n - 3) % 2 == 1 ? 1 : 2;", screen)
         self.assertIn("return groupIndian(result);", screen)
-        self.assertIn("ui.label(groupIndian(expr), 13, ui.palette().muted, false);", screen)
+        self.assertIn("ui.label(groupIndian(expr), 14, ui.palette().muted, false);", screen)
+        self.assertIn("ui.label(\"=  \" + groupIndian(value), 20, ui.palette().text, true);", screen)
         # and the commas never leak into the expression itself
         self.assertIn('String raw = txt.replace(",", "")', screen)
         self.assertIn("private int dispToRaw(int off) {", screen)
@@ -4370,6 +4371,11 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("setCustomSelectionActionModeCallback", screen)
         self.assertIn("menu.add(0, SEL_CUT, 1, \"Cut\");", screen)
         self.assertIn("private static String clipboardText(Context context) {", screen)
+        self.assertIn("displayView.startActionMode(selectionMenu);", screen)
+        self.assertIn('"selection started: chars "', screen)
+        self.assertIn("int added = candidate.length() - (raw.length() - (sel[1] - at));", screen)
+        self.assertIn("boolean fraction = out.length() > 0 && out.charAt(out.length() - 1) == '.';", screen)
+        self.assertIn("line.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(12));", screen)
         self.assertIn("if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;", screen)
         self.assertIn("setShowSoftInputOnFocus(false);", screen)
         self.assertIn("int base = getBaseline();", screen)
@@ -4465,6 +4471,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("scientificEqualsAutoClosesOpenBrackets", ui)
         self.assertIn("inverseTrigAndPowerButtonsWorkFromThePanel", ui)
         self.assertIn("selectionMenuOffersCutCopyPasteAndSelectAll", ui)
+        self.assertIn("theCaretStaysWhereTheThumbInserted", ui)
+        self.assertIn("longPressSelectsTheWholeNumberAndOffersTheMenu", ui)
+        self.assertIn("decimalsNeverCarryCommas", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

@@ -303,6 +303,45 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("0")));
     }
 
+    @Test public void theCaretStaysWhereTheThumbInserted() {
+        // Round 13: after a mid-expression insert the caret used to jump to the end, so
+        // the next key landed there too. Two inserts in a row must stay neighbours.
+        type("1", "2", "3", "4", "5");
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * 0.5f, view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+        type("9");
+        type("8");
+        // 9 then 8 side by side in the middle: 1298345, not 1293458 at the end.
+        onView(withId(DISPLAY)).check(matches(withText("12,98,345")));
+    }
+
+    @Test public void longPressSelectsTheWholeNumberAndOffersTheMenu() {
+        // Round 13: his device never raised a selection on long press, so the screen runs
+        // its own: the number under the finger is held, handles up, menu with the four.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                int held = ed.getSelectionEnd() - ed.getSelectionStart();
+                assertTrue("the whole number must be held, held=" + held,
+                        held == ed.getText().length());
+            }
+        });
+        onView(withText("Copy")).perform(click());
+    }
+
+    @Test public void decimalsNeverCarryCommas() {
+        // Round 13: his screenshot read 1.5,70,79,63,268. Decimals are not thousands.
+        type("1", ".", "5", "7", "0");
+        onView(withId(DISPLAY)).check(matches(withText("1.570")));
+    }
+
     @Test public void theCaretExistsIsFocusedAndIsVisible() {
         type("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,

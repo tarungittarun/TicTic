@@ -154,6 +154,7 @@ public final class CalculatorScreen implements Screen {
     private LinearLayout padContainer;
     private ScrollView historyScroll;
     private SwipeBox displayArea;
+    private float lastTouchX, lastTouchY;
     private java.util.Map<String, TextView> capButtons = new java.util.HashMap<>();
 
     public CalculatorScreen(ScreenHost host) {
@@ -571,6 +572,10 @@ public final class CalculatorScreen implements Screen {
         });
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastTouchX = e.getX();
+                    lastTouchY = e.getY();
+                }
                 if (e.getAction() == MotionEvent.ACTION_UP) {
                     // Round 11: his log shows four middle taps all landing at the END, so
                     // the editor's own placement cannot be trusted on his device. The
@@ -611,7 +616,8 @@ public final class CalculatorScreen implements Screen {
         // ... like Android by default". The handles and the floating menu are the
         // framework's own; this callback guarantees the four actions on every OEM and
         // writes the outcome of each to the log.
-        displayView.setCustomSelectionActionModeCallback(new android.view.ActionMode.Callback() {
+        final android.view.ActionMode.Callback selectionMenu =
+                new android.view.ActionMode.Callback() {
             @Override public boolean onCreateActionMode(android.view.ActionMode mode,
                                                         android.view.Menu menu) {
                 menu.clear();
@@ -699,6 +705,33 @@ public final class CalculatorScreen implements Screen {
 
             @Override public void onDestroyActionMode(android.view.ActionMode mode) {
                 AppLog.event(lastContext, "calc", "selection menu closed");
+            }
+        };
+        displayView.setCustomSelectionActionModeCallback(selectionMenu);
+        // Round 13: on his device the framework long-press never opened a selection at all
+        // -- the log holds zero selection lines. So the screen runs its own: a long press
+        // selects the whole number (or the operator) under the finger, raises the handles,
+        // and starts the Cut/Copy/Paste/Select-all menu itself. Dragging the handles then
+        // adjusts the length exactly as it does in any editor.
+        displayView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) {
+                CharSequence txt = displayView.getText();
+                if (!(txt instanceof Spannable) || txt.length() == 0) return false;
+                int off = displayView.getOffsetForPosition(lastTouchX, lastTouchY);
+                off = Math.max(0, Math.min(off, txt.length() - 1));
+                char c = txt.charAt(off);
+                int a = off, b = off + 1;
+                if (Character.isDigit(c) || c == ',' || c == '.') {
+                    while (a > 0 && (Character.isDigit(txt.charAt(a - 1))
+                            || txt.charAt(a - 1) == ',' || txt.charAt(a - 1) == '.')) a--;
+                    while (b < txt.length() && (Character.isDigit(txt.charAt(b))
+                            || txt.charAt(b) == ',' || txt.charAt(b) == '.')) b++;
+                }
+                Selection.setSelection((Spannable) txt, a, b);
+                AppLog.event(lastContext, "calc", "selection started: chars " + a + ".." + b
+                        + " held, handles raised for the required length");
+                displayView.startActionMode(selectionMenu);
+                return true;
             }
         });
         displayView.addTextChangedListener(new android.text.TextWatcher() {
@@ -797,13 +830,13 @@ public final class CalculatorScreen implements Screen {
         LinearLayout box = ui.vbox();
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(ui.dp(16));
-        bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.6f));
+        bg.setColor(mix(ui.palette().background, ui.palette().surface, 0.72f));
         box.setBackground(bg);
         box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
         LinearLayout head = ui.hbox();
         head.setGravity(Gravity.CENTER_VERTICAL);
         box.addView(head, ui.lp(-1, 46));
-        historyTitle = ui.label("", 14, ui.palette().text, true);
+        historyTitle = ui.label("", 16, ui.palette().text, true);
         head.addView(historyTitle, new LinearLayout.LayoutParams(0, -2, 1f));
         TextView clear = ui.pillButton("Clear", ui.palette().surface, ui.palette().text);
         clear.setTextSize(13);
@@ -874,26 +907,34 @@ public final class CalculatorScreen implements Screen {
             final String[] entry = rowEntry;
             final String expr = entry[0];
             final String value = entry[1];
+            // Round 13: "design history page little attractive" -- each entry is a soft
+            // filled card (no stroke, no border): the expression and its time on the first
+            // line, the answer big beneath it. Tap reuses, long-press copies, as before.
             LinearLayout line = ui.vbox();
-            line.setPadding(0, ui.dp(7), 0, ui.dp(7));
-            historyList.addView(line, ui.lp(-1, -2));
-            LinearLayout pair = ui.hbox();
-            pair.setGravity(Gravity.CENTER_VERTICAL);
-            line.addView(pair, ui.lp(-1, -2));
-            LinearLayout stack = ui.vbox();
-            stack.setGravity(Gravity.LEFT);
-            pair.addView(stack, new LinearLayout.LayoutParams(0, -2, 1f));
-            TextView e = ui.label(groupIndian(expr), 13, ui.palette().muted, false);
+            GradientDrawable card = new GradientDrawable();
+            card.setCornerRadius(ui.dp(14));
+            card.setColor(mix(ui.palette().background, ui.palette().surface, 0.55f));
+            line.setBackground(card);
+            line.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(12));
+            LinearLayout.LayoutParams lineLp = ui.lp(-1, -2);
+            lineLp.bottomMargin = ui.dp(6);
+            historyList.addView(line, lineLp);
+            LinearLayout top = ui.hbox();
+            top.setGravity(Gravity.CENTER_VERTICAL);
+            line.addView(top, ui.lp(-1, -2));
+            TextView e = ui.label(groupIndian(expr), 14, ui.palette().muted, false);
             e.setGravity(Gravity.LEFT);
-            stack.addView(e, ui.lp(-1, -2));
-            TextView r = ui.label(groupIndian(value), 17, ui.palette().text, true);
-            r.setGravity(Gravity.LEFT);
-            stack.addView(r, ui.lp(-1, -2));
-            TextView when = ui.label(stamp(context, entry[2]), 10, ui.palette().muted, false);
-            when.setGravity(Gravity.RIGHT | Gravity.TOP);
+            top.addView(e, new LinearLayout.LayoutParams(0, -2, 1f));
+            TextView when = ui.label(stamp(context, entry[2]), 11, ui.palette().muted, false);
+            when.setGravity(Gravity.RIGHT);
             LinearLayout.LayoutParams wp = ui.lp(-2, -2);
             wp.leftMargin = ui.dp(8);
-            pair.addView(when, wp);
+            top.addView(when, wp);
+            TextView r = ui.label("=  " + groupIndian(value), 20, ui.palette().text, true);
+            r.setGravity(Gravity.LEFT);
+            LinearLayout.LayoutParams rp = ui.lp(-1, -2);
+            rp.topMargin = ui.dp(2);
+            line.addView(r, rp);
             line.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     // His ninth point: the stored EXPRESSION comes into the expression view,
@@ -1888,9 +1929,13 @@ public final class CalculatorScreen implements Screen {
         }
         expression.setLength(0);
         expression.append(candidate);
-        caret = candidate.length();
+        // Round 13: "once I insert any operand or operator then it's moving to the end" --
+        // the caret used to jump to the end of the candidate every time. It now stands
+        // right after what the thumb just inserted, until the thumb moves it again.
+        int added = candidate.length() - (raw.length() - (sel[1] - at));
+        caret = at + added;
         AppLog.event(context, "calc", "key " + key + " at " + at + " → "
-                + readable(expression.toString()));
+                + readable(expression.toString()) + ", caret stays at " + caret);
         refreshDisplay(context);
         return true;
     }
@@ -1917,7 +1962,10 @@ public final class CalculatorScreen implements Screen {
             if (c < '0' || c > '9') { out.append(c); i++; continue; }
             int j = i;
             while (j < s.length() && s.charAt(j) >= '0' && s.charAt(j) <= '9') j++;
-            out.append(groupRun(s.substring(i, j)));
+            // Round 13: his screenshot read 1.5,70,79,63,268 -- the fraction was grouped
+            // too. Digits after a dot are decimals, not thousands: never group them.
+            boolean fraction = out.length() > 0 && out.charAt(out.length() - 1) == '.';
+            out.append(fraction ? s.substring(i, j) : groupRun(s.substring(i, j)));
             i = j;
         }
         return out.toString();

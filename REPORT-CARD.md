@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.21 (versionCode 58) · 2,267,684 bytes · SHA-256 `629442fc1d54508690f8c75664ea8be7611fef14a74f4edcf6f2bd1cab40068d` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.19 (versionCode 20) · 1,305,059 bytes · SHA-256 `342f51bdbb12539f44971fc945d427714ac8cf74bf01a7fa8fccf02660e1f3fa` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23106 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 251 recorded runs — **170 green, 75 red, 6 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.22 (versionCode 59) · 2,268,008 bytes · SHA-256 `6fc0270d52cd9c6852afd8ad11a058582c11f0b2a86930daf7a727cf37e79b00` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.20 (versionCode 21) · 1,305,571 bytes · SHA-256 `775585920c7c6bf6bc9efd14caa501162290406b19a6695a280df3f8d2439837` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23199 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 257 recorded runs — **174 green, 76 red, 7 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -18,7 +18,11 @@ half-clipped handles. Round 19's directive ended the custom-selection experiment
 work." The honest reading of thirteen rounds: the stock editor never failed on his device --
 our own long-press listener, transparent highlight and hand-drawn handles shadowed it. They
 are deleted; the stock gesture, highlight and teardrops run now, and the scroller yields
-while a selection is up so no parent can steal a handle drag.
+while a selection is up so no parent can steal a handle drag. Round 20 arrived as a light-mode
+screenshot with white digits on white keys and no caret at all: the round-19 colours had been
+chosen for dark mode only. Every display ink now branches on the resolved palette -- LED-bright
+in dark, pitch black in light -- and a story draws the display to a bitmap in each theme and
+counts caret and ink pixels, because on this project "visible" has too often meant "intended".
 
 ---
 
@@ -148,7 +152,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (16):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (17):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -159,9 +163,10 @@ going through `getParent()` with a null guard). **The fourteenth, fifteenth and 
 came in one round-19 push: a gradient helper calling `getPaint()` on a parameter typed `View`
 rather than `TextView`; a `selPaint` assignment left standing after its field was deleted; and
 a new test helper injecting motion events without catching the checked
-`InjectEventSecurityException` the existing helper had always caught. Three misses of one
+`InjectEventSecurityException` the existing helper had always caught. Four misses of one
 kind: code written against what I meant, not against what the compiler sees -- and the local
-gate is Python, so only CI's javac can say so.
+gate is Python, so only CI's javac can say so. The seventeenth: the caret-colour field the
+new pixel story reads across packages stayed package-private when the class went public.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules

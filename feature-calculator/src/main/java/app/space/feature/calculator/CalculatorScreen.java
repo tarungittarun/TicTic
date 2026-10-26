@@ -1575,7 +1575,7 @@ public final class CalculatorScreen implements Screen {
         int fallbackCaret;
 
         /** The colour the hand-drawn caret paints with, for the pixel story. */
-        int caretColor;
+        public int caretColor;
 
         void setCaretColors(int caretColor, int selectionColor) {
             this.caretColor = caretColor;

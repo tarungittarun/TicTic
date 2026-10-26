@@ -1,12 +1,12 @@
-# MySpace 3.12.25 (62) · MyCalc 1.0.23 (24) — your test guide
+# MySpace 3.12.26 (63) · MyCalc 1.0.24 (25) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.25-62-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.25-62-lite-dist.apk) ·
-[MyCalc-v1.0.23-24.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.23-24.apk)
+Install: [MySpace-v3.12.26-63-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.26-63-lite-dist.apk) ·
+[MyCalc-v1.0.24-25.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.24-25.apk)
 (standalone calculator, same engine).
 
 ---
@@ -24,7 +24,7 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 
 | # | Do this | Expected |
 |---|---|---|
-| B1 | Type `123456`, then **hold your finger down** on the number and lift | The whole number gets a bright pink highlight and a floating Copy/Cut/Paste/Select all pill appears -- and it **stays selected after you lift your finger** |
+| B1 | Type `123456`, then **hold your finger down** on the number and lift | The whole number gets a bright pink highlight, a floating Copy/Cut/Paste/Select all pill, and **white bars with a bulb under each end** of the held portion -- and it **stays selected after you lift your finger** |
 | B2 | **Without lifting**, slide your finger left or right | The held portion grows and shrinks with your finger, character by character — this is the gesture that changes the selected portion |
 | B3 | Lift, then **press anywhere on the held band** (or just past either end) and drag | The nearer boundary follows your finger; the other end stays put -- this is how you select more or less |
 | B4 | With a portion held, tap **Copy**, then open Notes or Messages and long-press ▸ Paste | Exactly the held characters arrive (no commas — commas are display-only) |
@@ -32,12 +32,13 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 | B6 | With a selection held, **tap once** anywhere in the expression box | The selection clears, the menu closes, and the caret parks exactly where you tapped -- ready to type there |
 | B7 | Hold a portion, then tap **AC** | Held text and menu both clear |
 | B8 | While a selection is held, swipe the display horizontally | The selection drag wins over scrolling; with **no** selection the long expression still slides sideways inside its own line |
+| B9 | With nothing selected, **tap once** on a typed number | The number gets selected exactly as the long press does -- highlight, end markers and the Copy/Cut/Paste pill |
 
 The selection itself is the framework's (real spans, framework highlight, framework
 floating menu); the hold and drag gestures are the app's, because your phone's stock
 long-press never raises a selection — your own logs proved it fifty-five times.
 Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
-`holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `copyPutsExactlyTheHeldSliceInTheClipboard`,
+`holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `aPlainTapSelectsTheContentAtTheTapPoint`, `copyPutsExactlyTheHeldSliceInTheClipboard`,
 `cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere`,
 `aTapElsewhereClosesTheMenuAndClearsTheSelection`, `acWhileHeldClearsTheHeldTextAndTheMenu`.
 
@@ -47,7 +48,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 |---|---|---|
 | C1 | Type a long expression | It sits at the **top** of the box; the live answer glows beneath it in pink-amber |
 | C2 | Look at the typed expression | LED tubes: digits glow **cyan**, operators glow **pink**, brackets **violet**, each with a soft halo; operators glow amber on the pad, `=` is a pink-gradient key |
-| C3 | Tap **mid-number** (e.g. inside `12345`) and type | The digit inserts where you tapped, not at the end |
+| C3 | **Tap a number, then tap again** at the exact spot you want (second tap clears the selection and parks the caret), then type | The digit inserts at that spot, not at the end -- first tap selects, second tap places the caret |
 | C4 | Type `10×`, move the caret after the `×`, type `−` | You get `10×−` (negation inserted) — the `×` is **not** eaten; at the end of the line the same keys behave identically |
 | C5 | Type `200+10%` then `=` | `220` (Google's percent semantics) |
 | C6 | Type `5+3×2` without closing anything, press `=` | `11`; unclosed brackets auto-balance: `(5+3` `=` → `8` |
@@ -117,5 +118,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 387 Python contracts, 21 JVM suites
-and a 38-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 41-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

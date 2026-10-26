@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.25'", gradle)
-        self.assertIn("versionCode 62", gradle)
+        self.assertIn("versionName '3.12.26'", gradle)
+        self.assertIn("versionCode 63", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3421,7 +3421,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.25", guide)
+        self.assertIn("3.12.26", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4442,6 +4442,12 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
         self.assertIn("selectedAtDown && !downMoved && !longPressFired", screen)
         self.assertIn('"long press seen on the display: len "', screen)
+        # Round 24: layout-space scroll clamp (the blinking-text fix), the
+        # hand-drawn end markers, and click-selects like the long press.
+        self.assertIn("int maxScroll = Math.max(0,", screen)
+        self.assertIn("private boolean selectWordAt(float x, float y) {", screen)
+        self.assertIn('"tap selected the content at the tap point"', screen)
+        self.assertIn("c.drawCircle(ax + caretWidth / 2f, b2 + 14 * dd,", screen)
         self.assertIn("&& watched.hasSelection()) {", screen)
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
         # Round 19: "make it look stunning, colorful and bright" -- gradient
@@ -4598,6 +4604,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
         self.assertIn("theCaretAndInkAreActuallyPaintedInBothThemes", ui)
         self.assertIn("holdThenDragExtendsTheHeldPortion", ui)
+        self.assertIn("aPlainTapSelectsTheContentAtTheTapPoint", ui)
+        self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
+        self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)
         self.assertIn("historyTapGivesAnExpressionThatStillEvaluates", ui)
         self.assertIn("aPlainTapWhileHeldClearsTheSelectionAndParksTheCaret", ui)

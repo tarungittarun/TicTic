@@ -250,6 +250,92 @@ public class CalculatorUiTest {
         for (String k : keys) onView(key(k)).perform(click());
     }
 
+    /** One finger on the glyph boundary at `off`: the owner's mid-text click. */
+    private void tapAtOffset(final int off) {
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        android.widget.EditText ed = (android.widget.EditText) view;
+                        android.text.Layout lo = ed.getLayout();
+                        return new float[]{ed.getCompoundPaddingLeft()
+                                + lo.getPrimaryHorizontal(off) + 2f,
+                                ed.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+    }
+
+    /** One finger, one point: the click gesture the owner's thumb makes. */
+    private void tapAt(final float fraction) {
+        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override public float[] calculateCoordinates(View view) {
+                        return new float[]{view.getWidth() * fraction,
+                                view.getHeight() * 0.5f};
+                    }
+                }, Press.FINGER, 0, 0));
+    }
+
+    @Test public void aPlainTapSelectsTheContentAtTheTapPoint() {
+        // Round 24, his words: "if a we click somewhere in expression box than
+        // the content, it should get select as well".
+        type("1", "2", "3", "4", "5", "6");
+        tapAt(0.5f);
+        onView(withId(DISPLAY)).check(held(6));
+    }
+
+    @Test public void typingALongExpressionKeepsTheCaretOnScreen() {
+        // Round 24 regression: on 25 every refresh yanked the inner scroll to a
+        // layout-space mismatch and the typed text vanished until a selection
+        // scrolled it back -- his "blinking and getting erased".
+        type("1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+                "1", "2", "3", "4", "5", "6", "7", "8");
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.widget.EditText ed = (android.widget.EditText) view;
+                android.text.Layout lo = ed.getLayout();
+                assertNotNull(lo);
+                float prim = lo.getPrimaryHorizontal(ed.getSelectionStart());
+                float onScreen = prim - ed.getScrollX()
+                        + ed.getCompoundPaddingLeft();
+                assertTrue("caret must sit inside the box, was " + onScreen,
+                        onScreen >= 0 && onScreen <= ed.getWidth());
+            }
+        });
+    }
+
+    @Test public void selectionEndMarkersArePaintedInDark() {
+        // Round 24: "the cursor for left and right boundary is not visible" --
+        // his OEM paints the band but no teardrops, so the ends are hand-drawn
+        // bars with bulbs; the bitmap count proves they are painted.
+        try {
+            setTheme(2);
+            rule.getScenario().recreate();
+            type("1", "2", "3", "4", "5", "6");
+            onView(withId(DISPLAY)).perform(longClick());
+            onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+                @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                    if (e != null) throw e;
+                    android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                            view.getWidth(), view.getHeight(),
+                            android.graphics.Bitmap.Config.ARGB_8888);
+                    view.draw(new android.graphics.Canvas(bmp));
+                    int white = 0;
+                    for (int yy = 0; yy < bmp.getHeight(); yy++) {
+                        for (int xx = 0; xx < bmp.getWidth(); xx++) {
+                            if (bmp.getPixel(xx, yy) == 0xFFFFFFFF) white++;
+                        }
+                    }
+                    assertTrue("the two end markers must be painted, got " + white,
+                            white >= 60);
+                }
+            });
+        } finally {
+            setTheme(1);
+            rule.getScenario().recreate();
+        }
+    }
+
     @Test public void theCaretAndInkAreActuallyPaintedInBothThemes() {
         // Round 20: his screenshot held NO caret and light mode wore white digits
         // on white keys. A view can hold every right colour and still paint
@@ -350,12 +436,13 @@ public class CalculatorUiTest {
         // His second point: the tap must move the caret INTO the expression, so the next
         // key lands where the thumb pointed, not at the end.
         type("1", "2", "+", "3", "4");
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.2f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        // Round 24: a click now selects the content under the finger (his ask),
+        // and a second click parks the caret at that point -- so inserting mid
+        // expression is tap-tap-type.
+        tapAtOffset(1);
+        onView(withId(DISPLAY)).check(held(2));
+        tapAtOffset(1);
+        onView(withId(DISPLAY)).check(held(0));
         type("5");
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
@@ -549,12 +636,10 @@ public class CalculatorUiTest {
         // Round 13: after a mid-expression insert the caret used to jump to the end, so
         // the next key landed there too. Two inserts in a row must stay neighbours.
         type("1", "2", "3", "4", "5");
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.5f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        tapAtOffset(2);
+        onView(withId(DISPLAY)).check(held(5));
+        tapAtOffset(2);
+        onView(withId(DISPLAY)).check(held(0));
         type("9");
         type("8");
         // 9 then 8 side by side in the middle: 1298345, not 1293458 at the end.

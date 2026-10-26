@@ -735,6 +735,19 @@ public final class CalculatorScreen implements Screen {
                     // remove selected, its not allowing." A plain tap while a
                     // selection stands clears it OURSelves -- caret to the tap,
                     // menu gone -- because his OEM's editor will not do it.
+                    // Round 24: with nothing held, a plain click in the box
+                    // selects the content under the finger, the same way the
+                    // long press does; with something held, the tap below
+                    // still clears it.
+                    if (!selectedAtDown && !downMoved && !longPressFired
+                            && dragHandle == 0 && !extending
+                            && !displayView.hasSelection()) {
+                        if (selectWordAt(lastTouchX, lastTouchY)) {
+                            AppLog.event(lastContext, "calc",
+                                    "tap selected the content at the tap point");
+                            return true;
+                        }
+                    }
                     if (selectedAtDown && !downMoved && !longPressFired
                             && displayView.hasSelection()) {
                         CharSequence held = displayView.getText();
@@ -896,26 +909,8 @@ public final class CalculatorScreen implements Screen {
                 AppLog.event(lastContext, "calc", "long press seen on the display: len "
                         + displayView.length());
                 if (dragHandle != 0) return true;
-                CharSequence txt = displayView.getText();
-                if (!(txt instanceof Spannable) || txt.length() == 0) return false;
-                int off = displayView.getOffsetForPosition(lastTouchX, lastTouchY);
-                off = Math.max(0, Math.min(off, txt.length() - 1));
-                char c = txt.charAt(off);
-                int a = off, b = off + 1;
-                if (Character.isDigit(c) || c == ',' || c == '.') {
-                    while (a > 0 && (Character.isDigit(txt.charAt(a - 1))
-                            || txt.charAt(a - 1) == ',' || txt.charAt(a - 1) == '.')) a--;
-                    while (b < txt.length() && (Character.isDigit(txt.charAt(b))
-                            || txt.charAt(b) == ',' || txt.charAt(b) == '.')) b++;
-                }
-                Selection.setSelection((Spannable) txt, a, b);
-                extendAnchor = a;
+                if (!selectWordAt(lastTouchX, lastTouchY)) return false;
                 longPressFired = true;
-                AppLog.event(lastContext, "calc", "selection started: chars " + a
-                        + ".." + b
-                        + " held by the app gesture, framework selection set");
-                displayView.startActionMode(selectionMenu,
-                        android.view.ActionMode.TYPE_FLOATING);
                 return true;
             }
         });
@@ -1000,10 +995,23 @@ public final class CalculatorScreen implements Screen {
                 // The EditText scrolls its own text now; keep the caret inside
                 // the visible part of that inner scroll.
                 float d = context.getResources().getDisplayMetrics().density;
+                // Round 24: compare in LAYOUT space and clamp to the real
+                // scroll range. Round 23 compared the on-screen caret x with
+                // the raw layout-space scrollX and yanked the text a million
+                // pixels away on every refresh -- his "blinking and getting
+                // erased" while typing; only selecting scrolled it back.
+                int padL2 = displayView.getCompoundPaddingLeft();
+                int padR2 = displayView.getCompoundPaddingRight();
+                float layoutX = x + scrollX;
+                int maxScroll = Math.max(0,
+                        lo.getWidth() - Math.max(1, childW - padL2 - padR2));
                 int want = scrollX;
-                if (x + 40 * d > scrollX + childW) want = (int) (x + 40 * d - childW);
-                else if (x < scrollX + 8 * d) want = (int) (x - 8 * d);
-                want = Math.max(0, want);
+                if (x + 40 * d > childW - padR2) {
+                    want = (int) (layoutX + 40 * d - (childW - padR2));
+                } else if (x < padL2) {
+                    want = (int) (layoutX - padL2 - 8 * d);
+                }
+                want = Math.max(0, Math.min(want, maxScroll));
                 if (Math.abs(want - scrollX) > 4) {
                     displayView.scrollTo(want, 0);
                     AppLog.event(context, "calc",
@@ -1845,6 +1853,27 @@ public final class CalculatorScreen implements Screen {
                 if (x < minX) x = minX;
                 c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
                         x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
+                // Round 24: "the cursor for left and right boundary is not
+                // visible" -- his OEM paints the band but no teardrops, so the
+                // two ends of the held portion get their own bars and bulbs,
+                // hand-drawn in the caret ink over the framework highlight.
+                int selA = getSelectionStart();
+                int selB = getSelectionEnd();
+                if (selB > selA) {
+                    float dd = getResources().getDisplayMetrics().density;
+                    float ax = padL + caretX(lo, selA, lo.getLineForOffset(selA));
+                    float bx = padL + caretX(lo, selB, lo.getLineForOffset(selB));
+                    ax = Math.min(Math.max(ax, minX), maxX);
+                    bx = Math.min(Math.max(bx, minX), maxX);
+                    float t = lb + lo.getLineAscent(ln) + 2;
+                    float b2 = lb + lo.getLineDescent(ln) - 2;
+                    c.drawRect(ax, t, ax + caretWidth, b2, caretPaint);
+                    c.drawRect(bx, t, bx + caretWidth, b2, caretPaint);
+                    c.drawCircle(ax + caretWidth / 2f, b2 + 14 * dd,
+                            7 * dd, caretPaint);
+                    c.drawCircle(bx + caretWidth / 2f, b2 + 14 * dd,
+                            7 * dd, caretPaint);
+                }
             }
         }
 
@@ -2219,6 +2248,32 @@ public final class CalculatorScreen implements Screen {
      * expression. Returns whether the insertion happened, so the bracket key can try its
      * second choice and every refusal can be logged as a refusal rather than a silence.
      */
+    /** Round 24: one word-selection routine for the long press and for the
+     *  plain tap he asked for -- "if we click somewhere in expression box than
+     *  the content, it should get select as well". */
+    private boolean selectWordAt(float x, float y) {
+        CharSequence txt = displayView.getText();
+        if (!(txt instanceof Spannable) || txt.length() == 0) return false;
+        int off = displayView.getOffsetForPosition(x, y);
+        off = Math.max(0, Math.min(off, txt.length() - 1));
+        char ch = txt.charAt(off);
+        int a = off, b = off + 1;
+        if (Character.isDigit(ch) || ch == ',' || ch == '.') {
+            while (a > 0 && (Character.isDigit(txt.charAt(a - 1))
+                    || txt.charAt(a - 1) == ',' || txt.charAt(a - 1) == '.')) a--;
+            while (b < txt.length() && (Character.isDigit(txt.charAt(b))
+                    || txt.charAt(b) == ',' || txt.charAt(b) == '.')) b++;
+        }
+        Selection.setSelection((Spannable) txt, a, b);
+        extendAnchor = a;
+        AppLog.event(lastContext, "calc", "selection started: chars " + a
+                + ".." + b
+                + " held by the app gesture, framework selection set");
+        displayView.startActionMode(selectionMenu,
+                android.view.ActionMode.TYPE_FLOATING);
+        return true;
+    }
+
     private boolean insertAtCaret(Context context, String key) {
         int[] sel = selection();
         String raw = expression.toString();

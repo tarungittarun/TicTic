@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.24 (versionCode 61) · 2,270,160 bytes · SHA-256 `bd6f3850b659ee8c9c37c17055e9d688caa7ca5c298a28487c475ae0c948e986` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.22 (versionCode 23) · 1,307,931 bytes · SHA-256 `4465b0f0d7ff4c3e4fbdb9a9a09db88b0e4fffcbb02ce4f3e27d73a0b12510fa` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23517 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 267 recorded runs — **181 green, 78 red, 8 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.25 (versionCode 62) · 2,270,148 bytes · SHA-256 `c99d74c4fe8afdcecfe7ef9b0b1678d897ff1e7a15caafd6779387c6c1b7a746` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.23 (versionCode 24) · 1,307,795 bytes · SHA-256 `96ff713e977ae52aba66d4751805b1256ab7d1624f0355ce3f7ce4b45f3336f5` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23541 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 271 recorded runs — **185 green, 78 red, 8 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -49,6 +49,15 @@ and the caret now measures its x from the glyphs with the view's own paint; and 
 reuse re-inserted the DISPLAY form commas and all, so every equals after a history tap said
 Error. The log line `caret at x=1048501 viewW=1132` is the single most valuable line this
 project has produced: one number, and twelve rounds of guessing ended.
+
+Round 23 closed the loop his next log opened. The same line on an EMPTY box proved the
+2^20 layout was born, not earned: my HorizontalScrollView wrapper measured the display
+UNSPECIFIED and his OEM never rebuilt the layout, so the wrapper is gone -- the display is
+now a plain single-line EditText that scrolls and selects for itself, the pattern every
+calculator that gets this right uses. And the log's "selection started" followed 1 ms
+later by "selection menu closed" proved my own tap-to-clear was firing on the UP of the
+long press that created the selection, killing it at finger lift; it now only clears a
+selection that existed before the gesture began. Both fixes carry regression stories.
 
 ---
 

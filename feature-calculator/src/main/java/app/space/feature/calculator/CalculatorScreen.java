@@ -2288,7 +2288,7 @@ public final class CalculatorScreen implements Screen {
         android.text.Layout lo = displayView.getLayout();
         if (lo == null) return 0;
         int line = Math.max(0, Math.min(lo.getLineCount() - 1,
-                lo.getLineForVertical(Math.max(0,
+                lo.getLineForVertical((int) Math.max(0,
                         y - displayView.getCompoundPaddingTop()))));
         float hx = x - displayView.getCompoundPaddingLeft()
                 + displayView.getScrollX();

@@ -1,12 +1,12 @@
-# MySpace 3.12.28 (65) · MyCalc 1.0.26 (27) — your test guide
+# MySpace 3.12.29 (66) · MyCalc 1.0.27 (28) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.28-65-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.28-65-lite-dist.apk) ·
-[MyCalc-v1.0.26-27.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.26-27.apk)
+Install: [MySpace-v3.12.29-66-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.29-66-lite-dist.apk) ·
+[MyCalc-v1.0.27-28.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.27-28.apk)
 (standalone calculator, same engine).
 
 ---
@@ -29,17 +29,17 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 | B3 | Lift, then **press anywhere on the held band** (or just past either end) and drag | The nearer boundary follows your finger; the other end stays put -- this is how you select more or less |
 | B4 | With a portion held, tap **Copy**, then open Notes or Messages and long-press ▸ Paste | Exactly the held characters arrive (no commas — commas are display-only) |
 | B5 | Hold a portion, tap **Cut**, then type a digit | The held part disappears and your digit lands in the gap |
-| B6 | With a selection held, **tap once** anywhere in the expression box -- even if your thumb wobbles a little | The selection clears, the menu closes, and the caret parks where you lifted -- reliably, not hit-or-miss |
+| B6 | With a selection held, **tap once anywhere in the expression box outside the held rectangle** -- even if your thumb wobbles | The selection and menu release, and the caret parks exactly where you tapped |
 | B7 | Hold a portion, then tap **AC** | Held text and menu both clear |
 | B8 | While a selection is held, swipe the display horizontally | The selection drag wins over scrolling; with **no** selection the long expression still slides sideways inside its own line |
-| B9 | With nothing selected, **tap once** on a typed number | The number gets selected exactly as the hold does -- highlight, end markers and the Copy/Cut/Paste pill |
+| B9 | With nothing selected, **tap inside a typed number** | The caret jumps to that exact spot -- your reference for where typing and editing happen; the next key lands there |
 | B10 | With a selection held, tap **away from the expression line** (the live-answer row or the box margins) | Selection and menu both go; the caret stands at the end |
 
 The selection itself is the framework's (real spans, framework highlight, framework
 floating menu); the hold and drag gestures are the app's, because your phone's stock
 long-press never raises a selection — your own logs proved it fifty-five times.
 Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
-`holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `aPlainTapSelectsTheContentAtTheTapPoint`, `jitterTapStillClearsTheHeldSelection`,
+`holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `aPlainTapParksTheCaretAndReleasesTheSelection`, `jitterTapStillClearsTheHeldSelection`,
 `tapAwayFromTheExpressionClears`, `copyPutsExactlyTheHeldSliceInTheClipboard`,
 `cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere`,
 `aTapElsewhereClosesTheMenuAndClearsTheSelection`, `acWhileHeldClearsTheHeldTextAndTheMenu`.
@@ -50,7 +50,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 |---|---|---|
 | C1 | Type a long expression | It sits at the **top** of the box; the live answer glows beneath it in pink-amber |
 | C2 | Look at the typed expression | LED tubes: digits glow **cyan**, operators glow **pink**, brackets **violet**, each with a soft halo; operators glow amber on the pad, `=` is a pink-gradient key |
-| C3 | **Tap a number, then tap again** at the exact spot you want (second tap clears the selection and parks the caret), then type | The digit inserts at that spot, not at the end -- first tap selects, second tap places the caret |
+| C3 | **Tap mid-number** (e.g. inside `12345`) and type | The digit inserts where you tapped, not at the end -- the tap parks the caret there |
 | C4 | Type `10×`, move the caret after the `×`, type `−` | You get `10×−` (negation inserted) — the `×` is **not** eaten; at the end of the line the same keys behave identically |
 | C5 | Type `200+10%` then `=` | `220` (Google's percent semantics) |
 | C6 | Type `5+3×2` without closing anything, press `=` | `11`; unclosed brackets auto-balance: `(5+3` `=` → `8` |

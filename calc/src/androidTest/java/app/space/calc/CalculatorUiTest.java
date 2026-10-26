@@ -330,12 +330,17 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(held(0));
     }
 
-    @Test public void aPlainTapSelectsTheContentAtTheTapPoint() {
-        // Round 24, his words: "if a we click somewhere in expression box than
-        // the content, it should get select as well".
+    @Test public void aPlainTapParksTheCaretAndReleasesTheSelection() {
+        // Round 27, his words: a click anywhere outside the held rectangle
+        // releases it, and the caret must show where typing will land. One
+        // tap does both: release, then park.
         type("1", "2", "3", "4", "5", "6");
-        tapAt(0.5f);
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).check(held(6));
+        tapAtOffset(2);
+        onView(withId(DISPLAY)).check(held(0));
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("1,27,345")));
     }
 
     @Test public void typingALongExpressionKeepsTheCaretOnScreen() {
@@ -494,8 +499,7 @@ public class CalculatorUiTest {
         // Round 24: a click now selects the content under the finger (his ask),
         // and a second click parks the caret at that point -- so inserting mid
         // expression is tap-tap-type.
-        tapAtOffset(1);
-        onView(withId(DISPLAY)).check(held(2));
+        // Round 27: one tap parks the caret; typing inserts right there.
         tapAtOffset(1);
         onView(withId(DISPLAY)).check(held(0));
         type("5");
@@ -691,8 +695,6 @@ public class CalculatorUiTest {
         // Round 13: after a mid-expression insert the caret used to jump to the end, so
         // the next key landed there too. Two inserts in a row must stay neighbours.
         type("1", "2", "3", "4", "5");
-        tapAtOffset(2);
-        onView(withId(DISPLAY)).check(held(5));
         tapAtOffset(2);
         onView(withId(DISPLAY)).check(held(0));
         type("9");

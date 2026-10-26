@@ -798,18 +798,17 @@ public final class CalculatorScreen implements Screen {
                     }
                     if (act == MotionEvent.ACTION_CANCEL) return false;
                     boolean panned = Math.abs(displayView.getScrollX() - scrollAtDown) > 4;
-                    if (selectedAtDown && displayView.hasSelection()) {
-                        // A click while a selection stands clears it -- jitter
-                        // and all; the caret parks where the finger lifted.
+                    if (!panned) {
+                        // Round 27, his words: "if anywhere in a expression box
+                        // other than the rectangle portion of selected region
+                        // should release it" and "need a cursor for reference
+                        // where user is typing and to move in between". One
+                        // gesture answers both: a plain tap releases whatever
+                        // is held AND parks the caret under the finger, so the
+                        // next key lands where the thumb pointed. Selection
+                        // stays the hold's job, exactly like Android's editors.
                         clearSelectionAt(e.getX(), e.getY());
                         return true;
-                    }
-                    if (!selectedAtDown && !panned && displayView.length() > 0) {
-                        if (selectWordAt(e.getX(), e.getY())) {
-                            AppLog.event(lastContext, "calc",
-                                    "tap selected the content at the tap point");
-                            return true;
-                        }
                     }
                     AppLog.event(lastContext, "calc", "display gesture ended: "
                             + "selection " + displayView.getSelectionStart()
@@ -1887,10 +1886,11 @@ public final class CalculatorScreen implements Screen {
                 // bar is clamped inside the content box now, and the instrumented
                 // suite draws the view to a bitmap and counts caret pixels, so
                 // "visible" means painted, not intended.
-                // Round 25: the caret may stand in the right margin; clamping
-                // it inside the content put it UNDER the last glyph, where
-                // his eye never found it.
-                float maxX = getWidth() - 4 - caretWidth;
+                // Round 27: the caret's home at the end of the line is the
+                // content edge -- flush against the last glyph. Round 25's
+                // margin clamp put it 80px away in empty padding, a bar
+                // belonging to nothing.
+                float maxX = getWidth() - getCompoundPaddingRight();
                 if (x > maxX) x = maxX;
                 float minX = getCompoundPaddingLeft();
                 if (x < minX) x = minX;
@@ -1959,6 +1959,11 @@ public final class CalculatorScreen implements Screen {
                         claimed = true;
                         AppLog.event(logContext, "calc",
                                 "swipe claimed downward: opening the history popup");
+                        // Round 27: his log showed claims whose UP never
+                        // arrived, so the popup opened only by button. The
+                        // history opens AT the claim now; the UP merely ends
+                        // the gesture.
+                        if (listener != null) listener.onSwipeDown();
                         return true;
                     }
                     return claimed;
@@ -1972,7 +1977,6 @@ public final class CalculatorScreen implements Screen {
                 if (e.getAction() == MotionEvent.ACTION_UP
                         || e.getAction() == MotionEvent.ACTION_CANCEL) {
                     claimed = false;
-                    if (listener != null) listener.onSwipeDown();
                 }
                 return true;
             }
@@ -2335,7 +2339,7 @@ public final class CalculatorScreen implements Screen {
         caret = dispToRaw(off);
         if (currentSelectionMode != null) currentSelectionMode.finish();
         AppLog.event(lastContext, "calc",
-                "tap cleared the selection, caret at " + caret);
+                "tap placed the caret at " + caret + ", selection released");
         displayView.invalidate();
     }
 

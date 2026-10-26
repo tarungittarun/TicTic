@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.28'", gradle)
-        self.assertIn("versionCode 65", gradle)
+        self.assertIn("versionName '3.12.29'", gradle)
+        self.assertIn("versionCode 66", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3435,7 +3435,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.28", guide)
+        self.assertIn("3.12.29", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4466,13 +4466,13 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertNotIn("exprScroller = exprScroll;", screen)
         self.assertIn("float prim = lo.getPrimaryHorizontal(off) - getScrollX();", screen)
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
-        self.assertIn("if (selectedAtDown && displayView.hasSelection()) {", screen)
+        self.assertIn("if (!panned) {", screen)
         self.assertIn('"hold released: chars "', screen)
         # Round 24: layout-space scroll clamp (the blinking-text fix), the
         # hand-drawn end markers, and click-selects like the long press.
         self.assertIn("int maxScroll = Math.max(0,", screen)
         self.assertIn("private boolean selectWordAt(float x, float y) {", screen)
-        self.assertIn('"tap selected the content at the tap point"', screen)
+        self.assertNotIn('"tap selected the content at the tap point"', screen)
         self.assertIn("c.drawCircle(ax + caretWidth / 2f, b2 + 14 * dd,", screen)
         self.assertIn("&& watched.hasSelection()) {", screen)
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
@@ -4486,7 +4486,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("sp.setSpan(new android.text.style.ForegroundColorSpan(col),", screen)
         self.assertIn("displayView.setShadowLayer(14f, 0f, 0f, 0x6600E5FF);", screen)
         self.assertIn("private static final int PITCH_BLACK = 0xFF000000;", screen)
-        self.assertIn("float maxX = getWidth() - 4 - caretWidth;", screen)
+        self.assertIn("float maxX = getWidth() - getCompoundPaddingRight();", screen)
+        self.assertIn("if (listener != null) listener.onSwipeDown();", screen)
         self.assertIn('"caret at x="', screen)
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
         self.assertIn('"hold-then-drag began: extending the held portion"', screen)
@@ -4496,7 +4497,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         # reuse without display commas.
         self.assertIn("public float caretX(android.text.Layout lo, int off, int ln) {", screen)
         self.assertIn("+ getPaint().measureText(getText().toString(), lineStart, o)", screen)
-        self.assertIn('"tap cleared the selection, caret at "', screen)
+        self.assertIn('"tap placed the caret at "', screen)
         self.assertIn("dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;", screen)
         self.assertIn("expression.append(expr.replace(\",\", \"\")", screen)
         self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
@@ -4633,7 +4634,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("aTapWhileTheHistoryPopupRepopulatesDoesNotCrash", ui)
         self.assertIn("jitterTapStillClearsTheHeldSelection", ui)
         self.assertIn("tapAwayFromTheExpressionClears", ui)
-        self.assertIn("aPlainTapSelectsTheContentAtTheTapPoint", ui)
+        self.assertIn("aPlainTapParksTheCaretAndReleasesTheSelection", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)

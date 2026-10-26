@@ -60,22 +60,69 @@ public class CalculatorUiTest {
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
     /** A pad key by its label, never the display or the preview that may show the same text. */
-    /** Narrows the held range by dragging the right handle to a display offset. */
+    /** Round 19: the handles on screen are Android's own teardrops now, so the
+     *  story finds them the way a thumb does -- down on the strip below the held
+     *  end, a slide, a lift -- injected at WINDOW level so the scroll parent gets
+     *  its chance to steal and refuses. A probe that lands off the handle reads
+     *  as a tap and collapses the selection, so each attempt re-raises it with a
+     *  real long press first, exactly as his thumb would. */
     private static ViewAction narrowRightHandleTo(final int offset) {
+        return stockHandleDrag(false, offset);
+    }
+
+    private static ViewAction narrowLeftHandleTo(final int offset) {
+        return stockHandleDrag(true, offset);
+    }
+
+    private static ViewAction stockHandleDrag(final boolean left, final int toOffset) {
         return new ViewAction() {
             @Override public Matcher<View> getConstraints() { return isDisplayed(); }
-            @Override public String getDescription() { return "drag the right handle to offset " + offset; }
+            @Override public String getDescription() {
+                return "drag the " + (left ? "left" : "right")
+                        + " stock handle to offset " + toOffset;
+            }
             @Override public void perform(androidx.test.espresso.UiController ui, View view) {
                 android.widget.EditText ed = (android.widget.EditText) view;
-                android.text.Layout lo = ed.getLayout();
                 float d = view.getResources().getDisplayMetrics().density;
-                float padL = ed.getCompoundPaddingLeft();
-                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 14 * d;
-                drag(ui, view, padL + lo.getPrimaryHorizontal(ed.getSelectionEnd()),
-                        padL + lo.getPrimaryHorizontal(offset), y);
-                ui.loopMainThreadForAtLeast(200);
+                float lineBottom = ed.getBaseline() + ed.getLayout().getLineDescent(0);
+                float[] ys = new float[]{20 * d, 12 * d, 28 * d, 6 * d, 36 * d, 44 * d};
+                for (float y : ys) {
+                    if (!ed.hasSelection()) holdCenter(ui, view);
+                    if (!ed.hasSelection()) continue;
+                    android.text.Layout lo = ed.getLayout();
+                    float padL = ed.getCompoundPaddingLeft();
+                    int anchor = left ? ed.getSelectionStart() : ed.getSelectionEnd();
+                    float fromX = padL + lo.getPrimaryHorizontal(anchor);
+                    float toX = padL + lo.getPrimaryHorizontal(toOffset);
+                    int before = left ? ed.getSelectionStart() : ed.getSelectionEnd();
+                    drag(ui, view, fromX, toX, lineBottom + y);
+                    ui.loopMainThreadForAtLeast(200);
+                    int after = left ? ed.getSelectionStart() : ed.getSelectionEnd();
+                    if (after != before) return;
+                }
+                throw new RuntimeException("stock handle drag never moved the "
+                        + (left ? "left" : "right") + " boundary");
             }
         };
+    }
+
+    /** A real long press at the middle of the display, window-injected. */
+    private static void holdCenter(androidx.test.espresso.UiController ui, View view) {
+        int[] loc = new int[2];
+        view.getLocationInWindow(loc);
+        float cx = loc[0] + view.getWidth() / 2f;
+        float cy = loc[1] + view.getHeight() / 2f;
+        long t = android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent dn = android.view.MotionEvent.obtain(t, t,
+                android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
+        ui.injectMotionEvent(dn);
+        dn.recycle();
+        ui.loopMainThreadForAtLeast(1200);
+        android.view.MotionEvent up = android.view.MotionEvent.obtain(t, t + 1200,
+                android.view.MotionEvent.ACTION_UP, cx, cy, 0);
+        ui.injectMotionEvent(up);
+        up.recycle();
+        ui.loopMainThreadForAtLeast(300);
     }
 
     /** What the rest of the device would read after a Copy: the system clipboard. */
@@ -109,8 +156,9 @@ public class CalculatorUiTest {
         };
     }
 
-    /** A thumb down on a handle, four moves, a lift -- straight through dispatchTouchEvent,
-     *  which is the public door to the view's own touch listener. */
+    /** A thumb down, four moves, a lift -- injected at WINDOW level so every
+     *  onInterceptTouchEvent between the window and the display gets its say,
+     *  exactly like a finger on his glass. */
     private static void drag(androidx.test.espresso.UiController ui, View view,
                              float fromX, float toX, float y) {
         // Round 18: dispatching straight at the view let the story pass while his
@@ -404,8 +452,11 @@ public class CalculatorUiTest {
     }
 
     @Test public void longPressSelectsTheWholeNumberAndOffersTheMenu() {
-        // Round 13: his device never raised a selection on long press, so the screen runs
-        // its own: the number under the finger is held, handles up, menu with the four.
+        // Round 19: the LONG PRESS IS ANDROID'S OWN again. Thirteen rounds ago an
+        // app-owned long press replaced it because nothing appeared on his device;
+        // the real cause was our own listener shadowing TextView's. With the shadow
+        // gone the stock gesture holds the number under the finger and raises the
+        // menu with the four.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
@@ -537,29 +588,14 @@ public class CalculatorUiTest {
     }
 
     @Test public void draggingEitherHandleMovesThatBoundary() {
-        // Round 16: "not able our left and right boundary, how we do in Android." The
-        // teardrops under the band are real handles now: a thumb down on one and a drag
-        // moves exactly that end of the held text. Google's shape, Google's behaviour.
+        // Round 16 asked for Android's boundaries; round 19 finally hands them
+        // over: the teardrops on screen are the framework's own, and this drag
+        // walks the real window path -- scroll parent and all. Right end in to
+        // offset 4, then left end in to offset 2: two chars must stay held.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
-        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
-            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
-            @Override public String getDescription() { return "drag the right handle left, then the left handle right"; }
-            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
-                android.widget.EditText ed = (android.widget.EditText) view;
-                android.text.Layout lo = ed.getLayout();
-                float d = view.getResources().getDisplayMetrics().density;
-                float padL = ed.getCompoundPaddingLeft();
-                float y = ed.getBaseline() + lo.getLineDescent(0) + 8 * d + 14 * d;
-                float xRight = padL + lo.getPrimaryHorizontal(ed.getSelectionEnd());
-                float xTo = padL + lo.getPrimaryHorizontal(4);
-                drag(ui, view, xRight, xTo, y);
-                ui.loopMainThreadForAtLeast(200);
-                float xLeft = padL + lo.getPrimaryHorizontal(0);
-                float xLeftTo = padL + lo.getPrimaryHorizontal(2);
-                drag(ui, view, xLeft, xLeftTo, y);
-            }
-        });
+        onView(withId(DISPLAY)).perform(narrowRightHandleTo(4));
+        onView(withId(DISPLAY)).perform(narrowLeftHandleTo(2));
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                 if (e != null) throw e;

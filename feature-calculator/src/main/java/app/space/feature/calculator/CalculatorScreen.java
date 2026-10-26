@@ -466,9 +466,11 @@ public final class CalculatorScreen implements Screen {
         int fill;
         int ink;
         float size;
+        int[] gradient = null;
         switch (kind) {
             case EQ:
                 fill = ui.palette().accent;
+                gradient = new int[]{ui.palette().accent, PREVIEW_PINK};
                 ink = android.graphics.Color.WHITE;
                 size = 26;
                 break;
@@ -484,13 +486,14 @@ public final class CalculatorScreen implements Screen {
                 size = 16;
                 break;
             case OP:
-                fill = mix(ui.palette().surface, ui.palette().accent, 0.16f);
-                ink = ui.palette().accent;
+                // Round 19: bright amber operators against the cool digit keys.
+                fill = mix(ui.palette().surface, 0xFFFFC94D, 0.16f);
+                ink = 0xFFFFC94D;
                 size = isScientificCap(key) ? 19 : "( )".equals(key) || "⌫".equals(key) ? 22 : 26;
                 break;
             default:
                 fill = ui.palette().surface;
-                ink = ui.palette().text;
+                ink = android.graphics.Color.WHITE;
                 size = isScientificCap(key) ? 19 : 30;
                 break;
         }
@@ -503,11 +506,17 @@ public final class CalculatorScreen implements Screen {
         GradientDrawable shape = new GradientDrawable();
         shape.setCornerRadius(ui.dp(radiusDp));
         shape.setColor(fill);
+        if (gradient != null) {
+            shape.setOrientation(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT);
+            shape.setColors(gradient);
+        }
         button.setBackground(shape);
         button.setContentDescription(key);
         return button;
     }
 
+    /** Round 19: flat fills read dull. The equals key carries a left-to-right
+     *  accent-to-pink gradient; see the EQ case in the key builder. */
     private static int kindOf(String key) {
         if ("=".equals(key)) return EQ;
         if ("AC".equals(key)) return CMD;
@@ -537,13 +546,15 @@ public final class CalculatorScreen implements Screen {
      *  key inserts at the cursor. The view is created once and only ever setText afterwards,
      *  which is what finally lets the caret survive between taps. */
     private void buildDisplay(Context context, UiKit ui, LinearLayout parent) {
-        final HorizontalScrollView exprScroll = new HorizontalScrollView(context);
+        final SelectionSafeHorizontalScrollView exprScroll =
+                new SelectionSafeHorizontalScrollView(context);
         exprScroll.setHorizontalScrollBarEnabled(false);
         exprScroll.setFillViewport(true);
         exprScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         displayView = new DisplayEditText(context,
                 Math.max(3, (int) (4 * context.getResources().getDisplayMetrics().density)));
         displayView.setId(R.id.calc_display);
+        exprScroll.watched = displayView;
         // Round 18: "first keep the expression typed in the top part of expression
         // box." It hung off the BOTTOM of a tall box, floating mid-air in his
         // screenshot. Top it is, with the live answer beneath it.
@@ -555,12 +566,17 @@ public final class CalculatorScreen implements Screen {
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
-        // Round 16: the hand-drawn translucent band is the only highlight; the
-        // framework's opaque one is switched off rather than stacked underneath.
-        displayView.setHighlightColor(0x00000000);
+        // Round 19: "why can't you use default android which is very good and
+        // robust" -- the framework's OWN highlight is back, in a bright pink
+        // that reads as held on the dark surface. The hand-drawn band is gone.
+        displayView.setHighlightColor(0x66F48FB1);
         // "The expression got typed are not looking enough poppy or bright. It looks
         // dull." Pure white on the dark surface, the way Google's own display reads.
         displayView.setTextColor(android.graphics.Color.WHITE);
+        // Round 19: "the content text, expression, very thing looks dull. Make
+        // it look stunning, colorful and bright." The typed expression is
+        // painted with a cyan-violet-pink gradient across the box, not flat ink.
+        paintGradient(displayView, new int[]{0xFF4DD0E1, 0xFFB388FF, 0xFFFF80AB});
         // The caret must be VISIBLE, his point: the theme's default was not showing on his
         // device, so it is drawn explicitly in the accent colour, two density pixels wide.
         displayView.setCursorVisible(true);
@@ -588,118 +604,17 @@ public final class CalculatorScreen implements Screen {
         displayView.post(new Runnable() {
             @Override public void run() { displayView.requestFocus(); }
         });
+        // Round 19: the screen no longer owns a single gesture. This listener
+        // only WATCHES -- it returns false for everything, so the stock editor
+        // receives every event and runs its own caret placement, its own
+        // long-press selection and its own handle drags. What it records is the
+        // outcome his log needs: what is held after each finger lift.
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    lastTouchX = e.getX();
-                    lastTouchY = e.getY();
-                    longPressHeld = false;
-                    touchMoved = false;
-                    // Round 16: a thumb landing on either teardrop handle drags that
-                    // boundary instead of placing the caret or starting anything else.
-                    dragHandle = displayView.handleAt(e.getX(), e.getY());
-                    if (dragHandle != 0) {
-                        // Round 18: his log held ZERO handle drags twice in a row while
-                        // the emulator story passed -- because the story dispatched
-                        // straight to this view, and his thumb goes through the
-                        // HorizontalScrollView parent, which intercepts a horizontal
-                        // drag and cancels the child. A handle drag forbids that.
-                        if (displayView.getParent() != null) {
-                            displayView.getParent()
-                                    .requestDisallowInterceptTouchEvent(true);
-                        }
-                        AppLog.event(lastContext, "calc", "handle drag began on the "
-                                + (dragHandle < 0 ? "left" : "right") + " boundary");
-                        return true;
-                    }
-                }
-                if (e.getAction() == MotionEvent.ACTION_CANCEL && dragHandle != 0) {
-                    dragHandle = 0;
-                    return true;
-                }
-                if (e.getAction() == MotionEvent.ACTION_MOVE && dragHandle != 0) {
-                    CharSequence held = displayView.getText();
-                    if (!(held instanceof Spannable)) return true;
-                    int off = displayView.getOffsetForPosition(e.getX(),
-                            displayView.getHeight() / 2f);
-                    off = Math.max(0, Math.min(off, held.length()));
-                    int a = displayView.getSelectionStart();
-                    int b = displayView.getSelectionEnd();
-                    if (dragHandle < 0) off = Math.min(off, b - 1);
-                    else off = Math.max(off, a + 1);
-                    Selection.setSelection((Spannable) held,
-                            dragHandle < 0 ? off : a, dragHandle < 0 ? b : off);
-                    displayView.invalidate();
-                    return true;
-                }
-                if (e.getAction() == MotionEvent.ACTION_UP && dragHandle != 0) {
-                    AppLog.event(lastContext, "calc", "handle drag ended: chars "
-                            + displayView.getSelectionStart() + ".."
-                            + displayView.getSelectionEnd() + " held");
-                    dragHandle = 0;
-                    if (displayView.getParent() != null) {
-                        displayView.getParent()
-                                .requestDisallowInterceptTouchEvent(false);
-                    }
-                    return true;
-                }
-                if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (Math.abs(e.getX() - lastTouchX) + Math.abs(e.getY() - lastTouchY)
-                            > android.view.ViewConfiguration.get(v.getContext())
-                                    .getScaledTouchSlop() * 2) touchMoved = true;
-                }
                 if (e.getAction() == MotionEvent.ACTION_UP) {
-                    // Round 14: a long press raises the selection and the finger lifting
-                    // afterwards must not collapse it again. His log showed exactly that
-                    // sequence twice a minute: "selection started: chars 0..6 held" then,
-                    // 200 ms later, "cursor placed at N" -- the highlight lived only while
-                    // his thumb was down, and what remained was an empty menu.
-                    if (longPressHeld) {
-                        longPressHeld = false;
-                        return false;
-                    }
-                    // Dragging a selection handle is a move followed by a lift while the
-                    // selection is live; that gesture adjusts the held length and must
-                    // never be mistaken for a tap that dismisses everything.
-                    if (touchMoved && displayView.hasSelection()) {
-                        touchMoved = false;
-                        return false;
-                    }
-                    touchMoved = false;
-                    // A plain tap while the selection menu is open dismisses it, exactly
-                    // like tapping elsewhere in any editor.
-                    if (currentSelectionMode != null) currentSelectionMode.finish();
-                    // Round 11: his log shows four middle taps all landing at the END, so
-                    // the editor's own placement cannot be trusted on his device. The
-                    // screen maps the touch x through the layout itself and forces the
-                    // selection there -- middle of the number means middle of the number.
-                    final float touchX = e.getX();
-                    final DisplayEditText ed = displayView;
-                    ed.post(new Runnable() {
-                        @Override public void run() {
-                            android.text.Layout lo = ed.getLayout();
-                            CharSequence txt = ed.getText();
-                            if (lo == null || !(txt instanceof Spannable)) return;
-                            int off = ed.getOffsetForPosition(touchX,
-                                    ed.getHeight() / 2f);
-                            off = Math.max(0, Math.min(off, txt.length()));
-                            Selection.setSelection((Spannable) txt, off, off);
-                            caret = dispToRaw(off);
-                            AppLog.event(lastContext, "calc", "cursor placed at " + caret
-                                    + " (display offset " + off + ")");
-                        }
-                    });
-                    // The editor places its own caret; the hand-rolled offset math that used
-                    // to run here pinned every tap to 0 on the device -- "cursor placed at 0",
-                    // 103 times in his log. Now the log records where the editor actually
-                    // landed, after it has landed.
-                    displayView.post(new Runnable() {
-                        @Override public void run() {
-                            // The editor's own reading, kept as the cross-check line.
-                            AppLog.event(lastContext, "calc", "editor caret at display "
-                                    + displayView.getSelectionStart());
-                        }
-                    });
+                    AppLog.event(lastContext, "calc", "display gesture ended: "
+                            + "selection " + displayView.getSelectionStart()
+                            + ".." + displayView.getSelectionEnd() + " held");
                 }
                 return false;
             }
@@ -728,6 +643,9 @@ public final class CalculatorScreen implements Screen {
                 menu.add(0, SEL_CUT, 1, "Cut");
                 menu.add(0, SEL_PASTE, 2, "Paste");
                 menu.add(0, SEL_ALL, 3, "Select all");
+                AppLog.event(lastContext, "calc", "selection started: chars "
+                        + menuSelA + ".." + menuSelB
+                        + " held by the stock editor, handles and menu raised");
                 AppLog.event(lastContext, "calc",
                         "selection menu opened: Copy, Cut, Paste, Select all");
                 return true;
@@ -830,33 +748,12 @@ public final class CalculatorScreen implements Screen {
         // selects the whole number (or the operator) under the finger, raises the handles,
         // and starts the Cut/Copy/Paste/Select-all menu itself. Dragging the handles then
         // adjusts the length exactly as it does in any editor.
-        displayView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(View v) {
-                CharSequence txt = displayView.getText();
-                if (!(txt instanceof Spannable) || txt.length() == 0) return false;
-                int off = displayView.getOffsetForPosition(lastTouchX, lastTouchY);
-                off = Math.max(0, Math.min(off, txt.length() - 1));
-                char c = txt.charAt(off);
-                int a = off, b = off + 1;
-                if (Character.isDigit(c) || c == ',' || c == '.') {
-                    while (a > 0 && (Character.isDigit(txt.charAt(a - 1))
-                            || txt.charAt(a - 1) == ',' || txt.charAt(a - 1) == '.')) a--;
-                    while (b < txt.length() && (Character.isDigit(txt.charAt(b))
-                            || txt.charAt(b) == ',' || txt.charAt(b) == '.')) b++;
-                }
-                Selection.setSelection((Spannable) txt, a, b);
-                AppLog.event(lastContext, "calc", "selection started: chars " + a + ".." + b
-                        + " held, handles raised for the required length");
-                longPressHeld = true;
-                // Round 14: the floating toolbar -- the modern menu that hovers over the
-                // selection itself, the one Keep Notes and every current editor show.
-                // His words for the primary bar were "some old style copy cut option
-                // in top", and he was right: TYPE_PRIMARY is the 2009 bar.
-                displayView.startActionMode(selectionMenu,
-                        android.view.ActionMode.TYPE_FLOATING);
-                return true;
-            }
-        });
+        // Round 19: the app-owned long press is GONE, and with it the shadow it
+        // cast: a view whose long-click listener returns true never reaches
+        // TextView's own long-press selection, which is why thirteen rounds of
+        // "default android" never ran on his device. Hold-to-select, the
+        // teardrop handles and the whole drag machinery are Android's own now --
+        // "by hook or crook make it work" is answered by stepping out of the way.
         displayView.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
@@ -891,6 +788,9 @@ public final class CalculatorScreen implements Screen {
         sp.weight = 1f;
         parent.addView(exprScroll, sp);
         previewView = ui.label(" ", 20, PREVIEW_PINK, false);
+        // Round 19: the live answer glows pink-to-amber under the gradient
+        // expression -- the two brightest things on the screen.
+        paintGradient(previewView, new int[]{0xFFF48FB1, 0xFFFFB74D});
         previewView.setGravity(Gravity.RIGHT | Gravity.TOP);
         previewView.setMaxLines(1);
         previewView.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -1580,6 +1480,40 @@ public final class CalculatorScreen implements Screen {
         }
     }
 
+    /** Round 19: the stock selection handles live inside the display view's own
+     *  touch handling, so a horizontal-scroll parent that intercepts the drag
+     *  kills them -- the exact theft two rounds of owner logs proved. While a
+     *  selection is up (handles visible) this scroller refuses to intercept;
+     *  with nothing held it scrolls the long expression exactly as before. */
+    static final class SelectionSafeHorizontalScrollView extends HorizontalScrollView {
+        android.widget.EditText watched;
+
+        SelectionSafeHorizontalScrollView(Context context) { super(context); }
+
+        @Override public boolean onInterceptTouchEvent(MotionEvent ev) {
+            if (ev.getAction() == MotionEvent.ACTION_MOVE && watched != null
+                    && watched.hasSelection()) {
+                return false;
+            }
+            return super.onInterceptTouchEvent(ev);
+        }
+    }
+
+    /** Round 19: flat ink reads dull on his screen. A left-to-right gradient
+     *  across the view's own width, re-applied whenever that width changes. */
+    private static void paintGradient(final android.widget.TextView v, final int[] colors) {
+        v.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override public void onLayoutChange(View vv, int l, int t, int r, int b,
+                    int ol, int ot, int or, int ob) {
+                int w = vv.getWidth();
+                if (w <= 0) return;
+                vv.getPaint().setShader(new android.graphics.LinearGradient(
+                        0, 0, w, 0, colors, null, android.graphics.Shader.TileMode.CLAMP));
+                vv.invalidate();
+            }
+        });
+    }
+
     static final class DisplayEditText extends android.widget.EditText {
         boolean applying;
 
@@ -1592,14 +1526,12 @@ public final class CalculatorScreen implements Screen {
 
         private final android.graphics.Paint caretPaint =
                 new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        private final android.graphics.Paint selPaint = new android.graphics.Paint();
         private int caretWidth = 3;
 
         DisplayEditText(Context context, int widthPx) {
             super(context);
             caretWidth = widthPx;
             caretPaint.setStyle(android.graphics.Paint.Style.FILL);
-            selPaint.setStyle(android.graphics.Paint.Style.FILL);
             // Round 9, his first line: "when tried to move the cursor, the device keyboard
             // is coming and not able to operate the calculator." This constructor -- the
             // one the screen actually uses -- never carried the suppression the unused
@@ -1623,47 +1555,13 @@ public final class CalculatorScreen implements Screen {
         void setCaretColors(int caretColor, int selectionColor) {
             caretPaint.setColor(caretColor);
             selPaint.setColor(selectionColor);
-            // Round 16: "when selected, the values or expression that got copied is not
-            // visible." The band used to be an opaque slab painted OVER the glyphs. It
-            // is translucent now, and drawn beneath them. Round 17: "the selected is not
-            // that properly visible... implement the same build in Android selection
-            // design" -- the band is Android's own lavender at forty percent, the colour
-            // his Google screenshot shows, not a dim navy square.
-            float d = getResources().getDisplayMetrics().density;
-            handleD = d;
-            handleStem = 8 * d;
-            handleRadius = 14 * d;
+            // Round 19: only the caret colour lives here now. The selection band and
+            // the teardrop handles the previous rounds drew by hand are deleted --
+            // the framework paints its own highlight and its own handles, which is
+            // the robustness his message asked for.
         }
 
-        /** Geometry of the last drawn band and handles, in view coordinates. */
-        float handleLX, handleRX, handleY;
-        boolean handlesUp;
-        private float bandL, bandR;
-        private int bandB, bandT;
-        private boolean bandUp;
-        private float handleStem, handleRadius, handleD;
-        private final android.graphics.Paint handlePaint = new android.graphics.Paint();
-        {
-            // The bulb colour from his Google screenshot: a pale periwinkle that reads
-            // as "held" on any dark surface.
-            handlePaint.setColor(0xFFB9BBF4);
-            handlePaint.setStyle(android.graphics.Paint.Style.FILL);
-        }
 
-        /** -1 for the left handle, 1 for the right, 0 for "not on a handle".
-         *  Round 17: his log holds fifteen selections and ZERO handle drags -- the bulb
-         *  alone was too small a target for a thumb on glass. The whole strip around
-         *  each end of the band, from above the text to below the bulb, now grabs that
-         *  boundary, the way Android's own handles forgive an imprecise thumb. */
-        int handleAt(float x, float y) {
-            if (!handlesUp) return 0;
-            float rx = 24 * handleD;
-            if (Math.abs(x - handleLX) <= rx
-                    && y >= bandT - 24 * handleD && y <= handleY + 24 * handleD) return -1;
-            if (Math.abs(x - handleRX) <= rx
-                    && y >= bandT - 24 * handleD && y <= handleY + 24 * handleD) return 1;
-            return 0;
-        }
 
         /**
          * The caret the owner could never find: drawn by hand, every frame, focused or
@@ -1671,51 +1569,21 @@ public final class CalculatorScreen implements Screen {
          * device. The selection band is drawn too, so selecting text is finally visible.
          */
         @Override protected void onDraw(android.graphics.Canvas c) {
-            // Round 16: the band goes in FIRST, under the glyphs, so a held expression
-            // stays readable while it is held. The caret and the two drag handles go
-            // last, over everything, because they are furniture, not text.
+            // Round 19: band and teardrops are gone from here -- the framework
+            // paints its own highlight and its own handles. Only the caret stays
+            // hand-drawn: three rounds proved his device will not show the
+            // theme's cursor, and a visible caret is a standing requirement.
             android.text.Layout lo = getLayout();
-            bandUp = false;
-            handlesUp = false;
             int padL = 0, base = 0, base0 = 0;
-            int s = -1, en = -1;
+            int s = -1;
             if (lo != null) {
                 padL = getCompoundPaddingLeft();
-                // Round 11: padding math kept missing his device's gravity offset -- the bar
-                // floated above the text in his screenshot. getBaseline() is where the first
-                // line is ACTUALLY drawn, so every caret and band coordinate is derived from
-                // it and cannot drift from the glyphs again.
                 base = getBaseline();
                 base0 = lo.getLineBaseline(0);
                 s = getSelectionStart();
-                en = getSelectionEnd();
-                if (s >= 0 && en > s) {
-                    int l1 = lo.getLineForOffset(s);
-                    int l2 = lo.getLineForOffset(en);
-                    for (int ln = l1; ln <= l2; ln++) {
-                        float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
-                        float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
-                        int lb = base + lo.getLineBaseline(ln) - base0;
-                        float top = lb + lo.getLineAscent(ln);
-                        float bot = lb + lo.getLineDescent(ln);
-                        c.drawRect(padL + x1, top, padL + x2, bot, selPaint);
-                        if (ln == l1) {
-                            bandL = padL + x1;
-                            bandT = (int) top;
-                        }
-                        if (ln == l2) {
-                            bandR = padL + x2;
-                            bandB = (int) bot;
-                            bandUp = true;
-                        }
-                    }
-                }
             }
             super.onDraw(c);
             if (lo == null) return;
-            // His device reports placements while the framework selection reads empty, so
-            // the screen's own caret offset is the fallback: the bar always stands exactly
-            // where the next keypad key will land.
             int cs = s >= 0 ? s : Math.max(0, fallbackCaret);
             if (cs <= length()) {
                 int ln = lo.getLineForOffset(cs);
@@ -1723,24 +1591,6 @@ public final class CalculatorScreen implements Screen {
                 int lb = base + lo.getLineBaseline(ln) - base0;
                 c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
                         x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
-            }
-            if (bandUp) {
-                // Round 16: "not able our left and right boundary, how we do in Android."
-                // Google's teardrops: a stem down from each band corner and a bulb under
-                // it. They are drawn here AND hit-tested by the screen's touch listener,
-                // so dragging either one moves that boundary -- his device never showed
-                // the framework's handles, so these are the handles.
-                handleY = bandB + handleStem + handleRadius;
-                handleLX = bandL;
-                handleRX = bandR;
-                handlesUp = true;
-                // Android's teardrop: a thin stem from the band corner into a round
-                // bulb, not the stubby square the last round drew on his glass.
-                float sw = 2 * handleD;
-                c.drawRect(handleLX - sw, bandB - 2, handleLX + sw, bandB + handleStem, handlePaint);
-                c.drawCircle(handleLX, handleY, handleRadius, handlePaint);
-                c.drawRect(handleRX - sw, bandB - 2, handleRX + sw, bandB + handleStem, handlePaint);
-                c.drawCircle(handleRX, handleY, handleRadius, handlePaint);
             }
         }
 

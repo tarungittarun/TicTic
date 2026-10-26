@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.20'", gradle)
-        self.assertIn("versionCode 57", gradle)
+        self.assertIn("versionName '3.12.21'", gradle)
+        self.assertIn("versionCode 58", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3390,19 +3390,25 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
             self.assertIn("<adaptive-icon", body)
             self.assertIn("@color/ic_launcher_background", body)
             self.assertIn("@drawable/ic_launcher_foreground", body)
-            # Android 13+ themed icons. Without a monochrome layer the launcher shows a
-            # full-colour mark in a row of themed ones, or leaves a gap.
-            self.assertIn("<monochrome", body)
+            # Round 19: the owner picked the honeycomb mark (logos/logo-08.png), a
+            # full-bleed raster tile. The themed monochrome layer is gone with the
+            # old vector mark -- a themed row shows the colour mark, not a wrong
+            # silhouette of hexagons.
+            self.assertNotIn("<monochrome", body)
         self.assertIn('name="ic_launcher_background"',
                       (ROOT / "app/src/main/res/values/colors.xml").read_text())
 
-    def test_the_foreground_mark_sits_inside_the_adaptive_safe_zone(self):
-        # The launcher mask crops everything outside a circle of radius 33 in the 108-unit
-        # canvas, so a mark drawn edge to edge loses its ring on a circular launcher.
-        foreground = (ROOT / "app/src/main/res/drawable/ic_launcher_foreground.xml").read_text()
-        self.assertIn('android:viewportWidth="108"', foreground)
-        self.assertIn('android:scaleX="1.3"', foreground)
-        self.assertIn('android:translateX="22.8"', foreground)
+    def test_the_honeycomb_mark_the_owner_picked_is_the_icon(self):
+        # Round 19, his choice from the ten candidates: the honeycomb, logos/logo-08.png.
+        # The adaptive foreground is the tile itself, full-bleed at 432x432 -- the
+        # launcher mask supplies the shape -- and the background colour is the tile's
+        # own slate, so no edge ever shows between mask and mark.
+        self.assertTrue((ROOT / "app/src/main/res/drawable/ic_launcher_foreground.png").exists())
+        self.assertFalse((ROOT / "app/src/main/res/drawable/ic_launcher_foreground.xml").exists())
+        self.assertFalse((ROOT / "app/src/main/res/drawable/ic_launcher_monochrome.xml").exists())
+        self.assertIn("#2C3641", (ROOT / "app/src/main/res/values/colors.xml").read_text())
+        # The in-app header wears the same mark.
+        self.assertTrue((ROOT / "app/src/main/res/drawable/ic_brand.png").exists())
         # minSdk 26 means every device supports adaptive icons, so anydpi-v26 alone is
         # sufficient and no density PNG fallbacks are required.
         self.assertNotIn("mipmap-hdpi", (ROOT / "app/build.gradle").read_text())
@@ -4371,12 +4377,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("setCustomSelectionActionModeCallback", screen)
         self.assertIn("menu.add(0, SEL_CUT, 1, \"Cut\");", screen)
         self.assertIn("private static String clipboardText(Context context) {", screen)
-        # Round 14: the floating toolbar over the selection, the selection that
-        # outlives the finger lift, and the changeable-mind operator at the caret.
-        self.assertIn("android.view.ActionMode.TYPE_FLOATING);", screen)
-        self.assertIn("private boolean longPressHeld;", screen)
-        self.assertIn("if (longPressHeld) {", screen)
-        self.assertIn("if (touchMoved && displayView.hasSelection()) {", screen)
+        # Round 14 wanted a floating toolbar and a selection that outlives the
+        # finger lift. Round 19 hands both to the stock editor, which does both
+        # natively: we never start an action mode ourselves and no listener of
+        # ours can collapse a selection as the thumb lifts -- the two old
+        # workarounds must stay deleted.
+        self.assertNotIn("startActionMode(", screen)
+        self.assertNotIn("if (longPressHeld) {", screen)
+        self.assertNotIn("if (touchMoved && displayView.hasSelection()) {", screen)
         self.assertIn("currentSelectionMode = mode;", screen)
         self.assertIn("currentSelectionMode = null;", screen)
         self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
@@ -4385,30 +4393,35 @@ class TestInfrastructureContracts(unittest.TestCase):
         # Round 15: the one bracket key asks the CARET, not the end, which
         # bracket fits -- it offers the other one when the first is refused.
         self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
-        # Round 16: the held expression stays readable -- translucent band
-        # UNDER the glyphs -- and the teardrop handles are drawn and draggable.
+        # Round 16: the caret colours stay. The hand-drawn band and the teardrop
+        # handles are GONE as of round 19 -- the framework paints both now.
         self.assertIn("displayView.setCaretColors(ui.palette().accent, 0x66B9BBF4);", screen)
-        self.assertLess(screen.index("c.drawRect(padL + x1, top, padL + x2, bot, selPaint);"),
-                        screen.index("super.onDraw(c);"))
-        self.assertIn("handlePaint.setColor(0xFFB9BBF4);", screen)
-        self.assertIn("int handleAt(float x, float y) {", screen)
-        # Round 17: the whole end-strip grabs a boundary; the menu remembers what
-        # it was raised over; the menu dies when the screen moves on.
-        self.assertIn("float rx = 24 * handleD;", screen)
-        # Round 18: expression at the top of its box, bulbs with room to
-        # live, and a handle drag the scroll parent cannot steal.
+        self.assertNotIn("handlePaint", screen)
+        self.assertNotIn("int handleAt(float x, float y) {", screen)
+        self.assertNotIn("displayView.setOnLongClickListener", screen)
+        # Round 18: expression at the top of its box, with room below for the
+        # stock handles to live.
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
         self.assertIn("displayView.setPadding(0, 0, 0, ui.dp(34));", screen)
-        self.assertIn("handleRadius = 14 * d;", screen)
-        self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
-        self.assertIn("\"handle drag began on the \"", screen)
+        # Round 19: "why can't you use default android which is very good and
+        # robust" -- the stock highlight, the stock gestures, and a scroller that
+        # refuses to steal a handle drag while a selection is up.
+        self.assertIn("displayView.setHighlightColor(0x66F48FB1);", screen)
+        self.assertIn("new SelectionSafeHorizontalScrollView(context);", screen)
+        self.assertIn("&& watched.hasSelection()) {", screen)
+        self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
+        # Round 19: "make it look stunning, colorful and bright" -- gradient
+        # expression, gradient preview, gradient equals key, amber operators.
+        self.assertIn("paintGradient(displayView, new int[]{0xFF4DD0E1, 0xFFB388FF, 0xFFFF80AB});", screen)
+        self.assertIn("paintGradient(previewView, new int[]{0xFFF48FB1, 0xFFFFB74D});", screen)
+        self.assertIn("shape.setColors(gradient);", screen)
+        self.assertIn("ink = 0xFFFFC94D;", screen)
         self.assertIn("if (rawKey.charAt(0) == '-' && !unarySlot && before != '+') {", screen)
         self.assertIn("private int menuSelA, menuSelB;", screen)
         self.assertIn("int a = dispToRaw(menuSelA);", screen)
         self.assertIn("private void closeSelectionMenu() {", screen)
-        self.assertIn("dragHandle = displayView.handleAt(e.getX(), e.getY());", screen)
-        self.assertIn("\"handle drag ended: chars \"", screen)
-        self.assertIn("displayView.setHighlightColor(0x00000000);", screen)
+        self.assertIn("\"display gesture ended: \"", screen)
+        self.assertNotIn("displayView.setHighlightColor(0x00000000);", screen)
         self.assertIn("displayView.setTextColor(android.graphics.Color.WHITE);", screen)
         self.assertIn("private static final int PREVIEW_PINK = 0xFFF48FB1;", screen)
         self.assertIn('"selection started: chars "', screen)
@@ -4420,7 +4433,10 @@ class TestInfrastructureContracts(unittest.TestCase):
         # Round 16: the baseline anchor is declared once for band, caret and
         # handles, so the pin reads the assignment, not the declaration.
         self.assertIn("base = getBaseline();", screen)
-        self.assertIn("int off = ed.getOffsetForPosition(touchX,", screen)
+        # Round 19: caret placement on tap is the stock editor's own again. The
+        # hand-rolled offset math must stay deleted -- the instrumented mid-number
+        # tap story is what proves the framework places the caret mid-number.
+        self.assertNotIn("getOffsetForPosition(touchX,", screen)
         self.assertIn("PopupWindow self = menuPopup;", screen)
         self.assertIn("String typed = CalculatorRules.autoClose(trimmed());", screen)
         rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
@@ -4527,6 +4543,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("aTapElsewhereClosesTheMenuAndClearsTheSelection", ui)
         self.assertIn("acWhileHeldClearsTheHeldTextAndTheMenu", ui)
         self.assertIn("minusUnderAMultiplyMidExpressionKeepsBoth", ui)
+        self.assertIn("stockHandleDrag", ui)
+        self.assertIn("holdCenter(ui, view);", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

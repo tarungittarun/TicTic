@@ -1846,10 +1846,22 @@ public final class CalculatorScreen implements Screen {
         if ("( )".equals(key)) {
             // One button opens and closes, Google's way: the rules decide which bracket
             // fits, so 5(1+1 then ( ) closes the group instead of stacking another.
+            // Round 15: smartBracket reads the END of the expression, but the thumb is
+            // at the CARET. Mid-expression the two disagree -- his log: "key ) refused at
+            // 3 (after '()'" then "neither bracket fits", because only the end-wise choice
+            // was ever tried. Google's one bracket key fits the cursor, so the key now
+            // offers the other bracket when the first does not fit where the thumb is.
             String bracket = CalculatorRules.smartBracket(expression.toString());
             if (insertAtCaret(context, bracket)) {
                 AppLog.event(context, "calc", "key ( ) inserted " + bracket
                         + " at " + caret + ": now " + readable(expression.toString()));
+                return;
+            }
+            String other = "(".equals(bracket) ? ")" : "(";
+            if (insertAtCaret(context, other)) {
+                AppLog.event(context, "calc", "key ( ) inserted " + other
+                        + " at " + caret + " (the caret's choice, not the end's): now "
+                        + readable(expression.toString()));
                 return;
             }
             AppLog.event(context, "calc", "key ( ) refused: neither bracket fits at the cursor");

@@ -17,6 +17,42 @@ public class CalculatorRulesTest {
 
     private static final double EPS = 1e-9;
 
+    @Test public void googleFlexibilityMatchesTheOwnersScreenshots() {
+        // Round 15, owner: "Need a proper working calculator with the flexibility but
+        // with accuracy of functionalities. Strict your testcases and coverage." Every
+        // line below is a key sequence or a reading from his two screenshots of Google's
+        // calculator, pinned so the flexibility cannot quietly regress.
+        // Screenshot 2, exactly as typed on his glass: 1%%x-1+2 = 1.9999.
+        assertEquals("1%%", CalculatorRules.append("1%", "%"));
+        assertEquals("1%%*", CalculatorRules.append("1%%", "\u00d7"));
+        assertEquals("1%%*-", CalculatorRules.append("1%%*", "-"));
+        assertEquals(1.9999d, CalculatorRules.evaluate("1%%*-1+2"), 1e-9);
+        // A minus under an operator is the negation of the operand being typed.
+        assertEquals(-3d, CalculatorRules.evaluate("5*-1+2"), 1e-9);
+        assertEquals(6d, CalculatorRules.evaluate("5--1"), 1e-9);
+        assertEquals(0.125d, CalculatorRules.evaluate("2^-3"), 1e-9);
+        assertEquals(-4d, CalculatorRules.evaluate("-2^2"), 1e-9);
+        assertEquals("5*-", CalculatorRules.append("5*", "-"));
+        assertEquals("5*-", CalculatorRules.append("5*-", "-"));
+        assertEquals("5+", CalculatorRules.append("5*-", "+"));
+        assertEquals("5-", CalculatorRules.append("5+", "-"));
+        // Percent chains: hundredths each time; under + and - of the running sum.
+        assertEquals(0.0001d, CalculatorRules.evaluate("1%%"), 1e-9);
+        assertEquals(220d, CalculatorRules.evaluate("200+10%"), 1e-9);
+        assertEquals(240d, CalculatorRules.evaluate("200+10%%"), 1e-9);
+        assertEquals(20d, CalculatorRules.evaluate("200*10%"), 1e-9);
+        // A chained percent meeting a fresh number mid-expression multiplies implicitly.
+        assertEquals(0.0408d, CalculatorRules.evaluate("12%%34"), 1e-9);
+        // Percent still refuses to float without a number to belong to.
+        assertNull(CalculatorRules.append("5*", "%"));
+        assertNull(CalculatorRules.append("", "%"));
+        // Screenshot 1: unclosed brackets are balanced, not punished. 663((5+853 = 568854.
+        assertEquals(568854d,
+                CalculatorRules.evaluate(CalculatorRules.autoClose("663((5+853)")), 1e-9);
+        assertEquals("((", CalculatorRules.append("(", "("));
+        assertNull(CalculatorRules.append("(", ")"));
+    }
+
     @Test public void everyScientificCapEvaluates() {
         // Round 12: "test each of the buttons combination option available" -- every cap
         // the scientific panel can show, base and Inv, evaluated through the rules.
@@ -63,8 +99,11 @@ public class CalculatorRulesTest {
         assertEquals("5+2", CalculatorRules.append("5+", "2"));
         // A minus chain was the exact garbage typed on device: "0/0------85522*3*-". One negation
         // minus may follow an operator; a second replaces it, so the chain cannot grow.
-        assertEquals("5-", CalculatorRules.append("5+-", "-"));
-        assertEquals("5-", CalculatorRules.append("5-", "-"));
+        // Round 15 reversal, on the owner's screenshot 1%%x-1+2: a minus after an
+        // operator is Google's negation sign, so an existing sign stands (no stacked
+        // signs) and a binary minus followed by minus is 5-(-x), not a replacement.
+        assertEquals("5+-", CalculatorRules.append("5+-", "-"));
+        assertEquals("5--", CalculatorRules.append("5-", "-"));
         assertEquals("-", CalculatorRules.append("-", "-"));
         assertEquals("5*", CalculatorRules.append("5*-", "*"));
         assertEquals("5+", CalculatorRules.append("5*-", "+"));
@@ -237,7 +276,8 @@ public class CalculatorRulesTest {
         // is still refused: a percent with nothing to belong to is not mathematics.
         assertEquals("5%", CalculatorRules.append("5+", "%"));
         assertNull(CalculatorRules.append("+", "%"));
-        assertNull(CalculatorRules.append("5%", "%"));
+        // Round 15: Google chains percents -- 1%% is one hundredth of one hundredth.
+        assertEquals("5%%", CalculatorRules.append("5%", "%"));
     }
 
     @Test public void scientificPanelIsDegreesByDefaultWithARadianEscape() {

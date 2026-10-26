@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.16'", gradle)
-        self.assertIn("versionCode 53", gradle)
+        self.assertIn("versionName '3.12.17'", gradle)
+        self.assertIn("versionCode 54", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4382,6 +4382,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
         self.assertIn("candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);", screen)
         self.assertIn("candidate = raw.substring(0, at) + rawKey + raw.substring(at + 1);", screen)
+        # Round 15: the one bracket key asks the CARET, not the end, which
+        # bracket fits -- it offers the other one when the first is refused.
+        self.assertIn("String other = \"(\".equals(bracket) ? \")\" : \"(\";", screen)
         self.assertIn('"selection started: chars "', screen)
         self.assertIn("int added = candidate.length() - (raw.length() - (sel[1] - at));", screen)
         self.assertIn("boolean fraction = out.length() > 0 && out.charAt(out.length() - 1) == '.';", screen)
@@ -4487,6 +4490,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theSelectionSurvivesTheFingerLiftingAndTheMenuFollows", ui)
         self.assertIn("anOperatorTypedOverAnOperatorReplacesItMidExpression", ui)
         self.assertIn("aPlainTapAfterTheMenuClosesPlacesTheCaretAgain", ui)
+        self.assertIn("percentChainsAndNegationExactlyAsTheOwnersScreenshot", ui)
+        self.assertIn("percentChainsMidExpressionToo", ui)
+        self.assertIn("theBracketKeyFitsTheCaretNotJustTheEnd", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):
@@ -4497,6 +4503,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("historyIsACappedOrderedDeduplicatedStore", j)
         rt = java_code_only((ROOT / "feature-calculator/src/test/java/app/space/feature/calculator/CalculatorRulesTest.java").read_text())
         self.assertIn("everyScientificCapEvaluates", rt)
+        self.assertIn("googleFlexibilityMatchesTheOwnersScreenshots", rt)
 
     def test_the_screen_views_carry_stable_ids_for_the_suite(self):
         ids = (ROOT / "feature-calculator/src/main/res/values/ids.xml").read_text()
@@ -4508,6 +4515,12 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("static String withImplicitMultiplication(String expression)", rules)
         self.assertIn('if ("cbrt".equals(name)) return Math.cbrt(arg);', rules)
         self.assertIn('if ("(".equals(token)) return append(current, token);', rules)
+        # Round 15, his screenshots of Google: chained percents, the minus that lives
+        # under an operator as negation, and the percent-after-percent input gate.
+        self.assertIn("if (Character.isDigit(last) || last == ')' || last == '%') return current + c;", rules)
+        self.assertIn("boolean unarySlot = last == '-' && current.length() >= 2", rules)
+        self.assertIn("if (c == '-' && last != '+') return current + c;", rules)
+        self.assertIn("(?<=[%!])(?=[0-9", rules)
 
 
 class OutcomeLogContracts(unittest.TestCase):

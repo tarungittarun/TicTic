@@ -36,7 +36,10 @@ public final class CalculatorRules {
      */
     static String withImplicitMultiplication(String expression) {
         String s = expression.replaceAll("(?<=[0-9!%)\u03c0])(?=\\()", "*");
-        return s.replaceAll("(?<=\\))(?=[0-9(\u03c0e])", "*");
+        s = s.replaceAll("(?<=\\))(?=[0-9(\u03c0e])", "*");
+        // Round 15: a chained percent mid-expression -- 12%%34 -- is a finished
+        // operand meeting a fresh number, exactly the 2(5+2)2 case one symbol later.
+        return s.replaceAll("(?<=[%!])(?=[0-9\u03c0e])", "*");
     }
 
     /**
@@ -166,7 +169,11 @@ public final class CalculatorRules {
             // Google's percent is postfix: it belongs to the number just typed. After an
             // operator or at the start there is no number for it to belong to, so it is
             // refused rather than guessed -- the same discipline as every other key here.
-            if (Character.isDigit(last) || last == ')') return current + c;
+            // Round 15, his screenshot 1%%x-1+2 = 1.9999: Google chains percents, each
+            // one dividing by a hundred again, and the chain lives anywhere a single
+            // percent lives -- mid-expression included, because the mid-expression gate
+            // replays these very rules.
+            if (Character.isDigit(last) || last == ')' || last == '%') return current + c;
             // Except over a pending operator, where the owner's 2026-10-26 list puts it:
             // 10+ then % becomes 10%, the percent joining the number already typed.
             if (isOperator(last) && current.length() >= 2) {
@@ -180,24 +187,28 @@ public final class CalculatorRules {
         if (c == '+' || c == '-' || c == '*' || c == '/') {
             if (current.isEmpty()) return c == '-' ? "-" : null;
             if (isOperator(last)) {
-                // The owner's first two points, 2026-10-26: he typed 10+ , changed his mind to
-                // minus, and had to backspace first. A trailing operator with no operand after
-                // it is a changeable mind: EVERY operator key -- minus included -- replaces it,
-                // so 10+ then - is 10- in one tap. The old carve-out that let a minus append as
-                // a negation (5+-) is exactly what read to him as "not taking"; negation now
-                // lives behind the bracket key, 10+(-3), where it is visible and editable.
                 // A lone leading minus is not an operand to swap operators over.
-                // A lone leading minus is not an operand to swap operators over; minus over
-                // itself is simply the same pending operator, so it stands.
                 if ("-".equals(current)) return c == '-' ? "-" : null;
-                // A minus sitting after another operator is the legacy negation slot, from
-                // stores and editors that predate this rule. Swapping operators drops it
-                // with them -- 5*- then + is 5+, not 5*-+ -- because stacked operators are
-                // the one thing this method exists to prevent, reachable input or not.
-                if (last == '-' && current.length() >= 2
-                        && isOperator(current.charAt(current.length() - 2))) {
-                    return current.substring(0, current.length() - 2) + c;
+                // A minus sitting directly after another operator or an open bracket is
+                // the negation sign of the operand about to be typed -- 5*- then + drops
+                // the sign with the operator it belonged to: 5+, not 5*-+.
+                boolean unarySlot = last == '-' && current.length() >= 2
+                        && (isOperator(current.charAt(current.length() - 2))
+                                || current.charAt(current.length() - 2) == '(');
+                if (unarySlot) {
+                    // No stacked signs: a second minus over the sign changes nothing.
+                    if (c == '-') return current;
+                    return current.substring(0, current.length() - 1) + c;
                 }
+                // Round 15, his screenshot 1%%x-1+2: "how Google calculator allows *-
+                // both. Do research how it handles that and implement the same." It
+                // handles it as negation -- the minus belongs to the next operand, not
+                // to the operator stack -- under a multiplicative operator, a power or
+                // a binary minus. Over a PLUS the minus is still the changeable mind
+                // (10+ then - is 10-, his round-6 point), because +- of a pending
+                // operator carries no meaning a single operator does not.
+                if (c == '-' && last != '+') return current + c;
+                // Every other operator over a pending one replaces it: 10+ then x is 10x.
                 return current.substring(0, current.length() - 1) + c;
             }
             return current + c;

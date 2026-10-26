@@ -403,6 +403,55 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("312")));
     }
 
+    @Test public void percentChainsAndNegationExactlyAsTheOwnersScreenshot() {
+        // Round 15: his screenshot of Google reads 1%%x-1+2 = 1.9999 -- chained percents
+        // and a minus living under a multiply. The pad must type that exact sequence.
+        type("1", "%", "%", "\u00d7", "\u2212", "1", "+", "2", "=");
+        onView(withId(DISPLAY)).check(matches(withText("1.9999")));
+    }
+
+    @Test public void percentChainsMidExpressionToo() {
+        // Round 15: "it should allow in the middle of typed expression as well. But now
+        // it doesn't allows % when tried to." Caret parked inside a number, two percents
+        // chain there, and equals still answers -- the chained operand meets the rest of
+        // the number as an implicit product, the 2(5+2)2 rule one symbol later.
+        type("1", "2", "3", "4");
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "park the caret inside the number"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.text.Spannable s =
+                        (android.text.Spannable) ((android.widget.EditText) view).getText();
+                android.text.Selection.setSelection(s, 2, 2);
+            }
+        });
+        type("%", "%");
+        onView(withId(DISPLAY)).check(matches(withText("12%%34")));
+        type("=");
+        onView(withId(DISPLAY)).check(matches(withText("0.0408")));
+    }
+
+    @Test public void theBracketKeyFitsTheCaretNotJustTheEnd() {
+        // Round 15: his log -- "key ) refused at 3 (after '()'" then "neither bracket
+        // fits" -- because the one bracket key asked the END of the expression which
+        // bracket fits while his thumb sat after an open one. Screenshot 1 is Google
+        // typing 663((5+853 and answering 568854 with nothing closed.
+        type("6", "6", "3", "( )", "5", "+", "8", "5", "3");
+        onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { return "park the caret after the 663"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.text.Spannable s =
+                        (android.text.Spannable) ((android.widget.EditText) view).getText();
+                android.text.Selection.setSelection(s, 3, 3);
+            }
+        });
+        type("( )");
+        onView(withId(DISPLAY)).check(matches(withText("663((5+853")));
+        type("=");
+        onView(withId(DISPLAY)).check(matches(withText("5,68,854")));
+    }
+
     @Test public void decimalsNeverCarryCommas() {
         // Round 13: his screenshot read 1.5,70,79,63,268. Decimals are not thousands.
         type("1", ".", "5", "7", "0");

@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.26 (versionCode 63) · SHA-256 `c6170401a226e80fa4f894bac4411d4d4ded61b961e510cab711adb902ea8aab` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.24 (versionCode 25) · SHA-256 `8be6347ff26eeb5fbd364ef3346b2e87e803940dc84f4d1f07bba869eb4971e9` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23684 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 281 recorded runs — **190 green, 81 red, 10 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.27 (versionCode 64) · SHA-256 `04fb07e7429ba9d36f1d082df95f1904ca20e5aeb7d9764eb443e682b3d36564` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.25 (versionCode 26) · SHA-256 `667cf279378db11afeb837b13b8fe921f044d52f84df331173426ce2c46396c1` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 23798 lines of Java · 386 Python contracts · 21 JVM test files + 1 instrumented suite (33 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 289 recorded runs — **194 green, 84 red, 11 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -67,6 +67,16 @@ hand-drawn bars with bulbs because his OEM paints the band but no teardrops, and
 click now selects the content under the finger exactly as the long press does -- his words,
 this round -- with mid-expression insert becoming tap-tap-type, guide C3 rewritten to say
 so rather than pretending the old gesture survived.
+
+Round 25 answered "selection is a very sensitive child" by ending the sharing of gestures
+with the framework altogether. His log showed the race precisely: our listener held 0..5,
+then the Editor's own UP tap-caret collapsed it to 5..5 eighty milliseconds later -- the
+hit, the miss, the freed-then-lost selection, all one race. One state machine owns the
+gesture now: a 350 ms hold timer raises the selection without any OEM long press, the UP
+of that hold is consumed and the range re-asserted so nothing can collapse it, every
+offset maps through the layout with the inner scroll applied (the handles' hit-or-miss),
+a wobbling tap still clears a held selection, a tap away from the expression line clears
+selection and menu, and a second pointer is ignored instead of resetting the machine.
 
 ---
 
@@ -196,7 +206,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (20):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (23):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -218,6 +228,9 @@ The nineteenth and twentieth, both in round 24: a callback still local to buildD
 when selectWordAt became a method, and an assertNotNull without its static import in the
 instrumented suite. Two misses in one round was two too many, so the gate gained a second
 sentinel: every unqualified assert* call in the suite must appear in its static imports.
+The twenty-first to twenty-third, all in round 25: two lossy float-to-int conversions in
+the new offset mapper and one SDK signature that takes ints where memory said floats --
+type errors, the one class the brace and import sentinels cannot see without a JDK.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules

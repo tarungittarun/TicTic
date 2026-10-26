@@ -47,8 +47,13 @@ jobs:
           # Run logs are not downloadable from the review sandbox, so a red run re-emits
           # its own tail as a check-run annotation -- the same trick android-ci uses.
           if [ -f /tmp/unit.log ]; then
-            body=$(tail -c 60000 /tmp/unit.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
-            echo "::error title=unit.log::$body"
+            # Annotations keep only the FIRST 4096 characters of the message, so emit
+            # the END of the log -- the failure block -- not a 60k window whose head
+            # lands mid-task-list. Round 15: two red runs whose reason was invisible.
+            body=$(tail -c 3800 /tmp/unit.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=unit.log tail::$body"
+            hits=$(grep -n "FAILED\|error:\|What went wrong" -A 6 /tmp/unit.log | tail -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=unit.log failures::$hits"
           else
             echo "::error title=unit.log::unit log missing"
           fi

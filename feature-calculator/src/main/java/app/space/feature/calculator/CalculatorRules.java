@@ -262,6 +262,22 @@ public final class CalculatorRules {
      * opened, because implicit multiplication made '(' legal everywhere and the old
      * try-open-then-try-close order never reached the close.
      */
+    /**
+     * Round 11: equals closes what the thumb left open. sin(30 is sin(30) in Google's
+     * calculator, not an error; count the unclosed brackets and append that many.
+     */
+    public static String autoClose(String expression) {
+        int open = 0;
+        for (int i = 0; i < expression.length(); i++) {
+            char c = expression.charAt(i);
+            if (c == '(') open++;
+            else if (c == ')') open--;
+        }
+        StringBuilder b = new StringBuilder(expression);
+        for (int i = 0; i < open; i++) b.append(')');
+        return b.toString();
+    }
+
     public static String smartBracket(String expression) {
         String current = expression == null ? "" : expression;
         int open = 0;

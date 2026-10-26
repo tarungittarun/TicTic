@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.12'", gradle)
-        self.assertIn("versionCode 49", gradle)
+        self.assertIn("versionName '3.12.13'", gradle)
+        self.assertIn("versionCode 50", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -4271,7 +4271,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("@Override protected void onDraw(android.graphics.Canvas c) {", self.screen)
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
         self.assertIn("float x = padL + lo.getPrimaryHorizontal(cs);", self.screen)
-        self.assertIn("c.drawRect(x, padT + lo.getLineTop(ln) + 2,", self.screen)
+        self.assertIn("c.drawRect(x, lb + lo.getAscent(ln) + 2,", self.screen)
         self.assertIn("displayView.setCaretColors(ui.palette().accent,", self.screen)
         self.assertIn("int cs = s >= 0 ? s : Math.max(0, fallbackCaret);", self.screen)
         self.assertIn("displayView.fallbackCaret = pos;", self.screen)
@@ -4370,7 +4370,12 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("@Override public boolean onCheckIsTextEditor() { return false; }", screen)
         self.assertIn("if (outAttrs != null) outAttrs.inputType = android.text.InputType.TYPE_NULL;", screen)
         self.assertIn("setShowSoftInputOnFocus(false);", screen)
-        self.assertIn("int padT = getExtendedPaddingTop();", screen)
+        self.assertIn("int base = getBaseline();", screen)
+        self.assertIn("int off = lo.getOffsetForHorizontal(", screen)
+        self.assertIn("PopupWindow self = menuPopup;", screen)
+        self.assertIn("String typed = CalculatorRules.autoClose(trimmed());", screen)
+        rules = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorRules.java").read_text()
+        self.assertIn("public static String autoClose(String expression) {", rules)
 
     def test_the_three_dots_carry_the_asked_items_plus_effects(self):
         screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())
@@ -4455,6 +4460,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("memoryStoresAndRecallsFromItsPopup", ui)
         self.assertIn("effectsPickerListsFivePressFeelsAndPersists", ui)
         self.assertIn("theAnswerReadsAtDisplayGrade", ui)
+        self.assertIn("scientificEqualsAutoClosesOpenBrackets", ui)
         self.assertIn("theCaretExistsIsFocusedAndIsVisible", ui)
 
     def test_the_jvm_journeys_walk_whole_pipelines(self):

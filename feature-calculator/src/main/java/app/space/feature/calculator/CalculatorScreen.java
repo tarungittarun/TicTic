@@ -570,15 +570,35 @@ public final class CalculatorScreen implements Screen {
         displayView.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent e) {
                 if (e.getAction() == MotionEvent.ACTION_UP) {
+                    // Round 11: his log shows four middle taps all landing at the END, so
+                    // the editor's own placement cannot be trusted on his device. The
+                    // screen maps the touch x through the layout itself and forces the
+                    // selection there -- middle of the number means middle of the number.
+                    final float touchX = e.getX();
+                    final DisplayEditText ed = displayView;
+                    ed.post(new Runnable() {
+                        @Override public void run() {
+                            android.text.Layout lo = ed.getLayout();
+                            CharSequence txt = ed.getText();
+                            if (lo == null || !(txt instanceof Spannable)) return;
+                            int off = lo.getOffsetForHorizontal(
+                                    touchX - ed.getCompoundPaddingLeft());
+                            off = Math.max(0, Math.min(off, txt.length()));
+                            Selection.setSelection((Spannable) txt, off, off);
+                            caret = dispToRaw(off);
+                            AppLog.event(lastContext, "calc", "cursor placed at " + caret
+                                    + " (display offset " + off + ")");
+                        }
+                    });
                     // The editor places its own caret; the hand-rolled offset math that used
                     // to run here pinned every tap to 0 on the device -- "cursor placed at 0",
                     // 103 times in his log. Now the log records where the editor actually
                     // landed, after it has landed.
                     displayView.post(new Runnable() {
                         @Override public void run() {
-                            caret = Math.max(0,
-                                    dispToRaw(displayView.getSelectionStart()));
-                            AppLog.event(lastContext, "calc", "cursor placed at " + caret);
+                            // The editor's own reading, kept as the cross-check line.
+                            AppLog.event(lastContext, "calc", "editor caret at display "
+                                    + displayView.getSelectionStart());
                         }
                     });
                 }
@@ -972,8 +992,13 @@ public final class CalculatorScreen implements Screen {
             box.addView(row, ui.lp(-1, -2));
             row.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
+                    // Round 11: the row used to dismiss whatever popup existed AFTER the
+                    // choice ran -- which killed the Effects picker the instant it opened.
+                    // A choice that opens its own popup keeps it; anything else closes us.
+                    PopupWindow self = menuPopup;
+                    menuPopup = null;
                     onMenuChoice(context, ui, choice);
-                    if (menuPopup != null) menuPopup.dismiss();
+                    if (menuPopup == null && self != null) self.dismiss();
                 }
             });
         }
@@ -1340,10 +1365,12 @@ public final class CalculatorScreen implements Screen {
             android.text.Layout lo = getLayout();
             if (lo == null) return;
             int padL = getCompoundPaddingLeft();
-            // getCompoundPaddingTop misses the gravity offset: with the text sitting at
-            // the BOTTOM of a tall box, the hand-drawn caret landed at the top of an empty
-            // box in his screenshot. Extended padding is where the layout really starts.
-            int padT = getExtendedPaddingTop();
+            // Round 11: padding math kept missing his device's gravity offset -- the bar
+            // floated above the text in his screenshot. getBaseline() is where the first
+            // line is ACTUALLY drawn, so every caret and band coordinate is derived from
+            // it and cannot drift from the glyphs again.
+            int base = getBaseline();
+            int base0 = lo.getLineBaseline(0);
             int s = getSelectionStart();
             int en = getSelectionEnd();
             if (s >= 0 && en > s) {
@@ -1352,8 +1379,9 @@ public final class CalculatorScreen implements Screen {
                 for (int ln = l1; ln <= l2; ln++) {
                     float x1 = ln == l1 ? lo.getPrimaryHorizontal(s) : lo.getLineLeft(ln);
                     float x2 = ln == l2 ? lo.getPrimaryHorizontal(en) : lo.getLineRight(ln);
-                    c.drawRect(padL + x1, padT + lo.getLineTop(ln),
-                            padL + x2, padT + lo.getLineBottom(ln), selPaint);
+                    int lb = base + lo.getLineBaseline(ln) - base0;
+                    c.drawRect(padL + x1, lb + lo.getAscent(ln),
+                            padL + x2, lb + lo.getDescent(ln), selPaint);
                 }
             }
             // His device reports placements while the framework selection reads empty, so
@@ -1363,8 +1391,9 @@ public final class CalculatorScreen implements Screen {
             if (cs <= length()) {
                 int ln = lo.getLineForOffset(cs);
                 float x = padL + lo.getPrimaryHorizontal(cs);
-                c.drawRect(x, padT + lo.getLineTop(ln) + 2,
-                        x + caretWidth, padT + lo.getLineBottom(ln) - 2, caretPaint);
+                int lb = base + lo.getLineBaseline(ln) - base0;
+                c.drawRect(x, lb + lo.getAscent(ln) + 2,
+                        x + caretWidth, lb + lo.getDescent(ln) - 2, caretPaint);
             }
         }
 
@@ -1659,7 +1688,10 @@ public final class CalculatorScreen implements Screen {
             return;
         }
         if ("=".equals(key)) {
-            String typed = trimmed();
+            // Round 11: "scientific operations are giving error" -- sin(30 met a parser
+            // that demands its closing bracket. Google simply closes what you left open
+            // when you press equals, and so do we now.
+            String typed = CalculatorRules.autoClose(trimmed());
             if (typed.isEmpty()) {
                 AppLog.event(context, "calc", "key =: nothing to evaluate");
                 return;

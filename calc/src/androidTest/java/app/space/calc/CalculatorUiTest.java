@@ -249,6 +249,15 @@ public class CalculatorUiTest {
         });
     }
 
+    @Test public void scientificEqualsAutoClosesOpenBrackets() {
+        // Round 11: "scientific operations are giving error" -- sin(30 with no closing
+        // bracket must answer 0.5, Google's way, not Error.
+        onView(withId(CHEVRON_ROW)).perform(click());
+        onView(key("sin(")).perform(click());
+        type("3", "0", "=");
+        onView(withId(DISPLAY)).check(matches(withText("0.5")));
+    }
+
     @Test public void theCaretExistsIsFocusedAndIsVisible() {
         type("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,

@@ -17,6 +17,14 @@ public class CalculatorRulesTest {
 
     private static final double EPS = 1e-9;
 
+    @Test public void autoCloseClosesWhatTheThumbLeftOpen() {
+        // Round 11: sin(30 must evaluate like sin(30); equals closes what was left open.
+        assertEquals("sin(30)", CalculatorRules.autoClose("sin(30"));
+        assertEquals("2*(3+1)", CalculatorRules.autoClose("2*(3+1"));
+        assertEquals("1+2", CalculatorRules.autoClose("1+2"));
+        assertEquals("(1))", CalculatorRules.autoClose("(1))"));
+    }
+
     @Test public void keysThatCannotAppearHereAreRefusedAtTheKey() {
         // The display must never hold a sequence that is not a number in progress. This is the
         // defect the owner hit: "-+-++-52xxx-+++" was accepted because the rules only ran at

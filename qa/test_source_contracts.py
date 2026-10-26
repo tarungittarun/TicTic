@@ -3398,6 +3398,23 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         self.assertIn('name="ic_launcher_background"',
                       (ROOT / "app/src/main/res/values/colors.xml").read_text())
 
+    def test_java_braces_balance_before_ci_sees_them(self):
+        # Round 22: a leftover closing brace cost a whole CI cycle -- the local
+        # gate is Python and javac lives only in the cloud. Brace depth is not
+        # a compiler, but it catches exactly the slip a batch patch makes.
+        for rel in ("feature-calculator/src/main/java/app/space/feature/"
+                    "calculator/CalculatorScreen.java",
+                    "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java"):
+            body = (ROOT / rel).read_text()
+            depth = 0
+            for ch in body:
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                self.assertGreaterEqual(depth, 0, "brace underflow in " + rel)
+            self.assertEqual(depth, 0, "unbalanced braces in " + rel)
+
     def test_every_build_ships_an_end_user_test_guide(self):
         # Round 19, standing: each build shares a markdown guide listing every
         # claim from the end-user seat -- how to check it and what should

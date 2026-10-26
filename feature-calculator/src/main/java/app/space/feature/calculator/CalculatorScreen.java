@@ -669,7 +669,6 @@ public final class CalculatorScreen implements Screen {
                                             + (dragHandle < 0 ? "left" : "right")
                                             + " boundary (live geometry)");
                                 }
-                            }
                         }
                     }
                     return false;

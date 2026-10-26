@@ -3398,6 +3398,20 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         self.assertIn('name="ic_launcher_background"',
                       (ROOT / "app/src/main/res/values/colors.xml").read_text())
 
+    def test_uitest_asserts_are_imported_before_javac_sees_them(self):
+        # Round 24: javac 20 was an unimported assertNotNull -- two compile
+        # misses in one round is two too many, so the gate now diffs every
+        # unqualified assert* call in the instrumented suite against its
+        # static imports.
+        body = (ROOT / "calc/src/androidTest/java/app/space/calc/"
+                "CalculatorUiTest.java").read_text()
+        imported = set(re.findall(
+            r"import static org\.junit\.Assert\.(\w+);", body))
+        used = set(re.findall(r"(?<![.\w])(assert\w+)\(", body))
+        missing = used - imported
+        self.assertEqual(set(), missing,
+                         "assert calls without a static import: %s" % missing)
+
     def test_java_braces_balance_before_ci_sees_them(self):
         # Round 22: a leftover closing brace cost a whole CI cycle -- the local
         # gate is Python and javac lives only in the cloud. Brace depth is not

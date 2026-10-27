@@ -59,6 +59,14 @@ public class CalculatorUiTest {
 
     @Rule public ActivityScenarioRule<CalcActivity> rule = new ActivityScenarioRule<>(CalcActivity.class);
 
+    /** The app's diagnostics file is opt-in on a phone; in CI it is the only
+     *  transcript that survives a run, so every story switches it on before its
+     *  first gesture and a failure can be read like the owner's shared logs. */
+    @org.junit.Before public void enableAppLogForCi() {
+        app.space.core.data.AppLog.setEnabled(
+                androidx.test.InstrumentationRegistry.getTargetContext(), true);
+    }
+
     /** A pad key by its label, never the display or the preview that may show the same text. */
     /** Round 19: the handles on screen are Android's own teardrops now, so the
      *  story finds them the way a thumb does -- down on the strip below the held

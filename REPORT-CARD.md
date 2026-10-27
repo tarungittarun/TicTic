@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.32 (versionCode 69) · SHA-256 `4b59e9dacb501265d8af1b23047c4aeeb364415fdf86ff20fbb1045e21cb6663` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.30 (versionCode 31) · SHA-256 `cf4116d92eb6be65ac410e722d9d9a27078a9ed4a1fd6d06ab653ba9b447809f` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 24364 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (50 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 315 recorded runs — **215 green, 86 red, 14 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.34 (versionCode 71) · SHA-256 `8046b8ff6fec4d7d6a1d56476406900601256baa2fc2a5e4a125294e149a430a` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.32 (versionCode 33) · SHA-256 `90e259d6b9568ff2994c0d38f7f1d9909dba24342cde9f1a687b3506171d1cbe` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 24543 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (53 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 319 recorded runs — **219 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -169,6 +169,27 @@ say, in plain text, whether the view stood on his glass — and if it did and hi
 misses it, the log will prove the drawing was never the problem again. 50 stories pass on
 CI (run 40454915435); the new one asserts the real bar exists, has size, stands solid
 after a key and blinks at rest.
+
+**Round 31 (2026-10-27, MySpace 3.12.34/71 + MyCalc 1.0.32/33):** "👍, cursor is
+coming" — the real-view caret ended the five-round saga on his glass: his log showed
+222 blink phases and the build stamp twice. The same log then indicted the next layer:
+every tap that landed ON the held band or a handle was being consumed as a zero-move
+drag ("selection drag ended: chars X..Y held", no release), which is exactly his
+complaint that a click anywhere near a selection kept it alive and forced him to tap
+far left of the dense operators to escape. The fix is one condition in the UP handler:
+a finger that never moved is a tap — caret parks at the click point, selection and
+menu are released, so at any time exactly one of the two exists. Three more of his
+asks landed in the same build: Mem renamed MAdd and MR renamed MUse everywhere
+(menus, logs, stories); the expression box now keeps a whole character of empty glass
+on the right (40dp) where a hold raises the caret trio instead of grabbing the last
+operand; Add-to-memory left the three dots (storing lives in the selection menu as
+MAdd) and Key shape took its slot — six silhouettes (Circle, Squircle, Pill, Rounded
+square, Hexagon, No shape) persisted in prefs with the pad rebuilt in place on pick,
+so the three dots still hold exactly five items plus Effects. Three new stories (53
+total, CI green in ~5 min): the band tap parks the caret and types mid-number, the
+right-margin hold selects nothing and shows MUse, and the shape picker persists its
+pick and keeps the pad usable. The caret's canvas twin still draws underneath for the
+emulator; the real bar still blinks.
 
 ---
 
@@ -518,4 +539,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 30 (commit `35710cc` + card, MySpace 3.12.32/69, MyCalc 1.0.30/31).*
+*Report card refreshed 2026-10-27 after round 31 (commit `e8fbc54` + card, MySpace 3.12.33/70, MyCalc 1.0.31/32).*

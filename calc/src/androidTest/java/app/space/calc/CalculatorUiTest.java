@@ -225,7 +225,7 @@ public class CalculatorUiTest {
     private static ViewAction waitMs(final long ms) {
         return new ViewAction() {
             @Override public Matcher<View> getConstraints() { return isDisplayed(); }
-            @Override public String getDescription() { "wait " + ms + " ms"; }
+            @Override public String getDescription() { return "wait " + ms + " ms"; }
             @Override public void perform(androidx.test.espresso.UiController ui, View view) {
                 ui.loopMainThreadForAtLeast(ms);
             }

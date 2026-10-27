@@ -1,17 +1,19 @@
 # MyNotes — install and device acceptance guide
 
-## Accepted release: 0.7.0 (8)
+## Accepted release: 0.8.0 (9)
 
-[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk) · [checksum](../releases/MyNotes-v0.7.0-8.apk.sha256) · [full receipt](../releases/MyNotes-v0.7.0-8.apk.release.json)
+[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk) · [checksum](../releases/MyNotes-v0.8.0-9.apk.sha256) · [full receipt](../releases/MyNotes-v0.8.0-9.apk.release.json)
 
-Qualification [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347):
-**69 JVM tests, 98 unique Android tests / 803 executions, 21 emulator lanes / 30 expanded jobs, all required gates green**.
+Qualification [40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
+**69 JVM tests, 104 unique Android tests / 851 executions, 21 emulator lanes / 30 expanded jobs, all required gates green**.
 Each lane preserved a real seeded release note across install-over and matched the exact installed
-APK hash. Local gates: **107 Notes checks / 497 root checks**. This is a delivered milestone,
-not full-product or all-device certification. APK 66,498,132 bytes; SHA-256
-`59229cbd1578d4107c91172a5ae178b8b2d3fe062757d1f04923aaf3c69aceaf`.
+APK hash. Local gates: **108 Notes checks / 498 root checks**. This is a delivered milestone,
+not full-product or all-device certification. APK 66,510,484 bytes; SHA-256
+`84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`.
 
-New: local inexact reminders, contextual notification permission, resizable/re-placeable pinned-first
+New in 0.8: icon docks, grouped editor/diagram/voice tools and Settings → opt-in local diagnostics.
+See [symbol meanings, privacy and logging steps](UI-AND-DIAGNOSTICS-v0.8.md).
+Prior 0.7: local inexact reminders, contextual notification permission, resizable/re-placeable pinned-first
 home widget, and stronger voice recovery/deletion guards. See [LOCAL-SURFACES-v0.7.md](LOCAL-SURFACES-v0.7.md).
 The prior offline-engine checkpoint 0.6 remains available unchanged; its evidence is in [OFFLINE-ML-v0.6.md](OFFLINE-ML-v0.6.md).
 
@@ -19,7 +21,7 @@ The prior offline-engine checkpoint 0.6 remains available unchanged; its evidenc
 
 Install over the existing MyNotes release. **Do not uninstall or clear app data.** Package
 `app.space.notes` and certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca`
-remain fixed. Version 0.7 writes schema 5 and reads schemas 1–5 (0.6 wrote schema 4). Do not downgrade to an old reader. Existing folder libraries/old backups remain readable.
+remain fixed. Versions 0.7–0.8 write schema 5 and reads schemas 1–5 (0.6 wrote schema 4). Do not downgrade to an old reader. Existing folder libraries/old backups remain readable.
 Export and verify a JSON backup before destructive experiments; **also export voice WAVs separately**.
 Private recordings are not contained in JSON or selected-folder note generations and are lost by uninstall/clear-data.
 The default private library is on-device. For local-only external storage/export, choose an **on-device or SD-card SAF provider**, not a cloud-backed folder. The app has no INTERNET permission, but a provider selected through Android's picker can have its own network/storage behavior.

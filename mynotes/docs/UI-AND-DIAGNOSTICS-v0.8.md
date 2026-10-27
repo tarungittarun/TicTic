@@ -1,6 +1,10 @@
 # MyNotes 0.8 — UI clarity and local diagnostics
 
-Status: **candidate 0.8.0(9), Android qualification pending**. Do not confuse this with accepted 0.7.0(8). This slice prioritizes usability, not new note features.
+Status: **accepted/published 0.8.0(9)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk). Install over the existing app; do not uninstall/clear data. This slice prioritizes usability, not new note features.
+
+[Qualification 40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296): **69 JVM /104 unique Android tests /851 executions /21 lanes /30 jobs, all green**. Every lane preserved its real prior-release seeded note and matched the installed release hash. Local gates: **108 Notes /498 root checks**. Package/certificate/schema 5 remain stable; no permissions added. APK 66,510,484 bytes; SHA-256 `84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`. Source `93f486ee53314f7df00e4f9943a1e071a1586fa8`; publication `3b7c7ff`.
+
+An initial formatting-layout check assumed an always-open toolbar; it now opens the real Writing control before asserting positive dimensions. Subsequent run40601121886 passed20 lanes but lacked one API26 pre-instrumentation bootstrap result and was correctly blocked from publication. Manual rerun requests were rejected; a fresh qualification with additional bootstrap evidence passed **all21 lanes**. Missing instrumentation was never treated as success.
 
 ## Navigation and hierarchy
 
@@ -26,7 +30,7 @@ Icons are drawn as consistent outline paths, not emoji or device-font substitute
 | Bent left arrow | Undo |
 | Cog | Settings |
 | Left arrow | Back |
-| Pushpin | Pin/unpin; accessible name reflects the action |
+| Pushpin | Pin/unpin; accessible name reflects the action; legacy card ★ also denotes pinned |
 | Underlined A | Text formatting group |
 | Tag | Organise group / Labels |
 | Vertical three dots | More actions |

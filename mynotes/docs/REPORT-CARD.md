@@ -1,6 +1,25 @@
 # MyNotes report card — 2026-10-28 (IST)
 
-## Install the accepted build
+## Current accepted UI/diagnostics milestone: 0.8.0(9)
+
+[**Download latest MyNotes 0.8.0(9)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
+
+Main Home/editor toolbars now use accessible outline icons, with Writing/Capture/Organise/More
+categories instead of permanently exposing all commands. Diagram tools are grouped and voice actions
+use compact icon rows. Settings includes default-off local diagnostic collection, export/delete and
+an explicit privacy boundary. [Full UX/symbol/diagnostics guide](UI-AND-DIAGNOSTICS-v0.8.md).
+
+[Accepted run40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
+**69 JVM,104 unique Android tests,851/851 executions across21 lanes; all30 jobs green**.
+All21 real prior-release note seeds survived install-over; all21 installed hashes matched.
+Local gates:108 Notes /498 root. APK66,510,484 bytes; SHA-256
+`84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`.
+No permissions added; package/certificate unchanged. Install over the old app; do not uninstall/clear data.
+Physical-phone discoverability/TalkBack and complete aesthetic acceptance remain user/device checks,
+not inferred from case counts. This milestone does not complete every secondary screen/dialog.
+The earlier70-minute native component soak below is not a long UI/diagnostics stress test of0.8.
+
+## Historical accepted 0.7 build and qualification (retained unchanged)
 
 [**MyNotes 0.7.0(8) — APK download**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk)
 

@@ -39,22 +39,23 @@ triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions 
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current accepted release: **0.7.0 (8)** — local note reminders and resizable/re-placeable
+Current accepted release: **0.8.0 (9)** — accessible icon docks, grouped editor/diagram/voice tools,
+and opt-in local diagnostics in Settings. Existing local note reminders and resizable/re-placeable
 pinned-first home-screen widget, plus bundled offline English/Hindi/Kannada OCR with review,
 automatic offline English voice transcription, retained WAV inbox/export, rich notes,
 checklists/labels, flowcharts, vector PDF and local storage/backup.
 
-[**Download MyNotes 0.7.0 (8)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk)
-· [checksum](releases/MyNotes-v0.7.0-8.apk.sha256) · [receipt](releases/MyNotes-v0.7.0-8.apk.release.json)
+[**Download MyNotes 0.8.0 (9)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
+· [checksum](releases/MyNotes-v0.8.0-9.apk.sha256) · [receipt](releases/MyNotes-v0.8.0-9.apk.release.json)
 
-Qualification [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347)
-passed **69 JVM tests and 803 executions of 98 unique Android tests across 21 lanes / 30 expanded jobs**.
+Qualification [40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296)
+passed **69 JVM tests and 851 executions of 104 unique Android tests across 21 lanes / 30 expanded jobs**.
 Coverage includes API26/29/34/35/36, real landscape/night/200% fonts, tablet, denied/granted
 microphone and granted notifications. Every lane preserved a real seeded note across install-over
 from the previous accepted APK and matched the exact installed release hash. Local gates:
-**107 Notes checks / 497 root checks**. Runtime package/certificate remain stable; schema 5 reads 1–5.
+**108 Notes checks / 498 root checks**. Runtime package/certificate remain stable; schema 5 reads 1–5.
 
-APK: **66,498,132 bytes**; SHA-256 `59229cbd1578d4107c91172a5ae178b8b2d3fe062757d1f04923aaf3c69aceaf`.
+APK: **66,510,484 bytes**; SHA-256 `84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`.
 Large APKs use versioned GitHub Release assets and checked-in provenance receipts, never replacement
 uploads or growing binary copies in Git. Prior releases remain unchanged. Install over the old app;
 do not uninstall/clear data. JSON backups exclude voice WAVs: export important recordings separately.
@@ -64,9 +65,10 @@ exact-alarm permission is declared. Widget is a four-title projection, not an in
 Media attachments, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
 qualification, Play publication and eventual MySpace integration remain open. Wall dragging stays last.
 See [device guide](docs/STANDALONE-TEST-GUIDE.md), [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md)
-and [offline model scope](docs/OFFLINE-ML-v0.6.md). The separate native/disk soak **passed 70 measured
+and [offline model scope](docs/OFFLINE-ML-v0.6.md). The historical, source-scoped native/disk soak **passed 70 measured
 minutes each on API26/35, totaling 5,300 complete OCR/ASR/PCM/repository/backup cycles**. This is debug
-component evidence, not an all-device, inference-peak-memory or whole-UI guarantee.
+component evidence, not a long UI/diagnostics test of 0.8 or an all-device/inference-peak-memory guarantee.
+See [UI symbols and diagnostics guide](docs/UI-AND-DIAGNOSTICS-v0.8.md).
 [Full report card](docs/REPORT-CARD.md) · [durable qualification metrics](docs/evidence/2026-10-28-qualification.json)
 · [next large acceptance slices](docs/NEXT-ACCEPTANCE.md).
 

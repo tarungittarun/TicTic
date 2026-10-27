@@ -2,7 +2,7 @@
 
 Adapted from Checktrain02 run [40567027720](https://github.com/tarungittarun/Checktrain02/actions/runs/40567027720), not copied wholesale. Train/network/live-data checks do not belong in this offline notes app. Public APK publication is **after** all required gates, never before the emulator checks.
 
-## Current pipeline (accepted 0.7)
+## Current pipeline (accepted 0.8)
 
 The main workflow instantiates **30 jobs**: 21 Android matrix lanes plus nine nonmatrix jobs.
 `workflow_guard.py` checks the expanded total, not just the ten YAML job definitions. Independent
@@ -50,6 +50,14 @@ Triggers match exercised components, so unrelated UI/controller-only fixes do no
 engine/disk measurement. Recorded source identities keep that scope explicit.
 
 ### Accepted and diagnostic checkpoints
+
+- UI/diagnostics 0.8 acceptance [40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
+  **69 JVM /104 unique Android /851 executions /21 lanes /30 jobs, all green**. Local108 Notes /498 root.
+  New runtime cases cover icon/disclosure interaction and opt-in diagnostics persistence, stopping,
+  deletion, rotation/export and private-caption/exception-message exclusion. Release install/update/hash
+  evidence remains distinct from debug-host tests. A previous one-lane bootstrap failure blocked publication;
+  fresh qualification passed with added host context and case-insensitive panic/error extraction.
+
 
 - Dedicated soak [40586522279](https://github.com/tarungittarun/TicTic/actions/runs/40586522279) completed:
   API26 **70m 0.978s /3,205 cycles**, API35 **70m 0.387s /2,095 cycles**. Max sampled post-cycle

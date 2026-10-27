@@ -19,7 +19,7 @@ def compare(expected,passed,failed):
 
 
 def android(text,expected):
-    passed=[];failed=[];record={};finished=False
+    passed=[];failed=[];record={};completions=[]
     for line in text.splitlines():
         if line.startswith('INSTRUMENTATION_STATUS: '):
             key,sep,value=line[len('INSTRUMENTATION_STATUS: '):].partition('=')
@@ -32,10 +32,10 @@ def android(text,expected):
                 elif code==0:passed.append(name)
                 else:failed.append(name+': status '+str(code)+' '+record.get('stack',''))
             record={}
-        elif line.strip()=='INSTRUMENTATION_CODE: -1':finished=True
+        elif line.startswith('INSTRUMENTATION_CODE: '):completions.append(int(line.split(':',1)[1].strip()))
         elif 'INSTRUMENTATION_FAILED' in line or 'Process crashed' in line or 'shortMsg=' in line:
             failed.append(line)
-    if not finished:failed.append('Missing successful instrumentation completion')
+    if completions!=[-1]:failed.append('Missing, duplicate or unsuccessful instrumentation completion: '+str(completions))
     result=compare(expected,passed,failed)
     result['cases']=passed
     return result
@@ -58,7 +58,7 @@ def build_diagnostic(path):
     lines=Path(path).read_text(errors='replace').splitlines() if Path(path).exists() else ['No build log produced']
     keep=set()
     for i,line in enumerate(lines):
-        if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|Could not |Execution failed|> Task .*FAILED|tests completed',line):
+        if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|FATAL EXCEPTION|AndroidRuntime|NoClassDefFoundError|Could not |Execution failed|> Task .*FAILED|tests completed',line):
             keep.update(range(max(0,i-2),min(len(lines),i+8)))
     return '\n'.join(lines[i] for i in sorted(keep)) if keep else '\n'.join(lines[-35:])
 

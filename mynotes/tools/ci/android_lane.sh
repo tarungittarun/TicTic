@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 # One emulator, one explicit aspect/API lane. No retries and no independent APK rebuilds.
-set -euo pipefail
+set -Eeuo pipefail
 : "${LANE_ID:?}" "${LANE_GROUP:?}" "${LANE_API:?}"
 OUT="evidence/$LANE_ID"
 mkdir -p "$OUT"
+exec > >(tee "$OUT/lane.log") 2>&1
+set -x
 collect() {
-  adb logcat -d -t 500 > "$OUT/logcat.txt" 2>&1 || true
-  adb shell dumpsys activity activities > "$OUT/activities.txt" 2>&1 || true
-  adb exec-out screencap -p > "$OUT/final-state.png" 2>/dev/null || true
+  timeout 15s adb logcat -d -t 500 > "$OUT/logcat.txt" 2>&1 || true
+  timeout 15s adb shell dumpsys activity activities > "$OUT/activities.txt" 2>&1 || true
+  timeout 15s adb exec-out screencap -p > "$OUT/final-state.png" 2>/dev/null || true
 }
 trap collect EXIT
+failure() {
+  local status="$1" command="$2" line="$3"
+  set +x
+  printf '::error title=Android lane failed::%s at script line %s (exit %s)\n' "$command" "$line" "$status"
+  python3 -m mynotes.tools.ci.results build --path "$OUT/lane.log" || true
+  collect
+  python3 -m mynotes.tools.ci.results build --path "$OUT/logcat.txt" || true
+  exit "$status"
+}
+trap 'failure "$?" "$BASH_COMMAND" "$LINENO"' ERR
 python3 -m mynotes.tools.ci.test_plan --output "$OUT/test-plan.json"
 CLASSES=$(python3 -m mynotes.tools.ci.test_plan --group "$LANE_GROUP" --classes)
 RELEASE=$(python3 -c 'import json;print("accepted-release/"+json.load(open("accepted-release/audit.json"))["filename"])')

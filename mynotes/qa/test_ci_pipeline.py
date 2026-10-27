@@ -63,7 +63,7 @@ class ExecutionEvidence(unittest.TestCase):
         self.assertTrue(android(self.output(),['example.SampleTest#works'])['ok'])
     def test_runner_missing_crashed_ignored_failed_and_assumption_are_red(self):
         for output in ['',self.output().replace('INSTRUMENTATION_CODE: -1',''),self.output()+'\nINSTRUMENTATION_RESULT: shortMsg=Process crashed',
-                       self.output(-1),self.output(-2),self.output(-3),self.output(-4)]:
+                       self.output()+'\nINSTRUMENTATION_CODE: 0',self.output()+'\nINSTRUMENTATION_CODE: -1',self.output(-1),self.output(-2),self.output(-3),self.output(-4)]:
             self.assertFalse(android(output,['example.SampleTest#works'])['ok'],output)
     def test_duplicate_missing_or_extra_case_rejected(self):
         for output,expected in [(self.output()+'\n'+self.output(),['example.SampleTest#works']),
@@ -108,7 +108,7 @@ class ApkAuditPolicy(unittest.TestCase):
                       (badging,xml.replace('0x0','0xffffffff')),(badging,'')]:
             with self.assertRaises(ValueError):assert_manifest(bad,x)
     def test_unknown_build_inputs_fail_closed_but_ci_docs_and_tests_do_not(self):
-        for path in ['mynotes/new.gradle','mynotes/app/new-rules.pro','mynotes/gradle/libs.versions.toml','mynotes/runtime/src/main/assets/model.md']:
+        for path in ['mynotes/new.gradle','mynotes/app/new-rules.pro','mynotes/gradle/libs.versions.toml','mynotes/runtime/src/main/assets/model.md','mynotes/runtime/src/main/assets/हिन्दी.txt']:
             self.assertTrue(release_input(path),path)
         for path in ['mynotes/README.md','mynotes/tools/ci/audit.py','mynotes/qa/test_ci_pipeline.py','mynotes/app/src/androidTest/java/Test.java','.github/workflows/notes-ci.yml']:
             self.assertFalse(release_input(path),path)

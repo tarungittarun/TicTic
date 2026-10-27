@@ -26,7 +26,7 @@ def release_input(path):
 
 
 def assert_source_equivalent(source,target='HEAD'):
-    changed=subprocess.check_output(['git','diff','--name-only',source,target,'--','mynotes/'],cwd=REPO,text=True).splitlines()
+    changed=subprocess.check_output(['git','diff','--name-only','-z',source,target,'--','mynotes/'],cwd=REPO,text=True).split('\0')
     protected=[path for path in changed if release_input(path)]
     if protected:raise ValueError('App/build inputs changed without a versionCode increase: '+', '.join(protected))
 

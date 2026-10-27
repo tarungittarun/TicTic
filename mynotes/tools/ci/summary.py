@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+from mynotes.tools.ci.results import annotate
 from mynotes.tools.ci.test_plan import build_plan,cases,lane_cases
 
 REQUIRED=['checks','jvm','release-build','test-build','apk-audit','android']
@@ -55,6 +56,10 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--evidence',required=True);args=p.parse_args()
     ok,markdown=evaluate(json.loads(os.environ.get('NEEDS_JSON','{}')),args.evidence,build_plan())
     print(markdown)
+    if not ok:annotate(markdown)
+    else:
+        notice=markdown[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+        print('::notice title=MyNotes verified acceptance::'+notice)
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:f.write(markdown)
     raise SystemExit(0 if ok else 1)

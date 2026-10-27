@@ -1881,6 +1881,28 @@ public final class CalculatorScreen implements Screen {
                 + baseBox.getChildCount() + ", attached "
                 + padContainer.isAttachedToWindow() + ", visibility "
                 + padContainer.getVisibility());
+        final LinearLayout baseProbe = baseBox;
+        padContainer.post(new Runnable() {
+            @Override public void run() {
+                String first = "none";
+                try {
+                    View row = baseProbe.getChildAt(0);
+                    if (row instanceof LinearLayout
+                            && ((LinearLayout) row).getChildCount() > 0) {
+                        View k = ((LinearLayout) row).getChildAt(0);
+                        first = (k instanceof TextView)
+                                ? String.valueOf(((TextView) k).getText())
+                                : k.getClass().getSimpleName();
+                    }
+                } catch (Exception ignored) {
+                    // the probe must never break the pad it probes
+                }
+                AppLog.event(lastContext, "calc", "pad settled: shown "
+                        + padContainer.isShown() + ", alpha "
+                        + padContainer.getAlpha() + ", height "
+                        + padContainer.getHeight() + ", first key \"" + first + "\"");
+            }
+        });
     }
 
     private void togglePanel(final Context context, final UiKit ui) {
@@ -2195,10 +2217,31 @@ public final class CalculatorScreen implements Screen {
                                 return null;
                             }
                         });
-        boolean ran = s.selectionMenu.onActionItemClicked(s.currentSelectionMode, fake);
+        final boolean[] done = {false, false};
+        Runnable run = new Runnable() {
+            @Override public void run() {
+                done[1] = s.selectionMenu.onActionItemClicked(s.currentSelectionMode, fake);
+                synchronized (done) { done[0] = true; done.notifyAll(); }
+            }
+        };
+        // The handler toasts, splices and refreshes -- all main-looper work.
+        // The suite calls from the instrumentation thread, so the door hops
+        // to the UI thread and waits, exactly like a click would.
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            run.run();
+        } else if (s.lastContext instanceof android.app.Activity) {
+            ((android.app.Activity) s.lastContext).runOnUiThread(run);
+            synchronized (done) {
+                while (!done[0]) {
+                    try { done.wait(4000); } catch (InterruptedException e) { break; }
+                }
+            }
+        } else {
+            return "no main thread";
+        }
         AppLog.event(s.lastContext, "calc", "menu action " + label
-                + " run through the debug door: " + (ran ? "handled" : "refused"));
-        return ran ? "ran" : "refused";
+                + " run through the debug door: " + (done[1] ? "handled" : "refused"));
+        return done[1] ? "ran" : "refused";
     }
 
     public static int[] debugStrokeRowRect(String tag) {

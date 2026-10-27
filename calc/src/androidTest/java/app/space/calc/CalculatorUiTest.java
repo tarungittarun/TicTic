@@ -751,7 +751,19 @@ public class CalculatorUiTest {
                         }
                         assertTrue("theme " + wantMode + " caret pixels=" + caretPixels,
                                 caretPixels >= 20);
-                        assertTrue("theme " + wantMode + " ink pixels=" + inkPixels,
+                        // Round 34 probe: when the census comes up empty, say
+                        // WHAT the canvas actually holds -- pure white would
+                        // mean the LED spans never reached the paint.
+                        int white = 0, black = 0;
+                        for (int y = 0; y < bmp.getHeight(); y++) {
+                            for (int x = 0; x < bmp.getWidth(); x++) {
+                                int px = bmp.getPixel(x, y);
+                                if (px == 0xFFFFFFFF) white++;
+                                else if (px == 0xFF000000) black++;
+                            }
+                        }
+                        assertTrue("theme " + wantMode + " ink pixels=" + inkPixels
+                                        + " (exact-white=" + white + " exact-black=" + black + ")",
                                 inkPixels >= 20);
                         if (wantMode == 2) {
                             assertTrue("dark operator pixels=" + opPixels,

@@ -135,7 +135,7 @@ jobs:
         with:
           name: notes-release-candidate
           path: mynotes/app/build/outputs/apk/release/notes-release.apk
-          retention-days: 7
+          retention-days: 1
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
@@ -166,7 +166,7 @@ jobs:
           path: |
             mynotes/app/build/outputs/apk/debug/notes-debug.apk
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
-          retention-days: 7
+          retention-days: 1
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
@@ -291,6 +291,8 @@ jobs:
           name: notes-accepted-release
           path: accepted-release
       - name: Publish only the audited and emulator-verified APK
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -302,11 +304,7 @@ jobs:
           from mynotes.tools.ci.audit import assert_source_equivalent
           assert_source_equivalent(os.environ['GITHUB_SHA'],'origin/arena/3caca636-tictic')
           PY
-          test ! -e "mynotes/releases/$NAME"
-          cp "accepted-release/$NAME" "mynotes/releases/$NAME"
-          cp "accepted-release/$NAME.sha256" "mynotes/releases/$NAME.sha256"
-          cp accepted-release/audit.json "mynotes/releases/$NAME.audit.json"
-          echo "$GITHUB_SHA" > "mynotes/releases/$NAME.source.txt"
+          python3 -m mynotes.tools.ci.publish --directory accepted-release
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mynotes/releases/

@@ -66,8 +66,14 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--sdk',required=True);p.add_argument('--apk',required=True);p.add_argument('--output',required=True);args=p.parse_args()
     candidate=Path(args.apk);current=inspect(candidate,args.sdk)
-    published=sorted((NOTES/'releases').glob('MyNotes-*.apk'))
+    from mynotes.tools.ci.published import resolve
+    published=resolve(NOTES/'releases')
     identities={path:inspect(path,args.sdk) for path in published}
+    for path,identity in identities.items():
+        receipt_file=Path(str(path)+'.release.json')
+        if receipt_file.exists():
+            receipt=json.loads(receipt_file.read_text())
+            if identity!=(receipt['applicationId'],receipt['versionCode'],receipt['versionName'],receipt['certificate']):raise ValueError('Remote receipt disagrees with signed APK identity')
     eligible=publication_policy(current,list(identities.values()))
     accepted=candidate;accepted_source=None
     if not eligible:

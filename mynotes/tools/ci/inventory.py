@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 from mynotes.tools.ci.audit import REPO,NOTES
+from mynotes.tools.ci.published import validate_receipt
 
 
 def inventory(root=NOTES):
@@ -15,6 +16,11 @@ def inventory(root=NOTES):
         if not source.exists():source=apk.with_suffix('.source.txt')
         if not re.fullmatch('[0-9a-f]{40}',source.read_text().strip()):raise ValueError('Invalid source provenance: '+apk.name)
         releases.append({'file':apk.name,'bytes':apk.stat().st_size,'sha256':digest,'source':source.read_text().strip()})
+    names={r['file'] for r in releases}
+    for path in sorted((root/'releases').glob('*.release.json')):
+        receipt=validate_receipt(json.loads(path.read_text()))
+        if receipt['filename'] in names:raise ValueError('Duplicate local/remote publication')
+        names.add(receipt['filename']);releases.append({'file':receipt['filename'],'storage':'github-release','bytes':receipt['bytes'],'sha256':receipt['sha256'],'source':receipt['source'],'url':receipt['url'],'verification':'receipt schema here; downloaded bytes and APK signature in APK audit job'})
     if not releases:raise ValueError('No prior install-over baseline available')
     dependencies=[]
     for script in root.rglob('*.gradle'):

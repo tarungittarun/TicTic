@@ -44,7 +44,7 @@ def evaluate(needs,evidence,plan):
         jvm=one('jvm.json')
         if not jvm.get('ok') or sorted(jvm.get('cases',[]))!=cases(plan['jvm']):errors.append('JVM executed coverage mismatch')
         lines+=['',f"JVM: {jvm.get('passed',0)} cases; Android: {len(cases(plan['android']))} unique cases, {sum(len(lane_cases(plan,l['group'])) for l in plan['lanes'])} planned executions.",
-                'Evidence includes raw runner output, package/launch state, screenshots, installed APK and bounded logcat.',
+                'Evidence includes raw runner output, package/launch state, screenshots, exact installed-APK hash/identity receipt and bounded logcat.',
                 'This is emulator qualification, not all-phone, physical SAF-provider, accessibility or future ML qualification.']
     except (ValueError,KeyError,OSError) as e:errors.append(str(e))
     lines+=['','## Outcome',('PASS' if not errors else 'FAIL — do not publish/use this run as acceptance')]

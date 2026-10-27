@@ -48,10 +48,15 @@ adb shell settings put system font_scale "${LANE_FONT:-1.0}"
 adb shell settings put system accelerometer_rotation 0
 if [[ "${LANE_ORIENTATION:-portrait}" == landscape ]]; then
   adb shell settings put system user_rotation 1
+  if (( LANE_API >= 31 )); then
+    adb shell wm set-ignore-orientation-request true
+    adb shell wm user-rotation lock 1
+  fi
 elif [[ "${LANE_ORIENTATION:-portrait}" == portrait ]]; then
   adb shell settings put system user_rotation 0
 fi
 if (( LANE_API >= 29 )); then adb shell cmd uimode night "${LANE_NIGHT:-no}"; fi
+adb shell dumpsys window displays > "$OUT/display-policy.txt"
 adb shell wm size > "$OUT/display-size.txt"
 adb shell wm density > "$OUT/display-density.txt"
 adb shell settings get system font_scale > "$OUT/font-scale.txt"

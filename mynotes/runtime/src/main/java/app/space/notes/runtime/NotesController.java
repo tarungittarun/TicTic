@@ -99,7 +99,7 @@ public final class NotesController {
                 List<Note> loaded=repository.load();
                 boolean recovered=false;
                 try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
-                    org.json.JSONObject result=files.result(id);if(!result.optString("state").equals("DONE"))continue;
+                    org.json.JSONObject result;try{result=files.result(id);}catch(Exception invalidTranscript){log("voice-recovery","one unreadable transcript skipped; audio retained");continue;}if(!result.optString("state").equals("DONE"))continue;
                     String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
                     if(current==null && files.noteWasCreated(id))continue; // Respect notes deliberately purged/deleted after an earlier successful insertion.
                     if(current!=null && current.voiceSources.contains(id))files.noteCreated(id);
@@ -404,7 +404,9 @@ public final class NotesController {
         }catch(Exception e){capture=null;host.showMessage("Recording could not start: "+e.getMessage()+". Notes are unchanged.");}
     });}
     private void addVoicePlaceholder(String id){String noteId=app.space.notes.domain.VoiceTranscripts.noteId(id);if(find(noteId)==null){notes.add(app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis()));queueSave();}}
-    private void voiceComplete(String id,String text,String failure){whenReady(()->{
+    private void voiceComplete(String id,String text,String failure){
+        if(closed)return;if(busy){main.postDelayed(()->voiceComplete(id,text,failure),200);return;}
+        whenReady(()->{
         if(closed)return;persistDraft();addVoicePlaceholder(id);Note note=find(app.space.notes.domain.VoiceTranscripts.noteId(id));
         if(!text.isEmpty() && note!=null && note.deletedAt==0){Note changed=app.space.notes.domain.VoiceTranscripts.apply(note,id,text,System.currentTimeMillis());if(changed!=note){replace(changed);queueSave();}}
         if(voicePage)renderVoiceInbox();else if(editing==null && !storagePage)filterNow();

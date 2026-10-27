@@ -5,7 +5,7 @@
 - Preserve the signing identity at mynotes/signing/notes.p12. Do not generate a new
   signing key during CI, copy calculator code or change the release ID to solve a build.
 - Every published APK has a strictly higher versionCode and an explicit versionName.
-  0.1.0 (1) -> 0.2.0 (2) -> 0.2.1 (3). Never overwrite a published version's APK.
+  0.1.0 (1) -> 0.2.0 (2) -> 0.2.1 (3) -> 0.3.0 (4). Never overwrite a published version's APK.
 - CI uses Android apksigner to verify APK signatures and compares certificate SHA-256,
   application ID and numeric versionCode with every published release. A mismatch or
   same/lower versionCode blocks publishing.

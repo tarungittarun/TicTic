@@ -1,5 +1,8 @@
 # Storage & recovery — 0.2.0 (2)
 
+Historical milestone notes. Current library reopen/backup functionality supersedes the
+old import limitations below; see BACKUP-RESTORE-v0.3.md and STANDALONE-TEST-GUIDE.md.
+
 Implementation written; Android/provider qualification status must be checked in the
 execution report. Do not interpret this design as a universal durability guarantee.
 

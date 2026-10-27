@@ -665,3 +665,18 @@ not the final snackbar; there is no colour picker, rich content or SAF adapter y
   passed in run 40564058421. Old v1 document format remains readable in tests.
 - Android suite 14/14 passed; JVM rules tests passed; 425 Python checks passed.
   See M0-STATUS.md and STORAGE-v0.2.md for limits. ML/diagram/full feature items remain open.
+
+
+## Slice 5 evidence — 0.3.0 (4)
+
+- ST-05 partial implementation: existing local library reopen with re-grant, explicit
+  non-destructive preview/confirm merge, checksum-verified portable text backups,
+  duplicate/conflict handling and pre-restore checkpoint. 8 MiB portable format bound;
+  complete streaming media backup and physical provider acceptance remain open.
+- ST-04 repository recovery: restart/retry and import into unavailable destination
+  now exercised with real AtomicFile + injected backend. This is NOT physical SAF proof.
+- HX-03 groundwork: selected-folder reopen and portable IDs/merge are reusable by a
+  future receiving host. Actual MySpace integration and grants/migration remain pending.
+- CI 40566162164: 14 JVM and 28 Android tests passed; install/signature/version gates
+  passed. 430 Python checks passed. Current guide links the published 0.3.0 (4) APK.
+- Full UI preview/cancel/document-picker journeys remain for on-device acceptance.

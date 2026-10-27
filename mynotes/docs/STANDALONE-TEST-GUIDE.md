@@ -1,59 +1,59 @@
-# MyNotes 0.2.1 (3) — update and storage test guide
+# MyNotes 0.3.0 (4) — update, backup and restore guide
 
-**Published and verified by CI run 40564058421:** seven JVM tests, 14 Android tests,
-install-over-0.1.0 smoke, signing/package/version gates and APK checksum passed.
-Actual SAF/SD device qualification is still pending. This is an early text/storage
-milestone, not the full PDF design or complete feature set.
+**Published:** run 40566162164 passed all jobs. 430 local checks, 14 JVM tests,
+28 Android tests, signature/version gate and install-over-0.1.0 smoke passed. Published
+APK checksum verified. This is an early text/storage milestone; real SAF/SD and physical-
+device qualification is distinct from the injected-backend emulator suite.
 
-## Safe update rules
+## Update
 
-Install the new **release** APK over the existing MyNotes release. Do not uninstall or
-clear app data. Package remains app.space.notes with the same certificate. Debug is a
-separate .debug package and is not the release update channel. Android downgrades are
-not supported. CI checks certificate/package/version compatibility before publishing.
+Install the release APK over the existing MyNotes release. **Do not uninstall or clear
+app data for a normal update.** app.space.notes and signing certificate stay unchanged;
+versionCode increases to 4. Debug is a separate app and not the release update channel.
 
-- [MyNotes 0.2.1 (3) APK](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.2.1-3.apk)
-- [SHA-256](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.2.1-3.apk.sha256)
-- [CI](https://github.com/tarungittarun/TicTic/actions/runs/40564058421)
+- [MyNotes 0.3.0 (4)](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.3.0-4.apk)
+- [SHA-256](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.3.0-4.apk.sha256)
+- [CI](https://github.com/tarungittarun/TicTic/actions/runs/40566162164)
 
-APK published successfully; checksum verified after fetching the published artifact.
+## New journeys — use disposable notes first
 
-## Manual device journeys — real-provider qualification pending
+1. Storage > Backups > Export backup. Save a NEW timestamped JSON file using local
+   Internal storage/SD card. Wait for Backup verified; inspect that a non-empty file
+   exists. Cloud/other providers are refused. A failed export is not a usable backup.
+2. Edit a test note, then Import backup. Check preview counts. Cancel: current text
+   stays unchanged. Preview again and Confirm merge: changed same-ID text appears as
+   a separate note, not an overwrite; unchanged entries are skipped.
+3. Re-import that same backup: no additional conflict copies should be created. Check
+   title/body, pin/archive, colour and Trash timestamp preservation.
+4. Previous snapshot previews the state before the last confirmed import/open-library.
+   Confirm adds missing/different versions; it does NOT delete newer current notes.
+5. Existing library: choose a second known text library with Storage > Open library.
+   Review counts and cancel once; confirm current destination unchanged. Then confirm
+   a fresh preview; both sets survive and saving now goes to the selected folder.
+6. Reinstall recovery is available ONLY if a chosen local folder or verified backup
+   survived. Re-grant folder access and Open library, or Import backup. Do not perform
+   uninstall experiments on your only copy of important notes.
+7. Negative cases: corrupt/truncate a disposable backup, alter its checksum, use an
+   unsupported version or choose a non-local provider. Validation must fail before
+   preview/import. 8 MiB is the explicit portable text-backup limit on both directions.
+8. Folder failure during restore: merged data should remain in private recovery with
+   Pending status; restart, reconnect and Retry save. Real permission/SD fault checks
+   still need device results; emulator transaction tests use an injected backend.
+9. Regression: create/edit/search, pins, archive, seven-day Trash/restore, Undo,
+   dark/light, large font, rotation and small-screen action accessibility.
 
-1. Before updating, create a named note in 0.1.0/0.2.0. Update without uninstalling and
-   confirm title/body/pin/archive/Trash metadata are retained. CI installs old -> new
-   and tests the old format, but does not seed a real release note before upgrading.
-2. Home > Storage > Choose folder. Use a NEW EMPTY folder under local Internal storage
-   or SD card. Confirm success, add/edit a note and inspect mynotes-gen-*.json files.
-   No cloud provider is accepted. Android disallows some roots/system folders.
-3. Cancel the picker: current location/data must not change. Pick a cloud provider or
-   a folder containing a library: it must be refused without deleting existing files.
-4. Change to another empty folder: all notes copy; original files remain. Restart and
-   confirm edits come from the selected library, not an obsolete snapshot.
-5. Revoke directory access/remove SD card, edit, and observe private-recovery/pending
-   status instead of Saved-to-folder. Reopen, confirm recovery text; reconnect then
-   Retry save. Device/provider fault cases have not yet been certified.
-6. Use device storage: confirm private saving continues and old external files remain.
-   Opening/importing an existing library after reinstall is not available yet; do not
-   uninstall as an update strategy.
-7. Small screen/large font: storage explanation scrolls; Choose folder, Retry save,
-   Use device storage and Back must remain accessible. Test landscape separately.
-8. Regression: edit Unicode text, search rapidly, pin/archive/trash/restore and use
-   one-level state Undo. Repeat across restart and dark/light themes.
+## Automated scope
 
-## Automated coverage
+Passed current suite: 430 local checks (40 Notes + 390 legacy), 14 Java domain tests,
+28 Android tests. Android includes private AtomicFile, protocol, backup codec, injected
+repository transfer/recovery and storage layout checks. It is not certification of all
+physical providers or proof of seeded release-data migration on every prior version.
 
-- Local source/protocol/release-policy suite: 425 tests (35 Notes + 390 legacy).
-- Pure Java document tests: seven.
-- Android suite: five private persistence + eight provider-independent generation/format
-  tests + one actual-layout visibility test = 14. Actual SAF and physical SD tests are
-  separate; passing the in-memory backend does not certify every storage provider.
-- APK signature equality and strictly increasing code; adb install-over-old smoke.
+## Still unfinished
 
-## Limits
-
-Text-only; final masonry, rich text/lists, colour/labels UI, media, recording/ASR/OCR,
-diagrams, reminders, widgets and import/export remain unfinished. Full snapshots retain
-ancestor history; compaction and scale qualification are pending. No encryption. Private
-recovery/settings are deleted on uninstall; selected files remain but import-existing UI
-is pending. Debounced saves still leave a small forced-kill window before persistence.
+Streaming large/media backup, encryption, generation compaction/index scaling, rich
+text/lists, labels/colours UI, images/OCR/voice/ASR, diagrams, reminders/widgets, final
+masonry/motion and full MySpace integration. Private checkpoints disappear on uninstall.
+Debounced edits still have a brief forced-kill window before persistence. A corrupt
+private library can still block startup and needs a future dedicated recovery screen;
+do not clear data without a separately verified surviving folder/backup.

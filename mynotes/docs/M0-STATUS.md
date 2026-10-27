@@ -196,3 +196,26 @@ including stale preview and recovery across restart. Total expected: 14 JVM test
 At this entry local checks pass; CI/Android results for this slice are not yet known.
 Actual SAF picker/SD/physical fault qualification remains outstanding. Notes-only CI
 must pass before this APK is published.
+
+
+### Slice 5 delivered outcome — 0.3.0 (4)
+
+Run **40566162164** succeeded in all jobs (standalone 1m27s, Android tests 1m43s,
+publish 11s). Fourteen JVM domain tests passed. All **28 Android tests passed** on API
+29 x86_64 Nexus 5: seven private persistence, eight protocol/legacy/provider rejection,
+eight backup validation, four injected repository transfer/recovery and one layout.
+
+Release gate verified app.space.notes + matching signing certificate and increasing
+versionCode against all prior published APKs. Install-over-0.1.0 and launch smoke passed.
+This is install compatibility, not a real-provider picker/reinstall round-trip or seeded
+release-data migration on every version. No such device results are claimed.
+
+Published commit 1effdaf; source b9156ed67e503b00cca5109564957ea42f453609. Fetched by
+fast-forward; MyNotes-v0.3.0-4.apk.sha256 checked OK. Final local gate: 430 tests OK.
+All changes since the previous delivery are under mynotes/ and notes-ci.yml. Existing
+MySpace/calculator workflows remain paused; no legacy build/test was triggered.
+
+Still open: real SAF/provider/SD qualification, startup recovery UI for corrupt private
+cache, bounded generation compaction and scale, streaming media backup, structured rich
+content/lists, labels/colour UI, OCR/ASR, diagrams, reminders/widgets and final UI polish.
+Do not mark the original inventory complete from this storage milestone.

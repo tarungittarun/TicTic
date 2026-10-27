@@ -1,0 +1,48 @@
+name: MyNotes offline speech model provenance
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-model-audit.yml']
+permissions:
+  contents: read
+jobs:
+  provenance:
+    name: Acquire and inspect official Apache-2 speech model
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Inspect model before integration (not an app release)
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,urllib.request,zipfile
+          from pathlib import Path,PurePosixPath
+          url='https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip'
+          archive=Path('speech-model.zip')
+          with urllib.request.urlopen(url,timeout=120) as source,archive.open('wb') as target:
+              total=0
+              while chunk:=source.read(1024*1024):
+                  total+=len(chunk)
+                  if total>100*1024*1024:raise ValueError('Unexpected model download size')
+                  target.write(chunk)
+          receipt={'url':url,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'license':'Apache-2.0 per official Vosk model inventory','files':{}}
+          with zipfile.ZipFile(archive) as z:
+              if sum(i.file_size for i in z.infolist())>250*1024*1024:raise ValueError('Unexpected uncompressed size')
+              for i in z.infolist():
+                  if i.is_dir():continue
+                  p=PurePosixPath(i.filename)
+                  if p.is_absolute() or '..' in p.parts:raise ValueError('Unsafe archive path')
+                  receipt['files'][i.filename]={'bytes':i.file_size,'sha256':hashlib.sha256(z.read(i)).hexdigest()}
+          Path('model-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          body=json.dumps(receipt,separators=(',',':'))
+          print('::notice title=Vosk official model receipt::'+body[:3900].replace('%','%25'))
+          print(json.dumps(receipt,indent=2))
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as f:f.write('# Speech model provenance inspection\n\n```json\n'+json.dumps(receipt,indent=2)+'\n```\n\nThis acquires a model, not app/recognition qualification. Do not ship before pinning the hash and testing offline inference.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-speech-model-provenance
+          path: model-receipt.json
+          if-no-files-found: error
+          retention-days: 14

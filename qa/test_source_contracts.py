@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.32'", gradle)
-        self.assertIn("versionCode 69", gradle)
+        self.assertIn("versionName '3.12.33'", gradle)
+        self.assertIn("versionCode 70", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2589,10 +2589,11 @@ class CalculatorAppContracts(unittest.TestCase):
         # Bare glyphs on the background -- what shipped until 2026-10-25 -- read as text.
         # His first point this round: rounded SQUARES on the basic pad, rounded RECTANGLES
         # on the shorter scientific rows -- two radii, chosen per block, not one stadium.
-        self.assertIn("shape.setCornerRadius(ui.dp(radiusDp));", self.screen)
-        self.assertIn("addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);", self.screen)
+        self.assertIn("g.setCornerRadius(r);", self.screen)
+        self.assertIn("AppPrefs.prefs(context).getString(KEYSHAPE_KEY, \"Circle\");", self.screen)
+        self.assertIn("addPadRow(context, ui, baseBox, row, padLandscape ? 12 : 18);", self.screen)
         self.assertIn("params.leftMargin = ui.dp(4);", self.screen)
-        self.assertIn("GradientDrawable shape = new GradientDrawable();", self.screen)
+        self.assertIn("GradientDrawable g = new GradientDrawable();", self.screen)
         # A live result under the display: silence until equals hides mistakes until it is too
         # late to fix them cheaply.
         self.assertIn('"= " + groupIndian(', self.screen)
@@ -3437,7 +3438,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.32", guide)
+        self.assertIn("3.12.33", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4386,7 +4387,14 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("putBoolean(DEGREES_KEY, degrees)", self.screen)
         self.assertIn("HAPTICS_KEY", self.screen)
         self.assertIn("getBoolean(HAPTICS_KEY, true)", self.screen)
-        self.assertIn("items.add(\"Add to memory\");", self.screen)
+        # Round 31: storing moved out of the three dots into the selection
+        # menu as MAdd; the picker for key shapes took the freed slot.
+        self.assertNotIn("items.add(\"Add to memory\");", self.screen)
+        self.assertIn("items.add(\"Key shape\");", self.screen)
+        self.assertIn("private static final String[] KEY_SHAPES = {\"Circle\", \"Squircle\", \"Pill\",", self.screen)
+        self.assertIn("static final class HexagonDrawable extends android.graphics.drawable.Drawable {", self.screen)
+        self.assertIn("private void rebuildPad(Context context, UiKit ui) {", self.screen)
+        self.assertIn("\"key shape set to \" + pick + \", pad rebuilt\"", self.screen)
         self.assertIn("items.add(\"Clear memory\");", self.screen)
         self.assertIn("items.add(\"View memory\");", self.screen)
         self.assertNotIn("Subtract from memory", self.screen)
@@ -4476,7 +4484,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
         # Round 28: zero horizontal padding put the content edge ON the view
         # edge, so his end caret and right teardrop drew off the canvas.
-        self.assertIn("displayView.setPadding(ui.dp(10), 0, ui.dp(10), ui.dp(34));", screen)
+        self.assertIn("displayView.setPadding(ui.dp(10), 0, ui.dp(40), ui.dp(34));", screen)
         # Round 19: "why can't you use default android which is very good and
         # robust" -- the stock highlight, the stock gestures, and a scroller that
         # refuses to steal a handle drag while a selection is up.
@@ -4503,7 +4511,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("\" held by the stock editor, handles and menu raised\"", screen)
         # Round 19: "make it look stunning, colorful and bright" -- gradient
         # expression, gradient preview, gradient equals key, amber operators.
-        self.assertIn("shape.setColors(gradient);", screen)
+        self.assertIn("g.setColors(gradient);", screen)
         self.assertIn("ink = dark ? 0xFFFFC94D : 0xFFB26A00;", screen)
         # Round 21: LED ink as per-character spans (no shader coordinates to get
         # wrong) with a glow layer in dark; pitch black in light; and the caret
@@ -4527,7 +4535,15 @@ class TestInfrastructureContracts(unittest.TestCase):
         # parks the caret and raises Google's caret trio; Mem stores the held
         # value and MR inserts the recently saved one at the caret.
         self.assertIn('"long press on empty box: no selection, caret parked at "', screen)
-        self.assertIn('"caret menu opened: MR, Paste, Select all"', screen)
+        self.assertIn('"caret menu opened: MUse, Paste, Select all"', screen)
+        self.assertIn('menu.add(0, SEL_MEM, 2, "MAdd");', screen)
+        self.assertIn('menu.add(0, SEL_MR, 0, "MUse");', screen)
+        # Round 31: a still finger on the held band or a handle is a tap --
+        # caret to the click point, selection released.
+        self.assertIn("if (!downMoved && dragHandle != 0) {", screen)
+        # Round 31: a whole character of empty glass on the right, so a hold
+        # there raises the caret menu instead of grabbing the last operand.
+        self.assertIn("displayView.setPadding(ui.dp(10), 0, ui.dp(40), ui.dp(34));", screen)
         self.assertIn('"selection menu opened: Cut, "', screen)
         self.assertIn("case SEL_MEM: {", screen)
         self.assertIn("case SEL_MR: {", screen)
@@ -4676,6 +4692,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd", ui)
         self.assertIn("theCaretStandsSolidThenBlinksLikeAndroidsOwn", ui)
         self.assertIn("theCaretBarIsARealViewThatBlinksWithThePhase", ui)
+        self.assertIn("aTapOnTheHeldPortionParksTheCaretAndReleasesTheSelection", ui)
+        self.assertIn("aHoldInTheRightMarginRaisesTheCaretMenuNotTheLastOperand", ui)
+        self.assertIn("theKeyShapeMenuOffersSixShapesAndPersistsThePick", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)
@@ -4736,7 +4755,7 @@ class OutcomeLogContracts(unittest.TestCase):
                 "history cleared: ",    # clearing counts what it deleted
                 "copied ",              # copy names the length and the text
                 "copy FAILED: ",        # and a failed copy says it failed
-                "memory added: ",
+                "memory saved from selection: ",
                 "laid out: parent ",    # the layout reports the size it actually became
         ):
             self.assertIn('"' + outcome + '"', self.screen)

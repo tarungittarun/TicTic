@@ -104,6 +104,11 @@ public final class CalculatorScreen implements Screen {
     private static final String DEGREES_KEY = "calculator_degrees";
     private static final String HAPTICS_KEY = "calculator_haptics";
     private static final String EFFECTS_KEY = "calculator_effects";
+    // Round 31: "in 3 dots add options of shape of buttons on keypad. Let
+    // there be 5 trending options along with no shape." Six names, one pref.
+    private static final String KEYSHAPE_KEY = "calculator_keyshape";
+    private static final String[] KEY_SHAPES = {"Circle", "Squircle", "Pill",
+            "Rounded square", "Hexagon", "No shape"};
     private static final int SEL_COPY = 9101, SEL_CUT = 9102,
             SEL_PASTE = 9103, SEL_ALL = 9104, SEL_MEM = 9105, SEL_MR = 9106;
 
@@ -159,6 +164,7 @@ public final class CalculatorScreen implements Screen {
     private ChevronView chevron;
     private PopupWindow menuPopup;
     private LinearLayout padContainer;
+    private boolean padLandscape;
     private ScrollView historyScroll;
     private SwipeBox displayArea;
     private float lastTouchX, lastTouchY;
@@ -337,18 +343,8 @@ public final class CalculatorScreen implements Screen {
         padContainer = ui.vbox();
         padContainer.setId(R.id.calc_pad);
         root.addView(padContainer, new LinearLayout.LayoutParams(-1, 0, 5f));
-        panelBox = ui.vbox();
-        panelBox.setVisibility(panelOpen && !landscape ? View.VISIBLE : View.GONE);
-        padContainer.addView(panelBox, new LinearLayout.LayoutParams(-1, 0,
-                panelOpen && !landscape ? 3f : 0f));
-        if (!landscape) {
-            for (String[] row : PANEL_ROWS) addPadRow(context, ui, panelBox, row, 12);
-        }
-        LinearLayout baseBox = ui.vbox();
-        padContainer.addView(baseBox, new LinearLayout.LayoutParams(-1, 0, 5f));
-        for (String[] row : (landscape ? LANDSCAPE_ROWS : BASE_ROWS)) {
-            addPadRow(context, ui, baseBox, row, landscape ? 12 : 18);
-        }
+        padLandscape = landscape;
+        rebuildPad(context, ui);
         // Round 9: "have some animations in each button click" -- the suite's own press
         // motion (style and intensity from Settings, reduce-motion honoured) over every
         // clickable view the screen just built, so MyCalc gets it without a host too.
@@ -546,16 +542,77 @@ public final class CalculatorScreen implements Screen {
         button.setSingleLine(true);
         button.setTextSize(size);
         button.setTextColor(ink);
-        GradientDrawable shape = new GradientDrawable();
-        shape.setCornerRadius(ui.dp(radiusDp));
-        shape.setColor(fill);
-        if (gradient != null) {
-            shape.setOrientation(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT);
-            shape.setColors(gradient);
-        }
-        button.setBackground(shape);
+        button.setBackground(keyShape(context, ui, fill, gradient));
         button.setContentDescription(key);
         return button;
+    }
+
+    /** Round 31: the keypad's silhouette is the owner's to pick -- five trending
+     *  shapes plus no shape at all, persisted and rebuilt live. The radius is
+     *  clamped by the drawable itself, so "Circle" on a squarer key is still a
+     *  circle and "Pill" is a stadium, whatever the key's aspect. */
+    private static android.graphics.drawable.Drawable keyShape(Context context,
+            UiKit ui, int fill, int[] gradient) {
+        String name = AppPrefs.prefs(context).getString(KEYSHAPE_KEY, "Circle");
+        if ("Hexagon".equals(name)) return new HexagonDrawable(fill, gradient);
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(fill);
+        if (gradient != null) {
+            g.setOrientation(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT);
+            g.setColors(gradient);
+        }
+        float r;
+        if ("No shape".equals(name)) r = 0;
+        else if ("Rounded square".equals(name)) r = ui.dp(10);
+        else if ("Squircle".equals(name)) r = ui.dp(26);
+        else if ("Pill".equals(name)) r = ui.dp(60);
+        else r = ui.dp(90);
+        g.setCornerRadius(r);
+        return g;
+    }
+
+    /** The honeycomb's own silhouette as a key: six points, flat top and bottom,
+     *  filled with the key's class colour (the equals key keeps its gradient). */
+    static final class HexagonDrawable extends android.graphics.drawable.Drawable {
+        private final android.graphics.Paint p =
+                new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Path path = new android.graphics.Path();
+        private final int[] gradient;
+        private int fill;
+
+        HexagonDrawable(int fill, int[] gradient) {
+            this.fill = fill;
+            this.gradient = gradient;
+            p.setStyle(android.graphics.Paint.Style.FILL);
+            p.setColor(fill);
+        }
+
+        @Override public void draw(android.graphics.Canvas c) {
+            android.graphics.Rect b = getBounds();
+            if (b.isEmpty()) return;
+            if (gradient != null) {
+                android.graphics.LinearGradient lg = new android.graphics.LinearGradient(
+                        b.left, b.centerY(), b.right, b.centerY(), gradient, null,
+                        android.graphics.Shader.TileMode.CLAMP);
+                p.setShader(lg);
+            }
+            float cx = b.centerX(), cy = b.centerY();
+            float rx = b.width() / 2f, ry = b.height() / 2f;
+            path.reset();
+            for (int i = 0; i < 6; i++) {
+                double a = Math.toRadians(60 * i);
+                float x = (float) (cx + rx * Math.cos(a));
+                float y = (float) (cy + ry * Math.sin(a));
+                if (i == 0) path.moveTo(x, y);
+                else path.lineTo(x, y);
+            }
+            path.close();
+            c.drawPath(path, p);
+        }
+
+        @Override public void setAlpha(int a) { p.setAlpha(a); }
+        @Override public void setColorFilter(android.graphics.ColorFilter f) { p.setColorFilter(f); }
+        @Override public int getOpacity() { return android.graphics.PixelFormat.TRANSLUCENT; }
     }
 
     /** Round 19: flat fills read dull. The equals key carries a left-to-right
@@ -611,7 +668,12 @@ public final class CalculatorScreen implements Screen {
         // end-of-line caret and the right boundary teardrop were drawn one bar
         // width OFF the canvas: invisible cursor, one-sided selection. Ten dp
         // of side padding puts the content edge back on the glass.
-        displayView.setPadding(ui.dp(10), 0, ui.dp(10), ui.dp(34));
+        // Round 31: "keep more empty space in the right of the expression,
+        // atleast another character's space... now it's just selecting last
+        // operand." Ten dp was a sliver no thumb could hold; forty dp is a
+        // whole character of empty glass where a hold raises the caret menu
+        // (MUse, Paste, Select all) instead of grabbing the last operand.
+        displayView.setPadding(ui.dp(10), 0, ui.dp(40), ui.dp(34));
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
@@ -789,6 +851,23 @@ public final class CalculatorScreen implements Screen {
                         return false;
                     }
                     if (dragHandle != 0 || extending) {
+                        // Round 31, his words: "when a something is selected and
+                        // then if user clicks again somewhere in the expression,
+                        // it may be a selected portion or non selected portion.
+                        // Cursor should go to clicked position and release
+                        // selection." A finger that came down on the held band
+                        // or a handle and NEVER MOVED is a tap, not a drag: it
+                        // parks the caret where it landed and lets go.
+                        if (!downMoved && dragHandle != 0) {
+                            dragHandle = 0;
+                            extending = false;
+                            if (displayView.getParent() != null) {
+                                displayView.getParent()
+                                        .requestDisallowInterceptTouchEvent(false);
+                            }
+                            clearSelectionAt(e.getX(), e.getY());
+                            return true;
+                        }
                         AppLog.event(lastContext, "calc", "selection drag ended: chars "
                                 + displayView.getSelectionStart() + ".."
                                 + displayView.getSelectionEnd() + " held");
@@ -868,11 +947,11 @@ public final class CalculatorScreen implements Screen {
                     // Round 28, his Google screenshot: over a bare caret the
                     // menu is MR, Paste, Select all -- the memory recall that
                     // inserts the saved value WHERE THE CARET STANDS.
-                    menu.add(0, SEL_MR, 0, "MR");
+                    menu.add(0, SEL_MR, 0, "MUse");
                     menu.add(0, SEL_PASTE, 1, "Paste");
                     menu.add(0, SEL_ALL, 2, "Select all");
                     AppLog.event(lastContext, "calc",
-                            "caret menu opened: MR, Paste, Select all");
+                            "caret menu opened: MUse, Paste, Select all");
                 } else {
                     // Round 28, his words: "when selected, along with copy, cut
                     // options, add Mem option as well" -- Mem stores the held
@@ -880,15 +959,15 @@ public final class CalculatorScreen implements Screen {
                     // or over the held range.
                     menu.add(0, SEL_CUT, 0, "Cut");
                     menu.add(0, SEL_COPY, 1, "Copy");
-                    menu.add(0, SEL_MEM, 2, "Mem");
-                    menu.add(0, SEL_MR, 3, "MR");
+                    menu.add(0, SEL_MEM, 2, "MAdd");
+                    menu.add(0, SEL_MR, 3, "MUse");
                     menu.add(0, SEL_PASTE, 4, "Paste");
                     menu.add(0, SEL_ALL, 5, "Select all");
                     AppLog.event(lastContext, "calc", "selection started: chars "
                             + menuSelA + ".." + menuSelB
                             + " held by the stock editor, handles and menu raised");
                     AppLog.event(lastContext, "calc", "selection menu opened: Cut, "
-                            + "Copy, Mem, MR, Paste, Select all");
+                            + "Copy, MAdd, MUse, Paste, Select all");
                 }
                 return true;
             }
@@ -959,7 +1038,7 @@ public final class CalculatorScreen implements Screen {
                             Double.parseDouble(num);
                         } catch (Exception ex) {
                             AppLog.event(context, "calc",
-                                    "memory add refused: selection holds " + shown);
+                                    "MAdd refused: selection holds " + shown);
                             host.toast("Select a number to store");
                             return true;
                         }
@@ -978,14 +1057,14 @@ public final class CalculatorScreen implements Screen {
                         // the held range -- mid-expression, no re-typing.
                         java.util.List<String> mem = memoryList(context);
                         if (mem.isEmpty()) {
-                            AppLog.event(context, "calc", "MR refused: memory empty");
+                            AppLog.event(context, "calc", "MUse refused: memory empty");
                             host.toast("Memory is empty");
                             mode.finish();
                             return true;
                         }
                         String v = mem.get(mem.size() - 1);
                         String clean = v.replace(",", "");
-                        spliceRaw(context, a, b, clean, "MR");
+                        spliceRaw(context, a, b, clean, "MUse");
                         mode.finish();
                         return true;
                     }
@@ -1431,6 +1510,57 @@ public final class CalculatorScreen implements Screen {
 
     /** The scientific panel grows over the basic pad by animating its block's weight, with
      *  an alpha ride so the caps arrive instead of popping. */
+    /** Round 31: the keypad silhouette picker -- five trending shapes and no
+     *  shape at all, single-choice, persisted, and the pad rebuilds under the
+     *  thumb without recreating the screen. */
+    private void openKeyShape(final Context context, final UiKit ui) {
+        final String current =
+                AppPrefs.prefs(context).getString(KEYSHAPE_KEY, "Circle");
+        int checked = 0;
+        for (int i = 0; i < KEY_SHAPES.length; i++) {
+            if (KEY_SHAPES[i].equals(current)) checked = i;
+        }
+        new android.app.AlertDialog.Builder(context)
+                .setTitle("Key shape")
+                .setSingleChoiceItems(KEY_SHAPES, checked,
+                        new android.content.DialogInterface.OnClickListener() {
+                            @Override public void onClick(
+                                    android.content.DialogInterface d, int which) {
+                                String pick = KEY_SHAPES[which];
+                                AppPrefs.prefs(context).edit()
+                                        .putString(KEYSHAPE_KEY, pick).apply();
+                                AppLog.event(context, "calc",
+                                        "key shape set to " + pick + ", pad rebuilt");
+                                host.toast("Keys: " + pick);
+                                d.dismiss();
+                                rebuildPad(context, ui);
+                            }
+                        })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /** Round 31: the pad, rebuildable in place -- the key-shape picker swaps
+     *  every key background without recreating the screen or losing the panel
+     *  state. capButtons is rebuilt with it, because press() looks keys up there. */
+    private void rebuildPad(Context context, UiKit ui) {
+        padContainer.removeAllViews();
+        capButtons = new java.util.HashMap<>();
+        panelBox = ui.vbox();
+        panelBox.setVisibility(panelOpen && !padLandscape ? View.VISIBLE : View.GONE);
+        padContainer.addView(panelBox, new LinearLayout.LayoutParams(-1, 0,
+                panelOpen && !padLandscape ? 3f : 0f));
+        if (!padLandscape) {
+            for (String[] row : PANEL_ROWS) addPadRow(context, ui, panelBox, row, 12);
+        }
+        LinearLayout baseBox = ui.vbox();
+        padContainer.addView(baseBox, new LinearLayout.LayoutParams(-1, 0, 5f));
+        for (String[] row : (padLandscape ? LANDSCAPE_ROWS : BASE_ROWS)) {
+            addPadRow(context, ui, baseBox, row, padLandscape ? 12 : 18);
+        }
+        GelMotion.apply(padContainer, ui.palette().accent);
+    }
+
     private void togglePanel(final Context context, final UiKit ui) {
         panelOpen = !panelOpen;
         AppLog.event(context, "calc", panelOpen
@@ -1519,10 +1649,12 @@ public final class CalculatorScreen implements Screen {
         java.util.List<String> items = new java.util.ArrayList<>();
         items.add(AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)
                 ? "Haptics: On" : "Haptics: Off");
-        items.add("Add to memory");
+        // Round 31: "in 3 dots remove add memory" -- storing lives in the
+        // selection menu as MAdd now; the three dots keep the other five.
         items.add("Clear memory");
         items.add("View memory");
         items.add(showFraction ? "Show as decimal" : "Show as fraction");
+        items.add("Key shape");
         items.add("Effects");
         LinearLayout box = ui.vbox();
         box.setBackground(pill(ui, ui.palette().surface, 16));
@@ -1556,21 +1688,6 @@ public final class CalculatorScreen implements Screen {
             AppPrefs.prefs(context).edit().putBoolean(HAPTICS_KEY, on).apply();
             AppLog.event(context, "calc", "haptics " + (on ? "on" : "off") + ", persisted");
             host.toast(on ? "Haptics on" : "Haptics off");
-        } else if (choice.equals("Add to memory")) {
-            String v = displayValue();
-            try {
-                Double.parseDouble(v);
-            } catch (Exception e) {
-                AppLog.event(context, "calc", "memory add refused: display holds " + v);
-                host.toast("Nothing to store on the display");
-                return;
-            }
-            java.util.List<String> list = memoryList(context);
-            list.add(v);
-            saveMemory(context, list);
-            AppLog.event(context, "calc", "memory added: " + v
-                    + ", memory now holds " + list.size());
-            host.toast("Added to memory");
         } else if (choice.equals("Clear memory")) {
             int n = memoryList(context).size();
             saveMemory(context, new java.util.ArrayList<String>());
@@ -1583,6 +1700,8 @@ public final class CalculatorScreen implements Screen {
             AppLog.event(context, "calc", showFraction
                     ? "result view: fraction" : "result view: decimal");
             refreshDisplay(context);
+        } else if (choice.equals("Key shape")) {
+            openKeyShape(context, ui);
         } else if (choice.equals("Effects")) {
             openEffects(context, ui);
         }

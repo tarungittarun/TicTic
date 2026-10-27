@@ -1132,7 +1132,7 @@ public class CalculatorUiTest {
         type("1", "2", "+", "3", "4");
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
-        onView(withText("MR")).check(matches(isDisplayed()));
+        onView(withText("MUse")).check(matches(isDisplayed()));
         onView(withText("Select all")).check(matches(isDisplayed()));
         onView(withText("Cut")).check(doesNotExist());
         // The caret parked at 0: the next key lands at the FRONT, proving the
@@ -1149,8 +1149,8 @@ public class CalculatorUiTest {
         type("4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).check(held(3));
-        onView(withText("Mem")).check(matches(isDisplayed()));
-        onView(withText("Mem")).perform(click());
+        onView(withText("MAdd")).check(matches(isDisplayed()));
+        onView(withText("MAdd")).perform(click());
         // A plain tap releases and parks the caret at the front of the box...
         tapAtOffset(0);
         onView(withId(DISPLAY)).check(held(0));
@@ -1158,9 +1158,69 @@ public class CalculatorUiTest {
         // inserts the recently saved value AT THAT CARET.
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
-        onView(withText("MR")).perform(click());
+        onView(withText("MUse")).perform(click());
         // Indian grouping is display furniture: 456456 reads 4,56,456.
         onView(withId(DISPLAY)).check(matches(withText("4,56,456")));
+    }
+
+    @Test public void aTapOnTheHeldPortionParksTheCaretAndReleasesTheSelection() {
+        // Round 31, his words: "when a something is selected and then if user
+        // clicks again somewhere in the expression, it may be a selected
+        // portion or non selected portion. Cursor should go to clicked position
+        // and release selection. At a time, selection can be there or a
+        // cursor." A still finger on the held band is a TAP, not a zero-move
+        // drag: the highlight and the menu go, the caret stands where it landed,
+        // and the next key proves the position.
+        type("1", "2", "3", "4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(6));
+        onView(withText("Copy")).check(matches(isDisplayed()));
+        // Straight down on the held band itself -- the gesture that used to be
+        // a zero-move "drag" and kept the selection.
+        tapAtOffset(3);
+        onView(withId(DISPLAY)).check(held(0));
+        onView(withText("Copy")).check(doesNotExist());
+        type("9");
+        // The tap landed mid-number, so the 9 lands mid-number, not at the end.
+        onView(withId(DISPLAY)).check(matches(withText("12,39,456")));
+    }
+
+    @Test public void aHoldInTheRightMarginRaisesTheCaretMenuNotTheLastOperand() {
+        // Round 31: "keep more empty space in the right of the expression,
+        // atleast another character's space. user is not able to press and hold,
+        // to just paste or use memory. Now it's just selecting last operand."
+        // The box keeps a whole character of empty glass on the right; a hold
+        // there parks the caret at the end and raises the caret trio.
+        type("1", "2", "+", "3", "4");
+        onView(withId(DISPLAY)).perform(holdAt(0.97f));
+        onView(withId(DISPLAY)).check(held(0));
+        onView(withText("MUse")).check(matches(isDisplayed()));
+        onView(withText("Paste")).check(matches(isDisplayed()));
+        onView(withText("Cut")).check(doesNotExist());
+    }
+
+    @Test public void theKeyShapeMenuOffersSixShapesAndPersistsThePick() {
+        // Round 31: "in 3 dots add options of shape of buttons on keypad. Let
+        // there be 5 trending options along with no shape." The three dots carry
+        // Key shape; the dialog lists all six; the pick persists and rebuilds
+        // the pad under the thumb.
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key shape")).perform(click());
+        onView(withText("Hexagon")).check(matches(isDisplayed()));
+        onView(withText("No shape")).check(matches(isDisplayed()));
+        onView(withText("Pill")).perform(click());
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        assertEquals("Pill", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keyshape", "Circle"));
+        // and the pad still works after the rebuild
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("7")));
+        // leave the pad as the owner found it
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key shape")).perform(click());
+        onView(withText("Circle")).perform(click());
     }
 
     @Test public void theCaretBarIsARealViewThatBlinksWithThePhase() {

@@ -118,3 +118,15 @@ Owner approved isolating MyNotes in its own directory and pausing other workflow
 
 CI result will be recorded separately once observed. Android device behaviour, SAF,
 ML and full planned feature acceptance remain unverified/pending as listed above.
+
+
+### Slice 3 CI outcome — observed
+
+MyNotes-only push run **40561897413 succeeded** in 1m26s. Domain JVM test task,
+release assembly and Android test APK assembly all passed. Five Android instrumented
+persistence tests were compiled but NOT executed. No emulator/device outcome is claimed.
+Workflow published MyNotes-v0.1.0-1.apk and checksum to mynotes/releases in commit
+5abdfcc; pulled via fast-forward and verified `sha256sum -c`: OK. Built source is
+563803284a27cdd617ae73868989fc63eb6c81d6. The old workflows' last runs remain historical;
+no calculator/MySpace jobs ran for this push. This resolves the prior build-registration
+blocker via Notes-only push events, not via permission-blocked manual dispatch.

@@ -1,11 +1,18 @@
 # MyNotes 0.1.0 (1) — early text slice test guide
 
-**Build status: not built. No APK link yet.** New workflow dispatch returned HTTP 404;
-Android compilation, JVM tests and instrumented tests have not run. This guide lists
-planned manual journeys, not passed results. Do not replace the installed MySpace or
-MyCalc; the future APK uses app.space.notes and installs alongside them.
+**Build status: GitHub Actions build 40561897413 succeeded.** Domain JVM tests passed;
+release APK and Android test APK compiled. The five instrumented persistence tests
+have NOT run on an emulator/device; compilation is not a runtime pass.
 
-## Once a build exists
+- [Download MyNotes 0.1.0 (1)](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.1.0-1.apk)
+- [SHA-256](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.1.0-1.apk.sha256)
+- [Build](https://github.com/tarungittarun/TicTic/actions/runs/40561897413)
+
+This early text build uses app.space.notes and installs beside MySpace/MyCalc.
+It is not the final design or complete feature set. Keep important data backed up;
+folder selection and durable failed-save recovery are not implemented yet.
+
+## Manual device journeys — awaiting results
 
 1. Create a text note, type Unicode title/body, wait for Saved locally, Back and reopen.
 2. Background/resume and rotate mid-edit; check title/body/caret and note identity.
@@ -23,9 +30,9 @@ MyCalc; the future APK uses app.space.notes and installs alongside them.
 
 ## Written automated tests
 
-- :notes-domain:test — seven Java tests; pending execution.
-- NotesPersistenceTest — five Android tests; pending compilation/emulator execution.
-- python3 -m unittest discover -s qa — 416 tests passed; source/protocol only.
+- :notes-domain:test — seven Java tests; CI task passed.
+- NotesPersistenceTest — five Android tests; compiled, emulator/device execution pending.
+- python3 -m unittest discover -s qa — 420 tests passed; source/protocol only.
 
 ## Explicitly unavailable
 

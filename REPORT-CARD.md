@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.35 (versionCode 72) · SHA-256 `f3257177dc098cf62f54a6f77df526195323d36b23ed5a69f9ff07ddf96b45fb` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.33 (versionCode 34) · SHA-256 `99c65435e455e241dd3eb65ea6494abcabf2099f5024f6a82c6cf8a621a6bf6b` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 24624 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (54 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 325 recorded runs — **225 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
+**Build (MySpace):** 3.12.36 (versionCode 73) · SHA-256 `3777ef7061b913b6fbbb9bc6292d23085d504f3faa0f40dfb48eccd2b091f085` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.34 (versionCode 35) · SHA-256 `03ea13f2a898d7d14555a0968fa249d3e2d3add4f47476ed669f3a9f12bed8f6` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 25166 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (57 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 329 recorded runs — **229 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -212,6 +212,29 @@ instead of drawing a ghost. Regression: 54 instrumented stories green on CI (two
 of them new — the picker's previews/persistence, and plain-keys-flash vs
 round-disc backgrounds asserted on the real drawables), 389 contracts green, both
 CI runs clean, zero exceptions in the suite.
+
+**Round 33 (2026-10-27, MySpace 3.12.36/73 + MyCalc 1.0.34/35):** three orders,
+one round. (1) Colour themes for the keypad, grouped exactly as he listed them --
+numbers, operations, scientific keys, AC/backspace -- with five choices: the
+default **MySpace settings** (the pad follows the app appearance, named as he
+asked) plus Graphite, Ocean, Sunset and Mint, each carrying its own dark-mode
+and light-mode fills per group, and every ink passed through a contrast guard
+that swaps in near-black or near-white whenever a theme's ink sits within 0.35
+luminance of its fill -- a theme cannot ship an unreadable glyph. (2) The menu
+regrouped so the round-9 rule survives growth: memory view/reorder/clear fold
+into one **Memory** child (clear at its bottom), keeping the top level at five
+slots plus Effects even with **Key theme** joining. (3) The single-stroke menu he
+specified: press the dots and the menu opens under your finger; drag and the row
+under the finger highlights; lift and that row's action fires; dwell on a parent
+row and its child list swaps in mid-stroke so one unbroken gesture can reach
+"Key shape ▸ Pill" -- while a plain tap still opens the old tap-through menu,
+because he asked that the present access remain. The gesture works because the
+dots view accepts the DOWN and Android keeps routing the whole stream to it over
+popups that declare themselves untouchable. Regression: 57 stories green on CI
+(three new: theme persistence, stroke-leaf, stroke-into-child -- the latter two
+inject a real pointer stream), 389 contracts green, and the raw instrumented log
+is now a downloadable run artifact so the suite's own verdict ("OK (N tests)") is
+auditable instead of inferred.
 
 ---
 
@@ -561,4 +584,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 32 (commit `ec44b23` + card, MySpace 3.12.35/72, MyCalc 1.0.33/34).*
+*Report card refreshed 2026-10-27 after round 33 (commit `70cb7c5` + card, MySpace 3.12.36/73, MyCalc 1.0.34/35).*

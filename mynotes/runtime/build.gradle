@@ -8,4 +8,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-dependencies { api project(':notes-domain') }
+dependencies {
+    api project(':notes-domain')
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+}

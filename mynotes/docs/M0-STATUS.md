@@ -219,3 +219,19 @@ Still open: real SAF/provider/SD qualification, startup recovery UI for corrupt 
 cache, bounded generation compaction and scale, streaming media backup, structured rich
 content/lists, labels/colour UI, OCR/ASR, diagrams, reminders/widgets and final UI polish.
 Do not mark the original inventory complete from this storage milestone.
+
+## Slice 6 — substantial core Notes jump, 0.4.0 (5)
+
+Written: immutable schema-2 document/checklist/mark/label model, version-1 migration,
+restore equality including structure with legacy conflict-ID compatibility, native span
+codec, RecyclerView masonry/list board with pinned sections and contrast-resolved 12
+colours, sort/view prefs, label filters, structured list editor and selected-range text
+formatting, colour/label pickers, bulk actions, duplicate/share, merge-to-new plus Trash
+sources/Undo, and bounded rotation draft snapshots. Runtime remains standalone-only.
+
+Expected tests: 29 JVM (14 previous + 15 structured/operation/compatibility); 40 Android
+(28 previous + 8 structured codec/style + 4 actual controller/editor journeys). Local
+source/protocol checks currently 435 OK. No Java/emulator success for this slice is
+claimed before CI. The added Android journeys cover rich edit/properties/copy, checklist
+completion/move/indent/hide/convert/Undo, bulk properties/pin/archive, share/merge/Undo.
+Actual picker/SD/device/large-font/scale acceptance is still separate and outstanding.

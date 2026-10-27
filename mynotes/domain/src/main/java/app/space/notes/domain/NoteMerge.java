@@ -17,10 +17,20 @@ public final class NoteMerge {
     public static boolean same(Note a,Note b) {
         return a.title.equals(b.title) && a.body.equals(b.body) && a.createdAt==b.createdAt
             && a.updatedAt==b.updatedAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
-            && a.archived==b.archived && a.color==b.color;
+            && a.archived==b.archived && a.color==b.color && structure(a).equals(structure(b));
+    }
+    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty();}
+    private static String structure(Note n) {
+        if(plain(n))return "";
+        StringBuilder out=new StringBuilder(n.checklist+":"+n.hideChecked+":"+n.items.size()+"#");
+        for(Note.Item item:n.items)out.append(item.id.length()).append(':').append(item.id).append(item.text.length()).append(':').append(item.text).append(':').append(item.checked).append(':').append(item.depth).append(';');
+        out.append(n.marks.size()).append('#');
+        for(Note.Mark mark:n.marks)out.append(mark.type).append(':').append(mark.start).append(':').append(mark.end).append(';');
+        out.append(n.labels.size()).append('#');for(String label:n.labels)out.append(label.length()).append(':').append(label);
+        return out.toString();
     }
     private static Note copy(Note n,String id) {
-        return new Note(id,n.title,n.body,n.createdAt,n.updatedAt,n.deletedAt,n.pinned,n.archived,n.color);
+        return n.withId(id);
     }
     public static Plan preview(List<Note> existing,List<Note> incoming) {
         LinkedHashMap<String,Note> all=new LinkedHashMap<>();
@@ -33,8 +43,9 @@ public final class NoteMerge {
             if(same(previous,n)) {unchanged++;continue;}
             // Derive a stable conflict-copy identity from all fields using length-delimited values.
             // Re-importing the same conflicting version does not create unlimited copies.
-            String[] values={n.id,n.title,n.body,Long.toString(n.createdAt),Long.toString(n.updatedAt),
-                Long.toString(n.deletedAt),Boolean.toString(n.pinned),Boolean.toString(n.archived),Integer.toString(n.color)};
+            List<String> values=new ArrayList<>(Arrays.asList(n.id,n.title,n.body,Long.toString(n.createdAt),Long.toString(n.updatedAt),
+                Long.toString(n.deletedAt),Boolean.toString(n.pinned),Boolean.toString(n.archived),Integer.toString(n.color)));
+            if(!plain(n))values.add(structure(n)); // Preserve 0.3.0 conflict IDs for plain notes.
             StringBuilder key=new StringBuilder("MyNotes restore conflict v1:");
             for(String value:values)key.append(value.length()).append(':').append(value);
             int suffix=0;String id;

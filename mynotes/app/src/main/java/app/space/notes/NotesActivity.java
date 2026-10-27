@@ -61,6 +61,12 @@ public final class NotesActivity extends Activity implements NotesHost {
             if(request==94)controller.selectFolder(uri);else controller.openExistingFolder(uri);
         } catch(SecurityException e) { showMessage("Folder permission could not be retained. Storage has not changed."); }
     }
+    @Override public void shareText(String title,String text) {
+        Intent share=new Intent(Intent.ACTION_SEND).setType("text/plain");
+        share.putExtra(Intent.EXTRA_SUBJECT,title).putExtra(Intent.EXTRA_TEXT,text);
+        try {startActivity(Intent.createChooser(share,"Share notes"));}
+        catch(android.content.ActivityNotFoundException e) {showMessage("No sharing app is installed.");}
+    }
     @Override public String versionLabel() { return "MyNotes " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")"; }
     @Override public void showMessage(String message) {
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();

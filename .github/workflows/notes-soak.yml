@@ -3,8 +3,17 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      - 'mynotes/app/src/main/**'
-      - 'mynotes/runtime/src/main/**'
+      - 'mynotes/app/src/main/AndroidManifest.xml'
+      - 'mynotes/runtime/src/main/assets/**'
+      - 'mynotes/runtime/src/main/res/**'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineSpeech.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceFiles.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesRepository.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/LocalReminders.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/LocalSystemSurfaces.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesWidget.java'
       - 'mynotes/domain/src/main/**'
       - 'mynotes/**/*.gradle'
       - 'mynotes/gradle/**'

@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.29 (versionCode 66) · SHA-256 `f994e613062bb52f7dd3a40d89e3d3c08037183313d31aa5fd049a11405e6e72` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.27 (versionCode 28) · SHA-256 `a30bd00faba91cf5266ebf60dda19c1b3d4e95c11dbee37a57dd5d8487e50fb5` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 23850 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (45 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 299 recorded runs — **202 green, 85 red, 12 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.30 (versionCode 67) · SHA-256 `8f8ccdcc73b0c4beea380e962a19897d06dda41a12d838ecdebd4ac0f765c40d` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.28 (versionCode 29) · SHA-256 `ea2b494e2c356b9a576cb60db5e08aa6579eb2cd62e6c1c479276d27b5f0e04b` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 24138 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (48 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 305 recorded runs — **207 green, 85 red, 13 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -110,6 +110,29 @@ detached the bar from the last glyph by 20px; the clamp is the content edge now
 story `aPlainTapParksTheCaretAndReleasesTheSelection` pins the whole arc — hold selects 6
 chars, tap 2 chars away releases, typing lands at the caret (`1,23,456` → `1,27,345`) — and
 all 45 stories pass on CI (run 40382441596).
+
+Round 28 read `myspace-20261027-092332.log.txt` (4,259 lines; the 3.12.29 build from
+09:10 on) and found three of my own lines guilty again. **The drag that never dragged:**
+one handle drag produced THIRTY-NINE consecutive `offsetAt guarded a torn layout` lines and
+the held range never moved — on his OEM every drag frame meets a torn DynamicLayout, so the
+round-26 guard, doing exactly its job, swallowed the whole gesture; the offset mapper is
+now the inverse of a paint-measured anchor (binary search over the view's own `measureText`
+against the gravity-right edge), which no line table can tear. **The invisible cursor,
+solved at the root:** `caret at x=1132 viewW=1132` — with RIGHT gravity and ZERO horizontal
+padding the content edge IS the view edge, so the end-of-line caret and the right boundary
+teardrop drew one bar width OFF the canvas; ten dp of side padding puts them on the glass,
+and his "keep at least one number at the right end so I can change the selection from both
+sides" is answered by a right handle that finally exists on screen plus a drag that works
+from either end (the ≥1-char minimum during adjustment was already there and stays). **The
+hold that selected an operator:** a press on the EMPTY part of the box clamped to offset 0
+and held the first word — now the press point is tested against the painted text extent;
+outside it nothing is selected, the caret parks at the near end and Google's own caret trio
+rises (MR, Paste, Select all), which is also the door to his memory ask: the selection menu
+gained **Mem** (stores the held value in the memory list) and **MR** (inserts the recently
+saved value at the caret, or over the held range) — the Google Calculator flow he
+screenshotted. The swipe-at-claim fix is device-verified in the same log: popup open 20 ms
+after the claim, no button. 48 stories pass on CI (run 40448340131); three are new:
+empty-box hold, Mem→MR round trip, and the on-glass contract.
 
 ---
 
@@ -347,12 +370,15 @@ mistake I make.
   `unittest discover`, which imports the module and collects all 389. Local gate runs now use
   discover too, and the guard deserves a move to the bottom of the file in a housekeeping pass.
 
-**Test-writing failures (~15):** nine-plus expectations written from intuition rather than computed
+**Test-writing failures (~17):** nine-plus expectations written from intuition rather than computed
 from the fixture — `12000` minor units where the answer was `1200`; a tie-break test where every
 total was 900 so ordering was never exercised; asserting a clamped page move was a no-op when
 clamping still moves the page. And **six assertions that matched their own documentation** — the
 last one grepped a workflow for a string that appeared only in a comment explaining why that
-string must not be used.
+string must not be used. Round 28 adds two caught in my own re-read before any emulator
+verdict: a story expecting `456456` on the display where Indian grouping shows `4,56,456`,
+and a pixel assertion that could not distinguish a clipped teardrop bulb from a painted one
+— rewritten as the padding-plus-line-edge geometry it should have been from the start.
 
 **Generator bugs (2):** `APPS.md`'s module column read `:feature-src` for every row; `ClockApp`
 came out as a row of question marks because it declares methods across three lines while the
@@ -450,3 +476,7 @@ cannot run that code. What I can do is make it *describe itself* when it fails, 
 log collector is for, and stop treating a green run as evidence about anything other than
 compilation. Defect 12 is the test of whether I actually learned that: it is still open, and the
 difference between then and now is that it can no longer fail silently.
+
+---
+
+*Report card refreshed 2026-10-27 after round 28 (commit `01cfa66` + card, MySpace 3.12.30/67, MyCalc 1.0.28/29).*

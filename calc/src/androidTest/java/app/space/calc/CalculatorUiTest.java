@@ -155,6 +155,25 @@ public class CalculatorUiTest {
                 .edit().putInt("theme", mode).commit();
     }
 
+    /** Window-injected long press, retried until a selection stands -- immune
+     *  to espresso's longClick racing the screen's 350ms hold timer on a
+     *  loaded runner. */
+    private static ViewAction holdUntilSelected() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() {
+                return "hold the display until a selection stands";
+            }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                for (int i = 0; i < 3
+                        && !((android.widget.EditText) view).hasSelection(); i++) {
+                    holdCenter(ui, view);
+                    ui.loopMainThreadForAtLeast(150);
+                }
+            }
+        };
+    }
+
     /** A real long press at the middle of the display, window-injected. */
     private static void holdCenter(androidx.test.espresso.UiController ui, View view) {
         int[] loc = new int[2];
@@ -623,8 +642,12 @@ public class CalculatorUiTest {
         onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
         onView(withId(HISTORY_BTN)).perform(click());
         onView(withText("Clear")).check(matches(isCompletelyDisplayed()));
-        onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
+        // The popup floats in its own window: what must never move is the pad
+        // beneath it, so the pad key is the assertion while the popup stands;
+        // the chevron strip is checked again once the popup is closed.
         onView(key("7")).check(matches(isDisplayed()));
+        onView(withContentDescription("Close history")).perform(click());
+        onView(withId(CHEVRON_ROW)).check(matches(isDisplayed()));
     }
 
     @Test public void indianGroupingAppearsAsYouType() {
@@ -1055,8 +1078,7 @@ public class CalculatorUiTest {
         // Round 17 lifecycle: the highlight is not furniture. Tapping away drops both
         // the menu and the band, and the caret stands where the thumb landed.
         type("1", "2", "3");
-        onView(withId(DISPLAY)).perform(longClick());
-        waitMs(150); // let the selection and its menu land before asserting
+        onView(withId(DISPLAY)).perform(holdUntilSelected());
         onView(withId(DISPLAY)).check(held(3));
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
                 new CoordinatesProvider() {

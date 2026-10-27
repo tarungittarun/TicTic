@@ -2748,22 +2748,29 @@ public final class CalculatorScreen implements Screen {
         // thief in the tests. Pause takes them all down, stops the blink, and
         // resets the history flag so a dead popup can never block the next
         // hold-select.
-        if (historyPopup != null && historyPopup.isShowing()) historyPopup.dismiss();
-        historyPopup = null;
-        if (menuPopup != null && menuPopup.isShowing()) menuPopup.dismiss();
-        menuPopup = null;
-        dismissStroke();
-        if (strokeDwell != null) {
-            strokeHandler.removeCallbacks(strokeDwell);
-            strokeDwell = null;
+        // A teardown must never throw: pause runs while the activity dies, and
+        // a framework complaint here would outlive the gesture it cleans up.
+        try {
+            if (historyPopup != null && historyPopup.isShowing()) historyPopup.dismiss();
+            historyPopup = null;
+            if (menuPopup != null && menuPopup.isShowing()) menuPopup.dismiss();
+            menuPopup = null;
+            dismissStroke();
+            if (strokeDwell != null) {
+                strokeHandler.removeCallbacks(strokeDwell);
+                strokeDwell = null;
+            }
+            closeSelectionMenu();
+            if (displayView != null && caretBlinker != null) {
+                displayView.removeCallbacks(caretBlinker);
+            }
+            historyOpen = false;
+            AppLog.event(lastContext, "calc",
+                    "screen paused: popups dismissed, blink stopped");
+        } catch (Throwable t) {
+            AppLog.event(lastContext, "calc",
+                    "pause teardown guarded: " + t.getClass().getSimpleName());
         }
-        closeSelectionMenu();
-        if (displayView != null && caretBlinker != null) {
-            displayView.removeCallbacks(caretBlinker);
-        }
-        historyOpen = false;
-        AppLog.event(lastContext, "calc",
-                "screen paused: popups dismissed, blink stopped");
     }
 
     /**

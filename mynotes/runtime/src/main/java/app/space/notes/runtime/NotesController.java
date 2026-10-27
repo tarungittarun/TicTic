@@ -148,7 +148,7 @@ public final class NotesController {
     private Button button(String label,Runnable action) {
         Button v=new Button(context); v.setText(label); v.setSingleLine(true); v.setAllCaps(false); v.setTextColor(ink);
         GradientDrawable shape=new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(22));
-        v.setBackground(shape); v.setPadding(dp(12),dp(4),dp(12),dp(4));
+        v.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(darkTheme?0x33FFFFFF:0x224355DB),shape,null)); v.setPadding(dp(12),dp(4),dp(12),dp(4));
         v.setOnClickListener(w->{Diagnostics.record("ui.tap","screen="+(editing==null?page:"editor"));if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
     }
     private Button icon(String label,String symbol,Runnable action){
@@ -338,8 +338,8 @@ public final class NotesController {
         else{
             rowIn(organise,new String[]{"Labels","Colour"},new Runnable[]{this::renderLabels,this::renderColours});
             rowIn(more,new String[]{"Share","Copy"},new Runnable[]{this::shareSelected,this::duplicateNote});
-            rowIn(more,new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
-            if(!n.checklist)rowIn(more,new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
+            rowIn(more,new String[]{n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->changeState("archive"),()->changeState("trash")});
+            if(!n.checklist)rowIn(more,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});
         }
     }
     public void openNote(String id){whenReady(()->{persistDraft();Note n=find(id);if(n==null || n.deletedAt>0){host.showMessage("This note is unavailable or in Trash.");return;}selectedIds.clear();editing=n.id;renderEditor();});}
@@ -364,14 +364,17 @@ public final class NotesController {
             public void changed(Diagram value){if(!readOnly)saveDiagram(value);else renderDiagram();}
         });canvas.show(note.diagram,diagramSelection);panel.addView(canvas,new LinearLayout.LayoutParams(-1,-2));
         if(!readOnly){
-            rowIn(panel,new String[]{"Process","Decision","Start / End","Input / Output","Ellipse","Text box"},new Runnable[]{()->addShape("process"),()->addShape("decision"),()->addShape("terminator"),()->addShape("data"),()->addShape("ellipse"),()->addShape("text")});
-            rowIn(panel,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
-            rowIn(panel,new String[]{"←","↑","↓","→","Undo diagram"},new Runnable[]{()->diagramChange("left"),()->diagramChange("up"),()->diagramChange("down"),()->diagramChange("right"),this::undoDiagram});
+            LinearLayout shapes=section(panel,"Add shape");
+            rowIn(shapes,new String[]{"Process","Decision","Start / End","Input / Output","Ellipse","Text box"},new Runnable[]{()->addShape("process"),()->addShape("decision"),()->addShape("terminator"),()->addShape("data"),()->addShape("ellipse"),()->addShape("text")});
+            LinearLayout editTools=section(panel,"Selected shape · edit, connect & resize");
+            rowIn(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
+            LinearLayout position=section(panel,"Position & undo");
+            rowIn(position,new String[]{"←","↑","↓","→","Undo diagram"},new Runnable[]{()->diagramChange("left"),()->diagramChange("up"),()->diagramChange("down"),()->diagramChange("right"),this::undoDiagram});
         }
-        panel.addView(text("Shapes — tap to select without dragging:",16));
-        for(Diagram.Node node:note.diagram.nodes)panel.addView(button((node.id.equals(diagramSelection)?"Selected · ":"")+node.shape+" · "+node.text,()->{diagramSelection=node.id;canvas.show(find(editing).diagram,diagramSelection);}));
-        panel.addView(text("Arrows — tap to edit label or remove:",16));
-        for(Diagram.Edge edge:note.diagram.edges)panel.addView(button(note.diagram.find(edge.from).text+" → "+note.diagram.find(edge.to).text+" · "+edge.label,()->{if(!readOnly)editArrow(edge.id);}));
+        LinearLayout shapeList=section(panel,"Shapes · select without dragging");
+        for(Diagram.Node node:note.diagram.nodes)shapeList.addView(button((node.id.equals(diagramSelection)?"Selected · ":"")+node.shape+" · "+node.text,()->{diagramSelection=node.id;canvas.show(find(editing).diagram,diagramSelection);}));
+        LinearLayout arrowList=section(panel,"Arrows · labels & connections");
+        for(Diagram.Edge edge:note.diagram.edges)arrowList.addView(button(note.diagram.find(edge.from).text+" → "+note.diagram.find(edge.to).text+" · "+edge.label,()->{if(!readOnly)editArrow(edge.id);}));
         rowIn(panel,new String[]{"Back to note","Export PDF"},new Runnable[]{()->{diagramOpen=false;renderEditor();},host::exportPdf});
     }
     private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();}
@@ -484,7 +487,7 @@ public final class NotesController {
             try{VoiceFiles files=new VoiceFiles(context);List<String> ids=files.list();Map<String,org.json.JSONObject> results=new LinkedHashMap<>();for(String id:ids){try{results.put(id,files.result(id));}catch(Exception invalid){results.put(id,new org.json.JSONObject().put("state","Transcript unreadable; audio retained").put("text",""));}}
                 main.post(()->{if(closed || !voicePage)return;content.removeAllViews();if(ids.isEmpty())content.addView(text("No recordings yet. Microphone access is optional and only requested when you tap Record voice.",15));
                     for(String id:ids){java.io.File audio=files.audio(id);org.json.JSONObject result=results.get(id);content.addView(text(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(audio.lastModified()))+" · "+audio.length()+" bytes",17));content.addView(text(result.optString("state"),14));String transcript=result.optString("text","");if(!transcript.isEmpty())content.addView(text(transcript.length()>500?transcript.substring(0,500)+"…":transcript,15));
-                        rowIn(content,new String[]{"Play","Stop playback","Export WAV","Retry transcript","Open note"},new Runnable[]{()->playVoice(id),this::stopPlayback,()->host.exportVoice(id),()->{VoiceTasks.transcribe(context,id);host.showMessage("Offline transcription queued. Original audio is retained.");},()->{addVoicePlaceholder(id);voicePage=false;editing=app.space.notes.domain.VoiceTranscripts.noteId(id);renderEditor();}});
+                        LinearLayout recordingTools=tools(content);tool(recordingTools,"Play","play",()->playVoice(id));tool(recordingTools,"Stop playback","stop",this::stopPlayback);tool(recordingTools,"Export WAV","export",()->host.exportVoice(id));tool(recordingTools,"Retry transcript","retry",()->{VoiceTasks.transcribe(context,id);host.showMessage("Offline transcription queued. Original audio is retained.");});tool(recordingTools,"Open note","note",()->{addVoicePlaceholder(id);voicePage=false;editing=app.space.notes.domain.VoiceTranscripts.noteId(id);renderEditor();});
                     }
                 });
             }catch(Exception e){main.post(()->{if(!closed && voicePage){content.removeAllViews();content.addView(text("Voice inbox could not be read. Files were not deleted. "+e.getMessage(),15));}});}

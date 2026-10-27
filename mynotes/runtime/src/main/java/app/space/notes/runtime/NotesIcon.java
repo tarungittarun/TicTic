@@ -9,6 +9,10 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "play":lines(c,7,4,20,12,7,20,7,4);break;
+ case "stop":c.drawRoundRect(5,5,19,19,2,2,p);break;
+ case "export":lines(c,12,3,12,15);lines(c,7,8,12,3,17,8);lines(c,4,14,4,21,20,21,20,14);break;
+ case "retry":c.drawArc(4,4,20,20,40,290,false,p);lines(c,20,3,20,9,14,9);break;
  case "menu":for(int y=6;y<=18;y+=6)lines(c,4,y,20,y);break;
  case "add":lines(c,12,5,12,19);lines(c,5,12,19,12);break;
  case "checklist":for(int y=6;y<=18;y+=6){lines(c,3,y,5,y+2,8,y-2);lines(c,11,y,21,y);}break;

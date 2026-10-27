@@ -62,6 +62,7 @@ public final class NotesController {
     private OfflineOcr.Cancellation ocrCancellation;
     private long ocrSequence;
     private boolean ocrPanel,voicePage;
+    private final Set<String> knownRecordings=ConcurrentHashMap.newKeySet();
     private VoiceCapture capture;
     private android.media.MediaPlayer voicePlayer;
     private Runnable unsubscribeVoice;
@@ -97,18 +98,19 @@ public final class NotesController {
             try {
                 repository=new NotesRepository(context.getApplicationContext());
                 List<Note> loaded=repository.load();
-                boolean recovered=false;
+                boolean recovered=false,catalogReadable=true;Set<String> pendingVoiceDeletionMarkers=new HashSet<>();
                 try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
+                    knownRecordings.add(id);String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
+                    // Even an untranscribed/failed placeholder was deliberately created and must stay deleted after purge.
+                    if(current!=null)try{files.noteCreated(id);}catch(Exception pendingMarker){pendingVoiceDeletionMarkers.add(voiceId);log("voice-source-marker","purge delayed until durable deletion guard is writable");}
                     org.json.JSONObject result;try{result=files.result(id);}catch(Exception invalidTranscript){log("voice-recovery","one unreadable transcript skipped; audio retained");continue;}if(!result.optString("state").equals("DONE"))continue;
-                    String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
-                    if(current==null && files.noteWasCreated(id))continue; // Respect notes deliberately purged/deleted after an earlier successful insertion.
-                    if(current!=null && current.voiceSources.contains(id))files.noteCreated(id);
+                    if(current==null && files.noteWasCreated(id))continue;
                     if(current==null){current=app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis());loaded.add(current);recovered=true;}
                     Note changed=app.space.notes.domain.VoiceTranscripts.apply(current,id,result.optString("text",""),System.currentTimeMillis());if(changed!=current){loaded.set(loaded.indexOf(current),changed);recovered=true;}
-                }}catch(Exception voiceFailure){log("voice-recovery","audio retained; transcript metadata needs review");}
+                }}catch(Exception voiceFailure){catalogReadable=false;log("voice-recovery","audio retained; automatic purge delayed until voice catalogue can be checked");}
                 if(recovered){try{repository.save(loaded);markVoiceNotesCreated(loaded);}catch(Exception pendingVoiceSave){log("voice-recovery","transcript recovery save needs retry");}}
-                long now=System.currentTimeMillis();
-                boolean purged=loaded.removeIf(n->n.expired(now));
+                long now=System.currentTimeMillis();final boolean canCheckVoiceGuards=catalogReadable;
+                boolean purged=loaded.removeIf(n->n.expired(now) && canCheckVoiceGuards && !pendingVoiceDeletionMarkers.contains(n.id));
                 if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
                 main.post(()->{ if(closed)return; notes.addAll(loaded); ready=true;
                     if(restored!=null) {
@@ -416,7 +418,7 @@ public final class NotesController {
             });captureWorker.execute(capture);
         }catch(Exception e){capture=null;host.showMessage("Recording could not start: "+e.getMessage()+". Notes are unchanged.");}
     });}
-    private void addVoicePlaceholder(String id){String noteId=app.space.notes.domain.VoiceTranscripts.noteId(id);if(find(noteId)==null){notes.add(app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis()));queueSave();}}
+    private void addVoicePlaceholder(String id){knownRecordings.add(id);String noteId=app.space.notes.domain.VoiceTranscripts.noteId(id);if(find(noteId)==null){notes.add(app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis()));queueSave();}}
     private void voiceComplete(String id,String text,String failure,boolean previouslyCreated){
         if(closed)return;if(busy){main.postDelayed(()->voiceComplete(id,text,failure,previouslyCreated),200);return;}
         whenReady(()->{
@@ -731,7 +733,7 @@ public final class NotesController {
             }
         });
     }
-    private void markVoiceNotesCreated(List<Note> snapshot){try{VoiceFiles files=new VoiceFiles(context);for(Note note:snapshot)for(String source:note.voiceSources)if(note.id.equals(app.space.notes.domain.VoiceTranscripts.noteId(source)))files.noteCreated(source);}catch(Exception pendingMarker){log("voice-source-marker","pending; original audio retained");}}
+    private void markVoiceNotesCreated(List<Note> snapshot){try{VoiceFiles files=new VoiceFiles(context);Set<String> ids=new HashSet<>();for(Note note:snapshot)ids.add(note.id);for(String source:knownRecordings)if(ids.contains(app.space.notes.domain.VoiceTranscripts.noteId(source)))files.noteCreated(source);}catch(Exception pendingMarker){log("voice-source-marker","pending; original audio retained");}}
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
     public boolean back() {
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}

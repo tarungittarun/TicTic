@@ -7,5 +7,6 @@ public interface NotesHost {
     void openExistingFolder();
     void exportBackup();
     void importBackup();
+    default void exportPdf(){showMessage("PDF export is not available in this host.");}
     String versionLabel();
 }

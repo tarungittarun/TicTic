@@ -30,7 +30,9 @@ public final class TextStyles {
     public static void write(Spannable text,List<Note.Mark> marks) {
         for(Object span:text.getSpans(0,text.length(),Object.class))
             if(span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading)text.removeSpan(span);
-        for(Note.Mark mark:marks) {
+        for(Note.Mark mark:marks)writeRange(text,mark,0);
+    }
+    public static void writeRange(Spannable text,Note.Mark mark,int offset) {
             Object span;
             switch(mark.type) {
                 case "bold":span=new StyleSpan(Typeface.BOLD);break;
@@ -39,7 +41,6 @@ public final class TextStyles {
                 case "strike":span=new StrikethroughSpan();break;
                 default:span=new Heading(mark.type);
             }
-            if(mark.end<=text.length())text.setSpan(span,mark.start,mark.end,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+            if(offset>=0 && mark.end+offset<=text.length())text.setSpan(span,mark.start+offset,mark.end+offset,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 }

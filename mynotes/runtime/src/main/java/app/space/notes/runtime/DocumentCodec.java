@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.Diagram;
 
-/** Writes schema 2, reads schema 1 and 2; unknown future versions are refused. */
+/** Writes schema 3, reads schemas 1, 2 and 3; unknown future versions are refused. */
 public final class DocumentCodec {
     private DocumentCodec() { }
     public static byte[] encode(List<Note> notes) throws Exception {
@@ -20,19 +21,31 @@ public final class DocumentCodec {
             for(String label:n.labels)labels.put(label);
             array.put(new JSONObject().put("id",n.id).put("title",n.title)
                 .put("body",n.body).put("createdAt",n.createdAt).put("updatedAt",n.updatedAt)
-                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels));
+                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)));
         }
-        return new JSONObject().put("version",2).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
+        return new JSONObject().put("version",3).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
+    }
+    private static JSONObject encodeDiagram(Diagram diagram) throws Exception {
+        JSONArray nodes=new JSONArray(),edges=new JSONArray();
+        for(Diagram.Node n:diagram.nodes)nodes.put(new JSONObject().put("id",n.id).put("shape",n.shape).put("text",n.text).put("x",n.x).put("y",n.y).put("width",n.width).put("height",n.height).put("color",n.color));
+        for(Diagram.Edge e:diagram.edges)edges.put(new JSONObject().put("id",e.id).put("from",e.from).put("to",e.to).put("label",e.label));
+        return new JSONObject().put("nodes",nodes).put("edges",edges);
+    }
+    private static Diagram decodeDiagram(JSONObject value) throws Exception {
+        List<Diagram.Node> nodes=new ArrayList<>();List<Diagram.Edge> edges=new ArrayList<>();JSONArray ns=value.getJSONArray("nodes"),es=value.getJSONArray("edges");
+        for(int i=0;i<ns.length();i++){JSONObject n=ns.getJSONObject(i);nodes.add(new Diagram.Node(n.getString("id"),n.getString("shape"),n.getString("text"),n.getInt("x"),n.getInt("y"),n.getInt("width"),n.getInt("height"),n.getInt("color")));}
+        for(int i=0;i<es.length();i++){JSONObject e=es.getJSONObject(i);edges.add(new Diagram.Edge(e.getString("id"),e.getString("from"),e.getString("to"),e.getString("label")));}
+        return new Diagram(nodes,edges);
     }
     public static List<Note> decode(byte[] bytes) throws Exception {
         JSONObject root=new JSONObject(new String(bytes,StandardCharsets.UTF_8));
         int version=root.getInt("version");
-        if(version!=1 && version!=2)throw new IOException("Unsupported library format; data left untouched");
+        if(version!=1 && version!=2 && version!=3)throw new IOException("Unsupported library format; data left untouched");
         JSONArray array=root.getJSONArray("notes"); List<Note> notes=new ArrayList<>(); Set<String> ids=new HashSet<>();
         for(int i=0;i<array.length();i++) {
             JSONObject n=array.getJSONObject(i);
             List<Note.Item> items=new ArrayList<>();List<Note.Mark> marks=new ArrayList<>();List<String> labels=new ArrayList<>();
-            if(version==2) {
+            if(version>=2) {
                 JSONArray rows=n.getJSONArray("items"),spans=n.getJSONArray("marks"),tags=n.getJSONArray("labels");
                 for(int j=0;j<rows.length();j++){JSONObject r=rows.getJSONObject(j);items.add(new Note.Item(r.getString("id"),r.getString("text"),r.getBoolean("checked"),r.getInt("depth")));}
                 for(int j=0;j<spans.length();j++){JSONObject m=spans.getJSONObject(j);marks.add(new Note.Mark(m.getString("type"),m.getInt("start"),m.getInt("end")));}
@@ -40,8 +53,8 @@ public final class DocumentCodec {
             }
             Note note=new Note(n.getString("id"),n.getString("title"),n.getString("body"),
                 n.getLong("createdAt"),n.getLong("updatedAt"),n.getLong("deletedAt"),
-                n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),version==2 && n.getBoolean("checklist"),
-                version==2 && n.getBoolean("hideChecked"),items,marks,labels);
+                n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),version>=2 && n.getBoolean("checklist"),
+                version>=2 && n.getBoolean("hideChecked"),items,marks,labels,version>=3?decodeDiagram(n.getJSONObject("diagram")):Diagram.empty());
             if(!ids.add(note.id))throw new IOException("Duplicate note ID; data left untouched");
             notes.add(note);
         }

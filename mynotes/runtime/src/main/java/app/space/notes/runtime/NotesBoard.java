@@ -62,7 +62,7 @@ public final class NotesBoard extends RecyclerView {
             if(chosen)bg.setStroke(dp(3),Color.parseColor("#E8B33C"));h.box.setBackground(bg);
             h.title.setText((chosen?"✓  ":n.pinned?"★  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));
             h.title.setTextColor(ink);h.body.setTextColor(ink);h.tags.setTextColor(ink);
-            String preview=n.plainText();h.body.setText(preview.length()>400?preview.substring(0,400)+"…":preview);
+            String preview=n.plainText();if(!n.diagram.nodes.isEmpty())preview+=(preview.isEmpty()?"":"\n")+"▧ Diagram · "+n.diagram.nodes.size()+" shapes";h.body.setText(preview.length()>400?preview.substring(0,400)+"…":preview);
             h.body.setVisibility(preview.isEmpty()?GONE:VISIBLE);
             h.tags.setText((n.labels.isEmpty()?"":String.join(" · ",n.labels)+"\n")+DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT).format(new Date(n.updatedAt)));
             h.box.setContentDescription((chosen?"Selected. ":"")+h.title.getText()+". "+(preview.length()>400?preview.substring(0,400):preview)+". Long press to select.");

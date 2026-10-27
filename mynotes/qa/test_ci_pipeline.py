@@ -30,8 +30,12 @@ class TestDiscovery(unittest.TestCase):
     def test_lanes_cannot_drop_minimum_modern_or_repeat_id(self):
         for change in ['min','modern','duplicate','group','id']:
             config=self.config()
-            if change=='min':config['lanes'][0]['api']=27
-            if change=='modern':config['lanes'][-1]['group']='storage'
+            if change=='min':
+                for lane in config['lanes']:
+                    if lane['api']==26:lane['api']=27
+            if change=='modern':
+                for lane in config['lanes']:
+                    if lane['group']=='all':lane['group']='storage'
             if change=='duplicate':config['lanes'][-1]['id']=config['lanes'][0]['id']
             if change=='group':config['lanes'][0]['group']='nope'
             if change=='id':config['lanes'][0]['id']='../oops'
@@ -132,7 +136,7 @@ class SummaryGate(unittest.TestCase):
         for lane in plan['lanes']:
             expected=lane_cases(plan,lane['group']);prefix=lane['id']+'/'
             write(prefix+'results.json',{'ok':True,'cases':expected,'passed':len(expected)})
-            write(prefix+'identity.json',{'installed_sha256':'abc','download_sha256':'abc','audited_sha256':'abc','api':lane['api'],'lane':lane['id'],'group':lane['group'],'source':'source'})
+            write(prefix+'identity.json',{'installed_sha256':'abc','download_sha256':'abc','audited_sha256':'abc','api':lane['api'],'lane':lane['id'],'group':lane['group'],'source':'source',**{key:lane[key] for key in ['font','night','orientation','profile']}})
         return needs,plan
     def test_revalidation_passes_with_publication_intentionally_skipped(self):
         with tempfile.TemporaryDirectory() as d:

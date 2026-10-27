@@ -1,12 +1,144 @@
 {
   "schema": 1,
   "android": {
-    "storage": ["BackupCodecTest", "GenerationProtocolTest", "NotesPersistenceTest", "RepositoryTransferTest", "StructuredCodecTest"],
-    "ui": ["CoreJourneysTest", "StorageLayoutTest"]
+    "storage": [
+      "BackupCodecTest",
+      "GenerationProtocolTest",
+      "NotesPersistenceTest",
+      "RepositoryTransferTest",
+      "StructuredCodecTest"
+    ],
+    "ui": [
+      "CoreJourneysTest",
+      "StorageLayoutTest",
+      "EnvironmentQualificationTest"
+    ],
+    "diagram": [
+      "DiagramCodecTest",
+      "DiagramJourneysTest",
+      "PdfExportTest"
+    ],
+    "share-labels": [
+      "ShareAndLabelsJourneysTest"
+    ]
   },
   "lanes": [
-    {"id": "storage-api26", "group": "storage", "api": 26},
-    {"id": "ui-api29", "group": "ui", "api": 29},
-    {"id": "full-api34", "group": "all", "api": 34}
+    {
+      "id": "storage-api26",
+      "group": "storage",
+      "api": 26,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "ui-api26",
+      "group": "ui",
+      "api": 26,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "diagram-api26",
+      "group": "diagram",
+      "api": 26,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "share-labels-api26",
+      "group": "share-labels",
+      "api": 26,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "storage-api29",
+      "group": "storage",
+      "api": 29,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "ui-api29",
+      "group": "ui",
+      "api": 29,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "diagram-api34",
+      "group": "diagram",
+      "api": 34,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "share-labels-api34",
+      "group": "share-labels",
+      "api": 34,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "full-api34",
+      "group": "all",
+      "api": 34,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "large-font-api34",
+      "group": "all",
+      "api": 34,
+      "font": 2.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "night-api34",
+      "group": "all",
+      "api": 34,
+      "night": "yes",
+      "font": 1.0,
+      "orientation": "portrait",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "landscape-api34",
+      "group": "all",
+      "api": 34,
+      "orientation": "landscape",
+      "font": 1.0,
+      "night": "no",
+      "profile": "Nexus 5"
+    },
+    {
+      "id": "tablet-api34",
+      "group": "all",
+      "api": 34,
+      "profile": "pixel_c",
+      "orientation": "any",
+      "font": 1.0,
+      "night": "no"
+    }
   ]
 }

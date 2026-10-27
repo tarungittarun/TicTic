@@ -10,7 +10,7 @@ def validate(workflow):
     def deps(job):
         value=jobs[job].get('needs',[])
         return [value] if isinstance(value,str) else value
-    for name in ['checks','jvm','release-build','test-build']:
+    for name in ['checks','inventory','lint','jvm','release-build','test-build']:
         assert not deps(name),name+' must remain independent'
     assert set(deps('android'))=={'checks','test-build','apk-audit'}
     assert set(deps('publish'))==set(REQUIRED),'Publication must require every gate'

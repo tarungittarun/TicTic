@@ -43,6 +43,46 @@ jobs:
           path: evidence/
           retention-days: 14
           if-no-files-found: warn
+  inventory:
+    name: Immutable releases and dependency hygiene
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify every published APK checksum and source pin
+        run: python3 -m mynotes.tools.ci.inventory
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-release-inventory
+          path: evidence/
+          retention-days: 14
+          if-no-files-found: warn
+  lint:
+    name: Android lint and API/resource analysis
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Lint release independently
+        working-directory: mynotes
+        run: |
+          set -o pipefail
+          sh gradlew --build-cache :notes:lintRelease --stacktrace 2>&1 | tee /tmp/notes-lint.log
+      - name: Lint/build failure context
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-lint.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-lint-evidence
+          path: |
+            mynotes/app/build/reports/lint-results-release.*
+            mynotes/runtime/build/reports/lint-results-release.*
+            /tmp/notes-lint.log
+          retention-days: 14
+          if-no-files-found: warn
   jvm:
     name: Domain and migration rules
     runs-on: ubuntu-24.04
@@ -184,12 +224,16 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 13
       matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
     env:
       LANE_ID: ${{ matrix.id }}
       LANE_GROUP: ${{ matrix.group }}
       LANE_API: ${{ matrix.api }}
+      LANE_FONT: ${{ matrix.font }}
+      LANE_NIGHT: ${{ matrix.night }}
+      LANE_ORIENTATION: ${{ matrix.orientation }}
+      LANE_PROFILE: ${{ matrix.profile }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -214,7 +258,7 @@ jobs:
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
-          profile: Nexus 5
+          profile: ${{ matrix.profile }}
           force-avd-creation: true
           disable-animations: true
           script: bash mynotes/tools/ci/android_lane.sh
@@ -231,7 +275,7 @@ jobs:
           if-no-files-found: warn
   publish:
     name: Publish immutable version (all gates required)
-    needs: [checks, jvm, release-build, test-build, apk-audit, android]
+    needs: [checks, inventory, lint, jvm, release-build, test-build, apk-audit, android]
     if: github.ref == 'refs/heads/arena/3caca636-tictic' && needs.apk-audit.outputs.publish_eligible == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -270,7 +314,7 @@ jobs:
           git push origin arena/3caca636-tictic
   acceptance:
     name: MyNotes acceptance summary
-    needs: [checks, jvm, release-build, test-build, apk-audit, android, publish]
+    needs: [checks, inventory, lint, jvm, release-build, test-build, apk-audit, android, publish]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5

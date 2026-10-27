@@ -43,6 +43,18 @@ if (( LANE_API == 26 )); then
   adb unroot
   adb wait-for-device
 fi
+# Configure real resource variants before either app starts; do not fake theme assertions.
+adb shell settings put system font_scale "${LANE_FONT:-1.0}"
+adb shell settings put system accelerometer_rotation 0
+if [[ "${LANE_ORIENTATION:-portrait}" == landscape ]]; then
+  adb shell settings put system user_rotation 1
+elif [[ "${LANE_ORIENTATION:-portrait}" == portrait ]]; then
+  adb shell settings put system user_rotation 0
+fi
+if (( LANE_API >= 29 )); then adb shell cmd uimode night "${LANE_NIGHT:-no}"; fi
+adb shell wm size > "$OUT/display-size.txt"
+adb shell wm density > "$OUT/display-density.txt"
+adb shell settings get system font_scale > "$OUT/font-scale.txt"
 adb shell id > "$OUT/test-shell-identity.txt"
 test "$(adb shell id -u | tr -d '\r')" = 2000
 adb shell settings get global airplane_mode_on > "$OUT/airplane-mode.txt"
@@ -72,12 +84,14 @@ metadata={'lane':os.environ['LANE_ID'],'group':os.environ['LANE_GROUP'],'api':in
           'source':os.environ['GITHUB_SHA'],'installed_sha256':installed,'download_sha256':download,
           'audited_sha256':audit['accepted_sha256'],'accepted_from':audit['accepted_from'],
           'release_versionCode':audit['versionCode'],'network':'airplane setting enabled, radios disabled; release has no INTERNET permission',
-          'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26}
+          'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26,
+          'font':float(os.environ.get('LANE_FONT','1.0')),'night':os.environ.get('LANE_NIGHT','no'),
+          'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5')}
 (out/'identity.json').write_text(json.dumps(metadata,indent=2)+'\n')
 PYHASH
 adb install -r "$DEBUG"
 adb install -r "$TEST"
-adb shell am instrument -r -w -e disableAnalytics true -e class "$CLASSES" \
+adb shell am instrument -r -w -e disableAnalytics true -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
 python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" \
   --path "$OUT/instrumentation.txt" --output "$OUT/results.json"

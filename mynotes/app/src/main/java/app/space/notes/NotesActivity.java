@@ -13,6 +13,16 @@ public final class NotesActivity extends Activity implements NotesHost {
         super.onCreate(state);
         controller=new NotesController(this,this,state);
         setContentView(controller.view());
+        if(state==null)acceptShare(getIntent());
+    }
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptShare(intent);}
+    private void acceptShare(Intent intent){
+        if(!Intent.ACTION_SEND.equals(intent.getAction()))return;
+        if(!"text/plain".equals(intent.getType())){showMessage("Only plain-text shares are supported in this release.");return;}
+        try{
+            CharSequence body=intent.getCharSequenceExtra(Intent.EXTRA_TEXT);String subject=intent.getStringExtra(Intent.EXTRA_SUBJECT);
+            controller.receiveText(new app.space.notes.domain.IncomingText(subject,body==null?null:body.toString()));
+        }catch(RuntimeException invalid){showMessage("Nothing imported: "+invalid.getMessage());}
     }
     @Override protected void onPause() { controller.flush(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
@@ -27,6 +37,10 @@ public final class NotesActivity extends Activity implements NotesHost {
         picker.addCategory(Intent.CATEGORY_OPENABLE);
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-backup-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".json");
         openPicker(picker,96);
+    }
+    @Override public void exportPdf() {
+        Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);
+        picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".pdf");openPicker(picker,98);
     }
     @Override public void importBackup() {
         Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");
@@ -45,11 +59,12 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>97)return;
+        if(request<94 || request>98)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);return;
         }
         Uri uri=data.getData();
+        if(request==98){controller.exportPdf(uri);return;}
         if(request==96) {controller.exportBackup(uri);return;}
         if(request==97) {controller.importBackup(uri);return;}
         try {

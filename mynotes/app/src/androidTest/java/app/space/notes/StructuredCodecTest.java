@@ -39,7 +39,7 @@ public class StructuredCodecTest {
         for(String key:new String[]{"checklist","hideChecked","items","marks","labels"})n.remove(key);
         Note migrated=DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8)).get(0);
         assertEquals("plain",migrated.body);assertFalse(migrated.checklist);assertTrue(migrated.labels.isEmpty());
-        assertEquals(2,new JSONObject(new String(DocumentCodec.encode(Arrays.asList(migrated)),StandardCharsets.UTF_8)).getInt("version"));
+        assertEquals(3,new JSONObject(new String(DocumentCodec.encode(Arrays.asList(migrated)),StandardCharsets.UTF_8)).getInt("version"));
     }
     @Test public void outOfRangeMarkRejectsWholeDocument() throws Exception {
         JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text())),StandardCharsets.UTF_8));

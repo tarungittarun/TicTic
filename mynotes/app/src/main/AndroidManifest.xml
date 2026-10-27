@@ -4,10 +4,15 @@
     <application android:label="MyNotes" android:theme="@style/NotesTheme"
         android:icon="@drawable/ic_notes" android:allowBackup="false">
         <activity android:name=".NotesActivity" android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:launchMode="singleTop" android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
     </application>

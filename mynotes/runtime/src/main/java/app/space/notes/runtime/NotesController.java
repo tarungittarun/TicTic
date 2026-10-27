@@ -17,6 +17,9 @@ import android.widget.*;
 import java.util.*;
 import java.util.concurrent.*;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.Diagram;
+import app.space.notes.domain.LabelOperations;
+import app.space.notes.domain.IncomingText;
 import app.space.notes.domain.NoteMerge;
 import app.space.notes.domain.TextFormatting;
 import app.space.notes.domain.NoteOperations;
@@ -44,7 +47,8 @@ public final class NotesController {
     private TextView emptyHint;
     private boolean darkTheme,grid=true;
     private String activeLabel="",homeQuery="",focusedItem;
-    private boolean sortCreated;
+    private boolean sortCreated,diagramOpen;
+    private String diagramSelection;
     private LinearLayout selectionBar;
     private final Set<String> selectedIds=new HashSet<>();
     private List<Note> undoBatch=new ArrayList<>();
@@ -126,19 +130,21 @@ public final class NotesController {
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
     private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions) {
-        LinearLayout row=new LinearLayout(context);
+        HorizontalScrollView scroll=new HorizontalScrollView(context);scroll.setFillViewport(true);
+        LinearLayout row=new LinearLayout(context);row.setGravity(android.view.Gravity.CENTER_VERTICAL);scroll.addView(row);
         for(int i=0;i<labels.length;i++) {
-            LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(48),1); p.setMargins(dp(2),dp(4),dp(2),dp(4));
-            row.addView(button(labels[i],actions[i]),p);
+            LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-2,-2);p.setMargins(dp(2),dp(4),dp(2),dp(4));
+            Button control=button(labels[i],actions[i]);control.setMinHeight(dp(48));control.setMinWidth(dp(80));row.addView(control,p);
         }
-        parent.addView(row);
+        parent.addView(scroll);
     }
-    private void header(String name) {
-        TextView h=text(name,28); h.setTypeface(null,Typeface.BOLD); root.addView(h);
-        status=text((repository==null?"Opening storage":repository.status())+" · "+host.versionLabel(),12); status.setTextColor(muted); root.addView(status);
+    private void header(String name) {headerIn(root,name);}
+    private void headerIn(LinearLayout parent,String name) {
+        TextView h=text(name,28); h.setTypeface(null,Typeface.BOLD); parent.addView(h);
+        status=text((repository==null?"Opening storage":repository.status())+" · "+host.versionLabel(),12); status.setTextColor(muted); parent.addView(status);
     }
     private void renderHome() {
-        storagePage=false;prepared=null;editing=null; title=null; body=null;visible.clear();root.removeAllViews(); header("MyNotes · "+(activeLabel.isEmpty()?page:activeLabel));
+        storagePage=false;prepared=null;editing=null; title=null; body=null;visible.clear();diagramOpen=false;root.removeAllViews(); header("MyNotes · "+(activeLabel.isEmpty()?page:activeLabel));
         row(new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
         search=new EditText(context);search.setSingleLine(true);search.setTextColor(ink);search.setHintTextColor(muted);search.setHint("Search notes and labels");search.setText(homeQuery);root.addView(search);
         search.addTextChangedListener(watcher(()->{homeQuery=search.getText().toString();main.removeCallbacks(filter);main.postDelayed(filter,150);querySequence++;}));
@@ -146,6 +152,7 @@ public final class NotesController {
         TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);
         HorizontalScrollView strip=new HorizontalScrollView(context);LinearLayout chips=new LinearLayout(context);strip.addView(chips);
         chips.addView(button(activeLabel.isEmpty()?"All labels ✓":"All labels",()->{activeLabel="";selectedIds.clear();renderHome();}));
+        chips.addView(button("Manage labels",this::manageLabels));
         for(String label:labels)chips.addView(button(label+(label.equals(activeLabel)?" ✓":""),()->{activeLabel=label;selectedIds.clear();renderHome();}));root.addView(strip);
         selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);
         rowIn(selectionBar,new String[]{"Pin","Archive",page.equals("Trash")?"Restore":"Trash"},new Runnable[]{()->bulkState("pin"),()->bulkState("archive"),()->bulkState(page.equals("Trash")?"restore":"trash")});
@@ -183,7 +190,7 @@ public final class NotesController {
             for(Note n:snapshot) {
                 boolean included=currentPage.equals("Trash")?n.deletedAt>0:
                     n.deletedAt==0 && (currentPage.equals("Archive")==n.archived);
-                if(included && n.matches(query) && (label.isEmpty() || n.labels.contains(label)))result.add(n);
+                if(included && n.matches(query) && (label.isEmpty() || n.labels.stream().anyMatch(tag->tag.equalsIgnoreCase(label))))result.add(n);
             }
             result.sort(Comparator.comparing((Note n)->!n.pinned)
                 .thenComparing(Comparator.comparingLong((Note n)->created?n.createdAt:n.updatedAt).reversed()));
@@ -195,13 +202,15 @@ public final class NotesController {
         });
     }
     private void renderEditor() {
+        diagramOpen=false;
         Note n=find(editing);if(n==null){renderHome();return;}
         main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;
-        root.removeAllViews();header(n.deletedAt>0?"Trash note":n.checklist?"Checklist":"Edit note");
-        title=new EditText(context);title.setHint("Title");title.setTextSize(24);title.setTextColor(ink);title.setHintTextColor(muted);title.setText(n.title);root.addView(title);
+        root.removeAllViews();ScrollView editorScroll=new ScrollView(context);editorScroll.setFillViewport(true);
+        LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);editorScroll.addView(editor);root.addView(editorScroll,new LinearLayout.LayoutParams(-1,-1));headerIn(editor,n.deletedAt>0?"Trash note":n.checklist?"Checklist":"Edit note");
+        title=new EditText(context);title.setHint("Title");title.setTextSize(24);title.setTextColor(ink);title.setHintTextColor(muted);title.setText(n.title);editor.addView(title);
         body=null;boolean trashed=n.deletedAt>0;
         if(n.checklist){
-            ScrollView scroll=new ScrollView(context);LinearLayout rows=new LinearLayout(context);rows.setOrientation(LinearLayout.VERTICAL);scroll.addView(rows);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+            ScrollView scroll=new ScrollView(context);LinearLayout rows=new LinearLayout(context);rows.setOrientation(LinearLayout.VERTICAL);scroll.addView(rows);editor.addView(scroll,new LinearLayout.LayoutParams(-1,dp(320)));
             int checked=0;TextView footer=text("",12);
             for(Note.Item item:n.items){
                 if(item.checked)checked++;
@@ -231,26 +240,105 @@ public final class NotesController {
             }
             footer.setText(checked+" checked · tap a row before using move/indent controls");rows.addView(footer);
             if(!trashed){
-                row(new String[]{"+ Item","↑","↓","Indent","Outdent","Remove"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove")});
-                row(new String[]{n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("hide"),this::convertNote});
+                rowIn(editor,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove")});
+                rowIn(editor,new String[]{n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("hide"),this::convertNote});
             }
         }else{
             body=new EditText(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);body.setHint("Write your note…");body.setTextColor(ink);body.setHintTextColor(muted);body.setGravity(android.view.Gravity.TOP);body.setText(n.body);
-            TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);root.addView(body,new LinearLayout.LayoutParams(-1,0,1));
+            TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,dp(320)));
             body.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
             if(!trashed){
                 HorizontalScrollView tools=new HorizontalScrollView(context);LinearLayout strip=new LinearLayout(context);tools.addView(strip);
                 String[] labels={"Bold","Italic","Underline","Strike","Heading 1","Heading 2","Clear"};String[] types={"bold","italic","underline","strike","h1","h2","clear"};
-                for(int i=0;i<labels.length;i++){final String type=types[i];Button action=button(labels[i],()->format(type));action.setMinWidth(dp(64));strip.addView(action,new LinearLayout.LayoutParams(-2,dp(48)));}root.addView(tools);
+                for(int i=0;i<labels.length;i++){final String type=types[i];Button action=button(labels[i],()->format(type));action.setMinWidth(dp(64));strip.addView(action,new LinearLayout.LayoutParams(-2,dp(48)));}editor.addView(tools);
             }
         }
+        if(!n.diagram.nodes.isEmpty())editor.addView(text("Diagram · "+n.diagram.nodes.size()+" shapes · "+n.diagram.edges.size()+" arrows",14));
+        rowIn(editor,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});
         title.setEnabled(!trashed);title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
-        if(trashed)row(new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
+        if(trashed)rowIn(editor,new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
         else{
-            row(new String[]{"Labels","Colour","Share","Copy"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateNote});
-            row(new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
-            if(!n.checklist)row(new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
+            rowIn(editor,new String[]{"Labels","Colour","Share","Copy"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateNote});
+            rowIn(editor,new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
+            if(!n.checklist)rowIn(editor,new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
         }
+    }
+    private void renderDiagram(){
+        persistDraft();Note note=find(editing);if(note==null){renderHome();return;}
+        diagramOpen=true;title=null;body=null;search=null;querySequence++;root.removeAllViews();
+        ScrollView scroll=new ScrollView(context);LinearLayout panel=new LinearLayout(context);panel.setOrientation(LinearLayout.VERTICAL);scroll.addView(panel);root.addView(scroll,new LinearLayout.LayoutParams(-1,-1));
+        headerIn(panel,"Diagram");panel.addView(text("Select a shape, then edit or move it. Connect starts at the selected shape; choose the destination below. Arrow labels appear between shapes. Text labels are clipped in shapes; all text is retained in the library.",14));
+        boolean readOnly=note.deletedAt>0;
+        DiagramView canvas=new DiagramView(context,note.diagram,darkTheme,new DiagramView.Listener(){
+            public void selected(String id){diagramSelection=id;}
+            public void changed(Diagram value){if(!readOnly)saveDiagram(value);else renderDiagram();}
+        });canvas.show(note.diagram,diagramSelection);panel.addView(canvas,new LinearLayout.LayoutParams(-1,-2));
+        if(!readOnly){
+            rowIn(panel,new String[]{"Process","Decision","Start / End","Input / Output","Ellipse","Text box"},new Runnable[]{()->addShape("process"),()->addShape("decision"),()->addShape("terminator"),()->addShape("data"),()->addShape("ellipse"),()->addShape("text")});
+            rowIn(panel,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
+            rowIn(panel,new String[]{"←","↑","↓","→","Undo diagram"},new Runnable[]{()->diagramChange("left"),()->diagramChange("up"),()->diagramChange("down"),()->diagramChange("right"),this::undoDiagram});
+        }
+        panel.addView(text("Shapes — tap to select without dragging:",16));
+        for(Diagram.Node node:note.diagram.nodes)panel.addView(button((node.id.equals(diagramSelection)?"Selected · ":"")+node.shape+" · "+node.text,()->{diagramSelection=node.id;canvas.show(find(editing).diagram,diagramSelection);}));
+        panel.addView(text("Arrows — tap to edit label or remove:",16));
+        for(Diagram.Edge edge:note.diagram.edges)panel.addView(button(note.diagram.find(edge.from).text+" → "+note.diagram.find(edge.to).text+" · "+edge.label,()->{if(!readOnly)editArrow(edge.id);}));
+        rowIn(panel,new String[]{"Back to note","Export PDF"},new Runnable[]{()->{diagramOpen=false;renderEditor();},host::exportPdf});
+    }
+    private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();}
+    private void addShape(String shape){Note n=find(editing);if(n==null || n.deletedAt>0)return;
+        int index=n.diagram.nodes.size();String id=UUID.randomUUID().toString();int w=shape.equals("decision")?220:200,h=shape.equals("decision")?140:100;
+        Diagram.Node node=new Diagram.Node(id,shape,shape.equals("terminator")?"Start / End":shape.equals("decision")?"Decision?":"New "+shape,30+(index%3)*240,30+((index/3)%5)*170,w,h,n.color);
+        saveDiagram(n.diagram.put(node));diagramSelection=id;renderDiagram();
+    }
+    private Diagram.Node selectedShape(){Note n=find(editing);Diagram.Node node=n==null?null:n.diagram.find(diagramSelection);if(node==null)host.showMessage("Select a shape first, using the canvas or shape list.");return node;}
+    private void editShape(){Diagram.Node node=selectedShape();if(node==null)return;
+        LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);EditText input=new EditText(context);input.setText(node.text);input.setHint("Shape text");content.addView(input);
+        Spinner colors=new Spinner(context);colors.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_dropdown_item,NotesBoard.NAMES));colors.setSelection(node.color);content.addView(colors);
+        new android.app.AlertDialog.Builder(context).setTitle("Edit shape").setView(content).setPositiveButton("Save",(d,w)->{saveDiagram(find(editing).diagram.put(node.edit(input.getText().toString(),colors.getSelectedItemPosition())));renderDiagram();}).setNegativeButton("Cancel",null).show();
+    }
+    private void connectShape(){Diagram.Node from=selectedShape();if(from==null)return;List<Diagram.Node> others=new ArrayList<>();for(Diagram.Node n:find(editing).diagram.nodes)if(!n.id.equals(from.id))others.add(n);
+        if(others.isEmpty()){host.showMessage("Add another shape first.");return;}String[] names=new String[others.size()];for(int i=0;i<names.length;i++)names[i]=others.get(i).shape+" · "+others.get(i).text;
+        new android.app.AlertDialog.Builder(context).setTitle("Arrow destination").setItems(names,(dialog,index)->{saveDiagram(find(editing).diagram.connect(from.id,others.get(index).id,""));renderDiagram();}).setNegativeButton("Cancel",null).show();
+    }
+    private void editArrow(String id){Note n=find(editing);for(Diagram.Edge edge:n.diagram.edges)if(edge.id.equals(id)){
+        EditText input=new EditText(context);input.setText(edge.label);input.setHint("Arrow label, e.g. Yes / No");new android.app.AlertDialog.Builder(context).setTitle("Arrow label").setView(input).setPositiveButton("Save",(d,w)->{saveDiagram(find(editing).diagram.labelEdge(id,input.getText().toString()));renderDiagram();}).setNeutralButton("Remove arrow",(d,w)->{saveDiagram(find(editing).diagram.removeEdge(id));renderDiagram();}).setNegativeButton("Cancel",null).show();return;
+    }}
+    private void diagramChange(String action){Diagram.Node node=selectedShape();if(node==null)return;Diagram value=find(editing).diagram;
+        switch(action){
+            case "delete":value=value.remove(node.id);diagramSelection=null;break;
+            case "left":value=value.put(node.move(node.x-20,node.y));break;
+            case "right":value=value.put(node.move(node.x+20,node.y));break;
+            case "up":value=value.put(node.move(node.x,node.y-20));break;
+            case "down":value=value.put(node.move(node.x,node.y+20));break;
+            case "wider":value=value.put(node.resize(node.width+40,node.height));break;
+            case "narrower":value=value.put(node.resize(node.width-40,node.height));break;
+            case "taller":value=value.put(node.resize(node.width,node.height+30));break;
+            case "shorter":value=value.put(node.resize(node.width,node.height-30));break;
+        }
+        saveDiagram(value);renderDiagram();
+    }
+    private void undoDiagram(){undo();if(editing!=null)renderDiagram();}
+    public void exportPdf(android.net.Uri uri){whenReady(()->{
+        persistDraft();List<Note> snapshot=new ArrayList<>(targets());if(snapshot.isEmpty()){host.showMessage("Open or select notes before exporting PDF.");return;}
+        busy=true;disk.execute(()->{
+            java.io.File temporary=null;String message;
+            try{
+                LocalBackupFiles.requireLocal(uri);temporary=java.io.File.createTempFile("mynotes-pdf-",".pdf",context.getCacheDir());int pages;
+                try(java.io.OutputStream out=new java.io.FileOutputStream(temporary)){pages=PdfExporter.write(snapshot,out);}
+                try(java.io.InputStream in=new java.io.FileInputStream(temporary);java.io.OutputStream out=context.getContentResolver().openOutputStream(uri,"rwt")){
+                    if(out==null)throw new java.io.IOException("Cannot open PDF destination");byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1)out.write(buffer,0,count);out.flush();
+                }
+                String expected;try(java.io.InputStream in=new java.io.FileInputStream(temporary)){expected=streamDigest(in);}
+                try(java.io.InputStream in=context.getContentResolver().openInputStream(uri)){if(!expected.equals(streamDigest(in)))throw new java.io.IOException("PDF readback mismatch");}
+                message="PDF verified · "+pages+" pages. Notes and editable diagrams remain in MyNotes.";log("pdf","verified pages="+pages);
+            }catch(Exception e){message="PDF not verified: "+e.getMessage()+". Notes are unchanged; a partial destination file may need removing.";log("pdf","failed "+e.getClass().getSimpleName());}
+            finally{if(temporary!=null)temporary.delete();}
+            final String result=message;main.post(()->{busy=false;if(!closed)host.showMessage(result);});
+        });
+    });}
+    private static String streamDigest(java.io.InputStream in) throws Exception {
+        if(in==null)throw new java.io.IOException("Cannot reopen PDF");java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1)digest.update(buffer,0,count);
+        StringBuilder out=new StringBuilder();for(byte b:digest.digest())out.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return out.toString();
     }
     private void scheduleDraft(){dirty=true;if(status!=null)status.setText("Unsaved changes…");main.removeCallbacks(saveDraft);main.postDelayed(saveDraft,350);}
     private void invalidateFullUndo(){undoCreatedId=null;if(undoFull){undoBatch.clear();undoFull=false;}}
@@ -324,13 +412,31 @@ public final class NotesController {
         input.setText(String.join(", ",chosen.get(0).labels));root.addView(input);
         TreeSet<String> known=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)known.addAll(n.labels);
         TextView hints=text("Existing: "+String.join(" · ",known),14);root.addView(hints,new LinearLayout.LayoutParams(-1,0,1));
+        CheckBox additive=new CheckBox(context);additive.setText("Add to existing labels instead of replacing");additive.setTextColor(ink);root.addView(additive);
         row(new String[]{"Save labels","Cancel"},new Runnable[]{()->{
             try{List<String> labels=Note.normalizeLabels(Arrays.asList(input.getText().toString().split(",",-1)));captureUndo(chosen,false);
-                for(Note old:chosen){Note current=find(old.id);if(current!=null)replace(current.properties(current.color,labels,System.currentTimeMillis()));}
+                for(Note old:chosen){Note current=find(old.id);if(current!=null)replace(current.properties(current.color,additive.isChecked()?LabelOperations.add(current.labels,labels):labels,System.currentTimeMillis()));}
                 queueSave();returnToNoteOrHome();log("labels","applied count="+chosen.size());
             }catch(IllegalArgumentException e){host.showMessage(e.getMessage());}
         },this::returnToNoteOrHome});
     }
+    private void manageLabels(){
+        persistDraft();editing=null;selectedIds.clear();title=null;body=null;search=null;querySequence++;root.removeAllViews();storagePage=true;header("Manage labels");
+        root.addView(text("Rename or remove labels across Notes, Archive and Trash. Notes are never deleted. Renaming to an existing label combines them; Undo on Home restores the previous labels. Unused labels are not retained.",14));
+        ScrollView scroll=new ScrollView(context);LinearLayout list=new LinearLayout(context);list.setOrientation(LinearLayout.VERTICAL);scroll.addView(list);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        TreeSet<String> known=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)known.addAll(n.labels);
+        for(String label:known){long count=notes.stream().filter(n->n.labels.stream().anyMatch(t->t.equalsIgnoreCase(label))).count();list.addView(button(label+" · "+count+" notes",()->{
+            EditText input=new EditText(context);input.setText(label);input.setHint("Label name");android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(context).setTitle("Rename label").setView(input).setPositiveButton("Rename",null).setNeutralButton("Remove label",(d,w)->renameLabel(label,"")).setNegativeButton("Cancel",null).create();dialog.setOnShowListener(d->dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{if(input.getText().toString().trim().isEmpty()){host.showMessage("Enter a label name, or use Remove label.");return;}if(renameLabel(label,input.getText().toString()))dialog.dismiss();}));dialog.show();
+        }));}
+        row(new String[]{"Back"},new Runnable[]{this::renderHome});
+    }
+    private boolean renameLabel(String old,String replacement){
+        try{List<Note> changed=LabelOperations.rename(notes,old,replacement,System.currentTimeMillis());captureUndo(new ArrayList<>(notes),false);notes.clear();notes.addAll(changed);activeLabel="";queueSave();manageLabels();return true;}
+        catch(IllegalArgumentException e){host.showMessage(e.getMessage());return false;}
+    }
+    public void receiveText(IncomingText incoming){whenReady(()->{
+        persistDraft();Note note=Note.create(System.currentTimeMillis()).edit(incoming.title,incoming.body,System.currentTimeMillis());notes.add(note);selectedIds.clear();editing=note.id;queueSave();renderEditor();host.showMessage("Shared text saved locally. Source is unchanged.");log("share-in","text accepted");
+    });}
     private void renderColours(){
         List<Note> chosen=propertyTargets();if(chosen.isEmpty())return;
         title=null;body=null;search=null;querySequence++;root.removeAllViews();header("Note colour");
@@ -512,6 +618,7 @@ public final class NotesController {
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
     public boolean back() {
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}
+        if(diagramOpen){diagramOpen=false;renderEditor();return true;}
         if(editing==null && !selectedIds.isEmpty()){selectedIds.clear();renderHome();return true;}
         if(prepared!=null){prepared=null;renderBackups();return true;}
         if(editing==null && storagePage){renderHome();return true;}

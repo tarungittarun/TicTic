@@ -2,7 +2,7 @@ package app.space.notes.domain;
 
 import java.util.*;
 
-/** Schema-v2 immutable document. v1 constructor remains supported for migration/tests. */
+/** Schema-v3 immutable document. v1 constructor remains supported for migration/tests. */
 public final class Note {
     public static final long TRASH_RETENTION_MS=7L*24*60*60*1000;
     public final String id,title,body;
@@ -12,6 +12,7 @@ public final class Note {
     public final List<Item> items;
     public final List<Mark> marks;
     public final List<String> labels;
+    public final Diagram diagram;
     public static final class Item {
         public final String id,text;public final boolean checked;public final int depth;
         public Item(String id,String text,boolean checked,int depth) {
@@ -35,6 +36,13 @@ public final class Note {
     public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
                 boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
                 List<Item> items,List<Mark> marks,List<String> labels) {
+        this(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,Diagram.empty());
+    }
+    public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
+                boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
+                List<Item> items,List<Mark> marks,List<String> labels,Diagram diagram) {
+        if(diagram==null)throw new IllegalArgumentException("Missing diagram");
+        this.diagram=diagram;
         if(id==null || id.isEmpty() || title==null || body==null)throw new IllegalArgumentException("Missing document fields");
         if(createdAt<0 || updatedAt<createdAt || deletedAt<0 || color<0 || color>11)throw new IllegalArgumentException("Invalid document metadata");
         Set<String> ids=new HashSet<>();for(Item item:items)if(!ids.add(item.id))throw new IllegalArgumentException("Duplicate item ID");
@@ -58,7 +66,7 @@ public final class Note {
     }
     private Note copy(String title,String body,long now,long deleted,boolean pin,boolean archive,int colour,
                       boolean list,boolean hide,List<Item> rows,List<Mark> spans,List<String> tags) {
-        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags);
+        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags,diagram);
     }
     public static Note create(long now){return new Note(UUID.randomUUID().toString(),"","",now,now,0,false,false,0);}
     public Note edit(String title,String body,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,
@@ -67,7 +75,8 @@ public final class Note {
     public Note list(String title,List<Item> rows,boolean hide,long now){return copy(title,"",now,deletedAt,pinned,archived,color,true,hide,rows,Collections.emptyList(),labels);}
     public Note properties(int color,List<String> labels,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
     public Note state(boolean pinned,boolean archived,long deletedAt,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
-    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
+    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram);}
+    public Note diagram(Diagram value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,value);}
     public String plainText() {
         if(!checklist)return body;
         StringBuilder text=new StringBuilder();
@@ -86,6 +95,6 @@ public final class Note {
         return list(title,rows,false,now);
     }
     public boolean expired(long now){return deletedAt>0 && now>=deletedAt && now-deletedAt>=TRASH_RETENTION_MS;}
-    public boolean matches(String query){String q=query.trim().toLowerCase(Locale.ROOT);return title.toLowerCase(Locale.ROOT).contains(q)
+    public boolean matches(String query){String q=query.trim().toLowerCase(Locale.ROOT);return diagram.plainText().toLowerCase(Locale.ROOT).contains(q) || title.toLowerCase(Locale.ROOT).contains(q)
         || plainText().toLowerCase(Locale.ROOT).contains(q) || String.join(" ",labels).toLowerCase(Locale.ROOT).contains(q);}
 }

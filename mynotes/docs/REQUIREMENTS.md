@@ -702,3 +702,23 @@ Scope-specific runtime evidence in CI 40569713346:
   legacy plain conflict-copy IDs preserved across the upgrade.
 - 29 JVM + 40 Android + 440 local checks passed. No full-feature completion percentage
   asserted. Remaining system/media/ML/diagram/integration scope is unchanged.
+
+## Slice 7 evidence — 0.5.0 (6)
+
+CI40578488274: 51 JVM; 63 unique Android tests / 441 executions, 13 emulator lanes;
+independent lint, APK audit, immutable inventory and final acceptance all green.
+
+- Diagram requirement: six common flowchart shapes/blocks/text boxes, editable geometry,
+  directed labeled arrows, drag/button movement, color, resize and basic Undo delivered.
+  Backup/copy retain editable objects; Merge refuses diagram flattening. Fixed single
+  logical canvas, not freehand, auto-layout, snapping or multi-page diagram editing.
+- PDF: native paginated text/checklist and shared vector diagram renderer; PDFRenderer
+  reopens/renders generated pages in tests. Local destination copy/readback is implemented;
+  physical provider failures and external reader/language fidelity need device review.
+- K063–K074: global rename/combine/remove and additive bulk assignment now implemented;
+  unused global label definitions and hashtag autocomplete remain open.
+- Incoming plain-text Android sharing now implemented. Other media is not implied.
+- Real font/orientation/night resource assertions plus controller cases pass for 200%
+  font, landscape, night and tablet profiles, after fixing a board viewport collapse.
+  Physical taps/IME/TalkBack are not universally certified by dispatched view tests.
+- Required offline OCR and voice transcription remain OPEN at this release checkpoint.

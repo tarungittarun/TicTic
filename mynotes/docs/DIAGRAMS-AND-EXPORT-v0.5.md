@@ -32,3 +32,13 @@ All lanes reuse the two compiled test APKs and the one audited release. Installe
 ## Still open
 
 Required offline OCR and automatic offline speech transcription are **not implemented** by this release. Neither are media recording, reminders/widgets, full rich typing/markdown, a full undo stack, physical provider/SD failure qualification or wall dragging (reserved for last). No microphone/network permissions are introduced. These must not be confused with delivered diagrams/PDF/share support.
+
+## Qualified outcome
+
+**Delivered** by [40578488274](https://github.com/tarungittarun/TicTic/actions/runs/40578488274).
+All 13 lanes passed: **441 executions / 63 unique Android cases**, **51 JVM**;
+468 local checks. All installed release hashes matched. Lint and inventory passed.
+Publication `894fd9b`, source `957299626c3207ef559260058222c601dc3b7591`,
+APK SHA `e61839edd88d7941c71e89ddb26cccdc9b1ef293cf079ead572f98f59d744451`.
+The expanded matrix found actual font/landscape selection viewport failures; they were
+fixed before publication, not hidden. Runtime still needs the physical review above.

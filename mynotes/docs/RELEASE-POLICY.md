@@ -19,3 +19,11 @@
   Third-party/unofficial APKs with another certificate cannot be updated by this key.
 - Normal docs changes use [skip ci]. Intentional versioned builds use only Notes workflow;
   old workflows remain paused on this branch.
+
+## 0.5.0 (6) checkpoint
+
+Version chain now includes 0.5.0 (6), schema 3 writes / 1,2,3 reads. CI40578488274
+verified update identity against all retained releases and installed-byte hashes on all
+13 lanes before publication. `894fd9b` stores the unchanged tested candidate, checksum,
+source and audit receipt. Do not overwrite or downgrade. New pipeline failures remain
+non-publishing; same-version CI-only revalidation tests the immutable official APK.

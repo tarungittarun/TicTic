@@ -275,3 +275,28 @@ paused legacy workflows remain unchanged. Scope limits are listed in CORE-NOTES-
 and current guide. Offline OCR/transcription remain mandatory but not yet implemented;
 diagrams/media/reminders/widgets, wall drag, full list/text parity, storage compaction
 and all-device qualification stay OPEN. Do not mark M0 ML feasibility or full plan done.
+
+### Slice 7 delivered — 0.5.0 (6), 22 expanded CI jobs
+
+CI **40578488274** fully passed and published `MyNotes-v0.5.0-6.apk` (1,220,453 bytes),
+source `957299626c3207ef559260058222c601dc3b7591`, publication `894fd9b`. SHA-256 verified
+locally: `e61839edd88d7941c71e89ddb26cccdc9b1ef293cf079ead572f98f59d744451`.
+51 JVM / 63 unique Android / **441 Android executions in 13 lanes**, 468 local checks,
+independent lint and release-inventory jobs, all signature/update/installed-byte gates.
+
+Delivered editable six-shape flowcharts with labeled directed arrows, immutable schema 3
+(reads 1/2), backup/copy preservation and no-loss Merge refusal; native paginated vector
+PDF with local readback verification; incoming plain-text sharing; global label rename/
+combine/remove and additive bulk labels; full-page scrolling editor and responsive board.
+
+Bring-up compile failure identified PdfDocument not implementing AutoCloseable on SDK34;
+fixed explicit close. Independent lint exposed URI grant-mask narrowing, fixed with the
+already-validated explicit read/write constants. Expanded large-font/landscape lanes
+found real viewport collapse during multi-select; reduced chrome and hid navigation while
+selected instead of skipping tests. Final matrix all green, no publication of failed builds.
+
+Required OCR/automatic offline transcription, recording/media, reminders/widgets and full
+physical-provider/scale/accessibility qualification remain open at this checkpoint. Model
+provenance work is separate: speech acquisition run40578093243 inspected the official
+Apache-2 English model without publishing an app. Current next slice must qualify actual
+native inference and preserve inputs on failure, not merely claim model acquisition works.

@@ -32,16 +32,20 @@ entry points; implementation evidence is under mynotes/docs.
 
 ## Workflow policy (owner instruction)
 
-Only `.github/workflows/notes-ci.yml` runs automatically on this branch, path-filtered
-to MyNotes and its workflow. Existing Android CI and Tests are paused here: automatic
+`.github/workflows/notes-ci.yml` runs automatically on this branch, path-filtered
+to MyNotes and its workflow. `notes-model-audit.yml` separately inspects the official
+offline speech model only when that provenance workflow changes; it does not publish an app. Existing Android CI and Tests are paused here: automatic
 triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions are
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current release: **0.4.0 (5)** — masonry/list Home, rich text, structured checklists,
-labels/colours, bulk workflows and local storage/backup. See docs/STANDALONE-TEST-GUIDE.md
-for APK, passed test scope and remaining limitations. OCR/ASR/media/diagrams/system
-features are still pending; this is not the full planned product.
+Current release: **0.5.0 (6)** — editable flowcharts, local vector PDF export,
+incoming plain-text sharing, global/additive labels and responsive editor/selection
+controls, plus the previous core and local storage/backup. CI **40578488274** passed
+51 JVM tests and **441 executions of 63 unique Android tests across 13 lanes**;
+468 local checks passed. See docs/STANDALONE-TEST-GUIDE.md and
+[diagram/export scope](docs/DIAGRAMS-AND-EXPORT-v0.5.md). Required offline OCR/ASR,
+media, reminders/widgets and full plan/device qualification remain open.
 
 ## Continuous integration
 

@@ -2,6 +2,8 @@
 
 **Owner's instruction (2026-10-27):** *"Now we took most of our features for our calculator app from Google calculator. So similarly, I need to get started on notes by reference to Google Keep notes. So, prepare top 100 features from Google Keep notes, apart from Google backup, Google sign-in. Take everything from UI design, working, user experience, everything. Share the selected features, then we can start. Keep in mind, development of these separate apps like calculator, notes should not affect other apps or working features. It should be like microservices."*
 
+A **visual companion** ships beside this plan: [`NOTES-UI-OVERVIEW.pdf`](NOTES-UI-OVERVIEW.pdf) — a 16-page Figma-style board deck drawing every page of the app (home wall, editor, checklists, capture paths, media, labels & search, bulk actions, reminders, trash, widgets, design language, plan & decisions) with numbered gold highlight callouts and simple-word explanations. Regenerate it any time with `python3 tools/build_notes_ui_overview_pdf.py`.
+
 This document is the **reference sheet** (like the calculator's spec sheet was: REFERENCE ONLY — the owner's shipped taste wins wherever they differ). It contains:
 
 - §1 — what is excluded and why (account/cloud features)

@@ -138,5 +138,16 @@ if (( LANE_API >= 33 )) && [[ "${LANE_NOTIFICATIONS:-denied}" == granted ]]; the
 fi
 adb shell am instrument -r -w -e disableAnalytics true -e expectedMic "${LANE_MIC:-denied}" -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
+if [[ "$LANE_GROUP" == all || "$LANE_GROUP" == ocr ]]; then
+  adb shell run-as app.space.notes.debug cat files/ocr-corpus-report.json > "$OUT/ocr-corpus-report.json"
+  for language in hin kan; do adb shell run-as app.space.notes.debug cat "files/ocr-fixture-$language.png" > "$OUT/ocr-fixture-$language.png"; done
+  python3 - "$OUT/ocr-corpus-report.json" <<'PYOCR'
+import json,sys
+report=json.load(open(sys.argv[1]));assert len(report['cases'])==2
+for case in report['cases']:
+    print('OCR controlled diagnostic:',json.dumps(case,ensure_ascii=False))
+    if not case['token_match']:print('::warning title=Controlled OCR recognition gap::'+case['language']+' did not recover its expected token. Inspect the saved image/text; model initialization is not an accuracy guarantee.')
+PYOCR
+fi
 python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" \
   --path "$OUT/instrumentation.txt" --output "$OUT/results.json"

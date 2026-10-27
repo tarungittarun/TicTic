@@ -108,7 +108,7 @@ public final class CalculatorScreen implements Screen {
     // there be 5 trending options along with no shape." Six names, one pref.
     private static final String KEYSHAPE_KEY = "calculator_keyshape";
     private static final String[] KEY_SHAPES = {"Circle", "Squircle", "Pill",
-            "Rounded square", "Hexagon", "No shape"};
+            "Rounded square", "No shape"};
     private static final int SEL_COPY = 9101, SEL_CUT = 9102,
             SEL_PASTE = 9103, SEL_ALL = 9104, SEL_MEM = 9105, SEL_MR = 9106;
 
@@ -547,14 +547,42 @@ public final class CalculatorScreen implements Screen {
         return button;
     }
 
-    /** Round 31: the keypad's silhouette is the owner's to pick -- five trending
-     *  shapes plus no shape at all, persisted and rebuilt live. The radius is
-     *  clamped by the drawable itself, so "Circle" on a squarer key is still a
-     *  circle and "Pill" is a stadium, whatever the key's aspect. */
+    /** Round 31: the keypad's silhouette is the owner's to pick, persisted and
+     *  rebuilt live. Round 32 trimmed the list on his order ("remove hexagon")
+     *  and fixed two of the five: "Pill and circle shape looks similar. Keep
+     *  proper circles" -- so Circle is a true disc now, not a clamped radius --
+     *  and "if no shape is selected then it should be plain no border... when
+     *  user clicks the key, on that time you can show the effect in rectangle"
+     *  -- so No shape idles invisible and flashes a rectangle under the thumb. */
     private static android.graphics.drawable.Drawable keyShape(Context context,
             UiKit ui, int fill, int[] gradient) {
+        return keyShapeNamed(context, ui, shapeName(context), fill, gradient);
+    }
+
+    /** The persisted pick, with old or removed names (Hexagon, anything else)
+     *  falling back to Circle instead of drawing a ghost option. */
+    private static String shapeName(Context context) {
         String name = AppPrefs.prefs(context).getString(KEYSHAPE_KEY, "Circle");
-        if ("Hexagon".equals(name)) return new HexagonDrawable(fill, gradient);
+        for (String known : KEY_SHAPES) {
+            if (known.equals(name)) return name;
+        }
+        return "Circle";
+    }
+
+    private static android.graphics.drawable.Drawable keyShapeNamed(Context context,
+            UiKit ui, String name, int fill, int[] gradient) {
+        if ("No shape".equals(name)) {
+            // Plain glass: nothing at rest, a rectangle of accent flash while
+            // the thumb is down -- the press itself is the only shape.
+            android.graphics.drawable.StateListDrawable sld =
+                    new android.graphics.drawable.StateListDrawable();
+            sld.addState(new int[]{android.R.attr.state_pressed},
+                    new android.graphics.drawable.ColorDrawable(noShapeFlash(ui)));
+            sld.addState(new int[]{}, new android.graphics.drawable.ColorDrawable(
+                    android.graphics.Color.TRANSPARENT));
+            return sld;
+        }
+        if ("Circle".equals(name)) return new CircleDrawable(fill, gradient);
         GradientDrawable g = new GradientDrawable();
         g.setColor(fill);
         if (gradient != null) {
@@ -562,25 +590,29 @@ public final class CalculatorScreen implements Screen {
             g.setColors(gradient);
         }
         float r;
-        if ("No shape".equals(name)) r = 0;
-        else if ("Rounded square".equals(name)) r = ui.dp(10);
+        if ("Rounded square".equals(name)) r = ui.dp(10);
         else if ("Squircle".equals(name)) r = ui.dp(26);
-        else if ("Pill".equals(name)) r = ui.dp(60);
-        else r = ui.dp(90);
+        else r = ui.dp(60); // Pill: a stadium the full width of the key
         g.setCornerRadius(r);
         return g;
     }
 
-    /** The honeycomb's own silhouette as a key: six points, flat top and bottom,
-     *  filled with the key's class colour (the equals key keeps its gradient). */
-    static final class HexagonDrawable extends android.graphics.drawable.Drawable {
+    /** The rectangle flash a plain key shows while pressed. Shared by the keys
+     *  and by the picker's swatch so the option previews its own behaviour. */
+    static int noShapeFlash(UiKit ui) {
+        return mix(ui.palette().surface, ui.palette().accent, 0.30f);
+    }
+
+    /** A proper circle: diameter is the key's shorter side, centred -- so it can
+     *  never read as the pill's capsule however wide the cell is. The equals key
+     *  keeps its accent-to-pink gradient across the disc. */
+    static final class CircleDrawable extends android.graphics.drawable.Drawable {
         private final android.graphics.Paint p =
                 new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        private final android.graphics.Path path = new android.graphics.Path();
         private final int[] gradient;
         private int fill;
 
-        HexagonDrawable(int fill, int[] gradient) {
+        CircleDrawable(int fill, int[] gradient) {
             this.fill = fill;
             this.gradient = gradient;
             p.setStyle(android.graphics.Paint.Style.FILL);
@@ -591,23 +623,12 @@ public final class CalculatorScreen implements Screen {
             android.graphics.Rect b = getBounds();
             if (b.isEmpty()) return;
             if (gradient != null) {
-                android.graphics.LinearGradient lg = new android.graphics.LinearGradient(
+                p.setShader(new android.graphics.LinearGradient(
                         b.left, b.centerY(), b.right, b.centerY(), gradient, null,
-                        android.graphics.Shader.TileMode.CLAMP);
-                p.setShader(lg);
+                        android.graphics.Shader.TileMode.CLAMP));
             }
-            float cx = b.centerX(), cy = b.centerY();
-            float rx = b.width() / 2f, ry = b.height() / 2f;
-            path.reset();
-            for (int i = 0; i < 6; i++) {
-                double a = Math.toRadians(60 * i);
-                float x = (float) (cx + rx * Math.cos(a));
-                float y = (float) (cy + ry * Math.sin(a));
-                if (i == 0) path.moveTo(x, y);
-                else path.lineTo(x, y);
-            }
-            path.close();
-            c.drawPath(path, p);
+            float r = Math.min(b.width(), b.height()) / 2f;
+            c.drawCircle(b.centerX(), b.centerY(), r, p);
         }
 
         @Override public void setAlpha(int a) { p.setAlpha(a); }
@@ -1146,7 +1167,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources()
                         .getDisplayMetrics().density)), 8));
         parent.addView(displayHost, dp2);
-        AppLog.event(context, "calc", "calc screen build 3.12.34: the caret is "
+        AppLog.event(context, "calc", "calc screen build 3.12.35: the caret is "
                 + "a real view over the canvas bar");
         displayView.caretPhaseReset = new Runnable() {
             @Override public void run() {
@@ -1514,30 +1535,58 @@ public final class CalculatorScreen implements Screen {
      *  shape at all, single-choice, persisted, and the pad rebuilds under the
      *  thumb without recreating the screen. */
     private void openKeyShape(final Context context, final UiKit ui) {
-        final String current =
-                AppPrefs.prefs(context).getString(KEYSHAPE_KEY, "Circle");
-        int checked = 0;
+        // Round 32: "the view of option to select in keyshapes is outdated.
+        // Match with app's design and signature." The stock light AlertDialog
+        // with radio buttons was a stranger in this app; the picker is now the
+        // same dark pill popup the Effects and memory pickers use, and every
+        // row carries a live swatch drawn by the very drawable it selects, so
+        // the option shows its own silhouette before you pick it.
+        final String current = shapeName(context);
+        LinearLayout box = ui.vbox();
+        box.setBackground(pill(ui, ui.palette().surface, 16));
+        box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
+        TextView head = ui.label("Key shape", 13, ui.palette().muted, false);
+        head.setPadding(ui.dp(14), ui.dp(8), ui.dp(14), ui.dp(4));
+        box.addView(head, ui.lp(-1, -2));
         for (int i = 0; i < KEY_SHAPES.length; i++) {
-            if (KEY_SHAPES[i].equals(current)) checked = i;
+            final String name = KEY_SHAPES[i];
+            final boolean on = name.equals(current);
+            LinearLayout row = ui.hbox();
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(ui.dp(14), ui.dp(9), ui.dp(14), ui.dp(9));
+            View swatch = new View(context);
+            swatch.setBackground("No shape".equals(name)
+                    ? new android.graphics.drawable.ColorDrawable(noShapeFlash(ui))
+                    : keyShapeNamed(context, ui, name,
+                            on ? ui.palette().accent : ui.palette().muted, null));
+            // Wider than tall on purpose: on a square swatch the pill's clamped
+            // radius would draw a circle and repeat the very confusion he
+            // reported ("Pill and circle shape looks similar").
+            row.addView(swatch, ui.lp(30, 20));
+            TextView label = ui.label((on ? "\u2713  " : "     ") + name, 14,
+                    on ? ui.palette().accent : ui.palette().text, on);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-2, -2);
+            llp.leftMargin = ui.dp(12);
+            row.addView(label, llp);
+            box.addView(row, ui.lp(-1, -2));
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    AppPrefs.prefs(context).edit()
+                            .putString(KEYSHAPE_KEY, name).apply();
+                    AppLog.event(context, "calc",
+                            "key shape set to " + name + ", pad rebuilt");
+                    host.toast("Keys: " + name);
+                    if (menuPopup != null) menuPopup.dismiss();
+                    menuPopup = null;
+                    rebuildPad(context, ui);
+                }
+            });
         }
-        new android.app.AlertDialog.Builder(context)
-                .setTitle("Key shape")
-                .setSingleChoiceItems(KEY_SHAPES, checked,
-                        new android.content.DialogInterface.OnClickListener() {
-                            @Override public void onClick(
-                                    android.content.DialogInterface d, int which) {
-                                String pick = KEY_SHAPES[which];
-                                AppPrefs.prefs(context).edit()
-                                        .putString(KEYSHAPE_KEY, pick).apply();
-                                AppLog.event(context, "calc",
-                                        "key shape set to " + pick + ", pad rebuilt");
-                                host.toast("Keys: " + pick);
-                                d.dismiss();
-                                rebuildPad(context, ui);
-                            }
-                        })
-                .setNegativeButton("Cancel", null)
-                .show();
+        menuPopup = new PopupWindow(box, ui.dp(250), -2, true);
+        menuPopup.setElevation(ui.dp(8));
+        menuPopup.setAnimationStyle(R.style.CalcPopupAnim);
+        menuPopup.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        AppLog.event(context, "calc", "key shape picker opened: current " + current);
     }
 
     /** Round 31: the pad, rebuildable in place -- the key-shape picker swaps

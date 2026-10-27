@@ -1199,16 +1199,18 @@ public class CalculatorUiTest {
         onView(withText("Cut")).check(doesNotExist());
     }
 
-    @Test public void theKeyShapeMenuOffersSixShapesAndPersistsThePick() {
-        // Round 31: "in 3 dots add options of shape of buttons on keypad. Let
-        // there be 5 trending options along with no shape." The three dots carry
-        // Key shape; the dialog lists all six; the pick persists and rebuilds
-        // the pad under the thumb.
+    @Test public void theKeyShapePickerShowsLivePreviewsAndPersistsThePick() {
+        // Round 31 asked for the option; round 32 judged the stock light
+        // AlertDialog "outdated" and ordered it matched to the app's design,
+        // and ordered the hexagon removed. The picker is now the app's own dark
+        // pill popup, each row carrying a swatch drawn by the drawable it
+        // selects; five silhouettes remain and the pick persists.
         onView(withId(MENU_BTN)).perform(click());
         onView(withText("Key shape")).perform(click());
-        onView(withText("Hexagon")).check(matches(isDisplayed()));
-        onView(withText("No shape")).check(matches(isDisplayed()));
-        onView(withText("Pill")).perform(click());
+        onView(withText(containsString("Hexagon"))).check(doesNotExist());
+        onView(withText(containsString("Squircle"))).check(matches(isDisplayed()));
+        onView(withText(containsString("No shape"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Pill"))).perform(click());
         android.content.Context ctx =
                 androidx.test.InstrumentationRegistry.getTargetContext();
         assertEquals("Pill", ctx.getSharedPreferences(
@@ -1220,7 +1222,37 @@ public class CalculatorUiTest {
         // leave the pad as the owner found it
         onView(withId(MENU_BTN)).perform(click());
         onView(withText("Key shape")).perform(click());
-        onView(withText("Circle")).perform(click());
+        onView(withText(containsString("Circle"))).perform(click());
+    }
+
+    @Test public void noShapeKeysArePlainGlassAndCircleIsARoundDisc() {
+        // Round 32: "if no shape is selected then it should be plain no border.
+        // May be when user clicks the key, on that time you can show the effect
+        // in rectangle" and "Pill and circle shape looks similar. Keep proper
+        // circles." So a No-shape key idles with a state-list (transparent at
+        // rest, rectangle flash pressed), and a Circle key carries the disc
+        // drawable -- never a clamped radius that reads as a pill.
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key shape")).perform(click());
+        onView(withText(containsString("No shape"))).perform(click());
+        onView(withText("7")).check((v, no) -> assertTrue(
+                "plain keys idle as a state list",
+                v.getBackground() instanceof android.graphics.drawable.StateListDrawable));
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("7")));
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key shape")).perform(click());
+        onView(withText(containsString("Circle"))).perform(click());
+        onView(withText("8")).check((v, no) -> assertEquals("CircleDrawable",
+                v.getBackground().getClass().getSimpleName()));
+        type("8");
+        onView(withId(DISPLAY)).check(matches(withText("78")));
+        // hexagon is gone from the pad's vocabulary entirely
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        assertEquals("Circle", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keyshape", "Circle"));
     }
 
     @Test public void theCaretBarIsARealViewThatBlinksWithThePhase() {

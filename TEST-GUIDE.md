@@ -1,12 +1,12 @@
-# MySpace 3.12.34 (71) · MyCalc 1.0.32 (33) — your test guide
+# MySpace 3.12.35 (72) · MyCalc 1.0.33 (34) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.34-71-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.34-71-lite-dist.apk) ·
-[MyCalc-v1.0.32-33.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.32-33.apk)
+Install: [MySpace-v3.12.35-72-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.35-72-lite-dist.apk) ·
+[MyCalc-v1.0.33-34.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.33-34.apk)
 (standalone calculator, same engine).
 
 ---
@@ -44,7 +44,8 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 `holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `aPlainTapParksTheCaretAndReleasesTheSelection`, `jitterTapStillClearsTheHeldSelection`,
 `tapAwayFromTheExpressionClears`, `aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu`,
 `memStoresTheHeldNumberAndMrInsertsItAtTheCaret`, `theCaretStandsSolidThenBlinksLikeAndroidsOwn`, `aTapOnTheHeldPortionParksTheCaretAndReleasesTheSelection`,
-`aHoldInTheRightMarginRaisesTheCaretMenuNotTheLastOperand`, `theKeyShapeMenuOffersSixShapesAndPersistsThePick`,
+`aHoldInTheRightMarginRaisesTheCaretMenuNotTheLastOperand`, `theKeyShapePickerShowsLivePreviewsAndPersistsThePick`,
+`noShapeKeysArePlainGlassAndCircleIsARoundDisc`,
 `theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd`, `theCaretBarIsARealViewThatBlinksWithThePhase`,
 `copyPutsExactlyTheHeldSliceInTheClipboard`,
 `cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere`,
@@ -63,7 +64,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 | C7 | Press `( )` repeatedly with the caret mid-expression | The key offers `(` or `)` whichever fits at the caret |
 | C8 | Watch the caret | A bar — white in dark, black in light — stands at the exact point the next key will land, **including at the very end of the line** (the box keeps 10dp of side padding so the end caret is on the glass), and it **blinks like Android's own cursor**: solid while you type or tap, half-second blink at rest, hidden only while a selection is held (the boundary bars stand then). From this build the caret is also **a real view** layered over the display -- the framework itself composites it, so no drawing path can swallow it -- and every placement and blink writes a line to the log; type an expression longer than the screen and the expression line **scrolls itself** to keep the caret in view. The display is now a plain single-line editor (no scroll wrapper), so its caret, handles and scrolling are the platform's own |
 | C9 | Never at any point | No device keyboard appears |
-| C10 | Three dots ▸ **Key shape** | A picker with six silhouettes for every keypad button -- **Circle, Squircle, Pill, Rounded square, Hexagon, No shape** -- your pick persists and the pad rebuilds instantly. (Add-to-memory left the three dots this round; storing lives in the selection menu as **MAdd**.) |
+| C10 | Three dots ▸ **Key shape** | The picker opens in the app's own dark pill style, each row showing a live swatch of its silhouette: **Circle** (a true round disc), **Squircle**, **Pill**, **Rounded square**, **No shape** (plain keys, no border -- pressing one flashes a rectangle). Your pick persists and the pad rebuilds instantly. Hexagon is gone by your order. (Add-to-memory left the three dots last round; storing lives in the selection menu as **MAdd**.) |
 
 Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegationExactlyAsTheOwnersScreenshot`, `theBracketKeyFitsTheCaretNotJustTheEnd`, `midNumberTapInsertsThere`-family, `theCaretExistsIsFocusedAndIsVisible`.
 
@@ -128,5 +129,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 389 Python contracts, 21 JVM suites
-and a 53-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 54-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

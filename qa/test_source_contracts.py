@@ -4482,6 +4482,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("transcriptOnFailure", ui)
         self.assertIn("head.indexOf(\"View Details:\")", ui)
         self.assertIn("[view hierarchy trimmed]", ui)
+        # Round 34: the farm image's floating-menu window swallows raw injected
+        # taps, so every display tap in the suite is dispatched through the view
+        # itself -- the product's touch handler, not the emulator's routing.
+        self.assertIn("private static void dispatchTap(", ui)
+        self.assertNotIn("onView(withId(DISPLAY)).perform(new GeneralClickAction", ui)
+        screen = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text()
+        self.assertIn('"display touch down at "', screen)
+        self.assertIn('"display gesture cancelled: the parent took the touch"', screen)
         self.assertIn('::error title=failure $n details::', wf)
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("===APP TRANSCRIPT TAIL===", ui)

@@ -412,18 +412,59 @@ public class CalculatorUiTest {
         for (String k : keys) onView(key(k)).perform(click());
     }
 
+    /** Round 34, from the app's own streamed transcript: on the farm's API-34
+     *  image the floating selection menu's window SWALLOWS raw injected taps on
+     *  the display -- the transcript shows no down, no up and no cancel for the
+     *  whole gesture -- while the owner's phone delivers them (his round-31 log
+     *  carries tap-placed-caret lines). So the suite dispatches its taps through
+     *  the view itself: the product's touch handler runs exactly as it does for
+     *  a window-delivered event, and the stories test the product's contract,
+     *  not the emulator image's window routing. */
+    private static void dispatchTap(androidx.test.espresso.UiController ui,
+            View view, float x, float y) {
+        long t = android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent dn = android.view.MotionEvent.obtain(
+                t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0);
+        android.view.MotionEvent up = android.view.MotionEvent.obtain(
+                t, t + 90, android.view.MotionEvent.ACTION_UP, x, y, 0);
+        try {
+            view.dispatchTouchEvent(dn);
+            ui.loopMainThreadForAtLeast(120);
+            view.dispatchTouchEvent(up);
+        } finally {
+            dn.recycle();
+            up.recycle();
+        }
+        ui.loopMainThreadForAtLeast(150);
+    }
+
+    /** One finger, one point, at fractions of the view's own box. */
+    private static ViewAction displayTap(final float xFrac, final float yFrac) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() {
+                return "tap at " + xFrac + "," + yFrac + " of the view";
+            }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                dispatchTap(ui, view, view.getWidth() * xFrac, view.getHeight() * yFrac);
+            }
+        };
+    }
+
     /** One finger on the glyph boundary at `off`: the owner's mid-text click. */
     private void tapAtOffset(final int off) {
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        android.widget.EditText ed = (android.widget.EditText) view;
-                        android.text.Layout lo = ed.getLayout();
-                        return new float[]{ed.getCompoundPaddingLeft()
-                                + lo.getPrimaryHorizontal(off) + 2f,
-                                ed.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() {
+                return "tap the glyph boundary at offset " + off;
+            }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                android.widget.EditText ed = (android.widget.EditText) view;
+                android.text.Layout lo = ed.getLayout();
+                dispatchTap(ui, view, ed.getCompoundPaddingLeft()
+                        + lo.getPrimaryHorizontal(off) + 2f, ed.getHeight() * 0.5f);
+            }
+        });
     }
 
     /** Round 28: a real long press at a width FRACTION -- the gesture his thumb
@@ -460,13 +501,7 @@ public class CalculatorUiTest {
 
     /** One finger, one point: the click gesture the owner's thumb makes. */
     private void tapAt(final float fraction) {
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * fraction,
-                                view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(displayTap(fraction, 0.5f));
     }
 
     @Test public void aTapWhileTheHistoryPopupRepopulatesDoesNotCrash() {
@@ -518,13 +553,14 @@ public class CalculatorUiTest {
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(app.space.feature.calculator.R.id.calc_dock))
-                .perform(new GeneralClickAction(Tap.SINGLE,
-                        new CoordinatesProvider() {
-                            @Override public float[] calculateCoordinates(View view) {
-                                return new float[]{view.getWidth() * 0.5f,
-                                        view.getHeight() - 6f};
-                            }
-                        }, Press.FINGER, 0, 0));
+                .perform(new ViewAction() {
+                    @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+                    @Override public String getDescription() { return "tap away, on the dock"; }
+                    @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                        dispatchTap(ui, view, view.getWidth() * 0.5f,
+                                view.getHeight() - 6f);
+                    }
+                });
         onView(withId(DISPLAY)).check(held(0));
     }
 
@@ -1011,12 +1047,7 @@ public class CalculatorUiTest {
         type("1", "2");
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(displayTap(0.25f, 0.5f));
         type("3");
         onView(withId(DISPLAY)).check(matches(withText("312")));
     }
@@ -1106,12 +1137,7 @@ public class CalculatorUiTest {
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(displayTap(0.25f, 0.5f));
         onView(withId(DISPLAY)).check(held(0));
         type("7");
         onView(withId(DISPLAY)).check(matches(withText("71,23,456")));
@@ -1206,12 +1232,7 @@ public class CalculatorUiTest {
         type("1", "2", "3");
         onView(withId(DISPLAY)).perform(holdUntilSelected());
         onView(withId(DISPLAY)).check(held(3));
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.25f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(displayTap(0.25f, 0.5f));
         onView(withId(DISPLAY)).check(held(0));
         type("7");
         onView(withId(DISPLAY)).check(matches(withText("7123")));
@@ -1258,12 +1279,7 @@ public class CalculatorUiTest {
 
     @Test public void theCaretExistsIsFocusedAndIsVisible() {
         type("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
-                new CoordinatesProvider() {
-                    @Override public float[] calculateCoordinates(View view) {
-                        return new float[]{view.getWidth() * 0.5f, view.getHeight() * 0.5f};
-                    }
-                }, Press.FINGER, 0, 0));
+        onView(withId(DISPLAY)).perform(displayTap(0.5f, 0.5f));
         onView(withId(DISPLAY)).check(matches(hasFocus()));
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {

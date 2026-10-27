@@ -955,6 +955,15 @@ public final class CalculatorScreen implements Screen {
                         displayView.removeCallbacks(holdSelect);
                         displayView.postDelayed(holdSelect, 350);
                     }
+                    // Round 34 forensics: the streamed transcript showed taps
+                    // that never arrived -- no down, no up, no cancel -- while
+                    // the floating menu stood. Every arrival is recorded now,
+                    // so a swallowed touch is visible as an absence.
+                    AppLog.event(lastContext, "calc", "display touch down at "
+                            + (int) e.getX() + "," + (int) e.getY()
+                            + ", selection " + displayView.getSelectionStart()
+                            + ".." + displayView.getSelectionEnd()
+                            + (dragHandle != 0 ? ", on a handle" : ""));
                     return dragHandle != 0;
                 }
                 if (act == MotionEvent.ACTION_POINTER_DOWN) {
@@ -1055,7 +1064,11 @@ public final class CalculatorScreen implements Screen {
                                 + displayView.getSelectionEnd() + " stay held");
                         return true;
                     }
-                    if (act == MotionEvent.ACTION_CANCEL) return false;
+                    if (act == MotionEvent.ACTION_CANCEL) {
+                        AppLog.event(lastContext, "calc",
+                                "display gesture cancelled: the parent took the touch");
+                        return false;
+                    }
                     boolean panned = Math.abs(displayView.getScrollX() - scrollAtDown) > 4;
                     if (!panned) {
                         // Round 27, his words: "if anywhere in a expression box

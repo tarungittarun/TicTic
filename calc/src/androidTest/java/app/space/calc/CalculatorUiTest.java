@@ -165,7 +165,7 @@ public class CalculatorUiTest {
                 return "hold the display until a selection stands";
             }
             @Override public void perform(androidx.test.espresso.UiController ui, View view) {
-                for (int i = 0; i < 3
+                for (int i = 0; i < 4
                         && !((android.widget.EditText) view).hasSelection(); i++) {
                     holdCenter(ui, view);
                     ui.loopMainThreadForAtLeast(150);

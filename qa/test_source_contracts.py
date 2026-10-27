@@ -4420,6 +4420,9 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("\"menu tapped open: click access kept\"", self.screen)
         self.assertIn("strokeHandler.postDelayed(strokeDwell, 320);", self.screen)
         self.assertIn("public static int[] debugStrokeRowRect(String tag) {", self.screen)
+        # a starved looper must not be able to eat a hold-select
+        self.assertIn("\"hold timer starved: selecting on the lift instead\"", self.screen)
+        self.assertIn("e.getEventTime() - downEventTime >= 320", self.screen)
         self.assertNotIn("Subtract from memory", self.screen)
         self.assertIn("if (!ValueAnimator.areAnimatorsEnabled()) {", self.screen)
         self.assertIn("memory moved: ", self.screen)

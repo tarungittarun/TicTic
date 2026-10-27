@@ -4460,6 +4460,16 @@ class TestInfrastructureContracts(unittest.TestCase):
         # because the runner cannot host Gradle and the emulator at once.
         self.assertIn("adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk", wf)
         self.assertIn("am instrument -w app.space.calc.debug.test", wf)
+        # The farm's adb-side captures came back empty twice, so the forensics
+        # have three doors and all three are pinned: rooted pull of the app's
+        # own log, the installed-version stamp, and the transcript the suite
+        # prints to instrumentation stdout itself.
+        self.assertIn("adb pull /data/data/app.space.calc.debug/files/logs/myspace.log", wf)
+        self.assertIn("dumpsys package app.space.calc.debug", wf)
+        self.assertIn("===APP TRANSCRIPT TAIL===", wf)
+        ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
+        self.assertIn("===APP TRANSCRIPT TAIL===", ui)
+        self.assertIn("app.space.core.data.AppLog.setEnabled(", ui)
 
     def test_indian_grouping_reaches_every_displayed_number(self):
         screen = java_code_only((ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text())

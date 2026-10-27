@@ -127,6 +127,16 @@ jobs:
             adb logcat -d > /tmp/logcat.log 2>/dev/null || true
             grep -a "TicTicCalc\|AndroidRuntime\|FATAL" /tmp/logcat.log | tail -120 > /tmp/calc.log 2>/dev/null || true
             adb shell run-as app.space.calc.debug cat files/logs/myspace.log > /tmp/app.log 2>/dev/null || true
+            # run-as came back empty twice on this farm even though the app
+            # demonstrably ran; the emulator images are rootable, so pull the
+            # same file over rooted adb as the second door, and stamp the
+            # installed version so a wrong-APK run can never hide again.
+            adb shell dumpsys package app.space.calc.debug | grep -m1 versionName > /tmp/ver.txt 2>/dev/null || true
+            adb root > /dev/null 2>&1 || true
+            sleep 3
+            adb wait-for-device
+            adb pull /data/data/app.space.calc.debug/files/logs/myspace.log /tmp/app2.log > /dev/null 2>&1 || true
+            if [ -s /tmp/app2.log ]; then cp /tmp/app2.log /tmp/app.log; fi
             grep -q "OK (" /tmp/ui.log || code=1
             echo "::notice title=Instrumented suite::$(grep -oE 'OK \([0-9]+ tests?\)' /tmp/ui.log | tail -1)"
             exit $code
@@ -156,8 +166,15 @@ jobs:
             echo "::error title=calc app log tail::$body"
           fi
           if [ -f /tmp/ui.log ]; then
-            sum=$(grep -E "^[0-9]+\) |^Tests run:|^OK \(" /tmp/ui.log | tail -15 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            sum=$( { grep -E "^[0-9]+\) " /tmp/ui.log | sed 's/(app.space.calc.CalculatorUiTest)//'; grep -E "^Tests run:|^OK \(" /tmp/ui.log | tail -1; } | head -65 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=failure summary::$sum"
+            if [ -s /tmp/ver.txt ]; then
+              echo "::error title=installed app version::$(cat /tmp/ver.txt | tr -d '\r')"
+            fi
+            tr=$(awk '/===APP TRANSCRIPT TAIL===/{f=1} f' /tmp/ui.log | tail -c 3700 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            if [ -n "$tr" ]; then
+              echo "::error title=app transcript stdout::$tr"
+            fi
             first=$(awk '/^1\) /{f=1} f' /tmp/ui.log | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=first failure::$first"
             body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')

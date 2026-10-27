@@ -67,6 +67,18 @@ public class CalculatorUiTest {
                 androidx.test.InstrumentationRegistry.getTargetContext(), true);
     }
 
+    /** The runner's adb-side pulls came back empty on the farm twice, so the
+     *  suite carries its own transcript out through instrumentation stdout,
+     *  which always lands in ui.log: the app's own words about what actually
+     *  happened, printed after the last story. */
+    @org.junit.AfterClass public static void dumpAppTranscript() {
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        System.out.println("===APP TRANSCRIPT TAIL===");
+        System.out.println(app.space.core.data.AppLog.tail(ctx, 12000));
+        System.out.println("===END APP TRANSCRIPT===");
+    }
+
     /** A pad key by its label, never the display or the preview that may show the same text. */
     /** Round 19: the handles on screen are Android's own teardrops now, so the
      *  story finds them the way a thumb does -- down on the strip below the held

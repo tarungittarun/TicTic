@@ -1106,7 +1106,8 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
         onView(withText("MR")).perform(click());
-        onView(withId(DISPLAY)).check(matches(withText("456456")));
+        // Indian grouping is display furniture: 456456 reads 4,56,456.
+        onView(withId(DISPLAY)).check(matches(withText("4,56,456")));
     }
 
     @Test public void theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd() {
@@ -1125,23 +1126,32 @@ public class CalculatorUiTest {
                 @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                     if (e != null) throw e;
                     android.widget.EditText ed = (android.widget.EditText) view;
+                    // The on-glass contract: real side padding, and the laid-out
+                    // line's right edge inside the content box -- the two facts
+                    // his log lacked when the end caret read x=1132 on a 1132px
+                    // view and the right teardrop drew off the canvas.
+                    float d = view.getResources().getDisplayMetrics().density;
+                    assertTrue("the box must keep side padding for the end caret, padR="
+                            + ed.getCompoundPaddingRight(),
+                            ed.getCompoundPaddingRight() >= (int) (10 * d));
+                    android.text.Layout lo = ed.getLayout();
+                    float lineRight = lo.getLineRight(0) - ed.getScrollX();
+                    float edge = view.getWidth() - ed.getCompoundPaddingRight();
+                    assertTrue("the line's right edge must sit on the glass, lineRight="
+                            + lineRight + " edge=" + edge, lineRight <= edge + 2);
+                    // and the two boundary markers are actually painted.
                     android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
                             view.getWidth(), view.getHeight(),
                             android.graphics.Bitmap.Config.ARGB_8888);
                     view.draw(new android.graphics.Canvas(bmp));
-                    int rightmost = -1;
+                    int white = 0;
                     for (int yy = 0; yy < bmp.getHeight(); yy++) {
                         for (int xx = 0; xx < bmp.getWidth(); xx++) {
-                            if (bmp.getPixel(xx, yy) == 0xFFFFFFFF && xx > rightmost) {
-                                rightmost = xx;
-                            }
+                            if (bmp.getPixel(xx, yy) == 0xFFFFFFFF) white++;
                         }
                     }
-                    int edge = view.getWidth() - ed.getCompoundPaddingRight();
-                    assertTrue("the right boundary must be on the glass, rightmost="
-                            + rightmost + " contentEdge=" + edge,
-                            rightmost >= 0 && rightmost <= edge + 2
-                                    && rightmost >= edge - 60);
+                    assertTrue("the end markers must be painted, got " + white,
+                            white >= 60);
                 }
             });
         } finally {

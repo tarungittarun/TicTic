@@ -65,3 +65,29 @@ This matrix does not certify all phones, physical SAF/SD providers, accessibilit
 - Initial parallel run [40572285326](https://github.com/tarungittarun/TicTic/actions/runs/40572285326): source, JVM, both builds, audit and API 29/34 passed; API 26 failed before instrumentation; final acceptance correctly failed and publication was skipped.
 - Instrumented run [40573209545](https://github.com/tarungittarun/TicTic/actions/runs/40573209545): command/stack annotations identified API 26 `svc wifi disable` shell permission denial, not an app crash. The harness now provisions that fixture with temporary emulator root and explicitly unroots before app work. This is an explained correction, not an unexplained emulator retry.
 - These expanded runs do not establish a speedup over the old single-API serial run. The matrix adds qualification and runner usage; wall-clock timing still needs a green comparable run.
+
+### Qualified parallel run
+
+[40574272823](https://github.com/tarungittarun/TicTic/actions/runs/40574272823), source `64ef4269aa224d5a85b7473c005da92c056c1f0d`: **all required jobs and final acceptance passed**. Publication was intentionally skipped for same-version revalidation. Local pre-push root gate: **464 Python tests passed** (these are structural/tooling tests, not additional Android journeys).
+
+| Job | Measured duration |
+|---|---:|
+| Source/protocol/CI self-tests | 20s |
+| JVM domain tests | 53s |
+| Signed release compilation | 61s |
+| Debug + instrumentation compilation | 66s |
+| APK audit | 41s |
+| Android storage/API 26 | 102s |
+| Android UI/API 29 | 119s |
+| Android full/API 34 | 122s |
+| Final acceptance | 17s |
+
+The first four jobs started together; all three Android lanes started together. Source run creation to completion: **4m51s**, including **42s** before the first jobs started; first job start to completion: **4m09s**. Old serial run creation to completion was **3m53s**, with only one API/40 Android executions and without the new final summary. These are different workloads and cache/queue states: **no measured end-to-end speedup is claimed**. The expanded pipeline doubles Android executions, qualifies three APIs, and gives independent failure isolation. Audit/setup overhead and emulator provisioning remain candidates for future measured optimization, not reasons to remove acceptance gates.
+
+The acceptance summary verified:
+- API 26: **35/35**, API 29: **5/5**, API 34: **40/40**; JVM: **29/29**.
+- Installed/downloaded/audited release SHA-256 matched on all three APIs: `bc7464078be8f267fbcb64838f6622d82a6001c97356f89e67ffa6d9802231bc`.
+- Official APK remained `MyNotes-v0.4.0-5.apk`, originally built from `cb26ef8a2b24ae38077628b404a1059631309cbc`; no overwrite or unnecessary app version increment.
+- API 26 temporary radio-provisioning root was removed before app installation/test, and ordinary shell UID was verified.
+
+Some maintained upstream actions still declare Node 20; GitHub reports that it forces them onto Node 24. This run passed under that runtime. Track upstream action updates and requalify those changes rather than hiding runtime warnings or upgrading actions without a validation run.

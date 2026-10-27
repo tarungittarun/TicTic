@@ -145,7 +145,8 @@ if [[ "$LANE_GROUP" == all || "$LANE_GROUP" == ocr ]]; then
 import json,sys
 report=json.load(open(sys.argv[1]));assert len(report['cases'])==2
 for case in report['cases']:
-    print('OCR controlled diagnostic:',json.dumps(case,ensure_ascii=False))
+    message=json.dumps(case,ensure_ascii=False).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+    print('::notice title=Controlled OCR diagnostic::'+message)
     if not case['token_match']:print('::warning title=Controlled OCR recognition gap::'+case['language']+' did not recover its expected token. Inspect the saved image/text; model initialization is not an accuracy guarantee.')
 PYOCR
 fi

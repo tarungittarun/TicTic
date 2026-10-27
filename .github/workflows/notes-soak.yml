@@ -38,7 +38,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
   soak:
-    name: 75-minute native/durable cycles API ${{ matrix.api }}
+    name: 70-minute native/durable cycles API ${{ matrix.api }}
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 105

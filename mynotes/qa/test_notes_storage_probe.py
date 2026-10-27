@@ -4,7 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from tools.notes_storage_probe import LibraryProbe, Conflict, IntegrityError, encode
+from mynotes.tools.notes_storage_probe import LibraryProbe, Conflict, IntegrityError, encode
 
 
 class NotesStorageProtocol(unittest.TestCase):

@@ -3,23 +3,24 @@ from pathlib import Path
 import re
 import unittest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
+NOTES = ROOT / "mynotes"
 
 
 class NotesM0Contracts(unittest.TestCase):
     def test_inventory_has_exactly_one_of_every_original_id(self):
-        text = (ROOT/'docs/notes/REQUIREMENTS.md').read_text()
+        text = (NOTES/'docs/REQUIREMENTS.md').read_text()
         self.assertEqual([f'K{i:03}' for i in range(1,101)],
                          re.findall(r'^### (K\d+)$',text,re.M))
 
     def test_added_requirements_are_unique_and_present(self):
-        text = (ROOT/'docs/notes/REQUIREMENTS.md').read_text()
+        text = (NOTES/'docs/REQUIREMENTS.md').read_text()
         ids = re.findall(r'^\| ((?:DG|ST|ML|HX|NF)-\d+) \|',text,re.M)
         self.assertEqual(len(ids),len(set(ids)))
         self.assertEqual(21,len(ids))
 
     def test_reference_protocol_has_no_android_or_network_dependencies(self):
-        text = (ROOT/'tools/notes_storage_probe.py').read_text()
+        text = (NOTES/'tools/notes_storage_probe.py').read_text()
         for dependency in ['requests','urllib','android','subprocess']:
             self.assertNotRegex(text,rf'^(?:import|from) {dependency}',dependency)
 

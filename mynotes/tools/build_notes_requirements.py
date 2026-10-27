@@ -2,7 +2,7 @@
 from pathlib import Path
 import re
 ROOT=Path(__file__).resolve().parents[1]
-s=(ROOT/'NOTES-PLAN.md').read_text().split('## 4. The top 100 Google Keep features',1)[1].split('## 5.',1)[0]
+s=(ROOT.parent/'NOTES-PLAN.md').read_text().split('## 4. The top 100 Google Keep features',1)[1].split('## 5.',1)[0]
 items=re.findall(r'^(\d+)\. (.+)$',s,re.M)
 assert [int(n) for n,t in items]==list(range(1,101))
 lines=['# Notes requirement and evidence ledger','',
@@ -44,4 +44,4 @@ for group,requirements in groups.items():
         evidence='Planned; no runtime evidence'
         if id in ['ST-02','ST-06']:evidence='Protocol probe only: qa/test_notes_storage_probe.py; Android/SAF pending'
         lines.append(f'| {id} | {text} | {evidence} |')
-(ROOT/'docs/notes/REQUIREMENTS.md').write_text('\n'.join(lines)+'\n')
+(ROOT/'docs/REQUIREMENTS.md').write_text('\n'.join(lines)+'\n')

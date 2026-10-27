@@ -4,11 +4,10 @@ name: Android CI
 # compiled and packaged: the review workspace has no JDK or Android SDK and
 # cannot reach services.gradle.org or dl.google.com.
 
+# Paused by owner: MyNotes-only development. No automatic events.
 on:
-  push:
-    branches: ['arena/3caca636-tictic', myspace, main]
-  pull_request:
   workflow_dispatch:
+
 
 permissions:
   # write so the build job can commit the APK into artifacts/ for on-device testing
@@ -20,6 +19,7 @@ concurrency:
 
 jobs:
   contracts:
+    if: ${{ false }} # Paused; do not run MySpace/calculator jobs.
     name: Python source contracts
     runs-on: ubuntu-24.04
     steps:
@@ -31,6 +31,7 @@ jobs:
         run: python3 -m unittest discover -s qa -v
 
   build:
+    if: ${{ false }} # Paused; do not run MySpace/calculator jobs.
     name: assembleDebug
     runs-on: ubuntu-24.04
     needs: contracts

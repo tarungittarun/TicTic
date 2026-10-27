@@ -1,0 +1,10 @@
+pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories { google(); mavenCentral() }
+}
+rootProject.name = 'MyNotes'
+include ':notes', ':notes-runtime', ':notes-domain'
+project(':notes').projectDir = file('app')
+project(':notes-runtime').projectDir = file('runtime')
+project(':notes-domain').projectDir = file('domain')

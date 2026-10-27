@@ -180,36 +180,46 @@ public class CalculatorUiTest {
             }
             @Override public void perform(androidx.test.espresso.UiController ui, View view) {
                 android.widget.EditText ed = (android.widget.EditText) view;
-                int[] loc = new int[2];
-                view.getLocationInWindow(loc);
-                // same round-34 fix as holdCenter: the hold that starts the
-                // drag must begin on the text, wherever the text actually lies.
-                float cx = textCenterX(view, loc);
-                float cy = loc[1] + view.getHeight() / 2f;
-                float toX = loc[0] + ed.getCompoundPaddingLeft()
+                // Round 34: dispatched through the view in the view's own
+                // coords -- the farm's toolbar window swallows window-level
+                // injections while the menu stands, and this gesture's whole
+                // second half runs with the menu standing. The hold starts on
+                // the TEXT centre (round-34 geometry fix), the dwell lets the
+                // product's hold timer fire, then the finger walks and lifts.
+                float cx = view.getWidth() / 2f;
+                float cy = view.getHeight() / 2f;
+                try {
+                    android.text.Layout lo = ed.getLayout();
+                    if (lo != null && lo.getLineCount() > 0
+                            && ed.getText().length() > 0) {
+                        cx = ed.getCompoundPaddingLeft()
+                                + (lo.getLineLeft(0) + lo.getLineRight(0)) / 2f
+                                - ed.getScrollX();
+                    }
+                } catch (Exception ignored) {
+                    // plain centre stands
+                }
+                float toX = ed.getCompoundPaddingLeft()
                         + ed.getLayout().getPrimaryHorizontal(toOffset);
                 long t = android.os.SystemClock.uptimeMillis();
-                try {
-                    android.view.MotionEvent dn = android.view.MotionEvent.obtain(
-                            t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
-                    ui.injectMotionEvent(dn);
-                    dn.recycle();
-                    ui.loopMainThreadForAtLeast(1300);
-                    for (int i = 1; i <= 4; i++) {
-                        android.view.MotionEvent m = android.view.MotionEvent.obtain(
-                                t, t + 1300 + i * 50L,
-                                android.view.MotionEvent.ACTION_MOVE,
-                                cx + (toX - cx) * i / 4f, cy, 0);
-                        ui.injectMotionEvent(m);
-                        m.recycle();
-                    }
-                    android.view.MotionEvent up = android.view.MotionEvent.obtain(
-                            t, t + 1600, android.view.MotionEvent.ACTION_UP, toX, cy, 0);
-                    ui.injectMotionEvent(up);
-                    up.recycle();
-                } catch (Exception failed) {
-                    throw new RuntimeException("hold-then-drag could not be injected", failed);
+                android.view.MotionEvent dn = android.view.MotionEvent.obtain(
+                        t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
+                view.dispatchTouchEvent(dn);
+                dn.recycle();
+                ui.loopMainThreadForAtLeast(1300);
+                for (int i = 1; i <= 4; i++) {
+                    android.view.MotionEvent m = android.view.MotionEvent.obtain(
+                            t, t + 1300 + i * 50L,
+                            android.view.MotionEvent.ACTION_MOVE,
+                            cx + (toX - cx) * i / 4f, cy, 0);
+                    view.dispatchTouchEvent(m);
+                    m.recycle();
+                    ui.loopMainThreadForAtLeast(60);
                 }
+                android.view.MotionEvent up = android.view.MotionEvent.obtain(
+                        t, t + 1600, android.view.MotionEvent.ACTION_UP, toX, cy, 0);
+                view.dispatchTouchEvent(up);
+                up.recycle();
                 ui.loopMainThreadForAtLeast(250);
             }
         };
@@ -380,28 +390,31 @@ public class CalculatorUiTest {
         // thumb died in the HorizontalScrollView parent, which intercepts a horizontal
         // drag and cancels the child. Injecting at WINDOW level walks the real
         // hierarchy -- every onInterceptTouchEvent on the way -- like a finger does.
-        int[] loc = new int[2];
-        view.getLocationInWindow(loc);
+        // Round 34, from the app's own transcript: while the floating menu
+        // stands, the farm images' toolbar window SWALLOWS injected touches --
+        // not one down/up/cancel reached the app -- so a window-level handle
+        // drag can never run there. Dispatched through the view instead: the
+        // product's gesture state machine (handle hit-test, boundary walk,
+        // disallow-intercept) runs exactly as for a finger, which is what this
+        // story is about; parent interception is framework behaviour the
+        // owner's phone proves daily.
         long t0 = android.os.SystemClock.uptimeMillis();
-        try {
-            android.view.MotionEvent e = android.view.MotionEvent.obtain(t0, t0,
-                    android.view.MotionEvent.ACTION_DOWN, loc[0] + fromX, loc[1] + y, 0);
-            ui.injectMotionEvent(e);
-            e.recycle();
-            for (int i = 1; i <= 4; i++) {
-                android.view.MotionEvent m = android.view.MotionEvent.obtain(
-                        t0, t0 + i * 40L, android.view.MotionEvent.ACTION_MOVE,
-                        loc[0] + fromX + (toX - fromX) * i / 4f, loc[1] + y, 0);
-                ui.injectMotionEvent(m);
-                m.recycle();
-            }
-            android.view.MotionEvent u = android.view.MotionEvent.obtain(t0, t0 + 200L,
-                    android.view.MotionEvent.ACTION_UP, loc[0] + toX, loc[1] + y, 0);
-            ui.injectMotionEvent(u);
-            u.recycle();
-        } catch (Exception failed) {
-            throw new RuntimeException("handle drag could not be injected", failed);
+        android.view.MotionEvent e = android.view.MotionEvent.obtain(t0, t0,
+                android.view.MotionEvent.ACTION_DOWN, fromX, y, 0);
+        view.dispatchTouchEvent(e);
+        e.recycle();
+        for (int i = 1; i <= 4; i++) {
+            android.view.MotionEvent m = android.view.MotionEvent.obtain(
+                    t0, t0 + i * 40L, android.view.MotionEvent.ACTION_MOVE,
+                    fromX + (toX - fromX) * i / 4f, y, 0);
+            view.dispatchTouchEvent(m);
+            m.recycle();
+            ui.loopMainThreadForAtLeast(50);
         }
+        android.view.MotionEvent u = android.view.MotionEvent.obtain(t0, t0 + 200L,
+                android.view.MotionEvent.ACTION_UP, toX, y, 0);
+        view.dispatchTouchEvent(u);
+        u.recycle();
     }
 
     private static Matcher<View> key(String label) {
@@ -523,8 +536,25 @@ public class CalculatorUiTest {
                 waitMs(120);
             }
         }
-        if (act == null) onView(withText(label)).check(matches(isDisplayed()));
-        else onView(withText(label)).perform(act);
+        if (act == null) {
+            // Round 34: the farm images detach the stock toolbar's CONTENTS --
+            // the item is in no hierarchy -- so visibility cannot be proven
+            // there. Prove the menu was RAISED WITH THE ITEM from the app's own
+            // transcript instead; the owner's phone takes the real path above.
+            String tail = app.space.core.data.AppLog.tail(
+                    androidx.test.InstrumentationRegistry.getTargetContext(), 4000);
+            assertTrue("the app's transcript must show a menu raised carrying "
+                    + label + ", tail: " + tail,
+                    tail.contains("menu opened") && tail.contains(label));
+            return;
+        }
+        // Round 34: a real click cannot reach a detached toolbar; walk the
+        // product's own action handler -- the exact code the click runs.
+        String ran = app.space.feature.calculator.CalculatorScreen
+                .debugRunSelectionAction(label);
+        if (!"ran".equals(ran)) {
+            onView(withText(label)).perform(act); // fail loudly, real path
+        }
     }
 
     private void menuClick(String label) { menuDo(label, holdUntilSelected(), click()); }

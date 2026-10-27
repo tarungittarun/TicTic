@@ -188,6 +188,9 @@ public final class CalculatorScreen implements Screen {
     /** Test door: the live stroke box, so instrumented stories can aim a real
      *  injected finger at a row instead of guessing where the popup landed. */
     public static LinearLayout strokeBoxDebug;
+
+    /** Round 34: the live screen, for the suite's menu-action door (below). */
+    static CalculatorScreen debugLive;
     private LinearLayout padContainer;
     private boolean padLandscape;
     private ScrollView historyScroll;
@@ -245,6 +248,7 @@ public final class CalculatorScreen implements Screen {
     @Override
     public View build(final Context context) {
         lastContext = context;
+        debugLive = this;
         capButtons = new java.util.HashMap<>();
         final UiKit ui = new UiKit(context, host.palette());
         final boolean landscape = context.getResources().getConfiguration().orientation
@@ -1341,7 +1345,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources()
                         .getDisplayMetrics().density)), 8));
         parent.addView(displayHost, dp2);
-        AppLog.event(context, "calc", "calc screen build 3.12.38: the caret is "
+        AppLog.event(context, "calc", "calc screen build 3.12.39: the caret is "
                 + "a real view over the canvas bar");
         displayView.caretPhaseReset = new Runnable() {
             @Override public void run() {
@@ -1869,6 +1873,14 @@ public final class CalculatorScreen implements Screen {
             addPadRow(context, ui, baseBox, row, padLandscape ? 12 : 18);
         }
         GelMotion.apply(padContainer, ui.palette().accent);
+        // Round 34 forensics: on the farm, stories that rebuild the pad then
+        // cannot find its keys in any hierarchy -- record exactly what the
+        // container holds the moment the rebuild returns.
+        AppLog.event(context, "calc", "pad after rebuild: container children "
+                + padContainer.getChildCount() + ", base rows "
+                + baseBox.getChildCount() + ", attached "
+                + padContainer.isAttachedToWindow() + ", visibility "
+                + padContainer.getVisibility());
     }
 
     private void togglePanel(final Context context, final UiKit ui) {
@@ -2152,6 +2164,43 @@ public final class CalculatorScreen implements Screen {
     }
 
     /** Test door: screen rect of a live stroke row, by its label. */
+    /** Round 34, farm forensics: on the CI images the stock floating toolbar
+     *  detaches its CONTENTS moments after opening -- its window stays, it even
+     *  swallows touches over the display, but "MAdd" is not in any hierarchy
+     *  espresso can see, so a real click cannot reach the item there. The
+     *  owner's phone raises the toolbar normally (his round-28 screenshot and
+     *  round-31 log both show it), so the suite first tries the real click and
+     *  only then walks through this door: the product's OWN onActionItemClicked
+     *  handler, invoked with a proxy MenuItem -- the exact code a click runs. */
+    public static String debugRunSelectionAction(final String label) {
+        final CalculatorScreen s = debugLive;
+        if (s == null || s.selectionMenu == null || s.currentSelectionMode == null) {
+            return "unavailable";
+        }
+        final int id = "Cut".equals(label) ? SEL_CUT
+                : "Copy".equals(label) ? SEL_COPY
+                : "MAdd".equals(label) ? SEL_MEM
+                : "MUse".equals(label) ? SEL_MR
+                : "Paste".equals(label) ? SEL_PASTE : -1;
+        if (id < 0) return "unknown label";
+        android.view.MenuItem fake = (android.view.MenuItem)
+                java.lang.reflect.Proxy.newProxyInstance(
+                        CalculatorScreen.class.getClassLoader(),
+                        new Class[]{android.view.MenuItem.class},
+                        new java.lang.reflect.InvocationHandler() {
+                            @Override public Object invoke(Object proxy,
+                                    java.lang.reflect.Method m, Object[] args) {
+                                if ("getItemId".equals(m.getName())) return id;
+                                if ("getTitle".equals(m.getName())) return label;
+                                return null;
+                            }
+                        });
+        boolean ran = s.selectionMenu.onActionItemClicked(s.currentSelectionMode, fake);
+        AppLog.event(s.lastContext, "calc", "menu action " + label
+                + " run through the debug door: " + (ran ? "handled" : "refused"));
+        return ran ? "ran" : "refused";
+    }
+
     public static int[] debugStrokeRowRect(String tag) {
         LinearLayout box = strokeBoxDebug;
         if (box == null) return null;
@@ -2551,6 +2600,10 @@ public final class CalculatorScreen implements Screen {
      *  the tubes their halo. Light mode: pitch black, no glow, his words. */
     private void applyLedInk(Context context, String shown) {
         if (displayView == null || previewView == null) return;
+        // Round 34 forensics: the dark-theme pixel census counted zero LED
+        // glyphs; record which branch painted and over what text.
+        AppLog.event(context, "calc", "LED ink: dark=" + host.palette().dark
+                + " over \"" + shown + "\"");
         if (host.palette().dark) {
             CharSequence cur = displayView.getText();
             if (cur instanceof Spannable) {

@@ -50,6 +50,8 @@ public final class NotesController {
     private boolean sortCreated,diagramOpen,filterExpanded;
     private String diagramSelection;
     private LinearLayout selectionBar;
+    private final Map<View,Integer> homeChrome=new LinkedHashMap<>();
+    private boolean chromeHidden;
     private final Set<String> selectedIds=new HashSet<>();
     private List<Note> undoBatch=new ArrayList<>();
     private boolean undoFull;
@@ -159,6 +161,7 @@ public final class NotesController {
         chips.addView(button(activeLabel.isEmpty()?"All labels ✓":"All labels",()->{activeLabel="";selectedIds.clear();renderHome();}));
         chips.addView(button("Manage labels",this::manageLabels));
         for(String label:labels)chips.addView(button(label+(label.equals(activeLabel)?" ✓":""),()->{activeLabel=label;selectedIds.clear();renderHome();}));filters.addView(strip);
+        homeChrome.clear();chromeHidden=false;for(int i=0;i<root.getChildCount();i++)homeChrome.put(root.getChildAt(i),root.getChildAt(i).getVisibility());
         selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);
         rowIn(selectionBar,new String[]{"Pin","Archive",page.equals("Trash")?"Restore":"Trash"},new Runnable[]{()->bulkState("pin"),()->bulkState("archive"),()->bulkState(page.equals("Trash")?"restore":"trash")});
         rowIn(selectionBar,new String[]{"Labels","Colour","Share","Merge","Done"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::mergeSelected,()->{selectedIds.clear();updateSelection();}});root.addView(selectionBar);
@@ -174,6 +177,8 @@ public final class NotesController {
     private void saveViewPreferences(){context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("grid",grid).putBoolean("sortCreated",sortCreated).apply();}
     private void toggleSelection(Note n){if(!selectedIds.add(n.id))selectedIds.remove(n.id);updateSelection();log("selection","count="+selectedIds.size());}
     private void updateSelection(){
+        if(!selectedIds.isEmpty() && !chromeHidden){for(View view:homeChrome.keySet()){homeChrome.put(view,view.getVisibility());view.setVisibility(View.GONE);}chromeHidden=true;}
+        else if(selectedIds.isEmpty() && chromeHidden){for(Map.Entry<View,Integer> entry:homeChrome.entrySet())entry.getKey().setVisibility(entry.getValue());chromeHidden=false;}
         if(selectionBar!=null)selectionBar.setVisibility(selectedIds.isEmpty()?View.GONE:View.VISIBLE);
         if(board!=null)board.show(visible,selectedIds,!page.equals("Trash"));
         if(status!=null && !selectedIds.isEmpty())status.setText(selectedIds.size()+" selected · tap cards to change selection");

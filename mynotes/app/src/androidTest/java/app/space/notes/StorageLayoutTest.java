@@ -42,7 +42,7 @@ public class StorageLayoutTest {
                 }
             });
             assertTrue("Library should load",loaded.await(10,TimeUnit.SECONDS));
-            instrumentation.runOnMainSync(()->find(activity.getWindow().getDecorView(),"Storage").performClick());
+            instrumentation.runOnMainSync(()->{TextView storage=find(activity.getWindow().getDecorView(),"Storage");UiActions.reveal(storage);storage.performClick();});
             instrumentation.waitForIdleSync();
             instrumentation.runOnMainSync(()->{
                 View decor=activity.getWindow().getDecorView();

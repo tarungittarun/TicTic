@@ -82,14 +82,15 @@ public final class NotesController {
 
     public NotesController(Context context, NotesHost host, Bundle restored) {
         this.context=context; this.host=host; this.restored=restored;
+        Diagnostics.initialize(context);
         boolean dark=(context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
         darkTheme=dark;
         android.content.SharedPreferences ui=context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE);
         grid=ui.getBoolean("grid",true);sortCreated=ui.getBoolean("sortCreated",false);
-        bg=Color.parseColor(dark?"#17181D":"#FAF8F2");
-        ink=Color.parseColor(dark?"#EDEDF0":"#24231F");
-        surface=Color.parseColor(dark?"#292B32":"#EDE7D9");
-        muted=Color.parseColor(dark?"#B9BCC6":"#625C50");
+        bg=Color.parseColor(dark?"#17181D":"#F7F8FC");
+        ink=Color.parseColor(dark?"#EDEDF0":"#18243B");
+        surface=Color.parseColor(dark?"#292B32":"#E8EDF8");
+        muted=Color.parseColor(dark?"#B9BCC6":"#5D6981");
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         TextView loading=text("Opening local library…",18); root.addView(loading);
@@ -127,7 +128,7 @@ public final class NotesController {
             } catch(Exception e) { main.post(()->{
                 if(closed)return; root.removeAllViews(); root.addView(text("Library could not be opened. Existing data was not replaced.",18));
                 root.addView(text("Close and retry. Do not clear app data.",14));
-                log("load","failed "+e.getClass().getSimpleName());
+                log("load","failed "+e.getClass().getSimpleName());Diagnostics.failure("load.failure",e);
             }); }
         });
     }
@@ -148,7 +149,35 @@ public final class NotesController {
         Button v=new Button(context); v.setText(label); v.setSingleLine(true); v.setAllCaps(false); v.setTextColor(ink);
         GradientDrawable shape=new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(22));
         v.setBackground(shape); v.setPadding(dp(12),dp(4),dp(12),dp(4));
-        v.setOnClickListener(w->{if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
+        v.setOnClickListener(w->{Diagnostics.record("ui.tap","screen="+(editing==null?page:"editor"));if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
+    }
+    private Button icon(String label,String symbol,Runnable action){
+        Button control=button("",action);control.setTextSize(0);control.setIncludeFontPadding(false);control.setGravity(android.view.Gravity.CENTER);control.setContentDescription(label);control.setTooltipText(label);
+        NotesIcon drawable=new NotesIcon(symbol,ink);drawable.setBounds(0,0,dp(24),dp(24));control.setCompoundDrawables(null,drawable,null,null);
+        control.setPadding(dp(12),dp(12),dp(12),dp(12));control.setMinWidth(dp(48));control.setMinHeight(dp(48));return control;
+    }
+    private LinearLayout tools(LinearLayout parent){LinearLayout bar=new LinearLayout(context);bar.setGravity(android.view.Gravity.CENTER_VERTICAL);bar.setPadding(0,dp(6),0,dp(6));parent.addView(bar);return bar;}
+    private void tool(LinearLayout bar,String label,String symbol,Runnable action){LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(52),1);p.setMargins(dp(3),0,dp(3),0);bar.addView(icon(label,symbol,action),p);}
+    /** Progressive disclosure keeps action labels readable without filling the editor with buttons. */
+    private LinearLayout section(LinearLayout parent,String name){
+        LinearLayout panel=new LinearLayout(context);panel.setOrientation(LinearLayout.VERTICAL);
+        Button toggle=button(name+"  ▾",()->{});toggle.setContentDescription(name);toggle.setGravity(android.view.Gravity.START|android.view.Gravity.CENTER_VERTICAL);toggle.setMinHeight(dp(48));
+        panel.setTag(toggle);panel.setVisibility(View.GONE);toggle.setOnClickListener(v->{boolean open=panel.getVisibility()!=View.VISIBLE;panel.setVisibility(open?View.VISIBLE:View.GONE);toggle.setText(name+(open?"  ▴":"  ▾"));if(open)panel.post(()->panel.requestRectangleOnScreen(new android.graphics.Rect(0,0,panel.getWidth(),Math.min(panel.getHeight(),dp(240))),true));Diagnostics.record("ui.section",name+(open?" opened":" closed"));});
+        parent.addView(toggle,new LinearLayout.LayoutParams(-1,-2));parent.addView(panel);return panel;
+    }
+    private void renderSettings(){
+        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;voicePage=false;root.removeAllViews();header("Settings");
+        ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        content.addView(text("YOUR DEVICE · YOUR DATA",12));
+        content.addView(button("Storage & recovery",this::renderStorage));content.addView(button("Home widget",host::requestHomeWidget));content.addView(button("Offline models & licenses",this::renderModelInfo));
+        content.addView(text("Diagnostics",22));content.addView(text("Enable before reproducing a problem. Records app actions, outcomes, errors, lifecycle, timings, memory, storage availability, permissions and device/display context. Saved only on this device; never uploaded automatically.",15));
+        Switch enabled=new Switch(context);enabled.setText("Collect diagnostic logs");enabled.setTextColor(ink);enabled.setChecked(Diagnostics.enabled());enabled.setPadding(0,dp(12),0,dp(12));content.addView(enabled);
+        TextView state=text("Local logs: "+Diagnostics.bytes()+" bytes · maximum about 1 MiB",13);content.addView(state);
+        enabled.setOnCheckedChangeListener((v,value)->{Diagnostics.setEnabled(value);state.setText(value?"Recording app diagnostics on this device":"Collection stopped. Existing logs remain until deleted.");});
+        content.addView(text("Privacy: no note titles/bodies, search queries, clipboard, audio/images, transcripts, account identifiers or file/URI paths are collected. No other-app/system-wide logs. Device model and event timing can still be identifying. Java crash stacks omit exception messages; native crashes/OS kills may not be captured. Old events rotate; a saturated queue can drop breadcrumbs.",14));
+        content.addView(button("Export diagnostics",host::exportDiagnostics));content.addView(button("Delete diagnostic logs",()->{Diagnostics.clear();state.setText("Diagnostic logs deleted.");}));
+        content.addView(text("Icon guide",22));content.addView(text("＋ New text · checked lines New checklist · sliders Filters · bent arrow Undo · pin Pin · A̲ Text formatting · connected dots Share · bell Reminder · gear Settings · three dots More. Long-press any icon for its name; TalkBack reads the same name. Tools are grouped under Writing, Capture, Organise and More.",15));
+        content.addView(button("Back",this::renderHome));
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
     private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions) {
@@ -171,7 +200,8 @@ public final class NotesController {
         boolean compact=context.getResources().getConfiguration().screenHeightDp<450;
         if(compact){root.getChildAt(0).setVisibility(View.GONE);root.setPadding(dp(10),dp(4),dp(10),dp(4));}
         else root.setPadding(dp(18),dp(14),dp(18),dp(10));
-        row(new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
+        LinearLayout navigation=section(root,"Library");
+        rowIn(navigation,new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
         search=new EditText(context);search.setSingleLine(true);search.setTextColor(ink);search.setHintTextColor(muted);search.setHint("Search notes and labels");search.setText(homeQuery);root.addView(search);
         search.addTextChangedListener(watcher(()->{homeQuery=search.getText().toString();main.removeCallbacks(filter);main.postDelayed(filter,150);querySequence++;}));
         LinearLayout filters=new LinearLayout(context);filters.setOrientation(LinearLayout.VERTICAL);filters.setVisibility(filterExpanded?View.VISIBLE:View.GONE);root.addView(filters);
@@ -191,7 +221,11 @@ public final class NotesController {
         },grid);
         emptyHint=text("No matching notes. Create a note or change the filters.",14);emptyHint.setVisibility(View.GONE);root.addView(emptyHint);
         root.addView(board,new LinearLayout.LayoutParams(-1,0,1));
-        row(new String[]{"+ Text","+ Checklist",filterExpanded?"Hide filters":"Filters","Undo"},new Runnable[]{this::newNote,()->newChecklist(),()->{filterExpanded=!filterExpanded;filters.setVisibility(filterExpanded?View.VISIBLE:View.GONE);},this::undo});
+        LinearLayout dock=tools(root);
+        tool(dock,"+ Text","add",this::newNote);tool(dock,"+ Checklist","checklist",this::newChecklist);
+        tool(dock,filterExpanded?"Hide filters":"Filters","filter",()->{filterExpanded=!filterExpanded;filters.setVisibility(filterExpanded?View.VISIBLE:View.GONE);});
+        tool(dock,"Undo","undo",this::undo);tool(dock,"Settings","settings",this::renderSettings);
+        TextView dockHint=text("Create a note or checklist · long-press icons for help",12);dockHint.setTextColor(muted);root.addView(dockHint);
         updateSelection();filterNow();
     }
     private void saveViewPreferences(){context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("grid",grid).putBoolean("sortCreated",sortCreated).apply();}
@@ -235,8 +269,12 @@ public final class NotesController {
         voicePage=false;ocrPanel=false;diagramOpen=false;root.setPadding(dp(18),dp(14),dp(18),dp(10));
         Note n=find(editing);if(n==null){renderHome();return;}
         main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;
-        root.removeAllViews();ScrollView editorScroll=new ScrollView(context);editorScroll.setFillViewport(true);
-        LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);editorScroll.addView(editor);root.addView(editorScroll,new LinearLayout.LayoutParams(-1,-1));headerIn(editor,n.deletedAt>0?"Trash note":n.checklist?"Checklist":"Edit note");
+        root.removeAllViews();LinearLayout top=tools(root);tool(top,"Back","back",()->back());
+        TextView caption=text(n.deletedAt>0?"Trash note":n.checklist?"Checklist":"Note",20);caption.setTypeface(null,Typeface.BOLD);top.addView(caption,new LinearLayout.LayoutParams(0,-2,3));
+        if(n.deletedAt==0)tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,"Undo","undo",this::undo);
+        ScrollView editorScroll=new ScrollView(context);editorScroll.setFillViewport(true);
+        LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);editorScroll.addView(editor);root.addView(editorScroll,new LinearLayout.LayoutParams(-1,0,1));
+        status=text(repository.status(),12);status.setTextColor(muted);editor.addView(status);
         title=new EditText(context);title.setHint("Title");title.setTextSize(24);title.setTextColor(ink);title.setHintTextColor(muted);title.setText(n.title);editor.addView(title);
         body=null;boolean trashed=n.deletedAt>0;
         if(n.checklist){
@@ -270,30 +308,38 @@ public final class NotesController {
             }
             footer.setText(checked+" checked · tap a row before using move/indent controls");rows.addView(footer);
             if(!trashed){
-                rowIn(editor,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove")});
-                rowIn(editor,new String[]{n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("hide"),this::convertNote});
+                LinearLayout listTools=section(editor,"Checklist tools");
+                rowIn(listTools,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove")});
+                rowIn(listTools,new String[]{n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("hide"),this::convertNote});
             }
         }else{
             body=new EditText(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);body.setHint("Write your note…");body.setTextColor(ink);body.setHintTextColor(muted);body.setGravity(android.view.Gravity.TOP);body.setText(n.body);
             TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,dp(320)));
             body.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
             if(!trashed){
-                HorizontalScrollView tools=new HorizontalScrollView(context);LinearLayout strip=new LinearLayout(context);tools.addView(strip);
+                LinearLayout writing=section(editor,"Writing · text format");HorizontalScrollView tools=new HorizontalScrollView(context);LinearLayout strip=new LinearLayout(context);tools.addView(strip);
                 String[] labels={"Bold","Italic","Underline","Strike","Heading 1","Heading 2","Clear"};String[] types={"bold","italic","underline","strike","h1","h2","clear"};
-                for(int i=0;i<labels.length;i++){final String type=types[i];Button action=button(labels[i],()->format(type));action.setMinWidth(dp(64));strip.addView(action,new LinearLayout.LayoutParams(-2,dp(48)));}editor.addView(tools);
+                for(int i=0;i<labels.length;i++){final String type=types[i];Button action=button(labels[i],()->format(type));action.setContentDescription(labels[i]);action.setTooltipText(labels[i]);action.setText(new String[]{"B","I","U","S̶","H1","H2","Clear"}[i]);action.setTypeface(null,i==0?Typeface.BOLD:i==1?Typeface.ITALIC:Typeface.NORMAL);action.setMinWidth(dp(48));strip.addView(action,new LinearLayout.LayoutParams(-2,dp(48)));}writing.addView(tools);
             }
         }
         if(!n.diagram.nodes.isEmpty())editor.addView(text("Diagram · "+n.diagram.nodes.size()+" shapes · "+n.diagram.edges.size()+" arrows",14));
-        rowIn(editor,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});
-        if(!trashed)rowIn(editor,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
+        LinearLayout captureTools=section(editor,"Capture · diagram, scan & voice");
+        rowIn(captureTools,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});
+        if(!trashed)rowIn(captureTools,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
         if(n.reminderAt>0)editor.addView(text("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt))+(n.reminderAt<=System.currentTimeMillis()?" · past due":" · approximate delivery"),14));
-        if(!trashed)rowIn(editor,new String[]{"Reminder","Clear reminder"},new Runnable[]{this::chooseReminder,()->setReminder(editing,0)});
+        LinearLayout organise=section(editor,"Organise · reminders, labels & colour");
+        LinearLayout more=section(editor,"More · share, copy & note actions");
+        if(!trashed)rowIn(organise,new String[]{"Reminder","Clear reminder"},new Runnable[]{this::chooseReminder,()->setReminder(editing,0)});
+        LinearLayout bottom=tools(root);tool(bottom,"Capture tools","add",()->((Button)captureTools.getTag()).performClick());
+        if(!trashed && !n.checklist)tool(bottom,"Text formatting","format",()->{for(int i=0;i<editor.getChildCount();i++){View child=editor.getChildAt(i);if(child instanceof Button && "Writing · text format".contentEquals(child.getContentDescription())){child.performClick();break;}}});
+        tool(bottom,"Organise tools","bell",()->((Button)organise.getTag()).performClick());tool(bottom,"More actions","more",()->((Button)more.getTag()).performClick());
         title.setEnabled(!trashed);title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
         if(trashed)rowIn(editor,new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
         else{
-            rowIn(editor,new String[]{"Labels","Colour","Share","Copy"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateNote});
-            rowIn(editor,new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
-            if(!n.checklist)rowIn(editor,new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
+            rowIn(organise,new String[]{"Labels","Colour"},new Runnable[]{this::renderLabels,this::renderColours});
+            rowIn(more,new String[]{"Share","Copy"},new Runnable[]{this::shareSelected,this::duplicateNote});
+            rowIn(more,new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
+            if(!n.checklist)rowIn(more,new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
         }
     }
     public void openNote(String id){whenReady(()->{persistDraft();Note n=find(id);if(n==null || n.deletedAt>0){host.showMessage("This note is unavailable or in Trash.");return;}selectedIds.clear();editing=n.id;renderEditor();});}
@@ -375,7 +421,7 @@ public final class NotesController {
                 String expected;try(java.io.InputStream in=new java.io.FileInputStream(temporary)){expected=streamDigest(in);}
                 try(java.io.InputStream in=context.getContentResolver().openInputStream(uri)){if(!expected.equals(streamDigest(in)))throw new java.io.IOException("PDF readback mismatch");}
                 message="PDF verified · "+pages+" pages. Notes and editable diagrams remain in MyNotes.";log("pdf","verified pages="+pages);
-            }catch(Exception e){message="PDF not verified: "+e.getMessage()+". Notes are unchanged; a partial destination file may need removing.";log("pdf","failed "+e.getClass().getSimpleName());}
+            }catch(Exception e){message="PDF not verified: "+e.getMessage()+". Notes are unchanged; a partial destination file may need removing.";log("pdf","failed "+e.getClass().getSimpleName());Diagnostics.failure("pdf.failure",e);}
             finally{if(temporary!=null)temporary.delete();}
             final String result=message;main.post(()->{busy=false;if(!closed)host.showMessage(result);});
         });
@@ -390,7 +436,7 @@ public final class NotesController {
         ocrPanel=true;title=null;body=null;search=null;querySequence++;root.removeAllViews();header("Offline OCR");root.addView(text("Recognizing on this device with a bundled "+language+" model. No image is uploaded. Other languages/handwriting and difficult photos may be inaccurate; review before saving.",16));root.addView(new ProgressBar(context));row(new String[]{"Cancel OCR"},new Runnable[]{this::cancelOcr});
         ocrWorker.execute(()->{
             try{OfflineOcr.Result result=OfflineOcr.recognize(context,uri,language,cancellation);main.post(()->{if(closed || ticket!=ocrSequence || cancellation.cancelled())return;renderOcrReview(result,target);});}
-            catch(Exception | LinkageError | OutOfMemoryError e){log("ocr","failed "+e.getClass().getSimpleName());main.post(()->{if(closed || ticket!=ocrSequence || cancellation.cancelled())return;ocrPanel=false;returnToNoteOrHome();host.showMessage("OCR did not change any note: "+e.getMessage()+". Original image is unchanged; try another image or language.");});}
+            catch(Exception | LinkageError | OutOfMemoryError e){log("ocr","failed "+e.getClass().getSimpleName());Diagnostics.failure("ocr.failure",e);main.post(()->{if(closed || ticket!=ocrSequence || cancellation.cancelled())return;ocrPanel=false;returnToNoteOrHome();host.showMessage("OCR did not change any note: "+e.getMessage()+". Original image is unchanged; try another image or language.");});}
         });
     });}
     private void cancelOcr(){if(ocrCancellation!=null)ocrCancellation.cancel();ocrSequence++;ocrPanel=false;returnToNoteOrHome();}
@@ -599,7 +645,7 @@ public final class NotesController {
                 if(uri==null)repository.usePrivate(snapshot);else repository.selectFolder(uri,snapshot);
                 log("storage-move","verified count="+snapshot.size());
                 message="Storage changed after verification. Previous files were retained.";
-            } catch(Exception e) {log("storage-move","failed "+e.getClass().getSimpleName());message="Storage change incomplete: "+e.getMessage();}
+            } catch(Exception e) {log("storage-move","failed "+e.getClass().getSimpleName());Diagnostics.failure("storage-move.failure",e);message="Storage change incomplete: "+e.getMessage();}
             final String result=message;
             main.post(()->{busy=false;if(!closed){renderStorage();host.showMessage(result);}});
         });
@@ -628,7 +674,7 @@ public final class NotesController {
             disk.execute(()->{
                 String message;
                 try {LocalBackupFiles.write(context.getContentResolver(),uri,snapshot);message="Backup verified: "+snapshot.size()+" text notes.";log("backup-export","verified count="+snapshot.size());}
-                catch(Exception e) {message="Backup not verified: "+e.getMessage();log("backup-export","failed "+e.getClass().getSimpleName());}
+                catch(Exception e) {message="Backup not verified: "+e.getMessage();log("backup-export","failed "+e.getClass().getSimpleName());Diagnostics.failure("backup-export.failure",e);}
                 final String result=message;main.post(()->{busy=false;if(!closed){renderBackups();host.showMessage(result);}});
             });
         });
@@ -646,7 +692,7 @@ public final class NotesController {
                 log("restore-preview","validated incoming="+incoming.size()+" added="+merge.added+" conflicts="+merge.conflicts);
                 PreparedImport plan=new PreparedImport(base,merge,folder?source:null,library==null?null:library.head);
                 main.post(()->{busy=false;if(!closed){prepared=plan;renderPreview();}});
-            } catch(Exception e) {log("restore-preview","failed "+e.getClass().getSimpleName());
+            } catch(Exception e) {log("restore-preview","failed "+e.getClass().getSimpleName());Diagnostics.failure("restore-preview.failure",e);
                 main.post(()->{busy=false;if(!closed){renderBackups();host.showMessage("Nothing imported: "+e.getMessage());}});
             }
         });
@@ -679,7 +725,7 @@ public final class NotesController {
                 log("restore","applied count="+plan.merge.notes.size()+" destinationComplete="+saved);
                 main.post(()->{busy=false;if(closed)return;notes.clear();notes.addAll(plan.merge.notes);undo=null;prepared=null;renderHome();
                     host.showMessage(saved?"Merge saved. Previous snapshot is available in Backups.":"Merge retained in private recovery. Folder update is pending; use Retry save.");});
-            } catch(Exception e) {log("restore","failed "+e.getClass().getSimpleName());
+            } catch(Exception e) {log("restore","failed "+e.getClass().getSimpleName());Diagnostics.failure("restore.failure",e);
                 main.post(()->{busy=false;if(!closed){prepared=null;renderBackups();host.showMessage("Restore incomplete: "+e.getMessage()+". Source and checkpoint were retained.");}});
             }
         });
@@ -727,14 +773,14 @@ public final class NotesController {
         disk.execute(()->{
             try { repository.save(snapshot);markVoiceNotesCreated(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
                 main.post(()->{if(!closed && !dirty && ticket==revision && status!=null)status.setText("Saved · "+repository.status());});
-            } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());
+            } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());Diagnostics.failure("save.failure",e);
                 main.post(()->{if(!closed){if(status!=null)status.setText(repository.status()+" · retry needed");
                     host.showMessage("Save incomplete. "+repository.status()+". Check storage access, then use Retry save.");}});
             }
         });
     }
     private void markVoiceNotesCreated(List<Note> snapshot){try{VoiceFiles files=new VoiceFiles(context);Set<String> ids=new HashSet<>();for(Note note:snapshot)ids.add(note.id);for(String source:knownRecordings)if(ids.contains(app.space.notes.domain.VoiceTranscripts.noteId(source)))files.noteCreated(source);}catch(Exception pendingMarker){log("voice-source-marker","pending; original audio retained");}}
-    private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
+    private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); Diagnostics.record(action,outcome); }
     public boolean back() {
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}
         if(ocrPanel){cancelOcr();return true;}
@@ -746,12 +792,12 @@ public final class NotesController {
         if(editing==null)return false;
         persistDraft(); renderHome(); return true;
     }
-    public void flush() { if(ready && !busy){persistDraft();queueSave();} }
+    public void flush() { Diagnostics.record("lifecycle.flush","requested"); if(ready && !busy){persistDraft();queueSave();} }
     public void saveState(Bundle state) {
         persistDraft();state.putString("page",page);state.putString("editing",editing);
-        if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());}}
+        if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());Diagnostics.failure("draft-snapshot.failure",e);}}
     }
-    public void close() {
+    public void close() { Diagnostics.record("lifecycle.close","controller");
         closed=true;if(ocrCancellation!=null)ocrCancellation.cancel();if(capture!=null)capture.stop();stopPlayback();if(unsubscribeVoice!=null)unsubscribeVoice.run();deferredResults.clear(); main.removeCallbacksAndMessages(null); searchWorker.shutdown();
     }
 }

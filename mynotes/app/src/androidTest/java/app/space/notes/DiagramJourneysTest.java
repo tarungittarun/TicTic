@@ -58,13 +58,13 @@ public class DiagramJourneysTest {
         try{assertTrue("UI condition timed out",done.await(12,TimeUnit.SECONDS));}finally{ended.set(true);}
     }
     private TextView find(View view,String target,boolean hint){
-        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if(value!=null && value.toString().equals(target))return v;}
+        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && target.contentEquals(v.getContentDescription()==null?"":v.getContentDescription())))return v;}
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=g.getChildCount()-1;i>=0;i--){TextView found=find(g.getChildAt(i),target,hint);if(found!=null)return found;}}
         return null;
     }
     private TextView text(String value){return find(controller.view(),value,false);}
     private EditText input(String hint){return (EditText)find(controller.view(),hint,true);}
-    private void click(String label){main(()->{TextView v=text(label);assertNotNull(v);v.performClick();});instrumentation.waitForIdleSync();}
+    private void click(String label){main(()->{TextView v=text(label);assertNotNull(v);UiActions.reveal(v);v.performClick();});instrumentation.waitForIdleSync();}
     private void saved() throws Exception {await(()->savedIn(controller.view()));}
     private boolean savedIn(View v){if(v instanceof TextView && ((TextView)v).getText().toString().startsWith("Saved ·"))return true;if(v instanceof ViewGroup){ViewGroup g=(ViewGroup)v;for(int i=0;i<g.getChildCount();i++)if(savedIn(g.getChildAt(i)))return true;}return false;}
     private List<EditText> itemInputs(){List<EditText> result=new ArrayList<>();collectItems(controller.view(),result);return result;}

@@ -29,6 +29,7 @@ public final class NotesActivity extends Activity implements NotesHost {
             controller.receiveText(new app.space.notes.domain.IncomingText(subject,body==null?null:body.toString()));
         }catch(RuntimeException invalid){showMessage("Nothing imported: "+invalid.getMessage());}
     }
+    @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");}
     @Override protected void onPause() { controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);
@@ -38,6 +39,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void onBackPressed() { if(!controller.back()) super.onBackPressed(); }
     @Override public void chooseLocalFolder() { chooseTree(94); }
     @Override public void openExistingFolder() { chooseTree(95); }
+    @Override public void exportDiagnostics(){Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-diagnostics.txt");openPicker(picker,101);}
     @Override public void exportBackup() {
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json");
         picker.addCategory(Intent.CATEGORY_OPENABLE);
@@ -49,7 +51,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();
         else requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO},88);
     }
-    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);if(request==89){if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.chooseReminder();else showMessage("Notifications were not enabled. Notes and all other features still work; choose Reminder again if you change your mind.");return;}if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
+    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);app.space.notes.runtime.Diagnostics.record("permission.result","request="+request+" granted="+(grants.length>0 && grants[0]==0));if(request==89){if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.chooseReminder();else showMessage("Notifications were not enabled. Notes and all other features still work; choose Reminder again if you change your mind.");return;}if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
     @Override public void exportVoice(String id){voiceExportId=id;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("audio/wav");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-voice-"+id+".wav");openPicker(picker,100);}
     @Override public void exportPdf() {
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);
@@ -72,11 +74,13 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>100)return;
+        if(request<94 || request>101)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
-            android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);return;
+            android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }
+        app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
+        if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
         if(request==99){controller.recognizeImage(uri,ocrLanguage);return;}
         if(request==100){if(voiceExportId!=null)controller.exportVoice(voiceExportId,uri);return;}
         if(request==98){controller.exportPdf(uri);return;}
@@ -99,6 +103,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override public String versionLabel() { return "MyNotes " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")"; }
     @Override public void showMessage(String message) {
+        app.space.notes.runtime.Diagnostics.record("ui.notice","shown; content intentionally excluded");
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 }

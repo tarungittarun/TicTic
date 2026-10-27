@@ -4,7 +4,7 @@ import re
 import xml.etree.ElementTree as ET
 
 def coordinates(xml,text):
-    nodes=[n for n in ET.fromstring(xml).iter('node') if n.get('text')==text and n.get('enabled')=='true']
+    nodes=[n for n in ET.fromstring(xml).iter('node') if (n.get('text')==text or n.get('content-desc')==text) and n.get('enabled')=='true']
     if len(nodes)!=1:raise ValueError(f'Expected one enabled node {text!r}, found {len(nodes)}')
     match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',nodes[0].get('bounds',''))
     if not match:raise ValueError('Unusable node bounds')

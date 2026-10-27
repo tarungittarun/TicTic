@@ -58,13 +58,13 @@ public class CoreJourneysTest {
         try{assertTrue("UI condition timed out",done.await(12,TimeUnit.SECONDS));}finally{ended.set(true);}
     }
     private TextView find(View view,String target,boolean hint){
-        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if(value!=null && value.toString().equals(target))return v;}
+        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && target.contentEquals(v.getContentDescription()==null?"":v.getContentDescription())))return v;}
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=g.getChildCount()-1;i>=0;i--){TextView found=find(g.getChildAt(i),target,hint);if(found!=null)return found;}}
         return null;
     }
     private TextView text(String value){return find(controller.view(),value,false);}
     private EditText input(String hint){return (EditText)find(controller.view(),hint,true);}
-    private void click(String label){main(()->{TextView v=text(label);assertNotNull(v);v.performClick();});instrumentation.waitForIdleSync();}
+    private void click(String label){main(()->{TextView v=text(label);assertNotNull(v);UiActions.reveal(v);v.performClick();});instrumentation.waitForIdleSync();}
     private void saved() throws Exception {await(()->savedIn(controller.view()));}
     private boolean savedIn(View v){if(v instanceof TextView && ((TextView)v).getText().toString().startsWith("Saved ·"))return true;if(v instanceof ViewGroup){ViewGroup g=(ViewGroup)v;for(int i=0;i<g.getChildCount();i++)if(savedIn(g.getChildAt(i)))return true;}return false;}
     private List<EditText> itemInputs(){List<EditText> result=new ArrayList<>();collectItems(controller.view(),result);return result;}
@@ -76,6 +76,11 @@ public class CoreJourneysTest {
     }
     private void selectCard(String title,boolean first){main(()->{TextView v=card(controller.view(),title);assertNotNull(v);View card=(View)v.getParent();if(first)card.performLongClick();else card.performClick();});instrumentation.waitForIdleSync();}
     private Note note(String title){return Note.create(1).edit(title,"Body "+title,2);}
+    @Test public void iconDockAndEditorDisclosuresHaveAccessibleNames() throws Exception {
+        start(Collections.emptyList());main(()->{for(String name:new String[]{"+ Text","+ Checklist","Filters","Undo","Settings"}){TextView v=text(name);assertNotNull(v);assertTrue(v.isShown());assertEquals(name,v.getContentDescription().toString());assertEquals(name,v.getTooltipText().toString());assertTrue(v.getMinimumHeight()>=48*context.getResources().getDisplayMetrics().density);}});
+        click("+ Text");main(()->{assertFalse(text("Scan image").isShown());assertFalse(text("Labels").isShown());assertFalse(text("Bold").isShown());});
+        click("Capture tools");main(()->assertTrue(text("Scan image").isShown()));click("Text formatting");main(()->assertTrue(text("Bold").isShown()));click("Back");click("Settings");main(()->assertNotNull(text("Collect diagnostic logs")));
+    }
     @Test public void richTextLabelsColourAndDuplicatePersist() throws Exception {
         start(Collections.emptyList());click("+ Text");
         main(()->{input("Title").setText("Rich journey");EditText body=input("Write your note…");body.setText("Hello world");body.setSelection(0,5);});

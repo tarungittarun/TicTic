@@ -232,6 +232,24 @@ public class CalculatorUiTest {
         };
     }
 
+    /** Is the round-30 real-view caret bar visible right now? It lives in the
+     *  display's FrameLayout host under a tag, composited by the framework
+     *  itself -- the caret path no emulator could break and no OEM could swallow. */
+    private static boolean caretBarVisible() {
+        final boolean[] out = new boolean[]{false};
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.view.ViewGroup parent = (android.view.ViewGroup) view.getParent();
+                View bar = parent == null ? null
+                        : parent.findViewWithTag("calc_caret_bar");
+                out[0] = bar != null && bar.getVisibility() == View.VISIBLE
+                        && bar.getWidth() > 0 && bar.getHeight() > 0;
+            }
+        });
+        return out[0];
+    }
+
     /** The held length must be exactly this, because the owner drags for a length. */
     private static androidx.test.espresso.ViewAssertion held(final int want) {
         return new androidx.test.espresso.ViewAssertion() {
@@ -1143,6 +1161,32 @@ public class CalculatorUiTest {
         onView(withText("MR")).perform(click());
         // Indian grouping is display furniture: 456456 reads 4,56,456.
         onView(withId(DISPLAY)).check(matches(withText("4,56,456")));
+    }
+
+    @Test public void theCaretBarIsARealViewThatBlinksWithThePhase() {
+        // Round 30, after five canvas-drawn carets died on his OEM while every
+        // geometry number read perfect: the caret is ALSO a real view in the
+        // hierarchy. This story asserts it exists, has size, stands visible
+        // right after a key, and blinks at rest -- a view the framework
+        // composites cannot be swallowed by any onDraw.
+        try {
+            setTheme(2);
+            rule.getScenario().recreate();
+            type("1", "2");
+            assertTrue("the real caret bar must stand visible after a key",
+                    caretBarVisible());
+            onView(isRoot()).perform(waitMs(800));
+            boolean b1 = caretBarVisible();
+            onView(isRoot()).perform(waitMs(500));
+            boolean b2 = caretBarVisible();
+            onView(isRoot()).perform(waitMs(500));
+            boolean b3 = caretBarVisible();
+            assertTrue("the real caret bar must blink at rest: "
+                    + b1 + "," + b2 + "," + b3, !(b1 == b2 && b2 == b3));
+        } finally {
+            setTheme(1);
+            rule.getScenario().recreate();
+        }
     }
 
     @Test public void theCaretStandsSolidThenBlinksLikeAndroidsOwn() {

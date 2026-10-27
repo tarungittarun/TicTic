@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.31'", gradle)
-        self.assertIn("versionCode 68", gradle)
+        self.assertIn("versionName '3.12.32'", gradle)
+        self.assertIn("versionCode 69", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -2630,7 +2630,9 @@ class CalculatorAppContracts(unittest.TestCase):
         # Every action writes its outcome: what was pressed, what became, what was refused.
         self.assertIn('AppLog.event(context, "calc",', self.screen)
         self.assertIn('"laid out: parent "', self.screen)
-        self.assertIn("parent.addView(displayView, dp2);", self.screen)
+        # Round 30: the display lives in a FrameLayout host that also carries
+        # the real-view caret bar.
+        self.assertIn("parent.addView(displayHost, dp2);", self.screen)
         self.assertIn("CalculatorRules.evaluate(candidate, degrees)", self.screen)
 
     def test_the_input_rules_refuse_the_sequences_typed_on_device(self):
@@ -3435,7 +3437,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.31", guide)
+        self.assertIn("3.12.32", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4323,6 +4325,15 @@ class SheetAndChevronContracts(unittest.TestCase):
         # while it moves, half-second at rest -- and the draw path reads no
         # line table, so a torn layout can no longer skip the frame silently.
         self.assertIn("caretOn = !caretOn;", self.screen)
+        self.assertIn("displayView.caretOn = caretOn;", self.screen)
+        # Round 30: the caret is ALSO a real view in the hierarchy -- the
+        # framework composites it, no onDraw can swallow it -- with a build
+        # stamp and a log line per placement and blink for his next log.
+        self.assertIn('"calc screen build 3.12.32: the caret is "', self.screen)
+        self.assertIn('caretBar.setTag("calc_caret_bar");', self.screen)
+        self.assertIn("private void placeCaretBar() {", self.screen)
+        self.assertIn('"caret blink: bar shown"', self.screen)
+        self.assertIn("public boolean caretOn = true;", self.screen)
         self.assertIn("postDelayed(this, 500);", self.screen)
         self.assertIn("protected void onSelectionChanged(int selStart, int selEnd) {", self.screen)
         self.assertIn("float t = base + fp.ascent() + 2;", self.screen)
@@ -4664,6 +4675,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("memStoresTheHeldNumberAndMrInsertsItAtTheCaret", ui)
         self.assertIn("theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd", ui)
         self.assertIn("theCaretStandsSolidThenBlinksLikeAndroidsOwn", ui)
+        self.assertIn("theCaretBarIsARealViewThatBlinksWithThePhase", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)

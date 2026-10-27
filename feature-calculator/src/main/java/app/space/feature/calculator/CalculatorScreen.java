@@ -187,6 +187,15 @@ public final class CalculatorScreen implements Screen {
     // Round 28: the menu raised over a bare caret (long press on the empty part
     // of the box) carries Google's caret trio instead of the selection set.
     private boolean caretMode;
+    // Round 30: five rounds of canvas-drawn carets died on his OEM in ways no
+    // emulator reproduces, while every geometry number read perfect. The caret
+    // is therefore ALSO a real View in the hierarchy -- composited by the
+    // framework itself, outside any onDraw -- plus a build stamp and a log line
+    // for every placement and blink, so the next shared log ends the saga
+    // either way.
+    private View caretBar;
+    private Runnable caretBlinker;
+    private boolean caretOn = true;
     private android.view.ActionMode currentSelectionMode;
     // Round 24 (javac 19): selectWordAt() is a method now, shared by the long
     // press and the plain click, so the menu callback outlives buildDisplay.
@@ -1039,7 +1048,48 @@ public final class CalculatorScreen implements Screen {
         });
         LinearLayout.LayoutParams dp2 = ui.lp(-1, 0);
         dp2.weight = 1f;
-        parent.addView(displayView, dp2);
+        // Round 30, "cursor not visible" after five canvas attempts: the caret
+        // becomes A REAL VIEW -- a thin bar composited by the framework itself
+        // in a FrameLayout host over the display, positioned from the same
+        // paint-measured anchor, blinking by visibility. Whatever his OEM does
+        // to onDraw canvases, it cannot swallow a view in the tree; and the
+        // canvas bar stays beneath it for the emulators and the pixel stories.
+        final android.widget.FrameLayout displayHost =
+                new android.widget.FrameLayout(context);
+        displayHost.addView(displayView,
+                new android.widget.FrameLayout.LayoutParams(-1, -1));
+        caretBar = new View(context);
+        caretBar.setTag("calc_caret_bar");
+        caretBar.setBackgroundColor(
+                ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK);
+        caretBar.setVisibility(View.GONE);
+        displayHost.addView(caretBar, new android.widget.FrameLayout.LayoutParams(
+                Math.max(3, (int) (4 * context.getResources()
+                        .getDisplayMetrics().density)), 8));
+        parent.addView(displayHost, dp2);
+        AppLog.event(context, "calc", "calc screen build 3.12.32: the caret is "
+                + "a real view over the canvas bar");
+        displayView.caretPhaseReset = new Runnable() {
+            @Override public void run() {
+                caretOn = true;
+                displayView.caretOn = true;
+                displayView.removeCallbacks(caretBlinker);
+                displayView.postDelayed(caretBlinker, 700);
+                placeCaretBar();
+            }
+        };
+        caretBlinker = new Runnable() {
+            @Override public void run() {
+                caretOn = !caretOn;
+                displayView.caretOn = caretOn;
+                displayView.invalidate();
+                placeCaretBar();
+                AppLog.event(lastContext, "calc", caretOn
+                        ? "caret blink: bar shown" : "caret blink: bar hidden");
+                displayView.postDelayed(this, 500);
+            }
+        };
+        displayView.postDelayed(caretBlinker, 500);
         previewView = ui.label(" ", 20, PREVIEW_PINK, false);
         // Round 19: the live answer glows pink-to-amber under the gradient
         // expression -- the two brightest things on the screen.
@@ -1090,7 +1140,11 @@ public final class CalculatorScreen implements Screen {
                         + " viewW=" + childW + " innerScrollX=" + scrollX
                         + " layoutW=" + lo.getWidth()
                         + " ink=" + String.format("#%08X", displayView.caretColor)
-                        + " caretW=" + displayView.caretWidth);
+                        + " caretW=" + displayView.caretWidth
+                        + " bar=" + (caretBar != null
+                                && caretBar.getVisibility() == View.VISIBLE
+                                ? "on at " + (int) caretBar.getX()
+                                : "off"));
                 // The EditText scrolls its own text now; keep the caret inside
                 // the visible part of that inner scroll.
                 float d = context.getResources().getDisplayMetrics().density;
@@ -1116,6 +1170,7 @@ public final class CalculatorScreen implements Screen {
                     AppLog.event(context, "calc",
                             "caret scrolled into view at innerScrollX=" + want);
                 }
+                placeCaretBar();
               } catch (Exception e) {
                 AppLog.event(context, "calc", "caret geometry guarded: "
                         + e.getClass().getSimpleName());
@@ -1887,33 +1942,17 @@ public final class CalculatorScreen implements Screen {
          *  half-second rhythm at rest; a steady thin bar his eye missed becomes
          *  a rhythm his eye cannot miss. The blink is a plain invalidate loop,
          *  the same thing the framework's Blink listener does. */
-        private boolean caretOn = true;
-        private final Runnable blinker = new Runnable() {
-            @Override public void run() {
-                caretOn = !caretOn;
-                invalidate();
-                postDelayed(this, 500);
-            }
-        };
-
-        @Override protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-            removeCallbacks(blinker);
-            postDelayed(blinker, 500);
-        }
-
-        @Override protected void onDetachedFromWindow() {
-            removeCallbacks(blinker);
-            super.onDetachedFromWindow();
-        }
+        /** Round 30: the blink phase lives on the screen now, because the screen
+         *  owns the second caret -- the real view -- and the two must blink as one. */
+        public boolean caretOn = true;
+        public Runnable caretPhaseReset;
 
         @Override protected void onSelectionChanged(int selStart, int selEnd) {
             super.onSelectionChanged(selStart, selEnd);
             // Solid while the cursor moves, blinking once it rests -- exactly
             // the framework rhythm, on a cursor his device can actually see.
             caretOn = true;
-            removeCallbacks(blinker);
-            postDelayed(blinker, 700);
+            if (caretPhaseReset != null) caretPhaseReset.run();
             invalidate();
         }
 
@@ -2504,6 +2543,49 @@ public final class CalculatorScreen implements Screen {
         AppLog.event(context, "calc", verb + " refused: " + clean
                 + " is not a valid expression here");
         return false;
+    }
+
+    /** Round 30: position the real caret-bar view from the same paint-measured
+     *  anchor the canvas bar uses, and honour the blink phase and the
+     *  Android rule that a held selection hides the cursor. */
+    private void placeCaretBar() {
+        if (caretBar == null || displayView == null) return;
+        try {
+            if (displayView.getSelectionEnd() > displayView.getSelectionStart()) {
+                if (caretBar.getVisibility() != View.GONE) {
+                    caretBar.setVisibility(View.GONE);
+                }
+                return;
+            }
+            int cs = displayView.getSelectionStart();
+            cs = Math.max(0, Math.min(cs, displayView.length()));
+            float x = displayView.getCompoundPaddingLeft()
+                    + displayView.caretX(displayView.getLayout(), cs, 0);
+            float maxX = displayView.getWidth()
+                    - displayView.getCompoundPaddingRight();
+            float minX = displayView.getCompoundPaddingLeft();
+            if (x > maxX) x = maxX;
+            if (x < minX) x = minX;
+            android.graphics.Paint fp = displayView.getPaint();
+            float base = displayView.getBaseline();
+            float t = base + fp.ascent() + 2;
+            float b2 = base + fp.descent() - 2;
+            android.view.ViewGroup.LayoutParams lp = caretBar.getLayoutParams();
+            if (lp != null) {
+                int h = Math.max(4, (int) (b2 - t));
+                if (lp.height != h) {
+                    lp.height = h;
+                    caretBar.setLayoutParams(lp);
+                }
+            }
+            caretBar.setX(x);
+            caretBar.setY(t);
+            int want = caretOn ? View.VISIBLE : View.GONE;
+            if (caretBar.getVisibility() != want) caretBar.setVisibility(want);
+        } catch (Exception e) {
+            AppLog.event(lastContext, "calc", "caret bar placement guarded: "
+                    + e.getClass().getSimpleName());
+        }
     }
 
     /** Round 25: the click-while-held clear, at the finger's point. */

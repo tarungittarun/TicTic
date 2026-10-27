@@ -4480,6 +4480,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         # one annotation each.
         self.assertIn("===APP TRANSCRIPT===", ui)
         self.assertIn("transcriptOnFailure", ui)
+        self.assertIn("head.indexOf(\"View Details:\")", ui)
+        self.assertIn("[view hierarchy trimmed]", ui)
         self.assertIn('::error title=failure $n details::', wf)
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("===APP TRANSCRIPT TAIL===", ui)

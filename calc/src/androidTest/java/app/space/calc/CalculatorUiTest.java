@@ -86,12 +86,24 @@ public class CalculatorUiTest {
                         try {
                             tail = app.space.core.data.AppLog.tail(
                                     androidx.test.InstrumentationRegistry
-                                            .getTargetContext(), 1500);
+                                            .getTargetContext(), 900);
                         } catch (Throwable ignored) {
                             // the transcript must never mask the failure itself
                         }
+                        // The binder parcel that carries the suite's results has
+                        // a hard 1MB cap, and 36 espresso failures dragging their
+                        // full view hierarchies blew it -- TransactionTooLarge
+                        // killed the instrumentation before it could report. So
+                        // the enriched message TRIMS the hierarchy dump: the
+                        // assertion line plus the app's own transcript, small
+                        // enough that the summary always survives.
+                        String head = String.valueOf(t.getMessage());
+                        int vd = head.indexOf("View Details:");
+                        if (vd > 0) head = head.substring(0, vd)
+                                + "[view hierarchy trimmed]\n";
+                        if (head.length() > 900) head = head.substring(0, 900);
                         AssertionError enriched = new AssertionError(
-                                t.getMessage() + "\n===APP TRANSCRIPT===\n" + tail, t);
+                                head + "===APP TRANSCRIPT===\n" + tail, t);
                         enriched.setStackTrace(t.getStackTrace());
                         throw enriched;
                     }

@@ -651,3 +651,17 @@ not the final snackbar; there is no colour picker, rich content or SAF adapter y
 - Android persistence: five instrumented tests written, NOT compiled or run.
 - ML and diagram requirements remain Planned. No new-runtime requirement is Verified
   from these source checks alone.
+
+
+## Slice 4 evidence — 0.2.1 (3)
+
+- ST-01/ST-03/ST-04: local-only SAF backend, picker/grants, verified folder change,
+  private recovery and storage controls implemented; **actual SAF/provider/device
+  acceptance remains unverified**, not marked complete.
+- ST-02/ST-06: Java generation protocol now additionally exercised by Android tests
+  with an in-memory fault backend. This does not prove every physical provider.
+- HX-01: changes remained inside mynotes/ and its dedicated workflow. Old apps untouched.
+- Update policy: release identity/certificate/code gates and emulator install-over-old
+  passed in run 40564058421. Old v1 document format remains readable in tests.
+- Android suite 14/14 passed; JVM rules tests passed; 425 Python checks passed.
+  See M0-STATUS.md and STORAGE-v0.2.md for limits. ML/diagram/full feature items remain open.

@@ -160,3 +160,22 @@ Review found that storage explanations could crowd action buttons on small scree
 Before recommending a build, added a scrolling explanation area with anchored actions
 and an actual-layout test; correction is 0.2.1 (3), not an overwritten 0.2.0 APK.
 Second versioned build will execute 14 Android tests. No old workflow runs were requested.
+
+
+### Slice 4 delivered outcome — 0.2.1 (3)
+
+Run **40564058421** succeeded in all three jobs: standalone, android-tests and publish.
+Seven JVM rules tests passed. All **14 Android tests passed** on API 29 x86_64 Nexus 5:
+five private persistence, eight generation/format/provider-rejection tests, one actual
+layout visibility test. The emulator installed release 0.1.0 then 0.2.1 with `adb install
+-r` and launched it without an uninstall. The release gate verified certificate/package
+identity and increasing code against both published 0.1.0 and 0.2.0 APKs. This is install
+compatibility, not seeded release-data migration or all-phone/provider qualification.
+
+Published artifact commit: 979d386. Built source: 835e5fd91950c0a2f7082ec481f344200f269211.
+Fetched via fast-forward and checked MyNotes-v0.2.1-3.apk.sha256: OK. Final local gate
+425 tests OK. Version 0.2.0 was retained, not overwritten; recommend 0.2.1 for testing.
+Only MyNotes runs were created; calculator/MySpace remain paused and their code unchanged.
+Remaining major scope: SAF real-provider fault/SD/grant tests, library import/export,
+compaction/scaling, rich content/lists, labels/media, OCR/ASR, diagrams, reminders/widgets
+and final UI design. M0 offline qualification is still open; this is not feature-complete.

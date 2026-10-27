@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.31 (versionCode 68) · SHA-256 `20a25e0c3cc57b6f4a2cc7085ecd71a2f7800dc0f6279d0626132f834ec5511f` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.29 (versionCode 30) · SHA-256 `4a202032613a4264b1c154f36ca2d5c4cf28d48e49177d2be69d4483122ad843` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 24238 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (49 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 311 recorded runs — **211 green, 86 red, 14 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.32 (versionCode 69) · SHA-256 `4b59e9dacb501265d8af1b23047c4aeeb364415fdf86ff20fbb1045e21cb6663` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.30 (versionCode 31) · SHA-256 `cf4116d92eb6be65ac410e722d9d9a27078a9ed4a1fd6d06ab653ba9b447809f` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 24364 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (50 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 315 recorded runs — **215 green, 86 red, 14 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -151,6 +151,24 @@ pixels: solid right after a key, then three samples half a period apart that mus
 agree. 49 stories pass on CI (run 40453389054). The round also ledgered javac 25: a helper's
 getDescription body was a bare string expression, caught by CI's compiler in 90 seconds —
 the Python gate cannot see Java, and never will.
+
+Round 30 answered his two-word verdict — "Nope, cursor not visble" — by conceding the
+canvas. His round-29 log held every number perfect (`caret at x=1104 viewW=1132
+ink=#FFFFFFFF caretW=11`, zero torn guards, handle drags on both boundaries) and still no
+bar on the glass: five rounds of canvas-drawn carets die on his OEM in a way no emulator
+reproduces, and I will not spend a sixth round of his patience on it. The caret is
+therefore ALSO a real View now — a thin bar inside a FrameLayout host layered over the
+display, positioned from the same paint-measured anchor, blinking by visibility,
+composited by the framework itself, because a view in the tree cannot be swallowed by any
+onDraw. The canvas bar stays beneath it for the emulators and the pixel stories; the two
+occupy the same rect, so they read as one bar wherever both draw. And because this saga
+has cost five rounds of his trust, the build now stamps itself (`calc screen build
+3.12.32: ...`) and writes a line for every bar placement and every blink phase, with the
+bar's own x in the geometry line (`bar=on at 1104` / `bar=off`): his next shared log will
+say, in plain text, whether the view stood on his glass — and if it did and his eye still
+misses it, the log will prove the drawing was never the problem again. 50 stories pass on
+CI (run 40454915435); the new one asserts the real bar exists, has size, stands solid
+after a key and blinks at rest.
 
 ---
 
@@ -500,4 +518,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 29 (commit `9f593b9` + card, MySpace 3.12.31/68, MyCalc 1.0.29/30).*
+*Report card refreshed 2026-10-27 after round 30 (commit `35710cc` + card, MySpace 3.12.32/69, MyCalc 1.0.30/31).*

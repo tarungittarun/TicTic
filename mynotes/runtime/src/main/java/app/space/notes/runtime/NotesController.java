@@ -149,7 +149,7 @@ public final class NotesController {
         Button v=new Button(context); v.setText(label); v.setSingleLine(true); v.setAllCaps(false); v.setTextColor(ink);
         GradientDrawable shape=new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(22));
         v.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(darkTheme?0x33FFFFFF:0x224355DB),shape,null)); v.setPadding(dp(12),dp(4),dp(12),dp(4));
-        v.setOnClickListener(w->{Diagnostics.record("ui.tap","screen="+(editing==null?page:"editor"));if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
+        v.setOnClickListener(w->{Diagnostics.record("ui.tap","control="+Diagnostics.controlName(v.getContentDescription()==null?label:v.getContentDescription())+" screen="+(editing==null?page:"editor"));if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
     }
     private Button icon(String label,String symbol,Runnable action){
         Button control=button("",action);control.setTextSize(0);control.setIncludeFontPadding(false);control.setGravity(android.view.Gravity.CENTER);control.setContentDescription(label);control.setTooltipText(label);

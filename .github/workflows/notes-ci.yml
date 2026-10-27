@@ -102,7 +102,7 @@ jobs:
             adb install -r $(find test-apks -name 'notes-debug.apk' | head -1)
             adb install -r $(find test-apks -name '*androidTest.apk' | head -1)
             adb shell am instrument -w app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee notes-instrumentation.txt
-            grep -q 'OK (13 tests)' notes-instrumentation.txt
+            grep -q 'OK (14 tests)' notes-instrumentation.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:

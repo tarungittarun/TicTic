@@ -149,3 +149,14 @@ Local gate at this point: 425 tests OK (35 Notes + 390 legacy checks). Java comp
 Android tests, update smoke and actual folder-provider qualification have NOT yet run
 for this slice. The next deliberate push triggers Notes CI; record its outcome below.
 Actual SAF picker/device/SD tests remain distinct from in-memory protocol tests.
+
+
+### Slice 4 first build outcome
+
+Run 40563316630 succeeded: release/debug/test compilation, certificate/package/version
+checks, install-over-0.1.0 smoke and all 13 Android tests passed; APK 0.2.0 (2)
+published in 147208e. This does not qualify the actual SAF picker/provider or SD card.
+Review found that storage explanations could crowd action buttons on small screens.
+Before recommending a build, added a scrolling explanation area with anchored actions
+and an actual-layout test; correction is 0.2.1 (3), not an overwritten 0.2.0 APK.
+Second versioned build will execute 14 Android tests. No old workflow runs were requested.

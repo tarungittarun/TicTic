@@ -173,11 +173,14 @@ public final class NotesController {
     private void renderStorage() {
         editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);
         root.removeAllViews();header("Storage & recovery");
-        root.addView(text("Choose Internal storage or an SD-card folder. Cloud providers are refused: Notes stays offline.",17));
-        root.addView(text("Choose a NEW EMPTY folder for this library. Notes copies and verifies all text notes before switching. The previous folder is kept; it is never deleted automatically.",15));
-        root.addView(text("A private recovery copy is also kept on this device. If folder access fails, edits remain in this copy and show Pending, not saved-to-folder. Retry after reconnecting or choose another empty folder.",15));
-        root.addView(text("Uninstall removes private data and folder permissions. Chosen-folder files remain. Opening an existing library after reinstall is not available in this milestone—keep your existing installation.",14));
-        root.addView(text("Only the standard local Android storage provider is supported. Android blocks some system/root folders. Folder generations are retained for recovery; large-library compaction is not implemented yet.",14));
+        ScrollView scroll=new ScrollView(context);scroll.setFillViewport(true);
+        LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);
+        scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        content.addView(text("Choose Internal storage or an SD-card folder. Cloud providers are refused: Notes stays offline.",17));
+        content.addView(text("Choose a NEW EMPTY folder for this library. Notes copies and verifies all text notes before switching. The previous folder is kept; it is never deleted automatically.",15));
+        content.addView(text("A private recovery copy is also kept on this device. If folder access fails, edits remain in this copy and show Pending, not saved-to-folder. Retry after reconnecting or choose another empty folder.",15));
+        content.addView(text("Uninstall removes private data and folder permissions. Chosen-folder files remain. Opening an existing library after reinstall is not available in this milestone—keep your existing installation.",14));
+        content.addView(text("Only the standard local Android storage provider is supported. Android blocks some system/root folders. Folder generations are retained for recovery; large-library compaction is not implemented yet.",14));
         row(new String[]{"Choose folder","Retry save"},new Runnable[]{host::chooseLocalFolder,this::flush});
         row(new String[]{"Use device storage","Back"},new Runnable[]{()->moveStorage(null),this::renderHome});
     }

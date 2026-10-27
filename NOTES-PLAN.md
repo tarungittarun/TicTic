@@ -2,7 +2,7 @@
 
 **Owner's instruction (2026-10-27):** *"Now we took most of our features for our calculator app from Google calculator. So similarly, I need to get started on notes by reference to Google Keep notes. So, prepare top 100 features from Google Keep notes, apart from Google backup, Google sign-in. Take everything from UI design, working, user experience, everything. Share the selected features, then we can start. Keep in mind, development of these separate apps like calculator, notes should not affect other apps or working features. It should be like microservices."*
 
-A **visual companion** ships beside this plan: [`NOTES-UI-OVERVIEW.pdf`](NOTES-UI-OVERVIEW.pdf) — a 16-page Figma-style board deck drawing every page of the app (home wall, editor, checklists, capture paths, media, labels & search, bulk actions, reminders, trash, widgets, design language, plan & decisions) with numbered gold highlight callouts and simple-word explanations. Regenerate it any time with `python3 tools/build_notes_ui_overview_pdf.py`.
+A **visual companion** ships beside this plan: [`NOTES-UI-OVERVIEW.pdf`](NOTES-UI-OVERVIEW.pdf) — a 18-page Figma-style board deck drawing every page of the app (home wall, editor, checklists, capture paths, media, labels & search, bulk actions, reminders, trash, widgets, design language, plan & decisions) with numbered gold highlight callouts and simple-word explanations. Regenerate it any time with `python3 tools/build_notes_ui_overview_pdf.py`.
 
 This document is the **reference sheet** (like the calculator's spec sheet was: REFERENCE ONLY — the owner's shipped taste wins wherever they differ). It contains:
 
@@ -236,3 +236,21 @@ Every item is Keep-derived; local-first adaptations are marked *(adapt)*; items 
 ---
 
 *Prepared 2026-10-27 on branch `arena/3caca636-tictic`. The calculator remains frozen at MySpace 3.12.39 (76) / MyCalc 1.0.37 (38). Nothing in this document changes any code; it is the reference sheet the build starts from, and the owner's selections in §5 decide the deviations.*
+
+
+## Additional scope — Diagram and flowchart notes (owner request, 2026-10-27)
+
+Proposed UI is shown on PDF pages 16–17. This extends the original 100-feature Keep reference; these capabilities are planned, not implemented.
+
+- Home capture menu: **New diagram**, with blank canvas or starter templates.
+- Shapes: rectangle/process, rounded rectangle, pill/start-end, diamond/decision, circle, triangle, hexagon, parallelogram/input-output, database cylinder, document, cloud, speech bubble, star, container and swimlane.
+- Free text boxes and text inside blocks; editable size, alignment and style.
+- Lines, straight/elbow/curved connectors; edge snapping, attached endpoints, labels, arrowheads and solid/dashed styles.
+- Move, resize, rotate, multi-select, group/ungroup, duplicate, copy/paste, delete, lock, layers, alignment and distribution.
+- Fill/border colours and stroke widths; zoom/pan, dot grid, snap and smart guides; full undo/redo.
+- Editable object storage, autosave and live Home thumbnails; searchable object text; normal note labels, colours, reminders, archive and trash. Export a separate PNG for sharing.
+- Templates: blank, simple flowchart, mind map and swimlane.
+
+**Proposed sequencing:** Phase 3 delivers core shapes, text, straight/elbow connectors, styling, editing, autosave, undo/redo and PNG export. Phase 4 expands the library, curves, grouping/layers, smart guides and templates. Notes-owned storage and module isolation apply unchanged; no calculator or unrelated app edits.
+
+**Required checks:** save/reopen fidelity, connectors following moved blocks, reliable undo/redo, readable long text in both themes, complete PNG bounds, pan/zoom and no cross-app regressions.

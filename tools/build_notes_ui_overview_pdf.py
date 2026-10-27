@@ -57,7 +57,7 @@ STY_ITEM = ParagraphStyle("item", fontName="Helvetica", fontSize=9.4, leading=12
 STY_TINY = ParagraphStyle("tiny", fontName="Helvetica", fontSize=8, leading=10.5, textColor=INK_3)
 
 OUT = "NOTES-UI-OVERVIEW.pdf"
-PAGES = 16
+PAGES = 18
 _overflow = []
 
 
@@ -172,9 +172,9 @@ def sidebar(c, x, y, w, h, title, items, note=None):
     if note:
         story.append(Paragraph(note, STY_TINY))
     f = Frame(x, y, w, h, leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, showBoundary=0)
-    leftover = f.addFromList(story, c)
-    if leftover:
-        _overflow.append(f"sidebar '{title}' overflowed with {len(leftover)} paragraphs")
+    f.addFromList(story, c)
+    if story:
+        _overflow.append(f"sidebar '{title}' overflowed with {len(story)} paragraphs")
 
 
 def textbars(c, x, y, w, n, color, gap=6, bh=3.2, widths=None):
@@ -313,7 +313,7 @@ def p01_cover(c):
         "Gold numbers on each screen match the explanation list beside it.  [NEW] = to be built,",
         "[EXISTS] = already working today,  [UPGRADE] = exists but grows Keep-grade.",
         "",
-        "100 features selected  ·  8 decisions waiting for you (last page)  ·  5 build phases",
+        "100 Keep features + diagram suite  ·  8 decisions (last page)  ·  5 build phases",
         "Companion documents:  NOTES-PLAN.md (the full 100, in detail)  ·  MASTERCLASS.md (how we work)",
     ]
     yy = PAGE_H - 205
@@ -1112,7 +1112,7 @@ def p15_design(c):
 
 
 def p16_plan(c):
-    new_page(c, "Page 14 — The plan, the promises, and your 8 decisions", "How we build without touching anything that works — and what needs your word before Phase 0.", 16)
+    new_page(c, "Page 14 — The plan, the promises, and your 8 decisions", "How we build without touching anything that works — and what needs your word before Phase 0.", 18)
     # phases timeline
     panel(c, 40, 396, 762, 110, "Five phases")
     phases = [
@@ -1189,13 +1189,104 @@ def p16_plan(c):
         c.drawString(x8 + 24, y8 - 9.5, "→ propose: " + a)
 
 
+def diagram_shape(c, x, y, w, h, kind, label="", accent=False):
+    c.setStrokeColor(GOLD if accent else BLUE)
+    c.setFillColor(HexColor("#332D20") if accent else GLASS)
+    c.setLineWidth(1.2)
+    if kind == "diamond":
+        p = c.beginPath(); p.moveTo(x+w/2,y+h); p.lineTo(x+w,y+h/2)
+        p.lineTo(x+w/2,y); p.lineTo(x,y+h/2); p.close(); c.drawPath(p,stroke=1,fill=1)
+    elif kind == "circle":
+        c.ellipse(x,y,x+w,y+h,stroke=1,fill=1)
+    elif kind == "para":
+        p=c.beginPath(); p.moveTo(x+10,y); p.lineTo(x+w,y); p.lineTo(x+w-10,y+h); p.lineTo(x,y+h); p.close(); c.drawPath(p,stroke=1,fill=1)
+    elif kind == "database":
+        c.rect(x,y+5,w,h-10,stroke=1,fill=1)
+        c.ellipse(x,y+h-10,x+w,y+h,stroke=1,fill=1)
+        c.arc(x,y,x+w,y+10,180,180)
+    elif kind == "text":
+        c.setDash(3,2); c.rect(x,y,w,h,stroke=1,fill=0); c.setDash()
+    else:
+        c.roundRect(x,y,w,h,h/2 if kind == "pill" else 4,stroke=1,fill=1)
+    c.setFillColor(INK); c.setFont("Helvetica",8)
+    c.drawCentredString(x+w/2,y+h/2-3,label)
+
+
+def diagram_link(c, points, label=None):
+    from math import atan2, sin, cos
+    c.setStrokeColor(INK_2); c.setLineWidth(1.2)
+    for a,b in zip(points,points[1:]): c.line(*a,*b)
+    a,b=points[-2:]; angle=atan2(b[1]-a[1],b[0]-a[0])
+    p=c.beginPath(); p.moveTo(*b)
+    for d in [-0.45,0.45]: p.lineTo(b[0]-6*cos(angle+d),b[1]-6*sin(angle+d))
+    p.close(); c.setFillColor(INK_2); c.drawPath(p,stroke=0,fill=1)
+    if label:
+        c.setFont("Helvetica",7); c.drawString(points[0][0]+5,points[0][1]-12,label)
+
+
+def p17_diagram(c):
+    new_page(c,"New section — Diagram & flowchart editor","Your addition: turn ideas into shapes, blocks, arrows and text boxes, inside a note.",16)
+    ix,iy,iw,ih=phone(c,44,64,h=450)
+    c.setFillColor(INK); c.setFont("Helvetica-Bold",11); c.drawString(ix+9,iy+ih-38,"<  Login flow")
+    c.setFont("Helvetica",8); c.drawRightString(ix+iw-8,iy+ih-38,"Undo  Redo")
+    for xx in range(int(ix+8),int(ix+iw-6),14):
+        for yy in range(int(iy+85),int(iy+ih-55),14):
+            c.setFillColor(BOARD_LN); c.circle(xx,yy,0.6,stroke=0,fill=1)
+    diagram_shape(c,ix+67,iy+336,78,26,"pill","Start")
+    diagram_link(c,[(ix+106,iy+336),(ix+106,iy+308)])
+    diagram_shape(c,ix+62,iy+260,88,48,"diamond","Valid?",True)
+    diagram_link(c,[(ix+106,iy+260),(ix+106,iy+222)],"Yes")
+    diagram_shape(c,ix+68,iy+194,76,28,"rect","Open home")
+    diagram_link(c,[(ix+150,iy+284),(ix+183,iy+284),(ix+183,iy+157),(ix+147,iy+157)],"No")
+    diagram_shape(c,ix+66,iy+143,81,28,"rect","Show error")
+    diagram_shape(c,ix+15,iy+99,131,22,"text","Add an explanation...")
+    c.setStrokeColor(GOLD); c.setDash(3,2); c.rect(ix+59,iy+257,94,54,stroke=1,fill=0); c.setDash()
+    for dx,dy in [(59,257),(153,257),(59,311),(153,311)]:
+        c.setFillColor(GOLD); c.rect(ix+dx-2,iy+dy-2,4,4,stroke=0,fill=1)
+    pill(c,ix+16,iy+364,179,20,"Fill   Stroke   Aa   Duplicate   Delete",fs=7)
+    pill(c,ix+8,iy+30,iw-16,34,"Select   Shapes   Arrow   Text   Pen",fs=8)
+    pill(c,ix+150,iy+76,50,16,"Fit  100%",fs=7)
+    for x,y,n in [(ix+14,iy+66,1),(ix+160,iy+312,2),(ix+188,iy+229,3),(ix+149,iy+111,4),(ix+30,iy+388,5)]: dot(c,x,y,n)
+    sidebar(c,316,90,486,408,"A diagram tool, not just a doodle",[
+        ("1","<b>One toolbox:</b> Select, Shapes, Arrow, Text and Pen. Tap Shapes to open the library on the next board. Start from the Home capture menu: New diagram.","NEW"),
+        ("2","<b>Editable objects:</b> drag blocks, resize with handles, rotate where useful, and double-tap to edit the words inside. Select several objects to move or group them together.","NEW"),
+        ("3","<b>Connected arrows:</b> straight, elbow or curved paths. Snap each end to a block; moving the block keeps its arrows attached. Add Yes/No labels and choose arrowheads at either end.","NEW"),
+        ("4","<b>Text boxes anywhere:</b> add a title, explanation or caption. Change text size, alignment and style. Shape text and captions are included in note search.","NEW"),
+        ("5","<b>Style inspector:</b> fill colour, border colour, line thickness, solid/dashed borders and text settings. Duplicate, copy/paste, delete, group and layer controls sit here too.","NEW"),
+        ("6","<b>Comfortable canvas:</b> pinch to zoom, two-finger pan, dot-grid snap, smart alignment guides, Fit to content, Undo and Redo.","NEW"),
+        ("7","<b>Still a note:</b> autosave the editable diagram, show its thumbnail on Home, and support labels, pin, archive, reminders, trash and Undo. Export a PNG to share; the original stays editable.","NEW"),
+    ],note="Proposed design only. The sample uses a selected decision diamond (gold handles) and a floating style bar. Other Notes features and the frozen calculator remain isolated.")
+
+
+def p18_library(c):
+    new_page(c,"New section — Shape library & diagram workflow","Common diagram building blocks, plus the controls that make them useful.",17)
+    panel(c,40,286,372,222,"Shape picker — starter blocks")
+    entries=[("rect","Process"),("pill","Start / End"),("diamond","Decision"),("circle","Circle"),("para","Input / Output"),("database","Database"),("text","Text box"),("rect","Container")]
+    for k,(kind,title) in enumerate(entries):
+        x=62+(k%4)*87; y=443-(k//4)*86
+        diagram_shape(c,x,y,65,34,kind,"Aa" if kind=="text" else "",kind=="diamond")
+        c.setFillColor(INK_2); c.setFont("Helvetica",7); c.drawCentredString(x+32,y-13,title)
+    sidebar(c,440,290,355,212,"Expanded library & connectors",[
+        ("A","<b>More shapes:</b> triangle, hexagon, document, cloud, speech bubble, star, rounded rectangle and swimlane. Containers and swimlanes help organise larger diagrams.","NEW"),
+        ("B","<b>Lines:</b> plain line, straight arrow, elbow arrow and curved connector; solid or dashed; one-way or two-way heads; editable connector labels.","NEW"),
+        ("C","<b>Object controls:</b> align left/centre/right, distribute spacing, group/ungroup, bring forward/send backward, lock/unlock and duplicate.","NEW"),
+        ("D","<b>Templates:</b> blank canvas, simple flowchart, mind map and swimlane. Start with a small structure and replace the sample words.","NEW"),
+    ])
+    sidebar(c,56,76,730,179,"Simple workflow & proposed delivery",[
+        ("1","<b>Create:</b> Home > New diagram > Blank or Template. Add blocks, double-tap to type, connect them with arrows, then adjust colours and spacing.","NEW"),
+        ("2","<b>Save safely:</b> editable objects and connections live in Notes-owned storage, not a flattened screenshot. Returning to Home shows a refreshed thumbnail. PNG export creates a separate shareable image.","NEW"),
+        ("3","<b>Phase 3 starter:</b> basic blocks, text boxes, straight/elbow connectors, move/resize, style controls, autosave, undo/redo and PNG sharing. <b>Phase 4 expansion:</b> full library, curves, grouping, layers, smart guides and templates. This is a proposal, not a build already shipped.","NEW"),
+        ("4","<b>Acceptance checks:</b> save/reopen preserves every object; moving a block preserves connections; undo/redo restores edits; long text remains readable; zoom works in both themes; export includes all content; calculator and other apps remain unchanged.","NEW"),
+    ])
+
+
 def main():
     c = rl_canvas.Canvas(OUT, pagesize=landscape(A4))
     c.setTitle("MySpace Notes — UI & Feature Overview (Google Keep reference)")
     c.setAuthor("arena/3caca636-tictic")
     for fn in (p01_cover, p02_map, p03_home, p04_drawer, p05_editor, p06_checklist,
                p07_capture, p08_media, p09_voice, p10_org, p11_bulk, p12_reminders,
-               p13_trash, p14_widgets, p15_design, p16_plan):
+               p13_trash, p14_widgets, p15_design, p17_diagram, p18_library, p16_plan):
         fn(c)
         c.showPage()
     c.save()

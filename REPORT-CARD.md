@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.34 (versionCode 71) · SHA-256 `8046b8ff6fec4d7d6a1d56476406900601256baa2fc2a5e4a125294e149a430a` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.32 (versionCode 33) · SHA-256 `90e259d6b9568ff2994c0d38f7f1d9909dba24342cde9f1a687b3506171d1cbe` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Build (MySpace):** 3.12.34 (versionCode 71) · SHA-256 `1231de7fac90796e2f6e5d20b84a38154faa4ee9ce6cad3843d6656f861fcf51` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.32 (versionCode 33) · SHA-256 `074d2c9ecd00268ed78e0380217043bced42bb2cf9b07a220fe2c10cccbf8e8c` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
 **Effort:** 23 modules · 24543 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (53 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 319 recorded runs — **219 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
+**CI:** 321 recorded runs — **221 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -189,7 +189,10 @@ so the three dots still hold exactly five items plus Effects. Three new stories 
 total, CI green in ~5 min): the band tap parks the caret and types mid-number, the
 right-margin hold selects nothing and shows MUse, and the shape picker persists its
 pick and keeps the pad usable. The caret's canvas twin still draws underneath for the
-emulator; the real bar still blinks.
+emulator; the real bar still blinks. One honesty note: the first cut of this round
+(3.12.33/70) shipped the old build stamp inside it, so a log could not tell it from
+3.12.32; the stamp was retargeted to print `calc screen build 3.12.34` and the round
+re-published as 3.12.34/71 — the build he installs now names itself.
 
 ---
 
@@ -539,4 +542,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 31 (commit `e8fbc54` + card, MySpace 3.12.33/70, MyCalc 1.0.31/32).*
+*Report card refreshed 2026-10-27 after round 31 (commits `e8fbc54` + `653a01b` + card, MySpace 3.12.34/71, MyCalc 1.0.32/33).*

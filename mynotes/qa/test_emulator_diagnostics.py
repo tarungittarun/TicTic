@@ -23,3 +23,11 @@ class EmulatorDiagnostics(unittest.TestCase):
     def test_landscape_uses_fixed_display_policy_and_actual_activity_assertions(self):
         script=(ROOT/'mynotes/tools/ci/android_lane.sh').read_text();self.assertIn('wm fixed-to-user-rotation enabled',script);self.assertIn('display-after-instrumentation.txt',script)
         test=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/EnvironmentQualificationTest.java').read_text();self.assertIn('getRealMetrics(metrics)',test);self.assertIn('wanted,actual.get()',test)
+
+    def test_bootstrap_diagnostic_keeps_uppercase_panic_and_shutdown_context(self):
+        from mynotes.tools.ci.results import build_diagnostic
+        with tempfile.TemporaryDirectory() as d:
+            log=Path(d)/'boot.log'
+            log.write_text('runner setup\n'+('ordinary progress\n'*30)+'PANIC: Broken AVD\n'+('ordinary progress\n'*60)+'shutdown outcome\n')
+            result=build_diagnostic(log)
+            self.assertIn('runner setup',result);self.assertIn('PANIC: Broken AVD',result);self.assertIn('shutdown outcome',result)

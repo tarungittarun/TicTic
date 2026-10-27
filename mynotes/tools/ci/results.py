@@ -57,9 +57,9 @@ def junit(paths,expected):
 
 def build_diagnostic(path):
     lines=Path(path).read_text(errors='replace').splitlines() if Path(path).exists() else ['No build log produced']
-    keep=set()
+    keep=set(range(min(12,len(lines)))) | set(range(max(0,len(lines)-20),len(lines)))
     for i,line in enumerate(lines):
-        if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|FATAL EXCEPTION|AndroidRuntime|NoClassDefFoundError|Could not |Execution failed|> Task .*FAILED|tests completed',line):
+        if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|FATAL EXCEPTION|AndroidRuntime|NoClassDefFoundError|Could not |Execution failed|> Task .*FAILED|tests completed|PANIC|emulator.*(?:ERROR|FATAL)|SIGSEGV|No space left|KVM',line,re.IGNORECASE):
             keep.update(range(max(0,i-2),min(len(lines),i+8)))
     return '\n'.join(lines[i] for i in sorted(keep)) if keep else '\n'.join(lines[-35:])
 

@@ -276,6 +276,21 @@ jobs:
           force-avd-creation: true
           disable-animations: true
           script: bash mynotes/tools/ci/android_lane.sh
+      - name: Bootstrap failure host context (no test retries)
+        if: failure()
+        shell: bash
+        run: |
+          mkdir -p evidence
+          {
+            echo "Runner context after emulator/action failure"
+            uname -a
+            df -h
+            free -h
+            ls -l /dev/kvm || true
+            adb devices -l || true
+            ps -eo pid,etime,args | grep -E 'emulator|qemu|adb' | head -30 || true
+          } > evidence/bootstrap-host-context.txt 2>&1
+          python3 -m mynotes.tools.ci.results build --path evidence/bootstrap-host-context.txt
       - name: Surface partial/failed lane results
         if: failure()
         run: |

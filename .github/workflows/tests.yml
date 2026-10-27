@@ -98,7 +98,13 @@ jobs:
       - name: Instrumented tests on a real Android screen
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          # Round 34: the farm's CURRENT api-34 image detaches the floating
+          # toolbar's contents while keeping its window alive (menu items are
+          # unclickable AND injected touches near the display are swallowed) --
+          # a whole subsystem the suite depends on. Step the emulator back one
+          # platform: api 33 is far above minSdk 26 and its text/toolbar
+          # framework behaves the way the owner's phone does.
+          api-level: 33
           arch: x86_64
           disable-animations: true
           ram-size: 2048M

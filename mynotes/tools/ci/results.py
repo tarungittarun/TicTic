@@ -19,11 +19,11 @@ def compare(expected,passed,failed):
 
 
 def android(text,expected):
-    passed=[];failed=[];record={};completions=[]
+    passed=[];failed=[];record={};completions=[];continuation=None
     for line in text.splitlines():
         if line.startswith('INSTRUMENTATION_STATUS: '):
             key,sep,value=line[len('INSTRUMENTATION_STATUS: '):].partition('=')
-            if sep:record[key]=value
+            if sep:record[key]=value;continuation=key
         elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):
             code=int(line.split(':',1)[1].strip())
             if code<=0:
@@ -31,10 +31,11 @@ def android(text,expected):
                 if not record.get('class') or not record.get('test'):failed.append('Outcome without test identity')
                 elif code==0:passed.append(name)
                 else:failed.append(name+': status '+str(code)+' '+record.get('stack',''))
-            record={}
+            record={};continuation=None
         elif line.startswith('INSTRUMENTATION_CODE: '):completions.append(int(line.split(':',1)[1].strip()))
         elif 'INSTRUMENTATION_FAILED' in line or 'Process crashed' in line or 'shortMsg=' in line:
             failed.append(line)
+        elif continuation=='stack':record['stack']=record.get('stack','')+'\n'+line
     if completions!=[-1]:failed.append('Missing, duplicate or unsuccessful instrumentation completion: '+str(completions))
     result=compare(expected,passed,failed)
     result['cases']=passed
@@ -73,7 +74,7 @@ def write_report(result,path):
     Path(path).parent.mkdir(parents=True,exist_ok=True)
     Path(path).write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:v for k,v in result.items() if k!='cases'},indent=2))
-    if not result['ok']:annotate(json.dumps(result,indent=2))
+    if not result['ok']:annotate(json.dumps({k:v for k,v in result.items() if k!='cases'},indent=2))
 
 
 if __name__=='__main__':

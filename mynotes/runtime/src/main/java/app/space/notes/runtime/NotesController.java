@@ -47,7 +47,7 @@ public final class NotesController {
     private TextView emptyHint;
     private boolean darkTheme,grid=true;
     private String activeLabel="",homeQuery="",focusedItem;
-    private boolean sortCreated,diagramOpen;
+    private boolean sortCreated,diagramOpen,filterExpanded;
     private String diagramSelection;
     private LinearLayout selectionBar;
     private final Set<String> selectedIds=new HashSet<>();
@@ -123,7 +123,7 @@ public final class NotesController {
         v.setPadding(0,dp(6),0,dp(6)); return v;
     }
     private Button button(String label,Runnable action) {
-        Button v=new Button(context); v.setText(label); v.setAllCaps(false); v.setTextColor(ink);
+        Button v=new Button(context); v.setText(label); v.setSingleLine(true); v.setAllCaps(false); v.setTextColor(ink);
         GradientDrawable shape=new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(22));
         v.setBackground(shape); v.setPadding(dp(12),dp(4),dp(12),dp(4));
         v.setOnClickListener(w->{if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
@@ -145,15 +145,20 @@ public final class NotesController {
     }
     private void renderHome() {
         storagePage=false;prepared=null;editing=null; title=null; body=null;visible.clear();diagramOpen=false;root.removeAllViews(); header("MyNotes · "+(activeLabel.isEmpty()?page:activeLabel));
+        status.setVisibility(View.GONE);
+        boolean compact=context.getResources().getConfiguration().screenHeightDp<450;
+        if(compact){root.getChildAt(0).setVisibility(View.GONE);root.setPadding(dp(10),dp(4),dp(10),dp(4));}
+        else root.setPadding(dp(18),dp(14),dp(18),dp(10));
         row(new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
         search=new EditText(context);search.setSingleLine(true);search.setTextColor(ink);search.setHintTextColor(muted);search.setHint("Search notes and labels");search.setText(homeQuery);root.addView(search);
         search.addTextChangedListener(watcher(()->{homeQuery=search.getText().toString();main.removeCallbacks(filter);main.postDelayed(filter,150);querySequence++;}));
-        row(new String[]{grid?"List view":"Grid view",sortCreated?"Sort: created":"Sort: edited"},new Runnable[]{()->{grid=!grid;saveViewPreferences();renderHome();},()->{sortCreated=!sortCreated;saveViewPreferences();renderHome();}});
+        LinearLayout filters=new LinearLayout(context);filters.setOrientation(LinearLayout.VERTICAL);filters.setVisibility(filterExpanded?View.VISIBLE:View.GONE);root.addView(filters);
+        rowIn(filters,new String[]{grid?"List view":"Grid view",sortCreated?"Sort: created":"Sort: edited"},new Runnable[]{()->{grid=!grid;saveViewPreferences();renderHome();},()->{sortCreated=!sortCreated;saveViewPreferences();renderHome();}});
         TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);
         HorizontalScrollView strip=new HorizontalScrollView(context);LinearLayout chips=new LinearLayout(context);strip.addView(chips);
         chips.addView(button(activeLabel.isEmpty()?"All labels ✓":"All labels",()->{activeLabel="";selectedIds.clear();renderHome();}));
         chips.addView(button("Manage labels",this::manageLabels));
-        for(String label:labels)chips.addView(button(label+(label.equals(activeLabel)?" ✓":""),()->{activeLabel=label;selectedIds.clear();renderHome();}));root.addView(strip);
+        for(String label:labels)chips.addView(button(label+(label.equals(activeLabel)?" ✓":""),()->{activeLabel=label;selectedIds.clear();renderHome();}));filters.addView(strip);
         selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);
         rowIn(selectionBar,new String[]{"Pin","Archive",page.equals("Trash")?"Restore":"Trash"},new Runnable[]{()->bulkState("pin"),()->bulkState("archive"),()->bulkState(page.equals("Trash")?"restore":"trash")});
         rowIn(selectionBar,new String[]{"Labels","Colour","Share","Merge","Done"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::mergeSelected,()->{selectedIds.clear();updateSelection();}});root.addView(selectionBar);
@@ -163,7 +168,7 @@ public final class NotesController {
         },grid);
         emptyHint=text("No matching notes. Create a note or change the filters.",14);emptyHint.setVisibility(View.GONE);root.addView(emptyHint);
         root.addView(board,new LinearLayout.LayoutParams(-1,0,1));
-        row(new String[]{"+ Text","+ Checklist","Undo"},new Runnable[]{this::newNote,()->newChecklist(),this::undo});
+        row(new String[]{"+ Text","+ Checklist",filterExpanded?"Hide filters":"Filters","Undo"},new Runnable[]{this::newNote,()->newChecklist(),()->{filterExpanded=!filterExpanded;filters.setVisibility(filterExpanded?View.VISIBLE:View.GONE);},this::undo});
         updateSelection();filterNow();
     }
     private void saveViewPreferences(){context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("grid",grid).putBoolean("sortCreated",sortCreated).apply();}
@@ -202,7 +207,7 @@ public final class NotesController {
         });
     }
     private void renderEditor() {
-        diagramOpen=false;
+        diagramOpen=false;root.setPadding(dp(18),dp(14),dp(18),dp(10));
         Note n=find(editing);if(n==null){renderHome();return;}
         main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;
         root.removeAllViews();ScrollView editorScroll=new ScrollView(context);editorScroll.setFillViewport(true);

@@ -72,7 +72,7 @@ public final class NotesActivity extends Activity implements NotesHost {
             if(flags!=(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION)) {
                 showMessage("Folder needs read and write access. Storage has not changed.");return;
             }
-            getContentResolver().takePersistableUriPermission(uri,flags);
+            getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             if(request==94)controller.selectFolder(uri);else controller.openExistingFolder(uri);
         } catch(SecurityException e) { showMessage("Folder permission could not be retained. Storage has not changed."); }
     }

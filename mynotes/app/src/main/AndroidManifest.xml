@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- No network or recording permission in this text-only milestone.
-         RECORD_AUDIO will be contextual and optional when recording is implemented. -->
+    <!-- Only microphone, requested contextually for foreground voice capture.
+         CPU OCR/ASR models are bundled; no INTERNET permission or model downloader. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <application android:label="MyNotes" android:theme="@style/NotesTheme"
         android:icon="@drawable/ic_notes" android:allowBackup="false">
         <activity android:name=".NotesActivity" android:exported="true"

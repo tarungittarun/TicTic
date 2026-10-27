@@ -19,6 +19,7 @@ APP_PATHS=['mynotes/app/src/main','mynotes/runtime/src/main','mynotes/domain/src
 def release_input(path):
     if not path.startswith('mynotes/'):return False
     relative=path[len('mynotes/'):]
+    if relative.startswith('tools/models/'):return True
     if any(relative.startswith(prefix) for prefix in ['qa/','docs/','tools/','releases/']):return False
     if '/src/test/' in path or '/src/androidTest/' in path:return False
     if '/' not in relative and relative.endswith('.md'):return False
@@ -49,7 +50,7 @@ def publication_policy(current,previous):
 def assert_manifest(badging,xml):
     permissions=re.findall(r"uses-permission(?:-sdk-\d+)?: name='([^']+)'",badging)
     # Expand explicitly with optional-permission tests when media/reminder scope lands.
-    allowed=set()
+    allowed={'android.permission.RECORD_AUDIO'}
     if set(permissions)-allowed:raise ValueError('Unreviewed APK permissions: '+str(permissions))
     if 'application-debuggable' in badging:raise ValueError('Release APK is debuggable')
     if not re.search(r'android:allowBackup[^\n]*\(type 0x12\)0x0\b',xml):

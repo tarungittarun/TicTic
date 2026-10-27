@@ -65,6 +65,7 @@ def build_plan(root=ROOT,config=None):
     if len(lanes)>20:raise ValueError('Lane budget exceeded: leave room for independent gates within 30 jobs')
     for lane in lanes:
         if not re.fullmatch(r'[a-z][a-z0-9-]*',lane['id']):raise ValueError('Invalid lane ID')
+        if lane.get('mic','denied') not in ['denied','granted']:raise ValueError('Invalid microphone policy')
         if lane.get('night','no') not in ['yes','no']:raise ValueError('Invalid night mode')
         if lane.get('orientation','portrait') not in ['portrait','landscape','any']:raise ValueError('Invalid orientation')
         if lane.get('profile','Nexus 5') not in ['Nexus 5','pixel_c']:raise ValueError('Unreviewed device profile')

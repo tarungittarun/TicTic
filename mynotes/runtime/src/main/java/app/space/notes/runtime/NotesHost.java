@@ -8,5 +8,8 @@ public interface NotesHost {
     void exportBackup();
     void importBackup();
     default void exportPdf(){showMessage("PDF export is not available in this host.");}
+    default void chooseOcrImage(String language){showMessage("Image OCR is unavailable in this host.");}
+    default void requestVoiceCapture(){showMessage("Voice capture is unavailable in this host.");}
+    default void exportVoice(String id){showMessage("Voice export is unavailable in this host.");}
     String versionLabel();
 }

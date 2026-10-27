@@ -14,6 +14,12 @@ runs:
     - uses: gradle/actions/setup-gradle@v4
       with:
         cache-read-only: ${{ github.event_name != 'push' }}
+    - name: Cache pinned offline model downloads (build-time only)
+      if: inputs.sdk == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/mynotes-models
+        key: mynotes-models-${{ hashFiles('mynotes/runtime/src/main/assets/voice/model.json') }}
     - name: Pinned Android SDK
       if: inputs.sdk == 'true'
       shell: bash

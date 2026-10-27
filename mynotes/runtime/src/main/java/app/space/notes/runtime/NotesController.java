@@ -57,7 +57,14 @@ public final class NotesController {
     private boolean undoFull;
     private String undoCreatedId;
     private Note undo;
-    private Runnable deferredResult;
+    private final Deque<Runnable> deferredResults=new ArrayDeque<>();
+    private static final ExecutorService ocrWorker=Executors.newSingleThreadExecutor(),captureWorker=Executors.newSingleThreadExecutor();
+    private OfflineOcr.Cancellation ocrCancellation;
+    private long ocrSequence;
+    private boolean ocrPanel,voicePage;
+    private VoiceCapture capture;
+    private android.media.MediaPlayer voicePlayer;
+    private Runnable unsubscribeVoice;
     private boolean storagePage;
     private PreparedImport prepared;
     private static final class PreparedImport {
@@ -85,10 +92,19 @@ public final class NotesController {
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         TextView loading=text("Opening local library…",18); root.addView(loading);
+        unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
         disk.execute(()->{
             try {
                 repository=new NotesRepository(context.getApplicationContext());
                 List<Note> loaded=repository.load();
+                boolean recovered=false;
+                try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
+                    org.json.JSONObject result=files.result(id);if(!result.optString("state").equals("DONE"))continue;
+                    String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
+                    if(current==null){current=app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis());loaded.add(current);recovered=true;}
+                    Note changed=app.space.notes.domain.VoiceTranscripts.apply(current,id,result.optString("text",""),System.currentTimeMillis());if(changed!=current){loaded.set(loaded.indexOf(current),changed);recovered=true;}
+                }}catch(Exception voiceFailure){log("voice-recovery","audio retained; transcript metadata needs review");}
+                if(recovered){try{repository.save(loaded);}catch(Exception pendingVoiceSave){log("voice-recovery","transcript recovery save needs retry");}}
                 long now=System.currentTimeMillis();
                 boolean purged=loaded.removeIf(n->n.expired(now));
                 if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
@@ -111,10 +127,10 @@ public final class NotesController {
             }); }
         });
     }
-    private void deliverDeferred() {Runnable next=deferredResult;deferredResult=null;if(next!=null)next.run();}
+    private void deliverDeferred() {while(!deferredResults.isEmpty() && !closed)deferredResults.removeFirst().run();}
     private void whenReady(Runnable action) {
         if(closed)return;
-        if(!ready){deferredResult=action;return;}
+        if(!ready){if(deferredResults.size()>=8){host.showMessage("Library is still opening. Please retry this action in a moment.");return;}deferredResults.addLast(action);return;}
         if(busy){host.showMessage("Another storage operation is in progress.");return;}
         action.run();
     }
@@ -146,7 +162,7 @@ public final class NotesController {
         status=text((repository==null?"Opening storage":repository.status())+" · "+host.versionLabel(),12); status.setTextColor(muted); parent.addView(status);
     }
     private void renderHome() {
-        storagePage=false;prepared=null;editing=null; title=null; body=null;visible.clear();diagramOpen=false;root.removeAllViews(); header("MyNotes · "+(activeLabel.isEmpty()?page:activeLabel));
+        voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null; title=null; body=null;visible.clear();diagramOpen=false;root.removeAllViews(); header("MyNotes · "+(activeLabel.isEmpty()?page:activeLabel));
         status.setVisibility(View.GONE);
         boolean compact=context.getResources().getConfiguration().screenHeightDp<450;
         if(compact){root.getChildAt(0).setVisibility(View.GONE);root.setPadding(dp(10),dp(4),dp(10),dp(4));}
@@ -212,7 +228,7 @@ public final class NotesController {
         });
     }
     private void renderEditor() {
-        diagramOpen=false;root.setPadding(dp(18),dp(14),dp(18),dp(10));
+        voicePage=false;ocrPanel=false;diagramOpen=false;root.setPadding(dp(18),dp(14),dp(18),dp(10));
         Note n=find(editing);if(n==null){renderHome();return;}
         main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;
         root.removeAllViews();ScrollView editorScroll=new ScrollView(context);editorScroll.setFillViewport(true);
@@ -265,6 +281,7 @@ public final class NotesController {
         }
         if(!n.diagram.nodes.isEmpty())editor.addView(text("Diagram · "+n.diagram.nodes.size()+" shapes · "+n.diagram.edges.size()+" arrows",14));
         rowIn(editor,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});
+        if(!trashed)rowIn(editor,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
         title.setEnabled(!trashed);title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
         if(trashed)rowIn(editor,new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
         else{
@@ -350,6 +367,70 @@ public final class NotesController {
         if(in==null)throw new java.io.IOException("Cannot reopen PDF");java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1)digest.update(buffer,0,count);
         StringBuilder out=new StringBuilder();for(byte b:digest.digest())out.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return out.toString();
     }
+    private void chooseScan(){persistDraft();String[] names={"English (bundled)","Hindi / Devanagari (bundled)","Kannada (bundled)"};String[] codes={"eng","hin","kan"};new android.app.AlertDialog.Builder(context).setTitle("Offline OCR language").setItems(names,(d,index)->host.chooseOcrImage(codes[index])).setNegativeButton("Cancel",null).show();}
+    public void recognizeImage(android.net.Uri uri,String language){whenReady(()->{
+        persistDraft();if(ocrCancellation!=null)ocrCancellation.cancel();final OfflineOcr.Cancellation cancellation=new OfflineOcr.Cancellation();ocrCancellation=cancellation;final long ticket=++ocrSequence;final String target=editing;
+        ocrPanel=true;title=null;body=null;search=null;querySequence++;root.removeAllViews();header("Offline OCR");root.addView(text("Recognizing on this device with a bundled "+language+" model. No image is uploaded. Other languages/handwriting and difficult photos may be inaccurate; review before saving.",16));root.addView(new ProgressBar(context));row(new String[]{"Cancel OCR"},new Runnable[]{this::cancelOcr});
+        ocrWorker.execute(()->{
+            try{OfflineOcr.Result result=OfflineOcr.recognize(context,uri,language,cancellation);main.post(()->{if(closed || ticket!=ocrSequence || cancellation.cancelled())return;renderOcrReview(result,target);});}
+            catch(Exception | LinkageError | OutOfMemoryError e){log("ocr","failed "+e.getClass().getSimpleName());main.post(()->{if(closed || ticket!=ocrSequence || cancellation.cancelled())return;ocrPanel=false;returnToNoteOrHome();host.showMessage("OCR did not change any note: "+e.getMessage()+". Original image is unchanged; try another image or language.");});}
+        });
+    });}
+    private void cancelOcr(){if(ocrCancellation!=null)ocrCancellation.cancel();ocrSequence++;ocrPanel=false;returnToNoteOrHome();}
+    private void renderOcrReview(OfflineOcr.Result result,String target){
+        root.removeAllViews();header("Review recognized text");root.addView(text("Offline · "+result.language+" · engine confidence "+result.confidence+" / 100 (not an accuracy guarantee). Check names, numbers and line breaks. Original image is unchanged.",14));
+        EditText input=new EditText(context);input.setTextColor(ink);input.setHintTextColor(muted);input.setHint("Recognized text — edit before saving");input.setGravity(android.view.Gravity.TOP);input.setText(result.text);root.addView(input,new LinearLayout.LayoutParams(-1,0,1));
+        row(new String[]{target==null?"Save as note":"Append to note","Save as new note","Cancel"},new Runnable[]{()->saveOcrText(input.getText().toString(),target),()->saveOcrText(input.getText().toString(),null),this::cancelOcr});
+        if(result.text.isEmpty())host.showMessage("No text recognized. Nothing has been added. Try a sharper image or another language.");
+    }
+    private void saveOcrText(String value,String target){
+        if(value.trim().isEmpty()){host.showMessage("There is no recognized text to save. Notes remain unchanged.");return;}
+        Note current=target==null?null:find(target);long now=System.currentTimeMillis();
+        if(target!=null && (current==null || current.deletedAt>0)){host.showMessage("Original note is unavailable or in Trash. Use Save as new note.");return;}
+        if(current==null){current=Note.create(now).edit("Scanned text",value,now);notes.add(current);}
+        else{captureUndo(Arrays.asList(current),true);if(current.checklist){List<Note.Item> rows=new ArrayList<>(current.items);for(String line:value.split("\\n",-1))rows.add(new Note.Item(UUID.randomUUID().toString(),line,false,0));current=current.list(current.title,rows,current.hideChecked,now);}else current=current.rich(current.title,current.body+(current.body.isEmpty()?"":"\n\n")+value,current.marks,now);replace(current);}
+        ocrPanel=false;editing=current.id;queueSave();renderEditor();host.showMessage("Reviewed OCR text saved locally. Original image is unchanged.");
+    }
+    public void startVoiceCapture(){whenReady(()->{
+        persistDraft();if(capture!=null){host.showMessage("A recording is already active.");return;}
+        try{
+            capture=new VoiceCapture(context,new VoiceCapture.Listener(){
+                public void started(String id){main.post(()->{if(closed)return;voicePage=true;title=null;body=null;search=null;root.removeAllViews();header("Recording voice");root.addView(text("Microphone active · audio stays on this device. Stop to save and automatically transcribe offline in English. Leaving the app stops capture. Other languages/accents may be inaccurate; review the transcript against audio.",17));row(new String[]{"Stop and transcribe"},new Runnable[]{()->{if(capture!=null)capture.stop();if(status!=null)status.setText("Finishing durable audio…");}});});}
+                public void saved(String id){VoiceTasks.transcribe(context,id);main.post(()->{capture=null;if(closed)return;addVoicePlaceholder(id);if(voicePage)renderVoiceInbox();host.showMessage("Audio saved locally. Offline English transcription started automatically.");});}
+                public void failed(String message){main.post(()->{capture=null;if(closed)return;voicePage=false;returnToNoteOrHome();host.showMessage("Recording stopped: "+message+". Other features remain available; check Voice inbox for recovered audio.");});}
+            });captureWorker.execute(capture);
+        }catch(Exception e){capture=null;host.showMessage("Recording could not start: "+e.getMessage()+". Notes are unchanged.");}
+    });}
+    private void addVoicePlaceholder(String id){String noteId=app.space.notes.domain.VoiceTranscripts.noteId(id);if(find(noteId)==null){notes.add(app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis()));queueSave();}}
+    private void voiceComplete(String id,String text,String failure){whenReady(()->{
+        if(closed)return;persistDraft();addVoicePlaceholder(id);Note note=find(app.space.notes.domain.VoiceTranscripts.noteId(id));
+        if(!text.isEmpty() && note!=null && note.deletedAt==0){Note changed=app.space.notes.domain.VoiceTranscripts.apply(note,id,text,System.currentTimeMillis());if(changed!=note){replace(changed);queueSave();}}
+        if(voicePage)renderVoiceInbox();else if(editing==null && !storagePage)filterNow();
+        if(!failure.isEmpty())host.showMessage("Offline transcription unavailable. Audio is retained in Voice inbox; retry or export it. Other notes features are unaffected.");
+    });}
+    private void renderVoiceInbox(){
+        persistDraft();voicePage=true;storagePage=true;editing=null;title=null;body=null;search=null;querySequence++;root.removeAllViews();header("Voice inbox");
+        root.addView(text("Original WAV recordings are kept privately, independent of note Trash. JSON backups exclude audio. Export important recordings to your local folder/SD card; never clear app data before doing so. Retry uses the bundled English model, never a cloud service.",14));
+        LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);ScrollView scroll=new ScrollView(context);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));content.addView(text("Reading local recordings…",14));
+        row(new String[]{"Record voice","Refresh","Back"},new Runnable[]{host::requestVoiceCapture,this::renderVoiceInbox,()->{voicePage=false;stopPlayback();renderHome();}});
+        disk.execute(()->{
+            try{VoiceFiles files=new VoiceFiles(context);List<String> ids=files.list();Map<String,org.json.JSONObject> results=new LinkedHashMap<>();for(String id:ids){try{results.put(id,files.result(id));}catch(Exception invalid){results.put(id,new org.json.JSONObject().put("state","Transcript unreadable; audio retained").put("text",""));}}
+                main.post(()->{if(closed || !voicePage)return;content.removeAllViews();if(ids.isEmpty())content.addView(text("No recordings yet. Microphone access is optional and only requested when you tap Record voice.",15));
+                    for(String id:ids){java.io.File audio=files.audio(id);org.json.JSONObject result=results.get(id);content.addView(text(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(audio.lastModified()))+" · "+audio.length()+" bytes",17));content.addView(text(result.optString("state"),14));String transcript=result.optString("text","");if(!transcript.isEmpty())content.addView(text(transcript.length()>500?transcript.substring(0,500)+"…":transcript,15));
+                        rowIn(content,new String[]{"Play","Stop playback","Export WAV","Retry transcript","Open note"},new Runnable[]{()->playVoice(id),this::stopPlayback,()->host.exportVoice(id),()->{VoiceTasks.transcribe(context,id);host.showMessage("Offline transcription queued. Original audio is retained.");},()->{addVoicePlaceholder(id);voicePage=false;editing=app.space.notes.domain.VoiceTranscripts.noteId(id);renderEditor();}});
+                    }
+                });
+            }catch(Exception e){main.post(()->{if(!closed && voicePage){content.removeAllViews();content.addView(text("Voice inbox could not be read. Files were not deleted. "+e.getMessage(),15));}});}
+        });
+    }
+    private void playVoice(String id){stopPlayback();try{java.io.File file=new VoiceFiles(context).audio(id);android.media.MediaPlayer player=new android.media.MediaPlayer();voicePlayer=player;player.setAudioAttributes(new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_MEDIA).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build());player.setDataSource(file.getPath());player.setOnPreparedListener(p->p.start());player.setOnCompletionListener(p->stopPlayback());player.setOnErrorListener((p,what,extra)->{stopPlayback();host.showMessage("Playback failed. Original WAV is retained; try exporting it.");return true;});player.prepareAsync();}catch(Exception e){stopPlayback();host.showMessage("Cannot play recording: "+e.getMessage());}}
+    private void stopPlayback(){if(voicePlayer!=null){voicePlayer.release();voicePlayer=null;}}
+    public void exportVoice(String id,android.net.Uri uri){whenReady(()->{disk.execute(()->{
+        String message;try{LocalBackupFiles.requireLocal(uri);java.io.File audio=new VoiceFiles(context).audio(id);String expected;try(java.io.InputStream in=new java.io.FileInputStream(audio)){expected=streamDigest(in);}try(java.io.InputStream in=new java.io.FileInputStream(audio);java.io.OutputStream out=context.getContentResolver().openOutputStream(uri,"rwt")){if(out==null)throw new java.io.IOException("Cannot write WAV destination");byte[] buffer=new byte[8192];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);out.flush();}try(java.io.InputStream in=context.getContentResolver().openInputStream(uri)){if(!expected.equals(streamDigest(in)))throw new java.io.IOException("WAV readback mismatch");}message="WAV export verified. Private original is also retained.";}
+        catch(Exception e){message="WAV export not verified: "+e.getMessage()+". Private original is retained; a partial destination may need removing.";}
+        final String result=message;main.post(()->{if(!closed)host.showMessage(result);});
+    });});}
+    public void pause(){if(capture!=null)capture.stop();stopPlayback();flush();}
     private void scheduleDraft(){dirty=true;if(status!=null)status.setText("Unsaved changes…");main.removeCallbacks(saveDraft);main.postDelayed(saveDraft,350);}
     private void invalidateFullUndo(){undoCreatedId=null;if(undoFull){undoBatch.clear();undoFull=false;}}
     private void captureUndo(List<Note> before,boolean full){undoCreatedId=null;undo=null;undoBatch=new ArrayList<>(before);undoFull=full;}
@@ -445,7 +526,7 @@ public final class NotesController {
         catch(IllegalArgumentException e){host.showMessage(e.getMessage());return false;}
     }
     public void receiveText(IncomingText incoming){whenReady(()->{
-        persistDraft();Note note=Note.create(System.currentTimeMillis()).edit(incoming.title,incoming.body,System.currentTimeMillis());notes.add(note);selectedIds.clear();editing=note.id;queueSave();renderEditor();host.showMessage("Shared text saved locally. Source is unchanged.");log("share-in","text accepted");
+        if(capture!=null)capture.stop();persistDraft();Note note=Note.create(System.currentTimeMillis()).edit(incoming.title,incoming.body,System.currentTimeMillis());notes.add(note);selectedIds.clear();editing=note.id;queueSave();renderEditor();host.showMessage("Shared text saved locally. Source is unchanged.");log("share-in","text accepted");
     });}
     private void renderColours(){
         List<Note> chosen=propertyTargets();if(chosen.isEmpty())return;
@@ -464,12 +545,18 @@ public final class NotesController {
         }
         row(new String[]{"Cancel"},new Runnable[]{this::returnToNoteOrHome});
     }
+    private void renderModelInfo(){
+        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;root.removeAllViews();header("Offline models & licenses");
+        TextView details=text("Reading bundled notices…",14);ScrollView scroll=new ScrollView(context);scroll.addView(details);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));row(new String[]{"Back"},new Runnable[]{this::renderStorage});
+        disk.execute(()->{StringBuilder value=new StringBuilder("All inference runs locally on CPU. No network permission, platform SpeechRecognizer or model downloader. OCR: Tesseract4Android 4.9.0, tessdata_fast 4.1.0 English/Hindi/Kannada. Speech: Vosk 0.3.75 with bundled English small-en-us-0.15. Accuracy varies: review recognized text against the original. First use installs verified models in private storage; speech needs additional disk/RAM. Microphone is optional and only requested on Record voice. Voice inbox originals are excluded from JSON backup and never automatically deleted.\n\n");try{for(String name:context.getAssets().list("licenses")){value.append("\n\n===== ").append(name).append(" =====\n");try(java.io.InputStream in=context.getAssets().open("licenses/"+name)){java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);value.append(bytes.toString("UTF-8"));}}}catch(Exception e){value.append("Notices could not be read: ").append(e.getMessage());}main.post(()->{if(!closed && details.getParent()!=null)details.setText(value);});});
+    }
     private void renderStorage() {
         storagePage=true;prepared=null;editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);
-        root.removeAllViews();header("Storage & recovery");
+        voicePage=false;root.removeAllViews();header("Storage & recovery");
         ScrollView scroll=new ScrollView(context);scroll.setFillViewport(true);
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        rowIn(content,new String[]{"Voice inbox","Offline models & licenses"},new Runnable[]{this::renderVoiceInbox,this::renderModelInfo});
         content.addView(text("Choose Internal storage or an SD-card folder. Cloud providers are refused: Notes stays offline.",17));
         content.addView(text("Choose a NEW EMPTY folder for this library. Notes copies and verifies all text notes before switching. The previous folder is kept; it is never deleted automatically.",15));
         content.addView(text("A private recovery copy is also kept on this device. If folder access fails, edits remain in this copy and show Pending, not saved-to-folder. Retry after reconnecting or choose another empty folder.",15));
@@ -628,6 +715,8 @@ public final class NotesController {
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
     public boolean back() {
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}
+        if(ocrPanel){cancelOcr();return true;}
+        if(voicePage){if(capture!=null){capture.stop();host.showMessage("Stopping capture and preserving audio…");return true;}voicePage=false;stopPlayback();renderHome();return true;}
         if(diagramOpen){diagramOpen=false;renderEditor();return true;}
         if(editing==null && !selectedIds.isEmpty()){selectedIds.clear();renderHome();return true;}
         if(prepared!=null){prepared=null;renderBackups();return true;}
@@ -641,6 +730,6 @@ public final class NotesController {
         if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());}}
     }
     public void close() {
-        closed=true; main.removeCallbacksAndMessages(null); searchWorker.shutdown();
+        closed=true;if(ocrCancellation!=null)ocrCancellation.cancel();if(capture!=null)capture.stop();stopPlayback();if(unsubscribeVoice!=null)unsubscribeVoice.run();deferredResults.clear(); main.removeCallbacksAndMessages(null); searchWorker.shutdown();
     }
 }

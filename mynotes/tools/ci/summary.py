@@ -38,7 +38,7 @@ def evaluate(needs,evidence,plan):
             expected=lane_cases(plan,lane['group'])
             exact=sorted(result.get('cases',[]))==expected
             hash_ok=identity.get('installed_sha256')==identity.get('download_sha256')==identity.get('audited_sha256')==audit['accepted_sha256']
-            if not (result.get('ok') and exact and hash_ok and identity.get('api')==lane['api'] and identity.get('group')==lane['group'] and identity.get('lane')==lane['id'] and identity.get('source')==audit['source'] and all(identity.get(key,default)==lane.get(key,default) for key,default in [('font',1.0),('night','no'),('orientation','portrait'),('profile','Nexus 5')])):
+            if not (result.get('ok') and exact and hash_ok and identity.get('api')==lane['api'] and identity.get('group')==lane['group'] and identity.get('lane')==lane['id'] and identity.get('source')==audit['source'] and all(identity.get(key,default)==lane.get(key,default) for key,default in [('font',1.0),('night','no'),('orientation','portrait'),('profile','Nexus 5'),('mic','denied')])):
                 errors.append('Invalid/incomplete test or APK identity: '+lane['id'])
             lines.append(f"| {lane['id']} | {lane['api']} | {result.get('passed',0)} / {len(expected)} | {hash_ok} |")
         jvm=one('jvm.json')

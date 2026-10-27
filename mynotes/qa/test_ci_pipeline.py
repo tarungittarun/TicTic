@@ -136,7 +136,7 @@ class SummaryGate(unittest.TestCase):
         for lane in plan['lanes']:
             expected=lane_cases(plan,lane['group']);prefix=lane['id']+'/'
             write(prefix+'results.json',{'ok':True,'cases':expected,'passed':len(expected)})
-            write(prefix+'identity.json',{'installed_sha256':'abc','download_sha256':'abc','audited_sha256':'abc','api':lane['api'],'lane':lane['id'],'group':lane['group'],'source':'source',**{key:lane[key] for key in ['font','night','orientation','profile']}})
+            write(prefix+'identity.json',{'installed_sha256':'abc','download_sha256':'abc','audited_sha256':'abc','api':lane['api'],'lane':lane['id'],'group':lane['group'],'source':'source',**{key:lane[key] for key in ['font','night','orientation','profile','mic']}})
         return needs,plan
     def test_revalidation_passes_with_publication_intentionally_skipped(self):
         with tempfile.TemporaryDirectory() as d:

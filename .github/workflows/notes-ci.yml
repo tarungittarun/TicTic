@@ -224,7 +224,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 13
+      max-parallel: 20
       matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
     env:
       LANE_ID: ${{ matrix.id }}
@@ -234,6 +234,7 @@ jobs:
       LANE_NIGHT: ${{ matrix.night }}
       LANE_ORIENTATION: ${{ matrix.orientation }}
       LANE_PROFILE: ${{ matrix.profile }}
+      LANE_MIC: ${{ matrix.mic }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5

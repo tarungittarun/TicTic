@@ -12,3 +12,23 @@ dependencies {
     api project(':notes-domain')
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
 }
+
+// Bundled CPU-only engines: app never calls a model downloader or Android cloud recognizer.
+dependencies {
+    implementation 'cz.adaptech.tesseract4android:tesseract4android:4.9.0'
+    implementation 'com.alphacephei:vosk-android:0.3.75@aar'
+    implementation 'net.java.dev.jna:jna:5.18.1@aar'
+}
+android {
+    sourceSets { main.assets.srcDirs += "$buildDir/generated/voice-assets" }
+    packagingOptions { jniLibs { useLegacyPackaging true } }
+}
+tasks.register('prepareOfflineSpeechModel', Exec) {
+    def manifest = rootProject.file('runtime/src/main/assets/voice/model.json')
+    def recipe = rootProject.file('tools/models/prepare_voice.py')
+    def archive = file("$buildDir/generated/voice-assets/voice/speech-model.zip")
+    inputs.files(manifest, recipe)
+    outputs.file(archive)
+    commandLine 'python3', recipe.absolutePath, '--manifest', manifest.absolutePath, '--output', archive.absolutePath
+}
+preBuild.dependsOn prepareOfflineSpeechModel

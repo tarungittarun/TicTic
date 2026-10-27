@@ -86,12 +86,15 @@ metadata={'lane':os.environ['LANE_ID'],'group':os.environ['LANE_GROUP'],'api':in
           'release_versionCode':audit['versionCode'],'network':'airplane setting enabled, radios disabled; release has no INTERNET permission',
           'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26,
           'font':float(os.environ.get('LANE_FONT','1.0')),'night':os.environ.get('LANE_NIGHT','no'),
-          'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5')}
+          'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5'),'mic':os.environ.get('LANE_MIC','denied')}
 (out/'identity.json').write_text(json.dumps(metadata,indent=2)+'\n')
 PYHASH
 adb install -r "$DEBUG"
 adb install -r "$TEST"
-adb shell am instrument -r -w -e disableAnalytics true -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
+if [[ "${LANE_MIC:-denied}" == granted ]]; then
+  adb shell pm grant app.space.notes.debug android.permission.RECORD_AUDIO
+fi
+adb shell am instrument -r -w -e disableAnalytics true -e expectedMic "${LANE_MIC:-denied}" -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
 python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" \
   --path "$OUT/instrumentation.txt" --output "$OUT/results.json"

@@ -378,6 +378,7 @@ public class CalculatorUiTest {
         // selection stands must STILL clear it.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
             @Override public Matcher<View> getConstraints() { return isDisplayed(); }
@@ -403,6 +404,7 @@ public class CalculatorUiTest {
         // expression box then the selection and the options ... should go".
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(app.space.feature.calculator.R.id.calc_dock))
                 .perform(new GeneralClickAction(Tap.SINGLE,
@@ -421,6 +423,7 @@ public class CalculatorUiTest {
         // tap does both: release, then park.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         tapAtOffset(2);
         onView(withId(DISPLAY)).check(held(0));
@@ -930,6 +933,7 @@ public class CalculatorUiTest {
         // (his log: "selection started" then "selection menu closed").
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         // and it stays useful: typing over the held range replaces it
         type("7");
@@ -955,6 +959,7 @@ public class CalculatorUiTest {
         // range collapses to the caret at the tap and the menu goes.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
                 new CoordinatesProvider() {
@@ -1051,6 +1056,7 @@ public class CalculatorUiTest {
         // the menu and the band, and the caret stands where the thumb landed.
         type("1", "2", "3");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
                 new CoordinatesProvider() {
@@ -1068,6 +1074,7 @@ public class CalculatorUiTest {
         // selection together -- no ghost band over an empty display.
         type("1", "2", "3");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
         type("AC");
         onView(withId(DISPLAY)).check(held(0));
@@ -1148,6 +1155,7 @@ public class CalculatorUiTest {
         // saved memory there" -- the Google Calculator MR he screenshotted.
         type("4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
         onView(withText("MAdd")).check(matches(isDisplayed()));
         onView(withText("MAdd")).perform(click());
@@ -1173,6 +1181,7 @@ public class CalculatorUiTest {
         // and the next key proves the position.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
+        waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withText("Copy")).check(matches(isDisplayed()));
         // Straight down on the held band itself -- the gesture that used to be

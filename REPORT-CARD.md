@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.34 (versionCode 71) · SHA-256 `1231de7fac90796e2f6e5d20b84a38154faa4ee9ce6cad3843d6656f861fcf51` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.32 (versionCode 33) · SHA-256 `074d2c9ecd00268ed78e0380217043bced42bb2cf9b07a220fe2c10cccbf8e8c` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 24543 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (53 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 321 recorded runs — **221 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
+**Build (MySpace):** 3.12.35 (versionCode 72) · SHA-256 `f3257177dc098cf62f54a6f77df526195323d36b23ed5a69f9ff07ddf96b45fb` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.33 (versionCode 34) · SHA-256 `99c65435e455e241dd3eb65ea6494abcabf2099f5024f6a82c6cf8a621a6bf6b` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 24624 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (54 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 325 recorded runs — **225 green, 86 red, 14 cancelled** (69% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -193,6 +193,25 @@ emulator; the real bar still blinks. One honesty note: the first cut of this rou
 (3.12.33/70) shipped the old build stamp inside it, so a log could not tell it from
 3.12.32; the stamp was retargeted to print `calc screen build 3.12.34` and the round
 re-published as 3.12.34/71 — the build he installs now names itself.
+
+**Round 32 (2026-10-27, MySpace 3.12.35/72 + MyCalc 1.0.33/34):** the owner's
+screenshot of the new Key shape picker indicted it in one glance: a stock light
+AlertDialog with radio buttons, "outdated... match with app's design and
+signature." It is now the app's own dark pill popup — the same surface, radius,
+row type and entrance animation as the Effects and memory pickers — and each row
+carries a live swatch drawn by the very drawable it selects (wider than tall, so
+the pill cannot masquerade as a circle in miniature), with the current pick
+ticked in accent. His other three orders landed with it: "keep proper circles" —
+Circle is a dedicated disc drawable whose diameter is the key's shorter side, so
+it can never read as the pill's capsule; "if no shape is selected then it should
+be plain no border... when user clicks the key, on that time you can show the
+effect in rectangle" — No shape keys idle fully transparent and flash a rectangle
+of accent under the thumb while pressed; "remove hexagon" — gone from the list,
+from the pad, and from the code, with a saved "Hexagon" pref migrating to Circle
+instead of drawing a ghost. Regression: 54 instrumented stories green on CI (two
+of them new — the picker's previews/persistence, and plain-keys-flash vs
+round-disc backgrounds asserted on the real drawables), 389 contracts green, both
+CI runs clean, zero exceptions in the suite.
 
 ---
 
@@ -542,4 +561,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 31 (commits `e8fbc54` + `653a01b` + card, MySpace 3.12.34/71, MyCalc 1.0.32/33).*
+*Report card refreshed 2026-10-27 after round 32 (commit `ec44b23` + card, MySpace 3.12.35/72, MyCalc 1.0.33/34).*

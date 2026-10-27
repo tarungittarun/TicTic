@@ -3,7 +3,13 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      - 'mynotes/**'
+      - 'mynotes/app/src/main/**'
+      - 'mynotes/runtime/src/main/**'
+      - 'mynotes/domain/src/main/**'
+      - 'mynotes/**/*.gradle'
+      - 'mynotes/gradle/**'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/NativeSoakTest.java'
+      - 'mynotes/tools/ci/native_soak.sh'
       - '.github/workflows/notes-soak.yml'
       - '.github/actions/setup-mynotes/**'
   workflow_dispatch:
@@ -32,7 +38,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
   soak:
-    name: 90-minute native/durable cycles API ${{ matrix.api }}
+    name: 85-minute native/durable cycles API ${{ matrix.api }}
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 105

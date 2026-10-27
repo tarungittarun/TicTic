@@ -64,8 +64,11 @@ exact-alarm permission is declared. Widget is a four-title projection, not an in
 Media attachments, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
 qualification, Play publication and eventual MySpace integration remain open. Wall dragging stays last.
 See [device guide](docs/STANDALONE-TEST-GUIDE.md), [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md)
-and [offline model scope](docs/OFFLINE-ML-v0.6.md). The separate timed native/disk soak is additional
-component evidence, not an all-device or whole-UI guarantee.
+and [offline model scope](docs/OFFLINE-ML-v0.6.md). The separate native/disk soak **passed 70 measured
+minutes each on API26/35, totaling 5,300 complete OCR/ASR/PCM/repository/backup cycles**. This is debug
+component evidence, not an all-device, inference-peak-memory or whole-UI guarantee.
+[Full report card](docs/REPORT-CARD.md) · [durable qualification metrics](docs/evidence/2026-10-28-qualification.json)
+· [next large acceptance slices](docs/NEXT-ACCEPTANCE.md).
 
 ## Continuous integration
 

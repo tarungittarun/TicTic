@@ -51,6 +51,14 @@ engine/disk measurement. Recorded source identities keep that scope explicit.
 
 ### Accepted and diagnostic checkpoints
 
+- Dedicated soak [40586522279](https://github.com/tarungittarun/TicTic/actions/runs/40586522279) completed:
+  API26 **70m 0.978s /3,205 cycles**, API35 **70m 0.387s /2,095 cycles**. Max sampled post-cycle
+  PSS 193.38/113.65 MiB; maximum above warmup 8.06/6.13 MiB. This is not true inference-peak memory
+  or zero-leak proof. Debug component source `899e5a0` has unchanged exercised inputs at accepted8;
+  later capture/controller fixes are qualified by the normal gate, not by this soak. See
+  [durable metrics](evidence/2026-10-28-qualification.json) and [scope/report card](REPORT-CARD.md).
+
+
 - Current 0.7 acceptance [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347):
   **69 JVM, 98 unique Android cases, 803/803 executions /21 lanes**, all 30 expanded jobs green.
   Local gates 107 Notes /497 root. APIs26/29/34/35/36; notification and mic positive/negative policy;

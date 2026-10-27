@@ -2,6 +2,8 @@
 
 Permanent IDs, 2026-10-27. Original scope snapshots below retain historical markers for the OLD MySpace implementation. They are NOT evidence for new MyNotes. Owner-approved development baseline overrides historical proposals.
 
+Current standalone outcomes are in [REPORT-CARD.md](REPORT-CARD.md), with remaining large slices and physical acceptance in [NEXT-ACCEPTANCE.md](NEXT-ACCEPTANCE.md). The original per-ID Planned markers and old suite/source proposals below are a scope inventory, **not a current completion scoreboard**: for example, 0.7 uses bundled Tesseract rather than ML Kit and ships inexact reminder/projection-widget subsets, not all the richer controls described here. No 100/100 claim is made.
+
 All new-runtime requirements start Planned. AT-* are reserved acceptance scenario IDs, not executable tests. Before each slice, specify Given/When/Then cases and link executable tests plus runtime evidence. No item becomes Verified from a source grep alone.
 
 ## Original inventory

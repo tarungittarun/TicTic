@@ -22,6 +22,7 @@ Install over the existing MyNotes release. **Do not uninstall or clear app data.
 remain fixed. Version 0.7 writes schema 5 and reads schemas 1–5 (0.6 wrote schema 4). Do not downgrade to an old reader. Existing folder libraries/old backups remain readable.
 Export and verify a JSON backup before destructive experiments; **also export voice WAVs separately**.
 Private recordings are not contained in JSON or selected-folder note generations and are lost by uninstall/clear-data.
+The default private library is on-device. For local-only external storage/export, choose an **on-device or SD-card SAF provider**, not a cloud-backed folder. The app has no INTERNET permission, but a provider selected through Android's picker can have its own network/storage behavior.
 
 Large APKs use versioned GitHub Release assets, not accumulating binary copies in Git. Their small
 SHA/source/certificate/size receipts remain in `mynotes/releases/`. Old published versions are not replaced.
@@ -34,6 +35,7 @@ SHA/source/certificate/size receipts remain in `mynotes/releases/`. Old publishe
 2. Try a clean printed page, names, numbers, low contrast, rotated images and a genuinely blank page.
    Engine confidence is not accuracy. The release bundles all models and has no network permission;
    no first-use model download should be required. Cloud/file URIs and oversized/invalid inputs are refused explicitly.
+   Current OCR accepts `com.android.externalstorage.documents`, `com.android.providers.media.documents` and `media` authorities only. Other providers, including the separate Downloads document provider and OEM/cloud authorities, are not generally supported. If rejected, copy the image into Pictures/Internal storage and select it through the supported local provider; this is a compatibility boundary, not OCR accuracy.
 3. **Record voice** requests the optional microphone permission. First deny it and verify text/checklists,
    diagrams, storage and OCR still work. Then allow it from an explicit record action.
 4. Speak English, tap **Stop and transcribe**, and open **Voice inbox**. WAV is saved before automatic

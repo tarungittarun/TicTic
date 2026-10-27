@@ -14,7 +14,7 @@
 
 | Slice | Outcome | Boundary |
 |---|---|---|
-| Offline OCR | Bundled English/Hindi/Kannada Tesseract models; local-image selection, editable review, append/new note | Printed/control images; no camera/handwriting/all-language accuracy claim; original image not attached |
+| Offline OCR | Bundled English/Hindi/Kannada Tesseract models; local-image selection, editable review, append/new note | Printed/control images; three supported local-provider authorities, not general Downloads/OEM/cloud support; no camera/handwriting/all-language accuracy claim; original image not attached |
 | Automatic offline ASR | Bundled English Vosk model, foreground optional microphone, durable PCM WAV before inference, playback/export/retry | English only; physical/noisy/Indian-accent corpus not qualified; WAVs are outside JSON backups |
 | Voice data safety | Interrupted WAV recovery, idempotent source application, corrupt-entry isolation, cross-worker atomic transcript lock, durable deletion guards including failed/pending placeholders | Readonly guard delays purge rather than resurrecting notes; explicit inbox recovery remains intentional |
 | Reminders | Portable schema 5 epoch, date/time chooser, Clear/Undo, optional notifications, stale/Trash validation, reboot/update rescheduling, open existing note | Inexact; no recurrence/location/snooze/exact-alarm exemption or missed-power-off guarantee |
@@ -32,6 +32,7 @@
 | Android unique methods | **98**, explicitly discovered/partitioned |
 | Android executions | **803/803 across 21 lanes** |
 | Main workflow expanded jobs | **30**, budget enforced; matrix fail-fast disabled |
+| Final normal run elapsed | **7m 43s** from run creation to completion; not a matched-workload speedup benchmark |
 | Emulator versions | API26/29/34/35/36, with aspect-specific coverage |
 | Full resource variants | API34, API36, night, 200% font, real landscape and tablet: **98/98 each** |
 | Permissions | Granted microphone API26/35; denied in other lanes; granted notification local-surfaces lane passed |
@@ -46,7 +47,17 @@ from official-release install/hash/launch/update evidence. Neither is universal 
 ## Extended native/durability soak
 
 [Run 40586522279](https://github.com/tarungittarun/TicTic/actions/runs/40586522279) is separate and nonpublishing.
-It requests70 minutes on API26 and API35. **Completion metrics pending in this draft.**
+**Completed successfully on API26 and API35** (all three workflow jobs green):
+
+| API | Measured elapsed | Complete OCR/ASR/disk cycles | Warm post-cycle PSS | Maximum post-cycle PSS | Max minus warm |
+|---|---:|---:|---:|---:|---:|
+| 26 | 70m 0.978s | **3,205** | 185.32 MiB | 193.38 MiB | 8.06 MiB |
+| 35 | 70m 0.387s | **2,095** | 107.51 MiB | 113.65 MiB | 6.13 MiB |
+
+**5,300 complete cycles** total. Each cycle required real native English OCR and ASR, interrupted
+PCM recovery, repository equality and portable-backup readback. Both final source WAV hashes
+remained `dcfea5712c43a43ba7ae8083afb39d36993e5a69c46e88b68aaa72b65cb615bb`.
+Different API/host throughput is not a controlled performance comparison.
 
 The run cycles real English OCR/ASR, interrupted PCM repair, atomic repository/portable-backup
 readback and source-WAV integrity with a bounded32-note working set. It checks gross retained
@@ -65,7 +76,7 @@ are covered by the complete normal gates, not claimed as exercised by this compo
 - Ordinary edits could dismiss an already delivered reminder. Notifications now carry the expected epoch and only stale/cleared/trashed/changed reminders are invalidated.
 - Late successful or failed voice results could recreate purged placeholders. Durable creation markers, busy-result deferral, pending-placeholder coverage and readonly-guard journeys address this.
 - Quick recording cancellation before worker start could leave capture stuck; its completion callback now always clears controller state.
-- Controlled-font Hindi `भारत नमस्ते` and Kannada `ಕನ್ನಡ ಭಾಷೆ` were recovered exactly in diagnostics (API26 confidence 90/96). Confidence/token recovery is not a broad accuracy score.
+- Final run archived **16 controlled-font OCR diagnostic records across eight lanes**: Hindi `भारत नमस्ते` (confidence 90 on API26, 91 elsewhere) and Kannada `ಕನ್ನಡ ಭಾಷೆ` (96); all recorded token matches true. Confidence/token recovery is not a broad accuracy score.
 
 ## Deliberately still open
 
@@ -76,4 +87,4 @@ TalkBack/IME, noisy/accented speech and physical ARM/16 KiB-page trials and very
 publication and MySpace integration are not done. Calculator/MySpace application code and their
 build/test workflows were not rebuilt or rerun for this work.
 
-[Device acceptance guide](STANDALONE-TEST-GUIDE.md) · [OS surfaces scope](LOCAL-SURFACES-v0.7.md) · [CI architecture](CI-ARCHITECTURE.md) · [offline engine/model provenance](OFFLINE-ML-v0.6.md)
+[Machine-readable qualification evidence](evidence/2026-10-28-qualification.json) · [Next acceptance slices](NEXT-ACCEPTANCE.md) · [Device acceptance guide](STANDALONE-TEST-GUIDE.md) · [OS surfaces scope](LOCAL-SURFACES-v0.7.md) · [CI architecture](CI-ARCHITECTURE.md) · [offline engine/model provenance](OFFLINE-ML-v0.6.md)

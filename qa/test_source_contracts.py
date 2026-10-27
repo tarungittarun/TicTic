@@ -4787,6 +4787,15 @@ class OutcomeLogContracts(unittest.TestCase):
         ):
             self.assertIn('"' + outcome + '"', self.screen)
 
+    def test_pause_takes_every_popup_window_down(self):
+        # Round 33: a popup is its own window; a screen torn down with one open
+        # leaked it onto whatever came next. Pause dismisses history, menu and
+        # stroke popups, and the MySpace host forwards pause to the live screen.
+        self.assertIn("\"screen paused: popups dismissed, blink stopped\"", self.screen)
+        self.assertIn("if (historyPopup != null && historyPopup.isShowing()) historyPopup.dismiss();", self.screen)
+        self.assertIn("if(activeScreen!=null)activeScreen.onPause();", self.main)
+        self.assertIn("if(previousBuilt!=null&&previousBuilt!=activeScreen)previousBuilt.onPause();", self.main)
+
     def test_a_key_press_never_rebuilds_the_screen(self):
         # The owner's shared log convicted the old architecture: one "laid out" line after
         # EVERY key press, because every press rebuilt every view. That rebuild was the

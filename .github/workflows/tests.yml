@@ -140,6 +140,8 @@ jobs:
             echo "::error title=calc app log tail::$body"
           fi
           if [ -f /tmp/ui.log ]; then
+            sum=$(grep -E "^[0-9]+\) |^Tests run:|^OK \(" /tmp/ui.log | tail -15 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=failure summary::$sum"
             body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=ui.log::$body"
           else

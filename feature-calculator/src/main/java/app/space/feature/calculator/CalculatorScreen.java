@@ -2740,7 +2740,31 @@ public final class CalculatorScreen implements Screen {
 
     @Override public void onResume() { }
 
-    @Override public void onPause() { }
+    @Override public void onPause() {
+        // Round 33: every popup here is a window of its own. If the screen is
+        // torn down while one stands open -- app switched, activity reclaimed,
+        // suite moving to the next story -- the window outlives its screen and
+        // lands on whatever comes next: a ghost panel on his phone, a touch
+        // thief in the tests. Pause takes them all down, stops the blink, and
+        // resets the history flag so a dead popup can never block the next
+        // hold-select.
+        if (historyPopup != null && historyPopup.isShowing()) historyPopup.dismiss();
+        historyPopup = null;
+        if (menuPopup != null && menuPopup.isShowing()) menuPopup.dismiss();
+        menuPopup = null;
+        dismissStroke();
+        if (strokeDwell != null) {
+            strokeHandler.removeCallbacks(strokeDwell);
+            strokeDwell = null;
+        }
+        closeSelectionMenu();
+        if (displayView != null && caretBlinker != null) {
+            displayView.removeCallbacks(caretBlinker);
+        }
+        historyOpen = false;
+        AppLog.event(lastContext, "calc",
+                "screen paused: popups dismissed, blink stopped");
+    }
 
     /**
      * One key, from anywhere: a hardware keyboard in the standalone build types through

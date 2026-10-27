@@ -235,7 +235,12 @@ popups that declare themselves untouchable. Regression: 57 stories green on CI
 inject a real pointer stream), 389 contracts green, the raw instrumented log
 is now a run artifact anyone can download from the run page, and CI itself fails
 a run whose executed story count differs from the number of @Test stories
-declared in the suite -- so a silent skip can never read as green again.
+declared in the suite -- so a silent skip can never read as green again. The
+re-runs that classification required also caught a real defect, now fixed: the
+history, menu and stroke popups are windows of their own and outlived a screen
+torn down beneath them -- a ghost panel on his phone, a touch thief in the
+suite -- so onPause now dismisses every one of them on both hosts, and a
+discarded screen is paused when the host swaps away from it.
 
 ---
 

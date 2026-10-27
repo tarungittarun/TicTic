@@ -2,6 +2,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'app.space.notes'
     compileSdk 35
+    buildFeatures { buildConfig true }
     defaultConfig {
         applicationId 'app.space.notes'
         ndk { abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64' }

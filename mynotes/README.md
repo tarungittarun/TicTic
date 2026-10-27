@@ -38,5 +38,7 @@ triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions 
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current functionality is an early text-only slice. See docs/STANDALONE-TEST-GUIDE.md
-for limitations. This reorganisation is not evidence of Android runtime correctness.
+Current release: **0.4.0 (5)** — masonry/list Home, rich text, structured checklists,
+labels/colours, bulk workflows and local storage/backup. See docs/STANDALONE-TEST-GUIDE.md
+for APK, passed test scope and remaining limitations. OCR/ASR/media/diagrams/system
+features are still pending; this is not the full planned product.

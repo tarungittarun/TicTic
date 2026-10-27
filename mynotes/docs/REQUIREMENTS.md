@@ -680,3 +680,25 @@ not the final snackbar; there is no colour picker, rich content or SAF adapter y
 - CI 40566162164: 14 JVM and 28 Android tests passed; install/signature/version gates
   passed. 430 Python checks passed. Current guide links the published 0.3.0 (4) APK.
 - Full UI preview/cancel/document-picker journeys remain for on-device acceptance.
+
+
+## Slice 6 evidence — 0.4.0 (5)
+
+Core implementation expanded substantially; the original K criteria remain binding.
+Scope-specific runtime evidence in CI 40569713346:
+
+- K001/K002/K005/K006: virtualised two-column masonry/list, pinned sections and sort
+  preferences implemented. Wall manual order/drag remains pending; performance/device
+  matrix is not inferred from RecyclerView.
+- K026–K029/K039–K052: structured checklist and selected-range formatting foundations
+  implemented and exercised, but NOT all original criteria complete. Sticky typing,
+  markdown, row drag, custom bullets/themes and full undo stack remain open.
+- K063–K074: per-note/bulk labels, colour swatches and label filtering implemented;
+  global label manager and hashtag/autocomplete remain open.
+- K081–K088: multi-select metadata actions, share, duplicate, merge/sources-to-Trash and
+  basic Undo implemented. Share host is faked in the controller test; full external
+  destination behaviour and final snackbar UX remain for device qualification.
+- ST-05: version-1 migration and schema-2 backup/restore for marks, rows, labels tested;
+  legacy plain conflict-copy IDs preserved across the upgrade.
+- 29 JVM + 40 Android + 440 local checks passed. No full-feature completion percentage
+  asserted. Remaining system/media/ML/diagram/integration scope is unchanged.

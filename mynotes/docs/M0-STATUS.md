@@ -252,3 +252,26 @@ This was a source-generation escaping error, not an emulator/environment failure
 Corrected to escaped newlines and added five local Java-8 literal/comment guard tests.
 Added bounded Android failure annotations before the next runtime run. No APK has been
 published for version 5 yet. Local gate now 440 OK; Notes-only next push validates the fix.
+
+
+### Slice 6 delivered outcome — 0.4.0 (5)
+
+Run **40569713346** succeeded: standalone 1m33s, Android tests 2m1s, publish 11s.
+29 JVM tests and **40 Android tests passed**. Added tests exercise schema-1 migration,
+schema-2 rich/list backup round-trip, native span serialization/edit movement, and four
+real-controller journeys through view dispatch with isolated repositories. The share
+journey uses a fake host, not every external share app; actual touches, large fonts,
+TalkBack, physical providers and 10,000-note performance are not claimed certified.
+
+Signing/package/increasing-version gate passed against all prior published APKs, plus
+install-over-0.1.0 release and launch smoke. APK 0.4.0 (5) published in commit 30d6552;
+built source cb26ef8a2b24ae38077628b404a1059631309cbc. Fetched via fast-forward and verified
+MyNotes-v0.4.0-5.apk.sha256: OK. Final local gate: 440 tests (50 Notes + 390 legacy), OK.
+The two earlier failed compilation runs published nothing; diagnostics exposed the
+newline-literal error, and it was fixed before delivery. No environment rerun loop.
+
+All changes since 6da7733 are under mynotes/ and Notes CI. Calculator/MySpace code and
+paused legacy workflows remain unchanged. Scope limits are listed in CORE-NOTES-v0.4.md
+and current guide. Offline OCR/transcription remain mandatory but not yet implemented;
+diagrams/media/reminders/widgets, wall drag, full list/text parity, storage compaction
+and all-device qualification stay OPEN. Do not mark M0 ML feasibility or full plan done.

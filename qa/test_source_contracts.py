@@ -4466,7 +4466,8 @@ class TestInfrastructureContracts(unittest.TestCase):
         # prints to instrumentation stdout itself.
         self.assertIn("adb pull /data/data/app.space.calc.debug/files/logs/myspace.log", wf)
         self.assertIn("dumpsys package app.space.calc.debug", wf)
-        self.assertIn("===APP TRANSCRIPT TAIL===", wf)
+        self.assertIn("adb logcat -v time TicTicCalc:V", wf)
+        self.assertIn('::error title=streamed app log::', wf)
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("===APP TRANSCRIPT TAIL===", ui)
         self.assertIn("app.space.core.data.AppLog.setEnabled(", ui)

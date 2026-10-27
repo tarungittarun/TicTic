@@ -111,6 +111,14 @@ jobs:
             adb wait-for-device
             adb install -r calc/build/outputs/apk/debug/calc-debug.apk
             adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk
+            # Stamp what actually installed, while adb is demonstrably healthy.
+            adb shell dumpsys package app.space.calc.debug | grep -m1 versionName > /tmp/ver.txt 2>/dev/null || true
+            # Stream the app's own logcat tag LIVE from before the first story:
+            # the post-run `logcat -d` came back empty twice on this farm, and
+            # every adb command after the suite has been coming back empty --
+            # a live stream cannot lose what already flowed through it.
+            adb logcat -c 2>/dev/null || true
+            ( adb logcat -v time TicTicCalc:V AndroidRuntime:E DEBUG:F *:S > /tmp/calc.log 2>/dev/null & echo $! > /tmp/logcat.pid ) || true
             # Round 33: the emulator farm is not uniform -- identical code green
             # on one runner and 34-wide red on another, all races. A true
             # regression fails every attempt; a sick runner gets one retry.
@@ -123,15 +131,15 @@ jobs:
               adb shell am instrument -w app.space.calc.debug.test/androidx.test.runner.AndroidJUnitRunner > /tmp/ui.log 2>&1
               code=$?
             fi
+            kill $(cat /tmp/logcat.pid) 2>/dev/null || true
             cat /tmp/ui.log
             adb logcat -d > /tmp/logcat.log 2>/dev/null || true
-            grep -a "TicTicCalc\|AndroidRuntime\|FATAL" /tmp/logcat.log | tail -120 > /tmp/calc.log 2>/dev/null || true
+            grep -a "TicTicCalc\|AndroidRuntime\|FATAL" /tmp/logcat.log | tail -120 >> /tmp/calc.log 2>/dev/null || true
             adb shell run-as app.space.calc.debug cat files/logs/myspace.log > /tmp/app.log 2>/dev/null || true
             # run-as came back empty twice on this farm even though the app
             # demonstrably ran; the emulator images are rootable, so pull the
             # same file over rooted adb as the second door, and stamp the
             # installed version so a wrong-APK run can never hide again.
-            adb shell dumpsys package app.space.calc.debug | grep -m1 versionName > /tmp/ver.txt 2>/dev/null || true
             adb root > /dev/null 2>&1 || true
             sleep 3
             adb wait-for-device
@@ -171,9 +179,9 @@ jobs:
             if [ -s /tmp/ver.txt ]; then
               echo "::error title=installed app version::$(cat /tmp/ver.txt | tr -d '\r')"
             fi
-            tr=$(awk '/===APP TRANSCRIPT TAIL===/{f=1} f' /tmp/ui.log | tail -c 3700 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
-            if [ -n "$tr" ]; then
-              echo "::error title=app transcript stdout::$tr"
+            if [ -s /tmp/calc.log ]; then
+              body=$(tail -c 3800 /tmp/calc.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+              echo "::error title=streamed app log::$body"
             fi
             first=$(awk '/^1\) /{f=1} f' /tmp/ui.log | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=first failure::$first"

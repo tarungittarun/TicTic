@@ -155,51 +155,6 @@ public class CalculatorUiTest {
                 .edit().putInt("theme", mode).commit();
     }
 
-    /** A hold over the TYPED text -- the right end of the box, where the
-     *  expression actually sits. The middle of the box is empty glass on a
-     *  short expression, and by the owner's round-28 rule empty glass selects
-     *  nothing; the old centre longClicks were asserting a word where no word
-     *  stood. Window-injected and retried until a selection stands. */
-    private static ViewAction holdOnText() {
-        return new ViewAction() {
-            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
-            @Override public String getDescription() {
-                return "hold over the typed text until a selection stands";
-            }
-            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
-                for (int i = 0; i < 4
-                        && !((android.widget.EditText) view).hasSelection(); i++) {
-                    holdAtText(ui, view);
-                    ui.loopMainThreadForAtLeast(150);
-                }
-            }
-        };
-    }
-
-    private static void holdAtText(androidx.test.espresso.UiController ui, View view) {
-        int[] loc = new int[2];
-        view.getLocationInWindow(loc);
-        float d = view.getResources().getDisplayMetrics().density;
-        android.widget.EditText ed = (android.widget.EditText) view;
-        float cx = loc[0] + view.getWidth() - ed.getCompoundPaddingRight() - 15 * d;
-        float cy = loc[1] + ed.getBaseline() - 10 * d;
-        long t = android.os.SystemClock.uptimeMillis();
-        try {
-            android.view.MotionEvent dn = android.view.MotionEvent.obtain(
-                    t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
-            ui.injectMotionEvent(dn);
-            dn.recycle();
-            ui.loopMainThreadForAtLeast(1200);
-            android.view.MotionEvent up = android.view.MotionEvent.obtain(
-                    t, t + 1200, android.view.MotionEvent.ACTION_UP, cx, cy, 0);
-            ui.injectMotionEvent(up);
-            up.recycle();
-        } catch (Exception failed) {
-            throw new RuntimeException("hold over text could not be injected", failed);
-        }
-        ui.loopMainThreadForAtLeast(300);
-    }
-
     /** Window-injected long press, retried until a selection stands -- immune
      *  to espresso's longClick racing the screen's 350ms hold timer on a
      *  loaded runner. */
@@ -210,7 +165,7 @@ public class CalculatorUiTest {
                 return "hold the display until a selection stands";
             }
             @Override public void perform(androidx.test.espresso.UiController ui, View view) {
-                for (int i = 0; i < 4
+                for (int i = 0; i < 3
                         && !((android.widget.EditText) view).hasSelection(); i++) {
                     holdCenter(ui, view);
                     ui.loopMainThreadForAtLeast(150);
@@ -441,7 +396,7 @@ public class CalculatorUiTest {
         // perfectly still, so a click that wanders a few pixels while a
         // selection stands must STILL clear it.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
@@ -467,7 +422,7 @@ public class CalculatorUiTest {
         // Round 25: "once I click anywhere little away from expression in the
         // expression box then the selection and the options ... should go".
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(app.space.feature.calculator.R.id.calc_dock))
@@ -486,7 +441,7 @@ public class CalculatorUiTest {
         // releases it, and the caret must show where typing will land. One
         // tap does both: release, then park.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         tapAtOffset(2);
@@ -524,7 +479,7 @@ public class CalculatorUiTest {
             setTheme(2);
             rule.getScenario().recreate();
             type("1", "2", "3", "4", "5", "6");
-            onView(withId(DISPLAY)).perform(holdOnText());
+            onView(withId(DISPLAY)).perform(longClick());
             onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
                 @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                     if (e != null) throw e;
@@ -734,10 +689,10 @@ public class CalculatorUiTest {
         // Round 9: the three dots store the display, and View memory opens a small popup
         // where entries can be moved up and down and tapped back into the expression.
         type("5", "=");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withText("MAdd")).perform(click());
         type("AC", "7", "=");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withText("MAdd")).perform(click());
         onView(withId(MENU_BTN)).perform(click());
         onView(withText("Memory")).perform(click());
@@ -837,11 +792,11 @@ public class CalculatorUiTest {
     @Test public void selectionMenuOffersCutCopyPasteAndSelectAll() {
         // Round 12: select any length of the expression and get Android's own actions.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withText("Select all")).perform(click());
         onView(withText("Copy")).perform(click());
         // cut removes the held part and leaves the rest in the expression
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withText("Select all")).perform(click());
         onView(withText("Cut")).perform(click());
         onView(withId(DISPLAY)).check(matches(withText("0")));
@@ -866,7 +821,7 @@ public class CalculatorUiTest {
         // gone the stock gesture holds the number under the finger and raises the
         // menu with the four.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                 if (e != null) throw e;
@@ -886,7 +841,7 @@ public class CalculatorUiTest {
         // must leave the held number highlighted; Copy then closes the menu and the
         // caret stands where the held text ended, so the next key appends there.
         type("1", "2", "3");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                 if (e != null) throw e;
@@ -935,7 +890,7 @@ public class CalculatorUiTest {
         // Round 14: tapping elsewhere dismisses the selection menu, puts the caret where
         // the thumb landed, and the next key goes exactly there -- not to the end.
         type("1", "2");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
                 new CoordinatesProvider() {
                     @Override public float[] calculateCoordinates(View view) {
@@ -1000,7 +955,7 @@ public class CalculatorUiTest {
         // tap-to-clear and the selection died a millisecond after birth
         // (his log: "selection started" then "selection menu closed").
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         // and it stays useful: typing over the held range replaces it
@@ -1026,7 +981,7 @@ public class CalculatorUiTest {
         // selected, its not allowing." Tap = down+up without travel: the held
         // range collapses to the caret at the tap and the menu goes.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
@@ -1044,7 +999,7 @@ public class CalculatorUiTest {
         // Round 22: "selects some more or less, it's not allowing" -- the held
         // band itself is a handle now: down inside it grabs the nearer end.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).perform(new androidx.test.espresso.ViewAction() {
             @Override public Matcher<View> getConstraints() { return isDisplayed(); }
             @Override public String getDescription() { return "drag inside the band to offset 2"; }
@@ -1078,7 +1033,7 @@ public class CalculatorUiTest {
         // walks the real window path -- scroll parent and all. Right end in to
         // offset 4, then left end in to offset 2: two chars must stay held.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).perform(narrowRightHandleTo(4));
         onView(withId(DISPLAY)).perform(narrowLeftHandleTo(2));
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
@@ -1096,7 +1051,7 @@ public class CalculatorUiTest {
         // Not "a copy happened" -- the exact slice, commas and all, read back out of
         // the system clipboard the way the next app would read it.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).perform(narrowRightHandleTo(5));
         onView(withText("Copy")).perform(click());
         // The clipboard carries the raw slice -- commas are display furniture, never
@@ -1110,7 +1065,7 @@ public class CalculatorUiTest {
         // held, then a second cut that ate the whole expression. Cut must remove
         // exactly the held slice, leave the rest, and park the caret in the gap.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         onView(withId(DISPLAY)).perform(narrowRightHandleTo(3));
         onView(withText("Cut")).perform(click());
         onView(withId(DISPLAY)).check(matches(withText("456")));
@@ -1140,7 +1095,7 @@ public class CalculatorUiTest {
         // Round 17 lifecycle: AC with a selection held clears the expression and the
         // selection together -- no ghost band over an empty display.
         type("1", "2", "3");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
         type("AC");
@@ -1221,7 +1176,7 @@ public class CalculatorUiTest {
         // memory... long pressed between expression, and able to insert the
         // saved memory there" -- the Google Calculator MR he screenshotted.
         type("4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
         onView(withText("MAdd")).check(matches(isDisplayed()));
@@ -1247,7 +1202,7 @@ public class CalculatorUiTest {
         // drag: the highlight and the menu go, the caret stands where it landed,
         // and the next key proves the position.
         type("1", "2", "3", "4", "5", "6");
-        onView(withId(DISPLAY)).perform(holdOnText());
+        onView(withId(DISPLAY)).perform(longClick());
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
         onView(withText("Copy")).check(matches(isDisplayed()));
@@ -1503,7 +1458,7 @@ public class CalculatorUiTest {
             setTheme(2);
             rule.getScenario().recreate();
             type("1", "2", "3", "4", "5", "6");
-            onView(withId(DISPLAY)).perform(holdOnText());
+            onView(withId(DISPLAY)).perform(longClick());
             onView(withText("Select all")).perform(click());
             onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
                 @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {

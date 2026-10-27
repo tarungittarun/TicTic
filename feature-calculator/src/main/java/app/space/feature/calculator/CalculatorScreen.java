@@ -199,7 +199,6 @@ public final class CalculatorScreen implements Screen {
     private boolean selectedAtDown;
     private boolean multiTouch;
     private float downX, downY;
-    private long downEventTime;
     private int scrollAtDown;
     private int heldA, heldB;
     // Round 25: the hold timer that replaces every OEM long press.
@@ -924,7 +923,6 @@ public final class CalculatorScreen implements Screen {
                     } catch (Exception ex) {
                         dragHandle = 0;
                     }
-                    downEventTime = e.getEventTime();
                     if (dragHandle == 0) {
                         displayView.removeCallbacks(holdSelect);
                         displayView.postDelayed(holdSelect, 350);
@@ -1015,18 +1013,6 @@ public final class CalculatorScreen implements Screen {
                                     .requestDisallowInterceptTouchEvent(false);
                         }
                         return true;
-                    }
-                    // Round 33: the hold timer is a posted runnable, and a
-                    // starved looper (sick emulator runner, lag spike on a real
-                    // phone) can still owe it when the finger lifts -- and the
-                    // lift cancels it, so the hold selects nothing. The gesture
-                    // itself carries the timing: a finger that stood still for
-                    // at least the hold window selects on the lift, synchronously.
-                    if (!longPressFired && !downMoved && dragHandle == 0
-                            && e.getEventTime() - downEventTime >= 320) {
-                        AppLog.event(lastContext, "calc",
-                                "hold timer starved: selecting on the lift instead");
-                        if (selectWordAt(downX, downY)) longPressFired = true;
                     }
                     if (longPressFired) {
                         // Re-assert what the hold selected and CONSUME the up so

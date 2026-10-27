@@ -18,6 +18,7 @@ final class NotesIcon extends Drawable {
  case "more":for(int y=5;y<=19;y+=7)c.drawCircle(12,y,1,p);break;
  case "pin":lines(c,8,3,16,3,15,9,19,14,5,14,9,9,8,3);lines(c,12,14,12,22);break;
  case "format":lines(c,5,18,12,4,19,18);lines(c,8,13,16,13);lines(c,4,22,20,22);break;
+ case "label":lines(c,3,3,12,3,22,13,13,22,3,12,3,3);c.drawCircle(8,8,1.4f,p);break;
  case "palette":c.drawCircle(12,12,9,p);c.drawCircle(9,7,1,p);c.drawCircle(15,7,1,p);c.drawCircle(6,13,1,p);c.drawCircle(17,13,1,p);break;
  case "share":c.drawCircle(18,5,3,p);c.drawCircle(5,12,3,p);c.drawCircle(18,19,3,p);lines(c,8,11,15,6);lines(c,8,13,15,18);break;
  case "bell":lines(c,5,17,7,14,7,9);c.drawArc(7,4,17,14,180,180,false,p);lines(c,17,9,17,14,19,17,5,17);c.drawArc(10,18,14,22,0,180,false,p);break;

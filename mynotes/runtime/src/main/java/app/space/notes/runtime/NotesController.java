@@ -174,9 +174,9 @@ public final class NotesController {
         Switch enabled=new Switch(context);enabled.setText("Collect diagnostic logs");enabled.setTextColor(ink);enabled.setChecked(Diagnostics.enabled());enabled.setPadding(0,dp(12),0,dp(12));content.addView(enabled);
         TextView state=text("Local logs: "+Diagnostics.bytes()+" bytes · maximum about 1 MiB",13);content.addView(state);
         enabled.setOnCheckedChangeListener((v,value)->{Diagnostics.setEnabled(value);state.setText(value?"Recording app diagnostics on this device":"Collection stopped. Existing logs remain until deleted.");});
-        content.addView(text("Privacy: no note titles/bodies, search queries, clipboard, audio/images, transcripts, account identifiers or file/URI paths are collected. No other-app/system-wide logs. Device model and event timing can still be identifying. Java crash stacks omit exception messages; native crashes/OS kills may not be captured. Old events rotate; a saturated queue can drop breadcrumbs.",14));
+        content.addView(text("Privacy: no note titles/bodies, search queries, clipboard, audio/images, transcripts, account identifiers or file/URI paths are collected. No other-app/system-wide logs. Device model and event timing can still be identifying. Java crash stacks omit exception messages; native crashes/OS kills may not be captured. Old events rotate; a saturated queue can drop breadcrumbs. Deleting local logs does not delete previously exported copies.",14));
         content.addView(button("Export diagnostics",host::exportDiagnostics));content.addView(button("Delete diagnostic logs",()->{Diagnostics.clear();state.setText("Diagnostic logs deleted.");}));
-        content.addView(text("Icon guide",22));content.addView(text("＋ New text · checked lines New checklist · sliders Filters · bent arrow Undo · pin Pin · A̲ Text formatting · connected dots Share · bell Reminder · gear Settings · three dots More. Long-press any icon for its name; TalkBack reads the same name. Tools are grouped under Writing, Capture, Organise and More.",15));
+        content.addView(text("Icon guide",22));content.addView(text("＋ New text · checked lines New checklist · descending lines Filters · bent arrow Undo · pin Pin · A̲ Text formatting · connected dots Share · bell Reminder · tag Organise · gear Settings · three dots More. Long-press any icon for its name; TalkBack reads the same name. Tools are grouped under Writing, Capture, Organise and More.",15));
         content.addView(button("Back",this::renderHome));
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
@@ -332,7 +332,7 @@ public final class NotesController {
         if(!trashed)rowIn(organise,new String[]{"Reminder","Clear reminder"},new Runnable[]{this::chooseReminder,()->setReminder(editing,0)});
         LinearLayout bottom=tools(root);tool(bottom,"Capture tools","add",()->((Button)captureTools.getTag()).performClick());
         if(!trashed && !n.checklist)tool(bottom,"Text formatting","format",()->{for(int i=0;i<editor.getChildCount();i++){View child=editor.getChildAt(i);if(child instanceof Button && "Writing · text format".contentEquals(child.getContentDescription())){child.performClick();break;}}});
-        tool(bottom,"Organise tools","bell",()->((Button)organise.getTag()).performClick());tool(bottom,"More actions","more",()->((Button)more.getTag()).performClick());
+        tool(bottom,"Organise tools","label",()->((Button)organise.getTag()).performClick());tool(bottom,"More actions","more",()->((Button)more.getTag()).performClick());
         title.setEnabled(!trashed);title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
         if(trashed)rowIn(editor,new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
         else{

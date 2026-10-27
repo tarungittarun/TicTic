@@ -185,7 +185,10 @@ public final class NotesController {
         LinearLayout row=new LinearLayout(context);row.setGravity(android.view.Gravity.CENTER_VERTICAL);scroll.addView(row);
         for(int i=0;i<labels.length;i++) {
             LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-2,-2);p.setMargins(dp(2),dp(4),dp(2),dp(4));
-            Button control=button(labels[i],actions[i]);control.setMinHeight(dp(48));control.setMinWidth(dp(80));row.addView(control,p);
+            Button control=button(labels[i],actions[i]);
+            String symbol=labels[i].equals("Share")?"share":labels[i].equals("Reminder")?"bell":labels[i].equals("Labels")?"label":labels[i].equals("Colour")?"palette":null;
+            if(symbol!=null){NotesIcon drawable=new NotesIcon(symbol,ink);drawable.setBounds(0,0,dp(20),dp(20));control.setCompoundDrawables(drawable,null,null,null);control.setCompoundDrawablePadding(dp(6));}
+            control.setMinHeight(dp(48));control.setMinWidth(dp(80));row.addView(control,p);
         }
         parent.addView(scroll);
     }

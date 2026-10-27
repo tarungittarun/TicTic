@@ -1,3 +1,7 @@
+# Approved development baseline
+
+Owner approved development on 2026-10-27. **[NOTES-DEVELOPMENT-BASELINE.md](NOTES-DEVELOPMENT-BASELINE.md) supersedes earlier proposals below**: mandatory offline transcription, optional microphone permission, offline OCR, real user-selected local library directory, standalone widgets first and explicit future suite migration. The original 100-feature inventory remains binding.
+
 # NOTES-PLAN — MySpace Notes, referenced to Google Keep
 
 **Owner's instruction (2026-10-27):** *"Now we took most of our features for our calculator app from Google calculator. So similarly, I need to get started on notes by reference to Google Keep notes. So, prepare top 100 features from Google Keep notes, apart from Google backup, Google sign-in. Take everything from UI design, working, user experience, everything. Share the selected features, then we can start. Keep in mind, development of these separate apps like calculator, notes should not affect other apps or working features. It should be like microservices."*
@@ -136,7 +140,7 @@ Every item is Keep-derived; local-first adaptations are marked *(adapt)*; items 
 57. **OCR: grab image text** ✖ — (see 42) recognized text appended to the body and indexed by search; on-device only *(D2)*.
 58. **Voice memo recording in notes** ✖ — record button → waveform/timer UI → stop saves an audio chip *(D1: RECORD_AUDIO, the one permission Notes would declare)*.
 59. **Audio playback with seek + card chip** ✖ — play/pause/scrub inside the note; card shows 🎙 + duration; recordings live in app-private storage (Recorder app's proven pattern).
-60. **Automatic transcription of voice memos** ✖ — Keep's headline feature ("record a voice memo and have it automatically transcribed"). Cloud-based for Keep; offline needs on-device speech ML — **propose deferring** *(D3)*; the audio + manual text path ships regardless.
+60. **Automatic transcription of voice memos** ✖ — Keep's headline feature ("record a voice memo and have it automatically transcribed"). Cloud-based for Keep; offline needs on-device speech ML — **required, offline only** per owner approval; preserve original audio and allow editing the transcript.
 61. **Drawing canvas: finger + stylus** ✖ — Keep's drawing notes: pen and highlighter strokes, several ink colours, stroke widths, undo; saves as the note's image. Stylus pressure optional.
 62. **Drawing = first-class card** ✖ — drawings render as image cards, searchable by label/colour like any note; "Save a drawing as a note" is Keep's own help-page flow.
 
@@ -158,7 +162,7 @@ Every item is Keep-derived; local-first adaptations are marked *(adapt)*; items 
 ### G. Search (75–80)
 
 75. **Instant search-as-you-type over titles + bodies** ◐ — Keep filters while you type. *Conflict to settle (D5):* the owner's earlier instruction made our search submit-based to kill per-keystroke rebuilds; Keep-grade instant search returns **only if** filtering happens off the UI thread and cards update in place — the recorder-blink lesson pinned by contract.
-76. **Search sees OCR text and transcripts** ✖ — Keep's "grab the text from an image to help you quickly find that note again through search" — image text and (if D3 ships) audio transcripts are indexed like typed text.
+76. **Search sees OCR text and transcripts** ✖ — Keep's "grab the text from an image to help you quickly find that note again through search" — image text and audio transcripts are indexed like typed text.
 77. **Filter chips: type** ✖ — Keep's search filters: Lists · Voice memos · Images · Drawings (documented filter set).
 78. **Filter chips: colour** ✖ — restrict results to a background colour.
 79. **Filter chips: label** ✖ — restrict to a label (plus the `label:`-style quick entry from the search field).
@@ -203,7 +207,7 @@ Every item is Keep-derived; local-first adaptations are marked *(adapt)*; items 
 |---|---|---|
 | **D1** | Voice notes need `RECORD_AUDIO` — the first permission Notes would declare (repo policy is minimal permissions; Recorder already declares it, so suite precedent exists) | Declare it in MySpace (already granted for Recorder) and in standalone MyNotes only if voice notes are wanted there |
 | **D2** | "Grab image text" (OCR): bundled on-device ML Kit text recognition (~a few MB, offline, Google/AndroidX-family — the repo's no-third-party rule needs this one exception) vs shipping without OCR | Take the exception — APK size is explicitly not a constraint (owner's rule), and OCR is half of Keep's search story (76) |
-| **D3** | Automatic voice transcription offline: heavy on-device speech ML, poor quality/size tradeoff; Keep does it in the cloud | **Defer.** Ship recording + playback now; revisit if a good offline model emerges |
+| **D3** | Automatic voice transcription offline: heavy on-device speech ML, poor quality/size tradeoff; Keep does it in the cloud | **APPROVED: required offline transcription.** Bundled local engine; no cloud fallback; see development baseline |
 | **D4** | Trash retention: Keep Help says 7 days; some 2025 reports say the web moved to 30 | Pin **7 days** (the documented Android behaviour), stored in one constant so it can move in a line |
 | **D5** | Instant search vs the owner's earlier submit-search order: that order fixed a real lag (per-keystroke view rebuilds) | Instant search **with** off-UI-thread filtering + in-place card updates, pinned by a contract that fails any rebuild-per-keystroke; if it ever lags, it reverts to submit automatically — his old order stays honoured in spirit (no lag) |
 | **D6** | Manual drag-and-drop note order (4) vs pure chronological + sort menu (6) | Ship both, Keep-style: manual order default, Sort menu overrides — but manual drag is the single riskiest gesture in the list (the calculator's handle-drag saga is the cautionary tale); it goes last in its phase |
@@ -220,7 +224,7 @@ Every item is Keep-derived; local-first adaptations are marked *(adapt)*; items 
 
 **Phase 2 — Lists & text power:** 26–29, 39–41, 44–52, 30, 35–36, 87–88, 43, 99 (formatting toolbar + triggers, checklist working set incl. nesting/drag/hide-checked/customize-list, convert, links, copy/share, merge, timestamps).
 
-**Phase 3 — Media:** 16–18, 24, 53–59, 61–62 (+57/42 OCR per D2, +76 search indexing of OCR text). Voice transcription (60) deferred per D3.
+**Phase 3 — Media:** 16–18, 24, 53–59, 61–62 (+57/42 OCR per D2, +76 search indexing of OCR text). Offline voice transcription (60) is REQUIRED per owner approval; qualify the bundled engine before implementation.
 
 **Phase 4 — Reminders & search depth:** 11, 31–32, 73–74, 75, 77–80, 6, 4, 66–69 (labels full set, native reminders, instant search + filters, sorting, drag-order last per D6).
 

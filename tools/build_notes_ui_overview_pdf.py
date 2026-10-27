@@ -313,7 +313,7 @@ def p01_cover(c):
         "Gold numbers on each screen match the explanation list beside it.  [NEW] = to be built,",
         "[EXISTS] = already working today,  [UPGRADE] = exists but grows Keep-grade.",
         "",
-        "100 Keep features + diagram suite  ·  8 decisions (last page)  ·  5 build phases",
+        "100 Keep features + diagrams  ·  Offline OCR + speech  ·  User-selected local folder",
         "Companion documents:  NOTES-PLAN.md (the full 100, in detail)  ·  MASTERCLASS.md (how we work)",
     ]
     yy = PAGE_H - 205
@@ -814,7 +814,7 @@ def p09_voice(c):
         ("1", "<b>Playback</b> — play/pause, slide to scrub, position shown; recordings live in the app's private folder (the Recorder app's proven pattern).", "NEW"),
         ("2", "<b>Recording</b> — live waveform and timer; Cancel or Stop. Needs the RECORD_AUDIO permission — the one permission Notes would declare. <b>[decision D1]</b>", "NEW"),
         ("3", "<b>Audio chip on the card</b> — 🎙 + length, visible on the wall without opening.", "NEW"),
-        ("4", "<b>Transcription — the honest caveat</b> — Keep auto-transcribes voice using Google's cloud. We are offline-first: good on-device speech models are heavy and weak, so <b>we propose to defer auto-transcription [decision D3]</b> and ship record + play + manual text now. If you want it later, we revisit with real on-device ML — no cloud, no account.", "NEW"),
+        ("4", "<b>Transcription — the honest caveat</b> — Keep auto-transcribes voice using Google's cloud. We are offline-first: <b>offline automatic transcription is REQUIRED (owner approved)</b>. Bundle a local model, transcribe after saving audio, show progress and allow cancel/retry. Preserve audio if transcription fails; no cloud fallback or first-use download. Qualify speed, memory and languages on real devices.", "NEW"),
         ("5", "<b>Search still finds voice notes</b> — by title, labels, colour and the “Voice” type filter, transcript or not.", "NEW"),
     ])
 
@@ -1119,7 +1119,7 @@ def p16_plan(c):
         ("P0", "Skeleton", "standalone MyNotes host · isolation contracts · logging · stamp"),
         ("P1", "Keep's core loop", "wall · drawer pages · trash · editor chrome · colours · bulk · undo"),
         ("P2", "Lists & text power", "formatting · checklists full set · customize-list · merge · share"),
-        ("P3", "Media", "photos · OCR · drawing · voice (transcription deferred)"),
+        ("P3", "Media", "photos · OCR · drawing · voice + offline transcription"),
         ("P4", "Reminders & search", "native reminders · instant search + filters · labels · sort · drag-order last"),
         ("P5", "Integration", "into MySpace: registry swap · share target · widgets · full regression of ALL apps"),
     ]
@@ -1168,11 +1168,11 @@ def p16_plan(c):
     for tt in tst:
         c.drawString(446, yy5, tt); yy5 -= 13.5
     # decisions
-    panel(c, 40, 96, 762, 140, "Your 8 decisions — answer these (or say “proposals accepted”) and Phase 0 starts")
+    panel(c, 40, 96, 762, 140, "Owner approvals recorded — see NOTES-DEVELOPMENT-BASELINE.md for binding scope")
     dec = [
         ("D1", "RECORD_AUDIO permission for voice notes", "declare it (Recorder precedent)"),
         ("D2", "On-device OCR (bundled ML Kit, offline, a few MB)", "yes — size is not a constraint"),
-        ("D3", "Offline auto-transcription of voice", "defer — record+play ships now"),
+        ("D3", "Offline auto-transcription of voice", "APPROVED: bundled, offline only"),
         ("D4", "Trash window: Keep Help says 7 days, some reports 30", "pin 7, one constant"),
         ("D5", "Instant search vs your old submit-search order", "instant, off-thread, no-lag contract"),
         ("D6", "Drag-and-drop note reordering on the wall", "ship, but LAST (riskiest gesture)"),

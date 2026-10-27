@@ -4524,7 +4524,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("if (longPressFired || dragHandle != 0 || multiTouch) return;", screen)
         self.assertIn("currentSelectionMode = mode;", screen)
         self.assertIn("currentSelectionMode = null;", screen)
-        self.assertIn("Selection.setSelection((Spannable) gone, end, end);", screen)
+        # Round 34 forensics: the farm's current API-34 image lets the FRAMEWORK
+        # tear the floating menu down moments after it opens, and the old
+        # teardown collapsed the held band to its end -- silently stealing the
+        # owner's selection. A menu closing on its own is not the user letting
+        # go: the held chars STAY held (rounds 14/24), and the teardown log
+        # names the caller that tore it down.
+        self.assertIn('STAY held', screen)
+        self.assertIn('", torn down via " + caller', screen)
         self.assertIn("candidate = raw.substring(0, at - 1) + rawKey + raw.substring(at);", screen)
         self.assertIn("candidate = raw.substring(0, at) + rawKey + raw.substring(at + 1);", screen)
         # Round 15: the one bracket key asks the CARET, not the end, which

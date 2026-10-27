@@ -1258,17 +1258,36 @@ public final class CalculatorScreen implements Screen {
 
             @Override public void onDestroyActionMode(android.view.ActionMode mode) {
                 currentSelectionMode = null;
+                boolean wasCaret = caretMode;
                 caretMode = false;
-                // Round 14: when the menu goes away the highlight goes with it, caret at
-                // the end of what was held -- otherwise a ghost band stays painted over
-                // the expression with nothing behind it.
+                // Round 34 forensics: on the farm's current API-34 image the
+                // floating menu can be torn down BY THE FRAMEWORK moments after
+                // it opens -- no touch, no key, no pause in the transcript. The
+                // old code answered every teardown by collapsing the held band
+                // to its end, so a framework-initiated teardown silently STOLE
+                // the owner's selection. Round 14's ghost-band worry does not
+                // apply: the band is backed by a real framework selection, and
+                // round 27's tap-anywhere releases it. What he demanded in
+                // rounds 14 and 24 is that the held portion STAYS held; a menu
+                // closing on its own is not the user letting go.
                 CharSequence gone = displayView.getText();
+                int a = -1, b = -1;
                 if (gone instanceof Spannable && displayView.hasSelection()) {
-                    int end = Math.max(0, Selection.getSelectionEnd(gone));
-                    Selection.setSelection((Spannable) gone, end, end);
-                    caret = dispToRaw(end);
+                    a = Selection.getSelectionStart(gone);
+                    b = Selection.getSelectionEnd(gone);
+                    heldA = a;
+                    heldB = b;
+                    caret = dispToRaw(b);
                 }
-                AppLog.event(lastContext, "calc", "selection menu closed");
+                StackTraceElement[] why = new Exception().getStackTrace();
+                String caller = why.length > 2
+                        ? why[1].getClassName() + "." + why[1].getMethodName()
+                          + " <- " + why[2].getClassName() + "." + why[2].getMethodName()
+                        : "unknown";
+                AppLog.event(lastContext, "calc", "selection menu closed"
+                        + (wasCaret ? " (caret sheet)" : "")
+                        + (a >= 0 ? ": chars " + a + ".." + b + " STAY held" : "")
+                        + ", torn down via " + caller);
             }
         };
         displayView.setCustomSelectionActionModeCallback(selectionMenu);

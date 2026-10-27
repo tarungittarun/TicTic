@@ -633,6 +633,15 @@ public class CalculatorUiTest {
         }
     }
 
+    /** "That colour" with every channel within 32 and real alpha -- the LED
+     *  glyph cores the shadow layer no longer leaves bit-exact. */
+    private static boolean near(int px, int want) {
+        return (((px >>> 24) & 0xFF) >= 200)
+                && Math.abs(((px >> 16) & 0xFF) - ((want >> 16) & 0xFF)) <= 32
+                && Math.abs(((px >> 8) & 0xFF) - ((want >> 8) & 0xFF)) <= 32
+                && Math.abs((px & 0xFF) - (want & 0xFF)) <= 32;
+    }
+
     @Test public void theCaretAndInkAreActuallyPaintedInBothThemes() {
         // Round 20: his screenshot held NO caret and light mode wore white digits
         // on white keys. A view can hold every right colour and still paint
@@ -669,8 +678,13 @@ public class CalculatorUiTest {
                             for (int x = 0; x < bmp.getWidth(); x++) {
                                 int px = bmp.getPixel(x, y);
                                 if (px == ed.caretColor) caretPixels++;
-                                if (px == inkWant) inkPixels++;
-                                if (px == pink) opPixels++;
+                                // Round 34: on the farm's current image the LED
+                                // shadow layer blends a few units into even the
+                                // glyph cores, so an exact-equality census counted
+                                // ZERO cyan although the LED ink is plainly
+                                // painted. Near-counts every channel within 32.
+                                if (near(px, inkWant)) inkPixels++;
+                                if (near(px, pink)) opPixels++;
                             }
                         }
                         assertTrue("theme " + wantMode + " caret pixels=" + caretPixels,
@@ -1248,7 +1262,9 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(held(3));
         type("AC");
         onView(withId(DISPLAY)).check(held(0));
-        onView(withId(DISPLAY)).check(matches(withText("")));
+        // Round 34: the product's empty-box display is the Google calculator's
+        // own "0" placeholder (typed() since 3.7.0) -- assert the product truth.
+        onView(withId(DISPLAY)).check(matches(withText("0")));
     }
 
     @Test public void minusUnderAMultiplyMidExpressionKeepsBoth() {

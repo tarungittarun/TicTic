@@ -31,8 +31,8 @@ test -f "$DEBUG" && test -f "$TEST" && test -f "$RELEASE"
 # API 26 AOSP denies shell CHANGE_WIFI_STATE. Root only the fixture setup,
 # then restore the ordinary shell before installing/testing either app.
 if (( LANE_API == 26 )); then
-  adb root
-  adb wait-for-device
+  adb root || echo 'Root transition command lost transport; verifying required root state.'
+  python3 -m mynotes.tools.ci.adb_state --uid 0
   test "$(adb shell id -u | tr -d '\r')" = 0
 fi
 # Flight-mode settings plus disabled radios; APK audit independently rejects INTERNET.
@@ -40,8 +40,8 @@ adb shell settings put global airplane_mode_on 1
 adb shell svc wifi disable
 adb shell svc data disable
 if (( LANE_API == 26 )); then
-  adb unroot
-  adb wait-for-device
+  adb unroot || echo 'Unroot transition command lost transport; verifying required ordinary-shell state.'
+  python3 -m mynotes.tools.ci.adb_state --uid 2000
 fi
 # Configure real resource variants before either app starts; do not fake theme assertions.
 adb shell settings put system font_scale "${LANE_FONT:-1.0}"

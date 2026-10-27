@@ -99,6 +99,8 @@ if __name__=='__main__':
     output=Path(args.output);output.mkdir(parents=True,exist_ok=True)
     name=f'MyNotes-v{current[2]}-{current[1]}.apk'
     shutil.copyfile(accepted,output/name)
+    from mynotes.tools.ci.native_audit import write as write_native_inventory
+    write_native_inventory(output/name,output/'native-inventory.json')
     digest=sha(output/name)
     (output/(name+'.sha256')).write_text(digest+'  '+name+'\n')
     source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,text=True).strip()

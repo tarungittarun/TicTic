@@ -266,6 +266,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Exact release upgrade/hash/offline smoke and partitioned journeys
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/mynotes/tools/ci/emulator_observer.cjs
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
@@ -277,6 +279,7 @@ jobs:
       - name: Surface partial/failed lane results
         if: failure()
         run: |
+          python3 -m mynotes.tools.ci.results build --path evidence/emulator-bootstrap.log
           python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "evidence/$LANE_ID/instrumentation.txt" --output "evidence/$LANE_ID/results.json"
       - uses: actions/upload-artifact@v4
         if: always()

@@ -91,3 +91,30 @@ rotation from opening ahead of previous queued writes; this is not a cross-app l
 Next: unblock deliberate standalone GitHub build registration without touching frozen
 workflows/main, then compile and instrument; implement SAF storage + recovery, evolve
 structured rich-content schema with migration tests and qualify offline ML.
+
+## Slice 3 — independent directory and Notes-only automation
+
+Owner approved isolating MyNotes in its own directory and pausing other workflows.
+
+- Moved new Notes modules to mynotes/app, mynotes/runtime and mynotes/domain. There
+  is one source implementation; old root module directories were removed, not copied.
+- Added independent Gradle root/settings, wrapper, properties and a separate copy of
+  the existing sideload signing identity. Parent settings no longer registers Notes.
+- Moved Notes tests/tools/evidence under mynotes. Root qa has a small compatibility
+  loader so full local validation still includes Notes checks.
+- Added guards against parent Gradle dependencies and non-Notes Java imports.
+- GitHub global workflow disable API returned 403. Instead removed push/PR triggers
+  from old Android CI and Tests on THIS branch, and hard-disabled every job with
+  `if: ${{ false }}`. Other branches were not changed; global API state remains active.
+- Made Notes workflow path-filtered push-triggered; it builds from mynotes only,
+  runs only the Notes source/protocol suite, compiles domain and Android tests, and
+  publishes the standalone APK with checksum/source revision if successful.
+- Commit 5638032 intentionally omitted [skip ci] to start this Notes-only run.
+  GitHub registered the new workflow (398597736), and push run 40561897413 started.
+  Explicit dispatch API is also permission-blocked (403); push is the working trigger.
+  No legacy workflow was dispatched/rerun.
+- Validation: 30 Notes checks OK; 420 total local checks OK. No changes under app/,
+  calc/, feature-calculator/, feature-notes/, core-data/ or root build.gradle.
+
+CI result will be recorded separately once observed. Android device behaviour, SAF,
+ML and full planned feature acceptance remain unverified/pending as listed above.

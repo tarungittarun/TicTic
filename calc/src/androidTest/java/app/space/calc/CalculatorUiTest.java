@@ -264,6 +264,38 @@ public class CalculatorUiTest {
                 }, Press.FINGER, 0, 0));
     }
 
+    /** Round 28: a real long press at a width FRACTION -- the gesture his thumb
+     *  makes on the EMPTY part of the expression box, where nothing is written. */
+    private static ViewAction holdAt(final float fraction) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() {
+                return "long press at fraction " + fraction;
+            }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                int[] loc = new int[2];
+                view.getLocationInWindow(loc);
+                float cx = loc[0] + view.getWidth() * fraction;
+                float cy = loc[1] + view.getHeight() * 0.5f;
+                long t = android.os.SystemClock.uptimeMillis();
+                try {
+                    android.view.MotionEvent dn = android.view.MotionEvent.obtain(
+                            t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
+                    ui.injectMotionEvent(dn);
+                    dn.recycle();
+                    ui.loopMainThreadForAtLeast(1200);
+                    android.view.MotionEvent up = android.view.MotionEvent.obtain(
+                            t, t + 1200, android.view.MotionEvent.ACTION_UP, cx, cy, 0);
+                    ui.injectMotionEvent(up);
+                    up.recycle();
+                } catch (Exception failed) {
+                    throw new RuntimeException("long press could not be injected", failed);
+                }
+                ui.loopMainThreadForAtLeast(300);
+            }
+        };
+    }
+
     /** One finger, one point: the click gesture the owner's thumb makes. */
     private void tapAt(final float fraction) {
         onView(withId(DISPLAY)).perform(new GeneralClickAction(Tap.SINGLE,
@@ -1035,5 +1067,86 @@ public class CalculatorUiTest {
                 }
             }
         });
+    }
+
+    @Test public void aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu() {
+        // Round 28, his words: "if pressed a hold on other area of expression
+        // bar where expression is not even written, then also some operator of
+        // expression is getting selected. It should not." The expression sits
+        // at the RIGHT of the box, so the empty part is the left; a hold there
+        // must hold NOTHING, park the caret at the near end and raise Google's
+        // caret trio (MR, Paste, Select all) -- no Cut, no Copy, nothing held.
+        type("1", "2", "+", "3", "4");
+        onView(withId(DISPLAY)).perform(holdAt(0.08f));
+        onView(withId(DISPLAY)).check(held(0));
+        onView(withText("MR")).check(matches(isDisplayed()));
+        onView(withText("Select all")).check(matches(isDisplayed()));
+        onView(withText("Cut")).check(doesNotExist());
+        // The caret parked at 0: the next key lands at the FRONT, proving the
+        // park is a real cursor position and not a no-op.
+        type("9");
+        onView(withId(DISPLAY)).check(matches(withText("912+34")));
+    }
+
+    @Test public void memStoresTheHeldNumberAndMrInsertsItAtTheCaret() {
+        // Round 28, his two asks in one flow: "along with copy, cut options,
+        // add Mem option as well" and "need cursor to use recently saved
+        // memory... long pressed between expression, and able to insert the
+        // saved memory there" -- the Google Calculator MR he screenshotted.
+        type("4", "5", "6");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withId(DISPLAY)).check(held(3));
+        onView(withText("Mem")).check(matches(isDisplayed()));
+        onView(withText("Mem")).perform(click());
+        // A plain tap releases and parks the caret at the front of the box...
+        tapAtOffset(0);
+        onView(withId(DISPLAY)).check(held(0));
+        // ...and a hold on the empty left raises the caret menu, whose MR
+        // inserts the recently saved value AT THAT CARET.
+        onView(withId(DISPLAY)).perform(holdAt(0.08f));
+        onView(withId(DISPLAY)).check(held(0));
+        onView(withText("MR")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("456456")));
+    }
+
+    @Test public void theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd() {
+        // Round 28, his log: `caret at x=1132 viewW=1132` -- zero horizontal
+        // padding put the content edge ON the view edge, so the right boundary
+        // bar and bulb drew one bar width OFF the canvas: a one-sided
+        // selection. With side padding the rightmost caret-ink pixel of a
+        // full-length selection must sit strictly inside the glass.
+        try {
+            setTheme(2);
+            rule.getScenario().recreate();
+            type("1", "2", "3", "4", "5", "6");
+            onView(withId(DISPLAY)).perform(longClick());
+            onView(withText("Select all")).perform(click());
+            onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+                @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                    if (e != null) throw e;
+                    android.widget.EditText ed = (android.widget.EditText) view;
+                    android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                            view.getWidth(), view.getHeight(),
+                            android.graphics.Bitmap.Config.ARGB_8888);
+                    view.draw(new android.graphics.Canvas(bmp));
+                    int rightmost = -1;
+                    for (int yy = 0; yy < bmp.getHeight(); yy++) {
+                        for (int xx = 0; xx < bmp.getWidth(); xx++) {
+                            if (bmp.getPixel(xx, yy) == 0xFFFFFFFF && xx > rightmost) {
+                                rightmost = xx;
+                            }
+                        }
+                    }
+                    int edge = view.getWidth() - ed.getCompoundPaddingRight();
+                    assertTrue("the right boundary must be on the glass, rightmost="
+                            + rightmost + " contentEdge=" + edge,
+                            rightmost >= 0 && rightmost <= edge + 2
+                                    && rightmost >= edge - 60);
+                }
+            });
+        } finally {
+            setTheme(1);
+            rule.getScenario().recreate();
+        }
     }
 }

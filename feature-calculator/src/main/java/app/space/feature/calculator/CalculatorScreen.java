@@ -105,7 +105,7 @@ public final class CalculatorScreen implements Screen {
     private static final String HAPTICS_KEY = "calculator_haptics";
     private static final String EFFECTS_KEY = "calculator_effects";
     private static final int SEL_COPY = 9101, SEL_CUT = 9102,
-            SEL_PASTE = 9103, SEL_ALL = 9104;
+            SEL_PASTE = 9103, SEL_ALL = 9104, SEL_MEM = 9105, SEL_MR = 9106;
 
     /** Round 10: the press-effect names offered under three dots ▸ Effects. */
     private static final String[] EFFECT_NAMES =
@@ -184,6 +184,9 @@ public final class CalculatorScreen implements Screen {
     private boolean touchMoved;
     private int dragHandle;
     private int menuSelA, menuSelB;
+    // Round 28: the menu raised over a bare caret (long press on the empty part
+    // of the box) carries Google's caret trio instead of the selection set.
+    private boolean caretMode;
     private android.view.ActionMode currentSelectionMode;
     // Round 24 (javac 19): selectWordAt() is a method now, shared by the long
     // press and the plain click, so the menu callback outlives buildDisplay.
@@ -594,7 +597,12 @@ public final class CalculatorScreen implements Screen {
         // The teardrop bulbs hang below the text line; without reserved room they
         // clipped at the view's edge -- "the thing which user has to hold and change
         // the selected portion is not completely visible".
-        displayView.setPadding(0, 0, 0, ui.dp(34));
+        // Round 28, his log: `caret at x=1132 viewW=1132` -- with RIGHT gravity
+        // and ZERO horizontal padding the content edge IS the view edge, so the
+        // end-of-line caret and the right boundary teardrop were drawn one bar
+        // width OFF the canvas: invisible cursor, one-sided selection. Ten dp
+        // of side padding puts the content edge back on the glass.
+        displayView.setPadding(ui.dp(10), 0, ui.dp(10), ui.dp(34));
         displayView.setMaxLines(1);
         displayView.setFocusable(true);
         displayView.setFocusableInTouchMode(true);
@@ -841,17 +849,38 @@ public final class CalculatorScreen implements Screen {
                 if (ds >= 0 && de > ds) {
                     menuSelA = ds;
                     menuSelB = de;
+                    caretMode = false;
+                } else if (ds >= 0) {
+                    menuSelA = ds;
+                    menuSelB = ds;
                 }
                 menu.clear();
-                menu.add(0, SEL_COPY, 0, "Copy");
-                menu.add(0, SEL_CUT, 1, "Cut");
-                menu.add(0, SEL_PASTE, 2, "Paste");
-                menu.add(0, SEL_ALL, 3, "Select all");
-                AppLog.event(lastContext, "calc", "selection started: chars "
-                        + menuSelA + ".." + menuSelB
-                        + " held by the stock editor, handles and menu raised");
-                AppLog.event(lastContext, "calc",
-                        "selection menu opened: Copy, Cut, Paste, Select all");
+                if (caretMode) {
+                    // Round 28, his Google screenshot: over a bare caret the
+                    // menu is MR, Paste, Select all -- the memory recall that
+                    // inserts the saved value WHERE THE CARET STANDS.
+                    menu.add(0, SEL_MR, 0, "MR");
+                    menu.add(0, SEL_PASTE, 1, "Paste");
+                    menu.add(0, SEL_ALL, 2, "Select all");
+                    AppLog.event(lastContext, "calc",
+                            "caret menu opened: MR, Paste, Select all");
+                } else {
+                    // Round 28, his words: "when selected, along with copy, cut
+                    // options, add Mem option as well" -- Mem stores the held
+                    // value in the memory list; MR brings it back at the caret
+                    // or over the held range.
+                    menu.add(0, SEL_CUT, 0, "Cut");
+                    menu.add(0, SEL_COPY, 1, "Copy");
+                    menu.add(0, SEL_MEM, 2, "Mem");
+                    menu.add(0, SEL_MR, 3, "MR");
+                    menu.add(0, SEL_PASTE, 4, "Paste");
+                    menu.add(0, SEL_ALL, 5, "Select all");
+                    AppLog.event(lastContext, "calc", "selection started: chars "
+                            + menuSelA + ".." + menuSelB
+                            + " held by the stock editor, handles and menu raised");
+                    AppLog.event(lastContext, "calc", "selection menu opened: Cut, "
+                            + "Copy, Mem, MR, Paste, Select all");
+                }
                 return true;
             }
 
@@ -903,20 +932,51 @@ public final class CalculatorScreen implements Screen {
                         String clean = clip.replace(",", "").replace("\n", "")
                                 .replace("\r", "").replace('\u00d7', '*')
                                 .replace('\u00f7', '/').replace('\u2212', '-');
-                        String candidate = raw.substring(0, a) + clean + raw.substring(b);
-                        if (wholeExpressionValid(candidate)) {
-                            expression.setLength(0);
-                            expression.append(candidate);
-                            justEvaluated = false;
-                            result = "";
-                            caret = a + clean.length();
-                            refreshDisplay(context);
-                            AppLog.event(context, "calc", "paste inserted "
-                                    + clean.length() + " chars at " + a);
-                        } else {
-                            AppLog.event(context, "calc", "paste refused: "
-                                    + clean + " is not a valid expression here");
+                        spliceRaw(context, a, b, clean, "paste");
+                        mode.finish();
+                        return true;
+                    }
+                    case SEL_MEM: {
+                        // Round 28: "along with copy, cut options, add Mem
+                        // option as well" -- the held value joins the memory
+                        // list the owner arranges under the three dots.
+                        CharSequence heldTxt = displayView.getText();
+                        String shown = heldTxt.subSequence(
+                                Math.max(0, Math.min(menuSelA, heldTxt.length())),
+                                Math.max(0, Math.min(menuSelB, heldTxt.length())))
+                                .toString();
+                        String num = shown.replace(",", "");
+                        try {
+                            Double.parseDouble(num);
+                        } catch (Exception ex) {
+                            AppLog.event(context, "calc",
+                                    "memory add refused: selection holds " + shown);
+                            host.toast("Select a number to store");
+                            return true;
                         }
+                        java.util.List<String> list = memoryList(context);
+                        list.add(shown);
+                        saveMemory(context, list);
+                        AppLog.event(context, "calc", "memory saved from selection: "
+                                + shown + ", memory now holds " + list.size());
+                        host.toast("Added to memory");
+                        mode.finish();
+                        return true;
+                    }
+                    case SEL_MR: {
+                        // Round 28, his Google screenshot: MR inserts the
+                        // recently saved memory WHERE THE CARET STANDS, or over
+                        // the held range -- mid-expression, no re-typing.
+                        java.util.List<String> mem = memoryList(context);
+                        if (mem.isEmpty()) {
+                            AppLog.event(context, "calc", "MR refused: memory empty");
+                            host.toast("Memory is empty");
+                            mode.finish();
+                            return true;
+                        }
+                        String v = mem.get(mem.size() - 1);
+                        String clean = v.replace(",", "");
+                        spliceRaw(context, a, b, clean, "MR");
                         mode.finish();
                         return true;
                     }
@@ -934,6 +994,7 @@ public final class CalculatorScreen implements Screen {
 
             @Override public void onDestroyActionMode(android.view.ActionMode mode) {
                 currentSelectionMode = null;
+                caretMode = false;
                 // Round 14: when the menu goes away the highlight goes with it, caret at
                 // the end of what was held -- otherwise a ghost band stays painted over
                 // the expression with nothing behind it.
@@ -1018,14 +1079,18 @@ public final class CalculatorScreen implements Screen {
                 if (lo == null) return;
                 int cs = displayView.getSelectionStart();
                 cs = Math.max(0, Math.min(cs, displayView.length()));
-                int ln = lo.getLineForOffset(cs);
+                // Round 28: one line, always -- the display is maxLines(1), and
+                // getLineForOffset was another torn-layout reader in the frame.
+                int ln = 0;
                 float x = displayView.getCompoundPaddingLeft()
                         + displayView.caretX(lo, cs, ln);
                 int childW = displayView.getWidth();
                 int scrollX = displayView.getScrollX();
                 AppLog.event(context, "calc", "caret at x=" + (int) x
                         + " viewW=" + childW + " innerScrollX=" + scrollX
-                        + " layoutW=" + lo.getWidth());
+                        + " layoutW=" + lo.getWidth()
+                        + " ink=" + String.format("#%08X", displayView.caretColor)
+                        + " caretW=" + displayView.caretWidth);
                 // The EditText scrolls its own text now; keep the caret inside
                 // the visible part of that inner scroll.
                 float d = context.getResources().getDisplayMetrics().density;
@@ -1823,20 +1888,31 @@ public final class CalculatorScreen implements Screen {
          *  measuring the line's run with the view's own paint is the truth; the
          *  Layout is only a fallback when the measure lands outside the view. */
         public float caretX(android.text.Layout lo, int off, int ln) {
-            // Round 23: layout coordinates live in the layout's own space; the
-            // view draws them shifted by its INNER scrollX. Subtracting it is
-            // the difference between the caret sitting on its glyph and
-            // sitting a viewport away.
-            float prim = lo.getPrimaryHorizontal(off) - getScrollX();
-            if (prim >= -getWidth() && prim <= 2 * getWidth()) return prim;
-            int lineStart = lo.getLineStart(ln);
-            int lineEnd = lo.getLineEnd(ln);
-            int o = Math.max(lineStart, Math.min(off, lineEnd));
-            float measured = lo.getLineLeft(ln)
-                    + getPaint().measureText(getText().toString(), lineStart, o)
-                    - getScrollX();
-            if (measured >= -getWidth() && measured <= 2 * getWidth()) return measured;
-            return 0;
+            // Round 28, his log: 39 torn-layout guards in ONE handle drag, and a
+            // caret logged at x=1132 on a 1132px view. On his OEM the display's
+            // DynamicLayout is born 2^20 wide, tears (mRows=0) through gesture
+            // frames and carries a stale max scroll -- getPrimaryHorizontal and
+            // the line table all lie there, while the eyes see one steady truth:
+            // gravity RIGHT pins the last glyph to the content's right edge. So
+            // the caret and both handles now measure from the view's OWN paint
+            // against that anchor; the layout's line-left is used only when it
+            // reads sane (emulator, mid-scroll), and a torn read changes nothing.
+            String txt = getText().toString();
+            android.graphics.Paint p = getPaint();
+            float textW = p.measureText(txt);
+            float contentW = getWidth() - getCompoundPaddingLeft()
+                    - getCompoundPaddingRight();
+            float left = contentW - textW;
+            try {
+                if (lo != null && lo.getLineCount() > 0) {
+                    float cand = lo.getLineLeft(0) - getScrollX();
+                    if (cand >= -contentW && cand <= contentW) left = cand;
+                }
+            } catch (Exception ignored) {
+                // A torn line table costs nothing here: the anchor stands.
+            }
+            int o = Math.max(0, Math.min(off, txt.length()));
+            return left + p.measureText(txt, 0, o);
         }
 
         /** The colour the hand-drawn caret paints with, for the pixel story. */
@@ -2302,32 +2378,94 @@ public final class CalculatorScreen implements Screen {
      *  the inner scroll applied -- getOffsetForPosition ignored it on his
      *  device, which is why the handles dragged hit-or-miss. */
     private int offsetAt(float x, float y) {
-        // Round 26, his crash log, four times: "IndexOutOfBoundsException:
-        // 1048054, 0" out of PackedIntVector -- a tap landing while the text
-        // is being re-set (launch, history popup repopulating) hands back a
-        // DynamicLayout with an EMPTY line table, and getOffsetForHorizontal
-        // reads straight out of it. One funnel, guarded at every step.
+        // Round 28, his log: a handle drag produced THIRTY-NINE consecutive
+        // "offsetAt guarded a torn layout" lines and the held range never
+        // moved -- on his OEM every drag frame meets a torn DynamicLayout, so
+        // the guarded layout path skipped the whole gesture. The mapping is now
+        // the inverse of caretX's paint-measured anchor: binary search over the
+        // view's own measureText, which no line table can tear. The layout is
+        // consulted for its line-left only, inside a guard that keeps the
+        // round-26 log line honest when it tears.
+        CharSequence txt = displayView.getText();
+        if (txt == null || txt.length() == 0) return 0;
+        String s = txt.toString();
+        android.graphics.Paint p = displayView.getPaint();
+        float textW = p.measureText(s);
+        float padL = displayView.getCompoundPaddingLeft();
+        float contentW = displayView.getWidth() - padL
+                - displayView.getCompoundPaddingRight();
+        float left = contentW - textW;
         try {
             android.text.Layout lo = displayView.getLayout();
-            CharSequence txt = displayView.getText();
-            if (lo == null || txt == null || txt.length() == 0
-                    || lo.getLineCount() < 1) return 0;
-            int line = Math.max(0, Math.min(lo.getLineCount() - 1,
-                    lo.getLineForVertical((int) Math.max(0,
-                            y - displayView.getCompoundPaddingTop()))));
-            float hx = x - displayView.getCompoundPaddingLeft()
-                    + displayView.getScrollX();
-            return Math.max(0, Math.min(txt.length(),
-                    lo.getOffsetForHorizontal((int) hx, line)));
+            if (lo != null && lo.getLineCount() > 0) {
+                float cand = lo.getLineLeft(0) - displayView.getScrollX();
+                if (cand >= -contentW && cand <= contentW) left = cand;
+            }
         } catch (Exception e) {
             AppLog.event(lastContext, "calc", "offsetAt guarded a torn layout: "
                     + e.getClass().getSimpleName());
-            try {
-                return displayView.getOffsetForPosition(x, y);
-            } catch (Exception e2) {
-                return 0;
-            }
         }
+        float target = x - padL - left;
+        int loI = 0, hiI = s.length();
+        while (loI < hiI) {
+            int mid = (loI + hiI) / 2;
+            if (p.measureText(s, 0, mid) < target) loI = mid + 1;
+            else hiI = mid;
+        }
+        if (loI > 0) {
+            float before = p.measureText(s, 0, loI - 1);
+            float after = p.measureText(s, 0, loI);
+            if (Math.abs(before - target) < Math.abs(after - target)) loI--;
+        }
+        return Math.max(0, Math.min(s.length(), loI));
+    }
+
+    /** Round 28: the on-screen text extent of the single display line, in view
+     *  coordinates, from the same paint-measured anchor caretX uses. The hold
+     *  gesture needs it to tell "on the expression" from "on empty box". */
+    private float[] textExtent() {
+        CharSequence txt = displayView.getText();
+        String s = txt == null ? "" : txt.toString();
+        android.graphics.Paint p = displayView.getPaint();
+        float textW = p.measureText(s);
+        float padL = displayView.getCompoundPaddingLeft();
+        float contentW = displayView.getWidth() - padL
+                - displayView.getCompoundPaddingRight();
+        float left = contentW - textW;
+        try {
+            android.text.Layout lo = displayView.getLayout();
+            if (lo != null && lo.getLineCount() > 0) {
+                float cand = lo.getLineLeft(0) - displayView.getScrollX();
+                if (cand >= -contentW && cand <= contentW) left = cand;
+            }
+        } catch (Exception ignored) {
+            // anchor stands
+        }
+        return new float[]{padL + left, padL + left + textW};
+    }
+
+    /** Round 28: paste and MR share one validated splice -- insert clean raw
+     *  text over [a,b), refresh, park the caret after it, log the verdict. */
+    private boolean spliceRaw(Context context, int a, int b, String clean,
+                              String verb) {
+        String raw = expression.toString();
+        a = Math.max(0, Math.min(a, raw.length()));
+        b = Math.max(a, Math.min(b, raw.length()));
+        String candidate = raw.substring(0, a) + clean + raw.substring(b);
+        if (wholeExpressionValid(candidate)) {
+            expression.setLength(0);
+            expression.append(candidate);
+            justEvaluated = false;
+            result = "";
+            caret = a + clean.length();
+            refreshDisplay(context);
+            AppLog.event(context, "calc", verb + " inserted "
+                    + clean.length() + " chars at " + a);
+            return true;
+        }
+        AppLog.event(context, "calc", verb + " refused: " + clean
+                + " is not a valid expression here");
+        return false;
     }
 
     /** Round 25: the click-while-held clear, at the finger's point. */
@@ -2364,6 +2502,33 @@ public final class CalculatorScreen implements Screen {
         if (historyOpen) return false;
         CharSequence txt = displayView.getText();
         if (!(txt instanceof Spannable) || txt.length() == 0) return false;
+        // Round 28, his words: "if pressed a hold on other area of expression
+        // bar where expression is not even written, then also some operator of
+        // expression is getting selected. It should not." The clamp inside the
+        // old offset mapping turned a press on EMPTY box into offset 0 -- the
+        // first word, an operator, held. Now the press point is tested against
+        // the painted text extent; outside it the hold parks the caret at the
+        // near end and raises Google's caret menu (MR, Paste, Select all)
+        // instead of selecting anything.
+        float d = displayView.getResources().getDisplayMetrics().density;
+        float[] ext = textExtent();
+        if (x < ext[0] - 8 * d || x > ext[1] + 8 * d) {
+            int park = x > ext[1] ? txt.length() : 0;
+            Selection.setSelection((Spannable) txt, park, park);
+            extendAnchor = park;
+            heldA = park;
+            heldB = park;
+            caret = dispToRaw(park);
+            caretMode = true;
+            displayView.startActionMode(selectionMenu,
+                    android.view.ActionMode.TYPE_FLOATING);
+            AppLog.event(lastContext, "calc",
+                    "long press on empty box: no selection, caret parked at "
+                    + caret + ", caret menu raised");
+            displayView.invalidate();
+            return true;
+        }
+        caretMode = false;
         int off = offsetAt(x, y);
         off = Math.max(0, Math.min(off, txt.length() - 1));
         char ch = txt.charAt(off);

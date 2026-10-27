@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.29'", gradle)
-        self.assertIn("versionCode 66", gradle)
+        self.assertIn("versionName '3.12.30'", gradle)
+        self.assertIn("versionCode 67", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3435,7 +3435,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.29", guide)
+        self.assertIn("3.12.30", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4417,13 +4417,13 @@ class TestInfrastructureContracts(unittest.TestCase):
         # Round 9, his first line: moving the cursor summoned the device keyboard and the
         # calculator became inoperable. The display is not a text editor at all now.
         self.assertIn("setCustomSelectionActionModeCallback", screen)
-        self.assertIn("menu.add(0, SEL_CUT, 1, \"Cut\");", screen)
+        self.assertIn("menu.add(0, SEL_CUT, 0, \"Cut\");", screen)
         self.assertIn("private static String clipboardText(Context context) {", screen)
         # Round 14 wanted a floating toolbar and a selection that outlives the
         # finger lift. Round 19 hands both to the stock editor, which does both
-        # natively: we never start an action mode ourselves and no listener of
-        # ours can collapse a selection as the thumb lifts -- the two old
-        # workarounds must stay deleted.
+        # natively: the only action mode we raise ourselves is round 28's caret
+        # menu over an empty-box hold, and no listener of ours can collapse a
+        # selection as the thumb lifts -- the old workarounds stay deleted.
         self.assertIn("android.view.ActionMode.TYPE_FLOATING);", screen)
         self.assertIn("if (longPressFired || dragHandle != 0 || multiTouch) return;", screen)
         self.assertIn("currentSelectionMode = mode;", screen)
@@ -4455,7 +4455,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         # Round 18: expression at the top of its box, with room below for the
         # stock handles to live.
         self.assertIn("displayView.setGravity(Gravity.RIGHT | Gravity.TOP);", screen)
-        self.assertIn("displayView.setPadding(0, 0, 0, ui.dp(34));", screen)
+        # Round 28: zero horizontal padding put the content edge ON the view
+        # edge, so his end caret and right teardrop drew off the canvas.
+        self.assertIn("displayView.setPadding(ui.dp(10), 0, ui.dp(10), ui.dp(34));", screen)
         # Round 19: "why can't you use default android which is very good and
         # robust" -- the stock highlight, the stock gestures, and a scroller that
         # refuses to steal a handle drag while a selection is up.
@@ -4464,7 +4466,11 @@ class TestInfrastructureContracts(unittest.TestCase):
         # the plain single-line EditText scrolls and selects for itself.
         self.assertNotIn("exprScroll.addView(displayView", screen)
         self.assertNotIn("exprScroller = exprScroll;", screen)
-        self.assertIn("float prim = lo.getPrimaryHorizontal(off) - getScrollX();", screen)
+        # Round 28: the caret and both handles measure from the view's own
+        # paint against the gravity-right anchor; the layout's line-left is
+        # consulted only inside a sanity window, so a torn table costs nothing.
+        self.assertIn("float left = contentW - textW;", screen)
+        self.assertIn("float cand = lo.getLineLeft(0) - getScrollX();", screen)
         self.assertIn('"caret scrolled into view at innerScrollX="', screen)
         self.assertIn("if (!panned) {", screen)
         self.assertIn('"hold released: chars "', screen)
@@ -4496,8 +4502,19 @@ class TestInfrastructureContracts(unittest.TestCase):
         # getPrimaryHorizontal), tap-clears-selection, band-as-handle, and history
         # reuse without display commas.
         self.assertIn("public float caretX(android.text.Layout lo, int off, int ln) {", screen)
-        self.assertIn("+ getPaint().measureText(getText().toString(), lineStart, o)", screen)
+        self.assertIn("return left + p.measureText(txt, 0, o);", screen)
         self.assertIn('"tap placed the caret at "', screen)
+        # Round 28: a hold on the empty part of the box holds NOTHING -- it
+        # parks the caret and raises Google's caret trio; Mem stores the held
+        # value and MR inserts the recently saved one at the caret.
+        self.assertIn('"long press on empty box: no selection, caret parked at "', screen)
+        self.assertIn('"caret menu opened: MR, Paste, Select all"', screen)
+        self.assertIn('"selection menu opened: Cut, "', screen)
+        self.assertIn("case SEL_MEM: {", screen)
+        self.assertIn("case SEL_MR: {", screen)
+        self.assertIn('"memory saved from selection: "', screen)
+        self.assertIn("private float[] textExtent() {", screen)
+        self.assertIn("SEL_PASTE = 9103, SEL_ALL = 9104, SEL_MEM = 9105, SEL_MR = 9106;", screen)
         self.assertIn("dragHandle = e.getX() - lx <= rx - e.getX() ? -1 : 1;", screen)
         self.assertIn("expression.append(expr.replace(\",\", \"\")", screen)
         self.assertIn("requestDisallowInterceptTouchEvent(true);", screen)
@@ -4635,6 +4652,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("jitterTapStillClearsTheHeldSelection", ui)
         self.assertIn("tapAwayFromTheExpressionClears", ui)
         self.assertIn("aPlainTapParksTheCaretAndReleasesTheSelection", ui)
+        self.assertIn("aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu", ui)
+        self.assertIn("memStoresTheHeldNumberAndMrInsertsItAtTheCaret", ui)
+        self.assertIn("theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)

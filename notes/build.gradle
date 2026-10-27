@@ -1,0 +1,33 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'app.space.notes'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'app.space.notes'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+    signingConfigs {
+        sideload {
+            storeFile rootProject.file('signing/myspace.p12')
+            storeType 'pkcs12'
+            storePassword 'myspace-sideload'
+            keyAlias 'myspace'
+            keyPassword 'myspace-sideload'
+        }
+    }
+    buildTypes {
+        debug { applicationIdSuffix '.debug' }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.sideload
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+dependencies { implementation project(':notes-runtime') }

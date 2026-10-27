@@ -1,0 +1,11 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'app.space.notes.runtime'
+    compileSdk 34
+    defaultConfig { minSdk 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+dependencies { api project(':notes-domain') }

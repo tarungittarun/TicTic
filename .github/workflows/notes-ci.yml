@@ -1,0 +1,40 @@
+name: MyNotes standalone
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: notes-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  standalone:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned Android SDK
+        run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
+      - name: Source and protocol checks
+        run: python3 -m unittest discover -s qa
+      - name: Domain tests and standalone release
+        run: sh gradlew :notes-domain:test :notes:assembleRelease --stacktrace
+      - name: Package with checksum
+        run: |
+          mkdir -p notes-dist
+          cp notes/build/outputs/apk/release/notes-release.apk notes-dist/MyNotes-v0.1.0-1.apk
+          cd notes-dist
+          sha256sum MyNotes-v0.1.0-1.apk > MyNotes-v0.1.0-1.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyNotes-v0.1.0-1
+          path: notes-dist/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MyNotes-test-reports
+          path: notes-domain/build/reports/tests/
+          if-no-files-found: ignore

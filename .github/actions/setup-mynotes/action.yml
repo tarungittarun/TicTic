@@ -1,0 +1,22 @@
+name: MyNotes toolchain
+description: Shared Java, Gradle cache and pinned SDK setup for the independent Notes project
+inputs:
+  sdk:
+    description: Install pinned compile/build tools (false for pure JVM tests)
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: '17'
+    - uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-read-only: ${{ github.event_name != 'push' }}
+    - name: Pinned Android SDK
+      if: inputs.sdk == 'true'
+      shell: bash
+      run: |
+        SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+        "$SDK/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-34' 'build-tools;34.0.0'

@@ -5,172 +5,283 @@ on:
     paths:
       - 'mynotes/**'
       - '.github/workflows/notes-ci.yml'
+      - '.github/actions/setup-mynotes/**'
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
   group: notes-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
-  standalone:
+  checks:
+    name: Source, protocol and CI self-tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
         with:
-          distribution: temurin
-          java-version: '17'
-      - name: Install pinned Android SDK
+          python-version: '3.11'
+      - name: Install workflow parser
+        run: python3 -m pip install 'PyYAML==6.0.3'
+      - name: Validate workflow topology and isolation
+        run: python3 -m mynotes.tools.ci.workflow_guard
+      - name: Fast MyNotes checks only
+        run: python3 -m unittest discover -s mynotes/qa -t . -v
+      - name: Exhaustive test discovery and lane plan
+        id: plan
         run: |
-          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          "$SDK/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-34' 'build-tools;34.0.0'
-      - name: MyNotes source and protocol checks only
-        run: python3 -m unittest discover -s mynotes/qa -t .
-      - name: Domain tests and standalone release
+          mkdir -p evidence
+          python3 -m mynotes.tools.ci.test_plan --output evidence/test-plan.json
+          echo "matrix=$(python3 -m mynotes.tools.ci.test_plan --matrix)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-test-plan
+          path: evidence/
+          retention-days: 14
+          if-no-files-found: warn
+  jvm:
+    name: Domain and migration rules
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+        with:
+          sdk: 'false'
+      - name: JVM tests (independent of APK compilation)
         working-directory: mynotes
         shell: bash
         run: |
           set -o pipefail
-          sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/notes-build.log
-      - name: Surface exact build and JVM failures
+          sh gradlew --build-cache :notes-domain:test --stacktrace 2>&1 | tee /tmp/notes-jvm.log
+      - name: Verify executed JVM cases (no skipped or missing tests)
+        if: always()
+        run: python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/jvm.json
+      - name: Compiler diagnostics
         if: failure()
-        run: |
-          python3 - <<'PYREPORT'
-          from pathlib import Path
-          import re, xml.etree.ElementTree as ET
-          path=Path('/tmp/notes-build.log')
-          lines=path.read_text(errors='replace').splitlines() if path.exists() else ['No Gradle log produced']
-          keep=set()
-          for i,line in enumerate(lines):
-              if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|Could not |Execution failed|> Task .*FAILED|tests completed',line):
-                  keep.update(range(max(0,i-2),min(len(lines),i+8)))
-          report='\n'.join(lines[i] for i in sorted(keep)) if keep else '\n'.join(lines[-35:])
-          def emit(title,text):
-              text=text[:3800].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
-              print(f'::error title={title}::{text}')
-          for i in range(0,min(len(report),11000),3600):emit('Notes build diagnostic '+str(i//3600+1),report[i:i+3600])
-          for path in Path('mynotes/domain/build/test-results/test').glob('*.xml'):
-              for case in ET.parse(path).getroot().iter('testcase'):
-                  for failure in case.findall('failure'):emit('Notes JVM '+case.attrib.get('name',''),failure.attrib.get('message','')+'\n'+(failure.text or ''))
-          PYREPORT
-      - name: Verify update compatibility
-        run: |
-          python3 mynotes/tools/verify_update.py --sdk "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" \
-            --apk mynotes/app/build/outputs/apk/release/notes-release.apk --releases mynotes/releases
-      - name: Package versioned release with checksum
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re, shutil, hashlib
-          s=Path('mynotes/app/build.gradle').read_text()
-          code=re.search(r'versionCode (\d+)',s)[1]
-          version=re.search(r"versionName '([^']+)'",s)[1]
-          name=f'MyNotes-v{version}-{code}.apk'
-          dest=Path('mynotes/notes-dist');dest.mkdir(parents=True,exist_ok=True)
-          data=Path('mynotes/app/build/outputs/apk/release/notes-release.apk').read_bytes()
-          (dest/name).write_bytes(data)
-          (dest/(name+'.sha256')).write_text(hashlib.sha256(data).hexdigest()+'  '+name+'\n')
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: MyNotes-release
-          path: mynotes/notes-dist/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: MyNotes-instrumentation
-          path: |
-            mynotes/app/build/outputs/apk/debug/notes-debug.apk
-            mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-jvm.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: MyNotes-domain-test-reports
-          path: mynotes/domain/build/reports/tests/
-          if-no-files-found: ignore
-  android-tests:
-    needs: standalone
+          name: notes-jvm-evidence
+          path: |
+            evidence/
+            mynotes/domain/build/test-results/
+            mynotes/domain/build/reports/tests/
+            /tmp/notes-jvm.log
+          retention-days: 14
+          if-no-files-found: warn
+  release-build:
+    name: Compile signed release candidate
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Assemble release only
+        working-directory: mynotes
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew --build-cache :notes:assembleRelease --stacktrace 2>&1 | tee /tmp/notes-release.log
+      - name: Compiler diagnostics
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-release.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notes-release-candidate
+          path: mynotes/app/build/outputs/apk/release/notes-release.apk
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-release-build-log
+          path: /tmp/notes-release.log
+          retention-days: 7
+          if-no-files-found: warn
+  test-build:
+    name: Compile debug host and instrumentation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Assemble test inputs only
+        working-directory: mynotes
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew --build-cache :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/notes-tests.log
+      - name: Compiler diagnostics
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-tests.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notes-instrumentation-apks
+          path: |
+            mynotes/app/build/outputs/apk/debug/notes-debug.apk
+            mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-instrumentation-build-log
+          path: /tmp/notes-tests.log
+          retention-days: 7
+          if-no-files-found: warn
+  apk-audit:
+    name: APK privacy, signature and update contract
+    needs: release-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      publish_eligible: ${{ steps.audit.outputs.publish_eligible }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-mynotes
+      - uses: actions/download-artifact@v4
+        with:
+          name: notes-release-candidate
+          path: candidate
+      - name: Audit and select exact release bytes
+        id: audit
+        run: |
+          set -o pipefail
+          python3 -m mynotes.tools.ci.audit --sdk "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" --apk candidate/notes-release.apk --output accepted-release 2>&1 | tee /tmp/notes-audit.log
+          python3 - <<'PY'
+          import json,os
+          eligible=json.load(open('accepted-release/audit.json'))['publish_eligible']
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('publish_eligible='+str(eligible).lower()+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notes-accepted-release
+          path: accepted-release/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Audit failure diagnostics
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-audit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notes-audit-log
+          path: /tmp/notes-audit.log
+          retention-days: 14
+          if-no-files-found: warn
+  android:
+    name: Android / ${{ matrix.id }}
+    needs: [checks, test-build, apk-audit]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
+    env:
+      LANE_ID: ${{ matrix.id }}
+      LANE_GROUP: ${{ matrix.group }}
+      LANE_API: ${{ matrix.api }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
       - uses: actions/download-artifact@v4
         with:
-          name: MyNotes-release
-          path: release-apk
+          name: notes-accepted-release
+          path: accepted-release
       - uses: actions/download-artifact@v4
         with:
-          name: MyNotes-instrumentation
+          name: notes-instrumentation-apks
           path: test-apks
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Upgrade smoke and Notes persistence/protocol tests
+      - name: Exact release upgrade/hash/offline smoke and partitioned journeys
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ matrix.api }}
           arch: x86_64
           profile: Nexus 5
           force-avd-creation: true
           disable-animations: true
-          script: |
-            adb install -r mynotes/releases/MyNotes-v0.1.0-1.apk
-            adb install -r $(find release-apk -name '*.apk' | head -1)
-            adb shell dumpsys package app.space.notes | grep 'versionCode='
-            adb shell am start -W -n app.space.notes/.NotesActivity
-            adb install -r $(find test-apks -name 'notes-debug.apk' | head -1)
-            adb install -r $(find test-apks -name '*androidTest.apk' | head -1)
-            adb shell am instrument -w app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee notes-instrumentation.txt
-            grep -q 'OK (40 tests)' notes-instrumentation.txt
-      - name: Surface Android failure details
+          script: bash mynotes/tools/ci/android_lane.sh
+      - name: Surface partial/failed lane results
         if: failure()
         run: |
-          python3 - <<'PYANDROID'
-          from pathlib import Path
-          path=Path('notes-instrumentation.txt')
-          text=path.read_text(errors='replace') if path.exists() else 'Emulator did not produce instrumentation output'
-          start=text.find('There ')
-          report=text[start:] if start>=0 else text[-10000:]
-          for i in range(0,min(len(report),10800),3600):
-              chunk=report[i:i+3600].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
-              print(f'::error title=Notes Android diagnostic {i//3600+1}::{chunk}')
-          PYANDROID
+          python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "evidence/$LANE_ID/instrumentation.txt" --output "evidence/$LANE_ID/results.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: MyNotes-instrumentation-results
-          path: notes-instrumentation.txt
-          if-no-files-found: ignore
+          name: notes-android-${{ matrix.id }}
+          path: evidence/
+          retention-days: 14
+          if-no-files-found: warn
   publish:
-    needs: android-tests
-    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    name: Publish immutable version (all gates required)
+    needs: [checks, jvm, release-build, test-build, apk-audit, android]
+    if: github.ref == 'refs/heads/arena/3caca636-tictic' && needs.apk-audit.outputs.publish_eligible == 'true'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: MyNotes-release
-          path: release-apk
-      - name: Publish compatible tested standalone APK
+          name: notes-accepted-release
+          path: accepted-release
+      - name: Publish only the audited and emulator-verified APK
+        shell: bash
         run: |
           set -euo pipefail
-          NAME=$(basename "$(find release-apk -name '*.apk' | head -1)")
+          NAME=$(python3 -c 'import json;print(json.load(open("accepted-release/audit.json"))["filename"])')
+          (cd accepted-release && sha256sum -c "$NAME.sha256")
+          git fetch origin arena/3caca636-tictic
+          python3 - <<'PY'
+          import os
+          from mynotes.tools.ci.audit import assert_source_equivalent
+          assert_source_equivalent(os.environ['GITHUB_SHA'],'origin/arena/3caca636-tictic')
+          PY
           test ! -e "mynotes/releases/$NAME"
-          cp "release-apk/$NAME" "mynotes/releases/$NAME"
-          cp "release-apk/$NAME.sha256" "mynotes/releases/$NAME.sha256"
+          cp "accepted-release/$NAME" "mynotes/releases/$NAME"
+          cp "accepted-release/$NAME.sha256" "mynotes/releases/$NAME.sha256"
+          cp accepted-release/audit.json "mynotes/releases/$NAME.audit.json"
           echo "$GITHUB_SHA" > "mynotes/releases/$NAME.source.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mynotes/releases/
-          git commit -m "Publish $NAME compatible standalone APK [skip ci]"
+          git commit -m "Publish $NAME compatible tested standalone APK [skip ci]"
           git pull --rebase origin arena/3caca636-tictic
           git push origin arena/3caca636-tictic
+  acceptance:
+    name: MyNotes acceptance summary
+    needs: [checks, jvm, release-build, test-build, apk-audit, android, publish]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: notes-*
+          path: all-evidence
+      - name: Summarize every gate, coverage and tested APK identity
+        if: always()
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: python3 -m mynotes.tools.ci.summary --evidence all-evidence

@@ -40,7 +40,9 @@ class NotesStandaloneContracts(unittest.TestCase):
 
     def test_workflow_builds_only_notes(self):
         s=(REPO/'.github/workflows/notes-ci.yml').read_text()
-        self.assertIn(':notes-domain:test :notes:assembleRelease',s)
+
+        for task in [':notes-domain:test',':notes:assembleRelease',':notes:assembleDebug',':notes:assembleDebugAndroidTest']:
+            self.assertIn(task,s)
         self.assertNotIn('tests.yml',s)
         self.assertNotIn(':app:assemble',s)
 

@@ -42,3 +42,7 @@ Current release: **0.4.0 (5)** — masonry/list Home, rich text, structured chec
 labels/colours, bulk workflows and local storage/backup. See docs/STANDALONE-TEST-GUIDE.md
 for APK, passed test scope and remaining limitations. OCR/ASR/media/diagrams/system
 features are still pending; this is not the full planned product.
+
+## Continuous integration
+
+See [parallel CI architecture and maintenance](docs/CI-ARCHITECTURE.md) for job gates, exhaustive test partitions, APK identity evidence and CI-only same-version handling.

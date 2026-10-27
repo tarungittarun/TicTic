@@ -7,7 +7,7 @@ on:
       - '.github/workflows/notes-ci.yml'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: notes-${{ github.ref }}
   cancel-in-progress: false
@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -30,39 +28,112 @@ jobs:
         run: python3 -m unittest discover -s mynotes/qa -t .
       - name: Domain tests and standalone release
         working-directory: mynotes
-        run: sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebugAndroidTest --stacktrace
-      - name: Package with checksum
+        run: sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace
+      - name: Verify update compatibility
         run: |
-          mkdir -p mynotes/notes-dist
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk mynotes/notes-dist/MyNotes-v0.1.0-1.apk
-          cd mynotes/notes-dist
-          sha256sum MyNotes-v0.1.0-1.apk > MyNotes-v0.1.0-1.apk.sha256
+          python3 mynotes/tools/verify_update.py --sdk "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" \
+            --apk mynotes/app/build/outputs/apk/release/notes-release.apk --releases mynotes/releases
+      - name: Package versioned release with checksum
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, shutil, hashlib
+          s=Path('mynotes/app/build.gradle').read_text()
+          code=re.search(r'versionCode (\d+)',s)[1]
+          version=re.search(r"versionName '([^']+)'",s)[1]
+          name=f'MyNotes-v{version}-{code}.apk'
+          dest=Path('mynotes/notes-dist');dest.mkdir(parents=True,exist_ok=True)
+          data=Path('mynotes/app/build/outputs/apk/release/notes-release.apk').read_bytes()
+          (dest/name).write_bytes(data)
+          (dest/(name+'.sha256')).write_text(hashlib.sha256(data).hexdigest()+'  '+name+'\n')
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: MyNotes-v0.1.0-1
+          name: MyNotes-release
           path: mynotes/notes-dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyNotes-instrumentation
+          path: |
+            mynotes/app/build/outputs/apk/debug/notes-debug.apk
+            mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: MyNotes-test-reports
+          name: MyNotes-domain-test-reports
           path: mynotes/domain/build/reports/tests/
           if-no-files-found: ignore
-      - name: Publish first standalone APK to this branch
-        if: github.ref == 'refs/heads/arena/3caca636-tictic'
+  android-tests:
+    needs: standalone
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: MyNotes-release
+          path: release-apk
+      - uses: actions/download-artifact@v4
+        with:
+          name: MyNotes-instrumentation
+          path: test-apks
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Upgrade smoke and Notes persistence/protocol tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          profile: Nexus 5
+          force-avd-creation: true
+          disable-animations: true
+          script: |
+            adb install -r mynotes/releases/MyNotes-v0.1.0-1.apk
+            adb install -r $(find release-apk -name '*.apk' | head -1)
+            adb shell dumpsys package app.space.notes | grep 'versionCode='
+            adb shell am start -W -n app.space.notes/.NotesActivity
+            adb install -r $(find test-apks -name 'notes-debug.apk' | head -1)
+            adb install -r $(find test-apks -name '*androidTest.apk' | head -1)
+            adb shell am instrument -w app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee notes-instrumentation.txt
+            grep -q 'OK (13 tests)' notes-instrumentation.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MyNotes-instrumentation-results
+          path: notes-instrumentation.txt
+          if-no-files-found: ignore
+  publish:
+    needs: android-tests
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: MyNotes-release
+          path: release-apk
+      - name: Publish compatible tested standalone APK
         run: |
           set -euo pipefail
-          DEST=mynotes/releases/MyNotes-v0.1.0-1.apk
-          if [ -f "$DEST" ]; then
-            echo "Version already published; bump version before replacing it."
-            exit 0
-          fi
-          mkdir -p mynotes/releases
-          cp mynotes/notes-dist/MyNotes-v0.1.0-1.apk "$DEST"
-          cp mynotes/notes-dist/MyNotes-v0.1.0-1.apk.sha256 mynotes/releases/
-          echo "$GITHUB_SHA" > mynotes/releases/MyNotes-v0.1.0-1.source.txt
+          NAME=$(basename "$(find release-apk -name '*.apk' | head -1)")
+          test ! -e "mynotes/releases/$NAME"
+          cp "release-apk/$NAME" "mynotes/releases/$NAME"
+          cp "release-apk/$NAME.sha256" "mynotes/releases/$NAME.sha256"
+          echo "$GITHUB_SHA" > "mynotes/releases/$NAME.source.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mynotes/releases/
-          git commit -m "Publish MyNotes 0.1.0 (1) standalone APK [skip ci]"
+          git commit -m "Publish $NAME compatible standalone APK [skip ci]"
           git pull --rebase origin arena/3caca636-tictic
           git push origin arena/3caca636-tictic

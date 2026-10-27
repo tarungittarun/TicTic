@@ -32,7 +32,7 @@ public final class NotesController {
     private NotesRepository repository;
     private final int bg, ink, surface, muted;
     private final Bundle restored;
-    private boolean ready, closed, binding, dirty;
+    private boolean ready, closed, binding, dirty, busy;
     private String page="Notes", editing;
     private long revision, querySequence;
     private TextView status;
@@ -58,7 +58,7 @@ public final class NotesController {
                 List<Note> loaded=repository.load();
                 long now=System.currentTimeMillis();
                 boolean purged=loaded.removeIf(n->n.expired(now));
-                if(purged) repository.save(loaded);
+                if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
                 main.post(()->{ if(closed)return; notes.addAll(loaded); ready=true;
                     if(restored!=null) {
                         page=restored.getString("page","Notes");
@@ -88,7 +88,7 @@ public final class NotesController {
         Button v=new Button(context); v.setText(label); v.setAllCaps(false); v.setTextColor(ink);
         GradientDrawable shape=new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(22));
         v.setBackground(shape); v.setPadding(dp(12),dp(4),dp(12),dp(4));
-        v.setOnClickListener(w->action.run()); return v;
+        v.setOnClickListener(w->{if(!busy)action.run();else host.showMessage("Storage change in progress. Please wait.");}); return v;
     }
     private void row(String[] labels,Runnable[] actions) {
         LinearLayout row=new LinearLayout(context);
@@ -100,11 +100,11 @@ public final class NotesController {
     }
     private void header(String name) {
         TextView h=text(name,28); h.setTypeface(null,Typeface.BOLD); root.addView(h);
-        status=text("Local device storage · MyNotes 0.1.0",12); status.setTextColor(muted); root.addView(status);
+        status=text((repository==null?"Opening storage":repository.status())+" · "+host.versionLabel(),12); status.setTextColor(muted); root.addView(status);
     }
     private void renderHome() {
         editing=null; title=null; body=null; root.removeAllViews(); header("MyNotes · "+page);
-        row(new String[]{"Notes","Archive","Trash"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash")});
+        row(new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
         search=new EditText(context); search.setSingleLine(true); search.setTextColor(ink); search.setHintTextColor(muted);
         search.setHint("Search this page"); root.addView(search);
         search.addTextChangedListener(watcher(()->{ main.removeCallbacks(filter); main.postDelayed(filter,150); querySequence++; }));
@@ -120,7 +120,7 @@ public final class NotesController {
         root.addView(list,new LinearLayout.LayoutParams(-1,0,1));
         list.setOnItemClickListener((a,v,pos,id)->{ if(pos<visible.size()) { editing=visible.get(pos).id; renderEditor(); } });
         row(new String[]{"+ Text note","Undo","Retry save"},new Runnable[]{this::newNote,this::undo,this::flush});
-        root.addView(text("Early text milestone · folder selection, lists, media and diagrams are not available yet.",12));
+        root.addView(text("Early text milestone · lists, media and diagrams are not available yet.",12));
         filterNow();
     }
     private void navigate(String name) { page=name; renderHome(); }
@@ -170,6 +170,35 @@ public final class NotesController {
         else row(new String[]{"Back",n.pinned?"Unpin":"Pin",n.archived?"Unarchive":"Archive","Trash"},
             new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
     }
+    private void renderStorage() {
+        editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);
+        root.removeAllViews();header("Storage & recovery");
+        root.addView(text("Choose Internal storage or an SD-card folder. Cloud providers are refused: Notes stays offline.",17));
+        root.addView(text("Choose a NEW EMPTY folder for this library. Notes copies and verifies all text notes before switching. The previous folder is kept; it is never deleted automatically.",15));
+        root.addView(text("A private recovery copy is also kept on this device. If folder access fails, edits remain in this copy and show Pending, not saved-to-folder. Retry after reconnecting or choose another empty folder.",15));
+        root.addView(text("Uninstall removes private data and folder permissions. Chosen-folder files remain. Opening an existing library after reinstall is not available in this milestone—keep your existing installation.",14));
+        root.addView(text("Only the standard local Android storage provider is supported. Android blocks some system/root folders. Folder generations are retained for recovery; large-library compaction is not implemented yet.",14));
+        row(new String[]{"Choose folder","Retry save"},new Runnable[]{host::chooseLocalFolder,this::flush});
+        row(new String[]{"Use device storage","Back"},new Runnable[]{()->moveStorage(null),this::renderHome});
+    }
+    public void selectFolder(android.net.Uri uri) {
+        if(!ready || closed || busy)return;
+        persistDraft(); moveStorage(uri);
+    }
+    private void moveStorage(android.net.Uri uri) {
+        busy=true;final List<Note> snapshot=new ArrayList<>(notes);
+        if(status!=null)status.setText("Copying and verifying library…");
+        disk.execute(()->{
+            String message;
+            try {
+                if(uri==null)repository.usePrivate(snapshot);else repository.selectFolder(uri,snapshot);
+                log("storage-move","verified count="+snapshot.size());
+                message="Storage changed after verification. Previous files were retained.";
+            } catch(Exception e) {log("storage-move","failed "+e.getClass().getSimpleName());message="Storage change incomplete: "+e.getMessage();}
+            final String result=message;
+            main.post(()->{busy=false;if(!closed){renderStorage();host.showMessage(result);}});
+        });
+    }
     private TextWatcher watcher(Runnable action) {
         return new TextWatcher() {
             public void beforeTextChanged(CharSequence s,int a,int count,int after) { }
@@ -207,10 +236,10 @@ public final class NotesController {
         if(status!=null)status.setText("Saving locally…");
         disk.execute(()->{
             try { repository.save(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
-                main.post(()->{if(!closed && !dirty && ticket==revision && status!=null)status.setText("Saved locally · device storage");});
+                main.post(()->{if(!closed && !dirty && ticket==revision && status!=null)status.setText("Saved · "+repository.status());});
             } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());
-                main.post(()->{if(!closed){if(status!=null)status.setText("Save failed · changes remain in memory");
-                    host.showMessage("Could not save. Keep the app open and free storage, then retry saving.");}});
+                main.post(()->{if(!closed){if(status!=null)status.setText(repository.status()+" · retry needed");
+                    host.showMessage("Save incomplete. "+repository.status()+". Check storage access, then use Retry save.");}});
             }
         });
     }
@@ -219,7 +248,7 @@ public final class NotesController {
         if(editing==null)return false;
         persistDraft(); renderHome(); return true;
     }
-    public void flush() { if(ready){persistDraft();queueSave();} }
+    public void flush() { if(ready && !busy){persistDraft();queueSave();} }
     public void saveState(Bundle state) {
         state.putString("page",page); state.putString("editing",editing);
         if(editing!=null && title!=null){state.putString("title",title.getText().toString());state.putString("body",body.getText().toString());}

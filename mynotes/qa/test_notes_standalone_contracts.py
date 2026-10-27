@@ -49,7 +49,7 @@ class NotesStandaloneContracts(unittest.TestCase):
         self.assertIn('AtomicFile',s)
         self.assertIn('file.readFully()',s)
         self.assertNotIn('CAP',s)
-        self.assertIn('Duplicate note ID',s)
+        self.assertIn('Duplicate note ID',(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text())
 
     def test_parent_build_does_not_register_notes(self):
         s=(REPO/'settings.gradle').read_text()

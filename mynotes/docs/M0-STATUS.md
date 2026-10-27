@@ -130,3 +130,22 @@ Workflow published MyNotes-v0.1.0-1.apk and checksum to mynotes/releases in comm
 563803284a27cdd617ae73868989fc63eb6c81d6. The old workflows' last runs remain historical;
 no calculator/MySpace jobs ran for this push. This resolves the prior build-registration
 blocker via Notes-only push events, not via permission-blocked manual dispatch.
+
+## Slice 4 — 0.2.0 (2), storage/recovery and release compatibility
+
+Implementation added: separate document codec retaining v1 compatibility; local SAF tree
+backend limited to ExternalStorageProvider; immutable SHA-256 generations; stale/fork
+checks; verified empty-folder migration; explicit return to private storage; durable
+private recovery before external writes; read/write persisted folder grant callbacks;
+Storage UI with limitations and retry. No MySpace/calculator source/workflow changes.
+
+Release gate added: apksigner certificate equality + stable application ID + increasing
+versionCode compared to published APKs; published version overwrites rejected. CI now
+compiles debug/release/test APKs, attempts previous-release update, and runs 13 Android
+persistence/protocol tests before publishing. Eight new instrumented tests cover provider-
+independent fault paths and original v1 format; five Python release-policy checks pass.
+
+Local gate at this point: 425 tests OK (35 Notes + 390 legacy checks). Java compilation,
+Android tests, update smoke and actual folder-provider qualification have NOT yet run
+for this slice. The next deliberate push triggers Notes CI; record its outcome below.
+Actual SAF picker/device/SD tests remain distinct from in-memory protocol tests.

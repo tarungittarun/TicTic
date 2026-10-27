@@ -1,5 +1,7 @@
 package app.space.notes.runtime;
-/** Minimal capability boundary; no Activity/application ID in domain or repository. */
+/** OS capabilities supplied by either standalone or future suite host. */
 public interface NotesHost {
     void showMessage(String message);
+    void chooseLocalFolder();
+    String versionLabel();
 }

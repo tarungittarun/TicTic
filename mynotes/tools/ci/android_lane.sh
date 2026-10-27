@@ -50,6 +50,7 @@ if [[ "${LANE_ORIENTATION:-portrait}" == landscape ]]; then
   adb shell settings put system user_rotation 1
   if (( LANE_API >= 31 )); then
     adb shell wm set-ignore-orientation-request true
+    adb shell wm fixed-to-user-rotation enabled
     adb shell wm user-rotation lock 1
   fi
 elif [[ "${LANE_ORIENTATION:-portrait}" == portrait ]]; then
@@ -136,8 +137,18 @@ fi
 if (( LANE_API >= 33 )) && [[ "${LANE_NOTIFICATIONS:-denied}" == granted ]]; then
   adb shell pm grant app.space.notes.debug android.permission.POST_NOTIFICATIONS
 fi
+if [[ "${LANE_ORIENTATION:-portrait}" == landscape ]] && (( LANE_API >= 31 )); then
+  # Installation/system windows can request NOSENSOR/LOCKED; the full lane must remain in real landscape.
+  adb shell wm fixed-to-user-rotation enabled
+  adb shell wm user-rotation lock 1
+  adb shell wm user-rotation > "$OUT/rotation-before.txt"
+  adb shell wm fixed-to-user-rotation > "$OUT/fixed-rotation-before.txt"
+fi
+adb shell dumpsys display > "$OUT/display-before-instrumentation.txt"
 adb shell am instrument -r -w -e disableAnalytics true -e expectedMic "${LANE_MIC:-denied}" -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
+adb shell dumpsys display > "$OUT/display-after-instrumentation.txt"
+adb shell settings get system user_rotation > "$OUT/user-rotation-after.txt"
 if [[ "$LANE_GROUP" == all || "$LANE_GROUP" == ocr ]]; then
   adb shell run-as app.space.notes.debug cat files/ocr-corpus-report.json > "$OUT/ocr-corpus-report.json"
   for language in hin kan; do adb shell run-as app.space.notes.debug cat "files/ocr-fixture-$language.png" > "$OUT/ocr-fixture-$language.png"; done

@@ -19,3 +19,7 @@ class EmulatorDiagnostics(unittest.TestCase):
             completed=subprocess.run(['node','--require',str(observer),'-e','console.log("bootstrap probe");console.error("error probe")'],cwd=d,capture_output=True,text=True,check=True)
             self.assertIn('bootstrap probe',completed.stdout);self.assertIn('error probe',completed.stderr)
             observed=(Path(d)/'evidence/emulator-bootstrap.log').read_text();self.assertIn('bootstrap probe',observed);self.assertIn('error probe',observed)
+
+    def test_landscape_uses_fixed_display_policy_and_actual_activity_assertions(self):
+        script=(ROOT/'mynotes/tools/ci/android_lane.sh').read_text();self.assertIn('wm fixed-to-user-rotation enabled',script);self.assertIn('display-after-instrumentation.txt',script)
+        test=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/EnvironmentQualificationTest.java').read_text();self.assertIn('getRealMetrics(metrics)',test);self.assertIn('wanted,actual.get()',test)

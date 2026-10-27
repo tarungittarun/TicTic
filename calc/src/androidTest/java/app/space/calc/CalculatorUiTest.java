@@ -67,6 +67,39 @@ public class CalculatorUiTest {
                 androidx.test.InstrumentationRegistry.getTargetContext(), true);
     }
 
+    /** System.out never reaches `am instrument` stdout, but a FAILURE MESSAGE
+     *  does -- the printer carries it into ui.log. So every story that fails
+     *  re-throws its failure with the app's own transcript for that story
+     *  stapled underneath: what the product saw, key by key, hold by hold,
+     *  at the moment the assertion broke. */
+    @org.junit.Rule public org.junit.rules.TestRule transcriptOnFailure =
+            new org.junit.rules.TestRule() {
+        @Override public org.junit.runners.model.Statement apply(
+                final org.junit.runners.model.Statement base,
+                org.junit.runner.Description description) {
+            return new org.junit.runners.model.Statement() {
+                @Override public void evaluate() throws Throwable {
+                    try {
+                        base.evaluate();
+                    } catch (Throwable t) {
+                        String tail = "";
+                        try {
+                            tail = app.space.core.data.AppLog.tail(
+                                    androidx.test.InstrumentationRegistry
+                                            .getTargetContext(), 1500);
+                        } catch (Throwable ignored) {
+                            // the transcript must never mask the failure itself
+                        }
+                        AssertionError enriched = new AssertionError(
+                                t.getMessage() + "\n===APP TRANSCRIPT===\n" + tail, t);
+                        enriched.setStackTrace(t.getStackTrace());
+                        throw enriched;
+                    }
+                }
+            };
+        }
+    };
+
     /** The runner's adb-side pulls came back empty on the farm twice, so the
      *  suite carries its own transcript out through instrumentation stdout,
      *  which always lands in ui.log: the app's own words about what actually

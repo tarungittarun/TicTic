@@ -4475,6 +4475,12 @@ class TestInfrastructureContracts(unittest.TestCase):
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("private static float textCenterX(View view, int[] loc) {", ui)
         self.assertIn("float cx = textCenterX(view, loc);", ui)
+        # Round 34: a failing story carries the app's own transcript inside its
+        # failure message, and the workflow surfaces the first three failures
+        # one annotation each.
+        self.assertIn("===APP TRANSCRIPT===", ui)
+        self.assertIn("transcriptOnFailure", ui)
+        self.assertIn('::error title=failure $n details::', wf)
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("===APP TRANSCRIPT TAIL===", ui)
         self.assertIn("app.space.core.data.AppLog.setEnabled(", ui)

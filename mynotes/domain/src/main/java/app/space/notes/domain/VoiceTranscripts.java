@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 /** Stable source identity makes repeated/recovered native results idempotent, without touching audio. */
 public final class VoiceTranscripts {
     private VoiceTranscripts() { }
+    public static boolean mayApplyToLibrary(boolean noteExists,boolean previouslyCreated){return noteExists || !previouslyCreated;}
     public static String noteId(String recording){UUID.fromString(recording);return UUID.nameUUIDFromBytes(("MyNotes voice v1:"+recording).getBytes(StandardCharsets.UTF_8)).toString();}
     public static String pending(String id){return "Audio saved in Voice inbox: "+id+"\nAutomatic offline transcription pending.";}
     public static Note placeholder(String id,long now){return Note.create(now).withId(noteId(id)).edit("Voice note",pending(id),now);}

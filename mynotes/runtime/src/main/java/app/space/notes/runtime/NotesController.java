@@ -417,10 +417,12 @@ public final class NotesController {
         }catch(Exception e){capture=null;host.showMessage("Recording could not start: "+e.getMessage()+". Notes are unchanged.");}
     });}
     private void addVoicePlaceholder(String id){String noteId=app.space.notes.domain.VoiceTranscripts.noteId(id);if(find(noteId)==null){notes.add(app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis()));queueSave();}}
-    private void voiceComplete(String id,String text,String failure){
-        if(closed)return;if(busy){main.postDelayed(()->voiceComplete(id,text,failure),200);return;}
+    private void voiceComplete(String id,String text,String failure,boolean previouslyCreated){
+        if(closed)return;if(busy){main.postDelayed(()->voiceComplete(id,text,failure,previouslyCreated),200);return;}
         whenReady(()->{
-        if(closed)return;persistDraft();addVoicePlaceholder(id);Note note=find(app.space.notes.domain.VoiceTranscripts.noteId(id));
+        if(closed)return;persistDraft();String target=app.space.notes.domain.VoiceTranscripts.noteId(id);
+        if(!app.space.notes.domain.VoiceTranscripts.mayApplyToLibrary(find(target)!=null,previouslyCreated)){if(voicePage)renderVoiceInbox();return;}
+        addVoicePlaceholder(id);Note note=find(target);
         if(!text.isEmpty() && note!=null && note.deletedAt==0){Note changed=app.space.notes.domain.VoiceTranscripts.apply(note,id,text,System.currentTimeMillis());if(changed!=note){replace(changed);queueSave();}}
         if(voicePage)renderVoiceInbox();else if(editing==null && !storagePage)filterNow();
         if(!failure.isEmpty())host.showMessage("Offline transcription unavailable. Audio is retained in Voice inbox; retry or export it. Other notes features are unaffected.");

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** One native inference at a time, independent of disk saves and surviving Activity rotation. */
 public final class VoiceTasks {
-    public interface Listener {void complete(String id,String text,String failure);}
+    public interface Listener {void complete(String id,String text,String failure,boolean previouslyCreated);}
     private static final ExecutorService worker=Executors.newSingleThreadExecutor();
     private static final Set<String> running=ConcurrentHashMap.newKeySet();
     private static final Map<String,CopyOnWriteArrayList<Listener>> listeners=new ConcurrentHashMap<>();
@@ -22,7 +22,9 @@ public final class VoiceTasks {
             try{VoiceFiles files=new VoiceFiles(app);files.result(id,"","Transcribing offline");text=OfflineSpeech.transcribe(app,files.audio(id),new AtomicBoolean());files.result(id,text,text.isEmpty()?"No speech recognized; audio retained":"DONE");}
             catch(Exception | LinkageError | OutOfMemoryError e){failure=e.getClass().getSimpleName()+": "+(e.getMessage()==null?"inference unavailable":e.getMessage());try{new VoiceFiles(app).result(id,"","Failed; audio retained · "+failure);}catch(Exception ignored){ }android.util.Log.w("MyNotes","voice-transcription outcome=failed "+e.getClass().getSimpleName());}
             finally{running.remove(job);}
-            final String result=text,error=failure;main.post(()->{List<Listener> current=listeners.get(key);if(current!=null)for(Listener listener:current)listener.complete(id,result,error);});
+            boolean created;try{created=new VoiceFiles(app).noteWasCreated(id);}catch(Exception unavailable){created=true;}
+            final boolean previouslyCreated=created;
+            final String result=text,error=failure;main.post(()->{List<Listener> current=listeners.get(key);if(current!=null)for(Listener listener:current)listener.complete(id,result,error,previouslyCreated);});
         });
     }
     public static boolean running(Context context,String id){return running.contains(context.getFilesDir().getAbsolutePath()+"/"+id);}

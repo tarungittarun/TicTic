@@ -235,3 +235,11 @@ source/protocol checks currently 435 OK. No Java/emulator success for this slice
 claimed before CI. The added Android journeys cover rich edit/properties/copy, checklist
 completion/move/indent/hide/convert/Undo, bulk properties/pin/archive, share/merge/Undo.
 Actual picker/SD/device/large-font/scale acceptance is still separate and outstanding.
+
+### Slice 6 first CI outcome / diagnostic action
+
+Run 40568910796 failed in Domain tests and standalone release (1m23s). No APK published;
+Android and publish jobs skipped. Log download returned EOF from the inaccessible Actions
+results host; check annotations contained only exit code 1. Added bounded compiler/JVM
+failure surfacing to Notes workflow instead of guessing or touching legacy workflows.
+Next push retains version 0.4.0 (5), which has never been published, and exposes the cause.

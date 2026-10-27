@@ -28,7 +28,31 @@ jobs:
         run: python3 -m unittest discover -s mynotes/qa -t .
       - name: Domain tests and standalone release
         working-directory: mynotes
-        run: sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/notes-build.log
+      - name: Surface exact build and JVM failures
+        if: failure()
+        run: |
+          python3 - <<'PYREPORT'
+          from pathlib import Path
+          import re, xml.etree.ElementTree as ET
+          path=Path('/tmp/notes-build.log')
+          lines=path.read_text(errors='replace').splitlines() if path.exists() else ['No Gradle log produced']
+          keep=set()
+          for i,line in enumerate(lines):
+              if re.search(r'error:|FAILURE:|What went wrong|Duplicate class|Could not |Execution failed|> Task .*FAILED|tests completed',line):
+                  keep.update(range(max(0,i-2),min(len(lines),i+8)))
+          report='\n'.join(lines[i] for i in sorted(keep)) if keep else '\n'.join(lines[-35:])
+          def emit(title,text):
+              text=text[:3800].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+              print(f'::error title={title}::{text}')
+          for i in range(0,min(len(report),11000),3600):emit('Notes build diagnostic '+str(i//3600+1),report[i:i+3600])
+          for path in Path('mynotes/domain/build/test-results/test').glob('*.xml'):
+              for case in ET.parse(path).getroot().iter('testcase'):
+                  for failure in case.findall('failure'):emit('Notes JVM '+case.attrib.get('name',''),failure.attrib.get('message','')+'\n'+(failure.text or ''))
+          PYREPORT
       - name: Verify update compatibility
         run: |
           python3 mynotes/tools/verify_update.py --sdk "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" \

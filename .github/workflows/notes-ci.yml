@@ -21,7 +21,7 @@ jobs:
       - name: Source and protocol checks
         run: python3 -m unittest discover -s qa
       - name: Domain tests and standalone release
-        run: sh gradlew :notes-domain:test :notes:assembleRelease --stacktrace
+        run: sh gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebugAndroidTest --stacktrace
       - name: Package with checksum
         run: |
           mkdir -p notes-dist

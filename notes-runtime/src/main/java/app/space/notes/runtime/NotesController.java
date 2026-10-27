@@ -29,7 +29,7 @@ public final class NotesController {
     private final List<Note> notes=new ArrayList<>();
     private final List<Note> visible=new ArrayList<>();
     private final LinearLayout root;
-    private final NotesRepository repository;
+    private NotesRepository repository;
     private final int bg, ink, surface, muted;
     private final Bundle restored;
     private boolean ready, closed, binding, dirty;
@@ -51,10 +51,10 @@ public final class NotesController {
         muted=Color.parseColor(dark?"#B9BCC6":"#625C50");
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
-        repository=new NotesRepository(context.getApplicationContext());
         TextView loading=text("Opening local library…",18); root.addView(loading);
         disk.execute(()->{
             try {
+                repository=new NotesRepository(context.getApplicationContext());
                 List<Note> loaded=repository.load();
                 long now=System.currentTimeMillis();
                 boolean purged=loaded.removeIf(n->n.expired(now));

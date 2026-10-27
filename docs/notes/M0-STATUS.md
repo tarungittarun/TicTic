@@ -52,3 +52,42 @@ adapter, encryption or cross-process lock yet. The protocol detects forks but do
 not resolve them. A complete commit whose acknowledgement is lost is recovered as
 saved; the UI must reconcile operation identity instead of blindly repeating edits.
 No APK is available from this slice. No calculator edits or tests.yml reruns occurred.
+
+
+## Slice 2 — larger standalone vertical slice
+
+- Added :notes-domain, :notes-runtime and :notes; MySpace and old :feature-notes do not
+  consume them. Added pure immutable text document metadata and seven JUnit tests.
+- Added app-private versioned JSON/AtomicFile repository, duplicate-ID checks, failed
+  load protection, no 500-item cap, and serialized background disk operations.
+- Added standalone host and reusable UI controller: text create/edit, 350 ms autosave,
+  lifecycle flush, basic rotation state, 150 ms search debounce on separate worker,
+  latest-query rejection, pins, archive, seven-day Trash/restore and one-level state
+  Undo. System light/dark palette and honeycomb-family launcher icon included.
+- Added five Android persistence tests (Unicode metadata, 650 notes, corruption,
+  empty commit and failed AtomicFile write). These tests have not compiled/run.
+- Added manual-only MyNotes workflow to run domain tests and build release + Android
+  test APK. Existing workflows unchanged. Commit 5b5a294 pushed with [skip ci].
+- Deliberate `gh workflow run notes-ci.yml --ref arena/3caca636-tictic` returned HTTP
+  404. GitHub workflow listing contains only Android CI and tests.yml. New manual
+  workflow is not registered/available for dispatch; no Notes build ran. Did not
+  rerun frozen tests, trigger unrelated Android CI, or modify main to work around it.
+- Final local checks: 416 Python tests OK (390 original + 26 new). New JUnit and
+  Android tests remain unexecuted; no APK or emulator/device pass is claimed.
+
+### Current limitations / release blockers
+
+Early text UI, not final PDF design. App-private storage only: user-picked directory,
+recovery journal, export/import, attachments, rich schema, reminders, widgets, recording,
+OCR/ASR and diagrams are not implemented. Autosave is debounced; killing the process
+inside that window can lose latest keystrokes. Failed writes retain memory only, so
+a durable recovery journal is required before calling storage complete. Rotation
+uses Bundle for draft text and is not qualified for very large documents yet.
+Undo is one-level state restoration, not full rich-editor undo or final snackbar UX.
+The repository serializes whole-library snapshots, so scale/memory qualification
+and incremental persistence are still needed. Shared process disk queue prevents
+rotation from opening ahead of previous queued writes; this is not a cross-app lock.
+
+Next: unblock deliberate standalone GitHub build registration without touching frozen
+workflows/main, then compile and instrument; implement SAF storage + recovery, evolve
+structured rich-content schema with migration tests and qualify offline ML.

@@ -631,3 +631,23 @@ All new-runtime requirements start Planned. AT-* are reserved acceptance scenari
 | NF-01 | 10,000-note search is off-thread, latest query wins and input focus does not churn. | Planned; no runtime evidence |
 | NF-02 | Both themes, large text, TalkBack, lifecycle and device/API matrix pass. | Planned; no runtime evidence |
 | NF-03 | Diagnostics record outcomes, omit content by default and share only explicitly. | Planned; no runtime evidence |
+
+## Slice 2 evidence update (2026-10-27)
+
+The version-0.1.0 text vertical slice is written in :notes-domain/:notes-runtime/:notes.
+Relevant K requirements have **partial implementation, unverified on Android**; their
+full original acceptance scope is NOT complete. In particular, the initial Home is a
+single-column list, not the final masonry/card design; delete Undo is a Home control,
+not the final snackbar; there is no colour picker, rich content or SAF adapter yet.
+
+- Text create/edit/autosave: partial implementation; Android verification pending.
+- Search: debounce and background filtering with stale-query rejection; no 10,000-note
+  performance result, FTS, filters or Unicode-normalization qualification yet.
+- Pins/archive/Trash/restore/Undo: implemented in the first text slice; UI/end-user
+  stories pending. Trash expiry runs at library load. Permanent delete UI is pending.
+- ST-02: app-private AtomicFile repository with readback; SAF implementation still pending.
+- HX-01: eight additional source/build contracts included in 416 passing Python checks.
+- Domain: seven JUnit tests written, NOT run (no local JDK).
+- Android persistence: five instrumented tests written, NOT compiled or run.
+- ML and diagram requirements remain Planned. No new-runtime requirement is Verified
+  from these source checks alone.

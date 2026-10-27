@@ -50,7 +50,7 @@ class NotesStandaloneContracts(unittest.TestCase):
     def test_repository_is_versioned_and_has_no_silent_cap(self):
         s=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesRepository.java').read_text()
         self.assertIn('AtomicFile',s)
-        self.assertIn('file.readFully()',s)
+        self.assertIn('atomicRead(file)',s);self.assertIn('target.readFully()',s)
         self.assertNotIn('CAP',s)
         self.assertIn('Duplicate note ID',(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text())
 

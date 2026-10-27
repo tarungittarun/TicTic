@@ -11,7 +11,7 @@ class LocalSurfaceContracts(unittest.TestCase):
     def test_receiver_uses_private_snapshot_off_main_and_finishes_broadcast(self):
         for name in ['ReminderReceiver','NotesWidget']:
             text=(JAVA/(name+'.java')).read_text()
-            for expected in ['localSnapshot()','goAsync()','pending.finish()','new Thread']:
+            for expected in ['LocalSystemSurfaces.','goAsync()','pending.finish()','new Thread']:
                 self.assertIn(expected,text)
     def test_pending_intents_immutable_and_distinct_by_note_uri(self):
         text=(JAVA/'LocalReminders.java').read_text()
@@ -25,3 +25,8 @@ class LocalSurfaceContracts(unittest.TestCase):
     def test_reminder_is_part_of_portable_document_not_only_preferences(self):
         text=(JAVA/'DocumentCodec.java').read_text()
         self.assertIn('put("reminderAt",n.reminderAt)',text);self.assertIn('version>=5?n.getLong("reminderAt"):0',text)
+
+    def test_atomic_snapshots_and_projection_delivery_have_shared_locks(self):
+        text=(JAVA/'NotesRepository.java').read_text();self.assertIn('synchronized(SNAPSHOT_LOCK)',text);self.assertIn('atomicRead(file)',text)
+        text=(JAVA/'LocalSystemSurfaces.java').read_text();self.assertIn('static synchronized void refresh',text);self.assertIn('static synchronized void deliver',text);self.assertIn('localSnapshot()',text)
+        self.assertIn('synchronized(TRANSCRIPT_LOCK)',(JAVA/'VoiceFiles.java').read_text())

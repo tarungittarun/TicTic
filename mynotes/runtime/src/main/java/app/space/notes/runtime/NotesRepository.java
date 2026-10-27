@@ -12,6 +12,7 @@ import app.space.notes.domain.Note;
 
 /** Serial-worker only. Private recovery journal survives a failed selected-folder save. */
 public final class NotesRepository {
+    private static final Object SNAPSHOT_LOCK=new Object();
     public interface FolderAccess { GenerationProtocol open(String uri) throws Exception; }
     private final FolderAccess folderAccess;
     private final AtomicFile file;
@@ -27,7 +28,7 @@ public final class NotesRepository {
         settings=context.getSharedPreferences("mynotes-storage-v1",Context.MODE_PRIVATE);
         selected=settings.getString("tree",null);
         File dir=new File(context.getFilesDir(),"notes-library");
-        if(!dir.exists() && !dir.mkdirs())throw new IllegalStateException("Cannot create Notes directory");
+        if(!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory())throw new IllegalStateException("Cannot create Notes directory");
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
     public String status() {
@@ -42,7 +43,7 @@ public final class NotesRepository {
         return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri))):folderAccess.open(uri);
     }
     public List<Note> load() throws Exception {
-        JSONObject local=exists()?new JSONObject(new String(file.readFully(),StandardCharsets.UTF_8)):null;
+        JSONObject local=exists()?new JSONObject(new String(atomicRead(file),StandardCharsets.UTF_8)):null;
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
         if(cached!=null)DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
         if(selected==null) {status="Device storage";List<Note> notes=cached==null?new ArrayList<>():DocumentCodec.decode(cached);updateSurfaces(notes);return notes;}
@@ -64,8 +65,8 @@ public final class NotesRepository {
         }
     }
     /** Private atomic snapshot only: receivers/widgets never block on external providers. */
-    public List<Note> localSnapshot() throws Exception {return exists()?DocumentCodec.decode(file.readFully()):new ArrayList<>();}
-    private void updateSurfaces(List<Note> notes){try{LocalReminders.reconcile(context,notes);NotesWidget.updateAll(context,notes);}catch(RuntimeException unavailable){android.util.Log.w("MyNotes","OS surfaces unavailable; saved notes retained",unavailable);}}
+    public List<Note> localSnapshot() throws Exception {return exists()?DocumentCodec.decode(atomicRead(file)):new ArrayList<>();}
+    private void updateSurfaces(List<Note> notes){try{LocalSystemSurfaces.refresh(context);}catch(Exception unavailable){android.util.Log.w("MyNotes","OS surfaces unavailable; saved notes retained",unavailable);}}
     public void save(List<Note> notes) throws Exception {
         byte[] payload=DocumentCodec.encode(notes);
         if(selected==null) {writeLocal(payload,false,null);status="Device storage";return;}
@@ -96,14 +97,14 @@ public final class NotesRepository {
         return new AtomicFile(new File(file.getBaseFile().getParentFile(),"before-restore-v1.json"));
     }
     public List<Note> previousSnapshot() throws Exception {
-        return DocumentCodec.decode(beforeRestore().readFully());
+        return DocumentCodec.decode(atomicRead(beforeRestore()));
     }
     /** Returns false only when the full imported result is verified in private recovery. */
     public boolean applyRestore(List<Note> current,List<Note> merged) throws Exception {
         atomicWrite(beforeRestore(),DocumentCodec.encode(current));
         try {save(merged);return true;}
         catch(Exception failure) {
-            if(exists() && Arrays.equals(DocumentCodec.encode(DocumentCodec.decode(file.readFully())),DocumentCodec.encode(merged))) {
+            if(exists() && Arrays.equals(DocumentCodec.encode(DocumentCodec.decode(atomicRead(file))),DocumentCodec.encode(merged))) {
                 status="Restore retained privately · destination save pending";return false;
             }
             throw failure;
@@ -134,11 +135,14 @@ public final class NotesRepository {
         byte[] bytes=root.toString().getBytes(StandardCharsets.UTF_8);
         atomicWrite(file,bytes);updateSurfaces(DocumentCodec.decode(payload));
     }
+    private byte[] atomicRead(AtomicFile target) throws IOException {synchronized(SNAPSHOT_LOCK){return target.readFully();}}
     private void atomicWrite(AtomicFile target,byte[] bytes) throws Exception {
+      synchronized(SNAPSHOT_LOCK){
         FileOutputStream stream=null;
         try {
             stream=target.startWrite();stream.write(bytes);target.finishWrite(stream);stream=null;
             if(!Arrays.equals(bytes,target.readFully()))throw new IOException("Save readback failed");
         } catch(Exception e) {if(stream!=null)target.failWrite(stream);throw e;}
+      }
     }
 }

@@ -152,6 +152,8 @@ jobs:
           if [ -f /tmp/ui.log ]; then
             sum=$(grep -E "^[0-9]+\) |^Tests run:|^OK \(" /tmp/ui.log | tail -15 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=failure summary::$sum"
+            first=$(awk '/^1\) /{f=1} f' /tmp/ui.log | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=first failure::$first"
             body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=ui.log::$body"
           else

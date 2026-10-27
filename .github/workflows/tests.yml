@@ -114,6 +114,7 @@ jobs:
             adb shell am instrument -w app.space.calc.debug.test/androidx.test.runner.AndroidJUnitRunner > /tmp/ui.log 2>&1
             code=$?
             cat /tmp/ui.log
+            adb logcat -d -s TicTicCalc:V *:S > /tmp/calc.log 2>/dev/null || true
             grep -q "OK (" /tmp/ui.log || code=1
             echo "::notice title=Instrumented suite::$(grep -oE 'OK \([0-9]+ tests?\)' /tmp/ui.log | tail -1)"
             exit $code
@@ -134,6 +135,10 @@ jobs:
       - name: Surface emulator test errors as annotations
         if: failure()
         run: |
+          if [ -f /tmp/calc.log ]; then
+            body=$(tail -c 3000 /tmp/calc.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=calc app log tail::$body"
+          fi
           if [ -f /tmp/ui.log ]; then
             body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=ui.log::$body"

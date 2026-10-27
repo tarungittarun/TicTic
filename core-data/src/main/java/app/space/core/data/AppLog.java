@@ -45,6 +45,15 @@ public final class AppLog {
 
     /** One timestamped line. No-op unless logging is enabled. */
     public static void event(Context c, String tag, String message) {
+        // Round 33: mirror every outcome line to logcat. On a phone this changes
+        // nothing he can see; on CI it is the only way the app's own transcript
+        // survives a run, because the instrumented log carries only the test
+        // framework's stdout.
+        try {
+            android.util.Log.i("TicTicCalc", tag + " " + message);
+        } catch (Throwable ignored) {
+            // logging must never be able to break the action it records
+        }
         if (!enabled(c)) return;
         queue(c, tag + " " + message);
     }

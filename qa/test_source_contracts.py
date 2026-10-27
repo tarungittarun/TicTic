@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.37'", gradle)
-        self.assertIn("versionCode 74", gradle)
+        self.assertIn("versionName '3.12.38'", gradle)
+        self.assertIn("versionCode 75", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3438,7 +3438,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.37", guide)
+        self.assertIn("3.12.38", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4301,7 +4301,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         # with a real ScrollView has no parent left to steal his drags.
         self.assertIn("historyPopup = new PopupWindow(content, width, height, true);", self.screen)
         self.assertIn("historyScroll.setId(R.id.calc_history_scroll);", self.screen)
-        self.assertIn("historyScroll.fullScroll(View.FOCUS_DOWN);", self.screen)
+        self.assertIn("historyScroll.fullScroll(View.FOCUS_UP);", self.screen)
         self.assertNotIn("edgeDown = sv.canScrollVertically", self.screen)
         self.assertNotIn("boolean upwardFromDock = sheetOpen && downInDock", self.screen)
 
@@ -4330,7 +4330,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         # Round 30: the caret is ALSO a real view in the hierarchy -- the
         # framework composites it, no onDraw can swallow it -- with a build
         # stamp and a log line per placement and blink for his next log.
-        self.assertIn('"calc screen build 3.12.37: the caret is "', self.screen)
+        self.assertIn('"calc screen build 3.12.38: the caret is "', self.screen)
         self.assertIn('caretBar.setTag("calc_caret_bar");', self.screen)
         self.assertIn("private void placeCaretBar() {", self.screen)
         self.assertIn('"caret blink: bar shown"', self.screen)
@@ -4359,11 +4359,17 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertIn("public static String smartBracket(String expression)", rules)
 
 
-    def test_history_reads_oldest_first_and_opens_at_the_newest(self):
-        # His third point: newest at the BOTTOM, scrolling up walks back through time; the
-        # sheet opens already scrolled to the newest line.
-        self.assertIn("for (int i = rows.length - 1; i >= 0; i--) {", self.screen)
-        self.assertIn("historyScroll.fullScroll(View.FOCUS_DOWN);", self.screen)
+    def test_history_reads_newest_first_like_google(self):
+        # Round 34 reverses his third point, his words: "New entry should be on top
+        # like in Google calculator." The store keeps the newest line first and the
+        # list now draws it first; the sheet opens scrolled to the top.
+        self.assertIn("for (int i = 0; i < rows.length; i++) {", self.screen)
+        self.assertIn("historyScroll.fullScroll(View.FOCUS_UP);", self.screen)
+        # Round 34: "on click on history item nothing happens" -- the insert must
+        # reach the glass BEFORE the sheet teardown, and a throwing teardown must
+        # not swallow the insert, so the paint comes first and the close is guarded.
+        self.assertIn("refreshDisplay(context);\n                    try {\n                        toggleHistory(context, ui);", self.screen)
+        self.assertIn('" but closing the sheet threw: "', self.screen)
 
     def test_the_sections_are_visibly_separate(self):
         # His fifth point: colour and border differentiation between sections. The sheet and
@@ -4408,6 +4414,12 @@ class SheetAndChevronContracts(unittest.TestCase):
         self.assertNotIn("items.add(\"View memory\");", self.screen)
         self.assertIn("items.add(\"Key theme\");", self.screen)
         self.assertIn("static final String[] KEY_THEMES = {\"MySpace settings\", \"Graphite\",", self.screen)
+        # Round 34: "add few more themes ... make theme colours bit lightful and
+        # attractive" -- three bright houses join the five, and each one carries
+        # its own fills AND inks for both modes before the contrast guard runs.
+        self.assertIn('"Mint", "Rose", "Lemon", "Iris"};', self.screen)
+        for house in ("Rose", "Lemon", "Iris"):
+            self.assertIn('if ("%s".equals(theme)) {' % house, self.screen)
         self.assertIn("private static final String KEYTHEME_KEY = \"calculator_keytheme\";", self.screen)
         self.assertIn("static int readableInk(int fill, int ink) {", self.screen)
         self.assertIn("private static int groupOf(String key) {", self.screen)
@@ -4558,7 +4570,11 @@ class TestInfrastructureContracts(unittest.TestCase):
         # parks the caret and raises Google's caret trio; Mem stores the held
         # value and MR inserts the recently saved one at the caret.
         self.assertIn('"long press on empty box: no selection, caret parked at "', screen)
-        self.assertIn('"caret menu opened: MUse, Paste, Select all"', screen)
+        # Round 34: "in selection menu remove select all option. keep only cut,
+        # copy, madd, muse, paste" -- Select all is gone from BOTH sheets.
+        self.assertIn('"caret menu opened: MUse, Paste"', screen)
+        self.assertNotIn('menu.add(0, SEL_ALL', screen)
+        self.assertIn('"Copy, MAdd, MUse, Paste");', screen)
         self.assertIn('menu.add(0, SEL_MEM, 2, "MAdd");', screen)
         self.assertIn('menu.add(0, SEL_MR, 0, "MUse");', screen)
         # Round 31: a still finger on the held band or a handle is a tap --
@@ -4677,7 +4693,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("implicitMultiplicationAnswersTwentyEightOnThePad", ui)
         self.assertIn("aPendingOperatorIsAChangeableMindOnThePad", ui)
         self.assertIn("swipeDownOnDisplayOpensTheHistoryPopup", ui)
-        self.assertIn("historyOpensAtTheNewestAndScrollsToTheOldest", ui)
+        self.assertIn("historyOpensWithTheNewestOnTopAndScrollsToTheOldest", ui)
+        # Round 34: the history tap must carry the expression into the display.
+        self.assertIn("aHistoryTapCarriesTheExpressionIntoTheDisplay", ui)
         self.assertIn("theHistoryPopupShowsClearFullyAndKeepsThePad", ui)
         self.assertIn("historyPopupClosesWithItsCloseButton", ui)
         self.assertIn("indianGroupingAppearsAsYouType", ui)
@@ -4688,7 +4706,9 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theAnswerReadsAtDisplayGrade", ui)
         self.assertIn("scientificEqualsAutoClosesOpenBrackets", ui)
         self.assertIn("inverseTrigAndPowerButtonsWorkFromThePanel", ui)
-        self.assertIn("selectionMenuOffersCutCopyPasteAndSelectAll", ui)
+        # Round 34: Select all leaves both menus; the five actions stay.
+        self.assertIn("selectionMenuOffersExactlyCutCopyMAddMUsePaste", ui)
+        self.assertNotIn("selectionMenuOffersCutCopyPasteAndSelectAll", ui)
         self.assertIn("theCaretStaysWhereTheThumbInserted", ui)
         self.assertIn("longPressSelectsTheWholeNumberAndOffersTheMenu", ui)
         self.assertIn("decimalsNeverCarryCommas", ui)
@@ -4720,6 +4740,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("theKeyShapePickerShowsLivePreviewsAndPersistsThePick", ui)
         self.assertIn("noShapeKeysArePlainGlassAndCircleIsARoundDisc", ui)
         self.assertIn("theKeyThemePickerRecoloursByGroupAndFollowsMySpace", ui)
+        self.assertIn("theThemePickerOffersTheBrightHousesAndTheyApply", ui)
         self.assertIn("aSingleStrokeFromTheDotsRunsTheHighlightedLeaf", ui)
         self.assertIn("aSingleStrokeTravelsIntoKeyShapeWithoutLifting", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)

@@ -628,9 +628,10 @@ public class CalculatorUiTest {
         });
     }
 
-    @Test public void historyOpensAtTheNewestAndScrollsToTheOldest() {
-        // His third point: nine visible records were all he could reach. Twelve entries,
-        // opened at the newest, then scrolled up through time to the very first.
+    @Test public void historyOpensWithTheNewestOnTopAndScrollsToTheOldest() {
+        // Round 34, his words: "New entry should be on top like in Google
+        // calculator." Twelve entries: the sheet opens with the newest FIRST
+        // and the oldest is reached by scrolling down through time.
         for (int i = 1; i <= 12; i++) {
             type(String.valueOf(i), "+", "0", "=");
         }
@@ -638,9 +639,25 @@ public class CalculatorUiTest {
         onView(withText("12+0")).check(matches(isDisplayed()));
         onView(withText("1+0")).check(matches(not(isDisplayed())));
         for (int i = 0; i < 4; i++) {
-            onView(withId(HISTORY_SCROLL)).perform(androidx.test.espresso.action.ViewActions.swipeDown());
+            onView(withId(HISTORY_SCROLL)).perform(androidx.test.espresso.action.ViewActions.swipeUp());
         }
         onView(withText("1+0")).check(matches(isDisplayed()));
+    }
+
+    @Test public void aHistoryTapCarriesTheExpressionIntoTheDisplay() {
+        // Round 34, his words: "on click on history item nothing happens, the
+        // expression that I have entered should entered in display." The tap
+        // must paint the stored expression into the box AND close the sheet,
+        // in that order -- paint first, teardown guarded.
+        type("7", "+", "8", "=");
+        onView(withId(DISPLAY)).check(matches(withText("15")));
+        type("AC");
+        onView(withId(HISTORY_BTN)).perform(click());
+        onView(withText("7+8")).perform(click());
+        onView(withId(DISPLAY)).check(matches(withText("7+8")));
+        onView(withId(HISTORY_SCROLL)).check(doesNotExist());
+        type("=");
+        onView(withId(DISPLAY)).check(matches(withText("15")));
     }
 
     @Test public void theHistoryPopupShowsClearFullyAndKeepsThePad() {
@@ -797,15 +814,18 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).check(matches(withText("1")));
     }
 
-    @Test public void selectionMenuOffersCutCopyPasteAndSelectAll() {
-        // Round 12: select any length of the expression and get Android's own actions.
+    @Test public void selectionMenuOffersExactlyCutCopyMAddMUsePaste() {
+        // Round 34, his words: "in selection menu remove select all option.
+        // keep only cut, copy, madd, muse, paste." The five stay; Select all
+        // is gone from the sheet; Cut still clears the held digits.
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(longClick());
-        onView(withText("Select all")).perform(click());
-        onView(withText("Copy")).perform(click());
-        // cut removes the held part and leaves the rest in the expression
-        onView(withId(DISPLAY)).perform(longClick());
-        onView(withText("Select all")).perform(click());
+        onView(withText("Cut")).check(matches(isDisplayed()));
+        onView(withText("Copy")).check(matches(isDisplayed()));
+        onView(withText("MAdd")).check(matches(isDisplayed()));
+        onView(withText("MUse")).check(matches(isDisplayed()));
+        onView(withText("Paste")).check(matches(isDisplayed()));
+        onView(withText("Select all")).check(doesNotExist());
         onView(withText("Cut")).perform(click());
         onView(withId(DISPLAY)).check(matches(withText("0")));
     }
@@ -1165,12 +1185,14 @@ public class CalculatorUiTest {
         // expression is getting selected. It should not." The expression sits
         // at the RIGHT of the box, so the empty part is the left; a hold there
         // must hold NOTHING, park the caret at the near end and raise Google's
-        // caret trio (MR, Paste, Select all) -- no Cut, no Copy, nothing held.
+        // caret duo (MUse, Paste) -- round 34 dropped Select all from it too:
+        // no Cut, no Copy, no Select all, nothing held.
         type("1", "2", "+", "3", "4");
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
         onView(withText("MUse")).check(matches(isDisplayed()));
-        onView(withText("Select all")).check(matches(isDisplayed()));
+        onView(withText("Paste")).check(matches(isDisplayed()));
+        onView(withText("Select all")).check(doesNotExist());
         onView(withText("Cut")).check(doesNotExist());
         // The caret parked at 0: the next key lands at the FRONT, proving the
         // park is a real cursor position and not a no-op.
@@ -1317,6 +1339,34 @@ public class CalculatorUiTest {
         assertEquals("MySpace settings", ctx.getSharedPreferences(
                 app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
                 .getString("calculator_keytheme", "MySpace settings"));
+    }
+
+    @Test public void theThemePickerOffersTheBrightHousesAndTheyApply() {
+        // Round 34: "add few more themes ... make theme colours bit lightful
+        // and attractive." Rose, Lemon and Iris joined the picker; each must
+        // be reachable (the list scrolls now), selectable and persisted, and
+        // the pad must keep typing under the new colours.
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key theme")).perform(click());
+        for (String house : new String[]{"Rose", "Lemon", "Iris"}) {
+            onView(withText(containsString(house))).perform(
+                    androidx.test.espresso.action.ViewActions.scrollTo());
+            onView(withText(containsString(house))).check(matches(isDisplayed()));
+        }
+        onView(withText(containsString("Iris"))).perform(click());
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        assertEquals("Iris", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keytheme", "MySpace settings"));
+        type("9", "+", "1", "=");
+        onView(withId(DISPLAY)).check(matches(withText("10")));
+        // leave the suite on the app's own palette for the stories after this one
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key theme")).perform(click());
+        onView(withText(containsString("MySpace settings"))).perform(
+                androidx.test.espresso.action.ViewActions.scrollTo());
+        onView(withText(containsString("MySpace settings"))).perform(click());
     }
 
     @Test public void aSingleStrokeFromTheDotsRunsTheHighlightedLeaf() {
@@ -1466,8 +1516,9 @@ public class CalculatorUiTest {
             setTheme(2);
             rule.getScenario().recreate();
             type("1", "2", "3", "4", "5", "6");
+            // Round 34 removed Select all; the geometry contract below is about
+            // the laid-out line's edges, so any hold that raises the menu works.
             onView(withId(DISPLAY)).perform(longClick());
-            onView(withText("Select all")).perform(click());
             onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
                 @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
                     if (e != null) throw e;

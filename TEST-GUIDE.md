@@ -1,12 +1,12 @@
-# MySpace 3.12.37 (74) · MyCalc 1.0.35 (36) — your test guide
+# MySpace 3.12.38 (75) · MyCalc 1.0.36 (37) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.37-74-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.37-74-lite-dist.apk) ·
-[MyCalc-v1.0.35-36.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.35-36.apk)
+Install: [MySpace-v3.12.38-75-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.38-75-lite-dist.apk) ·
+[MyCalc-v1.0.36-37.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.36-37.apk)
 (standalone calculator, same engine).
 
 ---
@@ -24,7 +24,7 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 
 | # | Do this | Expected |
 |---|---|---|
-| B1 | Type `123456`, then **hold your finger still** on the number (about a third of a second) and lift | The whole number gets a bright pink highlight, a floating Cut/Copy/MAdd/MUse/Paste/Select all pill, and **white bars with a bulb under each end** -- and it **stays selected after you lift**, every time: the app's own hold timer raises it, not the phone's temperamental long-press |
+| B1 | Type `123456`, then **hold your finger still** on the number (about a third of a second) and lift | The whole number gets a bright pink highlight, a floating Cut/Copy/MAdd/MUse/Paste pill, and **white bars with a bulb under each end** -- and it **stays selected after you lift**, every time: the app's own hold timer raises it, not the phone's temperamental long-press |
 | B2 | **Without lifting**, slide your finger left or right | The held portion grows and shrinks with your finger, character by character — this is the gesture that changes the selected portion |
 | B3 | Lift, then **press anywhere on the held band** (or just past either end) and drag | The nearer boundary follows your finger; the other end stays put -- this is how you select more or less. **Both ends work even when the selection touches the last digit**: the right teardrop now sits 10dp inside the box edge, on the glass, never off-screen |
 | B4 | With a portion held, tap **Copy**, then open Notes or Messages and long-press ▸ Paste | Exactly the held characters arrive (no commas — commas are display-only) |
@@ -34,7 +34,7 @@ Automated: `test_the_honeycomb_mark_the_owner_picked_is_the_icon`.
 | B8 | While a selection is held, swipe the display horizontally | The selection drag wins over scrolling; with **no** selection the long expression still slides sideways inside its own line |
 | B9 | With nothing selected, **tap inside a typed number** | The caret jumps to that exact spot -- your reference for where typing and editing happen; the next key lands there |
 | B10 | With a selection held, tap **away from the expression line** (the live-answer row or the box margins) | Selection and menu both go; the caret stands at the end |
-| B11 | **Hold the EMPTY part of the expression box** -- left of the written expression, or the **whole-character of empty glass kept on the right** | **Nothing gets selected.** The caret parks at the near end and a small caret menu rises: **MUse, Paste, Select all** (Google's own caret trio) -- no operator jumps into a highlight anymore, and the right margin is wide enough to hold for Paste/MUse |
+| B11 | **Hold the EMPTY part of the expression box** -- left of the written expression, or the **whole-character of empty glass kept on the right** | **Nothing gets selected.** The caret parks at the near end and a small caret menu rises: **MUse, Paste** (Select all left both menus this round, as you asked) -- no operator jumps into a highlight anymore, and the right margin is wide enough to hold for Paste/MUse |
 | B12 | Hold a number, tap **MAdd**; then tap to park the caret mid-expression, hold the empty box, tap **MUse** | MAdd stores the held value in memory (toast "Added to memory"); MUse inserts the recently saved value **at the caret**, mid-expression, exactly like the Google calculator screenshot you shared. With a portion held, MUse replaces just that portion |
 
 The selection itself is the framework's (real spans, framework highlight, framework
@@ -66,7 +66,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 | C8 | Watch the caret | A bar — white in dark, black in light — stands at the exact point the next key will land, **including at the very end of the line** (the box keeps 10dp of side padding so the end caret is on the glass), and it **blinks like Android's own cursor**: solid while you type or tap, half-second blink at rest, hidden only while a selection is held (the boundary bars stand then). From this build the caret is also **a real view** layered over the display -- the framework itself composites it, so no drawing path can swallow it -- and every placement and blink writes a line to the log; type an expression longer than the screen and the expression line **scrolls itself** to keep the caret in view. The display is now a plain single-line editor (no scroll wrapper), so its caret, handles and scrolling are the platform's own |
 | C9 | Never at any point | No device keyboard appears |
 | C10 | Three dots ▸ **Key shape** | The picker opens in the app's own dark pill style, each row showing a live swatch of its silhouette: **Circle** (a true round disc), **Squircle**, **Pill**, **Rounded square**, **No shape** (plain keys, no border -- pressing one flashes a rectangle). Your pick persists and the pad rebuilds instantly. Hexagon is gone by your order. (Add-to-memory left the three dots last round; storing lives in the selection menu as **MAdd**.) |
-| C11 | Three dots ▸ **Key theme** | Five colour themes for the pad, applied by group -- numbers, operations (+ − × ÷ % brackets), scientific keys, and AC/backspace: **MySpace settings** (follows the app appearance, the default), **Graphite**, **Ocean**, **Sunset**, **Mint**. Every row previews its own three group chips; every theme keeps digits and symbols clearly readable in dark AND light mode (a contrast guard flips any ink that sits too close to its fill). Your pick persists and the pad rebuilds instantly. |
+| C11 | Three dots ▸ **Key theme** | **Eight** colour themes for the pad, applied by group -- numbers, operations (+ − × ÷ % brackets), scientific keys, and AC/backspace: **MySpace settings** (follows the app appearance, the default), **Graphite**, **Ocean**, **Sunset**, **Mint**, and this round's three bright, lively houses -- **Rose**, **Lemon**, **Iris** -- with lightful, attractive colours in both modes. The list scrolls now, so every house is reachable on a short screen. Every row previews its own three group chips; every theme keeps digits and symbols clearly readable in dark AND light mode (a contrast guard flips any ink that sits too close to its fill). Your pick persists and the pad rebuilds instantly. |
 | C12 | **One stroke through the three dots**: press the dots and KEEP HOLDING, drag down the list (the row under your finger highlights), lift on the row you want | The action fires on lift -- no second tap. Hold still on a row that has a child (**Memory, Key theme, Key shape, Effects**) and the child's list swaps in under your finger; keep dragging into it and lift there (e.g. dots ▸ hold on Key shape ▸ drag to Pill ▸ lift = Pill applied, one unbroken stroke). **A plain tap on the dots still opens the old tap-through menu**, exactly as before -- both accesses live side by side. Memory's child also holds **Clear memory** at the bottom now. |
 
 Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegationExactlyAsTheOwnersScreenshot`, `theBracketKeyFitsTheCaretNotJustTheEnd`, `midNumberTapInsertsThere`-family, `theCaretExistsIsFocusedAndIsVisible`.
@@ -90,7 +90,7 @@ Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegatio
 
 | # | Do this | Expected |
 |---|---|---|
-| E1 | Header ▸ history icon (left) | Popup of **all** your past calculations, newest at the bottom, soft cards, expression left / time right; tap a card → its expression returns to the box |
+| E1 | Header ▸ history icon (left) | Popup of **all** your past calculations, **newest on top** like the Google calculator (this round's ask), soft cards, expression left / time right; tap a card → its expression lands in the box **first, painted on screen, and only then the sheet closes** (this round's fix for "on click on history item nothing happens") |
 | E2 | Swipe down on the expression | Same history popup |
 | E3 | 3-dot menu (right) | Exactly five items plus Effects; Memory opens a small popup you can reorder |
 | E4 | Effects | Choose an animation; every keypress animates (≥4 styles) |

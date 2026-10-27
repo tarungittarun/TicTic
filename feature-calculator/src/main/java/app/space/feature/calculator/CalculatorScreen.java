@@ -116,7 +116,7 @@ public final class CalculatorScreen implements Screen {
     // be seen against in either mode.
     private static final String KEYTHEME_KEY = "calculator_keytheme";
     static final String[] KEY_THEMES = {"MySpace settings", "Graphite",
-            "Ocean", "Sunset", "Mint"};
+            "Ocean", "Sunset", "Mint", "Rose", "Lemon", "Iris"};
     private static final int G_NUM = 0, G_OP = 1, G_SCI = 2, G_CMD = 3;
     private static final String[] KEY_SHAPES = {"Circle", "Squircle", "Pill",
             "Rounded square", "No shape"};
@@ -626,6 +626,22 @@ public final class CalculatorScreen implements Screen {
             if (dark) return new int[]{0xFF3A2020, 0xFF5C2E22, 0xFF2E1A1A, 0xFF6B3A24}[g];
             return new int[]{0xFFFBE9E0, 0xFFF5D3BE, 0xFFFDF0E9, 0xFFEDBF9E}[g];
         }
+        // Round 34: "add few more themes... make theme colours bit lightful
+        // and attractive." Three bright houses join: Rose, Lemon and Iris --
+        // lively saturated fills in dark mode, vivid pastels in light, every
+        // ink still run through the contrast guard below.
+        if ("Rose".equals(theme)) {
+            if (dark) return new int[]{0xFF7A2450, 0xFFA83A6E, 0xFF5C1B3C, 0xFFC24E86}[g];
+            return new int[]{0xFFFDE3EE, 0xFFF9C6DC, 0xFFFFEDF4, 0xFFF2A9C8}[g];
+        }
+        if ("Lemon".equals(theme)) {
+            if (dark) return new int[]{0xFF6B5416, 0xFF8F6F1C, 0xFF4F3E10, 0xFFA98422}[g];
+            return new int[]{0xFFFDF3D0, 0xFFF7E4A1, 0xFFFEF9E6, 0xFFEED271}[g];
+        }
+        if ("Iris".equals(theme)) {
+            if (dark) return new int[]{0xFF3D3573, 0xFF57489B, 0xFF2C2654, 0xFF6D5BC0}[g];
+            return new int[]{0xFFE9E5FB, 0xFFD2CBF4, 0xFFF3F1FD, 0xFFB9AEEC}[g];
+        }
         if (dark) return new int[]{0xFF12312A, 0xFF1B4A3C, 0xFF0E2721, 0xFF22584A}[g];
         return new int[]{0xFFE2F4EA, 0xFFC2E5D2, 0xFFEBF7F0, 0xFFABDCC4}[g];
     }
@@ -643,6 +659,18 @@ public final class CalculatorScreen implements Screen {
         if ("Sunset".equals(theme)) {
             if (dark) return new int[]{0xFFFFE3D6, 0xFFFFC9A3, 0xFFF5D9C8, 0xFFFFE8D2}[g];
             return new int[]{0xFF4A2013, 0xFF8A3B12, 0xFF6B3A24, 0xFF5C2E12}[g];
+        }
+        if ("Rose".equals(theme)) {
+            if (dark) return new int[]{0xFFFFDCEC, 0xFFFFB3D1, 0xFFF7C9DE, 0xFFFFEAF3}[g];
+            return new int[]{0xFF5C1030, 0xFF8A1E4C, 0xFF6B1E40, 0xFF75163D}[g];
+        }
+        if ("Lemon".equals(theme)) {
+            if (dark) return new int[]{0xFFFDF0C2, 0xFFFFDE7A, 0xFFF5E4A8, 0xFFFFF6D8}[g];
+            return new int[]{0xFF4A3A05, 0xFF6B5410, 0xFF54430C, 0xFF5C4708}[g];
+        }
+        if ("Iris".equals(theme)) {
+            if (dark) return new int[]{0xFFE4DFFC, 0xFFC3B8FF, 0xFFD5CDF7, 0xFFF0EDFF}[g];
+            return new int[]{0xFF2A2258, 0xFF463A85, 0xFF342C6B, 0xFF3A2E7D}[g];
         }
         if (dark) return new int[]{0xFFD9F2E6, 0xFF9FE8C6, 0xFFC4E8D6, 0xFFE2F7EC}[g];
         return new int[]{0xFF123B2E, 0xFF0E5E43, 0xFF1C4A38, 0xFF0B4630}[g];
@@ -1084,9 +1112,10 @@ public final class CalculatorScreen implements Screen {
                     // inserts the saved value WHERE THE CARET STANDS.
                     menu.add(0, SEL_MR, 0, "MUse");
                     menu.add(0, SEL_PASTE, 1, "Paste");
-                    menu.add(0, SEL_ALL, 2, "Select all");
+                    // Round 34: "in selection menu remove select all option" --
+                    // it goes from both sheets; the caret menu is MUse and Paste.
                     AppLog.event(lastContext, "calc",
-                            "caret menu opened: MUse, Paste, Select all");
+                            "caret menu opened: MUse, Paste");
                 } else {
                     // Round 28, his words: "when selected, along with copy, cut
                     // options, add Mem option as well" -- Mem stores the held
@@ -1097,12 +1126,11 @@ public final class CalculatorScreen implements Screen {
                     menu.add(0, SEL_MEM, 2, "MAdd");
                     menu.add(0, SEL_MR, 3, "MUse");
                     menu.add(0, SEL_PASTE, 4, "Paste");
-                    menu.add(0, SEL_ALL, 5, "Select all");
                     AppLog.event(lastContext, "calc", "selection started: chars "
                             + menuSelA + ".." + menuSelB
                             + " held by the stock editor, handles and menu raised");
                     AppLog.event(lastContext, "calc", "selection menu opened: Cut, "
-                            + "Copy, MAdd, MUse, Paste, Select all");
+                            + "Copy, MAdd, MUse, Paste");
                 }
                 return true;
             }
@@ -1281,7 +1309,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources()
                         .getDisplayMetrics().density)), 8));
         parent.addView(displayHost, dp2);
-        AppLog.event(context, "calc", "calc screen build 3.12.37: the caret is "
+        AppLog.event(context, "calc", "calc screen build 3.12.38: the caret is "
                 + "a real view over the canvas bar");
         displayView.caretPhaseReset = new Runnable() {
             @Override public void run() {
@@ -1502,9 +1530,11 @@ public final class CalculatorScreen implements Screen {
                     13, ui.palette().muted, false), ui.lp(-1, -2));
             return;
         }
-        // His third point: the newest belongs at the BOTTOM, with older entries above it,
-        // so scrolling up walks back through time in the order it happened.
-        for (int i = rows.length - 1; i >= 0; i--) {
+        // Round 34 reverses his third point, his words: "New entry should be on
+        // top like in Google calculator." The store already keeps the newest
+        // line first, so the list now draws it first: what you just calculated
+        // is the first card you see, exactly like Google's.
+        for (int i = 0; i < rows.length; i++) {
             String[] rowEntry = rows[i];
             final String[] entry = rowEntry;
             final String expr = entry[0];
@@ -1553,8 +1583,17 @@ public final class CalculatorScreen implements Screen {
                     caret = expression.length();
                     AppLog.event(context, "calc", "history line reused: expression "
                             + expr + " into the expression view");
-                    toggleHistory(context, ui);
+                    // Round 34: "on click on history item nothing happens." The
+                    // insert must reach the GLASS before the sheet teardown runs,
+                    // and a teardown that throws must not swallow the insert the
+                    // tap was for -- so paint first, close second, guarded.
                     refreshDisplay(context);
+                    try {
+                        toggleHistory(context, ui);
+                    } catch (Exception e) {
+                        AppLog.event(context, "calc", "history tap inserted "
+                                + expr + " but closing the sheet threw: " + e);
+                    }
                 }
             });
             line.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1566,7 +1605,7 @@ public final class CalculatorScreen implements Screen {
         }
         if (historyOpen && historyScroll != null) {
             historyScroll.post(new Runnable() {
-                @Override public void run() { historyScroll.fullScroll(View.FOCUS_DOWN); }
+                @Override public void run() { historyScroll.fullScroll(View.FOCUS_UP); }
             });
         }
     }
@@ -1705,7 +1744,11 @@ public final class CalculatorScreen implements Screen {
      *  the app's own appearance, named as he asked: "MySpace settings". */
     private void openKeyTheme(final Context context, final UiKit ui) {
         LinearLayout box = pickerBox(context, ui, "Key theme");
-        box.addView(themeRows(context, ui), ui.lp(-1, -2));
+        // Round 34 grew the list to eight houses; on a short screen the last
+        // ones must still be reachable, so the rows live in a real scroller.
+        android.widget.ScrollView themeScroll = new android.widget.ScrollView(context);
+        themeScroll.addView(themeRows(context, ui), ui.lp(-1, -2));
+        box.addView(themeScroll, ui.lp(-1, -2));
         showCenterPopup(context, ui, box);
         AppLog.event(context, "calc",
                 "key theme picker opened: current " + keyTheme(context));

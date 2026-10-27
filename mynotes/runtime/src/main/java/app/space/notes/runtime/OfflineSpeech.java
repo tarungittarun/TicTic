@@ -26,6 +26,7 @@ public final class OfflineSpeech {
     private static synchronized File install(Context context,AtomicBoolean cancelled) throws Exception {
         JSONObject manifest;try(InputStream in=context.getAssets().open("voice/model.json")){manifest=new JSONObject(readSmall(in));}
         String hash=manifest.getString("sha256");File parent=new File(context.getFilesDir(),"offline-speech-v1"),model=new File(parent,"model-"+hash.substring(0,16));if(!parent.isDirectory() && !parent.mkdirs())throw new IOException("Cannot create private speech model storage");
+        File[] abandoned=parent.listFiles();if(abandoned!=null)for(File file:abandoned)if(file.getName().startsWith("archive-") || file.getName().startsWith("install-"))deleteOwned(file);
         JSONObject expected=manifest.getJSONObject("files");
         if(model.isDirectory() && verified(model,expected,cancelled))return model;
         File temporary=new File(parent,"install-"+UUID.randomUUID());if(!temporary.mkdir())throw new IOException("Cannot prepare speech model");

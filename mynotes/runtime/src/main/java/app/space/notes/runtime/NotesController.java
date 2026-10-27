@@ -101,10 +101,12 @@ public final class NotesController {
                 try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
                     org.json.JSONObject result=files.result(id);if(!result.optString("state").equals("DONE"))continue;
                     String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
+                    if(current==null && files.noteWasCreated(id))continue; // Respect notes deliberately purged/deleted after an earlier successful insertion.
+                    if(current!=null && current.voiceSources.contains(id))files.noteCreated(id);
                     if(current==null){current=app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis());loaded.add(current);recovered=true;}
                     Note changed=app.space.notes.domain.VoiceTranscripts.apply(current,id,result.optString("text",""),System.currentTimeMillis());if(changed!=current){loaded.set(loaded.indexOf(current),changed);recovered=true;}
                 }}catch(Exception voiceFailure){log("voice-recovery","audio retained; transcript metadata needs review");}
-                if(recovered){try{repository.save(loaded);}catch(Exception pendingVoiceSave){log("voice-recovery","transcript recovery save needs retry");}}
+                if(recovered){try{repository.save(loaded);markVoiceNotesCreated(loaded);}catch(Exception pendingVoiceSave){log("voice-recovery","transcript recovery save needs retry");}}
                 long now=System.currentTimeMillis();
                 boolean purged=loaded.removeIf(n->n.expired(now));
                 if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
@@ -704,7 +706,7 @@ public final class NotesController {
         final List<Note> snapshot=new ArrayList<>(notes); final long ticket=++revision;
         if(status!=null)status.setText("Saving locally…");
         disk.execute(()->{
-            try { repository.save(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
+            try { repository.save(snapshot);markVoiceNotesCreated(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
                 main.post(()->{if(!closed && !dirty && ticket==revision && status!=null)status.setText("Saved · "+repository.status());});
             } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());
                 main.post(()->{if(!closed){if(status!=null)status.setText(repository.status()+" · retry needed");
@@ -712,6 +714,7 @@ public final class NotesController {
             }
         });
     }
+    private void markVoiceNotesCreated(List<Note> snapshot){try{VoiceFiles files=new VoiceFiles(context);for(Note note:snapshot)for(String source:note.voiceSources)if(note.id.equals(app.space.notes.domain.VoiceTranscripts.noteId(source)))files.noteCreated(source);}catch(Exception pendingMarker){log("voice-source-marker","pending; original audio retained");}}
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
     public boolean back() {
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}

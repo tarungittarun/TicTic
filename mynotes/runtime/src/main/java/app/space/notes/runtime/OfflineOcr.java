@@ -69,6 +69,7 @@ public final class OfflineOcr {
     }
     private static synchronized File installModel(Context context,String language) throws Exception {
         File root=new File(context.getFilesDir(),"offline-ocr-v1"),directory=new File(root,"tessdata");if(!directory.isDirectory() && !directory.mkdirs())throw new IOException("Cannot create private OCR model directory");
+        File[] abandoned=directory.listFiles();if(abandoned!=null)for(File file:abandoned)if(file.getName().startsWith("model-") && file.getName().endsWith(".tmp"))file.delete();
         JSONObject manifest;try(InputStream in=context.getAssets().open("ocr/models.json")){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);manifest=new JSONObject(out.toString("UTF-8"));}
         String name=language+".traineddata",expected=manifest.getJSONObject("files").getJSONObject(name).getString("sha256");File target=new File(directory,name);
         if(target.isFile()){try(InputStream in=new FileInputStream(target)){if(digest(in).equals(expected))return root;}}

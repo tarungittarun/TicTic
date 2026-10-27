@@ -23,6 +23,8 @@ public final class VoiceFiles {
         files=directory.listFiles();if(files==null)throw new IOException("Cannot reopen voice inbox");for(File f:files)if(f.getName().endsWith(".wav")){String id=f.getName().substring(0,f.getName().length()-4);try{checked(id);ids.add(id);}catch(IllegalArgumentException invalid){/* Only owned UUID names are recordings. */}}
         ids.sort((a,b)->Long.compare(audio(b).lastModified(),audio(a).lastModified()));return ids;
     }
+    public boolean noteWasCreated(String id){return new File(directory,checked(id)+".note-created").isFile();}
+    public synchronized void noteCreated(String id) throws IOException {if(!audio(id).isFile() || noteWasCreated(id))return;AtomicFile marker=new AtomicFile(new File(directory,checked(id)+".note-created"));FileOutputStream out=null;try{out=marker.startWrite();out.write(1);marker.finishWrite(out);out=null;}finally{if(out!=null)marker.failWrite(out);}}
     public synchronized void result(String id,String text,String state) throws Exception {
         if(!audio(id).isFile())throw new IOException("Recording unavailable; transcript not written");AtomicFile target=new AtomicFile(transcript(id));FileOutputStream stream=null;
         try{stream=target.startWrite();stream.write(new JSONObject().put("version",1).put("id",id).put("text",text).put("state",state).toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));target.finishWrite(stream);stream=null;}

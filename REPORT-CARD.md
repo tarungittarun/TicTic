@@ -3,10 +3,10 @@
 Written to be judged, not to be read favourably. Every number below is measured from the
 repository or the CI history, not estimated.
 
-**Build (MySpace):** 3.12.30 (versionCode 67) · SHA-256 `8f8ccdcc73b0c4beea380e962a19897d06dda41a12d838ecdebd4ac0f765c40d` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
-**Build (MyCalc standalone):** 1.0.28 (versionCode 29) · SHA-256 `ea2b494e2c356b9a576cb60db5e08aa6579eb2cd62e6c1c479276d27b5f0e04b` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
-**Effort:** 23 modules · 24138 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (48 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
-**CI:** 305 recorded runs — **207 green, 85 red, 13 cancelled** (68% green; every red read). Recounted
+**Build (MySpace):** 3.12.31 (versionCode 68) · SHA-256 `20a25e0c3cc57b6f4a2cc7085ecd71a2f7800dc0f6279d0626132f834ec5511f` — published in `artifacts/`, permissions unchanged (media-audio read for Music, capped storage read below 33, nothing new for SAF: a picked-folder grant is not a declared permission)
+**Build (MyCalc standalone):** 1.0.29 (versionCode 30) · SHA-256 `4a202032613a4264b1c154f36ca2d5c4cf28d48e49177d2be69d4483122ad843` — the calculator as its own app (`app.space.calc`), zero permissions declared, consuming `:feature-calculator` so the two hosts cannot drift. Published 2026-10-25 on the owner's instruction: perfect it alone, then integrate it into MySpace.
+**Effort:** 23 modules · 24238 lines of Java · 389 Python contracts · 21 JVM test files + 1 instrumented suite (49 end-user stories) · every build ships `TEST-GUIDE.md`, the end-user test guide
+**CI:** 311 recorded runs — **211 green, 86 red, 14 cancelled** (68% green; every red read). Recounted
 from the full run history, and the recount is a correction: the previous card's "196 runs" was a
 mid-round snapshot already stale when published — counted at 01:03 UTC, pushed at 06:54 UTC when the
 true total was 239. This line is now re-measured from the API at every card update.
@@ -133,6 +133,24 @@ saved value at the caret, or over the held range) — the Google Calculator flow
 screenshotted. The swipe-at-claim fix is device-verified in the same log: popup open 20 ms
 after the claim, no button. 48 stories pass on CI (run 40448340131); three are new:
 empty-box hold, Mem→MR round trip, and the on-glass contract.
+
+Round 29 closed the cursor saga at its last hiding place. His round-28 log proved every
+number right — `caret at x=1104 viewW=1132 ... ink=#FFFFFFFF caretW=11`, zero torn guards,
+handle drags moving the held range on BOTH ends (0..1, 0..5, 8..9), the empty-box hold and
+Mem/MR all working on his glass — and still: "cursor is not visible, it should be blinking
+atleast. Take reference of how android is." The bar was dying in the one place left with a
+silent failure: onDraw read the layout's LINE TABLE (getLineForOffset, getLineAscent,
+getLineDescent) and on his OEM those throw on a torn table into a catch that skipped the
+frame WITHOUT A LOG, while the geometry runnable — which reads no table — logged perfectly.
+The draw path now measures vertically from the view's own paint FontMetrics and horizontally
+from the paint-measured anchor: nothing in it can tear. And the bar keeps Android's own
+rhythm at last: solid while the cursor moves (onSelectionChanged resets the phase), a
+half-second blink at rest, hidden only while a selection stands — the boundary bars speak
+for it then. The new story draws the display to a bitmap and counts the caret's white
+pixels: solid right after a key, then three samples half a period apart that must not all
+agree. 49 stories pass on CI (run 40453389054). The round also ledgered javac 25: a helper's
+getDescription body was a bare string expression, caught by CI's compiler in 90 seconds —
+the Python gate cannot see Java, and never will.
 
 ---
 
@@ -262,7 +280,7 @@ and the scanner screen says so on its own card rather than hiding it.
 
 Self-inflicted, in full.
 
-**Compile errors CI caught (24):** an unsubstituted `%s` reaching the compiler in two screens;
+**Compile errors CI caught (25):** an unsubstituted `%s` reaching the compiler in two screens;
 `Intent` used eight times in MusicScreen without being imported; `AppAlertBuilder` called with one
 argument when its only constructor takes two; a `sanitise` signature mismatch; and — the one that
 cost the most — a settings `catch` block that referenced `frame`, a local of another method, when
@@ -288,6 +306,9 @@ The twenty-first to twenty-third, all in round 25: two lossy float-to-int conver
 the new offset mapper and one SDK signature that takes ints where memory said floats --
 type errors, the one class the brace and import sentinels cannot see without a JDK.
 The twenty-fourth: a catch parameter named e shadowing onTouch's MotionEvent e.
+The twenty-fifth, round 29: a test helper's getDescription body was a bare string
+expression — "wait " + ms + " ms" with no return — a statement that is not a statement,
+red in 90 seconds on the emulator job's prebuild.
 
 **The sixth was worse than a compile error.** `CalculatorRulesTest` called `assertNull` four times
 and imported three helpers, so the test source set did not compile and the new calculator rules
@@ -479,4 +500,4 @@ difference between then and now is that it can no longer fail silently.
 
 ---
 
-*Report card refreshed 2026-10-27 after round 28 (commit `01cfa66` + card, MySpace 3.12.30/67, MyCalc 1.0.28/29).*
+*Report card refreshed 2026-10-27 after round 29 (commit `9f593b9` + card, MySpace 3.12.31/68, MyCalc 1.0.29/30).*

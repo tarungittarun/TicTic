@@ -192,6 +192,8 @@ jobs:
             fi
             first=$(awk '/^1\) /{f=1} f' /tmp/ui.log | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=first failure::$first"
+            det=$(awk '/^[0-9]+\) /{n++} n>=1 && n<=4' /tmp/ui.log | grep -vE "^\s+at (androidx|org|java|dalvik|android|com\.android)" | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=failure details 1-4::$det"
             body=$(tail -c 60000 /tmp/ui.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=ui.log::$body"
           else

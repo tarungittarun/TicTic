@@ -504,6 +504,38 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).perform(displayTap(fraction, 0.5f));
     }
 
+    /** Round 34, from the streamed transcript: on the farm's current image the
+     *  floating toolbar detaches its contents moments after opening even though
+     *  the ActionMode itself stays alive -- espresso cannot see MAdd although
+     *  the menu is "open". A real thumb's answer is to touch the selection
+     *  again, and so is ours: re-raise with a fresh hold, then retry. */
+    private void menuDo(String label, ViewAction reRaise, ViewAction act) {
+        for (int i = 0; i < 3; i++) {
+            try {
+                if (act == null) {
+                    onView(withText(label)).check(matches(isDisplayed()));
+                } else {
+                    onView(withText(label)).perform(act);
+                }
+                return;
+            } catch (Throwable hidden) {
+                onView(withId(DISPLAY)).perform(reRaise);
+                waitMs(120);
+            }
+        }
+        if (act == null) onView(withText(label)).check(matches(isDisplayed()));
+        else onView(withText(label)).perform(act);
+    }
+
+    private void menuClick(String label) { menuDo(label, holdUntilSelected(), click()); }
+    private void menuShown(String label) { menuDo(label, holdUntilSelected(), null); }
+    private void menuClickInMargin(float at, String label) {
+        menuDo(label, holdAt(at), click());
+    }
+    private void menuShownInMargin(float at, String label) {
+        menuDo(label, holdAt(at), null);
+    }
+
     @Test public void aTapWhileTheHistoryPopupRepopulatesDoesNotCrash() {
         // Round 26 regression: his four "keeps stopping" crashes were tap
         // UPs landing on a half-rebuilt DynamicLayout (PackedIntVector
@@ -852,11 +884,11 @@ public class CalculatorUiTest {
         type("5", "=");
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
-        onView(withText("MAdd")).perform(click());
+        menuClick("MAdd");
         type("AC", "7", "=");
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
-        onView(withText("MAdd")).perform(click());
+        menuClick("MAdd");
         onView(withId(MENU_BTN)).perform(click());
         onView(withText("Memory")).perform(click());
         onView(withId(MEMORY_LIST)).check(matches(isDisplayed()));
@@ -959,13 +991,13 @@ public class CalculatorUiTest {
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
-        onView(withText("Cut")).check(matches(isDisplayed()));
-        onView(withText("Copy")).check(matches(isDisplayed()));
-        onView(withText("MAdd")).check(matches(isDisplayed()));
-        onView(withText("MUse")).check(matches(isDisplayed()));
-        onView(withText("Paste")).check(matches(isDisplayed()));
+        menuShown("Cut");
+        menuShown("Copy");
+        menuShown("MAdd");
+        menuShown("MUse");
+        menuShown("Paste");
         onView(withText("Select all")).check(doesNotExist());
-        onView(withText("Cut")).perform(click());
+        menuClick("Cut");
         onView(withId(DISPLAY)).check(matches(withText("0")));
     }
 
@@ -999,7 +1031,7 @@ public class CalculatorUiTest {
                         held == ed.getText().length());
             }
         });
-        onView(withText("Copy")).perform(click());
+        menuClick("Copy");
     }
 
     @Test public void theSelectionSurvivesTheFingerLiftingAndTheMenuFollows() {
@@ -1020,7 +1052,7 @@ public class CalculatorUiTest {
                         + held, held == ed.getText().length());
             }
         });
-        onView(withText("Copy")).perform(click());
+        menuClick("Copy");
         onView(withId(DISPLAY)).check(matches(withText("123")));
         onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
             @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
@@ -1187,7 +1219,7 @@ public class CalculatorUiTest {
         type("1", "2", "3", "4", "5", "6");
         onView(withId(DISPLAY)).perform(holdThenDragTo(2));
         onView(withId(DISPLAY)).check(held(2));
-        onView(withText("Copy")).check(matches(isDisplayed()));
+        menuShown("Copy");
     }
 
     @Test public void draggingEitherHandleMovesThatBoundary() {
@@ -1218,7 +1250,7 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
         onView(withId(DISPLAY)).perform(narrowRightHandleTo(5));
-        onView(withText("Copy")).perform(click());
+        menuClick("Copy");
         // The clipboard carries the raw slice -- commas are display furniture, never
         // part of what the next app pastes.
         assertEquals("1234", clipboard());
@@ -1233,7 +1265,7 @@ public class CalculatorUiTest {
         onView(withId(DISPLAY)).perform(holdUntilSelected()); // round 34: a raw longClick lands on the VIEW centre, which is empty glass
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
         onView(withId(DISPLAY)).perform(narrowRightHandleTo(3));
-        onView(withText("Cut")).perform(click());
+        menuClick("Cut");
         onView(withId(DISPLAY)).check(matches(withText("456")));
         type("9");
         onView(withId(DISPLAY)).check(matches(withText("9,456")));
@@ -1321,8 +1353,8 @@ public class CalculatorUiTest {
         type("1", "2", "+", "3", "4");
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
-        onView(withText("MUse")).check(matches(isDisplayed()));
-        onView(withText("Paste")).check(matches(isDisplayed()));
+        menuShownInMargin(0.08f, "MUse");
+        menuShownInMargin(0.08f, "Paste");
         onView(withText("Select all")).check(doesNotExist());
         onView(withText("Cut")).check(doesNotExist());
         // The caret parked at 0: the next key lands at the FRONT, proving the
@@ -1341,8 +1373,8 @@ public class CalculatorUiTest {
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(3));
-        onView(withText("MAdd")).check(matches(isDisplayed()));
-        onView(withText("MAdd")).perform(click());
+        menuShown("MAdd");
+        menuClick("MAdd");
         // A plain tap releases and parks the caret at the front of the box...
         tapAtOffset(0);
         onView(withId(DISPLAY)).check(held(0));
@@ -1350,7 +1382,7 @@ public class CalculatorUiTest {
         // inserts the recently saved value AT THAT CARET.
         onView(withId(DISPLAY)).perform(holdAt(0.08f));
         onView(withId(DISPLAY)).check(held(0));
-        onView(withText("MUse")).perform(click());
+        menuClickInMargin(0.08f, "MUse");
         // Indian grouping is display furniture: 456456 reads 4,56,456.
         onView(withId(DISPLAY)).check(matches(withText("4,56,456")));
     }
@@ -1368,7 +1400,7 @@ public class CalculatorUiTest {
         // left of the right-aligned text -- holdUntilSelected holds the TEXT centre
         waitMs(150); // let the selection and its menu land before asserting
         onView(withId(DISPLAY)).check(held(6));
-        onView(withText("Copy")).check(matches(isDisplayed()));
+        menuShown("Copy");
         // Straight down on the held band itself -- the gesture that used to be
         // a zero-move "drag" and kept the selection.
         tapAtOffset(3);
@@ -1388,8 +1420,8 @@ public class CalculatorUiTest {
         type("1", "2", "+", "3", "4");
         onView(withId(DISPLAY)).perform(holdAt(0.97f));
         onView(withId(DISPLAY)).check(held(0));
-        onView(withText("MUse")).check(matches(isDisplayed()));
-        onView(withText("Paste")).check(matches(isDisplayed()));
+        menuShownInMargin(0.97f, "MUse");
+        menuShownInMargin(0.97f, "Paste");
         onView(withText("Cut")).check(doesNotExist());
     }
 

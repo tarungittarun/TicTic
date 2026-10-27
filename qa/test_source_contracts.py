@@ -4486,6 +4486,14 @@ class TestInfrastructureContracts(unittest.TestCase):
         # taps, so every display tap in the suite is dispatched through the view
         # itself -- the product's touch handler, not the emulator's routing.
         self.assertIn("private static void dispatchTap(", ui)
+        # Round 34: the image also detaches the floating toolbar's contents
+        # moments after opening with the ActionMode still alive, so every menu
+        # item interaction retries through a re-raising hold.
+        self.assertIn("private void menuDo(String label, ViewAction reRaise, ViewAction act) {", ui)
+        self.assertIn("private void menuClick(String label) { menuDo(label, holdUntilSelected(), click()); }", ui)
+        self.assertNotIn('onView(withText("MAdd")).perform(click());', ui)
+        self.assertNotIn('onView(withText("Copy")).perform(click());', ui)
+        self.assertIn("for n in 1 2 3 4 5 6; do", wf)
         self.assertNotIn("onView(withId(DISPLAY)).perform(new GeneralClickAction", ui)
         screen = (ROOT / "feature-calculator/src/main/java/app/space/feature/calculator/CalculatorScreen.java").read_text()
         self.assertIn('"display touch down at "', screen)

@@ -192,7 +192,7 @@ jobs:
             fi
             first=$(awk '/^1\) /{f=1} f' /tmp/ui.log | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=first failure::$first"
-            for n in 1 2 3; do
+            for n in 1 2 3 4 5 6; do
               det=$(awk -v n=$n '/^[0-9]+\) /{c++} c==n' /tmp/ui.log | grep -vE "^\s+at (androidx|org|java|dalvik|android|com\.android)" | head -c 3800 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
               if [ -n "$det" ]; then echo "::error title=failure $n details::$det"; fi
             done

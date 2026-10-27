@@ -1,20 +1,54 @@
-# MyNotes 0.5.0 (6) — diagrams, PDF and core Notes guide
+# MyNotes — install and device acceptance guide
 
-**Published:** [CI 40578488274](https://github.com/tarungittarun/TicTic/actions/runs/40578488274)
-passed every required job and published the audited bytes: **51 JVM tests**, **63 unique
-Android tests / 441 executions across 13 lanes**, lint, source checks, immutable inventory
-and signature/update gates. **468 local checks** pass. Checksum verified after fetching.
-This is a delivered milestone, not the full 100-feature product or all-device certification.
+## Accepted release: 0.7.0 (8)
+
+[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk) · [checksum](../releases/MyNotes-v0.7.0-8.apk.sha256) · [full receipt](../releases/MyNotes-v0.7.0-8.apk.release.json)
+
+Qualification [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347):
+**69 JVM tests, 98 unique Android tests / 803 executions, 21 emulator lanes / 30 expanded jobs, all required gates green**.
+Each lane preserved a real seeded release note across install-over and matched the exact installed
+APK hash. Local gates: **107 Notes checks / 497 root checks**. This is a delivered milestone,
+not full-product or all-device certification. APK 66,498,132 bytes; SHA-256
+`59229cbd1578d4107c91172a5ae178b8b2d3fe062757d1f04923aaf3c69aceaf`.
+
+New: local inexact reminders, contextual notification permission, resizable/re-placeable pinned-first
+home widget, and stronger voice recovery/deletion guards. See [LOCAL-SURFACES-v0.7.md](LOCAL-SURFACES-v0.7.md).
+The prior offline-engine checkpoint 0.6 remains available unchanged; its evidence is in [OFFLINE-ML-v0.6.md](OFFLINE-ML-v0.6.md).
 
 ## Install / data compatibility
 
-- [MyNotes 0.5.0 (6) APK](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.5.0-6.apk)
-- [SHA-256](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/mynotes/releases/MyNotes-v0.5.0-6.apk.sha256)
+Install over the existing MyNotes release. **Do not uninstall or clear app data.** Package
+`app.space.notes` and certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca`
+remain fixed. Version 0.7 writes schema 5 and reads schemas 1–5 (0.6 wrote schema 4). Do not downgrade to an old reader. Existing folder libraries/old backups remain readable.
+Export and verify a JSON backup before destructive experiments; **also export voice WAVs separately**.
+Private recordings are not contained in JSON or selected-folder note generations and are lost by uninstall/clear-data.
 
-Install over your existing MyNotes release. **Do not uninstall or clear app data.**
-Package/key remain fixed; code increases to 6. Data now writes schema 3 and reads old
-schemas 1 and 2; no downgrade to an old reader. Export a verified backup before destructive
-experiments. Existing folder libraries and old backups remain readable.
+Large APKs use versioned GitHub Release assets, not accumulating binary copies in Git. Their small
+SHA/source/certificate/size receipts remain in `mynotes/releases/`. Old published versions are not replaced.
+
+## Offline OCR and automatic voice transcription
+
+1. Note → **Scan image** → choose English, Hindi or Kannada → choose a supported local image.
+   Wait off-thread for OCR, review/edit the recognized text, then **Append to note** or **Save as new note**.
+   Cancel/failure leaves note content and original image unchanged. The source image itself is not attached to the note.
+2. Try a clean printed page, names, numbers, low contrast, rotated images and a genuinely blank page.
+   Engine confidence is not accuracy. The release bundles all models and has no network permission;
+   no first-use model download should be required. Cloud/file URIs and oversized/invalid inputs are refused explicitly.
+3. **Record voice** requests the optional microphone permission. First deny it and verify text/checklists,
+   diagrams, storage and OCR still work. Then allow it from an explicit record action.
+4. Speak English, tap **Stop and transcribe**, and open **Voice inbox**. WAV is saved before automatic
+   bundled Vosk inference starts. Review the transcript against the retained recording. English model performance
+   on Indian accents, noise and names is not established by the public numbers fixture.
+5. Inbox: **Play**, **Stop playback**, **Export WAV**, **Retry transcript**, **Open note**.
+   Verify an exported WAV in a separate player. Change activity/leave the app during recording: foreground-only capture stops.
+   Exercise interrupted capture/reopen and check retained audio; do not expect background recording.
+6. Edit a transcribed note, retry and restart: applied sources must not duplicate text or resurrect an automatically purged note.
+   Explicit inbox Open note is a deliberate recovery action; automatic callbacks are not.
+
+Native English OCR and speech inference, WAV recovery, denied/granted microphone, and controller recovery
+have executable emulator checks. Hindi/Kannada controlled-system-font diagnostics additionally save source PNG,
+recognized text, confidence and token matches; those controlled images are not a camera/handwriting language corpus.
+See [engine provenance and precise limits](OFFLINE-ML-v0.6.md).
 
 ## New in 0.5
 
@@ -75,21 +109,39 @@ See [scope and acceptance cases](DIAGRAMS-AND-EXPORT-v0.5.md).
     archive, seven-day Trash, search focus and native selection. Actual SAF/SD faults
     remain for device qualification; injected protocol tests do not certify providers.
 
-## Automated scope
+## Automated scope and how to judge it
 
-Passed current gates: 468 local checks (78 Notes + 390 legacy), 51 JVM and
-441 Android executions / 63 unique cases. The matrix includes API 26/29/34, storage/UI/
-diagram/share-label aspects, 200% actual font resources, night, landscape and a Pixel C
-profile. Signed release install-over/hash/launch evidence is separate from debug-host
-instrumentation. Controller journeys dispatch through real views with isolated fixtures;
-share host callbacks are faked, not every external share app. The expanded lanes found
-and fixed an actual board viewport collapse in landscape/large-font multi-selection and
-an existing URI-permission lint finding. No checks were weakened to turn those green.
+The accepted checkpoint above is distinct from newer candidate runs. Normal qualification includes
+source/protocol self-tests, pure JVM rules, lint, release/debug/instrumentation builds, immutable APK
+identity/privacy audit and independent Android aspects. Release-byte update/hash/launch evidence is
+separate from debug-host instrumentation. Controller journeys use real views with isolated repositories;
+OS host callbacks and selected-folder protocols may be injected, not every physical provider/share app.
+
+Accepted qualification uses **30 expanded jobs / 21 Android lanes**, including API26/29/34/35/36,
+night, landscape, 200% fonts, tablet, notification-granted and microphone-granted variants. Every normal
+lane seeds a real note in the highest accepted prior APK and requires that title after install-over.
+Static ELF inventory identifies packaged ABI architectures and alignment, not physical ARM/16-KiB behavior.
+
+A separate nonpublishing native/durability soak uses the debug host, not the exact signed release binary.
+Only a completed timed report establishes its duration/iteration/PSS results. Its component source is
+recorded independently; it does not exercise controller UI, background AudioRecord or physical battery/thermal conditions.
+
+## Phone checklist for reminders/widget
+
+- Reminder: choose a future date/time, deny/allow notifications contextually, clear, Undo, edit, Trash,
+  restore and restart. Confirm data stays intact even when notifications are off.
+- Let a reminder actually fire with the app closed; open its notification and verify it opens the original note.
+  Edit another note after delivery: this must not dismiss the delivered reminder. Clear/Trash/time changes should invalidate stale alerts.
+- Restart the phone with a future reminder. Check actual delivery after reboot and under Doze/OEM battery settings.
+  These are **inexact** alarms; exact timing and missed-power-off catch-up are not promised.
+- Home → **Home widget**, or long-press launcher → Widgets → MyNotes library. Resize, remove and re-add it.
+  Notes must remain in the app. Pinned notes sort first; Archive/Trash are excluded. A widget row opens, rather than copies, a note.
+- Widget titles are visible on your home screen. It is a four-title projection, not a scrollable/interactive checklist.
 
 ## Still open
 
-Wall/list drag gestures, markdown/list customization, hashtag autocomplete, final
-snackbars and full undo/redo, media/OCR/ASR/reminders/widgets, startup corruption
-recovery UI, folder compaction/index scaling, full physical-device/large-font/TalkBack
-acceptance and eventual MySpace integration. No feature completion is inferred merely
-from source contracts or the existence of a new control.
+Full photo/file attachment workflows, wall/list drag (last), markdown/list customization, hashtag
+autocomplete, final snackbars/full undo-redo, recurring/location reminders and richer widget configuration,
+startup corruption recovery UI, folder compaction/index scaling, actual physical SAF/SD/photo-picker/EXIF
+and noisy/accented speech corpus, TalkBack/IME/OEM/16-KiB-device acceptance, Play publication and eventual
+MySpace integration. No full-feature or universal-correctness claim is made.

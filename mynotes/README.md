@@ -13,7 +13,7 @@ cd mynotes
 ./gradlew :notes-domain:test :notes:assembleRelease :notes:assembleDebugAndroidTest
 ```
 
-From the repository root, run just Notes source/protocol tests:
+From the repository root, run just Notes source/protocol tests (Python3 and Node22+ for the emulator-observer self-test):
 
 ```sh
 python3 -m unittest discover -s mynotes/qa -t .
@@ -39,22 +39,33 @@ triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions 
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current accepted release: **0.6.0 (7)** — bundled offline English/Hindi/Kannada OCR
-with review, automatic offline English voice transcription, optional foreground microphone,
-retained/recoverable WAV inbox and local WAV export, plus the previous rich notes,
-checklists, labels, flowcharts, vector PDF and local storage/backup.
-[Download the APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.6.0-7/MyNotes-v0.6.0-7.apk).
-Qualification [40582488414](https://github.com/tarungittarun/TicTic/actions/runs/40582488414)
-passed **64 JVM tests and 662 executions of 80 unique Android tests across 20 lanes**.
-All 20 lanes verified the exact installed release hash. Large APKs now live in versioned
-GitHub Release assets with checked-in SHA/source/signature receipts; prior versions are
-never replaced. See [offline model scope and limitations](docs/OFFLINE-ML-v0.6.md).
+Current accepted release: **0.7.0 (8)** — local note reminders and resizable/re-placeable
+pinned-first home-screen widget, plus bundled offline English/Hindi/Kannada OCR with review,
+automatic offline English voice transcription, retained WAV inbox/export, rich notes,
+checklists/labels, flowcharts, vector PDF and local storage/backup.
 
-**0.7.0 (8) candidate, not accepted until its gates are green:** portable note reminders,
-optional notification permission, inexact local alarms with reboot/update reconciliation,
-resizable/re-placeable pinned-first home-screen widget and seeded latest-release update tests.
-Media attachments, broader corpus/physical-device qualification and the remaining full-plan
-features are still open. See [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md).
+[**Download MyNotes 0.7.0 (8)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk)
+· [checksum](releases/MyNotes-v0.7.0-8.apk.sha256) · [receipt](releases/MyNotes-v0.7.0-8.apk.release.json)
+
+Qualification [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347)
+passed **69 JVM tests and 803 executions of 98 unique Android tests across 21 lanes / 30 expanded jobs**.
+Coverage includes API26/29/34/35/36, real landscape/night/200% fonts, tablet, denied/granted
+microphone and granted notifications. Every lane preserved a real seeded note across install-over
+from the previous accepted APK and matched the exact installed release hash. Local gates:
+**107 Notes checks / 497 root checks**. Runtime package/certificate remain stable; schema 5 reads 1–5.
+
+APK: **66,498,132 bytes**; SHA-256 `59229cbd1578d4107c91172a5ae178b8b2d3fe062757d1f04923aaf3c69aceaf`.
+Large APKs use versioned GitHub Release assets and checked-in provenance receipts, never replacement
+uploads or growing binary copies in Git. Prior releases remain unchanged. Install over the old app;
+do not uninstall/clear data. JSON backups exclude voice WAVs: export important recordings separately.
+
+Reminders are **inexact**, notifications/microphone are optional and contextual, and no Internet or
+exact-alarm permission is declared. Widget is a four-title projection, not an interactive checklist.
+Media attachments, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
+qualification, Play publication and eventual MySpace integration remain open. Wall dragging stays last.
+See [device guide](docs/STANDALONE-TEST-GUIDE.md), [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md)
+and [offline model scope](docs/OFFLINE-ML-v0.6.md). The separate timed native/disk soak is additional
+component evidence, not an all-device or whole-UI guarantee.
 
 ## Continuous integration
 

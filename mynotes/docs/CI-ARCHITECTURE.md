@@ -2,6 +2,83 @@
 
 Adapted from Checktrain02 run [40567027720](https://github.com/tarungittarun/Checktrain02/actions/runs/40567027720), not copied wholesale. Train/network/live-data checks do not belong in this offline notes app. Public APK publication is **after** all required gates, never before the emulator checks.
 
+## Current pipeline (accepted 0.7)
+
+The main workflow instantiates **30 jobs**: 21 Android matrix lanes plus nine nonmatrix jobs.
+`workflow_guard.py` checks the expanded total, not just the ten YAML job definitions. Independent
+source/CI tests, dependency/release inventory, JVM, lint and both builds start without waiting for
+each other. Audit waits for the signed candidate; Android waits for source discovery, audit and the
+shared test APKs. All required gates must pass before publication. Always-run acceptance fails
+closed for missing/duplicate/skipped/unexpected methods or mismatched installed APK hashes.
+
+Current planned inventory is discovered from Java `@Test` methods, not manually maintained totals.
+Run `python3 -m mynotes.tools.ci.test_plan` for exact current counts. The API/aspect matrix targets
+26/29/34/35/36, real landscape/night/200% font resources, tablet, contextual mic denied/granted and
+notification-granted policy. Matrix fail-fast remains false: a failed lane does not hide the rest.
+No measured speedup over the smaller serial workload is claimed.
+
+Each lane downloads compiled APKs (no emulator-side rebuild), verifies the latest accepted prior
+APK identity, seeds a unique note through real release UI, updates without uninstalling and requires
+that title after update. Before/after XML and baseline identity are retained. The installed accepted
+release is pulled, its hash/size compared, then the redundant full per-lane APK copy is removed;
+the shared accepted artifact retains the bytes. Source APK proof is separate from debug-host journeys.
+
+The APK audit resolves legacy in-Git APKs and pinned GitHub Release receipts, verifies download size,
+SHA, signed package/certificate/version and monotonic upgrade policy, and enforces the reviewed
+permission allowlist (optional microphone/notifications plus normal boot reception; no Internet).
+Static native ELF inventory verifies packaged ARMv7/ARM64/x86_64 architectures and reports 16-KiB
+segment alignment/stack flags; that is not a physical 16-KiB or ARM execution qualification.
+
+Large accepted APKs are uploaded as draft GitHub Release assets then exposed together; no clobber or
+replacement is allowed. Small checksum/source/audit/size/signature receipts are committed. Release and
+test compile artifacts/baselines have short retention; evidence/accepted bytes are retained longer.
+Same-version test/CI/docs work audits and reuses the existing official APK only if protected app/build
+inputs match its source. Runtime/resource/build/signing changes need a higher public versionCode.
+
+API26 radio setup temporarily roots only the fixture, then requires shell UID2000 before installing
+or testing. A closed transport during adbd restart is not treated as proof of state: a bounded UID
+verification must establish the requested identity. There are no app-test or whole-lane retries.
+A bounded Node bootstrap observer captures the emulator action itself, so pre-script SDK/AVD/boot
+failures produce useful annotations rather than just “instrumentation missing”. Compiler and app
+failures also emit bounded contextual annotations; source/protocol self-tests exercise these tools.
+
+The separate **three-expanded-job, read-only native soak** compiles once, then drives API26 and API35
+for the requested timed interval. It cannot publish. It records real native English OCR/ASR, interrupted
+PCM repair, atomic note/backup cycles, source-WAV integrity and post-warmup PSS/native allocations.
+Normal CI runs a short version; only the dedicated completed reports establish a long duration.
+Triggers match exercised components, so unrelated UI/controller-only fixes do not discard a long
+engine/disk measurement. Recorded source identities keep that scope explicit.
+
+### Accepted and diagnostic checkpoints
+
+- Current 0.7 acceptance [40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347):
+  **69 JVM, 98 unique Android cases, 803/803 executions /21 lanes**, all 30 expanded jobs green.
+  Local gates 107 Notes /497 root. APIs26/29/34/35/36; notification and mic positive/negative policy;
+  real seeded prior-release update and exact installed APK identity in every lane. Static inventory:
+  **18 libraries /3 ABIs**, no 64-bit load segment below 16 KiB alignment. Not physical ARM/16 KiB certification.
+- The final landscape fix uses fixed-to-user-rotation policy and reapplies locked rotation after
+  release UIAutomator seeding, immediately before instrumentation. Real resumed Activity resources
+  **and physical display aspect** must agree; portrait actual1080×1920 was correctly rejected earlier.
+  All 98 final landscape cases passed; expected values/coverage were not reduced.
+
+- Native 0.6 acceptance [40582488414](https://github.com/tarungittarun/TicTic/actions/runs/40582488414):
+  **64 JVM, 80 unique Android tests, 662 executions / 20 lanes**, all required gates green.
+- The initial native dependency build exposed an old D8/JNA failure; the isolated Notes toolchain moved
+  to AGP8.7.3 / Gradle8.9 / compile35. Calculator/MySpace builds were not changed or rerun.
+- 0.7 qualification caught a stale schema-version test after the intentional schema 5 migration;
+  the assertion now verifies schema 5 plus default reminder zero for schema 1 data. Orientation is
+  checked against a real resumed Notes Activity and physical display aspect, not an inactive
+  application context. The expected landscape resource value was not relaxed.
+- Independent failures exposed adbd root/unroot transport closure and pre-script emulator bootstrap
+  failures. Those caused additional state/bootstrap instrumentation, not blind full-suite retries.
+- Controlled-font OCR diagnostics observed exact Hindi `भारत नमस्ते` (confidence 90) and Kannada
+  `ಕನ್ನಡ ಭಾಷೆ` (confidence 96) on API26 in run 40586522348. Confidence is not accuracy; the source PNGs,
+  recognized text and token match flags remain artifacts, not a broad language qualification.
+
+---
+
+## Historical foundation (0.3; retained evidence, not the current matrix)
+
 ## Dependency graph
 
 ```text

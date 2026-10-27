@@ -1,6 +1,6 @@
-# MyNotes 0.7 candidate — local reminders and home-screen widget
+# MyNotes 0.7 — local reminders and home-screen widget
 
-Qualification is pending until the candidate's complete Actions gates pass. The accepted 0.6 APK remains available unchanged.
+Accepted [run 40590113347](https://github.com/tarungittarun/TicTic/actions/runs/40590113347): **69 JVM tests, 98 unique Android tests /803 executions, 21 lanes /30 expanded jobs**, all required gates green. [APK 0.7.0(8)](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.7.0-8/MyNotes-v0.7.0-8.apk), 66,498,132 bytes, SHA-256 `59229cbd1578d4107c91172a5ae178b8b2d3fe062757d1f04923aaf3c69aceaf`, source `280bf84efb870361abd2f04be88ba81a78d5cae1`. Prior0.6 remains unchanged.
 
 ## Implemented scope
 
@@ -31,3 +31,19 @@ OS projections and delivery share a latest-snapshot lock; private AtomicFile rea
 Automatic late/retried voice results also consult the durable creation marker before creating a missing note. Explicit Voice inbox “Open note” remains a user-requested recovery action; automatic recognition must not undo a deliberate purge.
 
 Timed-soak triggers are restricted to the components it actually exercises (native engines/assets, PCM/voice files, document/domain rules, repository and OS projections), their resources/build inputs and the soak harness. UI/controller/microphone-capture-only fixes do not restart an unrelated long native/disk run. Every app change still requires the full normal APK/Android gates; the long soak is component evidence with its own source identity, not a blanket UI/AudioRecord certification.
+
+## Acceptance outcomes
+
+All 98 cases passed in full API34, API36, night, 200% font, real-landscape and tablet lanes.
+Granted microphone passed API26/35; local notification/RemoteViews/atomic-read tests passed their
+API34 lane as well as full suites. Real release-note seed survival and exact installed-APK hashes
+matched in all 21 lanes. Static inventory found six correctly targeted native libraries per ABI
+(ARMv7, ARM64, x86_64); no 64-bit library had load-segment alignment below 16 KiB. This does not certify
+physical ARM/16 KiB loading or OEM timed delivery.
+
+Failed/untranscribed voice placeholders now receive durable creation guards too. If a guard is
+unwritable, expired Trash is retained until safe purge is possible rather than allowing a future
+transcript to resurrect it. Real controller/readonly-directory journeys cover both cases. A recording
+cancelled before its worker starts still invokes completion cleanup, avoiding a stuck “already active” state.
+
+Large simultaneous reminder catalogues are not scale-qualified; Android per-app alarm quotas and OEM policies still apply. Notes are retained locally if OS projection/scheduling fails. Notification timing/visibility must be judged on the actual phone, not inferred from a passing component test.

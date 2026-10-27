@@ -12,7 +12,8 @@ public final class PdfExporter {
     private PdfExporter() { }
     public static int write(List<Note> notes,OutputStream output) throws Exception {
         if(notes.isEmpty())throw new IOException("No notes selected");int pageNumber=0;
-        try(PdfDocument pdf=new PdfDocument()){
+        PdfDocument pdf=new PdfDocument();
+        try{
             for(Note note:notes){
                 android.text.SpannableStringBuilder content=new android.text.SpannableStringBuilder(note.title.isEmpty()?"Untitled":note.title);
                 content.setSpan(new android.text.style.StyleSpan(Typeface.BOLD),0,content.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);content.append("\n\n");int offset=content.length();content.append(note.plainText());
@@ -35,7 +36,7 @@ public final class PdfExporter {
                 }
             }
             pdf.writeTo(output);output.flush();return pageNumber;
-        }
+        } finally {pdf.close();}
     }
     private static void footer(Canvas canvas,int number){Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);p.setColor(Color.DKGRAY);p.setTextSize(10);canvas.drawText("MyNotes · "+number,48,813,p);}
 }

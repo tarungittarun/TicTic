@@ -663,13 +663,13 @@ public class CalculatorUiTest {
         // Round 9: the three dots store the display, and View memory opens a small popup
         // where entries can be moved up and down and tapped back into the expression.
         type("5", "=");
-        onView(withId(MENU_BTN)).perform(click());
-        onView(withText("Add to memory")).perform(click());
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withText("MAdd")).perform(click());
         type("AC", "7", "=");
+        onView(withId(DISPLAY)).perform(longClick());
+        onView(withText("MAdd")).perform(click());
         onView(withId(MENU_BTN)).perform(click());
-        onView(withText("Add to memory")).perform(click());
-        onView(withId(MENU_BTN)).perform(click());
-        onView(withText("View memory")).perform(click());
+        onView(withText("Memory")).perform(click());
         onView(withId(MEMORY_LIST)).check(matches(isDisplayed()));
         onView(allOf(withText("5"), isDescendantOfA(withId(MEMORY_LIST))))
                 .check(matches(isDisplayed()));
@@ -1253,6 +1253,115 @@ public class CalculatorUiTest {
         assertEquals("Circle", ctx.getSharedPreferences(
                 app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
                 .getString("calculator_keyshape", "Circle"));
+    }
+
+    @Test public void theKeyThemePickerRecoloursByGroupAndFollowsMySpace() {
+        // Round 33: "Add color theme options in 3 dots... group them and have a
+        // few theme... a option to follow the MySpace appearance settings, name
+        // it as MySpace settings." The picker lists the app's own palette first
+        // and four grouped colour themes; the pick persists and rebuilds.
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key theme")).perform(click());
+        onView(withText(containsString("MySpace settings"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Ocean"))).check(matches(isDisplayed()));
+        onView(withText(containsString("Ocean"))).perform(click());
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        assertEquals("Ocean", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keytheme", "MySpace settings"));
+        type("7");
+        onView(withId(DISPLAY)).check(matches(withText("7")));
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key theme")).perform(click());
+        onView(withText(containsString("MySpace settings"))).perform(click());
+        assertEquals("MySpace settings", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keytheme", "MySpace settings"));
+    }
+
+    @Test public void aSingleStrokeFromTheDotsRunsTheHighlightedLeaf() {
+        // Round 33: "pressing the button opens it, dragging highlights items,
+        // and lifting the finger triggers the action." One finger, no second
+        // tap: down on the dots, drag onto Haptics, lift -- the pref flips.
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        boolean before = ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getBoolean("calculator_haptics", true);
+        final int[] dots = new int[2];
+        rule.getScenario().onActivity(a ->
+                a.findViewById(MENU_BTN).getLocationOnScreen(dots));
+        long down = android.os.SystemClock.uptimeMillis();
+        pointer(down, android.view.MotionEvent.ACTION_DOWN, dots[0] + 8, dots[1] + 8);
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .waitForIdleSync();
+        waitMs(350); // the stroke popup needs a layout pass before rows have rects
+        int[] row = app.space.feature.calculator.CalculatorScreen
+                .debugStrokeRowRect("Haptics: " + (before ? "On" : "Off"));
+        assertTrue("stroke menu must expose its rows to a real finger", row != null);
+        float cx = (row[0] + row[2]) / 2f, cy = (row[1] + row[3]) / 2f;
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, cx, cy);
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, cx, cy);
+        pointer(down, android.view.MotionEvent.ACTION_UP, cx, cy);
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .waitForIdleSync();
+        boolean after = ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getBoolean("calculator_haptics", true);
+        assertTrue("lifting on the highlighted row must flip haptics", after != before);
+        assertTrue("the stroke popup must be gone after the lift",
+                app.space.feature.calculator.CalculatorScreen
+                        .debugStrokeRowRect("Haptics: On") == null);
+    }
+
+    @Test public void aSingleStrokeTravelsIntoKeyShapeWithoutLifting() {
+        // Round 33: "It must support continuous tracking into child submenus
+        // without releasing the finger." Down on the dots, drag onto Key shape,
+        // dwell so the child swaps in, keep dragging onto Pill, lift -- Pill is
+        // applied from one unbroken stroke.
+        final int[] dots = new int[2];
+        rule.getScenario().onActivity(a ->
+                a.findViewById(MENU_BTN).getLocationOnScreen(dots));
+        long down = android.os.SystemClock.uptimeMillis();
+        pointer(down, android.view.MotionEvent.ACTION_DOWN, dots[0] + 8, dots[1] + 8);
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .waitForIdleSync();
+        waitMs(350);
+        int[] parent = app.space.feature.calculator.CalculatorScreen
+                .debugStrokeRowRect("Key shape");
+        assertTrue(parent != null);
+        float px = (parent[0] + parent[2]) / 2f, py = (parent[1] + parent[3]) / 2f;
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, px, py);
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, px, py);
+        waitMs(520); // the dwell that opens the child mid-stroke
+        waitMs(250); // and the child's rows need their own layout pass
+        int[] pill = app.space.feature.calculator.CalculatorScreen
+                .debugStrokeRowRect("Pill");
+        assertTrue("the child rows must arrive without lifting the finger", pill != null);
+        float qx = (pill[0] + pill[2]) / 2f, qy = (pill[1] + pill[3]) / 2f;
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, qx, qy);
+        pointer(down, android.view.MotionEvent.ACTION_MOVE, qx, qy);
+        pointer(down, android.view.MotionEvent.ACTION_UP, qx, qy);
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .waitForIdleSync();
+        android.content.Context ctx =
+                androidx.test.InstrumentationRegistry.getTargetContext();
+        assertEquals("Pill", ctx.getSharedPreferences(
+                app.space.core.data.AppPrefs.PREF, android.content.Context.MODE_PRIVATE)
+                .getString("calculator_keyshape", "Circle"));
+        // leave the pad as the owner found it, through the tap-through menu
+        onView(withId(MENU_BTN)).perform(click());
+        onView(withText("Key shape")).perform(click());
+        onView(withText(containsString("Circle"))).perform(click());
+    }
+
+    private void pointer(long downTime, int action, float x, float y) {
+        android.view.MotionEvent e = android.view.MotionEvent.obtain(downTime,
+                android.os.SystemClock.uptimeMillis(), action, x, y, 0);
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .sendPointerSync(e);
+        e.recycle();
     }
 
     @Test public void theCaretBarIsARealViewThatBlinksWithThePhase() {

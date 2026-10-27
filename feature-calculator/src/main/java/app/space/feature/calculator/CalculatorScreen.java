@@ -107,6 +107,17 @@ public final class CalculatorScreen implements Screen {
     // Round 31: "in 3 dots add options of shape of buttons on keypad. Let
     // there be 5 trending options along with no shape." Six names, one pref.
     private static final String KEYSHAPE_KEY = "calculator_keyshape";
+    // Round 33: "Add color theme options in 3 dots. These colors should apply
+    // mainly for key buttons... group them and have a few theme" and "a option
+    // to follow the MySpace appearance settings, name it as MySpace settings".
+    // The default theme IS the app's own palette; the rest recolour the pad by
+    // group -- numbers, operations, scientific, commands -- and every ink goes
+    // through readableInk(), so no theme can put a symbol on a fill it cannot
+    // be seen against in either mode.
+    private static final String KEYTHEME_KEY = "calculator_keytheme";
+    static final String[] KEY_THEMES = {"MySpace settings", "Graphite",
+            "Ocean", "Sunset", "Mint"};
+    private static final int G_NUM = 0, G_OP = 1, G_SCI = 2, G_CMD = 3;
     private static final String[] KEY_SHAPES = {"Circle", "Squircle", "Pill",
             "Rounded square", "No shape"};
     private static final int SEL_COPY = 9101, SEL_CUT = 9102,
@@ -163,6 +174,20 @@ public final class CalculatorScreen implements Screen {
     private LinearLayout panelBox;
     private ChevronView chevron;
     private PopupWindow menuPopup;
+    private PopupWindow strokePopup;
+    private LinearLayout strokeBox;
+    private java.util.List<View> strokeRows = new java.util.ArrayList<>();
+    private int strokeHighlight = -1;
+    private int strokeTint;
+    private boolean strokeMoved;
+    private float strokeDownX, strokeDownY;
+    private String strokeChild;
+    private final android.os.Handler strokeHandler = new android.os.Handler();
+    private Runnable strokeDwell;
+
+    /** Test door: the live stroke box, so instrumented stories can aim a real
+     *  injected finger at a row instead of guessing where the popup landed. */
+    public static LinearLayout strokeBoxDebug;
     private LinearLayout padContainer;
     private boolean padLandscape;
     private ScrollView historyScroll;
@@ -293,8 +318,13 @@ public final class CalculatorScreen implements Screen {
             dots.addView(d, dzp);
         }
         modes.addView(dots, ui.lp(-2, -2));
-        dots.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { openMenu(context, ui, v); }
+        // Round 33: the dots are now a stroke handle: DOWN opens the menu and
+        // grabs the gesture, MOVE highlights, UP chooses -- one stroke, through
+        // children and all. A plain tap still opens the click-through menu.
+        dots.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v, MotionEvent e) {
+                return strokeMenu(context, ui, v, e);
+            }
         });
 
         // ---- the display area: history sheet over a docked current expression ----
@@ -536,6 +566,16 @@ public final class CalculatorScreen implements Screen {
                 size = isScientificCap(key) ? 19 : 30;
                 break;
         }
+        String theme = keyTheme(context);
+        if (!"MySpace settings".equals(theme) && kind != EQ) {
+            int g = groupOf(key);
+            fill = themeFill(theme, g, dark);
+            ink = readableInk(fill, themeInk(theme, g, dark));
+            if (kind == TOG && toggleOn) {
+                fill = mix(fill, ui.palette().accent, 0.42f);
+                ink = readableInk(fill, 0xFFFFFFFF);
+            }
+        }
         PadButton button = new PadButton(context);
         button.setText(key);
         button.setGravity(Gravity.CENTER);
@@ -545,6 +585,80 @@ public final class CalculatorScreen implements Screen {
         button.setBackground(keyShape(context, ui, fill, gradient));
         button.setContentDescription(key);
         return button;
+    }
+
+    /** The persisted colour theme, unknown names falling back to the app's own. */
+    private static String keyTheme(Context context) {
+        String name = AppPrefs.prefs(context).getString(KEYTHEME_KEY, "MySpace settings");
+        for (String known : KEY_THEMES) {
+            if (known.equals(name)) return name;
+        }
+        return "MySpace settings";
+    }
+
+    /** Which of the owner's four groups a key belongs to: numbers, operations,
+     *  scientific, commands (AC and backspace). Equals keeps the app gradient. */
+    private static int groupOf(String key) {
+        if ("AC".equals(key) || "⌫".equals(key)) return G_CMD;
+        for (String[] row : PANEL_ROWS) {
+            for (String k : row) {
+                if (k.equals(key)) return G_SCI;
+            }
+        }
+        if (key.length() == 1
+                && (Character.isDigit(key.charAt(0)) || key.charAt(0) == '.')) return G_NUM;
+        return G_OP;
+    }
+
+    /** Group fills per theme per mode. Dark fills stay deep, light fills stay
+     *  pale -- the two modes never share a value, which is what keeps every
+     *  theme readable on both. */
+    private static int themeFill(String theme, int g, boolean dark) {
+        if ("Graphite".equals(theme)) {
+            if (dark) return new int[]{0xFF2A2E33, 0xFF3A3F45, 0xFF23272B, 0xFF454B52}[g];
+            return new int[]{0xFFF1F3F4, 0xFFDFE1E5, 0xFFE8EAED, 0xFFCFD3D8}[g];
+        }
+        if ("Ocean".equals(theme)) {
+            if (dark) return new int[]{0xFF0E2A3F, 0xFF12455E, 0xFF0B2233, 0xFF15506B}[g];
+            return new int[]{0xFFDCEEF7, 0xFFB7DEEE, 0xFFE4F2F9, 0xFFA3D3E8}[g];
+        }
+        if ("Sunset".equals(theme)) {
+            if (dark) return new int[]{0xFF3A2020, 0xFF5C2E22, 0xFF2E1A1A, 0xFF6B3A24}[g];
+            return new int[]{0xFFFBE9E0, 0xFFF5D3BE, 0xFFFDF0E9, 0xFFEDBF9E}[g];
+        }
+        if (dark) return new int[]{0xFF12312A, 0xFF1B4A3C, 0xFF0E2721, 0xFF22584A}[g];
+        return new int[]{0xFFE2F4EA, 0xFFC2E5D2, 0xFFEBF7F0, 0xFFABDCC4}[g];
+    }
+
+    /** Group inks per theme per mode, before the contrast guard adjusts them. */
+    private static int themeInk(String theme, int g, boolean dark) {
+        if ("Graphite".equals(theme)) {
+            if (dark) return new int[]{0xFFF2F4F6, 0xFFDCE6EF, 0xFFDDE2E7, 0xFFF2F4F6}[g];
+            return new int[]{0xFF17191C, 0xFF3C4043, 0xFF3C4043, 0xFF17191C}[g];
+        }
+        if ("Ocean".equals(theme)) {
+            if (dark) return new int[]{0xFFD6E9F5, 0xFF8FD8F2, 0xFFBFE0EF, 0xFFEAF7FD}[g];
+            return new int[]{0xFF0B2A3A, 0xFF075E79, 0xFF14455C, 0xFF06344A}[g];
+        }
+        if ("Sunset".equals(theme)) {
+            if (dark) return new int[]{0xFFFFE3D6, 0xFFFFC9A3, 0xFFF5D9C8, 0xFFFFE8D2}[g];
+            return new int[]{0xFF4A2013, 0xFF8A3B12, 0xFF6B3A24, 0xFF5C2E12}[g];
+        }
+        if (dark) return new int[]{0xFFD9F2E6, 0xFF9FE8C6, 0xFFC4E8D6, 0xFFE2F7EC}[g];
+        return new int[]{0xFF123B2E, 0xFF0E5E43, 0xFF1C4A38, 0xFF0B4630}[g];
+    }
+
+    /** Round 33, his visibility order: "actual numbers, symbols or whatever are
+     *  should be properly visible." If a theme's ink sits too close to its fill
+     *  in luminance, the guard swaps in the nearest extreme instead -- so a bad
+     *  combination cannot ship an unreadable key. */
+    static int readableInk(int fill, int ink) {
+        float lf = android.graphics.Color.luminance(fill);
+        float li = android.graphics.Color.luminance(ink);
+        if (Math.abs(lf - li) < 0.35f) {
+            return lf > 0.5f ? 0xFF14181C : 0xFFF6F8FA;
+        }
+        return ink;
     }
 
     /** Round 31: the keypad's silhouette is the owner's to pick, persisted and
@@ -1167,7 +1281,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources()
                         .getDisplayMetrics().density)), 8));
         parent.addView(displayHost, dp2);
-        AppLog.event(context, "calc", "calc screen build 3.12.35: the caret is "
+        AppLog.event(context, "calc", "calc screen build 3.12.36: the caret is "
                 + "a real view over the canvas bar");
         displayView.caretPhaseReset = new Runnable() {
             @Override public void run() {
@@ -1535,25 +1649,25 @@ public final class CalculatorScreen implements Screen {
      *  shape at all, single-choice, persisted, and the pad rebuilds under the
      *  thumb without recreating the screen. */
     private void openKeyShape(final Context context, final UiKit ui) {
-        // Round 32: "the view of option to select in keyshapes is outdated.
-        // Match with app's design and signature." The stock light AlertDialog
-        // with radio buttons was a stranger in this app; the picker is now the
-        // same dark pill popup the Effects and memory pickers use, and every
-        // row carries a live swatch drawn by the very drawable it selects, so
-        // the option shows its own silhouette before you pick it.
+        LinearLayout box = pickerBox(context, ui, "Key shape");
+        box.addView(shapeRows(context, ui), ui.lp(-1, -2));
+        showCenterPopup(context, ui, box);
+        AppLog.event(context, "calc",
+                "key shape picker opened: current " + shapeName(context));
+    }
+
+    /** The five silhouette rows, shared by the tap-through picker and the
+     *  single-stroke child menu; each row previews its own drawable. */
+    private LinearLayout shapeRows(final Context context, final UiKit ui) {
         final String current = shapeName(context);
-        LinearLayout box = ui.vbox();
-        box.setBackground(pill(ui, ui.palette().surface, 16));
-        box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
-        TextView head = ui.label("Key shape", 13, ui.palette().muted, false);
-        head.setPadding(ui.dp(14), ui.dp(8), ui.dp(14), ui.dp(4));
-        box.addView(head, ui.lp(-1, -2));
+        LinearLayout vbox = ui.vbox();
         for (int i = 0; i < KEY_SHAPES.length; i++) {
             final String name = KEY_SHAPES[i];
             final boolean on = name.equals(current);
             LinearLayout row = ui.hbox();
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(ui.dp(14), ui.dp(9), ui.dp(14), ui.dp(9));
+            row.setTag(name);
             View swatch = new View(context);
             swatch.setBackground("No shape".equals(name)
                     ? new android.graphics.drawable.ColorDrawable(noShapeFlash(ui))
@@ -1568,25 +1682,97 @@ public final class CalculatorScreen implements Screen {
             LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-2, -2);
             llp.leftMargin = ui.dp(12);
             row.addView(label, llp);
-            box.addView(row, ui.lp(-1, -2));
+            vbox.addView(row, ui.lp(-1, -2));
             row.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    AppPrefs.prefs(context).edit()
-                            .putString(KEYSHAPE_KEY, name).apply();
-                    AppLog.event(context, "calc",
-                            "key shape set to " + name + ", pad rebuilt");
-                    host.toast("Keys: " + name);
                     if (menuPopup != null) menuPopup.dismiss();
                     menuPopup = null;
-                    rebuildPad(context, ui);
+                    applyShape(context, ui, name);
                 }
             });
         }
+        return vbox;
+    }
+
+    private void applyShape(Context context, UiKit ui, String name) {
+        AppPrefs.prefs(context).edit().putString(KEYSHAPE_KEY, name).apply();
+        AppLog.event(context, "calc", "key shape set to " + name + ", pad rebuilt");
+        host.toast("Keys: " + name);
+        rebuildPad(context, ui);
+    }
+
+    /** Round 33: the colour themes, same signature picker; the first option is
+     *  the app's own appearance, named as he asked: "MySpace settings". */
+    private void openKeyTheme(final Context context, final UiKit ui) {
+        LinearLayout box = pickerBox(context, ui, "Key theme");
+        box.addView(themeRows(context, ui), ui.lp(-1, -2));
+        showCenterPopup(context, ui, box);
+        AppLog.event(context, "calc",
+                "key theme picker opened: current " + keyTheme(context));
+    }
+
+    private LinearLayout themeRows(final Context context, final UiKit ui) {
+        final String current = keyTheme(context);
+        final boolean dark = ui.palette().dark;
+        LinearLayout vbox = ui.vbox();
+        for (int i = 0; i < KEY_THEMES.length; i++) {
+            final String name = KEY_THEMES[i];
+            final boolean on = name.equals(current);
+            LinearLayout row = ui.hbox();
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(ui.dp(14), ui.dp(9), ui.dp(14), ui.dp(9));
+            row.setTag(name);
+            LinearLayout swatch = ui.hbox();
+            for (int g = 0; g < 3; g++) {
+                View chip = new View(context);
+                int fill = "MySpace settings".equals(name)
+                        ? (g == 0 ? ui.palette().surface
+                                : g == 1 ? mix(ui.palette().surface, ui.palette().accent, 0.42f)
+                                : mix(ui.palette().surface, dark ? 0xFFFFC94D : 0xFFB26A00, 0.16f))
+                        : themeFill(name, g, dark);
+                chip.setBackground(pill(ui, fill, 5));
+                swatch.addView(chip, ui.lp(12, 20));
+            }
+            row.addView(swatch, ui.lp(-2, 20));
+            TextView label = ui.label((on ? "\u2713  " : "     ") + name, 14,
+                    on ? ui.palette().accent : ui.palette().text, on);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-2, -2);
+            llp.leftMargin = ui.dp(12);
+            row.addView(label, llp);
+            vbox.addView(row, ui.lp(-1, -2));
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (menuPopup != null) menuPopup.dismiss();
+                    menuPopup = null;
+                    applyTheme(context, ui, name);
+                }
+            });
+        }
+        return vbox;
+    }
+
+    private void applyTheme(Context context, UiKit ui, String name) {
+        AppPrefs.prefs(context).edit().putString(KEYTHEME_KEY, name).apply();
+        AppLog.event(context, "calc", "key theme set to " + name + ", pad rebuilt");
+        host.toast("Key colours: " + name);
+        rebuildPad(context, ui);
+    }
+
+    private LinearLayout pickerBox(Context context, UiKit ui, String title) {
+        LinearLayout box = ui.vbox();
+        box.setBackground(pill(ui, ui.palette().surface, 16));
+        box.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
+        TextView head = ui.label(title, 13, ui.palette().muted, false);
+        head.setPadding(ui.dp(14), ui.dp(8), ui.dp(14), ui.dp(4));
+        box.addView(head, ui.lp(-1, -2));
+        return box;
+    }
+
+    private void showCenterPopup(Context context, UiKit ui, LinearLayout box) {
         menuPopup = new PopupWindow(box, ui.dp(250), -2, true);
         menuPopup.setElevation(ui.dp(8));
         menuPopup.setAnimationStyle(R.style.CalcPopupAnim);
         menuPopup.showAtLocation(rootView, Gravity.CENTER, 0, 0);
-        AppLog.event(context, "calc", "key shape picker opened: current " + current);
     }
 
     /** Round 31: the pad, rebuildable in place -- the key-shape picker swaps
@@ -1692,6 +1878,224 @@ public final class CalculatorScreen implements Screen {
      * Round 9: the three dots carry exactly five things -- haptics on/off, add to memory,
      * clear memory, view memory, show as fraction -- and nothing else.
      */
+    /** Round 33, his words: "presently, I have to click on 3 dots then click
+     *  into one of them, then again... Implement Drag-to-Select single-stroke
+     *  menu where pressing the button opens it, dragging highlights items, and
+     *  lifting the finger triggers the action. It must support continuous
+     *  tracking into child submenus without releasing the finger... Present
+     *  option of access also should be there." The dots view accepts the DOWN,
+     *  so Android keeps routing the whole gesture to it while the finger roams
+     *  over popups that declare themselves untouchable; dwelling on a parent
+     *  row swaps the popup's rows for that child's, still mid-stroke. A tap
+     *  (no movement) opens the old click-through menu exactly as before. */
+    private boolean strokeMenu(final Context context, final UiKit ui,
+                               final View anchor, MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                dismissStroke();
+                strokeMoved = false;
+                strokeDownX = e.getRawX();
+                strokeDownY = e.getRawY();
+                strokeChild = null;
+                strokeHighlight = -1;
+                strokeTint = mix(ui.palette().surface, ui.palette().accent, 0.22f);
+                strokeBox = ui.vbox();
+                strokeBox.setBackground(pill(ui, ui.palette().surface, 16));
+                strokeBox.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
+                fillStrokeRows(context, ui, null);
+                strokePopup = new PopupWindow(strokeBox, ui.dp(220), -2, false);
+                strokePopup.setTouchable(false);
+                strokePopup.setFocusable(false);
+                strokePopup.setElevation(ui.dp(8));
+                strokePopup.setAnimationStyle(R.style.CalcPopupAnim);
+                strokePopup.showAsDropDown(anchor, 0, ui.dp(4), Gravity.RIGHT);
+                AppLog.event(context, "calc",
+                        "menu stroke opened: drag to highlight, lift to choose");
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                if (strokePopup == null) return true;
+                if (!strokeMoved && Math.hypot(e.getRawX() - strokeDownX,
+                        e.getRawY() - strokeDownY) > ui.dp(8)) {
+                    strokeMoved = true;
+                }
+                if (!strokeMoved) return true;
+                final int idx = strokeRowAt(e.getRawX(), e.getRawY());
+                if (idx == strokeHighlight) return true;
+                setStrokeHighlight(idx);
+                if (strokeDwell != null) {
+                    strokeHandler.removeCallbacks(strokeDwell);
+                    strokeDwell = null;
+                }
+                if (idx >= 0 && isStrokeParent(strokeRows.get(idx))) {
+                    strokeDwell = new Runnable() {
+                        @Override public void run() {
+                            String name = (String) strokeRows.get(idx).getTag();
+                            strokeChild = name;
+                            fillStrokeRows(context, ui, name);
+                            strokeHighlight = -1;
+                            AppLog.event(context, "calc", "stroke child opened: " + name);
+                        }
+                    };
+                    strokeHandler.postDelayed(strokeDwell, 320);
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (strokeDwell != null) {
+                    strokeHandler.removeCallbacks(strokeDwell);
+                    strokeDwell = null;
+                }
+                if (strokePopup == null) return true;
+                if (!strokeMoved) {
+                    dismissStroke();
+                    AppLog.event(context, "calc", "menu tapped open: click access kept");
+                    openMenu(context, ui, anchor);
+                    return true;
+                }
+                String child = strokeChild;
+                String name = strokeHighlight >= 0
+                        ? (String) strokeRows.get(strokeHighlight).getTag() : null;
+                dismissStroke();
+                if (name == null) {
+                    AppLog.event(context, "calc",
+                            "stroke ended on empty space: nothing chosen");
+                    return true;
+                }
+                AppLog.event(context, "calc", "stroke selected " + name
+                        + (child == null ? "" : " from " + child));
+                runStrokeChoice(context, ui, child, name);
+                return true;
+            default:
+                return strokePopup != null;
+        }
+    }
+
+    private boolean isStrokeParent(View row) {
+        String t = (String) row.getTag();
+        return "Memory".equals(t) || "Key theme".equals(t)
+                || "Key shape".equals(t) || "Effects".equals(t);
+    }
+
+    private void runStrokeChoice(Context context, UiKit ui, String child, String name) {
+        if (child == null) {
+            if ("Memory".equals(name)) { openMemory(context, ui); return; }
+            if ("Key theme".equals(name)) { openKeyTheme(context, ui); return; }
+            if ("Key shape".equals(name)) { openKeyShape(context, ui); return; }
+            if ("Effects".equals(name)) { openEffects(context, ui); return; }
+            onMenuChoice(context, ui, name);
+            return;
+        }
+        if ("Key shape".equals(child)) { applyShape(context, ui, name); return; }
+        if ("Key theme".equals(child)) { applyTheme(context, ui, name); return; }
+        if ("Effects".equals(child)) {
+            for (int i = 0; i < EFFECT_NAMES.length; i++) {
+                if (EFFECT_NAMES[i].equals(name)) applyEffectIdx(context, i);
+            }
+            return;
+        }
+        if ("Clear memory".equals(name)) { clearMemoryNow(context, ui); return; }
+        useMemoryValue(context, name);
+    }
+
+    private void fillStrokeRows(Context context, UiKit ui, String child) {
+        strokeBox.removeAllViews();
+        strokeRows = new java.util.ArrayList<>();
+        TextView head = ui.label(child == null ? "Menu" : child, 13,
+                ui.palette().muted, false);
+        head.setPadding(ui.dp(8), ui.dp(4), ui.dp(8), ui.dp(4));
+        strokeBox.addView(head, ui.lp(-1, -2));
+        LinearLayout rows;
+        if (child == null) rows = topStrokeRows(context, ui);
+        else if ("Key shape".equals(child)) rows = shapeRows(context, ui);
+        else if ("Key theme".equals(child)) rows = themeRows(context, ui);
+        else if ("Effects".equals(child)) rows = effectsRows(context, ui);
+        else rows = memoryQuickRows(context, ui);
+        strokeBox.addView(rows, ui.lp(-1, -2));
+        for (int i = 0; i < rows.getChildCount(); i++) strokeRows.add(rows.getChildAt(i));
+        strokeBoxDebug = strokeBox;
+    }
+
+    private LinearLayout topStrokeRows(Context context, UiKit ui) {
+        LinearLayout vbox = ui.vbox();
+        String[] names = {
+                AppPrefs.prefs(context).getBoolean(HAPTICS_KEY, true)
+                        ? "Haptics: On" : "Haptics: Off",
+                "Memory", showFraction ? "Show as decimal" : "Show as fraction",
+                "Key theme", "Key shape", "Effects"};
+        for (String n : names) {
+            TextView row = ui.label(n, 14, ui.palette().text, false);
+            row.setPadding(ui.dp(14), ui.dp(11), ui.dp(14), ui.dp(11));
+            row.setTag(n);
+            vbox.addView(row, ui.lp(-1, -2));
+        }
+        return vbox;
+    }
+
+    private LinearLayout memoryQuickRows(Context context, UiKit ui) {
+        LinearLayout vbox = ui.vbox();
+        for (String value : memoryList(context)) {
+            TextView row = ui.label(groupIndian(value), 16, ui.palette().text, false);
+            row.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(10));
+            row.setTag(value);
+            vbox.addView(row, ui.lp(-1, -2));
+        }
+        TextView clear = ui.label("Clear memory", 14, ui.palette().muted, false);
+        clear.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(10));
+        clear.setTag("Clear memory");
+        vbox.addView(clear, ui.lp(-1, -2));
+        return vbox;
+    }
+
+    private int strokeRowAt(float rawX, float rawY) {
+        int[] loc = new int[2];
+        for (int i = 0; i < strokeRows.size(); i++) {
+            View row = strokeRows.get(i);
+            row.getLocationOnScreen(loc);
+            if (rawY >= loc[1] && rawY <= loc[1] + row.getHeight()
+                    && rawX >= loc[0] - row.getWidth() * 0.25f
+                    && rawX <= loc[0] + row.getWidth() * 1.25f) return i;
+        }
+        return -1;
+    }
+
+    private void setStrokeHighlight(int idx) {
+        strokeHighlight = idx;
+        for (int i = 0; i < strokeRows.size(); i++) {
+            strokeRows.get(i).setBackgroundColor(i == idx
+                    ? strokeTint : android.graphics.Color.TRANSPARENT);
+        }
+    }
+
+    private void dismissStroke() {
+        if (strokePopup != null) {
+            strokePopup.dismiss();
+            strokePopup = null;
+        }
+        strokeBoxDebug = null;
+        strokeRows = new java.util.ArrayList<>();
+        strokeHighlight = -1;
+    }
+
+    /** Test door: screen rect of a live stroke row, by its label. */
+    public static int[] debugStrokeRowRect(String tag) {
+        LinearLayout box = strokeBoxDebug;
+        if (box == null) return null;
+        int[] loc = new int[2];
+        for (int i = 0; i < box.getChildCount(); i++) {
+            View child = box.getChildAt(i);
+            if (!(child instanceof LinearLayout)) continue;
+            for (int j = 0; j < ((LinearLayout) child).getChildCount(); j++) {
+                View row = ((LinearLayout) child).getChildAt(j);
+                if (tag.equals(row.getTag())) {
+                    row.getLocationOnScreen(loc);
+                    return new int[]{loc[0], loc[1],
+                            loc[0] + row.getWidth(), loc[1] + row.getHeight()};
+                }
+            }
+        }
+        return null;
+    }
+
     private void openMenu(final Context context, UiKit ui, View anchor) {
         closeSelectionMenu();
         AppLog.event(context, "calc", "menu opened from the three dots");
@@ -1700,9 +2104,12 @@ public final class CalculatorScreen implements Screen {
                 ? "Haptics: On" : "Haptics: Off");
         // Round 31: "in 3 dots remove add memory" -- storing lives in the
         // selection menu as MAdd now; the three dots keep the other five.
-        items.add("Clear memory");
-        items.add("View memory");
+        // Round 33: memory management folds into a single child (view, reorder,
+        // clear live inside it) so the top level keeps five slots plus Effects
+        // even with Key theme joining the family.
+        items.add("Memory");
         items.add(showFraction ? "Show as decimal" : "Show as fraction");
+        items.add("Key theme");
         items.add("Key shape");
         items.add("Effects");
         LinearLayout box = ui.vbox();
@@ -1737,18 +2144,15 @@ public final class CalculatorScreen implements Screen {
             AppPrefs.prefs(context).edit().putBoolean(HAPTICS_KEY, on).apply();
             AppLog.event(context, "calc", "haptics " + (on ? "on" : "off") + ", persisted");
             host.toast(on ? "Haptics on" : "Haptics off");
-        } else if (choice.equals("Clear memory")) {
-            int n = memoryList(context).size();
-            saveMemory(context, new java.util.ArrayList<String>());
-            AppLog.event(context, "calc", "memory cleared: " + n + " entries removed");
-            host.toast("Memory cleared");
-        } else if (choice.equals("View memory")) {
+        } else if (choice.equals("Memory")) {
             openMemory(context, ui);
         } else if (choice.startsWith("Show as")) {
             showFraction = !showFraction;
             AppLog.event(context, "calc", showFraction
                     ? "result view: fraction" : "result view: decimal");
             refreshDisplay(context);
+        } else if (choice.equals("Key theme")) {
+            openKeyTheme(context, ui);
         } else if (choice.equals("Key shape")) {
             openKeyShape(context, ui);
         } else if (choice.equals("Effects")) {
@@ -1762,37 +2166,41 @@ public final class CalculatorScreen implements Screen {
      * press onward; reduce-motion and disabled animator scales still win over all of them.
      */
     private void openEffects(final Context context, UiKit ui) {
+        LinearLayout box = pickerBox(context, ui, "Button effects");
+        box.addView(effectsRows(context, ui), ui.lp(-1, -2));
+        showCenterPopup(context, ui, box);
+        AppLog.event(context, "calc", "effects picker opened: current style "
+                + EFFECT_NAMES[PadButton.effectStyle(context)]);
+    }
+
+    private LinearLayout effectsRows(final Context context, final UiKit ui) {
         final int current = PadButton.effectStyle(context);
-        LinearLayout box = ui.vbox();
-        box.setBackground(pill(ui, ui.palette().surface, 16));
-        box.setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6));
-        TextView head = ui.label("Button effects", 13, ui.palette().muted, false);
-        head.setPadding(ui.dp(14), ui.dp(8), ui.dp(14), ui.dp(4));
-        box.addView(head, ui.lp(-1, -2));
+        LinearLayout vbox = ui.vbox();
         for (int i = 0; i < EFFECT_NAMES.length; i++) {
             final int idx = i;
-            TextView row = ui.label((i == current ? "✓  " : "     ") + EFFECT_NAMES[i]
-                    + "  ·  " + EFFECT_HINTS[i], 14,
+            TextView row = ui.label((i == current ? "\u2713  " : "     ") + EFFECT_NAMES[i]
+                    + "  \u00b7  " + EFFECT_HINTS[i], 14,
                     i == current ? ui.palette().accent : ui.palette().text,
                     i == current);
             row.setPadding(ui.dp(14), ui.dp(11), ui.dp(14), ui.dp(11));
-            box.addView(row, ui.lp(-1, -2));
+            row.setTag(EFFECT_NAMES[i]);
+            vbox.addView(row, ui.lp(-1, -2));
             row.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    AppPrefs.prefs(context).edit().putInt(EFFECTS_KEY, idx).apply();
-                    AppLog.event(context, "calc", "effects style → " + EFFECT_NAMES[idx]
-                            + ", persisted");
-                    host.toast(EFFECT_NAMES[idx] + " press effect on");
                     if (menuPopup != null) menuPopup.dismiss();
+                    menuPopup = null;
+                    applyEffectIdx(context, idx);
                 }
             });
         }
-        menuPopup = new PopupWindow(box, ui.dp(250), -2, true);
-        menuPopup.setElevation(ui.dp(8));
-        menuPopup.setAnimationStyle(R.style.CalcPopupAnim);
-        menuPopup.showAtLocation(rootView, Gravity.CENTER, 0, 0);
-        AppLog.event(context, "calc", "effects picker opened: current style "
-                + EFFECT_NAMES[current]);
+        return vbox;
+    }
+
+    private void applyEffectIdx(Context context, int idx) {
+        AppPrefs.prefs(context).edit().putInt(EFFECTS_KEY, idx).apply();
+        AppLog.event(context, "calc", "effects style \u2192 " + EFFECT_NAMES[idx]
+                + ", persisted");
+        host.toast(EFFECT_NAMES[idx] + " press effect on");
     }
 
     /**
@@ -1828,6 +2236,18 @@ public final class CalculatorScreen implements Screen {
             }
         });
         fillMemory(context, ui, list, holder);
+        // Round 33: clearing lives inside the memory child now, one tap below
+        // the entries it empties.
+        final TextView clear = ui.label("Clear memory", 13, ui.palette().muted, false);
+        clear.setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(4));
+        clear.setTag("Clear memory");
+        box.addView(clear, ui.lp(-1, -2));
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                clearMemoryNow(context, ui);
+                fillMemory(context, ui, list, holder);
+            }
+        });
         int width = context.getResources().getDisplayMetrics().widthPixels - ui.dp(72);
         int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.42f);
         PopupWindow popup = new PopupWindow(box, width, height, true);
@@ -1847,8 +2267,8 @@ public final class CalculatorScreen implements Screen {
         list.removeAllViews();
         final java.util.List<String> values = memoryList(context);
         if (values.isEmpty()) {
-            list.addView(ui.label("Nothing stored yet. Add the display to memory from "
-                    + "the three dots.", 13, ui.palette().muted, false), ui.lp(-1, -2));
+            list.addView(ui.label("Nothing stored yet. Hold a number and tap MAdd to "
+                    + "store it.", 13, ui.palette().muted, false), ui.lp(-1, -2));
             return;
         }
         for (int i = 0; i < values.size(); i++) {
@@ -1862,10 +2282,7 @@ public final class CalculatorScreen implements Screen {
             row.addView(label, new LinearLayout.LayoutParams(0, -2, 1f));
             label.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    insertNumber(value);
-                    refreshDisplay(context);
-                    AppLog.event(context, "calc", "memory recalled: " + value
-                            + " inserted, expression now " + readable(expression.toString()));
+                    useMemoryValue(context, value);
                     if (holder[0] != null) holder[0].dismiss();
                 }
             });
@@ -1888,6 +2305,22 @@ public final class CalculatorScreen implements Screen {
                 @Override public void onClick(View v) { moveMemory(context, ui, list, holder, at, 1); }
             });
         }
+    }
+
+    /** One stored value back into the expression at the caret, shared by the
+     *  memory popup, the stroke child and (as MUse) the selection menu. */
+    private void useMemoryValue(Context context, String value) {
+        insertNumber(value);
+        refreshDisplay(context);
+        AppLog.event(context, "calc", "memory recalled: " + value
+                + " inserted, expression now " + readable(expression.toString()));
+    }
+
+    private void clearMemoryNow(Context context, UiKit ui) {
+        int n = memoryList(context).size();
+        saveMemory(context, new java.util.ArrayList<String>());
+        AppLog.event(context, "calc", "memory cleared: " + n + " entries removed");
+        host.toast("Memory cleared");
     }
 
     private void moveMemory(Context context, UiKit ui, LinearLayout list,

@@ -115,6 +115,7 @@ jobs:
             code=$?
             cat /tmp/ui.log
             grep -q "OK (" /tmp/ui.log || code=1
+            echo "::notice title=Instrumented suite::$(grep -oE 'OK \([0-9]+ tests?\)' /tmp/ui.log | tail -1)"
             exit $code
       - name: Surface emulator test errors as annotations
         if: failure()

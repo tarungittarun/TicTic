@@ -1,12 +1,12 @@
-# MySpace 3.12.35 (72) · MyCalc 1.0.33 (34) — your test guide
+# MySpace 3.12.36 (73) · MyCalc 1.0.34 (35) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.35-72-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.35-72-lite-dist.apk) ·
-[MyCalc-v1.0.33-34.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.33-34.apk)
+Install: [MySpace-v3.12.36-73-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.36-73-lite-dist.apk) ·
+[MyCalc-v1.0.34-35.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.34-35.apk)
 (standalone calculator, same engine).
 
 ---
@@ -45,7 +45,8 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 `tapAwayFromTheExpressionClears`, `aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu`,
 `memStoresTheHeldNumberAndMrInsertsItAtTheCaret`, `theCaretStandsSolidThenBlinksLikeAndroidsOwn`, `aTapOnTheHeldPortionParksTheCaretAndReleasesTheSelection`,
 `aHoldInTheRightMarginRaisesTheCaretMenuNotTheLastOperand`, `theKeyShapePickerShowsLivePreviewsAndPersistsThePick`,
-`noShapeKeysArePlainGlassAndCircleIsARoundDisc`,
+`noShapeKeysArePlainGlassAndCircleIsARoundDisc`, `theKeyThemePickerRecoloursByGroupAndFollowsMySpace`,
+`aSingleStrokeFromTheDotsRunsTheHighlightedLeaf`, `aSingleStrokeTravelsIntoKeyShapeWithoutLifting`,
 `theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd`, `theCaretBarIsARealViewThatBlinksWithThePhase`,
 `copyPutsExactlyTheHeldSliceInTheClipboard`,
 `cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere`,
@@ -65,6 +66,8 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 | C8 | Watch the caret | A bar — white in dark, black in light — stands at the exact point the next key will land, **including at the very end of the line** (the box keeps 10dp of side padding so the end caret is on the glass), and it **blinks like Android's own cursor**: solid while you type or tap, half-second blink at rest, hidden only while a selection is held (the boundary bars stand then). From this build the caret is also **a real view** layered over the display -- the framework itself composites it, so no drawing path can swallow it -- and every placement and blink writes a line to the log; type an expression longer than the screen and the expression line **scrolls itself** to keep the caret in view. The display is now a plain single-line editor (no scroll wrapper), so its caret, handles and scrolling are the platform's own |
 | C9 | Never at any point | No device keyboard appears |
 | C10 | Three dots ▸ **Key shape** | The picker opens in the app's own dark pill style, each row showing a live swatch of its silhouette: **Circle** (a true round disc), **Squircle**, **Pill**, **Rounded square**, **No shape** (plain keys, no border -- pressing one flashes a rectangle). Your pick persists and the pad rebuilds instantly. Hexagon is gone by your order. (Add-to-memory left the three dots last round; storing lives in the selection menu as **MAdd**.) |
+| C11 | Three dots ▸ **Key theme** | Five colour themes for the pad, applied by group -- numbers, operations (+ − × ÷ % brackets), scientific keys, and AC/backspace: **MySpace settings** (follows the app appearance, the default), **Graphite**, **Ocean**, **Sunset**, **Mint**. Every row previews its own three group chips; every theme keeps digits and symbols clearly readable in dark AND light mode (a contrast guard flips any ink that sits too close to its fill). Your pick persists and the pad rebuilds instantly. |
+| C12 | **One stroke through the three dots**: press the dots and KEEP HOLDING, drag down the list (the row under your finger highlights), lift on the row you want | The action fires on lift -- no second tap. Hold still on a row that has a child (**Memory, Key theme, Key shape, Effects**) and the child's list swaps in under your finger; keep dragging into it and lift there (e.g. dots ▸ hold on Key shape ▸ drag to Pill ▸ lift = Pill applied, one unbroken stroke). **A plain tap on the dots still opens the old tap-through menu**, exactly as before -- both accesses live side by side. Memory's child also holds **Clear memory** at the bottom now. |
 
 Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegationExactlyAsTheOwnersScreenshot`, `theBracketKeyFitsTheCaretNotJustTheEnd`, `midNumberTapInsertsThere`-family, `theCaretExistsIsFocusedAndIsVisible`.
 
@@ -129,5 +132,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 389 Python contracts, 21 JVM suites
-and a 54-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 57-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

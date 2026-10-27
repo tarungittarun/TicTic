@@ -184,15 +184,19 @@ public class CalculatorUiTest {
         float cx = loc[0] + view.getWidth() - ed.getCompoundPaddingRight() - 15 * d;
         float cy = loc[1] + ed.getBaseline() - 10 * d;
         long t = android.os.SystemClock.uptimeMillis();
-        android.view.MotionEvent dn = android.view.MotionEvent.obtain(
-                t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
-        ui.injectMotionEvent(dn);
-        dn.recycle();
-        ui.loopMainThreadForAtLeast(1200);
-        android.view.MotionEvent up = android.view.MotionEvent.obtain(
-                t, t + 1200, android.view.MotionEvent.ACTION_UP, cx, cy, 0);
-        ui.injectMotionEvent(up);
-        up.recycle();
+        try {
+            android.view.MotionEvent dn = android.view.MotionEvent.obtain(
+                    t, t, android.view.MotionEvent.ACTION_DOWN, cx, cy, 0);
+            ui.injectMotionEvent(dn);
+            dn.recycle();
+            ui.loopMainThreadForAtLeast(1200);
+            android.view.MotionEvent up = android.view.MotionEvent.obtain(
+                    t, t + 1200, android.view.MotionEvent.ACTION_UP, cx, cy, 0);
+            ui.injectMotionEvent(up);
+            up.recycle();
+        } catch (Exception failed) {
+            throw new RuntimeException("hold over text could not be injected", failed);
+        }
         ui.loopMainThreadForAtLeast(300);
     }
 

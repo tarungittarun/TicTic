@@ -117,6 +117,13 @@ jobs:
             grep -q "OK (" /tmp/ui.log || code=1
             echo "::notice title=Instrumented suite::$(grep -oE 'OK \([0-9]+ tests?\)' /tmp/ui.log | tail -1)"
             exit $code
+      - name: The suite must run every declared story
+        run: |
+          declared=$(grep -c "@Test public void" calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java)
+          ran=$(grep -oE "OK \([0-9]+ tests?\)" /tmp/ui.log | grep -oE "[0-9]+" | tail -1)
+          echo "declared stories=$declared, instrumented run executed=$ran"
+          test -n "$ran" || { echo "no OK line in the instrumented log"; exit 1; }
+          test "$declared" = "$ran" || { echo "story count drift: suite ran $ran of $declared"; exit 1; }
       - name: Keep the raw instrumented log as a run artifact
         if: always()
         uses: actions/upload-artifact@v4

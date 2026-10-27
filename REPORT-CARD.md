@@ -232,9 +232,10 @@ because he asked that the present access remain. The gesture works because the
 dots view accepts the DOWN and Android keeps routing the whole stream to it over
 popups that declare themselves untouchable. Regression: 57 stories green on CI
 (three new: theme persistence, stroke-leaf, stroke-into-child -- the latter two
-inject a real pointer stream), 389 contracts green, and the raw instrumented log
-is now a downloadable run artifact so the suite's own verdict ("OK (N tests)") is
-auditable instead of inferred.
+inject a real pointer stream), 389 contracts green, the raw instrumented log
+is now a run artifact anyone can download from the run page, and CI itself fails
+a run whose executed story count differs from the number of @Test stories
+declared in the suite -- so a silent skip can never read as green again.
 
 ---
 

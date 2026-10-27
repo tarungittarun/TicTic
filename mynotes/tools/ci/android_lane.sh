@@ -87,7 +87,10 @@ metadata={'lane':os.environ['LANE_ID'],'group':os.environ['LANE_GROUP'],'api':in
           'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26,
           'font':float(os.environ.get('LANE_FONT','1.0')),'night':os.environ.get('LANE_NIGHT','no'),
           'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5'),'mic':os.environ.get('LANE_MIC','denied')}
+metadata['installed_bytes']=(out/'installed-base.apk').stat().st_size
 (out/'identity.json').write_text(json.dumps(metadata,indent=2)+'\n')
+# Do not upload one full large native APK per lane: keep the hash receipt; the shared audited artifact preserves bytes.
+(out/'installed-base.apk').unlink()
 PYHASH
 adb install -r "$DEBUG"
 adb install -r "$TEST"

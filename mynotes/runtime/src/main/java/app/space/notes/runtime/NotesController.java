@@ -177,7 +177,7 @@ public final class NotesController {
         TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);
         HorizontalScrollView strip=new HorizontalScrollView(context);LinearLayout chips=new LinearLayout(context);strip.addView(chips);
         chips.addView(button(activeLabel.isEmpty()?"All labels ✓":"All labels",()->{activeLabel="";selectedIds.clear();renderHome();}));
-        chips.addView(button("Manage labels",this::manageLabels));
+        chips.addView(button("Manage labels",this::manageLabels));chips.addView(button("Home widget",host::requestHomeWidget));
         for(String label:labels)chips.addView(button(label+(label.equals(activeLabel)?" ✓":""),()->{activeLabel=label;selectedIds.clear();renderHome();}));filters.addView(strip);
         homeChrome.clear();chromeHidden=false;for(int i=0;i<root.getChildCount();i++)homeChrome.put(root.getChildAt(i),root.getChildAt(i).getVisibility());
         selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);
@@ -284,6 +284,8 @@ public final class NotesController {
         if(!n.diagram.nodes.isEmpty())editor.addView(text("Diagram · "+n.diagram.nodes.size()+" shapes · "+n.diagram.edges.size()+" arrows",14));
         rowIn(editor,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});
         if(!trashed)rowIn(editor,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
+        if(n.reminderAt>0)editor.addView(text("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt))+(n.reminderAt<=System.currentTimeMillis()?" · past due":" · approximate delivery"),14));
+        if(!trashed)rowIn(editor,new String[]{"Reminder","Clear reminder"},new Runnable[]{this::chooseReminder,()->setReminder(editing,0)});
         title.setEnabled(!trashed);title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
         if(trashed)rowIn(editor,new String[]{"Back","Restore","Share"},new Runnable[]{()->back(),()->changeState("restore"),this::shareSelected});
         else{
@@ -292,6 +294,17 @@ public final class NotesController {
             if(!n.checklist)rowIn(editor,new String[]{"Convert to checklist","Undo"},new Runnable[]{this::convertNote,this::undo});
         }
     }
+    public void openNote(String id){whenReady(()->{persistDraft();Note n=find(id);if(n==null || n.deletedAt>0){host.showMessage("This note is unavailable or in Trash.");return;}selectedIds.clear();editing=n.id;renderEditor();});}
+    public void chooseReminder(){whenReady(()->{
+        persistDraft();Note note=find(editing);if(note==null || note.deletedAt>0)return;
+        if(android.os.Build.VERSION.SDK_INT>=33 && context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED){host.requestReminderPermission();return;}
+        final String id=note.id;Calendar time=Calendar.getInstance();time.setTimeInMillis(note.reminderAt>System.currentTimeMillis()?note.reminderAt:System.currentTimeMillis()+3600000);
+        android.app.DatePickerDialog date=new android.app.DatePickerDialog(context,(view,year,month,day)->{
+            time.set(Calendar.YEAR,year);time.set(Calendar.MONTH,month);time.set(Calendar.DAY_OF_MONTH,day);
+            new android.app.TimePickerDialog(context,(clock,hour,minute)->{time.set(Calendar.HOUR_OF_DAY,hour);time.set(Calendar.MINUTE,minute);time.set(Calendar.SECOND,0);time.set(Calendar.MILLISECOND,0);if(time.getTimeInMillis()<=System.currentTimeMillis()){host.showMessage("Choose a future date and time.");return;}setReminder(id,time.getTimeInMillis());},time.get(Calendar.HOUR_OF_DAY),time.get(Calendar.MINUTE),android.text.format.DateFormat.is24HourFormat(context)).show();
+        },time.get(Calendar.YEAR),time.get(Calendar.MONTH),time.get(Calendar.DAY_OF_MONTH));date.getDatePicker().setMinDate(System.currentTimeMillis()-1000);date.show();
+    });}
+    private void setReminder(String id,long at){whenReady(()->{persistDraft();Note note=find(id);if(note==null || note.deletedAt>0)return;captureUndo(Arrays.asList(note),true);replace(note.reminder(at,System.currentTimeMillis()));queueSave();if(id.equals(editing))renderEditor();host.showMessage(at==0?"Reminder cleared.":"Local reminder saved. Android may delay delivery during battery saving. Force-stop disables alarms until reopening; notification settings must stay enabled.");});}
     private void renderDiagram(){
         persistDraft();Note note=find(editing);if(note==null){renderHome();return;}
         diagramOpen=true;title=null;body=null;search=null;querySequence++;root.removeAllViews();

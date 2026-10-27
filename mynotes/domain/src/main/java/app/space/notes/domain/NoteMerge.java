@@ -16,10 +16,10 @@ public final class NoteMerge {
     }
     public static boolean same(Note a,Note b) {
         return a.title.equals(b.title) && a.body.equals(b.body) && a.createdAt==b.createdAt
-            && a.updatedAt==b.updatedAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
+            && a.updatedAt==b.updatedAt && a.reminderAt==b.reminderAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
             && a.archived==b.archived && a.color==b.color && structure(a).equals(structure(b));
     }
-    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty();}
+    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0;}
     private static String structure(Note n) {
         if(plain(n))return "";
         StringBuilder out=new StringBuilder(n.checklist+":"+n.hideChecked+":"+n.items.size()+"#");
@@ -28,6 +28,7 @@ public final class NoteMerge {
         for(Note.Mark mark:n.marks)out.append(mark.type).append(':').append(mark.start).append(':').append(mark.end).append(';');
         out.append(n.labels.size()).append('#');for(String label:n.labels)out.append(label.length()).append(':').append(label);
         if(!n.diagram.nodes.isEmpty())out.append("diagram:").append(n.diagram.fingerprint());
+        if(n.reminderAt!=0)out.append("reminder:").append(n.reminderAt).append(';');
         if(!n.voiceSources.isEmpty()){out.append("voice:");for(String source:n.voiceSources)out.append(source).append(';');}
         return out.toString();
     }

@@ -11,5 +11,7 @@ public interface NotesHost {
     default void chooseOcrImage(String language){showMessage("Image OCR is unavailable in this host.");}
     default void requestVoiceCapture(){showMessage("Voice capture is unavailable in this host.");}
     default void exportVoice(String id){showMessage("Voice export is unavailable in this host.");}
+    default void requestReminderPermission(){showMessage("Enable notifications in Android settings, then choose Reminder again.");}
+    default void requestHomeWidget(){showMessage("Long-press your home screen, choose Widgets, then MyNotes library. Remove and re-add it any time; notes stay in the app.");}
     String versionLabel();
 }

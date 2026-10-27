@@ -65,11 +65,42 @@ test "$(adb shell id -u | tr -d '\r')" = 2000
 adb shell settings get global airplane_mode_on > "$OUT/airplane-mode.txt"
 grep -qx '1' <(tr -d '\r' < "$OUT/airplane-mode.txt")
 adb shell dumpsys connectivity > "$OUT/connectivity.txt"
-adb install -r mynotes/releases/MyNotes-v0.1.0-1.apk | tee "$OUT/install-baseline.txt"
+python3 - <<'PYBASE'
+import hashlib,json
+from pathlib import Path
+metadata=json.loads(Path('upgrade-baseline/identity.json').read_text())
+assert hashlib.sha256(Path('upgrade-baseline/baseline.apk').read_bytes()).hexdigest()==metadata['sha256']
+PYBASE
+cp upgrade-baseline/identity.json "$OUT/upgrade-baseline-identity.json"
+adb install -r upgrade-baseline/baseline.apk | tee "$OUT/install-baseline.txt"
+adb shell am start -W -n app.space.notes/.NotesActivity
+find_release_text() {
+  local target="$1"
+  for attempt in {1..8}; do
+    adb shell uiautomator dump /sdcard/notes-upgrade.xml >/dev/null
+    adb pull /sdcard/notes-upgrade.xml "$OUT/upgrade-window.xml" >/dev/null
+    if python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --text "$target" > "$OUT/coordinates.txt"; then return 0; fi
+  done
+  return 1
+}
+find_release_text '+ Text'
+read -r X Y < "$OUT/coordinates.txt";adb shell input tap "$X" "$Y"
+find_release_text 'Title'
+read -r X Y < "$OUT/coordinates.txt";adb shell input tap "$X" "$Y"
+SEED="Upgrade_${LANE_ID}"
+adb shell input text "$SEED"
+adb shell input keyevent KEYCODE_BACK
+adb shell input keyevent KEYCODE_BACK
+adb shell am start -W -n app.space.notes/.NotesActivity
+find_release_text "$SEED"
+cp "$OUT/upgrade-window.xml" "$OUT/seed-before-upgrade.xml"
 adb install -r "$RELEASE" | tee "$OUT/install-update.txt"
 adb shell dumpsys package app.space.notes > "$OUT/package.txt"
 adb shell am start -W -n app.space.notes/.NotesActivity | tee "$OUT/launch.txt"
 grep -q 'Status: ok' "$OUT/launch.txt"
+find_release_text "$SEED"
+cp "$OUT/upgrade-window.xml" "$OUT/seed-after-upgrade.xml"
+printf '%s\n' "$SEED" > "$OUT/preserved-note-title.txt"
 adb shell pidof app.space.notes > "$OUT/pid.txt"
 test -s "$OUT/pid.txt"
 adb shell uiautomator dump /sdcard/notes-release-window.xml > "$OUT/window-dump.txt"
@@ -91,7 +122,7 @@ metadata={'lane':os.environ['LANE_ID'],'group':os.environ['LANE_GROUP'],'api':in
           'release_versionCode':audit['versionCode'],'network':'airplane setting enabled, radios disabled; release has no INTERNET permission',
           'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26,
           'font':float(os.environ.get('LANE_FONT','1.0')),'night':os.environ.get('LANE_NIGHT','no'),
-          'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5'),'mic':os.environ.get('LANE_MIC','denied')}
+          'orientation':os.environ.get('LANE_ORIENTATION','portrait'),'profile':os.environ.get('LANE_PROFILE','Nexus 5'),'mic':os.environ.get('LANE_MIC','denied'),'notifications':os.environ.get('LANE_NOTIFICATIONS') or 'denied'}
 metadata['installed_bytes']=(out/'installed-base.apk').stat().st_size
 (out/'identity.json').write_text(json.dumps(metadata,indent=2)+'\n')
 # Do not upload one full large native APK per lane: keep the hash receipt; the shared audited artifact preserves bytes.
@@ -101,6 +132,9 @@ adb install -r "$DEBUG"
 adb install -r "$TEST"
 if [[ "${LANE_MIC:-denied}" == granted ]]; then
   adb shell pm grant app.space.notes.debug android.permission.RECORD_AUDIO
+fi
+if (( LANE_API >= 33 )) && [[ "${LANE_NOTIFICATIONS:-denied}" == granted ]]; then
+  adb shell pm grant app.space.notes.debug android.permission.POST_NOTIFICATIONS
 fi
 adb shell am instrument -r -w -e disableAnalytics true -e expectedMic "${LANE_MIC:-denied}" -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"

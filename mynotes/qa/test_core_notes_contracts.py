@@ -5,9 +5,9 @@ ROOT=Path(__file__).resolve().parents[1]
 JAVA=ROOT/'runtime/src/main/java/app/space/notes/runtime'
 
 class CoreNotesContracts(unittest.TestCase):
-    def test_schema_writes_v4_and_reads_old_v1_v2_v3(self):
+    def test_schema_writes_v5_and_reads_old_v1_v2_v3_v4(self):
         s=(JAVA/'DocumentCodec.java').read_text()
-        self.assertIn('put("version",4)',s)
+        self.assertIn('put("version",5)',s)
         self.assertIn('version!=1 && version!=2',s)
         for field in ['items','marks','labels','hideChecked']:
             self.assertIn('"'+field+'"',s)

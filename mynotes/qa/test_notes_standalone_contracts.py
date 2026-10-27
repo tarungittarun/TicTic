@@ -24,7 +24,7 @@ class NotesStandaloneContracts(unittest.TestCase):
 
     def test_offline_engines_declare_only_optional_contextual_microphone(self):
         r=ET.parse(ROOT/'app/src/main/AndroidManifest.xml').getroot()
-        self.assertEqual(['android.permission.RECORD_AUDIO'],[p.attrib['{http://schemas.android.com/apk/res/android}name'] for p in r.findall('uses-permission')])
+        self.assertEqual(['android.permission.RECORD_AUDIO','android.permission.POST_NOTIFICATIONS','android.permission.RECEIVE_BOOT_COMPLETED'],[p.attrib['{http://schemas.android.com/apk/res/android}name'] for p in r.findall('uses-permission')])
         self.assertEqual('false',r.find('uses-feature').attrib['{http://schemas.android.com/apk/res/android}required'])
         app=r.find('application')
         self.assertEqual('false',app.attrib['{http://schemas.android.com/apk/res/android}allowBackup'])

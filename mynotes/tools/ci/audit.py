@@ -50,7 +50,7 @@ def publication_policy(current,previous):
 def assert_manifest(badging,xml):
     permissions=re.findall(r"uses-permission(?:-sdk-\d+)?: name='([^']+)'",badging)
     # Expand explicitly with optional-permission tests when media/reminder scope lands.
-    allowed={'android.permission.RECORD_AUDIO'}
+    allowed={'android.permission.RECORD_AUDIO','android.permission.POST_NOTIFICATIONS','android.permission.RECEIVE_BOOT_COMPLETED'}
     if set(permissions)-allowed:raise ValueError('Unreviewed APK permissions: '+str(permissions))
     if 'application-debuggable' in badging:raise ValueError('Release APK is debuggable')
     if not re.search(r'android:allowBackup[^\n]*\(type 0x12\)0x0\b',xml):
@@ -74,6 +74,10 @@ if __name__=='__main__':
         if receipt_file.exists():
             receipt=json.loads(receipt_file.read_text())
             if identity!=(receipt['applicationId'],receipt['versionCode'],receipt['versionName'],receipt['certificate']):raise ValueError('Remote receipt disagrees with signed APK identity')
+    baseline=max(identities,key=lambda path:identities[path][1]);baseline_identity=identities[baseline]
+    baseline_dir=REPO/'upgrade-baseline';baseline_dir.mkdir(exist_ok=True)
+    shutil.copyfile(baseline,baseline_dir/'baseline.apk')
+    (baseline_dir/'identity.json').write_text(json.dumps({'applicationId':baseline_identity[0],'versionCode':baseline_identity[1],'versionName':baseline_identity[2],'certificate':baseline_identity[3],'sha256':sha(baseline)},indent=2)+'\n')
     eligible=publication_policy(current,list(identities.values()))
     accepted=candidate;accepted_source=None
     if not eligible:

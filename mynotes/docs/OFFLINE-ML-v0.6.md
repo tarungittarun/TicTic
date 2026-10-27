@@ -1,6 +1,12 @@
 # MyNotes 0.6 — offline OCR and automatic voice transcription
 
-## Acceptance intent — qualification pending until a green Actions outcome
+## Accepted checkpoint
+
+[Run 40582488414](https://github.com/tarungittarun/TicTic/actions/runs/40582488414) passed all 20 Android lanes: **64 JVM tests, 80 unique Android tests, 662 Android executions**. The native APK is **66,490,360 bytes**, SHA-256 `751c02483ffa7900229bc8a936f8370dbb70f88358588401b8faf842b150484b`, source `fcb8830a2c4bf904bb9cfb59200a07cf30806aad`. [Direct APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.6.0-7/MyNotes-v0.6.0-7.apk).
+
+The previous attempt exposed a real landscape-fixture problem: launcher orientation could override the rotation setting. The harness now locks display rotation and ignores activity orientation requests in that lane; the original strict landscape assertion passed unchanged. Corrupt transcript metadata is isolated per recording, durable note-created markers prevent purged voice notes returning, and controller recreation journeys cover recovery/deduplication. These are emulator results, not universal device or language-accuracy claims.
+
+## Acceptance criteria
 
 - **OCR-01** Bundled English/Hindi/Kannada model bytes match pinned Apache-2 provenance. No model download occurs on device and no network permission exists.
 - **OCR-02** A clean generated English image runs real native Tesseract inference with radios disabled, producing expected words. Blank images do not invent text; Hindi/Kannada model initialization is exercised, not claimed to establish their recognition accuracy.

@@ -15,9 +15,12 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(state!=null){ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");}
         controller=new NotesController(this,this,state);
         setContentView(controller.view());
-        if(state==null)acceptShare(getIntent());
+        if(state==null)acceptIncoming(getIntent());
     }
-    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptShare(intent);}
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
+    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
+    @Override public void requestHomeWidget(){android.appwidget.AppWidgetManager manager=android.appwidget.AppWidgetManager.getInstance(this);if(manager.isRequestPinAppWidgetSupported())manager.requestPinAppWidget(new android.content.ComponentName(this,app.space.notes.runtime.NotesWidget.class),null,null);else NotesHost.super.requestHomeWidget();}
+    @Override public void requestReminderPermission(){if(android.os.Build.VERSION.SDK_INT>=33)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},89);else controller.chooseReminder();}
     private void acceptShare(Intent intent){
         if(!Intent.ACTION_SEND.equals(intent.getAction()))return;
         if(!"text/plain".equals(intent.getType())){showMessage("Only plain-text shares are supported in this release.");return;}
@@ -46,7 +49,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();
         else requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO},88);
     }
-    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
+    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);if(request==89){if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.chooseReminder();else showMessage("Notifications were not enabled. Notes and all other features still work; choose Reminder again if you change your mind.");return;}if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
     @Override public void exportVoice(String id){voiceExportId=id;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("audio/wav");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-voice-"+id+".wav");openPicker(picker,100);}
     @Override public void exportPdf() {
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);

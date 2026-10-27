@@ -45,7 +45,7 @@ public final class NotesRepository {
         JSONObject local=exists()?new JSONObject(new String(file.readFully(),StandardCharsets.UTF_8)):null;
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
         if(cached!=null)DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
-        if(selected==null) { status="Device storage";return cached==null?new ArrayList<>():DocumentCodec.decode(cached); }
+        if(selected==null) {status="Device storage";List<Note> notes=cached==null?new ArrayList<>():DocumentCodec.decode(cached);updateSurfaces(notes);return notes;}
         head=local==null?null:local.optString("folderHead",null);
         boolean pending=local!=null && local.optBoolean("pending",false);
         try {
@@ -63,6 +63,9 @@ public final class NotesRepository {
             return DocumentCodec.decode(cached);
         }
     }
+    /** Private atomic snapshot only: receivers/widgets never block on external providers. */
+    public List<Note> localSnapshot() throws Exception {return exists()?DocumentCodec.decode(file.readFully()):new ArrayList<>();}
+    private void updateSurfaces(List<Note> notes){try{LocalReminders.reconcile(context,notes);NotesWidget.updateAll(context,notes);}catch(RuntimeException unavailable){android.util.Log.w("MyNotes","OS surfaces unavailable; saved notes retained",unavailable);}}
     public void save(List<Note> notes) throws Exception {
         byte[] payload=DocumentCodec.encode(notes);
         if(selected==null) {writeLocal(payload,false,null);status="Device storage";return;}
@@ -129,7 +132,7 @@ public final class NotesRepository {
         JSONObject root=new JSONObject(new String(payload,StandardCharsets.UTF_8));
         root.put("pending",pending).put("folderHead",folderHead==null?JSONObject.NULL:folderHead);
         byte[] bytes=root.toString().getBytes(StandardCharsets.UTF_8);
-        atomicWrite(file,bytes);
+        atomicWrite(file,bytes);updateSurfaces(DocumentCodec.decode(payload));
     }
     private void atomicWrite(AtomicFile target,byte[] bytes) throws Exception {
         FileOutputStream stream=null;

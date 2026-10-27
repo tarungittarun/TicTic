@@ -39,13 +39,22 @@ triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions 
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current release: **0.5.0 (6)** — editable flowcharts, local vector PDF export,
-incoming plain-text sharing, global/additive labels and responsive editor/selection
-controls, plus the previous core and local storage/backup. CI **40578488274** passed
-51 JVM tests and **441 executions of 63 unique Android tests across 13 lanes**;
-468 local checks passed. See docs/STANDALONE-TEST-GUIDE.md and
-[diagram/export scope](docs/DIAGRAMS-AND-EXPORT-v0.5.md). Required offline OCR/ASR,
-media, reminders/widgets and full plan/device qualification remain open.
+Current accepted release: **0.6.0 (7)** — bundled offline English/Hindi/Kannada OCR
+with review, automatic offline English voice transcription, optional foreground microphone,
+retained/recoverable WAV inbox and local WAV export, plus the previous rich notes,
+checklists, labels, flowcharts, vector PDF and local storage/backup.
+[Download the APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.6.0-7/MyNotes-v0.6.0-7.apk).
+Qualification [40582488414](https://github.com/tarungittarun/TicTic/actions/runs/40582488414)
+passed **64 JVM tests and 662 executions of 80 unique Android tests across 20 lanes**.
+All 20 lanes verified the exact installed release hash. Large APKs now live in versioned
+GitHub Release assets with checked-in SHA/source/signature receipts; prior versions are
+never replaced. See [offline model scope and limitations](docs/OFFLINE-ML-v0.6.md).
+
+**0.7.0 (8) candidate, not accepted until its gates are green:** portable note reminders,
+optional notification permission, inexact local alarms with reboot/update reconciliation,
+resizable/re-placeable pinned-first home-screen widget and seeded latest-release update tests.
+Media attachments, broader corpus/physical-device qualification and the remaining full-plan
+features are still open. See [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md).
 
 ## Continuous integration
 

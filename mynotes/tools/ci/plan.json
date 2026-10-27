@@ -11,7 +11,8 @@
     "ui": [
       "CoreJourneysTest",
       "StorageLayoutTest",
-      "EnvironmentQualificationTest"
+      "EnvironmentQualificationTest",
+      "ReminderJourneysTest"
     ],
     "diagram": [
       "DiagramCodecTest",
@@ -27,7 +28,11 @@
     "voice": [
       "OfflineSpeechTest",
       "VoiceCaptureTest",
-      "VoiceRecoveryJourneysTest"
+      "VoiceRecoveryJourneysTest",
+      "NativeSoakTest"
+    ],
+    "system": [
+      "SystemSurfacesTest"
     ]
   },
   "lanes": [
@@ -230,6 +235,17 @@
       "orientation": "portrait",
       "profile": "Nexus 5",
       "mic": "granted"
+    },
+    {
+      "id": "system-api34",
+      "group": "system",
+      "api": 34,
+      "font": 1.0,
+      "night": "no",
+      "orientation": "portrait",
+      "profile": "Nexus 5",
+      "mic": "denied",
+      "notifications": "granted"
     }
   ]
 }

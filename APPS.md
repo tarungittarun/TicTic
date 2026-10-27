@@ -214,3 +214,7 @@ them. There are therefore two flavours:
 The flavour manifest strips the permissions with `tools:node="remove"`, and the Messages screen
 detects that its permission is undeclared — `checkSelfPermission` cannot tell "not granted" from
 "not grantable" — so it states the situation instead of offering a button that could never work.
+
+---
+
+The full build-and-debug record of the calculator work — architecture, test machine, CI recipes, the 34-round journey, what failed and why, and the rebuild playbook — lives in [`MASTERCLASS.md`](MASTERCLASS.md).

@@ -63,3 +63,4 @@ For the architecture and source map captured at v1.11.1, see [`PROJECT-HANDBOOK-
 ## Design reference notes
 
 TicTic takes broad inspiration from Android clock/widget patterns: useful time/date hierarchy, adjustable sizes and transparency, meaningful information density and one-glance progress. It does not copy competitor screens or branded visual treatments. Notes and references are recorded in [`PRODUCT.md`](PRODUCT.md).
+The complete masterclass of the calculator rework — apps-inside-an-app architecture, the three-layer test machine, CI and diagnostics recipes, the 34-round journey, every approach that failed and why, and the step-by-step rebuild playbook — is in [`MASTERCLASS.md`](MASTERCLASS.md).

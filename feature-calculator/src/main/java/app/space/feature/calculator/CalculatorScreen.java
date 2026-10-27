@@ -1881,6 +1881,47 @@ public final class CalculatorScreen implements Screen {
          *  fallback when the framework selection reads empty, as it does on his device. */
         int fallbackCaret;
 
+        /** Round 29, his words: "cursor is not visible, it should be blinking
+         *  atleast. Take reference of how android is." Android's own cursor
+         *  controller stands SOLID while the cursor moves and blinks on a
+         *  half-second rhythm at rest; a steady thin bar his eye missed becomes
+         *  a rhythm his eye cannot miss. The blink is a plain invalidate loop,
+         *  the same thing the framework's Blink listener does. */
+        private boolean caretOn = true;
+        private final Runnable blinker = new Runnable() {
+            @Override public void run() {
+                caretOn = !caretOn;
+                invalidate();
+                postDelayed(this, 500);
+            }
+        };
+
+        @Override protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            removeCallbacks(blinker);
+            postDelayed(blinker, 500);
+        }
+
+        @Override protected void onDetachedFromWindow() {
+            removeCallbacks(blinker);
+            super.onDetachedFromWindow();
+        }
+
+        @Override protected void onSelectionChanged(int selStart, int selEnd) {
+            super.onSelectionChanged(selStart, selEnd);
+            // Solid while the cursor moves, blinking once it rests -- exactly
+            // the framework rhythm, on a cursor his device can actually see.
+            caretOn = true;
+            removeCallbacks(blinker);
+            postDelayed(blinker, 700);
+            invalidate();
+        }
+
+        /** For the instrumented story: is the bar in its visible phase now? */
+        boolean caretShowing() {
+            return caretOn && getSelectionStart() == getSelectionEnd();
+        }
+
         /** Round 22: the caret mystery, solved by his own log -- on his Moto,
          *  Layout.getPrimaryHorizontal() returned values near 2^20 (x=1048501 for
          *  a 1132px view), so the caret was drawn a million pixels off the glass
@@ -1939,63 +1980,60 @@ public final class CalculatorScreen implements Screen {
             // paints its own highlight and its own handles. Only the caret stays
             // hand-drawn: three rounds proved his device will not show the
             // theme's cursor, and a visible caret is a standing requirement.
+            // Round 29, THE LAST SILENT FAILURE: his r28 log proved the geometry
+            // right (caret x=1104 on a 1132px view, ink #FFFFFFFF, caretW=11,
+            // zero torn guards) and STILL no bar on his glass -- because this
+            // method read the layout's LINE TABLE (getLineForOffset,
+            // getLineAscent, getLineDescent, getLineBaseline) and on his OEM
+            // those throw on a torn table into a catch that skipped the frame
+            // WITHOUT A LOG. The bar now measures from the view's own paint and
+            // baseline -- FontMetrics for the vertical, the paint-measured
+            // anchor for x -- nothing left in this block can tear.
             android.text.Layout lo = getLayout();
-            int padL = 0, base = 0, base0 = 0;
-            int s = -1;
-            if (lo != null) {
-                padL = getCompoundPaddingLeft();
-                base = getBaseline();
-                base0 = lo.getLineBaseline(0);
-                s = getSelectionStart();
-            }
             super.onDraw(c);
-            try {
             if (lo == null) return;
-            int cs = s >= 0 ? s : Math.max(0, fallbackCaret);
-            if (cs <= length()) {
-                int ln = lo.getLineForOffset(cs);
-                float x = padL + caretX(lo, cs, ln);
-                int lb = base + lo.getLineBaseline(ln) - base0;
-                // Round 20: his screenshot holds no caret at all. With RIGHT
-                // gravity the layout's own maths can park the bar out in the
-                // reserved right padding -- drawn, but where no eye looks. The
-                // bar is clamped inside the content box now, and the instrumented
-                // suite draws the view to a bitmap and counts caret pixels, so
-                // "visible" means painted, not intended.
+            try {
+                int padL = getCompoundPaddingLeft();
                 // Round 27: the caret's home at the end of the line is the
-                // content edge -- flush against the last glyph. Round 25's
-                // margin clamp put it 80px away in empty padding, a bar
-                // belonging to nothing.
+                // content edge -- flush against the last glyph; round 28's side
+                // padding keeps that edge on the glass.
                 float maxX = getWidth() - getCompoundPaddingRight();
-                if (x > maxX) x = maxX;
-                float minX = getCompoundPaddingLeft();
-                if (x < minX) x = minX;
-                c.drawRect(x, lb + lo.getLineAscent(ln) + 2,
-                        x + caretWidth, lb + lo.getLineDescent(ln) - 2, caretPaint);
-                // Round 24: "the cursor for left and right boundary is not
-                // visible" -- his OEM paints the band but no teardrops, so the
-                // two ends of the held portion get their own bars and bulbs,
-                // hand-drawn in the caret ink over the framework highlight.
+                float minX = padL;
+                android.graphics.Paint fp = getPaint();
+                float base = getBaseline();
+                float t = base + fp.ascent() + 2;
+                float b2 = base + fp.descent() - 2;
                 int selA = getSelectionStart();
                 int selB = getSelectionEnd();
                 if (selB > selA) {
+                    // Android hides the cursor while a range is held; the two
+                    // boundary bars and bulbs stand in its place (round 24).
                     float dd = getResources().getDisplayMetrics().density;
-                    float ax = padL + caretX(lo, selA, lo.getLineForOffset(selA));
-                    float bx = padL + caretX(lo, selB, lo.getLineForOffset(selB));
+                    float ax = padL + caretX(lo, selA, 0);
+                    float bx = padL + caretX(lo, selB, 0);
                     ax = Math.min(Math.max(ax, minX), maxX);
                     bx = Math.min(Math.max(bx, minX), maxX);
-                    float t = lb + lo.getLineAscent(ln) + 2;
-                    float b2 = lb + lo.getLineDescent(ln) - 2;
                     c.drawRect(ax, t, ax + caretWidth, b2, caretPaint);
                     c.drawRect(bx, t, bx + caretWidth, b2, caretPaint);
                     c.drawCircle(ax + caretWidth / 2f, b2 + 14 * dd,
                             7 * dd, caretPaint);
                     c.drawCircle(bx + caretWidth / 2f, b2 + 14 * dd,
                             7 * dd, caretPaint);
+                } else if (caretOn) {
+                    // The blinking bar: solid while it moves (onSelectionChanged
+                    // resets the phase), half-second blink at rest, exactly the
+                    // rhythm Android's own cursor keeps.
+                    int cs = selA >= 0 ? selA : Math.max(0, fallbackCaret);
+                    if (cs <= length()) {
+                        float x = padL + caretX(lo, cs, 0);
+                        if (x > maxX) x = maxX;
+                        if (x < minX) x = minX;
+                        c.drawRect(x, t, x + caretWidth, b2, caretPaint);
+                    }
                 }
-            }
             } catch (Exception e) {
-                // Round 26: skip the frame; never the process.
+                // Round 26: skip the frame; never the process. Nothing left in
+                // this block reads a line table, so this is belt and braces.
             }
         }
 

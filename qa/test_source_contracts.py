@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.30'", gradle)
-        self.assertIn("versionCode 67", gradle)
+        self.assertIn("versionName '3.12.31'", gradle)
+        self.assertIn("versionCode 68", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3435,7 +3435,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.30", guide)
+        self.assertIn("3.12.31", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4318,10 +4318,18 @@ class SheetAndChevronContracts(unittest.TestCase):
         # on top of the framework machinery that never showed up on his device.
         self.assertIn("@Override protected void onDraw(android.graphics.Canvas c) {", self.screen)
         self.assertIn("caretPaint.setColor(caretColor);", self.screen)
-        self.assertIn("float x = padL + caretX(lo, cs, ln);", self.screen)
-        self.assertIn("c.drawRect(x, lb + lo.getLineAscent(ln) + 2,", self.screen)
+        self.assertIn("float x = padL + caretX(lo, cs, 0);", self.screen)
+        # Round 29: the bar his eye missed blinks like Android's own -- solid
+        # while it moves, half-second at rest -- and the draw path reads no
+        # line table, so a torn layout can no longer skip the frame silently.
+        self.assertIn("caretOn = !caretOn;", self.screen)
+        self.assertIn("postDelayed(this, 500);", self.screen)
+        self.assertIn("protected void onSelectionChanged(int selStart, int selEnd) {", self.screen)
+        self.assertIn("float t = base + fp.ascent() + 2;", self.screen)
+        self.assertIn("boolean caretShowing() {", self.screen)
+        self.assertIn("c.drawRect(x, t, x + caretWidth, b2, caretPaint);", self.screen)
         self.assertIn("displayView.setCaretColors(ui.palette().dark ? 0xFFFFFFFF : PITCH_BLACK,", self.screen)
-        self.assertIn("int cs = s >= 0 ? s : Math.max(0, fallbackCaret);", self.screen)
+        self.assertIn("int cs = selA >= 0 ? selA : Math.max(0, fallbackCaret);", self.screen)
         self.assertIn("displayView.fallbackCaret = pos;", self.screen)
         self.assertIn("CalculatorRules.appendToken(raw, rawKey)", self.screen)
         self.assertIn("displayView.setTextCursorDrawable(cursorMark);", self.screen)
@@ -4655,6 +4663,7 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu", ui)
         self.assertIn("memStoresTheHeldNumberAndMrInsertsItAtTheCaret", ui)
         self.assertIn("theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd", ui)
+        self.assertIn("theCaretStandsSolidThenBlinksLikeAndroidsOwn", ui)
         self.assertIn("typingALongExpressionKeepsTheCaretOnScreen", ui)
         self.assertIn("selectionEndMarkersArePaintedInDark", ui)
         self.assertIn("longPressSelectionSurvivesTheFingerLifting", ui)

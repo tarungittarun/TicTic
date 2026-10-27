@@ -197,6 +197,41 @@ public class CalculatorUiTest {
         return out[0];
     }
 
+    /** Count the caret's white pixels by drawing the display to a bitmap: in
+     *  dark mode nothing else on the display is pure white, so the count IS the
+     *  bar -- painted, not intended. */
+    private static int caretPixels() {
+        final int[] out = new int[]{0};
+        onView(withId(DISPLAY)).check(new androidx.test.espresso.ViewAssertion() {
+            @Override public void check(View view, androidx.test.espresso.NoMatchingViewException e) {
+                if (e != null) throw e;
+                android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                        view.getWidth(), view.getHeight(),
+                        android.graphics.Bitmap.Config.ARGB_8888);
+                view.draw(new android.graphics.Canvas(bmp));
+                int n = 0;
+                for (int yy = 0; yy < bmp.getHeight(); yy++) {
+                    for (int xx = 0; xx < bmp.getWidth(); xx++) {
+                        if (bmp.getPixel(xx, yy) == 0xFFFFFFFF) n++;
+                    }
+                }
+                out[0] = n;
+            }
+        });
+        return out[0];
+    }
+
+    /** Let the main thread live for this many ms, so a blink phase can turn. */
+    private static ViewAction waitMs(final long ms) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isDisplayed(); }
+            @Override public String getDescription() { "wait " + ms + " ms"; }
+            @Override public void perform(androidx.test.espresso.UiController ui, View view) {
+                ui.loopMainThreadForAtLeast(ms);
+            }
+        };
+    }
+
     /** The held length must be exactly this, because the owner drags for a length. */
     private static androidx.test.espresso.ViewAssertion held(final int want) {
         return new androidx.test.espresso.ViewAssertion() {
@@ -1108,6 +1143,33 @@ public class CalculatorUiTest {
         onView(withText("MR")).perform(click());
         // Indian grouping is display furniture: 456456 reads 4,56,456.
         onView(withId(DISPLAY)).check(matches(withText("4,56,456")));
+    }
+
+    @Test public void theCaretStandsSolidThenBlinksLikeAndroidsOwn() {
+        // Round 29, his words: "cursor is not visible, it should be blinking
+        // atleast. Take reference of how android is." Android's cursor stands
+        // solid while it moves and blinks at rest. Solid is checked right after
+        // a key; then three samples half a blink period apart, taken once the
+        // solid window has passed, must NOT all agree -- a steady bar his eye
+        // missed becomes a rhythm his eye cannot miss.
+        try {
+            setTheme(2);
+            rule.getScenario().recreate();
+            type("1", "2", "3");
+            assertTrue("the caret must stand solid right after a key, pixels="
+                    + caretPixels(), caretPixels() > 0);
+            onView(isRoot()).perform(waitMs(800));
+            int s1 = caretPixels();
+            onView(isRoot()).perform(waitMs(500));
+            int s2 = caretPixels();
+            onView(isRoot()).perform(waitMs(500));
+            int s3 = caretPixels();
+            assertTrue("the caret must blink at rest: " + s1 + "," + s2 + "," + s3,
+                    !(s1 == s2 && s2 == s3));
+        } finally {
+            setTheme(1);
+            rule.getScenario().recreate();
+        }
     }
 
     @Test public void theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd() {

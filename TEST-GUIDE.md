@@ -1,12 +1,12 @@
-# MySpace 3.12.30 (67) · MyCalc 1.0.28 (29) — your test guide
+# MySpace 3.12.31 (68) · MyCalc 1.0.29 (30) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.30-67-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.30-67-lite-dist.apk) ·
-[MyCalc-v1.0.28-29.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.28-29.apk)
+Install: [MySpace-v3.12.31-68-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.31-68-lite-dist.apk) ·
+[MyCalc-v1.0.29-30.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.29-30.apk)
 (standalone calculator, same engine).
 
 ---
@@ -43,7 +43,7 @@ long-press never raises a selection — your own logs proved it fifty-five times
 Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 `holdThenDragExtendsTheHeldPortion`, `draggingEitherHandleMovesThatBoundary`, `aPlainTapParksTheCaretAndReleasesTheSelection`, `jitterTapStillClearsTheHeldSelection`,
 `tapAwayFromTheExpressionClears`, `aLongPressOnEmptyBoxParksTheCaretAndRaisesTheCaretMenu`,
-`memStoresTheHeldNumberAndMrInsertsItAtTheCaret`,
+`memStoresTheHeldNumberAndMrInsertsItAtTheCaret`, `theCaretStandsSolidThenBlinksLikeAndroidsOwn`,
 `theRightBoundaryStaysOnGlassWhenTheSelectionReachesTheEnd`,
 `copyPutsExactlyTheHeldSliceInTheClipboard`,
 `cutRemovesExactlyTheHeldPortionAndLetsYouTypeThere`,
@@ -60,7 +60,7 @@ Automated: `longPressSelectsTheWholeNumberAndOffersTheMenu`,
 | C5 | Type `200+10%` then `=` | `220` (Google's percent semantics) |
 | C6 | Type `5+3×2` without closing anything, press `=` | `11`; unclosed brackets auto-balance: `(5+3` `=` → `8` |
 | C7 | Press `( )` repeatedly with the caret mid-expression | The key offers `(` or `)` whichever fits at the caret |
-| C8 | Watch the caret | A solid bar — white in dark, black in light — stands at the exact point the next key will land, **including at the very end of the line** (the box keeps 10dp of side padding so the end caret is on the glass); type an expression longer than the screen and the expression line **scrolls itself** to keep the caret in view. The display is now a plain single-line editor (no scroll wrapper), so its caret, handles and scrolling are the platform's own |
+| C8 | Watch the caret | A bar — white in dark, black in light — stands at the exact point the next key will land, **including at the very end of the line** (the box keeps 10dp of side padding so the end caret is on the glass), and it **blinks like Android's own cursor**: solid while you type or tap, half-second blink at rest, hidden only while a selection is held (the boundary bars stand then); type an expression longer than the screen and the expression line **scrolls itself** to keep the caret in view. The display is now a plain single-line editor (no scroll wrapper), so its caret, handles and scrolling are the platform's own |
 | C9 | Never at any point | No device keyboard appears |
 
 Automated: `minusUnderAMultiplyMidExpressionKeepsBoth`, `percentChainsAndNegationExactlyAsTheOwnersScreenshot`, `theBracketKeyFitsTheCaretNotJustTheEnd`, `midNumberTapInsertsThere`-family, `theCaretExistsIsFocusedAndIsVisible`.
@@ -126,5 +126,5 @@ canvas fails the build.
 3. A screenshot of the screen as it looks.
 
 Every claim above is also pinned by an automated test: 389 Python contracts, 21 JVM suites
-and a 48-story instrumented suite run in CI on every push; the instrumented stories inject
+and a 49-story instrumented suite run in CI on every push; the instrumented stories inject
 real finger gestures at window level, through the same view hierarchy your thumb crosses.

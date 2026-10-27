@@ -127,6 +127,19 @@ jobs:
             adb install -r $(find test-apks -name '*androidTest.apk' | head -1)
             adb shell am instrument -w app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee notes-instrumentation.txt
             grep -q 'OK (40 tests)' notes-instrumentation.txt
+      - name: Surface Android failure details
+        if: failure()
+        run: |
+          python3 - <<'PYANDROID'
+          from pathlib import Path
+          path=Path('notes-instrumentation.txt')
+          text=path.read_text(errors='replace') if path.exists() else 'Emulator did not produce instrumentation output'
+          start=text.find('There ')
+          report=text[start:] if start>=0 else text[-10000:]
+          for i in range(0,min(len(report),10800),3600):
+              chunk=report[i:i+3600].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+              print(f'::error title=Notes Android diagnostic {i//3600+1}::{chunk}')
+          PYANDROID
       - uses: actions/upload-artifact@v4
         if: always()
         with:

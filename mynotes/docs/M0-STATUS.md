@@ -243,3 +243,12 @@ Android and publish jobs skipped. Log download returned EOF from the inaccessibl
 results host; check annotations contained only exit code 1. Added bounded compiler/JVM
 failure surfacing to Notes workflow instead of guessing or touching legacy workflows.
 Next push retains version 0.4.0 (5), which has never been published, and exposes the cause.
+
+### Slice 6 diagnosed cause and fix
+
+Diagnostic run 40569322275 exposed compileReleaseJavaWithJavac errors: literal newlines
+inside the share-text separator string/character literal in NotesController lines 301–306.
+This was a source-generation escaping error, not an emulator/environment failure.
+Corrected to escaped newlines and added five local Java-8 literal/comment guard tests.
+Added bounded Android failure annotations before the next runtime run. No APK has been
+published for version 5 yet. Local gate now 440 OK; Notes-only next push validates the fix.

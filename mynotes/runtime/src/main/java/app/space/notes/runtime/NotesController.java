@@ -298,12 +298,7 @@ public final class NotesController {
     private void shareSelected(){
         persistDraft();List<Note> chosen=targets();if(chosen.isEmpty()){host.showMessage("Select a note to share.");return;}
         StringBuilder text=new StringBuilder();
-        for(Note n:chosen){if(text.length()>0)text.append("
-
-────────
-
-");if(!n.title.isEmpty())text.append(n.title).append('
-');text.append(n.plainText());}
+        for(Note n:chosen){if(text.length()>0)text.append("\n\n────────\n\n");if(!n.title.isEmpty())text.append(n.title).append('\n');text.append(n.plainText());}
         if(text.length()>100000){host.showMessage("Selection is too large for Android's share message. Use a backup instead.");return;}
         host.shareText(chosen.size()==1?chosen.get(0).title:"MyNotes",text.toString());log("share","chooser opened count="+chosen.size());
     }

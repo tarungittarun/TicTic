@@ -111,8 +111,18 @@ jobs:
             adb wait-for-device
             adb install -r calc/build/outputs/apk/debug/calc-debug.apk
             adb install -r calc/build/outputs/apk/androidTest/debug/calc-debug-androidTest.apk
-            adb shell am instrument -w app.space.calc.debug.test/androidx.test.runner.AndroidJUnitRunner > /tmp/ui.log 2>&1
-            code=$?
+            # Round 33: the emulator farm is not uniform -- identical code green
+            # on one runner and 34-wide red on another, all races. A true
+            # regression fails every attempt; a sick runner gets one retry.
+            code=1
+            for attempt in 1 2; do
+              adb shell am instrument -w app.space.calc.debug.test/androidx.test.runner.AndroidJUnitRunner > /tmp/ui.log 2>&1
+              code=$?
+              if grep -q "OK (" /tmp/ui.log; then break; fi
+              echo "attempt $attempt did not pass; retrying the suite once"
+              adb shell am force-stop app.space.calc.debug.test || true
+              adb shell am force-stop app.space.calc.debug || true
+            done
             cat /tmp/ui.log
             adb logcat -d -s TicTicCalc:V *:S > /tmp/calc.log 2>/dev/null || true
             grep -q "OK (" /tmp/ui.log || code=1

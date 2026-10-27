@@ -1281,7 +1281,7 @@ public final class CalculatorScreen implements Screen {
                 Math.max(3, (int) (4 * context.getResources()
                         .getDisplayMetrics().density)), 8));
         parent.addView(displayHost, dp2);
-        AppLog.event(context, "calc", "calc screen build 3.12.36: the caret is "
+        AppLog.event(context, "calc", "calc screen build 3.12.37: the caret is "
                 + "a real view over the canvas bar");
         displayView.caretPhaseReset = new Runnable() {
             @Override public void run() {

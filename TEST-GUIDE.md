@@ -1,12 +1,12 @@
-# MySpace 3.12.36 (73) · MyCalc 1.0.34 (35) — your test guide
+# MySpace 3.12.37 (74) · MyCalc 1.0.35 (36) — your test guide
 
 This file ships with **every build**. It lists, from your seat as the user, every claim the
 build makes: what to tap, what you should see, and which automated test already checks it.
 If anything below misbehaves, tell me the section number and share the log
 (Settings ▸ Diagnostics ▸ Share) — the log records whether each action actually happened.
 
-Install: [MySpace-v3.12.36-73-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.36-73-lite-dist.apk) ·
-[MyCalc-v1.0.34-35.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.34-35.apk)
+Install: [MySpace-v3.12.37-74-lite-dist.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MySpace-v3.12.37-74-lite-dist.apk) ·
+[MyCalc-v1.0.35-36.apk](https://github.com/tarungittarun/TicTic/raw/arena/3caca636-tictic/artifacts/MyCalc-v1.0.35-36.apk)
 (standalone calculator, same engine).
 
 ---

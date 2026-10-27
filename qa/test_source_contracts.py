@@ -724,8 +724,8 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
     def test_about_version_matches_release_version(self):
         main = read("MainActivity.java")
         gradle = (ROOT / "app/build.gradle").read_text()
-        self.assertIn("versionName '3.12.36'", gradle)
-        self.assertIn("versionCode 73", gradle)
+        self.assertIn("versionName '3.12.37'", gradle)
+        self.assertIn("versionCode 74", gradle)
         # The About page must not hardcode either half. It said "version 2.0.0" through
         # several releases and described a clock-only app that now hosts fifteen, so both
         # were stale in the one place a user can check what they are running.
@@ -3438,7 +3438,7 @@ class RebrandAndLauncherIconContracts(unittest.TestCase):
         # happen. Round 20: this contract is the thing that enforces that; the
         # round-19 message claimed it existed a commit before it did.
         guide = (ROOT / "TEST-GUIDE.md").read_text()
-        self.assertIn("3.12.36", guide)
+        self.assertIn("3.12.37", guide)
         self.assertIn("MyCalc", guide)
         self.assertIn("Expected", guide)
         self.assertIn("pitch black", guide)
@@ -4330,7 +4330,7 @@ class SheetAndChevronContracts(unittest.TestCase):
         # Round 30: the caret is ALSO a real view in the hierarchy -- the
         # framework composites it, no onDraw can swallow it -- with a build
         # stamp and a log line per placement and blink for his next log.
-        self.assertIn('"calc screen build 3.12.36: the caret is "', self.screen)
+        self.assertIn('"calc screen build 3.12.37: the caret is "', self.screen)
         self.assertIn('caretBar.setTag("calc_caret_bar");', self.screen)
         self.assertIn("private void placeCaretBar() {", self.screen)
         self.assertIn('"caret blink: bar shown"', self.screen)

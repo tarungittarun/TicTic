@@ -181,7 +181,7 @@ public class CalculatorUiTest {
         view.getLocationInWindow(loc);
         float d = view.getResources().getDisplayMetrics().density;
         android.widget.EditText ed = (android.widget.EditText) view;
-        float cx = loc[0] + view.getWidth() - view.getCompoundPaddingRight() - 15 * d;
+        float cx = loc[0] + view.getWidth() - ed.getCompoundPaddingRight() - 15 * d;
         float cy = loc[1] + ed.getBaseline() - 10 * d;
         long t = android.os.SystemClock.uptimeMillis();
         android.view.MotionEvent dn = android.view.MotionEvent.obtain(

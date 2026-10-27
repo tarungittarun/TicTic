@@ -17,6 +17,7 @@ import android.widget.*;
 import java.util.*;
 import java.util.concurrent.*;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.NoteMerge;
 
 /** Standalone vertical slice. UI state lives on main; disk and filtering never do. */
 public final class NotesController {
@@ -39,6 +40,18 @@ public final class NotesController {
     private EditText title, body, search;
     private ArrayAdapter<String> adapter;
     private Note undo;
+    private Runnable deferredResult;
+    private boolean storagePage;
+    private PreparedImport prepared;
+    private static final class PreparedImport {
+        final List<Note> base;
+        final NoteMerge.Plan merge;
+        final android.net.Uri folder;
+        final String head;
+        PreparedImport(List<Note> base,NoteMerge.Plan merge,android.net.Uri folder,String head) {
+            this.base=Collections.unmodifiableList(new ArrayList<>(base));this.merge=merge;this.folder=folder;this.head=head;
+        }
+    }
     private final Runnable saveDraft=this::persistDraft;
     private final Runnable filter=this::filterNow;
 
@@ -66,10 +79,10 @@ public final class NotesController {
                         if(id!=null && find(id)!=null) {
                             Note n=find(id).edit(restored.getString("title",find(id).title),
                                 restored.getString("body",find(id).body),System.currentTimeMillis());
-                            replace(n); editing=id; renderEditor(); queueSave(); return;
+                            replace(n); editing=id; renderEditor(); queueSave(); deliverDeferred(); return;
                         }
                     }
-                    renderHome(); log("load","ok count="+notes.size());
+                    renderHome(); log("load","ok count="+notes.size()); deliverDeferred();
                 });
             } catch(Exception e) { main.post(()->{
                 if(closed)return; root.removeAllViews(); root.addView(text("Library could not be opened. Existing data was not replaced.",18));
@@ -77,6 +90,13 @@ public final class NotesController {
                 log("load","failed "+e.getClass().getSimpleName());
             }); }
         });
+    }
+    private void deliverDeferred() {Runnable next=deferredResult;deferredResult=null;if(next!=null)next.run();}
+    private void whenReady(Runnable action) {
+        if(closed)return;
+        if(!ready){deferredResult=action;return;}
+        if(busy){host.showMessage("Another storage operation is in progress.");return;}
+        action.run();
     }
     public View view() { return root; }
     private int dp(int n) { return Math.round(n*context.getResources().getDisplayMetrics().density); }
@@ -103,7 +123,7 @@ public final class NotesController {
         status=text((repository==null?"Opening storage":repository.status())+" · "+host.versionLabel(),12); status.setTextColor(muted); root.addView(status);
     }
     private void renderHome() {
-        editing=null; title=null; body=null; root.removeAllViews(); header("MyNotes · "+page);
+        storagePage=false;prepared=null;editing=null; title=null; body=null; root.removeAllViews(); header("MyNotes · "+page);
         row(new String[]{"Notes","Archive","Trash","Storage"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderStorage});
         search=new EditText(context); search.setSingleLine(true); search.setTextColor(ink); search.setHintTextColor(muted);
         search.setHint("Search this page"); root.addView(search);
@@ -171,7 +191,7 @@ public final class NotesController {
             new Runnable[]{()->back(),()->changeState("pin"),()->changeState("archive"),()->changeState("trash")});
     }
     private void renderStorage() {
-        editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);
+        storagePage=true;prepared=null;editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);
         root.removeAllViews();header("Storage & recovery");
         ScrollView scroll=new ScrollView(context);scroll.setFillViewport(true);
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);
@@ -179,14 +199,14 @@ public final class NotesController {
         content.addView(text("Choose Internal storage or an SD-card folder. Cloud providers are refused: Notes stays offline.",17));
         content.addView(text("Choose a NEW EMPTY folder for this library. Notes copies and verifies all text notes before switching. The previous folder is kept; it is never deleted automatically.",15));
         content.addView(text("A private recovery copy is also kept on this device. If folder access fails, edits remain in this copy and show Pending, not saved-to-folder. Retry after reconnecting or choose another empty folder.",15));
-        content.addView(text("Uninstall removes private data and folder permissions. Chosen-folder files remain. Opening an existing library after reinstall is not available in this milestone—keep your existing installation.",14));
+        content.addView(text("After reinstall, Open library re-grants folder access and previews a non-destructive merge. Backups exports/restores a portable text-library file. Normal APK updates must still be installed without uninstalling.",14));
         content.addView(text("Only the standard local Android storage provider is supported. Android blocks some system/root folders. Folder generations are retained for recovery; large-library compaction is not implemented yet.",14));
         row(new String[]{"Choose folder","Retry save"},new Runnable[]{host::chooseLocalFolder,this::flush});
+        row(new String[]{"Open library","Backups"},new Runnable[]{host::openExistingFolder,this::renderBackups});
         row(new String[]{"Use device storage","Back"},new Runnable[]{()->moveStorage(null),this::renderHome});
     }
     public void selectFolder(android.net.Uri uri) {
-        if(!ready || closed || busy)return;
-        persistDraft(); moveStorage(uri);
+        whenReady(()->{persistDraft();moveStorage(uri);});
     }
     private void moveStorage(android.net.Uri uri) {
         busy=true;final List<Note> snapshot=new ArrayList<>(notes);
@@ -200,6 +220,86 @@ public final class NotesController {
             } catch(Exception e) {log("storage-move","failed "+e.getClass().getSimpleName());message="Storage change incomplete: "+e.getMessage();}
             final String result=message;
             main.post(()->{busy=false;if(!closed){renderStorage();host.showMessage(result);}});
+        });
+    }
+    private LinearLayout scrollContent(String heading) {
+        editing=null;title=null;body=null;search=null;storagePage=true;querySequence++;main.removeCallbacks(filter);
+        root.removeAllViews();header(heading);
+        ScrollView scroll=new ScrollView(context);scroll.setFillViewport(true);
+        LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);
+        scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));return content;
+    }
+    private void renderBackups() {
+        prepared=null;LinearLayout content=scrollContent("Backup & restore");
+        content.addView(text("Portable backups include every current text note, pin, archive, colour and Trash timestamp. This milestone has no media attachments yet.",16));
+        content.addView(text("Use the local Internal storage/SD-card provider. Backups are readable JSON, not encrypted. Export is confirmed only after reopening and checking the complete file.",15));
+        content.addView(text("Import always previews a MERGE: current notes stay; identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing that conflict copy is idempotent. No replacement/delete mode.",15));
+        content.addView(text("Previous snapshot recovers the local checkpoint taken before the most recent confirmed restore/open-library. It is also merged, never used to silently delete current notes. Uninstall removes this private checkpoint.",14));
+        content.addView(text("Current portable text-backup limit: 8 MiB (checked on export and import). Larger libraries need the future streaming backup format. Keep the old installation and your source until you verify restored notes.",14));
+        row(new String[]{"Export backup","Import backup"},new Runnable[]{host::exportBackup,host::importBackup});
+        row(new String[]{"Previous snapshot","Back"},new Runnable[]{()->prepareImport(null,false,true),this::renderStorage});
+    }
+    public void exportBackup(android.net.Uri uri) {
+        whenReady(()->{
+            persistDraft();busy=true;final List<Note> snapshot=new ArrayList<>(notes);
+            if(status!=null)status.setText("Writing and verifying backup…");
+            disk.execute(()->{
+                String message;
+                try {LocalBackupFiles.write(context.getContentResolver(),uri,snapshot);message="Backup verified: "+snapshot.size()+" text notes.";log("backup-export","verified count="+snapshot.size());}
+                catch(Exception e) {message="Backup not verified: "+e.getMessage();log("backup-export","failed "+e.getClass().getSimpleName());}
+                final String result=message;main.post(()->{busy=false;if(!closed){renderBackups();host.showMessage(result);}});
+            });
+        });
+    }
+    public void importBackup(android.net.Uri uri) {whenReady(()->prepareImport(uri,false,false));}
+    public void openExistingFolder(android.net.Uri uri) {whenReady(()->prepareImport(uri,true,false));}
+    private void prepareImport(android.net.Uri source,boolean folder,boolean previous) {
+        persistDraft();busy=true;final List<Note> base=new ArrayList<>(notes);
+        if(status!=null)status.setText("Validating library and preparing preview…");
+        disk.execute(()->{
+            try {
+                GenerationProtocol.Snapshot library=folder?repository.inspectFolder(source):null;
+                List<Note> incoming=previous?repository.previousSnapshot():folder?DocumentCodec.decode(library.payload):LocalBackupFiles.read(context.getContentResolver(),source);
+                NoteMerge.Plan merge=NoteMerge.preview(base,incoming);
+                log("restore-preview","validated incoming="+incoming.size()+" added="+merge.added+" conflicts="+merge.conflicts);
+                PreparedImport plan=new PreparedImport(base,merge,folder?source:null,library==null?null:library.head);
+                main.post(()->{busy=false;if(!closed){prepared=plan;renderPreview();}});
+            } catch(Exception e) {log("restore-preview","failed "+e.getClass().getSimpleName());
+                main.post(()->{busy=false;if(!closed){renderBackups();host.showMessage("Nothing imported: "+e.getMessage());}});
+            }
+        });
+    }
+    private void renderPreview() {
+        PreparedImport plan=prepared;if(plan==null){renderBackups();return;}
+        LinearLayout content=scrollContent("Review restore");
+        content.addView(text(plan.folder==null?"Merge into current library":"Open this folder and merge both libraries",18));
+        content.addView(text("Add "+plan.merge.added+" notes · skip "+plan.merge.unchanged+" identical notes · preserve "+plan.merge.conflicts+" changed-ID conflicts as copies.",16));
+        content.addView(text("Result: "+plan.merge.notes.size()+" notes. Nothing has been imported yet. Confirm keeps existing notes and writes a previous-state checkpoint first.",15));
+        if(plan.folder!=null)content.addView(text("Folder: "+android.provider.DocumentsContract.getTreeDocumentId(plan.folder),14));
+        content.addView(text("First result titles (including archive and Trash):",14));
+        for(int i=0;i<Math.min(8,plan.merge.notes.size());i++) {
+            Note n=plan.merge.notes.get(i);String label=n.title.isEmpty()?"Untitled":n.title;
+            content.addView(text(label.length()>120?label.substring(0,120)+"…":label,14));
+        }
+        row(new String[]{"Confirm merge","Cancel"},new Runnable[]{this::confirmImport,()->{log("restore","cancelled before mutation");renderBackups();}});
+    }
+    private void confirmImport() {
+        final PreparedImport plan=prepared;
+        if(plan==null)return;
+        if(!notes.equals(plan.base)){prepared=null;renderBackups();host.showMessage("Library changed. Please preview again.");return;}
+        busy=true;status.setText("Applying verified merge…");
+        disk.execute(()->{
+            try {
+                boolean complete=true;
+                if(plan.folder!=null)repository.openExisting(plan.folder,plan.head,plan.base,plan.merge.notes);
+                else complete=repository.applyRestore(plan.base,plan.merge.notes);
+                final boolean saved=complete;
+                log("restore","applied count="+plan.merge.notes.size()+" destinationComplete="+saved);
+                main.post(()->{busy=false;if(closed)return;notes.clear();notes.addAll(plan.merge.notes);undo=null;prepared=null;renderHome();
+                    host.showMessage(saved?"Merge saved. Previous snapshot is available in Backups.":"Merge retained in private recovery. Folder update is pending; use Retry save.");});
+            } catch(Exception e) {log("restore","failed "+e.getClass().getSimpleName());
+                main.post(()->{busy=false;if(!closed){prepared=null;renderBackups();host.showMessage("Restore incomplete: "+e.getMessage()+". Source and checkpoint were retained.");}});
+            }
         });
     }
     private TextWatcher watcher(Runnable action) {
@@ -248,6 +348,9 @@ public final class NotesController {
     }
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); }
     public boolean back() {
+        if(busy){host.showMessage("Please wait for the current storage operation.");return true;}
+        if(prepared!=null){prepared=null;renderBackups();return true;}
+        if(editing==null && storagePage){renderHome();return true;}
         if(editing==null)return false;
         persistDraft(); renderHome(); return true;
     }

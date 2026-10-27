@@ -2,6 +2,7 @@ package app.space.notes;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.After;
@@ -32,9 +33,15 @@ public class NotesPersistenceTest {
         assertTrue(fixture.mkdirs());
         context=new ContextWrapper(target) {
             @Override public File getFilesDir() { return fixture; }
+            @Override public SharedPreferences getSharedPreferences(String name,int mode) {
+                return target.getSharedPreferences(fixture.getName()+"-"+name,mode);
+            }
         };
     }
-    @After public void cleanup() { remove(fixture); }
+    @After public void cleanup() {
+        InstrumentationRegistry.getInstrumentation().getTargetContext().deleteSharedPreferences(fixture.getName()+"-mynotes-storage-v1");
+        remove(fixture);
+    }
     private void remove(File file) {
         File[] children=file.listFiles();
         if(children!=null)for(File child:children)remove(child);
@@ -79,5 +86,22 @@ public class NotesPersistenceTest {
         stream.write("incomplete".getBytes(StandardCharsets.UTF_8));
         atomic.failWrite(stream);
         assertEquals("before",new NotesRepository(context).load().get(0).title);
+    }
+    @Test public void restoreCheckpointsCurrentBeforeWritingMerged() throws Exception {
+        NotesRepository repository=new NotesRepository(context);
+        List<Note> before=Arrays.asList(Note.create(10).edit("before","safe",20));
+        repository.save(before);
+        List<Note> merged=new ArrayList<>(before);merged.add(Note.create(30).edit("restored","body",40));
+        assertTrue(repository.applyRestore(before,merged));
+        assertEquals(2,new NotesRepository(context).load().size());
+        assertEquals("before",repository.previousSnapshot().get(0).title);
+        assertEquals(1,repository.previousSnapshot().size());
+    }
+    @Test public void missingPreviousSnapshotDoesNotEmptyLibrary() throws Exception {
+        NotesRepository repository=new NotesRepository(context);
+        repository.save(Arrays.asList(Note.create(10)));
+        try {repository.previousSnapshot();fail("missing snapshot must fail");}
+        catch(java.io.FileNotFoundException expected) { }
+        assertEquals(1,repository.load().size());
     }
 }

@@ -179,3 +179,20 @@ Only MyNotes runs were created; calculator/MySpace remain paused and their code 
 Remaining major scope: SAF real-provider fault/SD/grant tests, library import/export,
 compaction/scaling, rich content/lists, labels/media, OCR/ASR, diagrams, reminders/widgets
 and final UI design. M0 offline qualification is still open; this is not feature-complete.
+
+## Slice 5 — 0.3.0 (4), reopen existing libraries and portable restore
+
+Written: non-destructive merge domain with stable conflict-copy IDs; versioned/checksummed
+8 MiB bounded text-backup envelope; local-only create/open document host capabilities;
+export close/reopen byte verification; folder inspection + explicit merge preview/confirm;
+private pre-restore checkpoint + Previous snapshot recovery; selected-folder reopen after
+re-grant; deferred picker results during library startup; source-aware storage status.
+Existing v1 library readers and release ID/key remain unchanged. No MySpace/calculator edits.
+
+Tests written: seven JVM merge scenarios; eight Android backup envelope/validation cases;
+two private repository checkpoint cases; four injected-backend repository transactions
+including stale preview and recovery across restart. Total expected: 14 JVM tests,
+28 Android tests (14 prior + 14 new), and 430 local checks (40 Notes + 390 legacy).
+At this entry local checks pass; CI/Android results for this slice are not yet known.
+Actual SAF picker/SD/physical fault qualification remains outstanding. Notes-only CI
+must pass before this APK is published.

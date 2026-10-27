@@ -3,5 +3,8 @@ package app.space.notes.runtime;
 public interface NotesHost {
     void showMessage(String message);
     void chooseLocalFolder();
+    void openExistingFolder();
+    void exportBackup();
+    void importBackup();
     String versionLabel();
 }

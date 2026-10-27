@@ -112,6 +112,12 @@ class ApkAuditPolicy(unittest.TestCase):
             self.assertTrue(release_input(path),path)
         for path in ['mynotes/README.md','mynotes/tools/ci/audit.py','mynotes/qa/test_ci_pipeline.py','mynotes/app/src/androidTest/java/Test.java','.github/workflows/notes-ci.yml']:
             self.assertFalse(release_input(path),path)
+    def test_minimum_api_privilege_is_provisioning_only(self):
+        script=(ROOT/'tools/ci/android_lane.sh').read_text()
+        self.assertLess(script.index('adb root'),script.index('adb shell svc wifi disable'))
+        self.assertLess(script.index('adb shell svc data disable'),script.index('adb unroot'))
+        self.assertLess(script.index('adb unroot'),script.index('adb install -r'))
+        self.assertIn('= 2000',script)
     def test_all_runtime_build_identity_paths_protected(self):
         for path in ['app/src/main','domain/src/main','runtime/src/main','gradle','signing','settings.gradle','gradle.properties','app/build.gradle']:
             self.assertIn('mynotes/'+path,APP_PATHS)

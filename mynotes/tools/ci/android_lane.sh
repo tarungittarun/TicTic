@@ -28,10 +28,23 @@ RELEASE=$(python3 -c 'import json;print("accepted-release/"+json.load(open("acce
 DEBUG=$(find test-apks -name 'notes-debug.apk')
 TEST=$(find test-apks -name 'notes-debug-androidTest.apk')
 test -f "$DEBUG" && test -f "$TEST" && test -f "$RELEASE"
+# API 26 AOSP denies shell CHANGE_WIFI_STATE. Root only the fixture setup,
+# then restore the ordinary shell before installing/testing either app.
+if (( LANE_API == 26 )); then
+  adb root
+  adb wait-for-device
+  test "$(adb shell id -u | tr -d '\r')" = 0
+fi
 # Flight-mode settings plus disabled radios; APK audit independently rejects INTERNET.
 adb shell settings put global airplane_mode_on 1
 adb shell svc wifi disable
 adb shell svc data disable
+if (( LANE_API == 26 )); then
+  adb unroot
+  adb wait-for-device
+fi
+adb shell id > "$OUT/test-shell-identity.txt"
+test "$(adb shell id -u | tr -d '\r')" = 2000
 adb shell settings get global airplane_mode_on > "$OUT/airplane-mode.txt"
 grep -qx '1' <(tr -d '\r' < "$OUT/airplane-mode.txt")
 adb shell dumpsys connectivity > "$OUT/connectivity.txt"
@@ -58,7 +71,8 @@ assert installed==download==audit['accepted_sha256'],'Installed/downloaded/audit
 metadata={'lane':os.environ['LANE_ID'],'group':os.environ['LANE_GROUP'],'api':int(os.environ['LANE_API']),
           'source':os.environ['GITHUB_SHA'],'installed_sha256':installed,'download_sha256':download,
           'audited_sha256':audit['accepted_sha256'],'accepted_from':audit['accepted_from'],
-          'release_versionCode':audit['versionCode'],'network':'airplane setting enabled, radios disabled; release has no INTERNET permission'}
+          'release_versionCode':audit['versionCode'],'network':'airplane setting enabled, radios disabled; release has no INTERNET permission',
+          'test_shell_uid':2000,'radio_setup_root':int(os.environ['LANE_API'])==26}
 (out/'identity.json').write_text(json.dumps(metadata,indent=2)+'\n')
 PYHASH
 adb install -r "$DEBUG"

@@ -39,6 +39,8 @@ Instrumentation uses raw AndroidJUnitRunner per-case status records. A green exi
 
 Every lane installs the oldest retained release, updates **without uninstalling**, launches the accepted official release, captures its window/screenshot/package state, pulls the installed base APK and verifies its SHA-256 against the downloaded artifact and audit metadata. Airplane mode is enabled and Wi-Fi/data disabled. The audited release currently has **no permissions**, including no INTERNET permission.
 
+The API 26 AOSP image denies shell Wi-Fi toggling (`CHANGE_WIFI_STATE`). Only radio provisioning uses emulator root on that lane; the harness unroots and verifies shell UID 2000 before any app install/test. No permission or privilege is added to MyNotes.
+
 Then the lane installs the separately compiled debug/test APKs and runs its instrumentation cases. These run the current app/runtime source under the debug host, **not inside the signed release**. Release upgrade/hash/launch smoke and debug-host journeys are deliberately reported separately. This is not a claim that all 40 tests directly drive the exact signed bytes, nor that airplane mode simulates all real-world failures.
 
 For a new app version, the accepted APK is the candidate. The APK audit verifies stable package/signing identity, strictly increasing versionCode, minSdk, non-debuggable status, backup privacy and reviewed permissions before any emulator runs. Publication requires source checks, JVM, both builds, audit and every Android lane. It publishes only the audited/tested bytes plus checksum, source and audit metadata; existing files must not be overwritten.
@@ -57,3 +59,9 @@ When adding features:
 5. Inspect actual Actions critical-path/job timings before claiming improvement or adding more shards. Extra lanes improve API coverage but consume more runner-minutes; cache hits and queue/boot overhead matter.
 
 This matrix does not certify all phones, physical SAF/SD providers, accessibility, IMEs, scale/durability failure combinations, OCR or speech models. Those need their own qualified fixtures and lanes when implemented. The previous successful serial run is [40569713346](https://github.com/tarungittarun/TicTic/actions/runs/40569713346); new timing/qualification evidence will be recorded after the parallel run, not assumed.
+
+## Bring-up evidence
+
+- Initial parallel run [40572285326](https://github.com/tarungittarun/TicTic/actions/runs/40572285326): source, JVM, both builds, audit and API 29/34 passed; API 26 failed before instrumentation; final acceptance correctly failed and publication was skipped.
+- Instrumented run [40573209545](https://github.com/tarungittarun/TicTic/actions/runs/40573209545): command/stack annotations identified API 26 `svc wifi disable` shell permission denial, not an app crash. The harness now provisions that fixture with temporary emulator root and explicitly unroots before app work. This is an explained correction, not an unexplained emulator retry.
+- These expanded runs do not establish a speedup over the old single-API serial run. The matrix adds qualification and runner usage; wall-clock timing still needs a green comparable run.

@@ -126,6 +126,7 @@ jobs:
             cat /tmp/ui.log
             adb logcat -d > /tmp/logcat.log 2>/dev/null || true
             grep -a "TicTicCalc\|AndroidRuntime\|FATAL" /tmp/logcat.log | tail -120 > /tmp/calc.log 2>/dev/null || true
+            adb shell run-as app.space.calc.debug cat files/logs/myspace.log > /tmp/app.log 2>/dev/null || true
             grep -q "OK (" /tmp/ui.log || code=1
             echo "::notice title=Instrumented suite::$(grep -oE 'OK \([0-9]+ tests?\)' /tmp/ui.log | tail -1)"
             exit $code
@@ -146,7 +147,11 @@ jobs:
       - name: Surface emulator test errors as annotations
         if: failure()
         run: |
-          if [ -f /tmp/calc.log ]; then
+          if [ -s /tmp/app.log ]; then
+            body=$(tail -c 3800 /tmp/app.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=app transcript tail::$body"
+          fi
+          if [ -s /tmp/calc.log ]; then
             body=$(tail -c 3000 /tmp/calc.log | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=calc app log tail::$body"
           fi

@@ -4468,6 +4468,13 @@ class TestInfrastructureContracts(unittest.TestCase):
         self.assertIn("dumpsys package app.space.calc.debug", wf)
         self.assertIn("adb logcat -v time TicTicCalc:V", wf)
         self.assertIn('::error title=streamed app log::', wf)
+        # Round 34: a real phone screen, pinned -- the postcard AVD the farm
+        # booted put the view centre on empty glass left of the text.
+        self.assertIn("profile: Nexus 5", wf)
+        self.assertIn("force-avd-creation: true", wf)
+        ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
+        self.assertIn("private static float textCenterX(View view, int[] loc) {", ui)
+        self.assertIn("float cx = textCenterX(view, loc);", ui)
         ui = (ROOT / "calc/src/androidTest/java/app/space/calc/CalculatorUiTest.java").read_text()
         self.assertIn("===APP TRANSCRIPT TAIL===", ui)
         self.assertIn("app.space.core.data.AppLog.setEnabled(", ui)

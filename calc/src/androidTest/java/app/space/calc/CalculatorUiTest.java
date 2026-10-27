@@ -137,7 +137,9 @@ public class CalculatorUiTest {
                 android.widget.EditText ed = (android.widget.EditText) view;
                 int[] loc = new int[2];
                 view.getLocationInWindow(loc);
-                float cx = loc[0] + view.getWidth() / 2f;
+                // same round-34 fix as holdCenter: the hold that starts the
+                // drag must begin on the text, wherever the text actually lies.
+                float cx = textCenterX(view, loc);
                 float cy = loc[1] + view.getHeight() / 2f;
                 float toX = loc[0] + ed.getCompoundPaddingLeft()
                         + ed.getLayout().getPrimaryHorizontal(toOffset);
@@ -195,10 +197,33 @@ public class CalculatorUiTest {
     }
 
     /** A real long press at the middle of the display, window-injected. */
+    /** Round 34 forensics, from the app's own streamed transcript: the farm
+     *  emulator shows the display 296px wide, and the right-aligned text sits
+     *  at the far right -- so the VIEW centre is empty glass left of the text
+     *  and every centre hold took the round-28 empty-area branch: caret parked,
+     *  nothing held, held=0 across 34 stories. A hold meant to select must land
+     *  ON THE TEXT: the middle of the laid-out line, converted to window
+     *  coords. Empty text still falls back to the view centre, which is empty
+     *  glass by definition and must raise the caret menu, exactly per spec. */
+    private static float textCenterX(View view, int[] loc) {
+        android.widget.EditText ed = (android.widget.EditText) view;
+        try {
+            android.text.Layout lo = ed.getLayout();
+            if (lo != null && lo.getLineCount() > 0 && ed.getText().length() > 0) {
+                float mid = (lo.getLineLeft(0) + lo.getLineRight(0)) / 2f
+                        - ed.getScrollX();
+                return loc[0] + ed.getCompoundPaddingLeft() + mid;
+            }
+        } catch (Exception ignored) {
+            // fall through to the plain view centre
+        }
+        return loc[0] + view.getWidth() / 2f;
+    }
+
     private static void holdCenter(androidx.test.espresso.UiController ui, View view) {
         int[] loc = new int[2];
         view.getLocationInWindow(loc);
-        float cx = loc[0] + view.getWidth() / 2f;
+        float cx = textCenterX(view, loc);
         float cy = loc[1] + view.getHeight() / 2f;
         long t = android.os.SystemClock.uptimeMillis();
         try {

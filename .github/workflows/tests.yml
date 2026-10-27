@@ -102,6 +102,13 @@ jobs:
           arch: x86_64
           disable-animations: true
           ram-size: 2048M
+          # Round 34 forensics: the farm's default AVD came up as a 320px-wide
+          # mdpi postcard (display view 296px, parent 616px) -- popups, pickers
+          # and the stroke menu cannot lay out on that, and a centre hold lands
+          # left of the right-aligned text. Pin a real phone profile so the
+          # screen the suite sees is the screen the owner's phone has.
+          profile: Nexus 5
+          force-avd-creation: true
           # No Gradle inside the emulator step: two attempts died there mid-build with the
           # log stopping between tasks -- the runner hosts the emulator AND the JVM, and
           # the pair does not fit. The prebuilt APKs install with adb and run through

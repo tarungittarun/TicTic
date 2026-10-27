@@ -19,8 +19,9 @@ public final class VoiceCapture implements Runnable {
     @Override public void run(){
         AudioRecord recorder=null;
         try{
+            if(!running.get()){listener.failed("Recording cancelled before microphone start; no audio was created.");return;}
             if(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)throw new SecurityException("Microphone permission was not granted. Other notes features are unaffected.");
-            if(!running.get())return;int minimum=AudioRecord.getMinBufferSize(PcmWave.RATE,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);if(minimum<=0)throw new IOException("Device does not support mono 16 kHz recording");
+            int minimum=AudioRecord.getMinBufferSize(PcmWave.RATE,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);if(minimum<=0)throw new IOException("Device does not support mono 16 kHz recording");
             recorder=new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION,PcmWave.RATE,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT,Math.max(minimum,6400));
             if(recorder.getState()!=AudioRecord.STATE_INITIALIZED)throw new IOException("Microphone is unavailable");recorder.startRecording();if(recorder.getRecordingState()!=AudioRecord.RECORDSTATE_RECORDING)throw new IOException("Microphone did not start");
             try(RandomAccessFile output=new RandomAccessFile(files.pending(id),"rw");FileLock lock=output.getChannel().lock()){

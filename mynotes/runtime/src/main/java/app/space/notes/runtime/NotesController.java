@@ -49,7 +49,7 @@ public final class NotesController {
     private final Bundle restored;
     private boolean ready, closed, binding, dirty, busy;
     private String page="Notes", editing;
-    private long revision,persistedRevision,querySequence;
+    private volatile long revision,persistedRevision,querySequence;
     private TextView status;
     private EditText title, body, search;
     private static final class WritingField extends EditText {
@@ -818,7 +818,7 @@ public final class NotesController {
         persistDraft();
         if(undoBatch.isEmpty()){host.showMessage("Nothing to undo");return;}
         for(Note old:undoBatch){Note current=find(old.id);if(current!=null)replace(undoFull?old.state(old.pinned,old.archived,old.deletedAt,System.currentTimeMillis()):
-            current.state(old.pinned,old.archived,old.deletedAt,System.currentTimeMillis()).properties(old.color,old.labels,System.currentTimeMillis()));}
+            current.state(old.pinned,old.archived,old.deletedAt,System.currentTimeMillis()).properties(old.color,old.labels,System.currentTimeMillis()).folder(old.folder,System.currentTimeMillis()).background(old.background,System.currentTimeMillis()));}
         if(undoCreatedId!=null){String created=undoCreatedId;notes.removeIf(n->n.id.equals(created));if(created.equals(editing))editing=null;undoCreatedId=null;}
         undoBatch.clear();undoFull=false;queueSave();if(editing!=null)renderEditor();else renderHome();
     }
@@ -826,6 +826,8 @@ public final class NotesController {
         final List<Note> snapshot=new ArrayList<>(notes); final long ticket=++revision;
         if(status!=null)status.setText("Saving locally…");
         disk.execute(()->{
+            // Newer immutable snapshots include earlier edits. Avoid a backlog of full media saves.
+            if(ticket!=revision){log("save.coalesced","revision="+ticket);return;}
             try { repository.save(snapshot);markVoiceNotesCreated(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
                 main.post(()->{persistedRevision=Math.max(persistedRevision,ticket);if(!closed && !dirty && ticket==revision && status!=null){status.setText("Saved · "+repository.status());status.setVisibility(View.GONE);}});
             } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());Diagnostics.failure("save.failure",e);

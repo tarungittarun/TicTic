@@ -44,10 +44,16 @@ public final class LocalNotebookFolders {
  private Note owned(Entry entry,String id)throws Exception{if(DocumentsContract.Document.MIME_TYPE_DIR.equals(entry.mime))throw new IOException("A directory occupies the note file name");List<Note> decoded=DocumentCodec.decode(read(entry.uri));if(decoded.size()!=1 || !decoded.get(0).id.equals(id))throw new IOException("A foreign file occupies the note file name; it was not changed");return decoded.get(0);}
  /** Call only after journalling the current library privately. Readback must match before removal. */
  public void write(String folder,Note note)throws Exception{
-  Uri parent=directory(folder);String name=fileName(note.id);Entry existing=find(parent,name);byte[] payload=DocumentCodec.encode(Collections.singletonList(note));Uri target;
-  if(existing!=null){owned(existing,note.id);if(Arrays.equals(payload,read(existing.uri)))return;target=existing.uri;}else{target=DocumentsContract.createDocument(resolver,parent,"application/json",name);if(target==null)throw new IOException("Cannot create the note file");Entry actual=find(parent,name);if(actual==null || !actual.uri.equals(target))throw new IOException("Provider changed the file name; original note remains in recovery");}
-  try(OutputStream out=resolver.openOutputStream(target,"rwt")){if(out==null)throw new IOException("Cannot write the note file");out.write(payload);out.flush();}
-  if(!Arrays.equals(payload,read(target)))throw new IOException("Note file readback mismatch; original note remains in recovery");
+  Uri parent=directory(folder);String name=fileName(note.id);Entry existing=find(parent,name);byte[] payload=DocumentCodec.encode(Collections.singletonList(note));
+  if(existing!=null){owned(existing,note.id);if(Arrays.equals(payload,read(existing.uri)))return;}
+  // Copy/verify before changing any current file. A failed rename leaves recoverable copies.
+  Uri temporary=DocumentsContract.createDocument(resolver,parent,"application/json",".mynotes-pending-"+UUID.randomUUID()+".tmp");if(temporary==null)throw new IOException("Cannot prepare the note file");
+  try(OutputStream out=resolver.openOutputStream(temporary,"w")){if(out==null)throw new IOException("Cannot write the note file");out.write(payload);out.flush();}
+  if(!Arrays.equals(payload,read(temporary)))throw new IOException("Note file readback mismatch; original retained");Uri previous=null;
+  if(existing!=null){previous=DocumentsContract.renameDocument(resolver,existing.uri,".mynotes-previous-"+UUID.randomUUID()+".tmp");if(previous==null)throw new IOException("Cannot preserve the previous note file");}
+  Uri renamed=DocumentsContract.renameDocument(resolver,temporary,name);Entry current=find(parent,name);if(renamed==null || current==null || !current.uri.equals(renamed) || !Arrays.equals(payload,read(renamed)))throw new IOException("New note file could not be verified; previous copy and recovery retained");
+  if(previous!=null && !DocumentsContract.deleteDocument(resolver,previous))throw new IOException("New note verified; an old recovery file remains in this folder");
+
  }
  /** Materialize current placements, then remove verified same-ID copies from previous folders.
   * Root generation snapshots remain authoritative and are deliberately never removed here. */

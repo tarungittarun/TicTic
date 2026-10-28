@@ -15,7 +15,7 @@ class CoreNotesContracts(unittest.TestCase):
     def test_board_is_virtualised_masonry(self):
         s=(JAVA/'NotesBoard.java').read_text()
         self.assertIn('extends RecyclerView',s)
-        self.assertIn('new StaggeredGridLayoutManager(2',s)
+        self.assertIn('new StaggeredGridLayoutManager(columns',s)
         self.assertIn('setFullSpan',s)
         self.assertIn('setMaxLines(7)',s)
 

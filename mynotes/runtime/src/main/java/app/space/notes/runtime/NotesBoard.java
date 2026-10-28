@@ -24,13 +24,13 @@ public final class NotesBoard extends RecyclerView {
     public NotesBoard(Context c,boolean dark,Listener listener,boolean grid){
         super(c);this.dark=dark;this.listener=listener;setItemAnimator(null);setAdapter(adapter);layout(grid);
     }
-    public void layout(boolean grid){setLayoutManager(grid?new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL):new LinearLayoutManager(getContext()));}
+    public void layout(boolean grid){int width=getResources().getConfiguration().screenWidthDp;float scale=getResources().getConfiguration().fontScale;int columns=scale>1.3f?Math.max(1,Math.min(3,width/320)):Math.max(2,Math.min(4,width/240));setLayoutManager(grid?new StaggeredGridLayoutManager(columns,StaggeredGridLayoutManager.VERTICAL):new LinearLayoutManager(getContext()));}
     public void show(List<Note> notes,Set<String> selected,boolean sections){
         rows.clear();selection.clear();selection.addAll(selected);
         boolean pinned=false,others=false;
         for(Note note:notes){
             if(sections && note.pinned && !pinned){rows.add("Pinned");pinned=true;}
-            if(sections && !note.pinned && !others){rows.add(pinned?"Others":"Notes");others=true;}
+            if(sections && !note.pinned && !others){if(pinned)rows.add("Others");others=true;}
             rows.add(note);
         }
         adapter.notifyDataSetChanged();
@@ -45,7 +45,7 @@ public final class NotesBoard extends RecyclerView {
         @Override public int getItemCount(){return rows.size();}
         @Override public int getItemViewType(int position){return rows.get(position) instanceof String?0:1;}
         @Override public Holder onCreateViewHolder(ViewGroup parent,int type){
-            LinearLayout box=new LinearLayout(getContext());box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(12),dp(12),dp(12),dp(12));
+            LinearLayout box=new LinearLayout(getContext());box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(12),dp(12),dp(12),dp(12));box.setMinimumHeight(type==0?0:dp(64));
             RecyclerView.LayoutParams lp=new RecyclerView.LayoutParams(-1,-2);lp.setMargins(dp(4),dp(4),dp(4),dp(4));box.setLayoutParams(lp);
             TextView title=label(type==0?13:18),body=label(15),tags=label(11);
             title.setTypeface(null,Typeface.BOLD);title.setMaxLines(3);title.setEllipsize(TextUtils.TruncateAt.END);tags.setMaxLines(3);tags.setEllipsize(TextUtils.TruncateAt.END);box.addView(title);
@@ -62,7 +62,7 @@ public final class NotesBoard extends RecyclerView {
             bg.setStroke(dp(chosen?2:1),Color.parseColor(chosen?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));h.box.setBackground(bg);
             h.title.setText((chosen?"✓  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));
             h.title.setTextColor(ink);h.body.setTextColor(ink);h.tags.setTextColor(ink);h.body.setLineSpacing(dp(2),1.05f);
-            h.title.setVisibility(n.title.isEmpty() && !n.checklist && !chosen?GONE:VISIBLE);NotesIcon pin=n.pinned?new NotesIcon("pin",ink):null;if(pin!=null)pin.setBounds(0,0,dp(16),dp(16));h.title.setCompoundDrawablesRelative(pin,null,null,null);h.title.setCompoundDrawablePadding(dp(5));
+            h.title.setVisibility(n.title.isEmpty() && !n.checklist && !chosen && !n.body.isEmpty()?GONE:VISIBLE);NotesIcon pin=n.pinned?new NotesIcon("pin",ink):null;if(pin!=null)pin.setBounds(0,0,dp(16),dp(16));h.title.setCompoundDrawablesRelative(pin,null,null,null);h.title.setCompoundDrawablePadding(dp(5));
             String preview=n.plainText();if(!n.diagram.nodes.isEmpty())preview+=(preview.isEmpty()?"":"\n")+"▧ Diagram · "+n.diagram.nodes.size()+" shapes";String excerpt=preview.length()>400?preview.substring(0,400)+"…":preview;android.text.SpannableStringBuilder rich=new android.text.SpannableStringBuilder(excerpt);
             if(!n.checklist)for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(n.marks,n.body)){int end=Math.min(mark.end,Math.min(n.body.length(),excerpt.length()));if(mark.start<end)TextStyles.writeRange(rich,new Note.Mark(mark.type,mark.start,end),0);}h.body.setText(rich);
             h.body.setVisibility(preview.isEmpty()?GONE:VISIBLE);

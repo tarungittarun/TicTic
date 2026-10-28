@@ -37,9 +37,9 @@ public final class TextStyles {
     }
     public static void write(Spannable text,List<Note.Mark> marks) {
         for(Object span:text.getSpans(0,text.length(),Object.class))
-            if(span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading)text.removeSpan(span);
+            if((text.getSpanFlags(span)&Spanned.SPAN_COMPOSING)==0 && (span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading))text.removeSpan(span);
         for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(marks,text.toString()))writeRange(text,mark,0);
-        for(Heading span:text.getSpans(0,text.length(),Heading.class))text.setSpan(span,text.getSpanStart(span),text.getSpanEnd(span),Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        for(Heading span:text.getSpans(0,text.length(),Heading.class))text.setSpan(span,text.getSpanStart(span),text.getSpanEnd(span),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
     }
     public static void writeRange(Spannable text,Note.Mark mark,int offset) {
             Object span;

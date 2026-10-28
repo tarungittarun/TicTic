@@ -37,13 +37,14 @@ public class StorageLayoutTest {
             CountDownLatch loaded=new CountDownLatch(1);
             activity.runOnUiThread(new Runnable() {
                 @Override public void run() {
-                    if(find(activity.getWindow().getDecorView(),"Storage")!=null)loaded.countDown();
+                    if(find(activity.getWindow().getDecorView(),"Library")!=null)loaded.countDown();
                     else activity.getWindow().getDecorView().postDelayed(this,50);
                 }
             });
             assertTrue("Library should load",loaded.await(10,TimeUnit.SECONDS));
-            instrumentation.runOnMainSync(()->{TextView storage=find(activity.getWindow().getDecorView(),"Storage");UiActions.reveal(storage);storage.performClick();});
+            instrumentation.runOnMainSync(()->{TextView settings=find(activity.getWindow().getDecorView(),"Settings");UiActions.reveal(settings);settings.performClick();});
             instrumentation.waitForIdleSync();
+            instrumentation.runOnMainSync(()->find(activity.getWindow().getDecorView(),"Storage & recovery").performClick());instrumentation.waitForIdleSync();
             instrumentation.runOnMainSync(()->{
                 View decor=activity.getWindow().getDecorView();
                 for(String label:new String[]{"Choose folder","Open library","Backups","Use device storage","Back"}) {

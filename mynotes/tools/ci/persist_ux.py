@@ -9,7 +9,7 @@ import struct
 from mynotes.tools.ci.audit import REPO
 
 VARIANTS={'full-api34','night-api34','large-font-api34','landscape-api34','tablet-api34'}
-SCENES={'home','editor','editor-keyboard','format','format-keyboard','capture','palette','labels','diagram','checklist','settings','storage'}
+SCENES={'numeric-h1','numeric-h2','home','editor','editor-keyboard','format','format-keyboard','capture','palette','labels','diagram','checklist','settings','storage'}
 
 def persist(evidence,run,source):
     if not run.isdigit() or len(source)!=40 or any(c not in '0123456789abcdef' for c in source):raise ValueError('Invalid run/source provenance')
@@ -21,7 +21,7 @@ def persist(evidence,run,source):
         data=image.read_bytes()
         if len(data)<24 or len(data)>512*1024 or not data.startswith(b'\x89PNG\r\n\x1a\n'):continue
         width,height=struct.unpack('>II',data[16:24])
-        if not 1<=width<=540 or not 1<=height<=3000:raise ValueError('Unexpected proof dimensions')
+        if not 1<=width<=1080 or not 1<=height<=3000:raise ValueError('Unexpected proof dimensions')
         target=output/lane/(scene+'.png');target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(image,target)
         records.append({'lane':lane,'scene':scene,'path':str(target.relative_to(output)),'width':width,'height':height,'sha256':hashlib.sha256(data).hexdigest()})
     outcomes=[]

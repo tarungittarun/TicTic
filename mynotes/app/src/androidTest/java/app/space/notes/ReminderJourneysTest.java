@@ -58,9 +58,9 @@ public class ReminderJourneysTest {
         try{assertTrue("UI condition timed out",done.await(12,TimeUnit.SECONDS));}finally{ended.set(true);}
     }
     private TextView find(View view,String target,boolean hint){
-        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && UiActions.matches(v,target)))return v;}
-        if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=g.getChildCount()-1;i>=0;i--){TextView found=find(g.getChildAt(i),target,hint);if(found!=null)return found;}}
-        return null;
+        TextView candidate=null;
+        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && UiActions.matches(v,target))){if(v.isShown())return v;candidate=v;}}
+        if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=g.getChildCount()-1;i>=0;i--){TextView found=find(g.getChildAt(i),target,hint);if(found!=null){if(found.isShown())return found;if(candidate==null)candidate=found;}}}return candidate;
     }
     private TextView text(String value){return find(controller.view(),value,false);}
     private EditText input(String hint){return (EditText)find(controller.view(),hint,true);}

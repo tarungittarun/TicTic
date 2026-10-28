@@ -39,6 +39,7 @@ public final class NotesController {
     private final NotesDesign design;
     private final NotesSheets sheets;
     private LinearLayout formattingPanel,writingDock;
+    private Button undoControl;
     private Runnable pageBack;
     private String pendingParagraphStyle;
 
@@ -156,7 +157,7 @@ public final class NotesController {
         TextView v=new TextView(context); v.setText(value); v.setTextSize(size); v.setTextColor(ink);
         v.setPadding(0,dp(6),0,dp(6)); return v;
     }
-    private void clearPage(){pageBack=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
+    private void clearPage(){pageBack=null;undoControl=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
     private void act(String label,Runnable action){if(busy){host.showMessage("Storage change in progress. Please wait.");return;}Diagnostics.record("ui.tap","control="+Diagnostics.controlName(label)+" screen="+(editing==null?page:"editor"));action.run();}
     private Button button(String label,Runnable action){return design.textAction(label,()->act(label,action));}
     private Button icon(String label,String symbol,Runnable action){return design.icon(label,symbol,()->act(label,action));}
@@ -192,17 +193,9 @@ public final class NotesController {
         TextView about=text(host.versionLabel()+" · offline, no account",12);about.setTextColor(muted);content.addView(about);
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
-    private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions) {
-        HorizontalScrollView scroll=new HorizontalScrollView(context);scroll.setFillViewport(true);
-        LinearLayout row=new LinearLayout(context);row.setGravity(android.view.Gravity.CENTER_VERTICAL);scroll.addView(row);
-        for(int i=0;i<labels.length;i++) {
-            LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-2,-2);p.setMargins(dp(2),dp(4),dp(2),dp(4));
-            Button control=button(labels[i],actions[i]);
-            String symbol=labels[i].equals("Share")?"share":labels[i].equals("Reminder")?"bell":labels[i].equals("Labels")?"label":labels[i].equals("Colour")?"palette":null;
-            if(symbol!=null){NotesIcon drawable=new NotesIcon(symbol,ink);drawable.setBounds(0,0,dp(20),dp(20));control.setCompoundDrawables(drawable,null,null,null);control.setCompoundDrawablePadding(dp(6));}
-            control.setMinHeight(dp(48));control.setMinWidth(dp(80));row.addView(control,p);
-        }
-        parent.addView(scroll);
+    private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions){
+        LinearLayout actionsRow=new LinearLayout(context);boolean stacked=labels.length>2 || context.getResources().getConfiguration().fontScale>1.3f;actionsRow.setOrientation(stacked?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
+        for(int i=0;i<labels.length;i++){if(labels[i].equals("Back"))continue;Button action=button(labels[i],actions[i]);LinearLayout.LayoutParams lp=stacked?new LinearLayout.LayoutParams(-1,-2):new LinearLayout.LayoutParams(0,-2,1);actionsRow.addView(action,lp);}if(actionsRow.getChildCount()>0)parent.addView(actionsRow);
     }
     private void header(String name,Runnable back){header(name);pageBack=back;}
     private void header(String name) {headerIn(root,name);}
@@ -215,7 +208,7 @@ public final class NotesController {
         voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null;title=null;body=null;visible.clear();diagramOpen=false;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
         LinearLayout top=tools(root);Button library=icon("Library","menu",()->{});top.addView(library,new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView brand=design.heading(activeLabel.isEmpty()?page:activeLabel);brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(!undoBatch.isEmpty() || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
-        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Voice inbox","Storage","Home widget","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderVoiceInbox,this::renderStorage,host::requestHomeWidget,this::renderSettings});
+        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderVoiceInbox,this::renderSettings});
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);
         LinearLayout searchBar=new LinearLayout(context);searchBar.setGravity(android.view.Gravity.CENTER_VERTICAL);searchBar.setBackground(design.shape(surface,24));root.addView(searchBar);
         search=new EditText(context);design.entry(search,16);search.setSingleLine(true);search.setPadding(dp(18),dp(12),dp(4),dp(12));search.setHint("Search notes and labels");search.setText(homeQuery);searchBar.addView(search,new LinearLayout.LayoutParams(0,-2,1));
@@ -268,8 +261,8 @@ public final class NotesController {
     }
     private void renderEditor(){
         voicePage=false;ocrPanel=false;diagramOpen=false;Note n=find(editing);if(n==null){renderHome();return;}main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;clearPage();root.setPadding(dp(20),dp(4),dp(20),dp(8));
-        LinearLayout top=tools(root);tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}tool(top,"Undo","undo",this::undo);
-        ScrollView document=new ScrollView(context);document.setFillViewport(true);document.setClipToPadding(false);LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);document.addView(editor);root.addView(document,new LinearLayout.LayoutParams(-1,0,1));
+        LinearLayout top=tools(root);tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}undoControl=icon("Undo","undo",this::undo);top.addView(undoControl,new LinearLayout.LayoutParams(dp(48),dp(48)));syncUndoControl();
+        ScrollView document=new ScrollView(context);document.setFillViewport(true);document.setClipToPadding(false);LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);FrameLayout.LayoutParams column=new FrameLayout.LayoutParams(Math.min(dp(720),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2,android.view.Gravity.CENTER_HORIZONTAL);document.addView(editor,column);root.addView(document,new LinearLayout.LayoutParams(-1,0,1));
         title=new EditText(context);design.entry(title,26);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));title.setHint("Title");title.setText(n.title);title.setEnabled(!trashed);editor.addView(title,new LinearLayout.LayoutParams(-1,-2));
         body=null;
         if(n.checklist){LinearLayout rows=new LinearLayout(context);rows.setOrientation(LinearLayout.VERTICAL);editor.addView(rows);
@@ -302,7 +295,7 @@ public final class NotesController {
             }
             footer.setText(checked+" checked");rows.addView(footer);if(!trashed){Button addItem=button("+ List item",()->listAction("add"));addItem.setContentDescription("Add checklist item");rows.addView(addItem);}
         }else{
-            body=new WritingField(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);design.entry(body,18);body.setHint("Write your note…");body.setGravity(android.view.Gravity.TOP);body.setMinLines(8);body.setText(n.body);TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,-2));body.addTextChangedListener(paragraphWatcher());((WritingField)body).selectionChanged=this::updateFormatting;editor.setOnClickListener(v->{if(body!=null && !trashed){body.requestFocus();((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);}});
+            body=new WritingField(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);design.entry(body,18);body.setHint("Write your note…");body.setGravity(android.view.Gravity.TOP);body.setMinLines(1);body.setText(n.body);TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,-2));body.addTextChangedListener(paragraphWatcher());((WritingField)body).selectionChanged=this::updateFormatting;editor.setOnClickListener(v->{if(body!=null && !trashed){body.requestFocus();body.setSelection(body.length());((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);}});
         }
         if(!n.diagram.nodes.isEmpty()){Button diagram=button("Diagram · "+n.diagram.nodes.size()+" shapes",this::renderDiagram);editor.addView(diagram);}
         if(n.reminderAt>0){Button reminder=button("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt)),this::chooseReminder);editor.addView(reminder);}
@@ -317,7 +310,7 @@ public final class NotesController {
         title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
     }
     private void buildFormatting(Button launcher){
-        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);formattingPanel.setBackground(design.shape(surface,14));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);root.addView(formattingPanel);
+        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);formattingPanel.setBackground(design.shape(surface,14));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);LinearLayout.LayoutParams formatWidth=new LinearLayout.LayoutParams(Math.min(dp(640),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2);formatWidth.gravity=android.view.Gravity.CENTER_HORIZONTAL;root.addView(formattingPanel,formatWidth);
         LinearLayout paragraphs=tools(formattingPanel);String[] labels={"Text","Heading 1","Heading 2"},names={"Text","H1","H2"},types={"text","h1","h2"};
         for(int i=0;i<labels.length;i++){final String type=types[i];Button pick=button(names[i],()->format(type));pick.setContentDescription(labels[i]);pick.setTooltipText(labels[i]);pick.setTag("style:"+types[i]);pick.setPadding(dp(8),dp(10),dp(8),dp(10));pick.setGravity(android.view.Gravity.CENTER);paragraphs.addView(pick,new LinearLayout.LayoutParams(0,-2,1));}
         Button close=icon("Close formatting","close",this::toggleFormatting);paragraphs.addView(close,new LinearLayout.LayoutParams(dp(48),dp(48)));writingDock.setTag(close);paragraphs.setPadding(0,dp(2),0,dp(2));
@@ -332,7 +325,7 @@ public final class NotesController {
     private TextWatcher paragraphWatcher(){return new TextWatcher(){int newlineFrom=-1,newlineTo,changedAt;boolean wasHeading;
         public void beforeTextChanged(CharSequence value,int start,int count,int after){wasHeading=false;for(Note.Mark mark:TextStyles.read(body.getText()))if((mark.type.equals("h1") || mark.type.equals("h2")) && mark.start<=start && mark.end>=start)wasHeading=true;}
         public void onTextChanged(CharSequence value,int start,int before,int count){newlineFrom=-1;changedAt=start;if(binding)return;int end=Math.min(value.length(),start+count);for(int at=start;at<end;at++)if(value.charAt(at)=='\n'){newlineFrom=at+1;newlineTo=end;break;}}
-        public void afterTextChanged(Editable value){if(binding)return;invalidateFullUndo();if(pendingParagraphStyle!=null && value.length()>0 && newlineFrom<0){String style=pendingParagraphStyle;pendingParagraphStyle=null;binding=true;try{TextStyles.reflow(body,TextFormatting.paragraph(TextStyles.read(value),value.toString(),style,Math.min(changedAt,value.length()),Math.min(changedAt,value.length())));}finally{binding=false;}}if(wasHeading && newlineFrom>=0){binding=true;try{TextStyles.reflow(body,TextFormatting.paragraph(TextStyles.read(value),value.toString(),"text",newlineFrom,newlineTo));}finally{binding=false;}}scheduleDraft();updateFormatting();}
+        public void afterTextChanged(Editable value){if(binding)return;invalidateFullUndo();if(pendingParagraphStyle!=null && value.length()>0 && newlineFrom<0){String style=pendingParagraphStyle;pendingParagraphStyle=null;binding=true;try{TextStyles.write(value,TextFormatting.paragraph(TextStyles.read(value),value.toString(),style,Math.min(changedAt,value.length()),Math.min(changedAt,value.length())));body.requestLayout();body.invalidate();}finally{binding=false;}}if(wasHeading && newlineFrom>=0){binding=true;try{TextStyles.write(value,TextFormatting.paragraph(TextStyles.read(value),value.toString(),"text",newlineFrom,newlineTo));body.requestLayout();body.invalidate();}finally{binding=false;}}scheduleDraft();updateFormatting();}
     };}
     public void openNote(String id){whenReady(()->{persistDraft();Note n=find(id);if(n==null || n.deletedAt>0){host.showMessage("This note is unavailable or in Trash.");return;}selectedIds.clear();editing=n.id;renderEditor();});}
     public void chooseReminder(){whenReady(()->{
@@ -427,9 +420,9 @@ public final class NotesController {
     });}
     private void cancelOcr(){if(ocrCancellation!=null)ocrCancellation.cancel();ocrSequence++;ocrPanel=false;returnToNoteOrHome();}
     private void renderOcrReview(OfflineOcr.Result result,String target){
-        clearPage();header("Review recognized text");root.addView(text("Offline · "+result.language+" · engine confidence "+result.confidence+" / 100 (not an accuracy guarantee). Check names, numbers and line breaks. Original image is unchanged.",14));
-        EditText input=new EditText(context);input.setTextColor(ink);input.setHintTextColor(muted);input.setHint("Recognized text — edit before saving");input.setGravity(android.view.Gravity.TOP);input.setText(result.text);root.addView(input,new LinearLayout.LayoutParams(-1,0,1));
-        row(new String[]{target==null?"Save as note":"Append to note","Save as new note","Cancel"},new Runnable[]{()->saveOcrText(input.getText().toString(),target),()->saveOcrText(input.getText().toString(),null),this::cancelOcr});
+        clearPage();header("Review recognized text");root.addView(text("Offline · "+result.language+" · confidence "+result.confidence+" / 100\nReview names, numbers and line breaks. Original image is unchanged.",13));
+        EditText input=new EditText(context);design.entry(input,18);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);input.setHint("Recognized text — edit before saving");input.setGravity(android.view.Gravity.TOP);input.setText(result.text);root.addView(input,new LinearLayout.LayoutParams(-1,0,1));
+        if(target==null)row(new String[]{"Save as note"},new Runnable[]{()->saveOcrText(input.getText().toString(),null)});else row(new String[]{"Append to note","Save as new note"},new Runnable[]{()->saveOcrText(input.getText().toString(),target),()->saveOcrText(input.getText().toString(),null)});
         if(result.text.isEmpty())host.showMessage("No text recognized. Nothing has been added. Try a sharper image or another language.");
     }
     private void saveOcrText(String value,String target){
@@ -444,7 +437,9 @@ public final class NotesController {
         persistDraft();if(capture!=null){host.showMessage("A recording is already active.");return;}
         try{
             capture=new VoiceCapture(context,new VoiceCapture.Listener(){
-                public void started(String id){main.post(()->{if(closed)return;voicePage=true;title=null;body=null;search=null;clearPage();header("Recording voice");root.addView(text("Microphone active · audio stays on this device. Stop to save and automatically transcribe offline in English. Leaving the app stops capture. Other languages/accents may be inaccurate; review the transcript against audio.",17));row(new String[]{"Stop and transcribe"},new Runnable[]{()->{if(capture!=null)capture.stop();if(status!=null)status.setText("Finishing durable audio…");}});});}
+                public void started(String id){main.post(()->{if(closed)return;voicePage=true;title=null;body=null;search=null;clearPage();header("Recording voice");
+                    LinearLayout recording=new LinearLayout(context);recording.setOrientation(LinearLayout.VERTICAL);recording.setGravity(android.view.Gravity.CENTER);root.addView(recording,new LinearLayout.LayoutParams(-1,0,1));TextView live=design.heading("Microphone on");recording.addView(live);android.widget.Chronometer timer=new android.widget.Chronometer(context);timer.setTextColor(design.accent);timer.setTextSize(36);timer.setBase(android.os.SystemClock.elapsedRealtime());timer.start();recording.addView(timer);TextView privacy=text("Audio stays on this device",14);privacy.setTextColor(muted);recording.addView(privacy);
+                    root.addView(text("Stop to save the original audio and start bundled offline English transcription. Review the transcript; language, accent and noise affect accuracy. Leaving the app stops recording safely.",14));Button stop=button("Stop and transcribe",()->{if(capture!=null)capture.stop();timer.stop();live.setText("Saving audio…");});stop.setGravity(android.view.Gravity.CENTER);stop.setTextColor(design.accentInk);stop.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));root.addView(stop,new LinearLayout.LayoutParams(-1,-2));});}
                 public void saved(String id){VoiceTasks.transcribe(context,id);main.post(()->{capture=null;if(closed)return;addVoicePlaceholder(id);if(voicePage)renderVoiceInbox();host.showMessage("Audio saved locally. Offline English transcription started automatically.");});}
                 public void failed(String message){main.post(()->{capture=null;if(closed)return;voicePage=false;returnToNoteOrHome();host.showMessage("Recording stopped: "+message+". Other features remain available; check Voice inbox for recovered audio.");});}
             });captureWorker.execute(capture);
@@ -469,7 +464,7 @@ public final class NotesController {
         disk.execute(()->{
             try{VoiceFiles files=new VoiceFiles(context);List<String> ids=files.list();Map<String,org.json.JSONObject> results=new LinkedHashMap<>();for(String id:ids){try{results.put(id,files.result(id));}catch(Exception invalid){results.put(id,new org.json.JSONObject().put("state","Transcript unreadable; audio retained").put("text",""));}}
                 main.post(()->{if(closed || !voicePage)return;content.removeAllViews();if(ids.isEmpty())content.addView(text("No recordings yet. Microphone access is optional and only requested when you tap Record voice.",15));
-                    for(String id:ids){java.io.File audio=files.audio(id);org.json.JSONObject result=results.get(id);content.addView(text(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(audio.lastModified()))+" · "+audio.length()+" bytes",17));content.addView(text(result.optString("state"),14));String transcript=result.optString("text","");if(!transcript.isEmpty())content.addView(text(transcript.length()>500?transcript.substring(0,500)+"…":transcript,15));
+                    for(String id:ids){java.io.File audio=files.audio(id);org.json.JSONObject result=results.get(id);content.addView(text(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(audio.lastModified()))+" · "+android.text.format.Formatter.formatShortFileSize(context,audio.length()),17));String state=result.optString("state");content.addView(text(state.equals("DONE")?"Transcript ready":state.equals("RUNNING")?"Transcribing offline…":state.equals("FAILED")?"Audio retained · retry transcription":state.isEmpty()?"Audio saved":state,13));String transcript=result.optString("text","");if(!transcript.isEmpty())content.addView(text(transcript.length()>500?transcript.substring(0,500)+"…":transcript,15));
                         LinearLayout recordingTools=tools(content);tool(recordingTools,"Play","play",()->playVoice(id));tool(recordingTools,"Stop playback","stop",this::stopPlayback);tool(recordingTools,"Export WAV","export",()->host.exportVoice(id));tool(recordingTools,"Retry transcript","retry",()->{VoiceTasks.transcribe(context,id);host.showMessage("Offline transcription queued. Original audio is retained.");});tool(recordingTools,"Open note","note",()->{addVoicePlaceholder(id);voicePage=false;editing=app.space.notes.domain.VoiceTranscripts.noteId(id);renderEditor();});
                     }
                 });
@@ -485,8 +480,9 @@ public final class NotesController {
     });});}
     public void pause(){if(capture!=null)capture.stop();stopPlayback();flush();}
     private void scheduleDraft(){dirty=true;if(status!=null)status.setText("Unsaved changes…");main.removeCallbacks(saveDraft);main.postDelayed(saveDraft,350);}
-    private void invalidateFullUndo(){undoCreatedId=null;if(undoFull){undoBatch.clear();undoFull=false;}}
-    private void captureUndo(List<Note> before,boolean full){undoCreatedId=null;undo=null;undoBatch=new ArrayList<>(before);undoFull=full;}
+    private void syncUndoControl(){if(undoControl!=null){boolean available=undo!=null || !undoBatch.isEmpty();undoControl.setEnabled(available);undoControl.setAlpha(available?1f:.38f);}}
+    private void invalidateFullUndo(){undoCreatedId=null;if(undoFull){undoBatch.clear();undoFull=false;}syncUndoControl();}
+    private void captureUndo(List<Note> before,boolean full){undoCreatedId=null;undo=null;undoBatch=new ArrayList<>(before);undoFull=full;syncUndoControl();}
     private void format(String type){
         if(body==null)return;int anchor=body.getSelectionStart(),focus=body.getSelectionEnd();int start=Math.min(anchor,focus),end=Math.max(anchor,focus);if(start<0)return;
         boolean paragraph=type.equals("h1") || type.equals("h2") || type.equals("text");if(!paragraph && start==end){host.showMessage("Select text to apply inline formatting. Headings apply to the current paragraph.");return;}
@@ -639,8 +635,8 @@ public final class NotesController {
         scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));return content;
     }
     private void renderBackups() {
-        prepared=null;LinearLayout content=scrollContent("Backup & restore");
-        content.addView(text("Portable backups include every current text note, pin, archive, colour and Trash timestamp. This milestone has no media attachments yet.",16));
+        prepared=null;LinearLayout content=scrollContent("Backup & restore");pageBack=this::renderStorage;
+        content.addView(text("Portable backups include text notes, checklists, diagrams, formatting, colours and labels. Original audio is separate: export important WAVs from Voice inbox.",16));
         content.addView(text("Use the local Internal storage/SD-card provider. Backups are readable JSON, not encrypted. Export is confirmed only after reopening and checking the complete file.",15));
         content.addView(text("Import always previews a MERGE: current notes stay; identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing that conflict copy is idempotent. No replacement/delete mode.",15));
         content.addView(text("Previous snapshot recovers the local checkpoint taken before the most recent confirmed restore/open-library. It is also merged, never used to silently delete current notes. Uninstall removes this private checkpoint.",14));

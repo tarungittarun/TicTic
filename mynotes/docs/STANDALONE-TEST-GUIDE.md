@@ -1,5 +1,22 @@
 # MyNotes — install and device acceptance guide
 
+
+## 0.9 practical UX check — not replaced by automated totals
+
+Use the gated 0.9 APK only after publication; before that, the older download is not this redesign. Install **over** the existing app, not after uninstall/clear-data. Export important JSON and original voice WAVs separately.
+
+1. Create a note without a title. Type `01` through `09`, each on a separate line. Select `01`, open **A / Formatting**, choose **H1**, then **H2**. Following numbers should move naturally, with no glyph collisions. Scroll to the last line if it is outside the viewport; clipping at the scroll edge is not overlapping paragraphs.
+2. Put a heading between normal paragraphs. Select only part of that heading, including a reversed selection. Heading style should cover its whole paragraph, not absorb the preceding/following ones. Clear, Undo, return Home and reopen.
+3. Start a heading before typing. Compose a word using your normal keyboard; press Enter and continue. The next paragraph should be ordinary text. This is especially important with the real IME/language you use.
+4. Rotate to landscape with the keyboard open. You must see actual note text, not only toolbars or a fullscreen keyboard's separate editor. In cramped height, the top app toolbar can collapse; Android Back/gesture closes the keyboard and restores it. Open formatting; if needed the keyboard closes to leave useful space.
+5. Set the largest system font and switch light/dark mode. Check Home cards, note body/formatting, checkboxes, colour names, labels, diagrams, Settings and storage/recovery. Long pages should scroll, not hide their only primary action.
+6. Choose a colour while part of the body is selected; the selection should survive the return. Recreate/rotate the controller and confirm selection and the note survive. This is not a promise to remember every note's cursor across all cold starts.
+7. Explore Plus / Capture, Organise and More before adding features: can a first-time user find scan, voice, labels, reminder, share and Trash? Native long-press tooltips name icon-only controls.
+8. Diagnostics should start **off**. Only if reporting a problem: enable Settings → Collect diagnostic logs, reproduce, export deliberately, then stop/delete. Do not attach personal notes/audio to a bug report by accident.
+
+Physical keyboard/IME behavior, TalkBack, OEM launchers, SD/provider failures and acoustic recognition quality remain device checks. Report the visible outcome and a reproducible sequence, not simply that an APK installed.
+
+
 ## Accepted release: 0.8.0 (9)
 
 [**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk) · [checksum](../releases/MyNotes-v0.8.0-9.apk.sha256) · [full receipt](../releases/MyNotes-v0.8.0-9.apk.release.json)

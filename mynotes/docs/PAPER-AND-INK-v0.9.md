@@ -1,73 +1,88 @@
 # Paper & Ink — MyNotes 0.9 UX review
 
-**Candidate 0.9.0 (10), not published.** The user rejected the 0.8 interface despite its green functional CI. That feedback supersedes the earlier “accepted” UX wording. This redesign must earn acceptance from practical use and rendered evidence, not test totals.
+**Candidate 0.9.0 (10), not published or accepted.** The user rejected 0.8's UI despite green functional CI. This redesign must earn acceptance from practical use and rendered evidence, not totals.
 
-The requested refinement window is 28 October 2026, **00:03:08–03:03:08 UTC** (05:33:08–08:33:08 IST). This document is a live review record, not a claim that the window has finished.
+Requested refinement window: **28 October 2026, 00:03:08–03:03:08 UTC** (05:33:08–08:33:08 IST). Final qualification is a separate release gate; reaching the end of the window does not authorize bypassing it.
 
-## The design decision
+## Design and first-use decisions
 
-Borrow interaction principles, not a brand skin: Keep's quick capture and quiet cards, contextual tools in leading note editors, and Word-style paragraph formatting. No sign-in, cloud service, or feature expansion is being introduced to disguise the UX problem.
+Borrow interaction principles, not a brand skin: Keep's quick capture and quiet cards, contextual tools in leading note editors, and Word-style paragraph formatting. No sign-in, cloud service or feature expansion is being used to disguise the UX problem.
 
-- **Content first:** the editor is a writing surface, not a column of command buttons. An optional title leads into the body; save-status chatter is hidden in normal use. Heading, body and surrounding paragraphs occupy native text line boxes.
-- **One signature:** warm paper / charcoal ink, restrained honey accents, consistent outline icons, shared typography and spacing. Home, editor, diagrams, Library, Settings, storage, colour and label pages share the same primitives.
-- **Only the current task:** persistent editor chrome is Back, Pin, Archive and Undo above; Capture, Formatting, Organise and More below. Secondary commands appear in dismissible, scrollable sheets instead of permanent disclosure/button stacks. The formatting deck replaces the bottom dock while open.
-- **Readable states:** 12 labelled colour swatches, selected-colour outline, checked-list state, actual Undo availability, plain-language capture/recovery messages. No “0 checked” counter on an untouched list.
-- **Small and large screens:** centred 720dp maximum writing column, 640dp formatting deck, 560dp maximum sheet width; adaptive note-card columns; scrollable constrained pages. Large text wraps rather than being truncated into single-line actions. Recording keeps Stop outside its scrolling explanation.
-- **Native editing:** selection handles, caret, composition and keyboard remain Android's controls. Metadata changes and recreation preserve the body selection. Text inputs request no fullscreen/extract IME: landscape must not replace the app with the keyboard's separate editor.
+- **Content first:** optional title, direct body editing, native selection and caret. No persistent column of command buttons or routine save-status chatter.
+- **One signature:** warm paper / charcoal ink, restrained honey accents, outline icons, shared typography and spacing across cards, editor, diagrams, Library, Settings, storage, colour and labels.
+- **Contextual controls:** Back / Pin / Archive / Undo above the editor; Capture / Formatting / Organise / More below. Secondary commands live in dismissible sheets. The formatting deck replaces the normal dock.
+- **Readable states:** labelled colour swatches and selected outline; actual Undo availability; no empty checklist progress counter; plain-language storage and capture messages.
+- **Adaptive layout:** centred 720dp maximum writing column, 640dp formatting deck, 560dp sheets, adaptive card columns and scrolling constrained pages. Large text wraps. Recording keeps Stop separate from its scrolling explanation.
+- **Native editing:** no fullscreen/extract IME in landscape. Metadata changes and recreation retain selection. Compact keyboard layouts collapse unnecessary chrome rather than sacrificing the writing/search viewport.
 
-“Cleaner” does not mean removing capabilities. Existing capture, offline OCR/ASR, labels, colours, reminders, diagrams, sharing, conversion, local storage/recovery, widget, Archive, seven-day Trash and Undo remain accessible. Calculator and MySpace code stay frozen.
+### First-use route
 
-## First-use route
+1. Home → **New note** (accessible name: New text note), or Checklist. Write directly; title is optional and there is no Save button to discover.
+2. **A / Formatting** → Text / H1 / H2 and inline styles. A heading applies to the selected paragraph, not its neighbours.
+3. **Plus / Capture** → Diagram, Export PDF, Scan image, Record voice, Voice inbox. Permissions are contextual; denial leaves ordinary notes usable.
+4. **Organise** → Colour, Labels, Reminder. **More** → Share, Copy, Trash, type-specific actions and dates.
+5. **Library → Settings** → Storage & recovery and diagnostics. Diagnostics are **off by default**; enable before reproduction, export deliberately, delete locally.
 
-1. Home → **New note** (accessible name: New text note), or **Checklist**.
-2. Write directly in the body; a title is optional. There is no Save button to discover.
-3. **A / Formatting** opens Text / H1 / H2 and inline styles. Selecting any portion of a paragraph applies the heading to that whole paragraph, without consuming neighbouring paragraphs.
-4. **Plus / Capture** offers Diagram, Export PDF, Scan image, Record voice and Voice inbox. Permissions are contextual; denial does not disable ordinary notes.
-5. **Organise** contains colour, labels and reminders. **More** contains share, copy, Trash and type-specific actions, plus creation/edit dates.
-6. **Library → Settings** contains storage/recovery and the diagnostic switch. Diagnostics are **off by default**; enable before reproduction, export deliberately, and delete locally when finished.
+Cleaner presentation does not remove existing capture, offline OCR/ASR, labels, colours, reminders, diagrams, sharing, conversion, local storage/recovery, widget, Archive, seven-day Trash or Undo. Calculator and MySpace remain frozen.
 
-## The reported overlapping-heading bug
+## Heading overlap: implementation and practical evidence
 
-The fix is not extra fixed whitespace. H1/H2 are normalized to complete paragraph ranges, use native metric-affecting spans with deliberate line-height allocation, and explicitly remeasure after formatting. The typing watcher updates the same Editable during input composition; it does not replace the whole editing buffer on every keystroke. Enter ends the current heading and starts ordinary text.
+This is not fixed whitespace added between sample lines. H1/H2 normalize to complete paragraphs, use native metric-affecting spans and deliberate line-height allocation, and remeasure after formatting. The input watcher updates the existing Editable through composition instead of replacing the buffer. Enter ends a heading and starts ordinary text.
 
-Practical checks cover `01` through `09` with H1/H2 on the first line, preceding/following paragraphs, a caret and reversed selection, wrapped text, mixed scripts, clear/Undo/reopen, composing a word and then Enter, and colour/recreation selection retention. Native layouts and glyph rasters are checked separately from screenshot inspection. The raster probe temporarily colours test glyphs to identify their ink bounds; the persisted numeric screenshots are captured **before** that mutation.
+Checks include `01`–`09` with H1/H2 on `01`, paragraphs before/after, wrapped and mixed-script text, caret and reversed selection, clear/Undo/reopen, composing a word then Enter, and selection after colour/recreation. Native line boxes and glyph raster bounds are checked separately. Numeric screenshots precede the temporary diagnostic glyph-colour mutation.
 
-## What the earlier rendered evidence actually found
+**Latest completed evidence:** [run 40622598745](https://github.com/tarungittarun/TicTic/actions/runs/40622598745), production source `d5cf717327883798bb150562bfefb5a9957e7342`, [provenance and captures](ux-review/40622598745/).
 
-Evidence directory [`ux-review/40612414633`](ux-review/40612414633/), source `349ebaacdbc02e7e02d445088717d4077d9c8ce2`, is **pre-final**, not approval of the current source.
+| Review profile | Android methods | Actual review outcome |
+| --- | ---: | --- |
+| Light / API34 | 118/118 | Quiet cards, editor and contextual tools; numeric heading lines visibly separated. |
+| Dark / API34 | 118/118 | Readable ink/surfaces and labelled palette; consistent editor/settings styling. |
+| 200% font / API34 | 118/118 | Heading/body separation readable; **colour names break mid-word** in the three-column palette. Not approved. |
+| Landscape / API34 | 118/118 | Actual keyboard leaves readable editor lines; actual search result now visible above the keyboard. |
+| Tablet / API34 | 116/118 | Centred editor and formatting visible, but two native tap journeys fail to reveal Heading 1 / Colour. Not approved. |
 
-- Light, dark and 200% font: all 115 discovered Android methods passed in each full review lane. Native numeric screenshots show a larger first heading followed by naturally separated normal lines; the 200% example shows wrapped heading text without colliding with the following paragraph.
-- **Landscape was red: 106/115.** Looking at `editor-keyboard.png` revealed the actual fullscreen/extract IME covering the editor. The resulting native taps hit the keyboard's system-owned window. Changing coordinate helpers alone did not fix that UX. The candidate now requests `IME_FLAG_NO_EXTRACT_UI | IME_FLAG_NO_FULLSCREEN`, and opens formatting without the keyboard in a constrained viewport. Native EditorInfo flags are asserted as part of the composition case.
-- **Tablet did not reach instrumentation.** UIAutomator returned a null root during the baseline-release taskbar/window transition; the harness aborted on the subsequent missing XML pull. The bounded selector readiness check now handles an absent tree and records window state on each failed lookup. Missing instrumentation is still a hard failure, never a pass.
+All other Android lanes in that run succeeded: **20/21 lanes passed**, not a full pass. Lint, domain, source and APK audits also passed. Publication was skipped. The remaining failures are not dismissed as environmental.
 
-Run [40613541005](https://github.com/tarungittarun/TicTic/actions/runs/40613541005) qualifies source `63f63c29968bfb8072b8b4132499bed9cb875bf3` including these changes. The full API34, landscape and 200% font lanes each passed all **116** methods, including selection/recreation. Landscape no longer fails on the fullscreen keyboard. Four other lanes failed **before emulator launch** on GitHub artifact-service `ECONNRESET`; their absence is not attributed to app UI. A separate API29 storage case hit its 16MiB Java heap while constructing and reading an 8MiB oversize fixture. The follow-up avoids allocating the entire source fixture, and converts backup memory exhaustion into a recoverable IOException instead of an uncaught app error.
+## What visual inspection changed after green counts
 
-The next qualification uses current Node24-native artifact actions, limits the download burst to eight concurrent lanes and retains artifact-service inventory on failure; it does not add emulator/test rerun loops. **Final five-variant review and full green matrix are pending.** Publication remains fail-closed in `ux-review/approval.json`.
+1. Run40614442937 passed all 21 lanes, but its actual landscape keyboard capture left no useful note body. It was not accepted.
+2. Removing fullscreen IME and hiding only the top bar was insufficient: later instrumentation measured **5 visible body pixels versus a 77px native line**. Caret-only scrolling did not fix the measured layout.
+3. Editor title/dock adaptation restored readable lines. Run40621098598 then exposed a separate search defect: hidden header/dock retained their old measured blank space, leaving no result viewport.
+4. Source `d5cf717` posts a changed-only forced root remeasurement after traversal. Run40622598745 and its actual search image now show the result title and body above the landscape keyboard.
+5. A separate API29 save/Undo race was corrected by reporting Saved only for the actual persisted revision. API29 passed in the last two completed qualifications.
+6. Tablet failures exposed a harness readiness problem worth testing: `tap()` asserted visibility before waiting for UI idle and did not require stable target geometry. Source `de1d671` adds bounded visibility and stable, fully visible geometry waits; it still injects actual down/up pointer events and retains clipping and minimum-target assertions. **This is a proposed synchronization correction, not a confirmed diagnosis or a passed tablet result.**
+7. Inspecting the actual 200% palette found split names despite 118/118. Source `934c40980ff264d1c030f29d4efdea79b789a631` uses two columns at large system text and adds a native assertion against splitting single-word colour names. **New screenshots and Android results are required before calling it fixed.**
 
-## A second visual finding after the full matrix passed
+## Current qualification and deliverables
 
-Run [40614442937](https://github.com/tarungittarun/TicTic/actions/runs/40614442937), source `1f8be9b184e2014c78e28658e6e303234f4cf5ac`, passed **all 21 Android lanes**, including all 117 methods in each full resource variant. Its workflow remained red **only because manual rendered approval was pending**. Seventy provenance-pinned screenshots were exported.
+[Run 40623972980](https://github.com/tarungittarun/TicTic/actions/runs/40623972980) qualifies source `934c40980ff264d1c030f29d4efdea79b789a631`, including both pending corrections. It supersedes run40623790926, which was automatically cancelled by the workflow's newer-source concurrency policy; that cancelled run is not qualification evidence.
 
-Inspection still found a real problem: `landscape-api34/editor-keyboard.png` displayed top and bottom toolbars, but essentially no readable note body. Not using fullscreen IME was necessary, but not sufficient. The top editor chrome now collapses only below a 240dp available height, leaving the native writing viewport above the keyboard. A screenshot-stage assertion requires the actual body visible rectangle to contain at least one native line; it does not merely assert that toolbar buttons can be tapped. The formatting keyboard-dismiss threshold is also 240dp, so ordinary portrait editing does not dismiss it unnecessarily.
+Local gates before the latest production push: **505 root checks + 115 Notes checks passed**, with a clean whitespace diff. Android builds run only in GitHub Actions, not locally.
 
-Run [40615854257](https://github.com/tarungittarun/TicTic/actions/runs/40615854257) qualifies this final viewport change, source `e4fb726b373958866919ee6342ce0ce9415ce0ba`. **Approval is still pending its actual captures.** The contrast-token checks now also verify 4.5:1 normal-text contrast for light/dark ink, hints and accents on shared surfaces, and for text on all 12 note-card colours. Numeric token tests are not TalkBack or physical-display qualification.
+[`../../NOTES-UI-OVERVIEW.pdf`](../../NOTES-UI-OVERVIEW.pdf) is now a **16-page actual-runtime review**, replacing the old concept-only overview. It pins run40622598745/source d5cf717 on every page and is explicitly **Pending review / not release approval**. It does not depict or qualify the later large-font palette correction. Screenshots are synthetic-fixture emulator captures; the flowchart page is explicitly a schematic guide to the six implemented shape types. The historical concept generator now writes `NOTES-UI-CONCEPT-HISTORY.pdf` so it cannot overwrite the runtime overview.
 
-Two 70-minute component soaks are tracked separately: original redesigned text/layout source `9114bec` (run40610708876), and source `15ae085` (run40614747195). The latter has equivalent TextStyles/native exercise/storage/ML component inputs, but precedes the final toolbar viewport adjustment. Neither is described as 70 minutes of physical gestures or exact-final-UI navigation.
+`ux-review/approval.json` remains fail-closed. No new APK download is represented as accepted or published.
 
-The original run40610708876 completed successfully: API26 **4,200,310 ms /3,137 editor/native/durable cycles**, warm/peak PSS **205,664 /217,561 KiB**; API35 **4,201,116 ms /2,082 cycles**, **87,504 /137,861 KiB**. Original WAV SHA-256 stayed `dcfea5712c43a43ba7ae8083afb39d36993e5a69c46e88b68aaa72b65cb615bb`. These are measurements, not a leak-free, smooth-frame, battery or acoustic-accuracy claim.
+## Completed long component measurements
 
-The stricter writing-viewport assertion then correctly rejected the first compact-toolbar implementation. Native measurements showed only **5 visible body pixels against a 77px native line** in landscape: the optional title still occupied the short scroll viewport. Merely requesting TextView bringPointIntoView did not scroll the containing document. Follow-up run [40618428108](https://github.com/tarungittarun/TicTic/actions/runs/40618428108), source `7d54ad298f24e7f59a1cdbe24c23b9da4fa85720`, now calculates the actual focused caret line in document coordinates and scrolls that line into the resized viewport. The assertion remains unchanged; final Android evidence is still required.
+Both 70-minute runs completed successfully. They exercise an attached debug controller's paragraph reflow/raster, native English OCR/ASR, PCM recovery, atomic private repository and backup. They are **not** 70 minutes of human gestures or exact-final-UI navigation.
 
-## Approval checklist — not automatically satisfied by green CI
+| Run / source | API | Elapsed ms | Cycles | Warm / peak PSS KiB |
+| --- | ---: | ---: | ---: | ---: |
+| 40610708876 / 9114bec | 26 | 4,200,310 | 3,137 | 205,664 / 217,561 |
+| 40610708876 / 9114bec | 35 | 4,201,116 | 2,082 | 87,504 / 137,861 |
+| 40614747195 / 15ae085 | 26 | 4,201,313 | 2,167 | 197,906 / 208,263 |
+| 40614747195 / 15ae085 | 35 | 4,200,905 | 1,903 | 87,590 / 136,246 |
 
-- [ ] Final-source light, dark, 200% font, landscape and tablet images inspected.
-- [ ] Numeric heading, surrounding paragraphs, actual typing/composition and caret regressions pass.
-- [ ] First-use creation, contextual tools, colour/labels, checklist, diagram and recovery routes remain understandable.
-- [ ] No hidden or clipped primary action in reviewed constrained scenes; actual landscape keyboard no longer owns the whole screen.
-- [ ] Full Android matrix, lint, signed APK audit, upgrade seed preservation, source/domain/privacy gates pass.
-- [ ] Report/PDF accurately separate rendered screenshots, schematic design, emulator tests and physical-device limitations.
-- [ ] Approval pins equivalent production inputs and an actual reviewed run before immutable publication.
+Original WAV remained unchanged: SHA-256 `dcfea5712c43a43ba7ae8083afb39d36993e5a69c46e88b68aaa72b65cb615bb`. These measurements are not a leak-free, frame-smoothness, battery, thermal or acoustic-accuracy claim.
 
-## Qualification boundary
+## Release acceptance — still pending
 
-These are synthetic fixtures in an isolated debug host, plus separate signed-release install/identity/update checks. Screenshots are real emulator captures, not marketing mockups or physical-phone proof. Component soak cycles are not human typing, TalkBack, OEM/SD-provider, accent/noise, microphone hardware, thermal, ARM or 16KiB-device qualification. User/device experience remains decisive; “world class” is a goal, not a test-derived certification.
+- [ ] Newest-source light, dark, 200% font, landscape and tablet captures inspected, including the corrected palette.
+- [ ] Numeric paragraph, native typing/composition, caret and colour/recreation regressions pass on all required profiles.
+- [ ] Primary actions and content remain visible/understandable in the reviewed constrained scenes.
+- [ ] Full Android matrix, lint, APK identity/privacy/update audits and source gates pass.
+- [ ] PDF/report regenerated from the accepted evidence, with honest scope boundaries.
+- [ ] Approval pins equivalent production inputs and the actual reviewed run before immutable publication.
+
+Physical OEM/SAF/SD providers, TalkBack, microphone hardware, accent/noise, battery/thermal, ARM and 16KiB-device execution remain unqualified. Emulator screenshots and component soaks do not certify these. User/device experience remains decisive; “world class” is a goal, not a test-derived certification.

@@ -41,25 +41,13 @@ retained so they can be restored deliberately. GitHub's global disable API retur
 
 See [interaction repair](docs/INTERACTION-REPAIR-v0.10.md): Plus → Reminder, dedicated Labels/Colour, list-only Copy/Trash, fresh sheet state, precise native word selection and reminder reconciliation fixes.
 
-Candidate **0.11.0 (12)** adds physical folders/moves, swipeable filters, clearer voice controls, 20 diagram shapes/grouping/history, owned images/drawings, 16 backgrounds and appearance settings. [Detailed outcomes and limits](docs/ORGANISATION-AND-MEDIA-v0.11.md). Rendered review is approved; publication still requires every technical gate.
+Current published release: **0.11.0 (12)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) · [checksum](releases/MyNotes-v0.11.0-12.apk.sha256) · [receipt](releases/MyNotes-v0.11.0-12.apk.release.json).
 
-Current published release: **0.10.0 (11)** — content-first Paper & Ink redesign, contextual editor tools, native paragraph reflow,
-and opt-in local diagnostics in Settings. Existing local note reminders and resizable/re-placeable
-pinned-first home-screen widget, plus bundled offline English/Hindi/Kannada OCR with review,
-automatic offline English voice transcription, retained WAV inbox/export, rich notes,
-checklists/labels, flowcharts, vector PDF and local storage/backup.
+Its publication run [40712278512](https://github.com/tarungittarun/TicTic/actions/runs/40712278512) passed all required gates /21 Android lanes, but subsequent physical-device feedback identified folder/image and usability defects. Those device reports supersede emulator-only acceptance; do not describe0.11 as fully working on the user's phone.
 
-[**Download MyNotes 0.10.0 (11)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.10.0-11/MyNotes-v0.10.0-11.apk)
-· [checksum](releases/MyNotes-v0.10.0-11.apk.sha256) · [receipt](releases/MyNotes-v0.10.0-11.apk.release.json)
+Candidate **0.12.0 (13)** is being qualified for those repairs. [Device evidence, implemented changes and current limits](docs/DEVICE-REPAIR-v0.12.md). New runtime inputs require fresh qualification and rendered approval; no candidate APK is published yet. The stable package/certificate is unchanged; schema6 reads1–6. Future MySpace embedding remains a contract, not certification.
 
-Qualification [40642752968](https://github.com/tarungittarun/TicTic/actions/runs/40642752968)
-passed all required gates and all **21 Android lanes**, including **123/123 methods in each full review profile**.
-Actual light/dark/200% font/landscape/tablet evidence from equivalent production source run40641156198
-was inspected before approval. Local gates: **115 Notes checks / 505 root checks**.
-Runtime package/certificate remain stable; schema5 reads1–5. Emulator approval is not user acceptance
-or physical OEM/TalkBack/thermal/acoustic certification.
-
-APK: **66,522,692 bytes**; SHA-256 `2ffc9457ee3ac0f6508d26981e60245cff9afebcfb1bd94e0db9475adb2aeb03`.
+Published0.11 APK: **66,558,740 bytes**; SHA-256 `83428e4fbd99e368c9d439e11ae8669e03eaf01d3976c1b6fd669f155b24150f`.
 Large APKs use versioned GitHub Release assets and checked-in provenance receipts, never replacement
 uploads or growing binary copies in Git. Prior releases remain unchanged. Install over the old app;
 do not uninstall/clear data. JSON backups exclude voice WAVs: export important recordings separately.

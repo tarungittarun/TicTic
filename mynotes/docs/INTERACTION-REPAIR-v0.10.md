@@ -1,6 +1,6 @@
 # MyNotes 0.10 — interaction repair
 
-Status: candidate 0.10.0 (11), publication blocked pending the classifier correction below. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
+Status: candidate 0.10.0 (11), classifier correction freshly qualified and approved for gated publication. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
 
 ## Device report and evidence boundary
 
@@ -57,3 +57,7 @@ Approval pins source `57990d0d0cd794cc7f2fc5b051eb3b658235b91a` and this reviewe
 ## Publication guard caught automatic selection expansion
 
 Run40639953784 blocked publication because API26 selected `Alpha bravo` when the real long press targeted `bravo`. This is a meaningful selection failure, not a test to weaken or retry blindly. The follow-up disables Android TextClassifier smart expansion on editable fields (`TextClassifier.NO_OP`); native selection handles, manual Select All and clipboard editing remain enabled. Prior visual approval has been cleared again. Fresh qualification is required; there is no published v0.10 APK yet.
+
+## Fresh classifier-corrected qualification
+
+[Run40641156198](https://github.com/tarungittarun/TicTic/actions/runs/40641156198), source `019459a9db566a5df646c315062e1a9f7c90e59f`, passed all 21 Android lanes and required source/domain/lint/APK gates. All six full resource profiles passed **123/123**, including the exact-word/numeric-line native selection checks and API36 dark/0.85 font. New source-pinned captures were inspected and the 17-page runtime PDF regenerated. Approval now pins only this corrected source and run. The failed publication was not bypassed; a fresh complete gated publication run is required.

@@ -1,6 +1,12 @@
 {
-  "reviewed_source": null,
-  "review_run": null,
-  "inspected_variants": [],
-  "findings": "Publication run40639953784 blocked: native API26 long press expanded bravo to Alpha bravo. Disable smart text-classifier expansion for editable fields, preserving native manual selection and clipboard; require fresh runtime qualification and rendered review before publication."
+  "reviewed_source": "019459a9db566a5df646c315062e1a9f7c90e59f",
+  "review_run": "40641156198",
+  "inspected_variants": [
+    "full-api34",
+    "night-api34",
+    "large-font-api34",
+    "landscape-api34",
+    "tablet-api34"
+  ],
+  "findings": "Fresh source with editable TextClassifier.NO_OP passes all 21 Android lanes, including native exact bravo/03 selection assertions and 123/123 methods in all six complete resource profiles. Inspected source-pinned light/dark/large-font home/editor/heading/keyboard captures and landscape/tablet layouts, Plus containing Reminder, and populated Settings after repeated navigation including Android16 dark/0.85 font. Earlier API26 phrase expansion was not waived or retried unchanged; production correction required fresh qualification. List-only Copy/Trash, direct label/colour controls and reminder save-across-due/permission/dedup tests pass. Bounded emulator release approval only; no physical OEM or exact-alarm timing certification."
 }

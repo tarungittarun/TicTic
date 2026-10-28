@@ -78,7 +78,7 @@ public final class GenerationProtocol {
         // A closed write may have succeeded before acknowledgement was interrupted.
         if(current.payload!=null && Arrays.equals(current.payload,payload))return current;
         if(!Objects.equals(current.head,expected))throw new IOException("Folder changed externally; refusing overwrite");
-        String id=UUID.randomUUID().toString();
+        java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS'Z'",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));long clock=System.currentTimeMillis();String id=format.format(new Date(clock));Map<String,byte[]> existing=backend.readAll();int collision=0;while(existing.containsKey("mynotes-gen-"+id+".json")){if(++collision>10000)throw new IOException("Too many timestamp collisions; recovery retained");id=format.format(new Date(++clock));}
         byte[] stored=backend instanceof BlobBackend?externalize(payload):payload;
         byte[] encoded=new JSONObject().put("format",backend instanceof BlobBackend?2:1).put("id",id).put("parent",expected==null?"":expected)
             .put("payload",new String(stored,StandardCharsets.UTF_8)).put("sha256",digest(stored))

@@ -41,7 +41,7 @@ public final class LocalNotebookFolders {
   byte[] digest=MessageDigest.getInstance("SHA-256").digest(id.getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder value=new StringBuilder("note-");for(byte b:digest)value.append(String.format(Locale.ROOT,"%02x",b&255));return value+".mynote.json";
  }
  private String timestampName(Uri parent,Note note)throws Exception{
-  java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));String base="note-"+format.format(new Date(note.createdAt));
+  java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS'Z'",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));String base="note-"+format.format(new Date(note.createdAt));
   for(int suffix=0;suffix<10000;suffix++){String candidate=base+(suffix==0?"":"-"+suffix)+".mynote.json";Entry entry=find(parent,candidate);if(entry==null)return candidate;try{owned(entry,note.id);return candidate;}catch(Exception foreign){/* A timestamp collision must never overwrite another note or a foreign file. */}}
   throw new IOException("Too many files with this timestamp; choose another folder");
  }
@@ -72,6 +72,14 @@ public final class LocalNotebookFolders {
     try{owned(entry,note.id);}catch(Exception foreign){continue;}
     if(!DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("Destination verified, but an old note copy remains. Retry save to finish moving.");
    }
+  }
+ }
+ /** Delete only verified portable files whose IDs were explicitly purged, never foreign files or backups. */
+ public void removeOwned(Set<String> ids)throws Exception{
+  if(ids.isEmpty())return;List<String> locations=list();locations.add("");
+  for(String folder:locations)for(Entry entry:children(directory(folder)))if(candidate(entry)){
+   List<Note> decoded;try{decoded=DocumentCodec.decode(read(entry.uri));}catch(Exception foreign){continue;}
+   if(decoded.size()==1 && ids.contains(decoded.get(0).id) && !DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("A deleted note file could not be removed. Reconnect storage and retry save.");
   }
  }
  /** Destination copy is verified first. Any failure leaves source/recovery available for retry. */

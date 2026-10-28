@@ -32,7 +32,13 @@ public final class NotesRepository {
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
     public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected));}
-    private void materializeFolders(List<Note> notes)throws Exception{if(folderAccess==null && selected!=null)folders().reconcile(notes);}
+    /** Persist deletion intent before removing notes so provider failures can be retried after restart. */
+    public void schedulePortableDeletion(Set<String> ids)throws IOException{
+        if(selected==null || folderAccess!=null)return;String key="portable-delete:"+selected;Set<String> pending=new HashSet<>(settings.getStringSet(key,Collections.emptySet()));pending.addAll(ids);if(!settings.edit().putStringSet(key,pending).commit())throw new IOException("Could not journal file cleanup; nothing deleted");
+    }
+    private void materializeFolders(List<Note> notes)throws Exception{
+        if(folderAccess==null && selected!=null){LocalNotebookFolders files=folders();files.reconcile(notes);String key="portable-delete:"+selected;Set<String> pending=new HashSet<>(settings.getStringSet(key,Collections.emptySet()));for(Note n:notes)pending.remove(n.id);files.removeOwned(pending);if(!settings.edit().remove(key).commit())throw new IOException("File cleanup completed but its acknowledgement needs retry");}
+    }
     public String status() {
         if(selected==null)return status;
         try {return status+" · "+android.provider.DocumentsContract.getTreeDocumentId(Uri.parse(selected));}

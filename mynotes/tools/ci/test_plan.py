@@ -70,7 +70,7 @@ def build_plan(root=ROOT,config=None):
         if lane.get('night','no') not in ['yes','no']:raise ValueError('Invalid night mode')
         if lane.get('orientation','portrait') not in ['portrait','landscape','any']:raise ValueError('Invalid orientation')
         if lane.get('profile','Nexus 5') not in ['Nexus 5','pixel_c']:raise ValueError('Unreviewed device profile')
-        if not 1<=float(lane.get('font',1))<=2:raise ValueError('Unreviewed font scale')
+        if not 0.85<=float(lane.get('font',1))<=2:raise ValueError('Unreviewed font scale')
         if lane['group'] not in {*groups,'all'}:raise ValueError('Unknown lane group')
         if not isinstance(lane['api'],int) or lane['api']<26:raise ValueError('Unsupported lane API')
     covered={name for lane in lanes for name in (android if lane['group']=='all' else groups[lane['group']])}

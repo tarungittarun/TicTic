@@ -80,7 +80,7 @@ public class DiagramJourneysTest {
         start(Collections.emptyList());click("+ Text");main(()->input("Title").setText("Flowchart"));click("Diagram");click("Process");click("Decision");click("Start / End");
         click("→");click("Wider");saved();Note current=new NotesRepository(context).load().get(0);assertEquals(3,current.diagram.nodes.size());assertEquals(240,current.diagram.nodes.get(2).width);
         click("Delete shape");saved();assertEquals(2,new NotesRepository(context).load().get(0).diagram.nodes.size());click("Undo diagram");saved();assertEquals(3,new NotesRepository(context).load().get(0).diagram.nodes.size());
-        click("Back to note");click("Copy");saved();assertEquals(3,new NotesRepository(context).load().get(1).diagram.nodes.size());
+        click("Back to note");click("Back");await(()->card(controller.view(),"Flowchart")!=null);selectCard("Flowchart",true);click("Copy");saved();assertEquals(3,new NotesRepository(context).load().get(1).diagram.nodes.size());
     }
     @Test public void diagramSurvivesRotationSnapshotAndSearch() throws Exception {
         start(Collections.emptyList());click("+ Text");click("Diagram");click("Input / Output");saved();

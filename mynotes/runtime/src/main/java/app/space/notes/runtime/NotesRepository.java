@@ -119,6 +119,15 @@ public final class NotesRepository {
             throw failure;
         }
     }
+    /** Worker-thread compare-and-apply for multi-file restore coordinators; stale previews never write. */
+    public boolean applyRestoreIfCurrent(List<Note> current,List<Note> merged)throws Exception{
+        byte[] expected=DocumentCodec.encode(current);DocumentCodec.encode(merged);
+        synchronized(SNAPSHOT_LOCK){
+            if(!Objects.equals(selected,settings.getString("tree",null)))throw new IOException("Storage selection changed; review restore again");
+            if(!Arrays.equals(expected,DocumentCodec.encode(localSnapshot())))throw new IOException("Library changed; review restore again");
+            return applyRestore(current,merged);
+        }
+    }
     /** Preview/confirmation is required by the controller. Older target generations remain. */
     public void openExisting(Uri uri,String expected,List<Note> current,List<Note> merged) throws Exception {
         String target=uri.toString();byte[] payload=DocumentCodec.encode(merged);

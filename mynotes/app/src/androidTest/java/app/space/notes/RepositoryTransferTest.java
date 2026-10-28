@@ -87,4 +87,13 @@ public class RepositoryTransferTest {
         backend.unavailable=true;assertFalse(repository.applyRestore(before,merged));
         assertEquals(2,repo().load().size());assertEquals(1,repository.previousSnapshot().size());
     }
+    @Test public void compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint()throws Exception{
+        NotesRepository repository=repo();List<Note> original=Arrays.asList(n("one","original")),base=Arrays.asList(n("one","preview base")),latest=Arrays.asList(n("one","newer writer"));repository.save(original);repository.applyRestore(original,base);repo().save(latest);
+        org.junit.Assert.assertThrows(IOException.class,()->repository.applyRestoreIfCurrent(base,Arrays.asList(n("two","stale import"))));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(latest),DocumentCodec.encode(repo().localSnapshot()));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(original),DocumentCodec.encode(repository.previousSnapshot()));
+    }
+    @Test public void compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage()throws Exception{
+        NotesRepository repository=repo();List<Note> base=Arrays.asList(n("one","base")),merged=Arrays.asList(n("one","base"),n("two","import"));repository.save(base);assertTrue(repository.applyRestoreIfCurrent(base,merged));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(base),DocumentCodec.encode(repository.previousSnapshot()));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(merged),DocumentCodec.encode(repository.localSnapshot()));
+        NotesRepository stale=repo();stale.load();repo().selectFolder(uri,merged);org.junit.Assert.assertThrows(IOException.class,()->stale.applyRestoreIfCurrent(merged,base));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(merged),DocumentCodec.encode(repo().localSnapshot()));
+    }
+
 }

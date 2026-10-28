@@ -7,7 +7,7 @@ mkdir -p "$OUT"
 exec > >(tee "$OUT/lane.log") 2>&1
 set -x
 collect() {
-  for scene in trash trash-confirmation drawing-tools drawing-focus bootstrap-failure filters-view filters-sort filters-labels library backgrounds background-editor drawing image-editor voice-inbox about add-reminder settings-after-navigation search-keyboard numeric-h1 numeric-h2 home editor editor-keyboard format format-keyboard capture palette labels diagram checklist settings storage; do
+  for scene in control-failure trash trash-confirmation drawing-tools drawing-focus bootstrap-failure filters-view filters-sort filters-labels library backgrounds background-editor drawing image-editor voice-inbox about add-reminder settings-after-navigation search-keyboard numeric-h1 numeric-h2 home editor editor-keyboard format format-keyboard capture palette labels diagram checklist settings storage; do
     timeout 5s adb exec-out run-as app.space.notes.debug cat "files/ux-review/$scene.png" > "$OUT/ux-$scene.png" 2>/dev/null || true
   done
   timeout 15s adb logcat -d -t 500 > "$OUT/logcat.txt" 2>&1 || true

@@ -22,7 +22,7 @@ final class DrawingPad extends View {
  boolean ready(){return ready;}boolean saving(){return saving;}
  void saving(boolean value){saving=value;setEnabled(ready && !saving);}
  long revision(){return revision;}
- void color(int value){color=value;}
+ void color(int value){color=value;if(mode==3)mode=0;}
  void tool(int value){if(value<0 || value>=TOOLS.length)throw new IllegalArgumentException("Unknown drawing tool");mode=value;}
  int tool(){return mode;}
  void width(float value){width=Math.max(1,Math.min(48,value));}

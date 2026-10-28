@@ -18,7 +18,7 @@ final class DrawingPad extends View {
  void redo(){if(!saving && !redo.isEmpty()){strokes.add(redo.remove(redo.size()-1));revision++;invalidate();}}
  private void drawPaper(Canvas c){c.drawColor(Color.WHITE);if(base!=null)c.drawBitmap(base,null,new RectF(0,0,1024,768),null);for(Stroke stroke:strokes){paint.setColor(stroke.color);c.drawPath(stroke.path,paint);}if(current!=null){paint.setColor(strokeColor);c.drawPath(current,paint);}}
  Bitmap snapshot(){Bitmap value=Bitmap.createBitmap(1024,768,Bitmap.Config.ARGB_8888);drawPaper(new Canvas(value));return value;}
- @Override protected void onMeasure(int width,int height){int w=MeasureSpec.getSize(width);setMeasuredDimension(w,Math.round(w*.75f));}
+ @Override protected void onMeasure(int width,int height){int w=MeasureSpec.getSize(width);if(MeasureSpec.getMode(height)!=MeasureSpec.UNSPECIFIED)w=Math.min(w,Math.max(0,Math.round(MeasureSpec.getSize(height)/.75f)));setMeasuredDimension(w,Math.round(w*.75f));}
  @Override protected void onDraw(Canvas c){super.onDraw(c);c.save();c.scale(getWidth()/1024f,getHeight()/768f);drawPaper(c);c.restore();}
  @Override public boolean onTouchEvent(MotionEvent event){if(!ready || saving || getWidth()==0)return false;float x=Math.max(0,Math.min(1024,event.getX()*1024/getWidth())),y=Math.max(0,Math.min(768,event.getY()*768/getHeight()));switch(event.getActionMasked()){
   case MotionEvent.ACTION_DOWN:current=new Path();current.moveTo(x,y);current.lineTo(x+.1f,y+.1f);strokeColor=color;getParent().requestDisallowInterceptTouchEvent(true);invalidate();return true;

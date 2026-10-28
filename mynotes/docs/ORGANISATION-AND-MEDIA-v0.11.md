@@ -22,7 +22,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 
 ## Qualification record
 
-- Local source gates: root **505**, Notes **116**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
+- Local source gates: root **506**, Notes **116**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
 - Android plan: **114 JVM / 144 unique Android** methods, partitioned across 21 emulator lanes; Actions is the only Android build path.
 - Run `40694075712` (c2c681e): failed. The real SAF operations passed on API26 but cleanup released a grant already revoked by directory deletion. API29 did not complete the picker; API-specific button matching and bounded UI-state failure diagnostics were added. A background test tried a hidden menu item without opening More actions. These harness corrections do not count as successful reruns.
 - Run `40696288757` (`75394e11d3b87de367c7c080cab21a31427c05f8`): nine Android lanes passed, including both real-folder/storage and UI partitions. Remaining lanes and the summary were cancelled/superseded, so this is **not** a fully qualified run.
@@ -31,6 +31,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Runs `40697610539` and `40699210753` failed the new rendered journey: its layout helper waited for a body field on the diagram page, then its route assumed Storage Back skipped Settings. Both test errors were corrected; timeout messages now identify the missing control. The latter run also had an Android29 SDK-package preparation failure (unknown ZIP archive), before emulator/test execution; host/bootstrap diagnostics recorded it. No app-test success is inferred for that lane.
 - Run `40700836090` (`d15a569`): **20/21 Android lanes passed**; landscape passed 143/144 methods. The pin test tried the header during writing-IME viewport collapse; it now hides the IME before testing header actions. The expanded rendered journey itself passed all six full profiles.
 - Its new scene files were not collected because the shell collector still had the old scene list. The collector is now synchronized with the persistence allowlist, with a source self-test preventing silent omissions.
+- Drawing layout review also identified text-heavy narrow controls at large font and a paper taller than its touch viewport in landscape. Brush/eraser and stroke history now use named icons; the paper is aspect-fitted inside the available viewport. Native capture asserts the complete paper bounds and unbroken Save drawing text.
 - A fresh exact-source qualification is required; these failures are not waived.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 

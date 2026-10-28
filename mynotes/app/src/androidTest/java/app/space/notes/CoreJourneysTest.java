@@ -243,7 +243,7 @@ public class CoreJourneysTest {
         tap("Drawing");
         String canvasName="Drawing canvas. Draw with a finger. Undo and redo controls are below.";await(()->{View canvas=UiActions.named(controller.view(),canvasName);return canvas!=null && canvas.isEnabled() && canvas.getWidth()>0;});
         main(()->{View canvas=UiActions.named(controller.view(),canvasName);long now=android.os.SystemClock.uptimeMillis();android.view.MotionEvent down=android.view.MotionEvent.obtain(now,now,0,canvas.getWidth()*.2f,canvas.getHeight()*.3f,0),move=android.view.MotionEvent.obtain(now,now+20,2,canvas.getWidth()*.5f,canvas.getHeight()*.7f,0),up=android.view.MotionEvent.obtain(now,now+40,1,canvas.getWidth()*.8f,canvas.getHeight()*.3f,0);canvas.dispatchTouchEvent(down);canvas.dispatchTouchEvent(move);canvas.dispatchTouchEvent(up);down.recycle();move.recycle();up.recycle();});
-        screenshot("drawing");
+        screenshot("drawing");main(()->{View canvas=UiActions.named(controller.view(),canvasName);android.graphics.Rect visible=new android.graphics.Rect();assertTrue(canvas.getGlobalVisibleRect(visible));assertEquals("The whole paper must fit; drawing gestures must not hide inaccessible paper",canvas.getHeight(),visible.height());assertEquals(canvas.getWidth(),visible.width());assertEquals("Save drawing must not break words at large font",1,text("Save drawing").getLayout().getLineCount());});
         tap("Save drawing");await(()->input("Write your note…")!=null);saved();
         screenshot("image-editor");
         tap("Back");

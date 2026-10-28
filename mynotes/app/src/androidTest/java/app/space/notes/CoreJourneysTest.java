@@ -140,7 +140,7 @@ public class CoreJourneysTest {
     /** Unlike the dispatch-first legacy journeys, these taps travel through Android's input dispatcher. */
     private void tap(String name) throws Exception{
         final android.graphics.Rect bounds=new android.graphics.Rect();final int[] location=new int[2];final TextView[] target=new TextView[1];
-        await(()->{target[0]=text(name);return target[0]!=null && target[0].isShown();});
+        try{await(()->{target[0]=text(name);return target[0]!=null && target[0].isShown();});}catch(AssertionError missing){throw new AssertionError("Control not visible: "+name,missing);}
         main(()->{assertNotNull(name,target[0]);assertTrue(name+" must be discoverable before tapping",target[0].isShown());target[0].requestRectangleOnScreen(new android.graphics.Rect(0,0,target[0].getWidth(),target[0].getHeight()),true);});
         final android.graphics.Rect previous=new android.graphics.Rect();final int[] stable={0},previousHeight={-1};
         await(()->{android.graphics.Rect current=new android.graphics.Rect();if(!target[0].isShown() || !target[0].getGlobalVisibleRect(current) || current.height()!=target[0].getHeight() || current.width()!=target[0].getWidth()){stable[0]=0;return false;}int height=controller.view().getHeight();if(current.equals(previous) && height==previousHeight[0])stable[0]++;else stable[0]=0;previous.set(current);previousHeight[0]=height;return stable[0]>=4;});
@@ -221,13 +221,41 @@ public class CoreJourneysTest {
         Note a=Note.create(1).edit("Small ideas, kept close","A quiet place for thoughts.\nRead a little. Make something.\nLeave room for tomorrow.",2).properties(2,Arrays.asList("Personal"),3);
         Note pinned=Note.create(4).edit("Weekend list","Fresh coffee\nA walk without a phone\nCall home",5).state(true,false,0,6);Note c=Note.create(7).edit("Paper & Ink","Clear words. Warm details.\nOne calm writing surface.",8);start(Arrays.asList(a,pinned,c));await(()->card(controller.view(),"Weekend list")!=null);screenshot("home");
         main(()->controller.openNote(c.id));laidOut();screenshot("editor");main(()->{EditText b=input("Write your note…");b.requestFocus();((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(b,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});screenshot("editor-keyboard",false);main(()->{EditText field=input("Write your note…");android.graphics.Rect visible=new android.graphics.Rect();assertTrue("A real body viewport must remain above the keyboard",field.getGlobalVisibleRect(visible));assertTrue("At least a native line must be visible, not only editor toolbars: visible="+visible+" line_px="+field.getLineHeight()+" focused="+field.hasFocus()+" root_px="+controller.view().getHeight()+" density="+context.getResources().getDisplayMetrics().density,visible.height()>=field.getLineHeight());});main(()->input("Write your note…").setSelection(0,11));tap("Text formatting");tap("Heading 1");screenshot("format-keyboard",false);screenshot("format");tap("Close formatting");tap("Add to note");screenshot("capture");tap("Close tools");tap("Colour");screenshot("palette");main(()->{for(String name:NotesBoard.NAMES){if(name.contains(" "))continue;TextView label=text(name);assertNotNull(name,label);assertNotNull(name,label.getLayout());assertEquals(name+" must not split mid-word at system font scale "+context.getResources().getConfiguration().fontScale,1,label.getLayout().getLineCount());}});tap("Cancel");tap("Labels");screenshot("labels");tap("Cancel");tap("Add to note");tap("Diagram");tap("Add shape");tap("Rectangle");await(()->text("Edit shape")!=null && text("Edit shape").getLayout()!=null && text("Group")!=null && text("Group").getLayout()!=null);main(()->{TextView edit=text("Edit shape"),group=text("Group");assertNotNull(edit);assertNotNull(group);assertTrue("Edit shape must not break into isolated letters",edit.getLayout().getLineCount()<=2);assertEquals("Group must fit as a whole word",1,group.getLayout().getLineCount());});screenshot("diagram");tap("Back to note");tap("Back");tap("+ Checklist");main(()->{input("Title").setText("A little everyday");itemInputs().get(0).setText("Read a chapter");});tap("Add checklist item");main(()->itemInputs().get(1).setText("Make time outside"));screenshot("checklist");tap("Back");tap("Library");tap("Settings");screenshot("settings");tap("Storage & recovery");screenshot("storage");
-        tap("Back");tap("Filters");screenshot("filters-view");tap("Sort");screenshot("filters-sort");tap("Labels");screenshot("filters-labels");tap("Apply filters");tap("Library");screenshot("library");tap("Close tools");
-        main(()->controller.openNote(c.id));tap("More actions");tap("Background");screenshot("backgrounds");tap("Squared");screenshot("background-editor");tap("Add to note");tap("Drawing");
+        tap("Back"); // Storage returns to Settings, not Home.
+        tap("Back");
+        tap("Filters");
+        screenshot("filters-view");
+        tap("Sort");
+        screenshot("filters-sort");
+        tap("Labels");
+        screenshot("filters-labels");
+        tap("Apply filters");
+        tap("Library");
+        screenshot("library");
+        tap("Close tools");
+        main(()->controller.openNote(c.id));
+        tap("More actions");
+        tap("Background");
+        screenshot("backgrounds");
+        tap("Squared");
+        screenshot("background-editor");
+        tap("Add to note");
+        tap("Drawing");
         String canvasName="Drawing canvas. Draw with a finger. Undo and redo controls are below.";await(()->{View canvas=UiActions.named(controller.view(),canvasName);return canvas!=null && canvas.isEnabled() && canvas.getWidth()>0;});
         main(()->{View canvas=UiActions.named(controller.view(),canvasName);long now=android.os.SystemClock.uptimeMillis();android.view.MotionEvent down=android.view.MotionEvent.obtain(now,now,0,canvas.getWidth()*.2f,canvas.getHeight()*.3f,0),move=android.view.MotionEvent.obtain(now,now+20,2,canvas.getWidth()*.5f,canvas.getHeight()*.7f,0),up=android.view.MotionEvent.obtain(now,now+40,1,canvas.getWidth()*.8f,canvas.getHeight()*.3f,0);canvas.dispatchTouchEvent(down);canvas.dispatchTouchEvent(move);canvas.dispatchTouchEvent(up);down.recycle();move.recycle();up.recycle();});
-        screenshot("drawing");tap("Save drawing");await(()->input("Write your note…")!=null);saved();screenshot("image-editor");tap("Back");
+        screenshot("drawing");
+        tap("Save drawing");await(()->input("Write your note…")!=null);saved();
+        screenshot("image-editor");
+        tap("Back");
         VoiceFiles voiceFiles=new VoiceFiles(context);for(String words:new String[]{"Bring the notebook, and make room for a fresh idea.","Review the plan. Then take a short walk."}){String id=UUID.randomUUID().toString();try(java.io.RandomAccessFile out=new java.io.RandomAccessFile(voiceFiles.pending(id),"rw")){app.space.notes.domain.PcmWave.header(out,32000);out.write(new byte[32000]);}voiceFiles.complete(id);voiceFiles.result(id,words,"DONE");}
-        tap("Library");tap("Voice inbox");await(()->text("Play")!=null);screenshot("voice-inbox");tap("Back");tap("Library");tap("Settings");tap("About & offline models");screenshot("about");
+        tap("Library");
+        tap("Voice inbox");await(()->text("Play")!=null);
+        screenshot("voice-inbox");
+        tap("Back");
+        tap("Library");
+        tap("Settings");
+        tap("About & offline models");
+        screenshot("about");
     }
     private void remove(File f){File[] files=f.listFiles();if(files!=null)for(File child:files)remove(child);f.delete();}
     @After public void cleanup(){if(controller!=null)main(controller::close);if(activity!=null){for(String name:new String[]{"mynotes-storage-v1","mynotes-ui"})activity.deleteSharedPreferences(fixture.getName()+"-"+name);main(activity::finish);}if(fixture!=null)remove(fixture);}

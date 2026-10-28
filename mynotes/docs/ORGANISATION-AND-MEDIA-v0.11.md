@@ -27,7 +27,9 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Run `40694075712` (c2c681e): failed. The real SAF operations passed on API26 but cleanup released a grant already revoked by directory deletion. API29 did not complete the picker; API-specific button matching and bounded UI-state failure diagnostics were added. A background test tried a hidden menu item without opening More actions. These harness corrections do not count as successful reruns.
 - Run `40696288757` (`75394e11d3b87de367c7c080cab21a31427c05f8`): nine Android lanes passed, including both real-folder/storage and UI partitions. Remaining lanes and the summary were cancelled/superseded, so this is **not** a fully qualified run.
 - Visual inspection of earlier light/dark/large-font/landscape/tablet captures found diagram action words breaking at 200% font. The large-font dock now uses two rows; native layout assertions were added.
-- Latest runtime source `e5c59f2748e3f84344164fea2600f147feeb6880`, qualification `40697610539`: **in progress**, not approved. Expanded synthetic captures now exercise Library, all filter tabs, backgrounds, drawing/image and voice cards.
+- Runtime source remains `e5c59f2748e3f84344164fea2600f147feeb6880`. Expanded synthetic captures exercise Library, all filter tabs, backgrounds, drawing/image and voice cards.
+- Runs `40697610539` and `40699210753` failed the new rendered journey: its layout helper waited for a body field on the diagram page, then its route assumed Storage Back skipped Settings. Both test errors were corrected; timeout messages now identify the missing control. The latter run also had an Android29 SDK-package preparation failure (unknown ZIP archive), before emulator/test execution; host/bootstrap diagnostics recorded it. No app-test success is inferred for that lane.
+- A fresh exact-source qualification is required; these failures are not waived.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 
 ## Important limits

@@ -44,6 +44,16 @@ Run [40613541005](https://github.com/tarungittarun/TicTic/actions/runs/406135410
 
 The next qualification uses current Node24-native artifact actions, limits the download burst to eight concurrent lanes and retains artifact-service inventory on failure; it does not add emulator/test rerun loops. **Final five-variant review and full green matrix are pending.** Publication remains fail-closed in `ux-review/approval.json`.
 
+## A second visual finding after the full matrix passed
+
+Run [40614442937](https://github.com/tarungittarun/TicTic/actions/runs/40614442937), source `1f8be9b184e2014c78e28658e6e303234f4cf5ac`, passed **all 21 Android lanes**, including all 117 methods in each full resource variant. Its workflow remained red **only because manual rendered approval was pending**. Seventy provenance-pinned screenshots were exported.
+
+Inspection still found a real problem: `landscape-api34/editor-keyboard.png` displayed top and bottom toolbars, but essentially no readable note body. Not using fullscreen IME was necessary, but not sufficient. The top editor chrome now collapses only below a 240dp available height, leaving the native writing viewport above the keyboard. A screenshot-stage assertion requires the actual body visible rectangle to contain at least one native line; it does not merely assert that toolbar buttons can be tapped. The formatting keyboard-dismiss threshold is also 240dp, so ordinary portrait editing does not dismiss it unnecessarily.
+
+Run [40615854257](https://github.com/tarungittarun/TicTic/actions/runs/40615854257) qualifies this final viewport change, source `e4fb726b373958866919ee6342ce0ce9415ce0ba`. **Approval is still pending its actual captures.** The contrast-token checks now also verify 4.5:1 normal-text contrast for light/dark ink, hints and accents on shared surfaces, and for text on all 12 note-card colours. Numeric token tests are not TalkBack or physical-display qualification.
+
+Two 70-minute component soaks are tracked separately: original redesigned text/layout source `9114bec` (run40610708876), and source `15ae085` (run40614747195). The latter has equivalent TextStyles/native exercise/storage/ML component inputs, but precedes the final toolbar viewport adjustment. Neither is described as 70 minutes of physical gestures or exact-final-UI navigation.
+
 ## Approval checklist — not automatically satisfied by green CI
 
 - [ ] Final-source light, dark, 200% font, landscape and tablet images inspected.

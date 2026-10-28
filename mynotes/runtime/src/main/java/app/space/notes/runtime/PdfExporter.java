@@ -17,7 +17,7 @@ public final class PdfExporter {
             for(Note note:notes){
                 android.text.SpannableStringBuilder content=new android.text.SpannableStringBuilder(note.title.isEmpty()?"Untitled":note.title);
                 content.setSpan(new android.text.style.StyleSpan(Typeface.BOLD),0,content.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);content.append("\n\n");int offset=content.length();content.append(note.plainText());
-                if(!note.checklist){for(Note.Mark mark:note.marks)TextStyles.writeRange(content,mark,offset);}
+                if(!note.checklist){for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(note.marks,note.body))TextStyles.writeRange(content,mark,offset);}
                 if(!note.labels.isEmpty())content.append("\n\nLabels: ").append(String.join(", ",note.labels));
                 TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTextSize(14);
                 StaticLayout layout=StaticLayout.Builder.obtain(content,0,content.length(),paint,499).setIncludePad(false).setLineSpacing(3,1).build();

@@ -28,5 +28,5 @@ class BackupContracts(unittest.TestCase):
 
     def test_release_version_is_higher(self):
         s=(ROOT/'app/build.gradle').read_text()
-        self.assertIn('versionCode 9',s)
-        self.assertIn("versionName '0.8.0'",s)
+        self.assertIn('versionCode 10',s)
+        self.assertIn("versionName '0.9.0'",s)

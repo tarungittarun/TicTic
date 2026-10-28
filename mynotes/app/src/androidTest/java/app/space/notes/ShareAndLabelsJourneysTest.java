@@ -58,13 +58,14 @@ public class ShareAndLabelsJourneysTest {
         try{assertTrue("UI condition timed out",done.await(12,TimeUnit.SECONDS));}finally{ended.set(true);}
     }
     private TextView find(View view,String target,boolean hint){
-        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && target.contentEquals(v.getContentDescription()==null?"":v.getContentDescription())))return v;}
+        if(view instanceof TextView){TextView v=(TextView)view;CharSequence value=hint?v.getHint():v.getText();if((value!=null && value.toString().equals(target)) || (!hint && UiActions.matches(v,target)))return v;}
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=g.getChildCount()-1;i>=0;i--){TextView found=find(g.getChildAt(i),target,hint);if(found!=null)return found;}}
         return null;
     }
     private TextView text(String value){return find(controller.view(),value,false);}
     private EditText input(String hint){return (EditText)find(controller.view(),hint,true);}
     private void click(String label){main(()->{TextView v=text(label);assertNotNull(v);UiActions.reveal(v);v.performClick();});instrumentation.waitForIdleSync();}
+    private void addLabel(String name){main(()->input("Create label").setText(name));click("Create label");}
     private void saved() throws Exception {await(()->savedIn(controller.view()));}
     private boolean savedIn(View v){if(v instanceof TextView && ((TextView)v).getText().toString().startsWith("Saved ·"))return true;if(v instanceof ViewGroup){ViewGroup g=(ViewGroup)v;for(int i=0;i<g.getChildCount();i++)if(savedIn(g.getChildAt(i)))return true;}return false;}
     private List<EditText> itemInputs(){List<EditText> result=new ArrayList<>();collectItems(controller.view(),result);return result;}
@@ -80,7 +81,7 @@ public class ShareAndLabelsJourneysTest {
         start(Arrays.asList(note("Existing")));main(()->controller.receiveText(new app.space.notes.domain.IncomingText("Shared","ಕನ್ನಡ\nनोट")));saved();List<Note> result=new NotesRepository(context).load();assertEquals(2,result.size());assertEquals("ಕನ್ನಡ\nनोट",result.get(1).body);assertEquals("Existing",result.get(0).title);
     }
     @Test public void additiveBulkLabelsKeepIndividualLabels() throws Exception {
-        start(Arrays.asList(note("One").properties(0,Arrays.asList("First"),3),note("Two").properties(0,Arrays.asList("Second"),3)));await(()->text("One")!=null && text("Two")!=null);selectCard("One",true);selectCard("Two",false);click("Labels");main(()->{input("Work, Personal, Ideas").setText("Shared");((CheckBox)text("Add to existing labels instead of replacing")).setChecked(true);});click("Save labels");saved();List<Note> result=new NotesRepository(context).load();assertTrue(result.get(0).labels.contains("First"));assertTrue(result.get(1).labels.contains("Second"));for(Note n:result)assertTrue(n.labels.contains("Shared"));
+        start(Arrays.asList(note("One").properties(0,Arrays.asList("First"),3),note("Two").properties(0,Arrays.asList("Second"),3)));await(()->text("One")!=null && text("Two")!=null);selectCard("One",true);selectCard("Two",false);click("Labels");addLabel("Shared");main(()->((CheckBox)text("Add to existing labels instead of replacing")).setChecked(true));click("Save labels");saved();List<Note> result=new NotesRepository(context).load();assertTrue(result.get(0).labels.contains("First"));assertTrue(result.get(1).labels.contains("Second"));for(Note n:result)assertTrue(n.labels.contains("Shared"));
     }
     @Test public void textEditorAndToolsRetainPositiveSizeAtCurrentFontAndOrientation() throws Exception {
         start(Collections.emptyList());click("+ Text");click("Text formatting");await(()->text("Bold").getHeight()>0);instrumentation.waitForIdleSync();main(()->{EditText body=input("Write your note…");assertTrue(body.getHeight()>0);TextView tool=text("Bold");assertNotNull(tool);assertTrue(tool.getHeight()>0);assertNotNull(text("Export PDF"));});

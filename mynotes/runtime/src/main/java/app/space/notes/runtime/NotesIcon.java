@@ -9,6 +9,11 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "erase":lines(c,5,15,14,4,21,11,12,21,8,21,5,18,5,15);lines(c,9,11,16,17);lines(c,12,21,22,21);break;
+ case "close":lines(c,6,6,18,18);lines(c,18,6,6,18);break;
+ case "archive":c.drawRoundRect(3,4,21,8,1,1,p);lines(c,5,8,5,20,19,20,19,8);lines(c,10,12,14,12);break;
+ case "trash":lines(c,4,6,20,6);lines(c,9,3,15,3);lines(c,6,6,7,21,17,21,18,6);lines(c,10,10,10,17);lines(c,14,10,14,17);break;
+ case "mic":c.drawRoundRect(9,3,15,14,3,3,p);c.drawArc(6,7,18,18,0,180,false,p);lines(c,12,18,12,22);lines(c,8,22,16,22);break;
  case "play":lines(c,7,4,20,12,7,20,7,4);break;
  case "stop":c.drawRoundRect(5,5,19,19,2,2,p);break;
  case "export":lines(c,12,3,12,15);lines(c,7,8,12,3,17,8);lines(c,4,14,4,21,20,21,20,14);break;

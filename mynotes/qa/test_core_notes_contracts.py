@@ -25,7 +25,7 @@ class CoreNotesContracts(unittest.TestCase):
             self.assertIn(token,s)
         c=(JAVA/'NotesController.java').read_text()
         self.assertIn('body.getSelectionStart()',c)
-        self.assertIn('body.setSelection(start,end)',c)
+        self.assertIn('body.setSelection(anchor,focus)',c)
 
     def test_rotation_snapshot_is_bounded(self):
         self.assertIn('draft.length<=32768',(JAVA/'NotesController.java').read_text())

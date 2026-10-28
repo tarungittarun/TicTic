@@ -65,4 +65,22 @@ public class StructuredNoteTest {
         Note incoming=new Note("id","title","incoming",1,2,0,false,false,0);
         assertEquals("b1b8eb11-9e32-3b22-8053-959de414bead",NoteMerge.preview(Arrays.asList(old),Arrays.asList(incoming)).notes.get(1).id);
     }
+    @Test public void headingSelectionStylesWholeParagraphNotNeighbours(){
+        String text="before\nselected line\nafter";List<Note.Mark> marks=TextFormatting.paragraph(Collections.emptyList(),text,"h1",9,13);
+        assertEquals(1,marks.size());assertEquals(7,marks.get(0).start);assertEquals(20,marks.get(0).end);
+    }
+    @Test public void headingAtCaretAndNormalTextKeepInlineFormatting(){
+        String text="first\nsecond";List<Note.Mark> marks=TextFormatting.paragraph(Arrays.asList(new Note.Mark("bold",6,12)),text,"h2",8,8);
+        assertEquals(2,marks.size());marks=TextFormatting.paragraph(marks,text,"text",7,7);assertEquals(1,marks.size());assertEquals("bold",marks.get(0).type);
+    }
+    @Test public void paragraphSelectionExcludesNextLineAtBoundary(){
+        List<Note.Mark> marks=TextFormatting.paragraph(Collections.emptyList(),"one\ntwo\nthree","h1",0,4);assertEquals(1,marks.size());assertEquals(3,marks.get(0).end);
+    }
+    @Test public void oldPartialHeadingsNormalizeToParagraphsAndDoNotStack(){
+        List<Note.Mark> marks=TextFormatting.normalizeParagraphs(Arrays.asList(new Note.Mark("h1",1,2),new Note.Mark("h2",2,3)),"hello\nworld");assertEquals(1,marks.size());assertEquals("h2",marks.get(0).type);assertEquals(0,marks.get(0).start);assertEquals(5,marks.get(0).end);
+    }
+    @Test public void paragraphHeadingTogglesAndSupportsUnicode(){
+        String text="ಕನ್ನಡ 😀\nನೋಟು";List<Note.Mark> m=TextFormatting.paragraph(Collections.emptyList(),text,"h1",1,1);assertEquals(text.indexOf('\n'),m.get(0).end);assertTrue(TextFormatting.paragraph(m,text,"h1",1,1).isEmpty());
+    }
+    @Test public void blankParagraphDoesNotCreateInvalidMark(){assertTrue(TextFormatting.paragraph(Collections.emptyList(),"a\n\nb","h1",2,2).isEmpty());}
 }

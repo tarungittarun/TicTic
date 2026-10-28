@@ -23,7 +23,9 @@ def evaluate(needs,evidence,plan):
         audit=one('audit.json')
         eligible=audit['publish_eligible']
         if not isinstance(eligible,bool):raise ValueError('Invalid eligibility')
-        expected_publication='success' if eligible else 'skipped'
+        reviewed=audit.get('ux_review_approved',True)
+        if not reviewed:errors.append('Manual rendered UX review pending; publication withheld')
+        expected_publication='success' if eligible and reviewed else 'skipped'
         if needs.get('publish',{}).get('result')!=expected_publication:errors.append('Publication did not match audited eligibility')
         # Artifact name isolates accepted-release from any later publication copies.
         lines+=['','## Tested official release',f"- `{audit['filename']}` — {audit['accepted_from']}",

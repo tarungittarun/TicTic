@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class StorageLayoutTest {
     private TextView find(View root,String label) {
-        if(root instanceof TextView && ((TextView)root).getText().toString().equals(label))return (TextView)root;
+        if(root instanceof TextView && (((TextView)root).getText().toString().equals(label) || UiActions.matches(root,label)))return (TextView)root;
         if(root instanceof ViewGroup) {
             ViewGroup group=(ViewGroup)root;
             for(int i=0;i<group.getChildCount();i++) { TextView result=find(group.getChildAt(i),label);if(result!=null)return result; }
@@ -46,10 +46,10 @@ public class StorageLayoutTest {
             instrumentation.waitForIdleSync();
             instrumentation.runOnMainSync(()->{
                 View decor=activity.getWindow().getDecorView();
-                for(String label:new String[]{"Choose folder","Retry save","Use device storage","Back"}) {
-                    TextView action=find(decor,label);assertNotNull(action);
+                for(String label:new String[]{"Choose folder","Open library","Backups","Use device storage","Back"}) {
+                    TextView action=find(decor,label);assertNotNull(action);UiActions.reveal(action);
                     Rect bounds=new Rect();assertTrue(label+" visible",action.getGlobalVisibleRect(bounds));
-                    assertTrue(label+" fully visible",bounds.height()>=action.getHeight());
+                    assertTrue(label+" fully visible after scrolling",bounds.height()>=action.getHeight() && bounds.width()>=action.getWidth());
                     assertTrue(label+" inside window",bounds.bottom<=decor.getHeight());
                 }
             });

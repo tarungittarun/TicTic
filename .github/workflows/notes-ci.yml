@@ -182,6 +182,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       publish_eligible: ${{ steps.audit.outputs.publish_eligible }}
+      ux_approved: ${{ steps.ux.outputs.ux_approved }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -201,6 +202,9 @@ jobs:
           eligible=json.load(open('accepted-release/audit.json'))['publish_eligible']
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('publish_eligible='+str(eligible).lower()+'\n')
           PY
+      - name: Require inspection of equivalent rendered UX before publication
+        id: ux
+        run: python3 -m mynotes.tools.ci.ux_review --audit accepted-release/audit.json
       - uses: actions/upload-artifact@v4
         with:
           name: notes-accepted-release
@@ -306,7 +310,7 @@ jobs:
   publish:
     name: Publish immutable version (all gates required)
     needs: [checks, inventory, lint, jvm, release-build, test-build, apk-audit, android]
-    if: github.ref == 'refs/heads/arena/3caca636-tictic' && needs.apk-audit.outputs.publish_eligible == 'true'
+    if: github.ref == 'refs/heads/arena/3caca636-tictic' && needs.apk-audit.outputs.publish_eligible == 'true' && needs.apk-audit.outputs.ux_approved == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -341,6 +345,8 @@ jobs:
           git pull --rebase origin arena/3caca636-tictic
           git push origin arena/3caca636-tictic
   acceptance:
+    permissions:
+      contents: write
     name: MyNotes acceptance summary
     needs: [checks, inventory, lint, jvm, release-build, test-build, apk-audit, android, publish]
     if: always()
@@ -357,3 +363,17 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
         run: python3 -m mynotes.tools.ci.summary --evidence all-evidence
+
+      - name: Persist bounded synthetic rendered proof even when qualification fails
+        if: always() && github.ref == 'refs/heads/arena/3caca636-tictic'
+        run: |
+          set -euo pipefail
+          python3 -m mynotes.tools.ci.persist_ux --evidence all-evidence
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mynotes/docs/ux-review/
+          if ! git diff --cached --quiet; then
+            git commit -m "Rendered synthetic UX proof for run $GITHUB_RUN_ID [skip ci]"
+            git pull --rebase origin arena/3caca636-tictic
+            git push origin arena/3caca636-tictic
+          fi

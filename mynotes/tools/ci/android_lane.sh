@@ -7,6 +7,9 @@ mkdir -p "$OUT"
 exec > >(tee "$OUT/lane.log") 2>&1
 set -x
 collect() {
+  for scene in home editor editor-keyboard format format-keyboard capture palette labels diagram checklist settings storage; do
+    timeout 5s adb exec-out run-as app.space.notes.debug cat "files/ux-review/$scene.png" > "$OUT/ux-$scene.png" 2>/dev/null || true
+  done
   timeout 15s adb logcat -d -t 500 > "$OUT/logcat.txt" 2>&1 || true
   timeout 15s adb shell dumpsys activity activities > "$OUT/activities.txt" 2>&1 || true
   timeout 15s adb exec-out screencap -p > "$OUT/final-state.png" 2>/dev/null || true

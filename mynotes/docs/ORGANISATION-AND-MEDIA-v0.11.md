@@ -1,6 +1,6 @@
-# MyNotes 0.11 / code 12 — candidate, not published
+# MyNotes 0.11 / code12 — published; physical-device defects reported
 
-This work follows the user's real-device 0.10 feedback. Implementation is not an acceptance claim. Only a fully green, exact-source Android qualification plus rendered review can authorize publication; install the existing 0.10 release until that happens.
+This work followed real-device0.10 feedback and was published after run40712278512 passed all21 Android lanes with rendered review. Subsequent physical-device0.11 feedback identified folder/image and usability defects; emulator approval is not physical acceptance. [Current0.12 repairs and evidence](DEVICE-REPAIR-v0.12.md).
 
 ## Changed interactions
 
@@ -38,7 +38,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Bootstrap diagnostics established the Android36 blocker: the **system launcher** showed “Quickstep isn't responding” over the previously published baseline. A strict fixture guard may close that exact system dialog once; package/title/resource ID/enabled/clickable/bounds are checked. A MyNotes ANR is never dismissed or accepted, and the release UI and all tests must still pass. No emulator/test reruns are added.
 - Run `40709418987` reached another diagnosed fixture issue on Android29: DocumentsUI crashed in `ActionHandler.updatePickResult` with “task has already been executed”. The grant fixture had repeatedly activated confirmation while the asynchronous picker was finishing. It now activates each selection/confirmation phase only once while continuing to wait for the actual result; it does not restart or waive a failed test.
 - Run `40709418987` passed **20/21 Android lanes**, including **144/144 methods in each of all five review profiles** and the Android16 full profile. Fresh light/dark/200%-font/landscape/tablet captures were inspected, including corrected filters/drawing, images/backgrounds, voice cards, Settings, home, diagrams, keyboard formatting and Library. Rendered-only approval is recorded for runtime source `3e6cfe5`; later changes touch only fixture/QA/docs. The failed Android29 storage lane is not waived: complete technical qualification with its single-activation fixture is still mandatory.
-- The rendered overview PDF is regenerated from this reviewed run. Publication and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
+- The reviewed overview PDF was regenerated and publication40712278512 subsequently passed all required gates /21 Android lanes. The0.11 artifact is immutable; device defects are repaired in0.12/code13, not by replacing it.
 
 ## Important limits
 

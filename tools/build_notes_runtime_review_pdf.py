@@ -60,7 +60,7 @@ def build(run, output):
         para(c, subtitle, 32, H-61, W-64, 40, SMALL)
         c.setStrokeColor(HexColor('#D9DDD8')); c.line(32, 36, W-32, 36)
         c.setFillColor(MUTED); c.setFont('Helvetica', 7)
-        c.drawString(32, 23, f'Actual synthetic debug-host captures | run {run} | source {source[:12]} | {status}')
+        c.drawString(32, 23, f'Runtime evidence overview | run {run} | source {source[:12]} | {status}')
         c.drawRightString(W-32, 23, str(page))
 
     def image(variant, scene, x, y, width, height, caption):
@@ -98,6 +98,36 @@ def build(run, output):
         for i, variant in enumerate(VARIANTS[:3]):
             image(variant, scene, 35+i*259, 88, 247, 403, labels[i])
         c.showPage()
+        if scene == 'diagram':
+            heading('A simple flowchart, still editable', 'Schematic guide to the six current shape types and directed labelled arrows. This page is explanatory, not an emulator capture.')
+            def block(kind, x, y, width, height, label):
+                c.setStrokeColor(HONEY); c.setFillColor(HexColor('#F0F1EE')); c.setLineWidth(1.5)
+                if kind == 'decision':
+                    path=c.beginPath();path.moveTo(x+width/2,y+height);path.lineTo(x+width,y+height/2);path.lineTo(x+width/2,y);path.lineTo(x,y+height/2);path.close();c.drawPath(path,fill=1,stroke=1)
+                elif kind == 'data':
+                    path=c.beginPath();path.moveTo(x+14,y+height);path.lineTo(x+width,y+height);path.lineTo(x+width-14,y);path.lineTo(x,y);path.close();c.drawPath(path,fill=1,stroke=1)
+                elif kind == 'ellipse':c.ellipse(x,y,x+width,y+height,fill=1,stroke=1)
+                elif kind == 'terminator':c.roundRect(x,y,width,height,height/2,fill=1,stroke=1)
+                elif kind == 'process':c.rect(x,y,width,height,fill=1,stroke=1)
+                c.setFillColor(INK);c.setFont('Helvetica',10);c.drawCentredString(x+width/2,y+height/2-3,label)
+            def arrow(x1,y1,x2,y2,label=''):
+                import math
+                c.setStrokeColor(HONEY);c.setLineWidth(1.5);c.line(x1,y1,x2,y2)
+                angle=math.atan2(y2-y1,x2-x1)
+                for turn in (-.45,.45):c.line(x2,y2,x2-8*math.cos(angle+turn),y2-8*math.sin(angle+turn))
+                if label:c.setFillColor(MUTED);c.setFont('Helvetica',9);c.drawCentredString((x1+x2)/2,(y1+y2)/2+10,label)
+            block('terminator',60,374,110,46,'Start')
+            block('process',245,374,140,46,'Write a note')
+            block('decision',465,357,110,80,'Ready?')
+            block('terminator',670,374,110,46,'Keep')
+            arrow(170,397,245,397);arrow(385,397,465,397);arrow(575,397,670,397,'Yes')
+            block('process',450,235,140,46,'Review / edit');arrow(520,357,520,281,'No')
+            para(c, '<b>Other current building blocks</b>', 60, 194, 720, 20)
+            block('data',60,110,160,48,'Input / output')
+            block('ellipse',330,110,160,48,'Ellipse')
+            block('text',600,110,160,48,'Editable text box')
+            para(c, 'Add a shape, edit its words, connect endpoints, then move or resize. Save/reopen retains editable objects and labels. Database, curves, layers and grouping are not claimed as delivered.',60,85,720,35,SMALL)
+            c.showPage()
 
     heading('Tools appear when they are useful', 'Capture is a menu, colours are labelled swatches, and labels remain editable. These are real app surfaces, not concept drawings.')
     for i, (scene, caption) in enumerate((('capture', 'Plus: add to this note'), ('palette', 'Colour: names and a selected outline'), ('labels', 'Labels: reusable organisation'))):

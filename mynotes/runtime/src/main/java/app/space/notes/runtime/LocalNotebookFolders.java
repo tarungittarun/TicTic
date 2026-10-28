@@ -42,7 +42,8 @@ public final class LocalNotebookFolders {
  }
  private String timestampName(Uri parent,Note note)throws Exception{
   java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS'Z'",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));String base="note-"+format.format(new Date(note.createdAt));
-  for(int suffix=0;suffix<10000;suffix++){String candidate=base+(suffix==0?"":"-"+suffix)+".mynote.json";Entry entry=find(parent,candidate);if(entry==null)return candidate;try{owned(entry,note.id);return candidate;}catch(Exception foreign){/* A timestamp collision must never overwrite another note or a foreign file. */}}
+  List<Entry> entries=children(parent);Set<String> occupied=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Entry entry:entries){occupied.add(entry.name);if(candidate(entry) && entry.name.startsWith(base)){try{owned(entry,note.id);return entry.name;}catch(Exception foreign){/* Keep unrelated files untouched. */}}}
+  for(int suffix=0;suffix<10000;suffix++){String candidate=base+(suffix==0?"":"-"+suffix)+".mynote.json";if(!occupied.contains(candidate))return candidate;}
   throw new IOException("Too many files with this timestamp; choose another folder");
  }
  private boolean candidate(Entry entry){return !DocumentsContract.Document.MIME_TYPE_DIR.equals(entry.mime) && entry.name.startsWith("note-") && entry.name.endsWith(".mynote.json");}

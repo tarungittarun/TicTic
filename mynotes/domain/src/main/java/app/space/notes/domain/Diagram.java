@@ -5,10 +5,10 @@ import java.util.*;
 /** Immutable flowchart on an 800 x 1000 logical canvas. Edges reference stable node IDs. */
 public final class Diagram {
     public static final int WIDTH=800,HEIGHT=1000;
-    public static final List<String> SHAPES=Collections.unmodifiableList(Arrays.asList("process","decision","terminator","data","ellipse","text","triangle","rightTriangle","pentagon","hexagon","octagon","star","trapezoid","cylinder","cube","document","cloud","arrow","chevron","semicircle"));
+    public static final List<String> SHAPES=Collections.unmodifiableList(Arrays.asList("process","decision","terminator","data","ellipse","text","triangle","rightTriangle","pentagon","hexagon","octagon","star","trapezoid","cylinder","cube","document","cloud","arrow","chevron","semicircle","heart"));
     /** Stored legacy IDs remain valid; presentation uses geometric names. */
     public static String shapeName(String id){
-        String[] names={"Rectangle","Diamond","Capsule","Parallelogram","Oval","Text","Triangle","Right triangle","Pentagon","Hexagon","Octagon","Star","Trapezoid","Cylinder","Cube","Wavy rectangle","Cloud","Right arrow","Chevron","Semicircle"};
+        String[] names={"Rectangle","Diamond","Capsule","Parallelogram","Oval","Text annotation","Triangle","Right triangle","Pentagon","Hexagon","Octagon","Star","Trapezoid","Cylinder","Cube","Wavy rectangle","Cloud","Right arrow","Chevron","Semicircle","Heart"};
         int index=SHAPES.indexOf(id);if(index<0)throw new IllegalArgumentException("Unknown shape");return names[index];
     }
     public final List<Node> nodes;

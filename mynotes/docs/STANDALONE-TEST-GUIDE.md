@@ -3,6 +3,8 @@
 
 ## 0.9 practical UX check — not replaced by automated totals
 
+Candidate 0.9.0 (10) passed all 21 Android lanes in run40623972980. The inspected five-profile rendered review is approved; immutable publication still requires the separate full gated release run. This does not imply user acceptance or physical-device certification.
+
 Use the gated 0.9 APK only after publication; before that, the older download is not this redesign. Install **over** the existing app, not after uninstall/clear-data. Export important JSON and original voice WAVs separately.
 
 1. Create a note without a title. Type `01` through `09`, each on a separate line. Select `01`, open **A / Formatting**, choose **H1**, then **H2**. Following numbers should move naturally, with no glyph collisions. Scroll to the last line if it is outside the viewport; clipping at the scroll edge is not overlapping paragraphs.
@@ -17,7 +19,7 @@ Use the gated 0.9 APK only after publication; before that, the older download is
 Physical keyboard/IME behavior, TalkBack, OEM launchers, SD/provider failures and acoustic recognition quality remain device checks. Report the visible outcome and a reproducible sequence, not simply that an APK installed.
 
 
-## Accepted release: 0.8.0 (9)
+## Previous published release: 0.8.0 (9) — UI rejected
 
 [**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk) · [checksum](../releases/MyNotes-v0.8.0-9.apk.sha256) · [full receipt](../releases/MyNotes-v0.8.0-9.apk.release.json)
 

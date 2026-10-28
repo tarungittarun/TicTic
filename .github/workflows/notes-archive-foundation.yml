@@ -1,0 +1,31 @@
+name: MyNotes archive foundation (JVM only)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths:
+      - '.github/workflows/notes-archive-foundation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: notes-archive-foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  domain:
+    name: Bounded archive protocol and all domain rules
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+        with:
+          sdk: 'false'
+      - name: Execute complete pure JVM domain suite without building Android
+        working-directory: mynotes
+        run: ./gradlew :notes-domain:test --no-daemon --max-workers=2 --console=plain
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: notes-archive-foundation-jvm
+          path: mynotes/domain/build/test-results/test/
+          if-no-files-found: warn

@@ -113,9 +113,12 @@ public class CoreJourneysTest {
         click("Undo");saved();List<Note> restored=new NotesRepository(context).load();assertEquals(2,restored.size());for(Note n:restored)assertFalse(n.deletedAt>0);
     }
     /** Unlike the dispatch-first legacy journeys, these taps travel through Android's input dispatcher. */
-    private void tap(String name){
+    private void tap(String name) throws Exception{
         final android.graphics.Rect bounds=new android.graphics.Rect();final int[] location=new int[2];final TextView[] target=new TextView[1];
-        main(()->{target[0]=text(name);assertNotNull(name,target[0]);assertTrue(name+" must be discoverable before tapping",target[0].isShown());target[0].requestRectangleOnScreen(new android.graphics.Rect(0,0,target[0].getWidth(),target[0].getHeight()),true);});
+        await(()->{target[0]=text(name);return target[0]!=null && target[0].isShown();});
+        main(()->{assertNotNull(name,target[0]);assertTrue(name+" must be discoverable before tapping",target[0].isShown());target[0].requestRectangleOnScreen(new android.graphics.Rect(0,0,target[0].getWidth(),target[0].getHeight()),true);});
+        final android.graphics.Rect previous=new android.graphics.Rect();final int[] stable={0},previousHeight={-1};
+        await(()->{android.graphics.Rect current=new android.graphics.Rect();if(!target[0].isShown() || !target[0].getGlobalVisibleRect(current) || current.height()!=target[0].getHeight() || current.width()!=target[0].getWidth()){stable[0]=0;return false;}int height=controller.view().getHeight();if(current.equals(previous) && height==previousHeight[0])stable[0]++;else stable[0]=0;previous.set(current);previousHeight[0]=height;return stable[0]>=4;});
                 try{instrumentation.getUiAutomation().waitForIdle(200,5000);}catch(java.util.concurrent.TimeoutException e){throw new AssertionError("Native UI did not settle before tap "+name,e);}
         instrumentation.waitForIdleSync();main(()->{assertTrue(name,target[0].getGlobalVisibleRect(bounds));assertEquals(name+" not vertically clipped",target[0].getHeight(),bounds.height());assertEquals(name+" not horizontally clipped",target[0].getWidth(),bounds.width());assertTrue(name+" has a touch target",bounds.height()>=24 && bounds.width()>=24);target[0].getLocationOnScreen(location);});
         long now=android.os.SystemClock.uptimeMillis();android.view.MotionEvent down=android.view.MotionEvent.obtain(now,now,android.view.MotionEvent.ACTION_DOWN,location[0]+target[0].getWidth()/2f,location[1]+target[0].getHeight()/2f,0),up=android.view.MotionEvent.obtain(now,now+60,android.view.MotionEvent.ACTION_UP,location[0]+target[0].getWidth()/2f,location[1]+target[0].getHeight()/2f,0);instrumentation.sendPointerSync(down);instrumentation.sendPointerSync(up);down.recycle();up.recycle();instrumentation.waitForIdleSync();

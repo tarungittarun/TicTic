@@ -19,7 +19,7 @@ public final class VoiceTasks {
         Context app=context.getApplicationContext();String key=app.getFilesDir().getAbsolutePath(),job=key+"/"+id;if(!running.add(job))return;
         worker.execute(()->{
             String text="",failure="";
-            try{VoiceFiles files=new VoiceFiles(app);files.result(id,"","Transcribing offline");text=OfflineSpeech.transcribe(app,files.audio(id),new AtomicBoolean());files.result(id,text,text.isEmpty()?"No speech recognized; audio retained":"DONE");}
+            try{VoiceFiles files=new VoiceFiles(app);files.result(id,"","Transcribing offline");OfflineSpeech.Result recognized=OfflineSpeech.transcribeResult(app,files.audio(id),new AtomicBoolean());text=recognized.text;files.result(id,text,text.isEmpty()?"No speech recognized; audio retained":"DONE",recognized.raw,"Pause-based readability; review punctuation against audio.");}
             catch(Exception | LinkageError | OutOfMemoryError e){failure=e.getClass().getSimpleName()+": "+(e.getMessage()==null?"inference unavailable":e.getMessage());try{new VoiceFiles(app).result(id,"","Failed; audio retained · "+failure);}catch(Exception ignored){ }android.util.Log.w("MyNotes","voice-transcription outcome=failed "+e.getClass().getSimpleName());}
             finally{running.remove(job);}
             boolean created;try{created=new VoiceFiles(app).noteWasCreated(id);}catch(Exception unavailable){created=true;}

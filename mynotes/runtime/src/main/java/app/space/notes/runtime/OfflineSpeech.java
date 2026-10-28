@@ -12,17 +12,24 @@ import app.space.notes.domain.PcmWave;
 /** Bundled Vosk CPU inference. Never invokes SpeechRecognizer, a service, or network. */
 public final class OfflineSpeech {
     private OfflineSpeech() { }
-    public static String transcribe(Context context,File wave,AtomicBoolean cancelled) throws Exception {
+    public static final class Result {public final String raw,text;Result(String raw,String text){this.raw=raw;this.text=text;}}
+    public static String transcribe(Context context,File wave,AtomicBoolean cancelled)throws Exception{return transcribeResult(context,wave,cancelled).raw;}
+    public static Result transcribeResult(Context context,File wave,AtomicBoolean cancelled) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
-        if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");File model=install(context,cancelled);StringBuilder transcript=new StringBuilder();
+        if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");File model=install(context,cancelled);StringBuilder transcript=new StringBuilder(),readable=new StringBuilder();
         LibVosk.vosk_set_log_level(-1);
         try(Model nativeModel=new Model(model.getPath());Recognizer recognizer=new Recognizer(nativeModel,PcmWave.RATE);RandomAccessFile input=new RandomAccessFile(wave,"r")){
+            recognizer.setWords(true);
             PcmWave.Data data=PcmWave.inspect(input);input.seek(data.offset);long remaining=data.bytes;byte[] buffer=new byte[8000];
-            while(remaining>0){if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");int count=input.read(buffer,0,(int)Math.min(buffer.length,remaining));if(count<0)throw new IOException("Audio was truncated");remaining-=count;if(recognizer.acceptWaveForm(buffer,count))append(transcript,recognizer.getResult());}
-            append(transcript,recognizer.getFinalResult());return transcript.toString();
+            while(remaining>0){if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");int count=input.read(buffer,0,(int)Math.min(buffer.length,remaining));if(count<0)throw new IOException("Audio was truncated");remaining-=count;if(recognizer.acceptWaveForm(buffer,count))append(transcript,readable,recognizer.getResult());}
+            append(transcript,readable,recognizer.getFinalResult());return new Result(transcript.toString(),readable.toString());
         }
     }
-    private static void append(StringBuilder out,String json) throws JSONException {String text=new JSONObject(json).optString("text","").trim();if(!text.isEmpty()){if(out.length()>0)out.append(' ');out.append(text);}}
+    private static void append(StringBuilder raw,StringBuilder readable,String json)throws JSONException{
+        JSONObject value=new JSONObject(json);String text=value.optString("text","").trim();if(text.isEmpty())return;if(raw.length()>0)raw.append(' ');raw.append(text);List<app.space.notes.domain.TranscriptReadability.Word> words=new ArrayList<>();JSONArray timings=value.optJSONArray("result");
+        if(timings!=null)for(int i=0;i<timings.length();i++){JSONObject word=timings.getJSONObject(i);try{words.add(new app.space.notes.domain.TranscriptReadability.Word(word.getString("word"),word.getDouble("start"),word.getDouble("end")));}catch(IllegalArgumentException invalid){words.clear();break;}}
+        String formatted=words.isEmpty()?app.space.notes.domain.TranscriptReadability.sentence(text):app.space.notes.domain.TranscriptReadability.format(words);if(readable.length()>0)readable.append(' ');readable.append(formatted);
+    }
     private static synchronized File install(Context context,AtomicBoolean cancelled) throws Exception {
         JSONObject manifest;try(InputStream in=context.getAssets().open("voice/model.json")){manifest=new JSONObject(readSmall(in));}
         String hash=manifest.getString("sha256");File parent=new File(context.getFilesDir(),"offline-speech-v1"),model=new File(parent,"model-"+hash.substring(0,16));if(!parent.isDirectory() && !parent.mkdirs())throw new IOException("Cannot create private speech model storage");

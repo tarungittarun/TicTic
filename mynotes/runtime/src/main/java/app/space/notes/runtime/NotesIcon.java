@@ -15,6 +15,7 @@ final class NotesIcon extends Drawable {
  case "archive":c.drawRoundRect(3,4,21,8,1,1,p);lines(c,5,8,5,20,19,20,19,8);lines(c,10,12,14,12);break;
  case "trash":lines(c,4,6,20,6);lines(c,9,3,15,3);lines(c,6,6,7,21,17,21,18,6);lines(c,10,10,10,17);lines(c,14,10,14,17);break;
  case "mic":c.drawRoundRect(9,3,15,14,3,3,p);c.drawArc(6,7,18,18,0,180,false,p);lines(c,12,18,12,22);lines(c,8,22,16,22);break;
+ case "pause":lines(c,8,5,8,19);lines(c,16,5,16,19);break;
  case "play":lines(c,7,4,20,12,7,20,7,4);break;
  case "stop":c.drawRoundRect(5,5,19,19,2,2,p);break;
  case "export":lines(c,12,3,12,15);lines(c,7,8,12,3,17,8);lines(c,4,14,4,21,20,21,20,14);break;

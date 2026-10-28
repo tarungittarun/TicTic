@@ -87,6 +87,12 @@ find_release_text() {
     fi
     # A null root during an Android taskbar/window transition is not a completed UI lookup.
     adb shell dumpsys window windows > "$OUT/selector-attempt-$attempt-window.txt" 2>&1 || true
+    # A shipped compact editor intentionally hides its optional title while IME is open.
+    # Close the real keyboard before entering the upgrade seed title; never bypass the UI.
+    if [[ "$target" == Title ]]; then
+      adb shell dumpsys input_method > "$OUT/selector-attempt-$attempt-ime.txt" 2>&1 || true
+      if grep -Eq 'mInputShown=true|mIsInputViewShown=true' "$OUT/selector-attempt-$attempt-ime.txt"; then adb shell input keyevent KEYCODE_BACK; fi
+    fi
   done
   return 1
 }

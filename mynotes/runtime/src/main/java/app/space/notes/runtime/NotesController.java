@@ -67,7 +67,8 @@ public final class NotesController {
     private TextView emptyHint;
     private boolean darkTheme,grid=true;
     private String activeLabel="",homeQuery="",focusedItem;
-    private boolean sortCreated,diagramOpen,filterExpanded;
+    private boolean sortCreated,diagramOpen;
+    private app.space.notes.domain.LibraryFilter libraryFilter=app.space.notes.domain.LibraryFilter.defaults();
     private String activeFolder;private long folderPageSequence;
     private String diagramSelection,diagramHistoryNote;
     private app.space.notes.domain.DiagramHistory diagramHistory=new app.space.notes.domain.DiagramHistory();
@@ -105,15 +106,16 @@ public final class NotesController {
     public NotesController(Context context, NotesHost host, Bundle restored) {
         this.context=context; this.host=host; this.restored=restored;
         Diagnostics.initialize(context);
-        boolean dark=(context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
+        boolean dark=NotesAppearance.dark(context,host);
         darkTheme=dark;
         android.content.SharedPreferences ui=context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE);
-        grid=ui.getBoolean("grid",true);sortCreated=ui.getBoolean("sortCreated",false);
+        grid=ui.getBoolean("grid",true);sortCreated=ui.getBoolean("sortCreated",false);libraryFilter=new app.space.notes.domain.LibraryFilter(true,true,Collections.emptyList(),ui.getString("sort",sortCreated?"created":"edited"),grid);
+        if(restored!=null && restored.containsKey("filterAll")){List<String> labels=restored.getStringArrayList("filterLabels");libraryFilter=new app.space.notes.domain.LibraryFilter(restored.getBoolean("filterAll"),restored.getBoolean("filterUnlabelled"),labels==null?Collections.emptyList():labels,libraryFilter.sort,grid);homeQuery=restored.getString("homeQuery","");}
         design=new NotesDesign(context,dark);bg=design.background;ink=design.ink;surface=design.surface;muted=design.muted;
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(Diagnostics.enabled() && (r-l!=or-ol || b-t!=ob-ot))Diagnostics.record("ui.viewport","width_px="+(r-l)+" height_px="+(b-t)+" font_scale="+context.getResources().getConfiguration().fontScale+" night="+darkTheme);});
-        shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());root.getViewTreeObserver().addOnGlobalLayoutListener(this::adaptEditorViewport);
+        shell=new LibraryGestureLayout(context,this::canSwipeLibrary,()->{View launcher=root.findViewWithTag("library-launcher");if(launcher!=null)launcher.performClick();});shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());root.getViewTreeObserver().addOnGlobalLayoutListener(this::adaptEditorViewport);
         TextView loading=text("Opening your notes…",18); root.addView(loading);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
         disk.execute(()->{
@@ -161,6 +163,7 @@ public final class NotesController {
         if(busy){host.showMessage("Another storage operation is in progress.");return;}
         action.run();
     }
+    private boolean canSwipeLibrary(){return editing==null && !storagePage && !voicePage && search!=null && !sheets.open();}
     public View view() { return shell; }
     private int dp(int n) { return Math.round(n*context.getResources().getDisplayMetrics().density); }
     private TextView text(String value,int size) {
@@ -185,12 +188,18 @@ public final class NotesController {
     private void settingRow(LinearLayout parent,String name,String description,Runnable action){
         LinearLayout entry=new LinearLayout(context);entry.setOrientation(LinearLayout.VERTICAL);entry.setPadding(dp(4),dp(8),dp(4),dp(8));entry.addView(button(name,action),new LinearLayout.LayoutParams(-1,-2));if(!description.isEmpty()){TextView hint=text(description,13);hint.setTextColor(muted);hint.setPadding(dp(16),0,dp(16),dp(10));entry.addView(hint);}parent.addView(entry);parent.addView(design.divider());
     }
+    private void chooseAppearance(){if(host.managesAppearance()){host.showMessage("Appearance follows the embedding host's design and settings.");return;}String[] ids={"system","light","dark"};new android.app.AlertDialog.Builder(context).setTitle("Appearance").setSingleChoiceItems(new String[]{"System","Light","Dark"},Arrays.asList(ids).indexOf(NotesAppearance.choice(context)),(dialog,index)->{persistDraft();NotesAppearance.choose(context,ids[index]);dialog.dismiss();host.appearanceChanged();}).setNegativeButton("Cancel",null).show();}
     private void renderSettings(){
         persistDraft();editing=null;title=null;body=null;search=null;querySequence++;main.removeCallbacks(filter);storagePage=true;voicePage=false;clearPage();header("Settings");
         ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        settingRow(content,"Storage & recovery","On-device storage, local folders and text backups",()->{renderStorage();pageBack=this::renderSettings;});
+        settingRow(content,"Storage & recovery","Main storage folder, recovery and portable backups",()->{renderStorage();pageBack=this::renderSettings;});
         settingRow(content,"Home widget","Place your pinned and recent notes on Home",host::requestHomeWidget);
-        settingRow(content,"Offline models & licenses","Bundled OCR and English speech. No model downloads.",this::renderModelInfo);
+        settingRow(content,"About & offline models","Privacy, recording storage, bundled models and licenses",this::renderModelInfo);
+        settingRow(content,"Appearance",host.managesAppearance()?"Follows the embedding host":"System, Light or Dark",this::chooseAppearance);
+        settingRow(content,"Diagnostics","Optional local issue logs — export only when you choose",this::renderDiagnostics);
+        TextView about=text(host.versionLabel()+" · offline, no account",12);about.setTextColor(muted);content.addView(about);
+    }
+    private void renderDiagnostics(){persistDraft();editing=null;title=null;body=null;search=null;querySequence++;storagePage=true;clearPage();header("Diagnostics",this::renderSettings);ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         content.addView(design.heading("Local diagnostics"));
         Switch enabled=new Switch(context);enabled.setText("Collect diagnostic logs");enabled.setTextColor(ink);enabled.setTextSize(16);enabled.setMinHeight(dp(56));enabled.setChecked(Diagnostics.enabled());content.addView(enabled);
         content.addView(text("Enable before reproducing a problem. App events and device context stay on this device until you choose to export.",14));
@@ -198,9 +207,7 @@ public final class NotesController {
         enabled.setOnCheckedChangeListener((v,value)->{Diagnostics.setEnabled(value);state.setText(value?"Recording on this device":"Collection stopped. Existing logs stay until deleted.");});
         settingRow(content,"Export diagnostics","Reproduce the issue first. Review the exported text before sharing.",host::exportDiagnostics);
         settingRow(content,"Delete diagnostic logs","Removes app-local logs, not previously exported copies.",()->{Diagnostics.clear();state.setText("Local diagnostic logs deleted.");});
-        content.addView(design.heading("Privacy & appearance"));content.addView(text("No note text, custom labels, search queries, clipboard, recordings, transcripts, images or URI paths in diagnostics. No screenshots or system-wide logcat. Native crashes/OS kills and dropped/rotated records can leave gaps. Nothing uploads automatically.",14));
-        content.addView(text("Appearance follows your device's light/dark mode. Text follows Android font size. Long-press an icon for its name; native selection handles and cut/copy/paste remain available.",14));
-        TextView about=text(host.versionLabel()+" · offline, no account",12);about.setTextColor(muted);content.addView(about);
+        content.addView(text("No note text, labels, search, clipboard, recordings, transcripts, images or storage paths are collected. No screenshots or system-wide logcat. Nothing uploads automatically. Review exports before sharing. Crashes and OS kills can leave gaps.",14));
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
     private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions){
@@ -214,17 +221,17 @@ public final class NotesController {
         TextView heading=design.heading(name);bar.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
         status=text("",12);status.setTextColor(muted);status.setVisibility(View.GONE);parent.addView(status);
     }
+    private void decorateLibrary(LinearLayout panel){String[] icons={"note","archive","trash","folder","mic","settings"};for(int i=0;i<panel.getChildCount() && i<icons.length;i++)if(panel.getChildAt(i) instanceof Button){Button button=(Button)panel.getChildAt(i);NotesIcon glyph=new NotesIcon(icons[i],ink);glyph.setBounds(0,0,dp(24),dp(24));button.setCompoundDrawablesRelative(glyph,null,null,null);button.setCompoundDrawablePadding(dp(16));}}
     private void renderHome(){
         voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null;title=null;body=null;visible.clear();diagramOpen=false;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
-        LinearLayout top=tools(root);homeTopChrome=top;Button library=icon("Library","menu",()->{});top.addView(library,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        LinearLayout top=tools(root);homeTopChrome=top;Button library=icon("Library","menu",()->{});library.setTag("library-launcher");top.addView(library,new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView brand=design.heading(activeFolder!=null?(activeFolder.isEmpty()?"Main folder":activeFolder):(activeLabel.isEmpty()?page:activeLabel));brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(!undoBatch.isEmpty() || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
-        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Folders","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),()->renderFolders(false),this::renderVoiceInbox,this::renderSettings});
+        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Folders","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),()->renderFolders(false),this::renderVoiceInbox,this::renderSettings});decorateLibrary(navigation);
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);
         LinearLayout searchBar=new LinearLayout(context);searchBar.setGravity(android.view.Gravity.CENTER_VERTICAL);searchBar.setBackground(design.shape(surface,24));root.addView(searchBar);
         search=new EditText(context);search.setSingleLine(true);design.entry(search,16);search.setPadding(dp(18),dp(12),dp(4),dp(12));search.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));search.setHint("Search notes and labels");search.setText(homeQuery);searchBar.addView(search,new LinearLayout.LayoutParams(0,-2,1));
         Button filterControl=icon("Filters","filter",()->{});searchBar.addView(filterControl,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout filters=menu("Filter & view",filterControl);
-        menuRows(filters,new String[]{grid?"List view":"Grid view",sortCreated?"Sort: created":"Sort: edited","All labels","Manage labels"},new Runnable[]{()->{grid=!grid;saveViewPreferences();renderHome();},()->{sortCreated=!sortCreated;saveViewPreferences();renderHome();},()->{activeLabel="";selectedIds.clear();renderHome();},this::manageLabels});
-        TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);for(String label:labels)filters.addView(button(label,()->{activeLabel=label;selectedIds.clear();renderHome();}));
+        TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note note:notes)if(note.deletedAt==0)labels.addAll(note.labels);filters.addView(new LibraryFilterView(design,libraryFilter,labels,value->{libraryFilter=value;grid=value.grid;sortCreated=value.sort.equals("created");activeLabel="";selectedIds.clear();saveViewPreferences();renderHome();},this::manageLabels));
         search.addTextChangedListener(watcher(()->{homeQuery=search.getText().toString();main.removeCallbacks(filter);main.postDelayed(filter,150);querySequence++;}));
         selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);LinearLayout selectionTools=tools(selectionBar);tool(selectionTools,"Done","close",()->{selectedIds.clear();updateSelection();});TextView count=text("",16);count.setTag("selection-count");selectionTools.addView(count,new LinearLayout.LayoutParams(0,-2,1));tool(selectionTools,"Pin","pin",()->bulkState("pin"));tool(selectionTools,"Archive","archive",()->bulkState("archive"));tool(selectionTools,page.equals("Trash")?"Restore":"Trash",page.equals("Trash")?"undo":"trash",()->bulkState(page.equals("Trash")?"restore":"trash"));Button selectionMore=icon("Selection actions","more",()->{});selectionTools.addView(selectionMore,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout selectedMenu=menu("Selected notes",selectionMore);selectedMenu.addView(button("Move to folder",()->renderFolders(true)));menuRows(selectedMenu,new String[]{"Labels","Colour","Share","Copy","Merge"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateSelected,this::mergeSelected});root.addView(selectionBar);
         board=new NotesBoard(context,darkTheme,new NotesBoard.Listener(){public void open(Note n){if(!selectedIds.isEmpty()){toggleSelection(n);return;}editing=n.id;renderEditor();}public void select(Note n){toggleSelection(n);}},grid);
@@ -232,7 +239,7 @@ public final class NotesController {
         LinearLayout dock=tools(root);homeDockChrome=dock;tool(dock,"+ Checklist","checklist",this::newChecklist);tool(dock,"Record voice","mic",host::requestVoiceCapture);View gap=new View(context);dock.addView(gap,new LinearLayout.LayoutParams(0,1,1));Button create=button(context.getResources().getConfiguration().fontScale>1.3f?"Note":"New note",this::newNote);create.setContentDescription("New text note");create.setTooltipText("New text note");create.setTextColor(design.accentInk);create.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));create.setMinHeight(dp(54));create.setPadding(dp(18),dp(8),dp(18),dp(8));dock.addView(create);
         homeChrome.clear();chromeHidden=false;for(View chrome:new View[]{top,searchBar,dock})homeChrome.put(chrome,chrome.getVisibility());updateSelection();filterNow();root.post(this::adaptEditorViewport);
     }
-    private void saveViewPreferences(){context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("grid",grid).putBoolean("sortCreated",sortCreated).apply();}
+    private void saveViewPreferences(){context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("grid",grid).putBoolean("sortCreated",sortCreated).putString("sort",libraryFilter.sort).apply();}
     private void toggleSelection(Note n){if(!selectedIds.add(n.id))selectedIds.remove(n.id);updateSelection();log("selection","count="+selectedIds.size());}
     private void updateSelection(){
         if(!selectedIds.isEmpty() && !chromeHidden){for(View view:homeChrome.keySet()){homeChrome.put(view,view.getVisibility());view.setVisibility(View.GONE);}chromeHidden=true;}
@@ -241,7 +248,7 @@ public final class NotesController {
         if(board!=null)board.show(visible,selectedIds,!page.equals("Trash"));
         if(status!=null && !selectedIds.isEmpty())status.setText(selectedIds.size()+" selected · tap cards to change selection");root.post(this::adaptEditorViewport);
     }
-    private void navigate(String name) { activeFolder=null;page=name;selectedIds.clear();activeLabel="";renderHome(); }
+    private void navigate(String name) { activeFolder=null;page=name;selectedIds.clear();activeLabel="";libraryFilter=new app.space.notes.domain.LibraryFilter(true,true,Collections.emptyList(),libraryFilter.sort,grid);renderHome(); }
     private void newNote() {
         long now=System.currentTimeMillis();Note n=Note.create(now).folder(activeFolder==null?"":activeFolder,now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();
         queueSave(); renderEditor(); if(body!=null){body.requestFocus();body.post(()->{if(!closed && body!=null)((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});}
@@ -250,7 +257,7 @@ public final class NotesController {
     private void filterNow() {
         if(closed || editing!=null || search==null)return;
         final String query=search.getText().toString(), currentPage=page,label=activeLabel;
-        final boolean created=sortCreated;final String folder=activeFolder;
+        final app.space.notes.domain.LibraryFilter filterState=libraryFilter;final String folder=activeFolder;
         final long ticket=++querySequence;
         final List<Note> snapshot=new ArrayList<>(notes);
         searchWorker.execute(()->{
@@ -258,10 +265,9 @@ public final class NotesController {
             for(Note n:snapshot) {
                 boolean included=currentPage.equals("Trash")?n.deletedAt>0:
                     n.deletedAt==0 && (currentPage.equals("Archive")==n.archived);
-                if(included && (folder==null || n.folder.equalsIgnoreCase(folder)) && n.matches(query) && (label.isEmpty() || n.labels.stream().anyMatch(tag->tag.equalsIgnoreCase(label))))result.add(n);
+                if(included && (folder==null || n.folder.equalsIgnoreCase(folder)) && n.matches(query) && filterState.matches(n))result.add(n);
             }
-            result.sort(Comparator.comparing((Note n)->!n.pinned)
-                .thenComparing(Comparator.comparingLong((Note n)->created?n.createdAt:n.updatedAt).reversed()));
+            result.sort(filterState.comparator());
             main.post(()->{
                 if(closed || editing!=null || ticket!=querySequence)return;
                 visible.clear();visible.addAll(result);board.show(result,selectedIds,!currentPage.equals("Trash"));
@@ -650,21 +656,21 @@ public final class NotesController {
         });}catch(Exception failure){main.post(()->{if(closed || token!=folderPageSequence)return;content.removeAllViews();content.addView(text(failure.getMessage()==null?"Main storage folder is unavailable":failure.getMessage(),15));content.addView(button("Storage settings",()->{renderStorage();pageBack=()->renderFolders(moving);}));});}});
     }
     private void renderModelInfo(){
-        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("Offline models & licenses",this::renderSettings);
+        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("About & offline models",this::renderSettings);
         TextView details=text("Reading bundled notices…",14);ScrollView scroll=new ScrollView(context);scroll.addView(details);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));row(new String[]{"Back"},new Runnable[]{this::renderStorage});
-        disk.execute(()->{StringBuilder value=new StringBuilder("All inference runs locally on CPU. No network permission, platform SpeechRecognizer or model downloader. OCR: Tesseract4Android 4.9.0, tessdata_fast 4.1.0 English/Hindi/Kannada. Speech: Vosk 0.3.75 with bundled English small-en-us-0.15. Accuracy varies: review recognized text against the original. First use installs verified models in private storage; speech needs additional disk/RAM. Microphone is optional and only requested on Record voice. Voice inbox originals are excluded from JSON backup and never automatically deleted.\n\n");try{for(String name:context.getAssets().list("licenses")){value.append("\n\n===== ").append(name).append(" =====\n");try(java.io.InputStream in=context.getAssets().open("licenses/"+name)){java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);value.append(bytes.toString("UTF-8"));}}}catch(Exception e){value.append("Notices could not be read: ").append(e.getMessage());}main.post(()->{if(!closed && details.getParent()!=null)details.setText(value);});});
+        disk.execute(()->{StringBuilder value=new StringBuilder("Original recordings stay privately on this device, independent of note Trash. JSON backups exclude audio. Export important recordings before clearing data or uninstalling.\n\nAll inference runs locally on CPU. No network permission, platform SpeechRecognizer or model downloader. OCR: Tesseract4Android 4.9.0, tessdata_fast 4.1.0 English/Hindi/Kannada. Speech: Vosk 0.3.75 with bundled English small-en-us-0.15. Accuracy varies: review recognized text against the original. First use installs verified models in private storage; speech needs additional disk/RAM. Microphone is optional and only requested on Record voice. Voice inbox originals are excluded from JSON backup and never automatically deleted.\n\n");try{for(String name:context.getAssets().list("licenses")){value.append("\n\n===== ").append(name).append(" =====\n");try(java.io.InputStream in=context.getAssets().open("licenses/"+name)){java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);value.append(bytes.toString("UTF-8"));}}}catch(Exception e){value.append("Notices could not be read: ").append(e.getMessage());}main.post(()->{if(!closed && details.getParent()!=null)details.setText(value);});});
     }
     private void renderStorage(){
         storagePage=true;prepared=null;editing=null;search=null;title=null;body=null;querySequence++;main.removeCallbacks(filter);voicePage=false;clearPage();header("Storage & recovery");
         ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         TextView current=text(repository==null?"Opening storage":repository.status(),16);current.setTextColor(design.accent);content.addView(current);content.addView(text("A private recovery copy stays on this device. Folder changes are verified before switching; previous files are kept.",14));
-        settingRow(content,"Choose folder","Move a verified text-library copy into a new empty local/SD folder.",host::chooseLocalFolder);
+        settingRow(content,"Choose folder","Choose the main folder on this device or SD card; the library is verified before switching.",host::chooseLocalFolder);
         settingRow(content,"Open library","Open an existing local folder and preview a non-destructive merge.",host::openExistingFolder);
-        settingRow(content,"Backups","Export/restore text notes. Export voice WAVs separately.",this::renderBackups);
+        settingRow(content,"Backups","Back up notes, diagrams, folder placement and backgrounds. Export original recordings separately.",this::renderBackups);
         if(repository!=null && repository.status().toLowerCase(java.util.Locale.ROOT).contains("pending"))settingRow(content,"Retry save","Reconnect your local folder first; private edits are retained.",this::flush);
         settingRow(content,"Use device storage","Keep working from the private on-device library.",()->moveStorage(null));
-        settingRow(content,"Voice inbox","Play, retry and separately export original audio.",this::renderVoiceInbox);
-        content.addView(text("Only supported local Android storage providers are accepted. Do not uninstall or clear app data before exporting JSON and important WAVs. Large-library generation compaction is not yet implemented.",13));
+        settingRow(content,"Folders","Create real subfolders and move notes",()->renderFolders(false));
+        content.addView(text("Use local device or SD storage. Export a backup and important recordings before uninstalling or clearing app data. Previous library snapshots are kept for recovery.",13));
     }
     public void selectFolder(android.net.Uri uri) {
         whenReady(()->{persistDraft();moveStorage(uri);});
@@ -831,7 +837,7 @@ public final class NotesController {
     }
     public void flush() { Diagnostics.record("lifecycle.flush","requested"); if(ready && !busy){persistDraft();queueSave();} }
     public void saveState(Bundle state) {
-        persistDraft();state.putString("activeFolder",activeFolder);state.putString("page",page);state.putString("editing",editing);if(body!=null){state.putInt("bodyAnchor",body.getSelectionStart());state.putInt("bodyFocus",body.getSelectionEnd());state.putBoolean("bodyFocused",body.hasFocus());}
+        persistDraft();state.putBoolean("filterAll",libraryFilter.allNotes);state.putBoolean("filterUnlabelled",libraryFilter.includeUnlabelled);state.putStringArrayList("filterLabels",new ArrayList<>(libraryFilter.labels));state.putString("homeQuery",homeQuery);state.putString("activeFolder",activeFolder);state.putString("page",page);state.putString("editing",editing);if(body!=null){state.putInt("bodyAnchor",body.getSelectionStart());state.putInt("bodyFocus",body.getSelectionEnd());state.putBoolean("bodyFocused",body.hasFocus());}
         if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());Diagnostics.failure("draft-snapshot.failure",e);}}
     }
     public void close() { Diagnostics.record("lifecycle.close","controller");

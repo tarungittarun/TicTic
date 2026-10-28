@@ -1,0 +1,13 @@
+package app.space.notes.runtime;
+import android.content.Context;
+import android.view.MotionEvent;
+import android.widget.FrameLayout;
+import java.util.function.BooleanSupplier;
+/** Home-only leading-edge swipe, never the native text editor's gestures. */
+final class LibraryGestureLayout extends FrameLayout {
+ private final BooleanSupplier enabled;private final Runnable open;private final float density;private float x,y;private boolean candidate,claimed;
+ LibraryGestureLayout(Context c,BooleanSupplier enabled,Runnable open){super(c);this.enabled=enabled;this.open=open;density=getResources().getDisplayMetrics().density;}
+ @Override public boolean onInterceptTouchEvent(MotionEvent e){if(e.getActionMasked()==0){x=e.getX();y=e.getY();claimed=false;candidate=x<24*density && enabled.getAsBoolean();}if(e.getActionMasked()==2 && candidate){float dx=e.getX()-x,dy=Math.abs(e.getY()-y);if(dy>24*density && dy>Math.abs(dx))candidate=false;else if(dx>48*density && dx>dy*1.5f)claimed=true;}return claimed;}
+ @Override public boolean onTouchEvent(MotionEvent e){if(e.getActionMasked()==0 && candidate)return true;if(e.getActionMasked()==2 && candidate){float dx=e.getX()-x,dy=Math.abs(e.getY()-y);if(dx>48*density && dx>dy*1.5f)claimed=true;}if(!claimed){if(e.getActionMasked()==1 || e.getActionMasked()==3)candidate=false;return candidate || super.onTouchEvent(e);}if(e.getActionMasked()==1){boolean invoke=e.getX()-x>48*density && enabled.getAsBoolean();candidate=claimed=false;performClick();if(invoke)open.run();}else if(e.getActionMasked()==3)candidate=claimed=false;return true;}
+ @Override public boolean performClick(){super.performClick();return true;}
+}

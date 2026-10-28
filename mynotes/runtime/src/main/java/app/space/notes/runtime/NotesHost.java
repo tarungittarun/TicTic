@@ -14,5 +14,9 @@ public interface NotesHost {
     default void requestReminderPermission(){showMessage("Enable notifications in Android settings, then choose Reminder again.");}
     default void requestHomeWidget(){showMessage("Long-press your home screen, choose Widgets, then MyNotes library. Remove and re-add it any time; notes stay in the app.");}
     default void exportDiagnostics(){showMessage("Diagnostic export is unavailable in this host.");}
+    /** Embedded hosts own their native theme and policy; standalone explicitly opts out. */
+    default boolean managesAppearance(){return true;}
+    default String appearanceMode(){return "system";}
+    default void appearanceChanged(){showMessage("Appearance is managed by the host.");}
     String versionLabel();
 }

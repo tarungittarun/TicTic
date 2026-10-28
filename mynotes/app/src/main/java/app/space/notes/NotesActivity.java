@@ -11,9 +11,10 @@ public final class NotesActivity extends Activity implements NotesHost {
     private NotesController controller;
     private String ocrLanguage="eng",voiceExportId;
     @Override public void onCreate(Bundle state) {
+        boolean dark=app.space.notes.runtime.NotesAppearance.dark(this,this);setTheme(dark?R.style.NotesThemeDark:R.style.NotesThemeLight);
         super.onCreate(state);
         // The light-navigation XML attribute starts at 27; the decor flag is supported at minSdk 26.
-        boolean light=(getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)!=android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        boolean light=!dark;
         int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
         if(state!=null){ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");}
@@ -21,6 +22,8 @@ public final class NotesActivity extends Activity implements NotesHost {
         setContentView(controller.view());
         if(state==null)acceptIncoming(getIntent());
     }
+    @Override public boolean managesAppearance(){return false;}
+    @Override public void appearanceChanged(){recreate();}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
     private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
     @Override public void requestHomeWidget(){android.appwidget.AppWidgetManager manager=android.appwidget.AppWidgetManager.getInstance(this);if(manager.isRequestPinAppWidgetSupported())manager.requestPinAppWidget(new android.content.ComponentName(this,app.space.notes.runtime.NotesWidget.class),null,null);else NotesHost.super.requestHomeWidget();}

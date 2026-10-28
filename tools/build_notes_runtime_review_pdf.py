@@ -82,6 +82,7 @@ def build(run, output):
 
     scenes = [
         ('Your notes, not a control panel', 'home', 'Quiet cards, off-thread search and clear creation actions. Card columns adapt to width and large text.'),
+        ('Search should leave room for results', 'search-keyboard', 'In cramped landscape, non-search chrome collapses. A native test requires a readable result title above the keyboard.'),
         ('A calm place to write', 'editor', 'Optional title, direct body editing, restrained top and bottom chrome; no permanent command stack.'),
         ('The reported case: H1 on 01', 'numeric-h1', '01 is a heading; 02-09 remain ordinary paragraphs. Images precede the diagnostic raster colour mutation.'),
         ('The reported case: H2 on 01', 'numeric-h2', 'Changing heading size should reflow the paragraph, not paint larger letters over the next line.'),

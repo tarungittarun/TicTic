@@ -9,7 +9,7 @@ import app.space.notes.domain.Note;
 public final class LocalBackupFiles {
     private LocalBackupFiles() { }
     public static void requireLocal(Uri uri) throws IOException {
-        if(!"content".equals(uri.getScheme()) || !"com.android.externalstorage.documents".equals(uri.getAuthority()))
+        if(uri==null || !"content".equals(uri.getScheme()) || !Arrays.asList("com.android.externalstorage.documents","com.android.providers.downloads.documents").contains(uri.getAuthority()))
             throw new IOException("Use Internal storage or SD card through the local Android storage provider, not a cloud provider");
     }
     public static List<Note> read(ContentResolver resolver,Uri uri) throws Exception {

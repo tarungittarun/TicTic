@@ -8,7 +8,7 @@ from mynotes.tools.ci.summary import REQUIRED
 def validate(workflow):
     jobs=workflow['jobs']
     from mynotes.tools.ci.test_plan import build_plan
-    assert len(jobs)-1+len(build_plan()['lanes'])<=30,'Expanded workflow exceeds the 30-job budget'
+    assert len(jobs)-1+len(build_plan()['lanes'])<=45,'Expanded workflow exceeds the 45-job budget'
     def deps(job):
         value=jobs[job].get('needs',[])
         return [value] if isinstance(value,str) else value

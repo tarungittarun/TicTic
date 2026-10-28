@@ -36,8 +36,9 @@ public final class OfflineOcr {
         }finally{image.delete();}
     }
     public static void requireLocal(Uri uri) throws IOException {
-        if(uri==null || !"content".equals(uri.getScheme()) || !Arrays.asList("com.android.externalstorage.documents","com.android.providers.media.documents","media").contains(uri.getAuthority()))
+        if(uri==null || !"content".equals(uri.getScheme()) || !Arrays.asList("com.android.externalstorage.documents","com.android.providers.media.documents","com.android.providers.downloads.documents","media").contains(uri.getAuthority()))
             throw new IOException("Choose an on-device image from Internal storage or SD card. Cloud providers are not accepted.");
+        if("media".equals(uri.getAuthority()) && uri.getPath()!=null && uri.getPath().contains("/picker") && !uri.getPath().contains("/com.android.providers.media.photopicker/"))throw new IOException("Choose an on-device photo, not a cloud photo.");
     }
     static Bitmap decodeImage(File image) throws Exception {
         BitmapFactory.Options options=new BitmapFactory.Options();options.inJustDecodeBounds=true;BitmapFactory.decodeFile(image.getPath(),options);

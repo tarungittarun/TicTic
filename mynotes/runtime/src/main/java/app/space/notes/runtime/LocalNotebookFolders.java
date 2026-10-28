@@ -40,11 +40,17 @@ public final class LocalNotebookFolders {
  private static String fileName(String id)throws Exception{
   byte[] digest=MessageDigest.getInstance("SHA-256").digest(id.getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder value=new StringBuilder("note-");for(byte b:digest)value.append(String.format(Locale.ROOT,"%02x",b&255));return value+".mynote.json";
  }
+ private String timestampName(Uri parent,Note note)throws Exception{
+  java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));String base="note-"+format.format(new Date(note.createdAt));
+  for(int suffix=0;suffix<10000;suffix++){String candidate=base+(suffix==0?"":"-"+suffix)+".mynote.json";Entry entry=find(parent,candidate);if(entry==null)return candidate;try{owned(entry,note.id);return candidate;}catch(Exception foreign){/* A timestamp collision must never overwrite another note or a foreign file. */}}
+  throw new IOException("Too many files with this timestamp; choose another folder");
+ }
+ private boolean candidate(Entry entry){return !DocumentsContract.Document.MIME_TYPE_DIR.equals(entry.mime) && entry.name.startsWith("note-") && entry.name.endsWith(".mynote.json");}
  private byte[] read(Uri uri)throws IOException{try(InputStream in=resolver.openInputStream(uri)){if(in==null)throw new IOException("Cannot read note file");ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1){if(out.size()+count>BackupCodec.MAX_BYTES)throw new IOException("Note file is too large; files left untouched");out.write(buffer,0,count);}return out.toByteArray();}}
  private Note owned(Entry entry,String id)throws Exception{if(DocumentsContract.Document.MIME_TYPE_DIR.equals(entry.mime))throw new IOException("A directory occupies the note file name");List<Note> decoded=DocumentCodec.decode(read(entry.uri));if(decoded.size()!=1 || !decoded.get(0).id.equals(id))throw new IOException("A foreign file occupies the note file name; it was not changed");return decoded.get(0);}
  /** Call only after journalling the current library privately. Readback must match before removal. */
  public void write(String folder,Note note)throws Exception{
-  Uri parent=directory(folder);String name=fileName(note.id);Entry existing=find(parent,name);byte[] payload=DocumentCodec.encode(Collections.singletonList(note));
+  Uri parent=directory(folder);String name=timestampName(parent,note);Entry existing=find(parent,name);byte[] payload=DocumentCodec.encode(Collections.singletonList(note));
   if(existing!=null){owned(existing,note.id);if(Arrays.equals(payload,read(existing.uri)))return;}
   // Copy/verify before changing any current file. A failed rename leaves recoverable copies.
   Uri temporary=DocumentsContract.createDocument(resolver,parent,"application/json",".mynotes-pending-"+name+"-"+UUID.randomUUID()+".tmp");if(temporary==null)throw new IOException("Cannot prepare the note file");
@@ -60,13 +66,17 @@ public final class LocalNotebookFolders {
  public void reconcile(List<Note> notes)throws Exception{
   List<String> folders=list();for(Note note:notes)if(!note.folder.isEmpty() && !folders.contains(note.folder)){Entry existing=find(root,note.folder);if(existing==null)create(note.folder);directory(note.folder);folders=list();}
   List<String> locations=new ArrayList<>(folders);locations.add("");Map<String,List<Entry>> catalog=new LinkedHashMap<>();for(String folder:locations)catalog.put(folder,children(directory(folder)));
-  for(Note note:notes){String name=fileName(note.id);boolean placed=!note.folder.isEmpty();for(List<Entry> entries:catalog.values())for(Entry entry:entries)if(entry.name.equals(name) || entry.name.startsWith(".mynotes-pending-"+name+"-") || entry.name.startsWith(".mynotes-previous-"+name+"-"))placed=true;if(!placed)continue;
-   write(note.folder,note);for(Map.Entry<String,List<Entry>> location:catalog.entrySet())if(!location.getKey().equalsIgnoreCase(note.folder))for(Entry entry:location.getValue())if(entry.name.equals(name)){owned(entry,note.id);if(!DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("Destination verified, but an old note copy remains. Retry save to finish moving.");}
+  for(Note note:notes){
+   write(note.folder,note);Uri destination=directory(note.folder);String currentName=timestampName(destination,note);
+   for(Map.Entry<String,List<Entry>> location:catalog.entrySet())for(Entry entry:location.getValue())if(candidate(entry) && (!location.getKey().equalsIgnoreCase(note.folder) || !entry.name.equals(currentName))){
+    try{owned(entry,note.id);}catch(Exception foreign){continue;}
+    if(!DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("Destination verified, but an old note copy remains. Retry save to finish moving.");
+   }
   }
  }
  /** Destination copy is verified first. Any failure leaves source/recovery available for retry. */
  public void move(Note note,String from,String to)throws Exception{
-  if(from.equals(to)){write(to,note);return;}Uri source=directory(from);Entry old=find(source,fileName(note.id));if(old!=null)owned(old,note.id);
-  write(to,note);if(old!=null && !DocumentsContract.deleteDocument(resolver,old.uri))throw new IOException("New copy verified, but the old copy could not be removed. Both copies were retained.");
+  write(to,note);if(from.equals(to))return;
+  for(Entry entry:children(directory(from)))if(candidate(entry)){try{owned(entry,note.id);}catch(Exception foreign){continue;}if(!DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("New copy verified, but the old copy could not be removed. Both copies were retained.");}
  }
 }

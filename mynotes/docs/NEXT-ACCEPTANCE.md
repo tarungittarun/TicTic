@@ -29,7 +29,7 @@ Search currently runs off-thread; qualify a large representative index, cancella
 ## 4. Pipeline/evidence policy for every slice
 
 - Keep the independent `mynotes/` build; do not rebuild the frozen calculator/MySpace. Use the current branch and Actions-only Android builds.
-- Retain the **30-expanded-job ceiling** of the main workflow. Extend test discovery and per-lane groups rather than accidentally adding matrix jobs beyond the budget; a new class must be covered by discovery, exact method accounting and explicit lane selection.
+- Retain the **45-expanded-job ceiling** of the main workflow. Extend test discovery and per-lane groups rather than accidentally adding matrix jobs beyond the budget; a new class must be covered by discovery, exact method accounting and explicit lane selection.
 - Preserve API26 minimum coverage, current Android, real Activity/display resource checks and optional permission positive/negative cases. Keep genuine prior-release seeded update and exact installed-byte checks in every release lane.
 - Keep native component soaks separate and nonpublishing; report actual elapsed time/cycles, source identity and sampled retained-memory metrics. A component/debug soak is not final-release UI, microphone, battery, thermal, concurrent OCR/ASR or physical ARM/16-KiB qualification.
 - Local Notes/root gates and whitespace checks precede commit/push. Publish only after every required source/JVM/build/audit/emulator gate is green, with a higher versionCode for changed runtime inputs. Never replace previous APK assets.

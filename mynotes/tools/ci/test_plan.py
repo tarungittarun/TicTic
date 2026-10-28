@@ -62,7 +62,7 @@ def build_plan(root=ROOT,config=None):
     if set(assigned)!=set(android):raise ValueError('Assign new test classes: '+str(sorted(set(android)-set(assigned))))
     lanes=config['lanes'];ids=[lane['id'] for lane in lanes]
     if len(ids)!=len(set(ids)) or not lanes:raise ValueError('Duplicate/empty lane IDs')
-    if len(lanes)>21:raise ValueError('Lane budget exceeded: leave room for independent gates within 30 jobs')
+    if len(lanes)>36:raise ValueError('Lane budget exceeded: leave room for independent gates within 45 jobs')
     for lane in lanes:
         if not re.fullmatch(r'[a-z][a-z0-9-]*',lane['id']):raise ValueError('Invalid lane ID')
         if lane.get('notifications','denied') not in ['denied','granted']:raise ValueError('Invalid notification policy')

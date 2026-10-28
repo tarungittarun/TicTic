@@ -1,14 +1,20 @@
 # MyNotes report card — 2026-10-28 (IST)
 
-## Current UX refinement: 0.9.0(10), unpublished
+## Current repair: 0.12.0(13), unpublished
 
-**The user rejected the 0.8 UI.** Its green functional checks did not prove first-use clarity, paragraph layout or aesthetic quality. The new Paper & Ink redesign replaces permanent command stacks with a content-first editor and contextual tools, and fixes whole-paragraph/native heading reflow.
+**Real-device feedback rejected parts of published 0.11 even after green emulator gates.** Folders/visible files, random filenames, image/PDF provider failures, manual Trash deletion, drawing and Settings are the current repair priorities. See [device diagnosis, repairs and boundaries](DEVICE-REPAIR-v0.12.md) and the [practical test guide](STANDALONE-TEST-GUIDE.md).
 
-See the [live 0.9 UX review and practical findings](PAPER-AND-INK-v0.9.md). Final-source Android qualification and five-variant visual approval are pending; no 0.9 download is being advertised yet. Earlier landscape evidence exposed fullscreen keyboard extraction, which is addressed in the new candidate and must be rechecked. The real tablet baseline transition also needs a completed run.
+Repair baseline run [40771889450](https://github.com/tarungittarun/TicTic/actions/runs/40771889450), source `f86e2fc`, passed **all 21 Android lanes**, including **156 unique Android cases** and the retained large-font drawing assertion. Initial source/JVM/build/lint/signature gates passed. **The overall workflow failed its acceptance summary because new rendered approval was pending; it did not publish.** The persisted 186 synthetic captures do not certify the user's Motorola, SD provider, TalkBack or acoustic recording conditions.
 
-## Previously published 0.8.0(9) — not accepted as the new UX
+The subsequent folder/Settings/voice parent-navigation fixes and one new native journey are being qualified in [40774476746](https://github.com/tarungittarun/TicTic/actions/runs/40774476746): **157 unique Android / 114 JVM cases planned**, not yet a success claim. Latest local root/Notes gates pass **509 / 119**. Current-source screenshot review, updated overview and every publication gate remain required.
 
-[**Download latest MyNotes 0.8.0(9)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
+## Latest published: 0.11.0(12) — physically rejected, not repair acceptance
+
+[Published 0.11 APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) remains unchanged. Its prior all-21-lane result did not establish the real-device outcomes later reported as broken. Do not mistake the candidate repair for an available update. Install future approved updates over the existing app; **do not uninstall/clear data**. JSON backups contain note images but exclude original voice recordings; export important audio separately.
+
+## Historical 0.8.0(9) — not the latest release or accepted new UX
+
+[Historical 0.8 APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
 
 Main Home/editor toolbars now use accessible outline icons, with Writing/Capture/Organise/More
 categories instead of permanently exposing all commands. Diagram tools are grouped and voice actions
@@ -35,7 +41,9 @@ The earlier70-minute native component soak below is not a long UI/diagnostics st
 - Install over the prior release. **Do not uninstall/clear data. Export JSON plus important voice WAVs separately.**
 - Native releases live in versioned GitHub Release assets; pinned small receipts stay in Git. Releases1–8 were not overwritten.
 
-## What was actually delivered
+## Historical 0.7 delivery snapshot
+
+This table preserves the scope at that milestone; later repairs and limits above supersede it.
 
 | Slice | Outcome | Boundary |
 |---|---|---|

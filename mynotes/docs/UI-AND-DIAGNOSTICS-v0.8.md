@@ -1,6 +1,6 @@
 # MyNotes 0.8 — UI clarity and local diagnostics
 
-Status: **accepted/published 0.8.0(9)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk). Install over the existing app; do not uninstall/clear data. This slice prioritizes usability, not new note features.
+Status: **previously published 0.8.0(9); subsequently rejected by the user as a UX outcome**. See the [0.9 redesign review](PAPER-AND-INK-v0.9.md); the navigation descriptions below are historical, not the current candidate. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk). Install over the existing app; do not uninstall/clear data. This slice prioritizes usability, not new note features.
 
 [Qualification 40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296): **69 JVM /104 unique Android tests /851 executions /21 lanes /30 jobs, all green**. Every lane preserved its real prior-release seeded note and matched the installed release hash. Local gates: **108 Notes /498 root checks**. Package/certificate/schema 5 remain stable; no permissions added. APK 66,510,484 bytes; SHA-256 `84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`. Source `93f486ee53314f7df00e4f9943a1e071a1586fa8`; publication `3b7c7ff`.
 

@@ -1,6 +1,12 @@
 # MyNotes report card — 2026-10-28 (IST)
 
-## Current accepted UI/diagnostics milestone: 0.8.0(9)
+## Current UX refinement: 0.9.0(10), unpublished
+
+**The user rejected the 0.8 UI.** Its green functional checks did not prove first-use clarity, paragraph layout or aesthetic quality. The new Paper & Ink redesign replaces permanent command stacks with a content-first editor and contextual tools, and fixes whole-paragraph/native heading reflow.
+
+See the [live 0.9 UX review and practical findings](PAPER-AND-INK-v0.9.md). Final-source Android qualification and five-variant visual approval are pending; no 0.9 download is being advertised yet. Earlier landscape evidence exposed fullscreen keyboard extraction, which is addressed in the new candidate and must be rechecked. The real tablet baseline transition also needs a completed run.
+
+## Previously published 0.8.0(9) — not accepted as the new UX
 
 [**Download latest MyNotes 0.8.0(9)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
 
@@ -9,7 +15,7 @@ categories instead of permanently exposing all commands. Diagram tools are group
 use compact icon rows. Settings includes default-off local diagnostic collection, export/delete and
 an explicit privacy boundary. [Full UX/symbol/diagnostics guide](UI-AND-DIAGNOSTICS-v0.8.md).
 
-[Accepted run40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
+[Historical functional run40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
 **69 JVM,104 unique Android tests,851/851 executions across21 lanes; all30 jobs green**.
 All21 real prior-release note seeds survived install-over; all21 installed hashes matched.
 Local gates:108 Notes /498 root. APK66,510,484 bytes; SHA-256

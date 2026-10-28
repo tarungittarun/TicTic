@@ -44,8 +44,12 @@ public class BackupCodecTest {
         catch(org.json.JSONException expected) { }
     }
     @Test public void boundedReadRejectsOversize() throws Exception {
-        try {BackupCodec.read(new ByteArrayInputStream(new byte[BackupCodec.MAX_BYTES+1]));fail("must bound memory");}
+        try {BackupCodec.read(new java.io.InputStream(){int remaining=BackupCodec.MAX_BYTES+1;public int read(){if(remaining--<=0)return -1;return 0;}public int read(byte[] b,int offset,int length){if(remaining<=0)return -1;int count=Math.min(length,remaining);java.util.Arrays.fill(b,offset,offset+count,(byte)0);remaining-=count;return count;}});fail("must bound memory");}
         catch(IOException expected) { }
+    }
+    @Test public void providerMemoryPressureBecomesRecoverableIOException() throws Exception {
+        try {BackupCodec.read(new java.io.InputStream(){public int read(){throw new OutOfMemoryError("synthetic pressure");}});fail("must report a recoverable failure");}
+        catch(IOException expected) {assertTrue(expected.getCause() instanceof OutOfMemoryError);assertTrue(expected.getMessage().contains("current library unchanged"));}
     }
     @Test public void duplicateIdsRejectedBeforeExport() throws Exception {
         try {BackupCodec.encode(Arrays.asList(note(),note()));fail("must reject");}

@@ -36,7 +36,7 @@ jobs:
           mkdir -p evidence
           python3 -m mynotes.tools.ci.test_plan --output evidence/test-plan.json
           echo "matrix=$(python3 -m mynotes.tools.ci.test_plan --matrix)" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-test-plan
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Verify every published APK checksum and source pin
         run: python3 -m mynotes.tools.ci.inventory
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-release-inventory
@@ -73,7 +73,7 @@ jobs:
       - name: Lint/build failure context
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-lint.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-lint-evidence
@@ -104,7 +104,7 @@ jobs:
       - name: Compiler diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-jvm.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-jvm-evidence
@@ -131,13 +131,13 @@ jobs:
       - name: Compiler diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-release.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: notes-release-candidate
           path: mynotes/app/build/outputs/apk/release/notes-release.apk
           retention-days: 1
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-release-build-log
@@ -160,7 +160,7 @@ jobs:
       - name: Compiler diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-tests.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: notes-instrumentation-apks
           path: |
@@ -168,7 +168,7 @@ jobs:
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
           retention-days: 1
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-instrumentation-build-log
@@ -188,7 +188,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-mynotes
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-release-candidate
           path: candidate
@@ -205,13 +205,13 @@ jobs:
       - name: Require inspection of equivalent rendered UX before publication
         id: ux
         run: python3 -m mynotes.tools.ci.ux_review --audit accepted-release/audit.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: notes-accepted-release
           path: accepted-release/
           retention-days: 14
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: notes-upgrade-baseline
           path: upgrade-baseline/
@@ -220,7 +220,7 @@ jobs:
       - name: Audit failure diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-audit.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-audit-log
@@ -234,7 +234,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 8
       matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
     env:
       LANE_ID: ${{ matrix.id }}
@@ -252,15 +252,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-accepted-release
           path: accepted-release
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-instrumentation-apks
           path: test-apks
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-upgrade-baseline
           path: upgrade-baseline
@@ -280,6 +280,14 @@ jobs:
           force-avd-creation: true
           disable-animations: true
           script: bash mynotes/tools/ci/android_lane.sh
+      - name: Artifact service failure inventory (no emulator reruns)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p evidence
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '[.artifacts[]|{id,name,size_in_bytes,expired}]' > evidence/artifact-service-inventory.json 2> evidence/artifact-service-error.txt || true
       - name: Bootstrap failure host context (no test retries)
         if: failure()
         shell: bash
@@ -300,7 +308,7 @@ jobs:
         run: |
           python3 -m mynotes.tools.ci.results build --path evidence/emulator-bootstrap.log
           python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "evidence/$LANE_ID/instrumentation.txt" --output "evidence/$LANE_ID/results.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-android-${{ matrix.id }}
@@ -319,7 +327,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-accepted-release
           path: accepted-release
@@ -354,7 +362,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           pattern: notes-*
           path: all-evidence

@@ -1,6 +1,6 @@
 {
-  "reviewed_source": "3e6cfe5ad887e17b285b155dd1dbd45c981d87a5",
-  "review_run": "40709418987",
+  "reviewed_source": "eebf780627a4ec356fb029cc8222b753530e5b45",
+  "review_run": "40774476746",
   "inspected_variants": [
     "full-api34",
     "night-api34",
@@ -8,5 +8,5 @@
     "landscape-api34",
     "tablet-api34"
   ],
-  "findings": "Rendered-only approval after inspecting fresh light/dark/200%-font/landscape/tablet captures: View/Sort/Labels and confirmation are fully bounded, label selection scrolls, drawing paper is aspect-fitted with visible unbroken Save drawing, note images/backgrounds and transcript cards remain readable. Also inspected fresh home/diagram/formatting-with-keyboard/Library captures. All five review profiles passed 144/144 native methods; Android16 full profile also passed. This run was NOT fully technically qualified: 20/21 Android lanes passed; storage-api29 failed because repeated fixture confirmation triggered a proven DocumentsUI AsyncTask double-execution crash. The follow-up activates each grant phase only once and still requires a genuine persisted grant and all storage assertions. No production inputs changed after the reviewed source. Publication remains conditional on ALL required gates and 21 Android lanes passing the corrected fixture; this approval waives no test. Physical OEM/SD/microphone/TalkBack/ARM-16KiB and future MySpace integration remain uncertified."
+  "findings": "Rendered-only approval after inspecting fresh five-profile drawing/tool/focus, voice playback, Settings-after-navigation, Trash confirmation, filters, editor/IME and saved-image captures; previously inspected baseline Home/Library/Storage/About/coloured paper/format/diagram scenes remain unchanged below the status bar in the new captures. Full-width Save is unbroken at 200% font, tool choices are readable and scroll in landscape, grouped Settings and destructive confirmation are legible, and colour backgrounds/voice transport remain distinct. Pixel comparison found 24\u201328 of 31 scenes per profile unchanged below the status bar; changed scenes were inspected. The new Settings/Storage/About/voice-refresh parent regression passes in all full profiles. This run was NOT technically qualified: 13/21 Android lanes passed, eight failed solely folderBrowserCreationAndMoveFlowWritesRealVisibleFiles (full profiles 156/157), where the expanded second Library visit selected a retained hidden caption rather than its visible launcher. The corrected fixture prefers visible controls without removing the visibility or real-file assertions. Only tests/docs changed after this reviewed app source. Publication remains contingent on every required gate and ALL 21 lanes passing with that correction; no assertion or technical gate is waived. Fit and Focus share a glyph but have distinct accessible names/tooltips; advanced stylus, physical Motorola/SD-provider/acoustic/TalkBack/ARM16KiB and future MySpace integration remain uncertified."
 }

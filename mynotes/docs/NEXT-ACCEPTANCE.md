@@ -1,6 +1,6 @@
 # Next MyNotes acceptance slices (planned, not shipped)
 
-This is the continuation plan alongside the **unpublished 0.12.0(13) repair**; published 0.11 was rejected by real-device feedback. This is not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
+This is the continuation plan alongside the **published 0.12.0(13) repair, awaiting physical retest**; published 0.11 was rejected by real-device feedback. This is not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## 1. Media foundations implemented; remaining portability boundaries
 

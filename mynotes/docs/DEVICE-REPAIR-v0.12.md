@@ -1,4 +1,10 @@
-# 0.12 / code13 — real-device repair, not yet qualified or published
+# 0.12 / code13 — published repair, physical retest pending
+
+## Final published outcome
+
+[Download0.12.0(13)](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk). Qualification [40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571) / source `e27dc7a863bb0f57b6ae127f8fa465e30a8072c9` passed **all30 jobs /21 Android lanes**, **114 JVM /157 unique Android methods /1278 executions**. All21 genuine prior-release note seeds and installed-byte hash checks passed. Current-source five-profile rendered review is complete;186 captures and [durable metrics](evidence/2026-10-29-qualification.json) are retained. APK 66,568,652 bytes; SHA-256 `0dc892223689b77a2ed64cc25e93561b33db4a72b86c5f6b48845be00af2df7e` matches GitHub's public asset digest. Install over the existing app, never uninstall/clear data.
+
+This closes the emulator/publication gate, not the user's physical-device acceptance. The history below deliberately retains failures and pending-at-the-time observations. Broader audio-inclusive backups, richer reminders/widgets, physical/OEM/SD/TalkBack/acoustic/ARM16KiB and MySpace integration remain unfinished or uncertified.
 
 ## Inputs and diagnosis
 
@@ -20,7 +26,7 @@ User feedback supersedes the emulator approval of 0.11. Read both `MyNotes-diagn
 - Sixteen existing background choices now have visibly coloured light/dark papers, blended with the note colour; Plain keeps the selected note colour.
 - Settings uses grouped, rounded icon cards, full-row actions and explanations. Storage distinguishes visible files from app-only storage; About keeps technical model/licence material under a disclosure instead of dumping it on first entry. Diagnostics remains opt-in and user-exported.
 
-## Verification in progress
+## Qualification history (historical observations)
 
 Root509 / Notes119 checks pass; these are not Android execution. Android discovery currently157 methods / JVM114 before subsequent test additions. New native coverage includes pixel/tool histories, real MediaStore import and source deletion (API29+; API26's real stream path is SAF), timestamp collisions and owned cleanup, 20%-in swipe, Trash cancellation/selective/whole deletion, retained original audio and no transcript resurrection, and editable-drawing attachment identity. The latest additional tests are not yet executed: do not infer success from discovery.
 

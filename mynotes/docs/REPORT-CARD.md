@@ -1,18 +1,18 @@
 # MyNotes report card — 2026-10-29 (IST)
 
-## Current repair: 0.12.0(13), unpublished
+## Published repair: 0.12.0(13), physical retest pending
 
-**Real-device feedback rejected parts of published 0.11 even after green emulator gates.** Folders/visible files, random filenames, image/PDF provider failures, manual Trash deletion, drawing and Settings are the current repair priorities. See [device diagnosis, repairs and boundaries](DEVICE-REPAIR-v0.12.md) and the [practical test guide](STANDALONE-TEST-GUIDE.md).
+[**Download0.12 APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk) · [receipt](../releases/MyNotes-v0.12.0-13.apk.release.json) · [measured qualification](evidence/2026-10-29-qualification.json) · [device guide](STANDALONE-TEST-GUIDE.md).
 
-Repair baseline run [40771889450](https://github.com/tarungittarun/TicTic/actions/runs/40771889450), source `f86e2fc`, passed **all 21 Android lanes**, including **156 unique Android cases** and the retained large-font drawing assertion. Initial source/JVM/build/lint/signature gates passed. **The overall workflow failed its acceptance summary because new rendered approval was pending; it did not publish.** The persisted 186 synthetic captures do not certify the user's Motorola, SD provider, TalkBack or acoustic recording conditions.
+[Run40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571), source `e27dc7a863bb0f57b6ae127f8fa465e30a8072c9`, passed **all30 jobs /21 Android lanes**, **114 JVM cases /157 unique Android methods /1278 executions**, all21 prior-release note seeds and all21 installed-byte hash checks. Five-profile exact-source rendered review is complete;186 bounded synthetic captures are retained. Local root/Notes gates:509/119. APK **66,568,652 bytes**, SHA-256 `0dc892223689b77a2ed64cc25e93561b33db4a72b86c5f6b48845be00af2df7e`; public asset digest matches.
 
-The subsequent folder/Settings/voice parent fixes and one new native journey were reviewed on source `eebf780`. Run40774476746 failed eight lanes solely on the expanded folder fixture's hidden-caption lookup. Correcting that lookup let every folder journey pass in run40777034325, but that run was still **not accepted: 20/21 lanes**, with tablet failing an existing native heading/Undo metrics journey at formatting-control visibility.
+Repairs target the real0.11 rejection: visible real folders/root files and timestamp names, local image/PDF provider policy, explicit permanent Trash deletion,20%-in Library swipe, coloured paper, seven drawing tools/editing/history/zoom and modern Settings/parent navigation. [Detailed outcomes and failed attempts](DEVICE-REPAIR-v0.12.md) remain explicit. Do not uninstall or clear data; JSON backups exclude original voice recordings.
 
-Replacement [40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571), source `e27dc7a`, explicitly separates that metrics journey from asynchronous new-note IME startup and adds missing-control state/screenshot capture. **157 unique Android / 114 JVM cases, 1278 Android executions are planned**, not a success claim. App inputs remain equivalent to the five-profile rendered review; the fixture/readiness changes waive no metric, Undo, reopen, folder or visibility assertion. Latest local root/Notes gates pass **509 / 119**. Every technical/publication gate is still required.
+**Published/emulator-qualified is not physical-device acceptance.** Retest the Motorola, chosen directory, image picker, PDF reader, drawing and Settings. OEM/SD-provider, acoustic accuracy, TalkBack, ARM16KiB and future MySpace integration are not certified. Audio-inclusive archives, richer reminders/widgets and remaining Keep interactions are not magically completed.
 
-## Latest published: 0.11.0(12) — physically rejected, not repair acceptance
+## Previous 0.11.0(12) — physically rejected, not repair acceptance
 
-[Published 0.11 APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) remains unchanged. Its prior all-21-lane result did not establish the real-device outcomes later reported as broken. Do not mistake the candidate repair for an available update. Install future approved updates over the existing app; **do not uninstall/clear data**. JSON backups contain note images but exclude original voice recordings; export important audio separately.
+[Published 0.11 APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) remains unchanged. Its prior all-21-lane result did not establish the real-device outcomes later reported as broken. The replacement0.12 update above is now available; this historical link is not the latest repair. Install future approved updates over the existing app; **do not uninstall/clear data**. JSON backups contain note images but exclude original voice recordings; export important audio separately.
 
 ## Historical 0.8.0(9) — not the latest release or accepted new UX
 

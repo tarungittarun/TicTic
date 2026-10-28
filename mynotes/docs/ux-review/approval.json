@@ -1,6 +1,6 @@
 {
-  "reviewed_source": "eebf780627a4ec356fb029cc8222b753530e5b45",
-  "review_run": "40774476746",
+  "reviewed_source": "e27dc7a863bb0f57b6ae127f8fa465e30a8072c9",
+  "review_run": "40779382571",
   "inspected_variants": [
     "full-api34",
     "night-api34",
@@ -8,5 +8,5 @@
     "landscape-api34",
     "tablet-api34"
   ],
-  "findings": "Rendered-only approval after inspecting fresh five-profile drawing/tool/focus, voice playback, Settings-after-navigation, Trash confirmation, filters, editor/IME and saved-image captures; previously inspected baseline Home/Library/Storage/About/coloured paper/format/diagram scenes remain unchanged below the status bar in the new captures. Full-width Save is unbroken at 200% font, tool choices are readable and scroll in landscape, grouped Settings and destructive confirmation are legible, and colour backgrounds/voice transport remain distinct. Pixel comparison found 24\u201328 of 31 scenes per profile unchanged below the status bar; changed scenes were inspected. The new Settings/Storage/About/voice-refresh parent regression passes in all full profiles. This run was NOT technically qualified: 13/21 Android lanes passed, eight failed solely folderBrowserCreationAndMoveFlowWritesRealVisibleFiles (full profiles 156/157), where the expanded second Library visit selected a retained hidden caption rather than its visible launcher. The corrected fixture prefers visible controls without removing the visibility or real-file assertions. Only tests/docs changed after this reviewed app source. Publication remains contingent on every required gate and ALL 21 lanes passing with that correction; no assertion or technical gate is waived. Fit and Focus share a glyph but have distinct accessible names/tooltips; advanced stylus, physical Motorola/SD-provider/acoustic/TalkBack/ARM16KiB and future MySpace integration remain uncertified."
+  "findings": "Final exact-source rendered review after all 30 workflow jobs and 21 Android lanes passed (157 unique Android methods, 1278 executions; 114 JVM cases). Inspected fresh light/dark/200%-font/landscape/tablet drawing/tool, Settings-after-navigation, destructive Trash confirmation, voice playback and saved-image frames; compared stable scene regions with the prior reviewed equivalent app inputs. Full-width Save remains unbroken, menus/tool choices are readable and scroll, note paper colours and transport controls remain distinct, and keyboard editing/native paragraph metrics retain independent coverage. Corrected folder lookup and explicit metrics-journey IME readiness retain every visibility, real-file, glyph, Undo and reopen assertion. Original failed attempts are retained in DEVICE-REPAIR-v0.12.md; none is described as qualified. APK publication has stable package/certificate and exact server asset digest match. Rendered/emulator approval does not certify the physical Motorola/SD-provider, acoustic transcription, TalkBack, ARM16KiB or future MySpace integration. Fit/Focus share a glyph with different tooltips/accessibility names; advanced stylus and remaining product slices are not implied."
 }

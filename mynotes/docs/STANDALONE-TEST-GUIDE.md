@@ -2,9 +2,9 @@
 
 ## Release status
 
-Published **0.11.0 (12)**: [APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) · [checksum](../releases/MyNotes-v0.11.0-12.apk.sha256) · [receipt](../releases/MyNotes-v0.11.0-12.apk.release.json).
+Published **0.12.0 (13)**: [APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk) · [checksum](../releases/MyNotes-v0.12.0-13.apk.sha256) · [receipt](../releases/MyNotes-v0.12.0-13.apk.release.json).
 
-Physical-device feedback found folder/image and usability defects after its green emulator run. **0.12.0 (13) is the repair candidate, not yet published.** The instructions below describe that candidate; its APK must pass all required gates and fresh rendered review before delivery. [Repair evidence/status](DEVICE-REPAIR-v0.12.md).
+This repairs the folder/media/drawing/Settings issues reported on 0.11. [Qualification40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571) passed all30 jobs /21 Android lanes,114 JVM cases and1278 Android executions (157 unique methods). Fresh five-profile rendered review is complete. **Physical-device retesting is still required; green emulator gates do not supersede user feedback.** [Repair evidence/status](DEVICE-REPAIR-v0.12.md).
 
 Install updates **over the existing app**. Do not uninstall, clear data or downgrade. Package `app.space.notes` and certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca` remain stable. Current schema6 reads1–6. Keep an exported backup and separate copies of important recordings before destructive experiments.
 
@@ -19,7 +19,7 @@ Install updates **over the existing app**. Do not uninstall, clear data or downg
 
 ## Library, filters and Trash
 
-- Tap Library or swipe right starting **about20% in from the left**, away from Android's back-gesture strip. Only Home/library lists use this gesture; native note-text selection is not intercepted.
+- Tap Library or swipe right starting **about 20% in from the left**, away from Android's back-gesture strip. Only Home/library lists use this gesture; native note-text selection is not intercepted.
 - Filters has swipeable **View / Sort / Labels**. Labels supports all, none, one or any combination. Choosing none intentionally produces an empty result, not a data-loss event.
 - Long-press a note card for selection actions. Copy/Trash are list actions; native selected-text copy remains in the editor.
 - In Trash, use **Empty Trash**, or select notes → Selection actions → **Delete permanently**. Confirm only when certain. Cancel must retain everything; live notes must remain untouched. Ordinary automatic retention is seven days, not a required wait before deletion.
@@ -28,7 +28,7 @@ Install updates **over the existing app**. Do not uninstall, clear data or downg
 ## Images, drawings and coloured paper
 
 - Note → **+ / Add to note → Image**. Select a local Gallery, MediaStore, Downloads or Internal storage/SD image. Cloud routes are refused. Pixels are copied, oriented and stripped of source metadata; moving/deleting the original afterwards must not break the note.
-- Detailed pictures reduce quality/resolution automatically to fit. Inputs are capped at20MiB, normalized images at1600px, and notes at eight images. The complete JSON library backup still has an8MiB cap; the app must refuse an addition that would break a verified backup, retaining the original and note. These limits are not an unlimited photo archive.
+- Detailed pictures reduce quality/resolution automatically to fit. Inputs are capped at 20 MiB, normalized images at 1600 px, and notes at eight images. The complete JSON library backup still has an 8 MiB cap; the app must refuse an addition that would break a verified backup, retaining the original and note. These limits are not an unlimited photo archive.
 - **Drawing** offers pen, pencil, translucent highlighter, eraser, line, rectangle and oval. Choose ink and width, pinch to zoom, use two fingers to pan, Fit paper to reset, and Focus drawing for more room. Undo/Redo and confirmed Clear affect the current session. Save exports the full paper, not just the zoomed viewport.
 - **Edit drawing** reopens an attachment and replaces that attachment on Save. Back keeps a separate draft; a failed save must not discard it. Prior-session strokes are flattened pixels, not a persistent vector/layer history.
 - Choose **Background** from note actions for sixteen coloured papers. Note colour remains separate. Check both Light and Dark; Plain uses the note colour.

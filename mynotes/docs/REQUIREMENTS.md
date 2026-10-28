@@ -725,7 +725,7 @@ independent lint, APK audit, immutable inventory and final acceptance all green.
   Physical taps/IME/TalkBack are not universally certified by dispatched view tests.
 - Required offline OCR and voice transcription remain OPEN at this release checkpoint.
 
-## Repair evidence update — 0.12.0 (13), pending publication (2026-10-29 IST)
+## Repair evidence update — 0.12.0 (13), published / physical retest pending (2026-10-29 IST)
 
 This adds traceability without rewriting the permanent scope snapshots above into a false completion scoreboard. Published 0.11's emulator success was superseded by the user's physical-device rejection. [Repair diagnosis and limits](DEVICE-REPAIR-v0.12.md) govern current acceptance.
 
@@ -742,3 +742,5 @@ This adds traceability without rewriting the permanent scope snapshots above int
 Qualification baseline40771889450/sourcef86e2fc passed all21 Android lanes (156 unique methods); it did not publish because manual review was pending. Current-app review40774476746/sourceeebf780 produced186 fresh captures but was **not technically accepted**:13/21 lanes passed, with eight failures solely in the expanded folder fixture's hidden-caption lookup. The corrected helper retains all visibility, navigation and real-file assertions. Run40777034325 subsequently passed20/21 lanes but failed tablet heading-control visibility; it was not accepted. Replacement40779382571 must execute **157 unique Android /114 JVM cases,1278 planned Android executions across21 lanes**, and every gate must pass before publication. No failed case is waived by rendered approval.
 
 Still partial/open: K020/K089–092 per-instance interactive/quick-capture widgets; K031–032/K073–074/K093 richer reminder semantics; full editor undo/markdown, hashtag/list interactions, arbitrary/audio-inclusive portability, broader physical and host qualification. [Next slices](NEXT-ACCEPTANCE.md) and the [unimplemented audio archive contract](AUDIO-ARCHIVE-DESIGN.md) preserve those obligations. **K004 Wall drag ordering remains last.**
+
+Final update:40779382571/sourcee27dc7a passed all30 jobs /21 lanes,114 JVM /157 unique Android methods /1278 executions. Immutable0.12.0(13) was published with matching public asset digest; exact-source rendered review completed. Physical and remaining product boundaries above still stand. [Durable metrics](evidence/2026-10-29-qualification.json).

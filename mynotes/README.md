@@ -41,27 +41,27 @@ retained so they can be restored deliberately. GitHub's global disable API retur
 
 See [interaction repair](docs/INTERACTION-REPAIR-v0.10.md): Plus → Reminder, dedicated Labels/Colour, list-only Copy/Trash, fresh sheet state, precise native word selection and reminder reconciliation fixes.
 
-Current published release: **0.11.0 (12)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) · [checksum](releases/MyNotes-v0.11.0-12.apk.sha256) · [receipt](releases/MyNotes-v0.11.0-12.apk.release.json).
+Current published release: **0.12.0 (13)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk) · [checksum](releases/MyNotes-v0.12.0-13.apk.sha256) · [receipt](releases/MyNotes-v0.12.0-13.apk.release.json).
 
-Its publication run [40712278512](https://github.com/tarungittarun/TicTic/actions/runs/40712278512) passed all required gates /21 Android lanes, but subsequent physical-device feedback identified folder/image and usability defects. Those device reports supersede emulator-only acceptance; do not describe0.11 as fully working on the user's phone.
+[Qualification40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571) passed all **30 jobs /21 Android lanes**, **114 JVM /157 unique Android cases /1278 Android executions**, with all prior-release note seeds retained and installed APK hashes matched. Fresh light/dark/200%-font/landscape/tablet review is recorded. Source `e27dc7a863bb0f57b6ae127f8fa465e30a8072c9`; stable package/certificate; schema6 reads1–6.
 
-Candidate **0.12.0 (13)** is being qualified for those repairs. [Device evidence, implemented changes and current limits](docs/DEVICE-REPAIR-v0.12.md). New runtime inputs require fresh qualification and rendered approval; no candidate APK is published yet. The stable package/certificate is unchanged; schema6 reads1–6. Future MySpace embedding remains a contract, not certification.
+This repairs real-device feedback rejecting0.11 despite its previous green emulator run: visible folders/timestamp files, image/PDF provider policy, manual Trash deletion, drawing and Settings/child navigation. [Device diagnosis, fixes and honest limits](docs/DEVICE-REPAIR-v0.12.md). **The user's physical phone must still be retested; publication is not universal device or full-product acceptance.** Future MySpace embedding remains a contract, not certification.
 
-Published0.11 APK: **66,558,740 bytes**; SHA-256 `83428e4fbd99e368c9d439e11ae8669e03eaf01d3976c1b6fd669f155b24150f`.
+Published0.12 APK: **66,568,652 bytes**; SHA-256 `0dc892223689b77a2ed64cc25e93561b33db4a72b86c5f6b48845be00af2df7e`. GitHub's public asset digest matches the checked-in receipt. [Actual-runtime overview](../NOTES-UI-OVERVIEW.pdf).
 Large APKs use versioned GitHub Release assets and checked-in provenance receipts, never replacement
 uploads or growing binary copies in Git. Prior releases remain unchanged. Install over the old app;
 do not uninstall/clear data. JSON backups exclude voice WAVs: export important recordings separately.
 
 Reminders are **inexact**, notifications/microphone are optional and contextual, and no Internet or
 exact-alarm permission is declared. Widget is a four-title projection, not an interactive checklist.
-Media attachments, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
+Arbitrary file attachments, audio-inclusive backups, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
 qualification, Play publication and eventual MySpace integration remain open. Wall dragging stays last.
 See [device guide](docs/STANDALONE-TEST-GUIDE.md), [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md)
 and [offline model scope](docs/OFFLINE-ML-v0.6.md). The historical, source-scoped native/disk soak **passed 70 measured
 minutes each on API26/35, totaling 5,300 complete OCR/ASR/PCM/repository/backup cycles**. This is debug
 component evidence, not a long UI/diagnostics test of 0.8 or an all-device/inference-peak-memory guarantee.
 See [UI symbols and diagnostics guide](docs/UI-AND-DIAGNOSTICS-v0.8.md).
-[Full report card](docs/REPORT-CARD.md) · [durable qualification metrics](docs/evidence/2026-10-28-qualification.json)
+[Full report card](docs/REPORT-CARD.md) · [durable qualification metrics](docs/evidence/2026-10-29-qualification.json)
 · [next large acceptance slices](docs/NEXT-ACCEPTANCE.md).
 
 ## Continuous integration

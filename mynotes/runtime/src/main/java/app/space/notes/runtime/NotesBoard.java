@@ -20,9 +20,12 @@ public final class NotesBoard extends RecyclerView {
     private static final String[] LIGHT={"#FFFFFF","#F28B82","#FCBCA4","#FDF49F","#CCFF90","#A7FFEB","#CBF0F8","#AECBFA","#D7AEFB","#FBCFE8","#E6C9A8","#E8EAED"};
     public static int colour(int index,boolean dark){return Color.parseColor((dark?DARK:LIGHT)[index]);}
     private final List<Object> rows=new ArrayList<>();private final Set<String> selection=new HashSet<>();
-    private final boolean dark;private final Listener listener;private final BoardAdapter adapter=new BoardAdapter();
+    private final NotesDesign design;private final boolean dark;private final Listener listener;private final BoardAdapter adapter=new BoardAdapter();
     public NotesBoard(Context c,boolean dark,Listener listener,boolean grid){
-        super(c);this.dark=dark;this.listener=listener;setItemAnimator(null);setAdapter(adapter);layout(grid);
+        this(c,new NotesDesign(c,dark),listener,grid);
+    }
+    public NotesBoard(Context c,NotesDesign design,Listener listener,boolean grid){
+        super(c);this.design=design;this.dark=design.dark;this.listener=listener;setItemAnimator(null);setAdapter(adapter);layout(grid);
     }
     public void layout(boolean grid){int width=getResources().getConfiguration().screenWidthDp;float scale=getResources().getConfiguration().fontScale;int columns=scale>1.3f?Math.max(1,Math.min(3,width/320)):Math.max(2,Math.min(4,width/240));setLayoutManager(grid?new StaggeredGridLayoutManager(columns,StaggeredGridLayoutManager.VERTICAL):new LinearLayoutManager(getContext()));}
     public void show(List<Note> notes,Set<String> selected,boolean sections){
@@ -56,10 +59,10 @@ public final class NotesBoard extends RecyclerView {
             Object row=rows.get(position);
             if(h.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams)
                 ((StaggeredGridLayoutManager.LayoutParams)h.itemView.getLayoutParams()).setFullSpan(row instanceof String);
-            if(row instanceof String){h.title.setText((String)row);h.title.setTextColor(Color.parseColor(dark?"#B9BCC6":"#625C50"));h.box.setBackground(null);h.box.setOnClickListener(null);h.box.setOnLongClickListener(null);return;}
-            Note n=(Note)row;boolean chosen=selection.contains(n.id);int ink=Color.parseColor(dark?"#F5F5F5":"#202124");
-            GradientDrawable bg=new GradientDrawable();bg.setColor(colour(n.color,dark));bg.setCornerRadius(dp(16));
-            bg.setStroke(dp(chosen?2:1),Color.parseColor(chosen?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));h.box.setBackground(n.background==0?bg:new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{new NoteBackground(n.background,colour(n.color,dark),dark,getResources().getDisplayMetrics().density),border(chosen)}));
+            if(row instanceof String){h.title.setText((String)row);h.title.setTextColor(design.muted);h.box.setBackground(null);h.box.setOnClickListener(null);h.box.setOnLongClickListener(null);return;}
+            Note n=(Note)row;boolean chosen=selection.contains(n.id);int ink=n.color==0?design.ink:Color.parseColor(dark?"#F5F5F5":"#202124");
+            GradientDrawable bg=new GradientDrawable();bg.setColor(n.color==0?design.surface:colour(n.color,dark));bg.setCornerRadius(dp(16));
+            bg.setStroke(dp(chosen?2:1),chosen?design.accent:design.outline);h.box.setBackground(n.background==0?bg:new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{new NoteBackground(n.background,n.color==0?design.surface:colour(n.color,dark),dark,getResources().getDisplayMetrics().density),border(chosen)}));
             h.title.setText((chosen?"✓  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));
             h.title.setTextColor(ink);h.body.setTextColor(ink);h.tags.setTextColor(ink);h.body.setLineSpacing(dp(2),1.05f);
             h.title.setVisibility(n.title.isEmpty() && !n.checklist && !chosen && !n.pinned && !n.body.isEmpty()?GONE:VISIBLE);NotesIcon pin=n.pinned?new NotesIcon("pinned",ink):null;if(pin!=null)pin.setBounds(0,0,dp(16),dp(16));h.title.setCompoundDrawablesRelative(pin,null,null,null);h.title.setCompoundDrawablePadding(dp(5));
@@ -72,5 +75,5 @@ public final class NotesBoard extends RecyclerView {
         }
         @Override public void onViewAttachedToWindow(Holder h){super.onViewAttachedToWindow(h);int p=h.getBindingAdapterPosition();if(p>=0 && h.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams)((StaggeredGridLayoutManager.LayoutParams)h.itemView.getLayoutParams()).setFullSpan(rows.get(p) instanceof String);}
     }
-    private android.graphics.drawable.Drawable border(boolean selected){GradientDrawable d=new GradientDrawable();d.setColor(Color.TRANSPARENT);d.setCornerRadius(dp(16));d.setStroke(dp(selected?2:1),Color.parseColor(selected?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));return d;}
+    private android.graphics.drawable.Drawable border(boolean selected){GradientDrawable d=new GradientDrawable();d.setColor(Color.TRANSPARENT);d.setCornerRadius(dp(16));d.setStroke(dp(selected?2:1),selected?design.accent:design.outline);return d;}
 }

@@ -77,6 +77,11 @@ public class CoreJourneysTest {
     }
     private void selectCard(String title,boolean first){main(()->{TextView v=card(controller.view(),title);assertNotNull(v);View card=(View)v.getParent();if(first)card.performLongClick();else card.performClick();});instrumentation.waitForIdleSync();}
     private Note note(String title){return Note.create(1).edit(title,"Body "+title,2);}
+    @Test public void embeddedHostOwnsPaletteAndOverridesStandaloneAppearance()throws Exception{
+        start(Arrays.asList(note("Host note")));NotesAppearance.choose(context,"dark");NotesPalette palette=new NotesPalette(0xfff5f0ff,0xffeee7fa,0xff241334,0xff5a456c,0xffb9a9cc,0xff633b85,0xffffffff);
+        NotesHost embedded=new NotesHost(){public void showMessage(String s){}public void shareText(String a,String b){}public void chooseLocalFolder(){}public void openExistingFolder(){}public void exportBackup(){}public void importBackup(){}public String versionLabel(){return "Host contract";}public String appearanceMode(){return "light";}public NotesPalette palette(){return palette;}};assertTrue(embedded.managesAppearance());assertFalse(NotesAppearance.dark(context,embedded));
+        main(()->{controller.close();controller=new NotesController(context,embedded,null);activity.setContentView(controller.view());});await(()->text("New text note")!=null);main(()->assertEquals(palette.background,((android.graphics.drawable.ColorDrawable)controller.view().getBackground()).getColor()));tap("New text note");main(()->{assertEquals(palette.ink,input("Write your note…").getCurrentTextColor());assertEquals(palette.ink,input("Title").getCurrentTextColor());});
+    }
     @Test public void drawingDraftSurvivesControllerRecreationAndSavesEmbeddedImage()throws Exception{
         start(Collections.emptyList());tap("New text note");tap("Add to note");tap("Drawing");String canvasName="Drawing canvas. Draw with a finger. Undo and redo controls are below.";
         await(()->{View canvas=UiActions.named(controller.view(),canvasName);return canvas!=null && canvas.isEnabled() && canvas.getWidth()>0;});

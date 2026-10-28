@@ -17,6 +17,7 @@ public interface NotesHost {
     default void exportDiagnostics(){showMessage("Diagnostic export is unavailable in this host.");}
     /** Embedded hosts own their native theme and policy; standalone explicitly opts out. */
     default boolean managesAppearance(){return true;}
+    default NotesPalette palette(){return null;}
     default String appearanceMode(){return "system";}
     default void appearanceChanged(){showMessage("Appearance is managed by the host.");}
     String versionLabel();

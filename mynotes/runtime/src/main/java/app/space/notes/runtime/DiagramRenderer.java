@@ -7,8 +7,9 @@ import app.space.notes.domain.Diagram;
 /** Same vector renderer for the editor and PDF. No network, bitmap asset or font dependency. */
 public final class DiagramRenderer {
     private DiagramRenderer() { }
-    public static void draw(Canvas canvas,Diagram diagram,boolean dark,String selected) {
-        Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setStrokeWidth(3);int ink=Color.parseColor(dark?"#F1F3F4":"#202124");
+    public static void draw(Canvas canvas,Diagram diagram,boolean dark,String selected){draw(canvas,diagram,dark,selected,null);}
+    public static void draw(Canvas canvas,Diagram diagram,boolean dark,String selected,NotesDesign design) {
+        Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setStrokeWidth(3);int ink=design==null?Color.parseColor(dark?"#F1F3F4":"#202124"):design.ink;
         for(Diagram.Edge edge:diagram.edges){
             Diagram.Node a=diagram.find(edge.from),b=diagram.find(edge.to);float ax=a.x+a.width/2f,ay=a.y+a.height/2f,bx=b.x+b.width/2f,by=b.y+b.height/2f;
             float dx=bx-ax,dy=by-ay;
@@ -22,8 +23,8 @@ public final class DiagramRenderer {
         for(Diagram.Node node:diagram.nodes){
             boolean highlighted=node.id.equals(selected) || (selectedNode!=null && !selectedNode.group.isEmpty() && selectedNode.group.equals(node.group));
             RectF r=new RectF(node.x,node.y,node.x+node.width,node.y+node.height);Path path=shape(node,r);
-            if(!node.shape.equals("text")){paint.setStyle(Paint.Style.FILL);paint.setColor(NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
-            paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?Color.parseColor("#B17400"):ink);paint.setStrokeWidth(highlighted?6:3);
+            if(!node.shape.equals("text")){paint.setStyle(Paint.Style.FILL);paint.setColor(node.color==0 && design!=null?design.surface:NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
+            paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?(design==null?Color.parseColor("#B17400"):design.accent):ink);paint.setStrokeWidth(highlighted?6:3);
             if(!node.shape.equals("text") || highlighted)canvas.drawPath(path,paint);
             details(canvas,node,r,paint);
             float inset=node.shape.equals("decision")?node.width*.23f:node.shape.equals("data")?node.width*.17f:12;

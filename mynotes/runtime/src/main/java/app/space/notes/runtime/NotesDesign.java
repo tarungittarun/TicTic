@@ -13,14 +13,16 @@ import android.widget.*;
 public final class NotesDesign {
  public final Context context; public final boolean dark;
  public final int background,surface,ink,muted,outline,accent,accentInk;
- public NotesDesign(Context c,boolean dark){context=c;this.dark=dark;
+ public NotesDesign(Context c,boolean dark){this(c,dark,null);}
+ public NotesDesign(Context c,boolean dark,NotesPalette palette){context=c;this.dark=dark;
+  if(palette!=null){background=palette.background;surface=palette.surface;ink=palette.ink;muted=palette.muted;outline=palette.outline;accent=palette.accent;accentInk=palette.accentInk;return;}
   background=Color.parseColor(dark?"#17191D":"#FAFAF8");surface=Color.parseColor(dark?"#24272D":"#F0F1EE");
   ink=Color.parseColor(dark?"#EBEDF0":"#24282D");muted=Color.parseColor(dark?"#AEB5BF":"#59636F");
   outline=Color.parseColor(dark?"#3B414A":"#D9DDD8");accent=Color.parseColor(dark?"#E8C58E":"#76551D");accentInk=Color.parseColor("#241A0B");
  }
  public int dp(int n){return Math.round(n*context.getResources().getDisplayMetrics().density);}
  public GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
- public android.graphics.drawable.Drawable ripple(int color,int radius){return new RippleDrawable(ColorStateList.valueOf(dark?0x33E8C58E:0x2276551D),shape(color,radius),null);}
+ public android.graphics.drawable.Drawable ripple(int color,int radius){return new RippleDrawable(ColorStateList.valueOf((accent&0x00ffffff)|(dark?0x33000000:0x22000000)),shape(color,radius),null);}
  public TextView label(String text,int sp,int color){TextView v=new TextView(context);v.setText(text);v.setTextColor(color);v.setTextSize(sp);v.setIncludeFontPadding(true);return v;}
  public Button icon(String name,String symbol,Runnable action){Button v=new Button(context);v.setText("");v.setTextSize(0);v.setIncludeFontPadding(false);v.setMinWidth(dp(48));v.setMinHeight(dp(48));v.setGravity(Gravity.CENTER);v.setPadding(dp(12),dp(12),dp(12),dp(12));v.setContentDescription(name);v.setTooltipText(name);v.setBackground(ripple(Color.TRANSPARENT,24));NotesIcon d=new NotesIcon(symbol,ink);d.setBounds(0,0,dp(24),dp(24));v.setCompoundDrawables(null,d,null,null);v.setOnClickListener(w->action.run());return v;}
  public Button textAction(String name,Runnable action){Button b=new Button(context);b.setText(name);b.setAllCaps(false);b.setTextColor(ink);b.setTextSize(15);b.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);b.setMinHeight(dp(52));b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setSingleLine(false);b.setBackground(ripple(Color.TRANSPARENT,12));b.setOnClickListener(v->action.run());return b;}

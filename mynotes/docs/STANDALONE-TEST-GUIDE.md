@@ -3,7 +3,9 @@
 
 ## 0.9 practical UX check — not replaced by automated totals
 
-Candidate 0.9.0 (10) passed all 21 Android lanes in run40623972980. The inspected five-profile rendered review is approved; immutable publication still requires the separate full gated release run. This does not imply user acceptance or physical-device certification.
+**Published: MyNotes 0.9.0 (10).** [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.9.0-10/MyNotes-v0.9.0-10.apk) · [checksum](../releases/MyNotes-v0.9.0-10.apk.sha256) · [receipt](../releases/MyNotes-v0.9.0-10.apk.release.json).
+
+[Publication run40633291480](https://github.com/tarungittarun/TicTic/actions/runs/40633291480) passed all required gates and all 21 Android lanes. Each full review profile passed 118/118 methods; actual five-profile captures from equivalent source run40623972980 were inspected. This is not user acceptance or physical-device certification. SHA-256: `85bff67139e39c126c8b233551ec2a229a0311acc29a8c0a5392eb98efe9cf1d`.
 
 Use the gated 0.9 APK only after publication; before that, the older download is not this redesign. Install **over** the existing app, not after uninstall/clear-data. Export important JSON and original voice WAVs separately.
 

@@ -39,23 +39,23 @@ triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions 
 retained so they can be restored deliberately. GitHub's global disable API returned
 403, so their API state may still display active. Other branches are not modified.
 
-Current accepted release: **0.8.0 (9)** — accessible icon docks, grouped editor/diagram/voice tools,
+Current published release: **0.9.0 (10)** — content-first Paper & Ink redesign, contextual editor tools, native paragraph reflow,
 and opt-in local diagnostics in Settings. Existing local note reminders and resizable/re-placeable
 pinned-first home-screen widget, plus bundled offline English/Hindi/Kannada OCR with review,
 automatic offline English voice transcription, retained WAV inbox/export, rich notes,
 checklists/labels, flowcharts, vector PDF and local storage/backup.
 
-[**Download MyNotes 0.8.0 (9)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk)
-· [checksum](releases/MyNotes-v0.8.0-9.apk.sha256) · [receipt](releases/MyNotes-v0.8.0-9.apk.release.json)
+[**Download MyNotes 0.9.0 (10)**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.9.0-10/MyNotes-v0.9.0-10.apk)
+· [checksum](releases/MyNotes-v0.9.0-10.apk.sha256) · [receipt](releases/MyNotes-v0.9.0-10.apk.release.json)
 
-Qualification [40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296)
-passed **69 JVM tests and 851 executions of 104 unique Android tests across 21 lanes / 30 expanded jobs**.
-Coverage includes API26/29/34/35/36, real landscape/night/200% fonts, tablet, denied/granted
-microphone and granted notifications. Every lane preserved a real seeded note across install-over
-from the previous accepted APK and matched the exact installed release hash. Local gates:
-**108 Notes checks / 498 root checks**. Runtime package/certificate remain stable; schema 5 reads 1–5.
+Qualification [40633291480](https://github.com/tarungittarun/TicTic/actions/runs/40633291480)
+passed all required gates and all **21 Android lanes**, including **118/118 methods in each full review profile**.
+Actual light/dark/200% font/landscape/tablet evidence from equivalent production source run40623972980
+was inspected before approval. Local gates: **115 Notes checks / 505 root checks**.
+Runtime package/certificate remain stable; schema5 reads1–5. Emulator approval is not user acceptance
+or physical OEM/TalkBack/thermal/acoustic certification.
 
-APK: **66,510,484 bytes**; SHA-256 `84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`.
+APK: **66,521,128 bytes**; SHA-256 `85bff67139e39c126c8b233551ec2a229a0311acc29a8c0a5392eb98efe9cf1d`.
 Large APKs use versioned GitHub Release assets and checked-in provenance receipts, never replacement
 uploads or growing binary copies in Git. Prior releases remain unchanged. Install over the old app;
 do not uninstall/clear data. JSON backups exclude voice WAVs: export important recordings separately.

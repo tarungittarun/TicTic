@@ -1,6 +1,8 @@
 # Paper & Ink — MyNotes 0.9 UX review
 
-**Candidate 0.9.0 (10): all 21 Android lanes passed; rendered review approved for gated publication. Not yet published.** The user rejected 0.8's UI despite green functional CI. This redesign must earn acceptance from practical use and rendered evidence, not totals.
+**Published 0.9.0 (10).** [Download the immutable APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.9.0-10/MyNotes-v0.9.0-10.apk). All required release gates and all 21 Android lanes passed in [run40633291480](https://github.com/tarungittarun/TicTic/actions/runs/40633291480). The reviewed emulator evidence is approved for release; user/device acceptance remains separate.
+
+**Investigation history below:** earlier pending/failure statements describe superseded checkpoints, not the final outcome. The user rejected 0.8's UI despite green functional CI. This redesign must earn acceptance from practical use and rendered evidence, not totals.
 
 Requested refinement window: **28 October 2026, 00:03:08–03:03:08 UTC** (05:33:08–08:33:08 IST). Final qualification is a separate release gate; reaching the end of the window does not authorize bypassing it.
 
@@ -94,3 +96,7 @@ Run [40623972980](https://github.com/tarungittarun/TicTic/actions/runs/406239729
 The new captures were inspected: large-font palette names now stay whole in two columns; tablet native H1/H2 and colour/recreation journeys pass without replacing real pointer input with direct clicks. Light/dark home/editor, numeric heading reflow, checklist, Settings/recovery and contextual tools remain consistent. Landscape actual-keyboard editor and search have readable content. The two previously blocking findings are resolved within these tested emulator configurations.
 
 Approval now pins this source and run, and the canonical 16-page PDF has been regenerated from its actual captures. A new full gated publication run is required; no failed lane is skipped or overridden. Earlier pending statements above are the historical investigation record. Device/user acceptance remains separate from this bounded release approval.
+
+## Final delivery
+
+Publication run40633291480 succeeded, including the publication and acceptance jobs. Package `app.space.notes`, versionCode10 and the existing signing certificate are preserved. Source: `4a6c16be372df6f2b48366eb1539622d1601976d`; APK 66521128 bytes; SHA-256 `85bff67139e39c126c8b233551ec2a229a0311acc29a8c0a5392eb98efe9cf1d`. The publication run repeated all required Android lanes with equivalent production inputs; five-profile reviewed evidence remains run40623972980. Install over the previous app; do not uninstall/clear data. Export important notes and original voice WAVs separately.

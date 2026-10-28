@@ -1,188 +1,58 @@
-# MyNotes — install and device acceptance guide
+# MyNotes — install, use and device checks
 
-## Current release: 0.10.0 (11) — interaction repair
+## Release status
 
-[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.10.0-11/MyNotes-v0.10.0-11.apk) · [checksum](../releases/MyNotes-v0.10.0-11.apk.sha256) · [receipt](../releases/MyNotes-v0.10.0-11.apk.release.json). Install over the existing app; **do not uninstall or clear data**.
+Published **0.11.0 (12)**: [APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.11.0-12/MyNotes-v0.11.0-12.apk) · [checksum](../releases/MyNotes-v0.11.0-12.apk.sha256) · [receipt](../releases/MyNotes-v0.11.0-12.apk.release.json).
 
-- **+ / Add to note:** Diagram, Scan image, Record voice, Reminder.
-- **Palette:** Colour only. **Tag:** Labels directly.
-- **More:** Share, Export PDF, conversion/checklist editing; no note-level Copy/Trash. Long-press cards in the notes list for Trash or More → Copy. Native selected-text copy/paste remains available inside notes.
-- **Reminder chip:** distinct bell/date surface outside note text; tap to edit date/time, X to clear. Notification blocking is explained. Ordinary saves no longer cancel overdue inexact alarms or reschedule unchanged future alarms. Android/Doze/OEM delays and force-stop limits still apply.
-- **Selection:** automatic smart expansion and select-all-on-focus disabled; native handles and manual Select All retained.
-- **Library/Filter:** active panel mounted into fresh scroll state; repeated navigation must retain Settings without restart.
+Physical-device feedback found folder/image and usability defects after its green emulator run. **0.12.0 (13) is the repair candidate, not yet published.** The instructions below describe that candidate; its APK must pass all required gates and fresh rendered review before delivery. [Repair evidence/status](DEVICE-REPAIR-v0.12.md).
 
-[Final publication run40642752968](https://github.com/tarungittarun/TicTic/actions/runs/40642752968) passed all 21 Android lanes and required gates. All six complete resource variants passed **123/123**, including API36 dark/0.85 font. Source-pinned actual captures were reviewed in run40641156198 after an earlier API26 selection expansion blocked publication. See [investigation/outcomes](INTERACTION-REPAIR-v0.10.md). This is not physical Motorola/TalkBack/thermal or exact-time certification.
+Install updates **over the existing app**. Do not uninstall, clear data or downgrade. Package `app.space.notes` and certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca` remain stable. Current schema6 reads1–6. Keep an exported backup and separate copies of important recordings before destructive experiments.
 
-## Previous 0.9 release and paragraph checks
+## Your files and folders
 
+1. Open Library → Folders. If there is no main folder, choose **Choose main folder**. In Android's local file picker, create/select a dedicated folder such as **Documents/MyNotes**, then allow access. Android restricts some root/system directories; choose a child folder, not Android/data or a cloud provider.
+2. After verification, return to Folders. Create a folder, open it and create a note. Or long-press an existing card → Selection actions → Move to folder.
+3. Open Android Files at the main folder you chose. The actual subfolder and `.mynote.json` files should exist there. New note filenames use UTC timestamps, with numeric suffixes for collisions. Recovery generations and image blobs are app-managed data; do not edit their contents or delete them to tidy the folder.
+4. Close/reopen MyNotes and confirm placement. Moves verify the new copy before removing a verified old copy. Revoked/removed storage keeps private recovery and requires Retry save after reconnection.
 
+**Use device storage** in Settings means **app-only private storage**, not a publicly visible Files folder. Its confirmation explains that it disconnects visible folder browsing. Existing external files are retained. Select a main folder again for visible folders. Old random-ID recovery snapshots remain readable; older released files are not destructively rewritten just to change their names.
 
-## 0.9 practical UX check — not replaced by automated totals
+## Library, filters and Trash
 
-**Published: MyNotes 0.9.0 (10).** [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.9.0-10/MyNotes-v0.9.0-10.apk) · [checksum](../releases/MyNotes-v0.9.0-10.apk.sha256) · [receipt](../releases/MyNotes-v0.9.0-10.apk.release.json).
+- Tap Library or swipe right starting **about20% in from the left**, away from Android's back-gesture strip. Only Home/library lists use this gesture; native note-text selection is not intercepted.
+- Filters has swipeable **View / Sort / Labels**. Labels supports all, none, one or any combination. Choosing none intentionally produces an empty result, not a data-loss event.
+- Long-press a note card for selection actions. Copy/Trash are list actions; native selected-text copy remains in the editor.
+- In Trash, use **Empty Trash**, or select notes → Selection actions → **Delete permanently**. Confirm only when certain. Cancel must retain everything; live notes must remain untouched. Ordinary automatic retention is seven days, not a required wait before deletion.
+- Permanent deletion removes current-library notes and verified managed portable copies. It cannot erase previous backups, original voice recordings, or all old recovery snapshots. This is not forensic secure erasure. Restore before editing a trashed note.
 
-[Publication run40633291480](https://github.com/tarungittarun/TicTic/actions/runs/40633291480) passed all required gates and all 21 Android lanes. Each full review profile passed 118/118 methods; actual five-profile captures from equivalent source run40623972980 were inspected. This is not user acceptance or physical-device certification. SHA-256: `85bff67139e39c126c8b233551ec2a229a0311acc29a8c0a5392eb98efe9cf1d`.
+## Images, drawings and coloured paper
 
-Use the gated 0.9 APK only after publication; before that, the older download is not this redesign. Install **over** the existing app, not after uninstall/clear-data. Export important JSON and original voice WAVs separately.
+- Note → **+ / Add to note → Image**. Select a local Gallery, MediaStore, Downloads or Internal storage/SD image. Cloud routes are refused. Pixels are copied, oriented and stripped of source metadata; moving/deleting the original afterwards must not break the note.
+- Detailed pictures reduce quality/resolution automatically to fit. Inputs are capped at20MiB, normalized images at1600px, and notes at eight images. The complete JSON library backup still has an8MiB cap; the app must refuse an addition that would break a verified backup, retaining the original and note. These limits are not an unlimited photo archive.
+- **Drawing** offers pen, pencil, translucent highlighter, eraser, line, rectangle and oval. Choose ink and width, pinch to zoom, use two fingers to pan, Fit paper to reset, and Focus drawing for more room. Undo/Redo and confirmed Clear affect the current session. Save exports the full paper, not just the zoomed viewport.
+- **Edit drawing** reopens an attachment and replaces that attachment on Save. Back keeps a separate draft; a failed save must not discard it. Prior-session strokes are flattened pixels, not a persistent vector/layer history.
+- Choose **Background** from note actions for sixteen coloured papers. Note colour remains separate. Check both Light and Dark; Plain uses the note colour.
 
-1. Create a note without a title. Type `01` through `09`, each on a separate line. Select `01`, open **A / Formatting**, choose **H1**, then **H2**. Following numbers should move naturally, with no glyph collisions. Scroll to the last line if it is outside the viewport; clipping at the scroll edge is not overlapping paragraphs.
-2. Put a heading between normal paragraphs. Select only part of that heading, including a reversed selection. Heading style should cover its whole paragraph, not absorb the preceding/following ones. Clear, Undo, return Home and reopen.
-3. Start a heading before typing. Compose a word using your normal keyboard; press Enter and continue. The next paragraph should be ordinary text. This is especially important with the real IME/language you use.
-4. Rotate to landscape with the keyboard open. You must see actual note text, not only toolbars or a fullscreen keyboard's separate editor. In cramped height, the top app toolbar can collapse; Android Back/gesture closes the keyboard and restores it. Open formatting; if needed the keyboard closes to leave useful space.
-5. Set the largest system font and switch light/dark mode. Check Home cards, note body/formatting, checkboxes, colour names, labels, diagrams, Settings and storage/recovery. Long pages should scroll, not hide their only primary action.
-6. Choose a colour while part of the body is selected; the selection should survive the return. Recreate/rotate the controller and confirm selection and the note survive. This is not a promise to remember every note's cursor across all cold starts.
-7. Explore Plus / Capture, Organise and More before adding features: can a first-time user find scan, voice, labels, reminder, share and Trash? Native long-press tooltips name icon-only controls.
-8. Diagnostics should start **off**. Only if reporting a problem: enable Settings → Collect diagnostic logs, reproduce, export deliberately, then stop/delete. Do not attach personal notes/audio to a bug report by accident.
+## Writing, diagrams and reminders
 
-Physical keyboard/IME behavior, TalkBack, OEM launchers, SD/provider failures and acoustic recognition quality remain device checks. Report the visible outcome and a reproducible sequence, not simply that an APK installed.
+- Native text handles select words precisely. H1/H2 reflow their paragraphs; they must not overlap the following line. Inline bold/italic/underline use selected text. Manual Select All is still available.
+- Diagram has twenty named shapes plus text, Edit shape, connections, basic grouping and Undo/Redo. Drag to position. Nested groups/layers and smart guides are not claimed.
+- **+ → Reminder** opens date/time selection. Tap its separate reminder chip to edit, X to clear. Notification permission is contextual. Delivery is inexact and can be delayed by Android/Doze/OEM restrictions; force-stop suppresses alarms until reopening. Recurrence/snooze are not yet delivered.
+- The re-placeable home widget projects pinned/recent titles; it is not a complete interactive checklist widget.
 
+## Voice, backups and PDF
 
-## Previous published release: 0.8.0 (9) — UI rejected
+- Voice inbox has separate transcript cards, play/pause, progress/seeking and export/retry. Microphone denial must leave other features usable. Recognition is offline; punctuation is conservative, not perfect semantic restoration. Review against audio.
+- Original recordings remain independently in Voice inbox, including after transcript-note deletion. Export important recordings separately: **JSON backups and selected-folder note generations do not contain original audio**.
+- Settings → Storage & recovery → Backups offers verified JSON export and non-destructive import preview/merge. Images/drawings are included. Existing conflicting notes are copied rather than overwritten. Backups are readable, not encrypted.
+- Open/select notes → Export PDF, then choose a local destination. Success requires readback verification. A cancelled/failed export is not a complete file; keep your source. A previous zero-byte PDF cannot be repaired into a document without exporting again.
 
-[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.8.0-9/MyNotes-v0.8.0-9.apk) · [checksum](../releases/MyNotes-v0.8.0-9.apk.sha256) · [full receipt](../releases/MyNotes-v0.8.0-9.apk.release.json)
+## Appearance and useful reports
 
-Qualification [40602104296](https://github.com/tarungittarun/TicTic/actions/runs/40602104296):
-**69 JVM tests, 104 unique Android tests / 851 executions, 21 emulator lanes / 30 expanded jobs, all required gates green**.
-Each lane preserved a real seeded release note across install-over and matched the exact installed
-APK hash. Local gates: **108 Notes checks / 498 root checks**. This is a delivered milestone,
-not full-product or all-device certification. APK 66,510,484 bytes; SHA-256
-`84c52ec8e287692d620a3265d4d790a39616433f1f52634b09812473b85bab16`.
+Settings groups appearance, storage, widget and support actions. Choose System/Light/Dark in the standalone app. Future embedding can follow host design/settings, but actual MySpace integration is not certified.
 
-New in 0.8: icon docks, grouped editor/diagram/voice tools and Settings → opt-in local diagnostics.
-See [symbol meanings, privacy and logging steps](UI-AND-DIAGNOSTICS-v0.8.md).
-Prior 0.7: local inexact reminders, contextual notification permission, resizable/re-placeable pinned-first
-home widget, and stronger voice recovery/deletion guards. See [LOCAL-SURFACES-v0.7.md](LOCAL-SURFACES-v0.7.md).
-The prior offline-engine checkpoint 0.6 remains available unchanged; its evidence is in [OFFLINE-ML-v0.6.md](OFFLINE-ML-v0.6.md).
+To report a problem: enable **Settings → Diagnostics → Collect diagnostic logs**, reproduce, export, then stop/delete collection if desired. Review the text before sharing. Note text, audio, images, clipboard and URI paths are excluded; OS-wide ANRs/kills can leave gaps. Include the exact steps, expected/actual result, whether storage was selected, and a screenshot that does not expose private content.
 
-## Install / data compatibility
+Before calling the release accepted on a real phone, exercise folder creation/move/reopen, Gallery import/source deletion, drawing/edit/recreation, Trash cancel/selective/all deletion, 20%-in swipe, light/dark/large font, native selection/headings, voice with actual speech, reminders and widget placement/re-placement. Emulator totals do not certify Motorola/SD providers, TalkBack, acoustics, thermal behavior, ARM16KiB or future MySpace migration.
 
-Install over the existing MyNotes release. **Do not uninstall or clear app data.** Package
-`app.space.notes` and certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca`
-remain fixed. Versions 0.7–0.8 write schema 5 and reads schemas 1–5 (0.6 wrote schema 4). Do not downgrade to an old reader. Existing folder libraries/old backups remain readable.
-Export and verify a JSON backup before destructive experiments; **also export voice WAVs separately**.
-Private recordings are not contained in JSON or selected-folder note generations and are lost by uninstall/clear-data.
-The default private library is on-device. For local-only external storage/export, choose an **on-device or SD-card SAF provider**, not a cloud-backed folder. The app has no INTERNET permission, but a provider selected through Android's picker can have its own network/storage behavior.
-
-Large APKs use versioned GitHub Release assets, not accumulating binary copies in Git. Their small
-SHA/source/certificate/size receipts remain in `mynotes/releases/`. Old published versions are not replaced.
-
-## Offline OCR and automatic voice transcription
-
-1. Note → **Scan image** → choose English, Hindi or Kannada → choose a supported local image.
-   Wait off-thread for OCR, review/edit the recognized text, then **Append to note** or **Save as new note**.
-   Cancel/failure leaves note content and original image unchanged. The source image itself is not attached to the note.
-2. Try a clean printed page, names, numbers, low contrast, rotated images and a genuinely blank page.
-   Engine confidence is not accuracy. The release bundles all models and has no network permission;
-   no first-use model download should be required. Cloud/file URIs and oversized/invalid inputs are refused explicitly.
-   Current OCR accepts `com.android.externalstorage.documents`, `com.android.providers.media.documents` and `media` authorities only. Other providers, including the separate Downloads document provider and OEM/cloud authorities, are not generally supported. If rejected, copy the image into Pictures/Internal storage and select it through the supported local provider; this is a compatibility boundary, not OCR accuracy.
-3. **Record voice** requests the optional microphone permission. First deny it and verify text/checklists,
-   diagrams, storage and OCR still work. Then allow it from an explicit record action.
-4. Speak English, tap **Stop and transcribe**, and open **Voice inbox**. WAV is saved before automatic
-   bundled Vosk inference starts. Review the transcript against the retained recording. English model performance
-   on Indian accents, noise and names is not established by the public numbers fixture.
-5. Inbox: **Play**, **Stop playback**, **Export WAV**, **Retry transcript**, **Open note**.
-   Verify an exported WAV in a separate player. Change activity/leave the app during recording: foreground-only capture stops.
-   Exercise interrupted capture/reopen and check retained audio; do not expect background recording.
-6. Edit a transcribed note, retry and restart: applied sources must not duplicate text or resurrect an automatically purged note.
-   Explicit inbox Open note is a deliberate recovery action; automatic callbacks are not.
-
-Native English OCR and speech inference, WAV recovery, denied/granted microphone, and controller recovery
-have executable emulator checks. Hindi/Kannada controlled-system-font diagnostics additionally save source PNG,
-recognized text, confidence and token matches; those controlled images are not a camera/handwriting language corpus.
-See [engine provenance and precise limits](OFFLINE-ML-v0.6.md).
-
-## New in 0.5
-
-1. Open a note → **Diagram**. Add process, decision, start/end, input/output, ellipse
-   and text-box shapes. Select a shape by tapping/dragging or the shape list. Try edit,
-   color, directional movement, resize and delete/Undo. Connect to another shape and
-   tap an arrow entry to label/remove it. Move endpoints and reopen to check retention.
-2. **Export PDF** → local Internal storage or SD destination. Reopen the PDF in your
-   reader; text/checklists paginate and a diagram occupies a vector page. Editable
-   originals remain in Notes. PDF is not a round-trip backup; use JSON backup for that.
-3. From another app, Share **plain text** to MyNotes. A new local note is created, no
-   URL is fetched, and existing notes remain. Other incoming media is not implemented.
-4. Home → **Filters** reveals view/sort/label controls; **Manage labels** supports global
-   rename/combine/remove including Archive/Trash. In bulk label editing, check **Add to
-   existing labels** to avoid replacing each selected note's individual tags.
-5. Repeat selection and editing in landscape, night and 200% system font. Home controls
-   collapse during selection to preserve the board viewport. Long tool rows scroll;
-   editor content scrolls as a complete page so the writing area does not collapse.
-
-Native PDF rendering/reopening, diagrams/codec/backup, and these resource variants were
-exercised in emulators. Arrow text dialogs and every physical touch/picker path still
-need review on your phone. Flowcharts are a fixed logical canvas, not auto-layout/freehand.
-See [scope and acceptance cases](DIAGRAMS-AND-EXPORT-v0.5.md).
-
-## Core regression journeys
-
-1. Home: make text notes with different lengths. Confirm masonry auto-height, Pinned
-   and Others grouping, grid/list toggle and persistent created/edited sorting.
-2. Rich text: type a body, select a range using Android selection, tap Bold, Italic,
-   Underline, Strike or Heading 1/2. Reopen to check styles. Clear removes formatting
-   only from the selection. Controls scroll horizontally. Sticky typing styles,
-   markdown triggers and a full document undo stack are not in this milestone.
-3. Checklist: create rows, edit text, tick/untick, tap a row then move up/down, indent/
-   outdent (0–3), hide/show completed rows, remove/add. Convert to text and Undo. Verify
-   the saved item text, order, completion and indent after reopening.
-4. Labels: edit a comma-separated set on a note; duplicate spelling/case normalizes.
-   Home → Filters chips filter by label, and search sees labels/list text. New notes on a label
-   page inherit it. Global rename/remove is now available; # autocomplete remains pending.
-5. Colour: check all 12 swatches on cards in light/dark, plus title/body/chip contrast.
-   Repeat on small screens and large font. Automated style/model tests are not a
-   substitute for all palette/device accessibility checks.
-6. Multi-select: long-press one card, tap others, then pin/archive/Trash, set labels/
-   colour or share. Bulk labels REPLACE by default; the additive checkbox preserves prior tags. Cancel leaves
-   notes unchanged. Done or Back exits selection. Restore trashed notes before editing.
-7. Merge two notes: new plain-text note opens; source notes go to Trash. Undo restores
-   source states and removes an untouched merged result. If you edit the result first,
-   Undo may keep that edited result rather than discard typed content. Source rich
-   formatting is flattened in the merged text; original documents remain in Trash.
-8. Copy: creates a new ID/time, preserving content, list structure, formatting and tags.
-   Share uses the explicit text chooser (100k-character message guard; backup for larger).
-9. Rotation/background: test mid-word, styled selection and checklist rows. Bundle draft
-   is bounded to 32 KiB; larger drafts depend on lifecycle flush. Forced-kill inside the
-   autosave debounce is not a passed crash-proof guarantee.
-10. Export/import a mix of old text, rich text and checklists. Check schema-3 round-trip,
-    metadata, unchanged duplicate skipping and deterministic conflict copies, including
-    re-import of old 0.3.0 backups. Portable backup envelope remains bounded to 8 MiB.
-11. Regression: folder choose/open/move/retry, backup preview/cancel/checkpoint, pins,
-    archive, seven-day Trash, search focus and native selection. Actual SAF/SD faults
-    remain for device qualification; injected protocol tests do not certify providers.
-
-## Automated scope and how to judge it
-
-The accepted checkpoint above is distinct from newer candidate runs. Normal qualification includes
-source/protocol self-tests, pure JVM rules, lint, release/debug/instrumentation builds, immutable APK
-identity/privacy audit and independent Android aspects. Release-byte update/hash/launch evidence is
-separate from debug-host instrumentation. Controller journeys use real views with isolated repositories;
-OS host callbacks and selected-folder protocols may be injected, not every physical provider/share app.
-
-Accepted qualification uses **30 expanded jobs / 21 Android lanes**, including API26/29/34/35/36,
-night, landscape, 200% fonts, tablet, notification-granted and microphone-granted variants. Every normal
-lane seeds a real note in the highest accepted prior APK and requires that title after install-over.
-Static ELF inventory identifies packaged ABI architectures and alignment, not physical ARM/16-KiB behavior.
-
-A separate nonpublishing native/durability soak uses the debug host, not the exact signed release binary.
-Only a completed timed report establishes its duration/iteration/PSS results. Its component source is
-recorded independently; it does not exercise controller UI, background AudioRecord or physical battery/thermal conditions.
-
-## Phone checklist for reminders/widget
-
-- Reminder: choose a future date/time, deny/allow notifications contextually, clear, Undo, edit, Trash,
-  restore and restart. Confirm data stays intact even when notifications are off.
-- Let a reminder actually fire with the app closed; open its notification and verify it opens the original note.
-  Edit another note after delivery: this must not dismiss the delivered reminder. Clear/Trash/time changes should invalidate stale alerts.
-- Restart the phone with a future reminder. Check actual delivery after reboot and under Doze/OEM battery settings.
-  These are **inexact** alarms; exact timing and missed-power-off catch-up are not promised.
-- Home → **Home widget**, or long-press launcher → Widgets → MyNotes library. Resize, remove and re-add it.
-  Notes must remain in the app. Pinned notes sort first; Archive/Trash are excluded. A widget row opens, rather than copies, a note.
-- Widget titles are visible on your home screen. It is a four-title projection, not a scrollable/interactive checklist.
-
-## Still open
-
-Full photo/file attachment workflows, wall/list drag (last), markdown/list customization, hashtag
-autocomplete, final snackbars/full undo-redo, recurring/location reminders and richer widget configuration,
-startup corruption recovery UI, folder compaction/index scaling, actual physical SAF/SD/photo-picker/EXIF
-and noisy/accented speech corpus, TalkBack/IME/OEM/16-KiB-device acceptance, Play publication and eventual
-MySpace integration. No full-feature or universal-correctness claim is made.
+Historical outcomes: [0.10 interaction repair](INTERACTION-REPAIR-v0.10.md), [0.11 organisation/media](ORGANISATION-AND-MEDIA-v0.11.md), [remaining product acceptance](NEXT-ACCEPTANCE.md).

@@ -1,4 +1,4 @@
-# Iteration 4: semantic value assertions, canonical transcript identities, bounded failure evidence.
+# Iteration 5: qualify compare-and-apply guards against stale libraries and changed storage.
 name: MyNotes archive native foundations (nonpublishing)
 on:
   push:
@@ -71,7 +71,7 @@ jobs:
           script: |
             adb install -r archive-apks/debug/notes-debug.apk
             adb install -r archive-apks/androidTest/debug/notes-debug-androidTest.apk
-            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
+            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
       - name: Require every archive semantic case once with successful completion
         if: always()
         run: |
@@ -83,6 +83,7 @@ jobs:
           cls='app.space.notes.runtime.ArchiveSemanticTest'
           expected=[cls+'#'+method for method in build_plan()['android'][cls]]
           expected.append('app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox')
+          expected.extend('app.space.notes.RepositoryTransferTest#'+method for method in ['compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint','compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage'])
           path=Path('archive-native.txt')
           result=android(path.read_text(errors='replace') if path.exists() else '',expected)
           write_report(result,'archive-native.json')

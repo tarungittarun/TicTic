@@ -1,21 +1,14 @@
 # Next MyNotes acceptance slices (planned, not shipped)
 
-This is the continuation plan after accepted **0.7.0(8)**, not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
+This is the continuation plan alongside the **0.11.0(12) candidate**, not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
 
-## 1. Portable local attachments and recovery — next large product slice
+## 1. Media foundations implemented; remaining portability boundaries
 
-Covers photo/file capture and owned-media foundations (K018–019, K024, K053–056), followed by richer voice-note presentation (K017, K058–059). Existing OCR review does **not** implement image attachments, and private voice WAVs are **not** included in JSON/folder generations today.
+The 0.11 candidate implements owned image attachments, freehand drawing with durable drafts, 16 backgrounds, physical local SAF folders/moves, schema6 with reads1–6, self-contained bounded image backups and SHA-verified format2 selected-folder media generations (format1 remains readable). See [organisation/media outcomes](ORGANISATION-AND-MEDIA-v0.11.md) for qualification status and exact limits. Earlier notes saying there are no image attachments are superseded.
 
-Before adding media buttons:
+Still not delivered: embedding original voice recordings in library backups, arbitrary file attachments, media garbage collection/generation compaction, advanced stylus tools, or universal provider/power-loss atomicity. Original audio must be exported separately. Do not delete shared image blobs by age or visibility alone; future GC needs checked live/restorable references and a crash-safe grace period.
 
-- Specify a versioned attachment/reference model; preserve schema 1–5 reads and monotonically increase the public versionCode for runtime changes. Clones/import merges must not overwrite a different note's media.
-- Own immutable local copies. A moved original or expired picker grant must not break saved content. Stream bounded chunks rather than loading entire recordings/images/backups into heap.
-- Design transactional portable-media export/import with a manifest, byte lengths and digests. Do not silently label a text-only JSON export a complete media backup. Reject traversal, duplicate archive names, inconsistent manifests and incomplete archives before replacing live data.
-- Define retention independently from note visibility. Seven-day Trash and explicit permanent deletion must not delete a blob shared by another live/restorable note. Garbage collection needs a checked reference set and a crash-safe grace period, not an age-only directory sweep.
-- Preserve the current permanent voice-deletion guard through media/schema migration. A late ASR completion must not revive a purged note. Explicit inbox recovery must remain an intentional separate action.
-- Treat provider cancellation, readonly/removed SD cards, low disk and process death during copy/commit as normal failure paths; retain the original source and last good generation. Local-only users must choose on-device/SD SAF destinations, not a cloud-backed provider. Review current OCR's three-authority allowlist explicitly: Downloads/OEM providers need offline provenance/capability checks and Android tests before adding support, not an unreviewed blanket content-URI allowance.
-
-Acceptance: real Android provider-stream tests on API26/current APIs, rotation/cancellation/death boundaries, duplicate/merge/reference retention, malformed and large streamed archives, original-file deletion, write denial and exact bytes after export/reimport. Physical SAF/SD/camera/photo-picker/EXIF and external share apps still need actual devices; injected providers do not substitute for those outcomes.
+Retain bounds, digest/path validation, non-destructive merge preview, late-ASR deletion guards and last-good-generation fallback. Broader OEM/SD/Downloads providers need offline provenance/capability checks and physical evidence, not a blanket URI allowance. Physical SAF/SD/camera/photo-picker/EXIF and external share apps still need actual devices; emulator/provider tests do not certify those outcomes.
 
 ## 2. Reminder/widget completion, not just extra controls
 
@@ -27,7 +20,7 @@ Acceptance: stale notification actions after edits/Trash/import, duplicate deliv
 
 ## 3. Complete editor/search/Keep interactions with explicit boundaries
 
-Priorities include full undo/redo, markdown/list triggers (K028–029), hashtag labels (K068), checklist gestures/nesting (K046–050), rich formatting/card fidelity (K027), drawing/stylus capture (K016/K061–062) and visual/interaction polish (K094–099). Editable vector diagrams are a distinct delivered feature, not a substitute for a freehand drawing canvas.
+Priorities include full undo/redo, markdown/list triggers (K028–029), hashtag labels (K068), checklist gestures/nesting (K046–050), rich formatting/card fidelity (K027), advanced drawing/stylus tools beyond the new freehand foundation (K016/K061–062) and visual/interaction polish (K094–099). Editable vector diagrams are a distinct delivered feature, not a substitute for a freehand drawing canvas.
 
 Search currently runs off-thread; qualify a large representative index, cancellation and stable selection/scroll/IME behavior before an unlimited-scale/no-lag claim. Define startup corruption recovery and generation compaction without rolling back a valid newer save. Test non-Latin text, emoji/surrogates, composing input, TalkBack focus and dark/light contrast on every new surface.
 

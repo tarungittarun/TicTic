@@ -41,6 +41,8 @@ retained so they can be restored deliberately. GitHub's global disable API retur
 
 See [interaction repair](docs/INTERACTION-REPAIR-v0.10.md): Plus → Reminder, dedicated Labels/Colour, list-only Copy/Trash, fresh sheet state, precise native word selection and reminder reconciliation fixes.
 
+Candidate **0.11.0 (12)** adds physical folders/moves, swipeable filters, clearer voice controls, 20 diagram shapes/grouping/history, owned images/drawings, 16 backgrounds and appearance settings. [Detailed outcomes and limits](docs/ORGANISATION-AND-MEDIA-v0.11.md). Rendered review is approved; publication still requires every technical gate.
+
 Current published release: **0.10.0 (11)** — content-first Paper & Ink redesign, contextual editor tools, native paragraph reflow,
 and opt-in local diagnostics in Settings. Existing local note reminders and resizable/re-placeable
 pinned-first home-screen widget, plus bundled offline English/Hindi/Kannada OCR with review,

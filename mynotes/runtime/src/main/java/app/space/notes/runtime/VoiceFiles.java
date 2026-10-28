@@ -38,4 +38,12 @@ public final class VoiceFiles {
     public synchronized JSONObject result(String id) throws Exception {synchronized(TRANSCRIPT_LOCK){
         AtomicFile file=new AtomicFile(transcript(id));if(!file.getBaseFile().exists() && !new File(file.getBaseFile()+".bak").exists())return new JSONObject().put("state","Audio retained; no transcript yet").put("text","");JSONObject result=new JSONObject(new String(file.readFully(),java.nio.charset.StandardCharsets.UTF_8));if(result.getInt("version")!=1 || !result.getString("id").equals(id))throw new IOException("Unknown or mismatched transcript metadata; audio retained");return result;
     }}
+    /** Bounded atomic snapshot for a user-requested archive; never reads a live partial transcript. */
+    public byte[] archiveMetadata(String id)throws IOException{synchronized(TRANSCRIPT_LOCK){
+        AtomicFile file=new AtomicFile(transcript(id));if(!file.getBaseFile().exists() && !new File(file.getBaseFile()+".bak").exists())return null;
+        try(InputStream in=file.openRead();ByteArrayOutputStream out=new ByteArrayOutputStream()){
+            byte[] buffer=new byte[8192];int count,stalled=0;while((count=in.read(buffer))!=-1){if(count==0){if(++stalled>32)throw new IOException("Transcript stream made no progress");continue;}stalled=0;if(out.size()+count>app.space.notes.domain.ArchiveManifest.MAX_METADATA_BYTES)throw new IOException("Transcript exceeds archive bounds; original retained");out.write(buffer,0,count);}return out.toByteArray();
+        }
+    }}
+
 }

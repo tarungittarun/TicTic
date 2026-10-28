@@ -94,7 +94,7 @@ def build(run, output):
         ('Formatting stays contextual', 'format', 'Text / H1 / H2 describe paragraphs; B / I / U / strike apply inline. The formatting deck replaces the normal dock.'),
         ('Keep writing with the keyboard', 'format-keyboard', 'Where there is room, formatting stays above the keyboard. Cramped landscape restores writing space rather than hiding the note.'),
         ('Lists that stay readable', 'checklist', 'Native editable list items, large checkbox targets and a simple Add item route. No empty progress counter.'),
-        ('Diagrams share the same language', 'diagram', 'A focused canvas with contextual Add, text/style, arrangement and More tools. Editable objects are retained.'),
+        ('Diagrams share the same language', 'diagram', '20 named shapes plus text annotation; Edit shape, Undo/Redo and grouping. Drag shapes directly; no Position form.'),
         ('Settings without a second design system', 'settings', 'Local storage, recovery and diagnostics use the same typography, spacing and plain-language hierarchy.'),
         ('Recovery is understandable', 'storage', 'Folder selection and verified switching preserve the previous files. Long explanations wrap and scroll at 200% font.'),
     ]
@@ -105,7 +105,7 @@ def build(run, output):
             image(variant, scene, 35+i*259, 88, 247, 403, labels[i])
         c.showPage()
         if scene == 'diagram':
-            heading('A simple flowchart, still editable', 'Schematic guide to the six current shape types and directed labelled arrows. This page is explanatory, not an emulator capture.')
+            heading('A simple flowchart, still editable', 'Rectangle, Diamond and Capsule make a familiar flowchart. This explanatory guide is not an emulator capture.')
             def block(kind, x, y, width, height, label):
                 c.setStrokeColor(HONEY); c.setFillColor(HexColor('#F0F1EE')); c.setLineWidth(1.5)
                 if kind == 'decision':
@@ -128,11 +128,22 @@ def build(run, output):
             block('terminator',670,374,110,46,'Keep')
             arrow(170,397,245,397);arrow(385,397,465,397);arrow(575,397,670,397,'Yes')
             block('process',450,235,140,46,'Review / edit');arrow(520,357,520,281,'No')
-            para(c, '<b>Other current building blocks</b>', 60, 194, 720, 20)
-            block('data',60,110,160,48,'Input / output')
+            para(c, '<b>A few more building blocks</b>', 60, 194, 720, 20)
+            block('data',60,110,160,48,'Parallelogram')
             block('ellipse',330,110,160,48,'Ellipse')
-            block('text',600,110,160,48,'Editable text box')
-            para(c, 'Add a shape, edit its words, connect endpoints, then move or resize. Save/reopen retains editable objects and labels. Database, curves, layers and grouping are not claimed as delivered.',60,85,720,35,SMALL)
+            block('text',600,110,160,48,'Text annotation')
+            para(c, 'Add a shape, edit its words, connect endpoints, then move or resize. Save/reopen retains editable objects and labels. 20 named shapes and text annotation are available. Basic grouping moves linked shapes together; curves, layers and smart guides are not claimed.',60,85,720,35,SMALL)
+            c.showPage()
+
+    new_surfaces = [
+        ('Find the view that fits', ('filters-view','filters-sort','filters-labels'), ('View','Sort','Labels'), 'Swipe between the tabs. Label checkboxes support all, none or any chosen combination.'),
+        ('Paper that belongs to the note', ('backgrounds','background-editor','image-editor'), ('16 backgrounds','Independent paper and colour','Embedded image / saved drawing'), 'Images are copied into the note; source picker access is not needed after import. Backups preserve the embedded pixels.'),
+        ('Tools within reach', ('library','drawing','voice-inbox'), ('Library in the lower screen','Freehand drawing','Separate voice cards and transport'), 'Left-edge swipe opens Library. Drawing supports stroke Undo/Redo; voice cards keep progress and play/pause controls together.'),
+    ]
+    for title, names, captions, description in new_surfaces:
+        if all(('full-api34',name) in records for name in names):
+            heading(title, description)
+            for i, name in enumerate(names):image('full-api34', name, 35+i*259, 88, 247, 403, captions[i])
             c.showPage()
 
     heading('Tools appear when they are useful', 'Capture is a menu, colours are labelled swatches, and labels remain editable. These are real app surfaces, not concept drawings.')
@@ -155,8 +166,8 @@ def build(run, output):
     c.showPage()
 
     heading('What stays, and what is not claimed', 'The redesign removes presentation noise, not existing note capabilities. Features below describe the standalone app, not a completed universal certification.')
-    para(c, '<b>Still available</b><br/><br/>Rich text and checklists; labels and 12 colours; search, filters and sorting; pin, Archive, seven-day Trash and Undo; copy/share and conversion; reminders and re-placeable home widget; local folder storage, generations and JSON backup/recovery.<br/><br/><b>Capture</b><br/>Editable diagrams, shapes, text boxes and connectors; vector PDF export; offline OCR with bundled English/Hindi/Kannada models; optional microphone and automatic bundled offline English transcription. Original audio survives recognition failure and has playback/export/retry.<br/><br/><b>Diagram scope</b><br/>The six current types are process, start/end, decision, input/output, ellipse and text box. See DIAGRAMS-AND-EXPORT-v0.5.md for exact implemented operations. Full grouping/layers/curves/smart guides are not silently claimed as complete.', 35, 478, 365, 380)
-    para(c, '<b>Privacy and diagnostics</b><br/><br/>Collection is off by default. Enable in Settings before reproducing a problem; export or delete deliberately. Timing, device/configuration and reviewed event outcomes help investigation. Note text, titles, audio, transcripts, images, clipboard and destination URIs are not collected.<br/><br/><b>Qualification boundaries</b><br/>Emulator interaction/layout/raster evidence is not physical OEM, SD-provider, TalkBack, thermal, ARM/16KiB or accent/noise validation. A native/durable component soak is not human typing. No claim of perfect compatibility or automatic aesthetic acceptance.<br/><br/><b>Install safely</b><br/>Use only a gated immutable APK with the stable app.space.notes package/certificate and higher versionCode. Install over the existing app; do not uninstall or clear data. Export important JSON and original voice WAVs separately. Calculator and MySpace remain frozen.', 440, 478, 365, 380)
+    para(c, '<b>Still available</b><br/><br/>Rich text and checklists; images and freehand drawing; 16 paper backgrounds; labels and 12 colours; search, filters and sorting; pin, Archive, seven-day Trash and Undo; copy/share and conversion; reminders and re-placeable home widget; real folders and note moves under the chosen storage directory; verified generations and JSON backup/recovery. The View / Sort / Labels sheet supports swipe tabs and any label subset.<br/><br/><b>Capture</b><br/>Editable diagrams, shapes, text boxes and connectors; vector PDF export; offline OCR with bundled English/Hindi/Kannada models; optional microphone and automatic bundled offline English transcription. Original audio survives recognition failure and has playback/export/retry. Separate cards provide play/pause and a seek bar; pause-based transcript punctuation is not semantic restoration of every question or exclamation.<br/><br/><b>Diagram scope</b><br/>20 named geometric/common shapes plus text annotation, editable connectors, basic grouping and diagram Undo/Redo. Drag to move; Edit shape changes words and appearance. Nested groups, layers, curves and smart guides are not claimed.', 35, 478, 365, 380)
+    para(c, '<b>Privacy and diagnostics</b><br/><br/>Collection is off by default. Enable in Settings before reproducing a problem; export or delete deliberately. Timing, device/configuration and reviewed event outcomes help investigation. Note text, titles, audio, transcripts, images, clipboard and destination URIs are not collected.<br/><br/><b>Qualification boundaries</b><br/>Emulator interaction/layout/raster evidence is not physical OEM, SD-provider, TalkBack, thermal, ARM/16KiB or accent/noise validation. A native/durable component soak is not human typing. No claim of perfect compatibility or automatic aesthetic acceptance.<br/><br/><b>Install safely</b><br/>Use only a gated immutable APK with the stable app.space.notes package/certificate and higher versionCode. Install over the existing app; do not uninstall or clear data. JSON backups include note images, but original voice recordings remain separate: export those too. Standalone appearance offers System / Light / Dark; future host embedding can supply its design and settings, but actual MySpace integration is not certified. Calculator and MySpace remain frozen.', 440, 478, 365, 380)
     c.showPage(); c.save()
     print(f'Wrote {output}: {page} pages; {status}; five review lanes green={all_green}')
 

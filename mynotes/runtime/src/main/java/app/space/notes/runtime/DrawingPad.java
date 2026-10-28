@@ -32,11 +32,11 @@ final class DrawingPad extends View {
  void undo(){if(!saving && !strokes.isEmpty()){redo.add(strokes.remove(strokes.size()-1));revision++;invalidate();}}
  void redo(){if(!saving && !redo.isEmpty()){strokes.add(redo.remove(redo.size()-1));revision++;invalidate();}}
  private void stroke(Canvas c,Path path,int color,float width,boolean fill){paint.setStyle(fill?Paint.Style.FILL:Paint.Style.STROKE);paint.setColor(color);paint.setStrokeWidth(width);c.drawPath(path,paint);}
- private void drawPaper(Canvas c){c.drawColor(Color.WHITE);if(base!=null)c.drawBitmap(base,null,new RectF(0,0,1024,768),null);for(Stroke s:strokes)stroke(c,s.path,s.color,s.width,s.fill);if(current!=null)stroke(c,current,strokeColor,strokeWidth,false);}
- Bitmap snapshot(){Bitmap value=Bitmap.createBitmap(1024,768,Bitmap.Config.ARGB_8888);drawPaper(new Canvas(value));return value;}
+ private void drawPaper(Canvas c,boolean preview){c.drawColor(Color.WHITE);if(base!=null)c.drawBitmap(base,null,new RectF(0,0,1024,768),null);for(Stroke s:strokes)stroke(c,s.path,s.color,s.width,s.fill);if(preview && current!=null)stroke(c,current,strokeColor,strokeWidth,false);}
+ Bitmap snapshot(){Bitmap value=Bitmap.createBitmap(1024,768,Bitmap.Config.ARGB_8888);drawPaper(new Canvas(value),false);return value;}
  @Override protected void onMeasure(int width,int height){int w=MeasureSpec.getSize(width);if(MeasureSpec.getMode(height)!=MeasureSpec.UNSPECIFIED)w=Math.min(w,Math.max(0,Math.round(MeasureSpec.getSize(height)/.75f)));setMeasuredDimension(w,Math.round(w*.75f));}
  private void clampPan(){panX=Math.max(getWidth()*(1-zoom),Math.min(0,panX));panY=Math.max(getHeight()*(1-zoom),Math.min(0,panY));}
- @Override protected void onDraw(Canvas c){super.onDraw(c);c.save();c.clipRect(0,0,getWidth(),getHeight());c.translate(panX,panY);c.scale(zoom*getWidth()/1024f,zoom*getHeight()/768f);drawPaper(c);c.restore();}
+ @Override protected void onDraw(Canvas c){super.onDraw(c);c.save();c.clipRect(0,0,getWidth(),getHeight());c.translate(panX,panY);c.scale(zoom*getWidth()/1024f,zoom*getHeight()/768f);drawPaper(c,true);c.restore();}
  private void point(float x,float y,boolean finish){
   if(strokeMode>=4){current.reset();if(strokeMode==4){current.moveTo(startX,startY);current.lineTo(x,y);}else{RectF box=new RectF(Math.min(startX,x),Math.min(startY,y),Math.max(startX,x),Math.max(startY,y));if(strokeMode==5)current.addRect(box,Path.Direction.CW);else current.addOval(box,Path.Direction.CW);}}
   else{current.quadTo(lastX,lastY,(lastX+x)/2,(lastY+y)/2);if(finish)current.lineTo(x,y);}lastX=x;lastY=y;

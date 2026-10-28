@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Build NOTES-UI-OVERVIEW.pdf -- the Figma-style visual overview of the Notes
+"""Historical concept deck. Current runtime proof uses build_notes_runtime_review_pdf.py.
+
+Build NOTES-UI-CONCEPT-HISTORY.pdf -- the original Figma-style proposal for the Notes
 rework (Google Keep reference): every page of the app drawn as a board, with
 numbered highlight callouts and simple-word explanations.
 
 Run:  python3 tools/build_notes_ui_overview_pdf.py   (needs: pip install reportlab)
-Out:  NOTES-UI-OVERVIEW.pdf at the repository root.
+Out:  NOTES-UI-CONCEPT-HISTORY.pdf at the repository root (historical proposal only).
 
 Design language of the deck itself: dark board (the app's signature), gold
 accent (the honeycomb mark), Keep's 12 note colours, real text in mockups.
@@ -56,7 +58,7 @@ STY_SUB = ParagraphStyle("sub", fontName="Helvetica", fontSize=10.5, leading=14,
 STY_ITEM = ParagraphStyle("item", fontName="Helvetica", fontSize=9.4, leading=12.6, textColor=INK_2, spaceAfter=5)
 STY_TINY = ParagraphStyle("tiny", fontName="Helvetica", fontSize=8, leading=10.5, textColor=INK_3)
 
-OUT = "NOTES-UI-OVERVIEW.pdf"
+OUT = "NOTES-UI-CONCEPT-HISTORY.pdf"
 PAGES = 18
 _overflow = []
 

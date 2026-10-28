@@ -49,7 +49,7 @@ public final class NotesController {
     private final Bundle restored;
     private boolean ready, closed, binding, dirty, busy;
     private String page="Notes", editing;
-    private long revision, querySequence;
+    private long revision,persistedRevision,querySequence;
     private TextView status;
     private EditText title, body, search;
     private static final class WritingField extends EditText {
@@ -106,7 +106,7 @@ public final class NotesController {
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(Diagnostics.enabled() && (r-l!=or-ol || b-t!=ob-ot))Diagnostics.record("ui.viewport","width_px="+(r-l)+" height_px="+(b-t)+" font_scale="+context.getResources().getConfiguration().fontScale+" night="+darkTheme);});
-        shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());
+        shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());root.getViewTreeObserver().addOnGlobalLayoutListener(this::adaptEditorViewport);
         TextView loading=text("Opening your notes…",18); root.addView(loading);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
         disk.execute(()->{
@@ -213,7 +213,7 @@ public final class NotesController {
         LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderVoiceInbox,this::renderSettings});
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);
         LinearLayout searchBar=new LinearLayout(context);searchBar.setGravity(android.view.Gravity.CENTER_VERTICAL);searchBar.setBackground(design.shape(surface,24));root.addView(searchBar);
-        search=new EditText(context);design.entry(search,16);search.setSingleLine(true);search.setPadding(dp(18),dp(12),dp(4),dp(12));search.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));search.setHint("Search notes and labels");search.setText(homeQuery);searchBar.addView(search,new LinearLayout.LayoutParams(0,-2,1));
+        search=new EditText(context);search.setSingleLine(true);design.entry(search,16);search.setPadding(dp(18),dp(12),dp(4),dp(12));search.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));search.setHint("Search notes and labels");search.setText(homeQuery);searchBar.addView(search,new LinearLayout.LayoutParams(0,-2,1));
         Button filterControl=icon("Filters","filter",()->{});searchBar.addView(filterControl,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout filters=menu("Filter & view",filterControl);
         menuRows(filters,new String[]{grid?"List view":"Grid view",sortCreated?"Sort: created":"Sort: edited","All labels","Manage labels"},new Runnable[]{()->{grid=!grid;saveViewPreferences();renderHome();},()->{sortCreated=!sortCreated;saveViewPreferences();renderHome();},()->{activeLabel="";selectedIds.clear();renderHome();},this::manageLabels});
         TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);for(String label:labels)filters.addView(button(label,()->{activeLabel=label;selectedIds.clear();renderHome();}));
@@ -273,11 +273,11 @@ public final class NotesController {
                 if(item.checked)checked++;
                 LinearLayout line=new LinearLayout(context);line.setGravity(android.view.Gravity.CENTER_VERTICAL);line.setPadding(dp(item.depth*16),0,0,0);
                 CheckBox tick=new CheckBox(context);tick.setContentDescription("Complete list item");tick.setChecked(item.checked);tick.setMinWidth(dp(48));tick.setMinHeight(dp(48));tick.setButtonTintList(new android.content.res.ColorStateList(new int[][]{new int[]{android.R.attr.state_checked},new int[]{}},new int[]{design.accent,muted}));tick.setEnabled(!trashed);line.addView(tick);
-                EditText input=new EditText(context);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);input.setHint("List item");input.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));design.entry(input,18);input.setText(item.text);input.setEnabled(!trashed);
+                EditText input=new EditText(context);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);input.setHint("List item");design.entry(input,18);input.setText(item.text);input.setEnabled(!trashed);
                 input.setPaintFlags(item.checked?input.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG:input.getPaintFlags()&~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
                 line.addView(input,new LinearLayout.LayoutParams(0,-2,1));rows.addView(line);
                 if(n.hideChecked && item.checked)line.setVisibility(View.GONE);
-                input.setOnFocusChangeListener((v,focused)->{if(focused)focusedItem=item.id;});
+                input.setOnFocusChangeListener((v,focused)->{if(focused)focusedItem=item.id;root.post(this::adaptEditorViewport);});
                 if(item.id.equals(focusedItem) && !trashed)input.requestFocus();
                 input.addTextChangedListener(watcher(()->{
                     if(binding)return;invalidateFullUndo();Note current=find(editing);if(current==null)return;
@@ -302,7 +302,7 @@ public final class NotesController {
         if(!n.diagram.nodes.isEmpty()){Button diagram=button("Diagram · "+n.diagram.nodes.size()+(n.diagram.nodes.size()==1?" shape":" shapes"),this::renderDiagram);editor.addView(diagram);}
         if(n.reminderAt>0){Button reminder=button("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt)),this::chooseReminder);editor.addView(reminder);}
         if(!n.labels.isEmpty()){TextView chips=text(String.join("  ·  ",n.labels),13);chips.setTextColor(design.accent);editor.addView(chips);}
-        status=text("Saved · on this device",11);status.setTextColor(muted);status.setPadding(0,dp(4),0,dp(4));status.setVisibility(View.GONE);root.addView(status,1);
+        status=text(dirty || persistedRevision<revision?"Saving locally…":"Saved · on this device",11);status.setTextColor(muted);status.setPadding(0,dp(4),0,dp(4));status.setVisibility(View.GONE);root.addView(status,1);
         LinearLayout dock=tools(root);writingDock=dock;Button add=icon("Capture tools","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout capture=menu("Add to your note",add);menuRows(capture,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});if(!trashed)menuRows(capture,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
         Button formattingControl=null;if(!trashed && !n.checklist){formattingControl=icon("Text formatting","format",this::toggleFormatting);dock.addView(formattingControl,new LinearLayout.LayoutParams(dp(48),dp(48)));}
         Button appearance=icon("Organise tools","palette",()->{});dock.addView(appearance,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout organise=menu("Colour, labels & reminder",appearance);if(!trashed)menuRows(organise,new String[]{"Colour","Labels","Reminder","Clear reminder"},new Runnable[]{this::renderColours,this::renderLabels,this::chooseReminder,()->setReminder(editing,0)});
@@ -326,11 +326,12 @@ public final class NotesController {
         while(current!=document && current.getParent() instanceof View){top+=current.getTop();current=(View)current.getParent();if(current!=document)top-=current.getScrollY();}
         if(current!=document)return;int bottom=top+layout.getLineBottom(line)-layout.getLineTop(line);int scroll=document.getScrollY(),height=document.getHeight()-document.getPaddingBottom();if(top<scroll)scroll=top;else if(bottom>scroll+height)scroll=bottom-height;document.scrollTo(0,Math.max(0,scroll));
     }
+    private boolean keyboardVisible(){if(android.os.Build.VERSION.SDK_INT>=30){android.view.WindowInsets insets=shell.getRootWindowInsets();return insets!=null && insets.isVisible(android.view.WindowInsets.Type.ime());}android.graphics.Rect frame=new android.graphics.Rect();shell.getWindowVisibleDisplayFrame(frame);return shell.getRootView().getHeight()-frame.height()>dp(120);}
     /** Keep an actual writing viewport above a landscape IME; Back remains an Android system action. */
     private void adaptEditorViewport(){
-        if(shell.getHeight()<=0)return;boolean compact=shell.getHeight()<dp(240);
+        if(closed || shell.getHeight()<=0)return;boolean compact=shell.getHeight()<dp(240);
         if(editorTopChrome!=null){editorTopChrome.setVisibility(compact?View.GONE:View.VISIBLE);View focused=root.findFocus();if(title!=null)title.setVisibility(compact && focused instanceof EditText && focused!=title?View.GONE:View.VISIBLE);if(writingDock!=null)writingDock.setPadding(0,compact?0:dp(6),0,compact?0:dp(6));}
-        if(homeTopChrome!=null && homeDockChrome!=null && selectedIds.isEmpty() && !chromeHidden){boolean searching=compact && search!=null && search.hasFocus();homeTopChrome.setVisibility(searching?View.GONE:View.VISIBLE);homeDockChrome.setVisibility(searching?View.GONE:View.VISIBLE);}
+        if(homeTopChrome!=null && homeDockChrome!=null && selectedIds.isEmpty() && !chromeHidden){boolean searching=compact && keyboardVisible();homeTopChrome.setVisibility(searching?View.GONE:View.VISIBLE);homeDockChrome.setVisibility(searching?View.GONE:View.VISIBLE);}
     }
     private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(240))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}updateFormatting();}
     private void updateFormatting(){
@@ -765,7 +766,7 @@ public final class NotesController {
         if(status!=null)status.setText("Saving locally…");
         disk.execute(()->{
             try { repository.save(snapshot);markVoiceNotesCreated(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
-                main.post(()->{if(!closed && !dirty && ticket==revision && status!=null){status.setText("Saved · "+repository.status());status.setVisibility(View.GONE);}});
+                main.post(()->{persistedRevision=Math.max(persistedRevision,ticket);if(!closed && !dirty && ticket==revision && status!=null){status.setText("Saved · "+repository.status());status.setVisibility(View.GONE);}});
             } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());Diagnostics.failure("save.failure",e);
                 main.post(()->{if(!closed){if(status!=null){status.setText(repository.status()+" · retry needed");status.setVisibility(View.VISIBLE);}
                     host.showMessage("Save incomplete. "+repository.status()+". Check storage access, then use Retry save.");}});

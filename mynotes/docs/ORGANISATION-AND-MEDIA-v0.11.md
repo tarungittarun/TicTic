@@ -22,7 +22,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 
 ## Qualification record
 
-- Local source gates: root **508**, Notes **118**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
+- Local source gates: root **509**, Notes **119**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
 - Android plan: **114 JVM / 144 unique Android** methods, partitioned across 21 emulator lanes; Actions is the only Android build path.
 - Run `40694075712` (c2c681e): failed. The real SAF operations passed on API26 but cleanup released a grant already revoked by directory deletion. API29 did not complete the picker; API-specific button matching and bounded UI-state failure diagnostics were added. A background test tried a hidden menu item without opening More actions. These harness corrections do not count as successful reruns.
 - Run `40696288757` (`75394e11d3b87de367c7c080cab21a31427c05f8`): nine Android lanes passed, including both real-folder/storage and UI partitions. Remaining lanes and the summary were cancelled/superseded, so this is **not** a fully qualified run.
@@ -36,6 +36,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Expanded visual review confirmed the large-font drawing word breaks and crowded filter label controls. Filter confirmation is now a named check icon beside the tabs, visible on opening without scrolling; explicit all/none actions follow the label checkboxes instead of hiding them. The label viewport adapts to the lower sheet. Native capture checks confirmation visibility.
 - Run `40707019101` exposed a real filter-row regression: adding the confirmation icon changed Android baseline alignment and clipped the text tabs. The row now explicitly disables baseline alignment and vertically centres every child; the native unclipped-target assertions are unchanged.
 - Bootstrap diagnostics established the Android36 blocker: the **system launcher** showed “Quickstep isn't responding” over the previously published baseline. A strict fixture guard may close that exact system dialog once; package/title/resource ID/enabled/clickable/bounds are checked. A MyNotes ANR is never dismissed or accepted, and the release UI and all tests must still pass. No emulator/test reruns are added.
+- Run `40709418987` reached another diagnosed fixture issue on Android29: DocumentsUI crashed in `ActionHandler.updatePickResult` with “task has already been executed”. The grant fixture had repeatedly activated confirmation while the asynchronous picker was finishing. It now activates each selection/confirmation phase only once while continuing to wait for the actual result; it does not restart or waive a failed test.
 - Complete qualification and fresh rendered inspection remain required before publication.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 

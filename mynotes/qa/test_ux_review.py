@@ -31,6 +31,10 @@ class RenderedUxPublicationContracts(unittest.TestCase):
         for changed in [xml.replace('Quickstep', 'MyNotes'),xml.replace('package="android"','package="app.space.notes"'),xml.replace('aerr_close','other'),xml.replace('clickable="true"','clickable="false"'),xml.replace('[10,20][50,60]','[10,20][10,20]')]:
             with self.subTest(xml=changed):
                 with self.assertRaises(ValueError):known_launcher_anr(changed)
+    def test_saf_fixture_does_not_repeat_async_confirmation_clicks(self):
+        source=(Path(__file__).resolve().parents[1]/'app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java').read_text()
+        self.assertIn('activatedGrantSteps.contains(phase)',source)
+        self.assertIn('if(clicked)activatedGrantSteps.add(phase)',source)
     def test_mixed_filter_tab_row_uses_visual_not_text_baselines(self):
         source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/LibraryFilterView.java').read_text()
         self.assertIn('row.setBaselineAligned(false)',source)

@@ -10,7 +10,7 @@ public final class DiagramView extends View {
     public interface Listener {void selected(String id);void changed(Diagram diagram);}
     private Diagram diagram,original;private String selected;private final boolean dark;private final Listener listener;
     private float downX,downY;private Diagram.Node moving;private boolean dragged;
-    public DiagramView(Context context,Diagram diagram,boolean dark,Listener listener){super(context);this.diagram=diagram;this.dark=dark;this.listener=listener;setBackgroundColor(android.graphics.Color.parseColor(dark?"#202124":"#FFFFFF"));setContentDescription("Flowchart canvas. Select shapes using the list below or tap and drag a shape. Buttons support editing without dragging.");setFocusable(true);}
+    public DiagramView(Context context,Diagram diagram,boolean dark,Listener listener){super(context);this.diagram=diagram;this.dark=dark;this.listener=listener;setBackgroundColor(android.graphics.Color.parseColor(dark?"#202124":"#FFFFFF"));setContentDescription("Flowchart canvas. Tap a shape to select. Drag a shape or group to move it. Edit shape and Group provide labelled tools.");setFocusable(true);}
     public void show(Diagram value,String selected){diagram=value;this.selected=selected;invalidate();}
     public Diagram diagram(){return diagram;}
     @Override protected void onMeasure(int w,int h){int width=MeasureSpec.getSize(w);setMeasuredDimension(width,Math.round(width*Diagram.HEIGHT/(float)Diagram.WIDTH));}
@@ -24,7 +24,7 @@ public final class DiagramView extends View {
                 for(int i=diagram.nodes.size()-1;i>=0;i--){Diagram.Node n=diagram.nodes.get(i);if(x>=n.x && x<=n.x+n.width && y>=n.y && y<=n.y+n.height){moving=n;selected=n.id;listener.selected(n.id);getParent().requestDisallowInterceptTouchEvent(true);invalidate();return true;}}
                 selected=null;listener.selected(null);invalidate();return true;
             case MotionEvent.ACTION_MOVE:
-                if(moving!=null && (dragged || Math.hypot(x-downX,y-downY)>8)){dragged=true;diagram=original.put(moving.move(Math.round(moving.x+x-downX),Math.round(moving.y+y-downY)));invalidate();}return true;
+                if(moving!=null && (dragged || Math.hypot(x-downX,y-downY)>8)){dragged=true;diagram=original.move(moving.id,Math.round(x-downX),Math.round(y-downY));invalidate();}return true;
             case MotionEvent.ACTION_UP:
                 getParent().requestDisallowInterceptTouchEvent(false);if(dragged)listener.changed(diagram);else performClick();moving=null;return true;
             case MotionEvent.ACTION_CANCEL:

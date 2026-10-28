@@ -9,6 +9,7 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "edit":lines(c,4,16,16,4,20,8,8,20,3,21,4,16);lines(c,13,7,17,11);break;
  case "erase":lines(c,5,15,14,4,21,11,12,21,8,21,5,18,5,15);lines(c,9,11,16,17);lines(c,12,21,22,21);break;
  case "close":lines(c,6,6,18,18);lines(c,18,6,6,18);break;
  case "archive":c.drawRoundRect(3,4,21,8,1,1,p);lines(c,5,8,5,20,19,20,19,8);lines(c,10,12,14,12);break;
@@ -23,6 +24,7 @@ final class NotesIcon extends Drawable {
  case "checklist":for(int y=6;y<=18;y+=6){lines(c,3,y,5,y+2,8,y-2);lines(c,11,y,21,y);}break;
  case "filter":lines(c,4,6,20,6);lines(c,7,12,17,12);lines(c,10,18,14,18);break;
  case "back":lines(c,13,5,6,12,13,19);lines(c,6,12,21,12);break;
+ case "redo":c.save();c.translate(24,0);c.scale(-1,1);lines(c,8,5,3,10,8,15);lines(c,3,10,14,10);c.drawArc(9,10,21,22,270,150,false,p);c.restore();break;
  case "undo":lines(c,8,5,3,10,8,15);lines(c,3,10,14,10);c.drawArc(9,10,21,22,270,150,false,p);break;
  case "more":for(int y=5;y<=19;y+=7)c.drawCircle(12,y,1,p);break;
  case "pin":lines(c,8,3,16,3,15,9,19,14,5,14,9,9,8,3);lines(c,12,14,12,22);break;

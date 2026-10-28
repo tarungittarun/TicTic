@@ -28,13 +28,13 @@ public final class DocumentCodec {
     }
     private static JSONObject encodeDiagram(Diagram diagram) throws Exception {
         JSONArray nodes=new JSONArray(),edges=new JSONArray();
-        for(Diagram.Node n:diagram.nodes)nodes.put(new JSONObject().put("id",n.id).put("shape",n.shape).put("text",n.text).put("x",n.x).put("y",n.y).put("width",n.width).put("height",n.height).put("color",n.color));
+        for(Diagram.Node n:diagram.nodes)nodes.put(new JSONObject().put("id",n.id).put("shape",n.shape).put("text",n.text).put("x",n.x).put("y",n.y).put("width",n.width).put("height",n.height).put("color",n.color).put("group",n.group));
         for(Diagram.Edge e:diagram.edges)edges.put(new JSONObject().put("id",e.id).put("from",e.from).put("to",e.to).put("label",e.label));
         return new JSONObject().put("nodes",nodes).put("edges",edges);
     }
     private static Diagram decodeDiagram(JSONObject value) throws Exception {
         List<Diagram.Node> nodes=new ArrayList<>();List<Diagram.Edge> edges=new ArrayList<>();JSONArray ns=value.getJSONArray("nodes"),es=value.getJSONArray("edges");
-        for(int i=0;i<ns.length();i++){JSONObject n=ns.getJSONObject(i);nodes.add(new Diagram.Node(n.getString("id"),n.getString("shape"),n.getString("text"),n.getInt("x"),n.getInt("y"),n.getInt("width"),n.getInt("height"),n.getInt("color")));}
+        for(int i=0;i<ns.length();i++){JSONObject n=ns.getJSONObject(i);nodes.add(new Diagram.Node(n.getString("id"),n.getString("shape"),n.getString("text"),n.getInt("x"),n.getInt("y"),n.getInt("width"),n.getInt("height"),n.getInt("color"),n.optString("group","")));}
         for(int i=0;i<es.length();i++){JSONObject e=es.getJSONObject(i);edges.add(new Diagram.Edge(e.getString("id"),e.getString("from"),e.getString("to"),e.getString("label")));}
         return new Diagram(nodes,edges);
     }

@@ -68,7 +68,8 @@ public final class NotesController {
     private boolean darkTheme,grid=true;
     private String activeLabel="",homeQuery="",focusedItem;
     private boolean sortCreated,diagramOpen,filterExpanded;
-    private String diagramSelection;
+    private String diagramSelection,diagramHistoryNote;
+    private app.space.notes.domain.DiagramHistory diagramHistory=new app.space.notes.domain.DiagramHistory();
     private LinearLayout selectionBar;
     private final Map<View,Integer> homeChrome=new LinkedHashMap<>();
     private boolean chromeHidden;
@@ -372,25 +373,32 @@ public final class NotesController {
     private void renderDiagram(){
         persistDraft();Note note=find(editing);if(note==null){renderHome();return;}diagramOpen=true;title=null;body=null;search=null;querySequence++;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
         LinearLayout top=tools(root);tool(top,"Back to note","back",()->{diagramOpen=false;renderEditor();});TextView name=design.heading("Diagram");top.addView(name,new LinearLayout.LayoutParams(0,-2,1));tool(top,"Undo diagram","undo",this::undoDiagram);tool(top,"Export PDF","export",host::exportPdf);
-        status=text("",12);status.setVisibility(View.GONE);root.addView(status);boolean readOnly=note.deletedAt>0;
+        status=text("",12);status.setVisibility(View.GONE);root.addView(status);boolean readOnly=note.deletedAt>0;ensureDiagramHistory(note);
         ScrollView scroll=new ScrollView(context);LinearLayout area=new LinearLayout(context);area.setOrientation(LinearLayout.VERTICAL);scroll.addView(area);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         DiagramView canvas=new DiagramView(context,note.diagram,darkTheme,new DiagramView.Listener(){public void selected(String id){diagramSelection=id;}public void changed(Diagram value){if(!readOnly)saveDiagram(value);else renderDiagram();}});canvas.show(note.diagram,diagramSelection);area.addView(canvas,new LinearLayout.LayoutParams(-1,-2));
         if(note.diagram.nodes.isEmpty()){TextView hint=text("Start with a shape. Tap it to select; drag to move. Use Connect to add an arrow.",14);hint.setTextColor(muted);area.addView(hint);}
         LinearLayout dock=tools(root);
-        if(!readOnly){Button add=icon("Add shape","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout shapes=menu("Add shape",add);menuRows(shapes,new String[]{"Process","Decision","Start / End","Input / Output","Ellipse","Text box"},new Runnable[]{()->addShape("process"),()->addShape("decision"),()->addShape("terminator"),()->addShape("data"),()->addShape("ellipse"),()->addShape("text")});
-            Button edit=icon("Shape tools","format",()->{});dock.addView(edit,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout editTools=menu("Selected shape",edit);menuRows(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
-            Button arrange=icon("Position shape","filter",()->{});dock.addView(arrange,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout positions=menu("Position",arrange);menuRows(positions,new String[]{"←","↑","↓","→"},new Runnable[]{()->diagramChange("left"),()->diagramChange("up"),()->diagramChange("down"),()->diagramChange("right")});}
-        View gap=new View(context);dock.addView(gap,new LinearLayout.LayoutParams(0,1,1));Button layers=icon("Shapes and arrows","more",()->{});dock.addView(layers,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout list=menu("Shapes & arrows",layers);
-        for(Diagram.Node node:note.diagram.nodes)list.addView(button((node.id.equals(diagramSelection)?"Selected · ":"")+node.shape+" · "+node.text,()->{diagramSelection=node.id;canvas.show(find(editing).diagram,diagramSelection);sheets.close();}));
-        for(Diagram.Edge edge:note.diagram.edges)list.addView(button(note.diagram.find(edge.from).text+" → "+note.diagram.find(edge.to).text+" · "+edge.label,()->{if(!readOnly)editArrow(edge.id);}));
+        if(!readOnly){Button add=icon("Add shape","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout shapes=menu("Add shape",add);for(String shape:Diagram.SHAPES){Button option=button(Diagram.shapeName(shape),()->addShape(shape));DiagramShapeIcon preview=new DiagramShapeIcon(shape,darkTheme);preview.setBounds(0,0,dp(56),dp(40));option.setCompoundDrawablesRelative(preview,null,null,null);option.setCompoundDrawablePadding(dp(16));shapes.addView(option,new LinearLayout.LayoutParams(-1,-2));}
+            Button edit=button("Edit shape",()->{});dock.addView(edit);LinearLayout editTools=menu("Selected shape",edit);menuRows(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
+            Button undoDiagram=icon("Undo diagram","undo",()->stepDiagramHistory(false));undoDiagram.setEnabled(diagramHistory.canUndo(note.diagram));dock.addView(undoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
+            Button redoDiagram=icon("Redo diagram","redo",()->stepDiagramHistory(true));redoDiagram.setEnabled(diagramHistory.canRedo(note.diagram));dock.addView(redoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
+            Button grouping=button("Group",this::groupShapes);dock.addView(grouping);
+            LinearLayout arrowTools=tools(area);arrowTools.addView(button("Edit arrows",this::chooseArrow));}
+
     }
-    private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();}
+    private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;ensureDiagramHistory(n);diagramHistory.record(n.diagram,value);captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();}
+    private void ensureDiagramHistory(Note note){if(!note.id.equals(diagramHistoryNote)){diagramHistoryNote=note.id;diagramHistory=new app.space.notes.domain.DiagramHistory();}}
+    private void stepDiagramHistory(boolean redo){Note n=find(editing);if(n==null || n.deletedAt>0)return;ensureDiagramHistory(n);Diagram next=redo?diagramHistory.redo(n.diagram):diagramHistory.undo(n.diagram);if(next==n.diagram)return;replace(n.diagram(next,System.currentTimeMillis()));queueSave();renderDiagram();}
+    private void groupShapes(){Note n=find(editing);if(n==null || n.deletedAt>0)return;String[] names=new String[n.diagram.nodes.size()];boolean[] checked=new boolean[names.length];Set<String> ids=new HashSet<>();for(int i=0;i<names.length;i++){Diagram.Node shape=n.diagram.nodes.get(i);names[i]=Diagram.shapeName(shape.shape)+" · "+shape.text;checked[i]=shape.id.equals(diagramSelection);if(checked[i])ids.add(shape.id);}
+        new android.app.AlertDialog.Builder(context).setTitle("Group shapes").setMultiChoiceItems(names,checked,(dialog,index,on)->{String id=n.diagram.nodes.get(index).id;if(on)ids.add(id);else ids.remove(id);}).setPositiveButton("Group",(dialog,which)->{if(ids.size()<2){host.showMessage("Choose at least two shapes to group.");return;}saveDiagram(n.diagram.group(ids));renderDiagram();}).setNeutralButton("Ungroup selected",(dialog,which)->{Diagram.Node shape=n.diagram.find(diagramSelection);if(shape==null || shape.group.isEmpty()){host.showMessage("Tap a grouped shape first.");return;}saveDiagram(n.diagram.ungroup(shape.id));renderDiagram();}).setNegativeButton("Cancel",null).show();
+    }
+    private void chooseArrow(){Note n=find(editing);if(n==null || n.deletedAt>0)return;if(n.diagram.edges.isEmpty()){host.showMessage("Use Edit shape → Connect to add an arrow.");return;}String[] names=new String[n.diagram.edges.size()];for(int i=0;i<names.length;i++){Diagram.Edge edge=n.diagram.edges.get(i);names[i]=n.diagram.find(edge.from).text+" → "+n.diagram.find(edge.to).text+" · "+edge.label;}new android.app.AlertDialog.Builder(context).setTitle("Edit arrow").setItems(names,(dialog,index)->editArrow(n.diagram.edges.get(index).id)).setNegativeButton("Cancel",null).show();}
     private void addShape(String shape){Note n=find(editing);if(n==null || n.deletedAt>0)return;
         int index=n.diagram.nodes.size();String id=UUID.randomUUID().toString();int w=shape.equals("decision")?220:200,h=shape.equals("decision")?140:100;
-        Diagram.Node node=new Diagram.Node(id,shape,shape.equals("terminator")?"Start / End":shape.equals("decision")?"Decision?":"New "+shape,30+(index%3)*240,30+((index/3)%5)*170,w,h,n.color);
+        Diagram.Node node=new Diagram.Node(id,shape,Diagram.shapeName(shape),30+(index%3)*240,30+((index/3)%5)*170,w,h,n.color);
         saveDiagram(n.diagram.put(node));diagramSelection=id;renderDiagram();
     }
-    private Diagram.Node selectedShape(){Note n=find(editing);Diagram.Node node=n==null?null:n.diagram.find(diagramSelection);if(node==null)host.showMessage("Select a shape first, using the canvas or shape list.");return node;}
+    private Diagram.Node selectedShape(){Note n=find(editing);Diagram.Node node=n==null?null:n.diagram.find(diagramSelection);if(node==null)host.showMessage("Tap a shape on the canvas first.");return node;}
     private void editShape(){Diagram.Node node=selectedShape();if(node==null)return;
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);EditText input=new EditText(context);input.setText(node.text);input.setHint("Shape text");content.addView(input);
         Spinner colors=new Spinner(context);colors.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_dropdown_item,NotesBoard.NAMES));colors.setSelection(node.color);content.addView(colors);

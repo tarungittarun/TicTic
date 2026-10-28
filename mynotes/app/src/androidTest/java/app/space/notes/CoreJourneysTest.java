@@ -224,7 +224,7 @@ public class CoreJourneysTest {
         tap("Back"); // Storage returns to Settings, not Home.
         tap("Back");
         tap("Filters");
-        screenshot("filters-view");
+        screenshot("filters-view");main(()->{TextView apply=text("Apply filters");android.graphics.Rect visible=new android.graphics.Rect();assertNotNull(apply);assertTrue("Filter confirmation must be visible without scrolling",apply.getGlobalVisibleRect(visible));assertEquals(apply.getHeight(),visible.height());});
         tap("Sort");
         screenshot("filters-sort");
         tap("Labels");

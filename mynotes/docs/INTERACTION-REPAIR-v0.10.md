@@ -1,6 +1,6 @@
 # MyNotes 0.10 — interaction repair
 
-Status: candidate 0.10.0 (11), approved for gated publication after runtime review. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
+Status: candidate 0.10.0 (11), publication blocked pending the classifier correction below. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
 
 ## Device report and evidence boundary
 
@@ -53,3 +53,7 @@ Calculator/MySpace remain untouched. Package/signing identity are unchanged, and
 The new captures were inspected, including direct Labels/Colour controls, Plus → Reminder, readable heading layout, landscape editor, and Settings after repeated navigation in dark mode and Android16/0.85 font. Native exact-word/numeric-line long presses, repeated sheets and list-only Copy/Trash assertions pass. Reminder reconciliation boundary/permission/deduplication checks pass. The runtime PDF now uses the source-pinned app version and adds the actual Add/reminder and post-navigation evidence page.
 
 Approval pins source `57990d0d0cd794cc7f2fc5b051eb3b658235b91a` and this reviewed run. A separate complete gated run must succeed before an immutable APK is shared. The precise original Motorola rendering cause was not established by the export; this repair and its passing sequence are not a claim of physical-device certification.
+
+## Publication guard caught automatic selection expansion
+
+Run40639953784 blocked publication because API26 selected `Alpha bravo` when the real long press targeted `bravo`. This is a meaningful selection failure, not a test to weaken or retry blindly. The follow-up disables Android TextClassifier smart expansion on editable fields (`TextClassifier.NO_OP`); native selection handles, manual Select All and clipboard editing remain enabled. Prior visual approval has been cleared again. Fresh qualification is required; there is no published v0.10 APK yet.

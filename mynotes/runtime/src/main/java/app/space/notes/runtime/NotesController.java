@@ -70,7 +70,7 @@ public final class NotesController {
     private boolean sortCreated,diagramOpen;
     private app.space.notes.domain.LibraryFilter libraryFilter=app.space.notes.domain.LibraryFilter.defaults();
     private DrawingPad drawingPad;private String drawingNote,drawingImage;private long stashedDrawing=-1;
-    private String activeFolder;private long folderPageSequence;private Runnable afterFolderSelection;
+    private String activeFolder;private long folderPageSequence;private Runnable afterFolderSelection;private Runnable voiceReturn=this::renderHome;
     private String diagramSelection,diagramHistoryNote;
     private app.space.notes.domain.DiagramHistory diagramHistory=new app.space.notes.domain.DiagramHistory();
     private LinearLayout selectionBar;
@@ -496,7 +496,7 @@ public final class NotesController {
                 public void started(String id){main.post(()->{if(closed)return;voicePage=true;title=null;body=null;search=null;clearPage();header("Recording voice");
                     LinearLayout recording=new LinearLayout(context);recording.setOrientation(LinearLayout.VERTICAL);recording.setGravity(android.view.Gravity.CENTER);ScrollView recordingScroll=new ScrollView(context);recordingScroll.setFillViewport(true);recordingScroll.addView(recording);root.addView(recordingScroll,new LinearLayout.LayoutParams(-1,0,1));TextView live=design.heading("Microphone on");recording.addView(live);android.widget.Chronometer timer=new android.widget.Chronometer(context);timer.setTextColor(design.accent);timer.setTextSize(36);timer.setBase(android.os.SystemClock.elapsedRealtime());timer.start();recording.addView(timer);TextView privacy=text("Audio stays on this device",14);privacy.setTextColor(muted);recording.addView(privacy);
                     recording.addView(text("Stop to save the original audio and start bundled offline English transcription. Review the transcript; language, accent and noise affect accuracy. Leaving the app stops recording safely.",14));Button stop=button("Stop and transcribe",()->{if(capture!=null)capture.stop();timer.stop();live.setText("Saving audio…");});stop.setGravity(android.view.Gravity.CENTER);stop.setTextColor(design.accentInk);stop.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));root.addView(stop,new LinearLayout.LayoutParams(-1,-2));});}
-                public void saved(String id){VoiceTasks.transcribe(context,id);main.post(()->{capture=null;if(closed)return;addVoicePlaceholder(id);if(voicePage)renderVoiceInbox();host.showMessage("Audio saved locally. Offline English transcription started automatically.");});}
+                public void saved(String id){VoiceTasks.transcribe(context,id);main.post(()->{capture=null;if(closed)return;addVoicePlaceholder(id);if(voicePage)refreshVoiceInbox();host.showMessage("Audio saved locally. Offline English transcription started automatically.");});}
                 public void failed(String message){main.post(()->{capture=null;if(closed)return;voicePage=false;returnToNoteOrHome();host.showMessage("Recording stopped: "+message+". Other features remain available; check Voice inbox for recovered audio.");});}
             });captureWorker.execute(capture);
         }catch(Exception e){capture=null;host.showMessage("Recording could not start: "+e.getMessage()+". Notes are unchanged.");}
@@ -506,17 +506,20 @@ public final class NotesController {
         if(closed)return;if(busy){main.postDelayed(()->voiceComplete(id,text,failure,previouslyCreated),200);return;}
         whenReady(()->{
         if(closed)return;persistDraft();String target=app.space.notes.domain.VoiceTranscripts.noteId(id);
-        if(!app.space.notes.domain.VoiceTranscripts.mayApplyToLibrary(find(target)!=null,previouslyCreated)){if(voicePage)renderVoiceInbox();return;}
+        if(!app.space.notes.domain.VoiceTranscripts.mayApplyToLibrary(find(target)!=null,previouslyCreated)){if(voicePage)refreshVoiceInbox();return;}
         addVoicePlaceholder(id);Note note=find(target);
         if(!text.isEmpty() && note!=null && note.deletedAt==0){Note changed=app.space.notes.domain.VoiceTranscripts.apply(note,id,text,System.currentTimeMillis());if(changed!=note){replace(changed);queueSave();}}
-        if(voicePage)renderVoiceInbox();else if(editing==null && !storagePage)filterNow();
+        if(voicePage)refreshVoiceInbox();else if(editing==null && !storagePage)filterNow();
         if(!failure.isEmpty())host.showMessage("Offline transcription unavailable. Audio is retained in Voice inbox; retry or export it. Other notes features are unaffected.");
     });}
-    private void renderVoiceInbox(){
-        persistDraft();voicePage=true;storagePage=true;editing=null;title=null;body=null;search=null;querySequence++;clearPage();header("Voice inbox");
+    private void renderVoiceInbox(){renderVoiceInbox(this::renderHome);}
+    private void renderVoiceInbox(Runnable parent){voiceReturn=parent;refreshVoiceInbox();}
+    private void leaveVoiceInbox(){if(capture!=null){capture.stop();pageBack=this::leaveVoiceInbox;host.showMessage("Stopping capture and preserving audio…");return;}voicePage=false;voiceReturn.run();}
+    private void refreshVoiceInbox(){
+        persistDraft();voicePage=true;storagePage=true;editing=null;title=null;body=null;search=null;querySequence++;clearPage();header("Voice inbox",this::leaveVoiceInbox);
         final long inboxToken=voiceInboxSequence;
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);ScrollView scroll=new ScrollView(context);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));content.addView(text("Reading local recordings…",14));
-        LinearLayout controls=tools(root);tool(controls,"Record voice","mic",host::requestVoiceCapture);View spacer=new View(context);controls.addView(spacer,new LinearLayout.LayoutParams(0,1,1));tool(controls,"Refresh","retry",this::renderVoiceInbox);
+        LinearLayout controls=tools(root);tool(controls,"Record voice","mic",host::requestVoiceCapture);View spacer=new View(context);controls.addView(spacer,new LinearLayout.LayoutParams(0,1,1));tool(controls,"Refresh","retry",this::refreshVoiceInbox);
         disk.execute(()->{
             try{VoiceFiles files=new VoiceFiles(context);List<String> ids=files.list();Map<String,Integer> durations=new HashMap<>();for(String id:ids)try(java.io.RandomAccessFile wave=new java.io.RandomAccessFile(files.audio(id),"r")){durations.put(id,(int)Math.min(Integer.MAX_VALUE,app.space.notes.domain.PcmWave.inspect(wave).bytes*1000/(app.space.notes.domain.PcmWave.RATE*2)));}catch(Exception unavailable){durations.put(id,0);}Map<String,org.json.JSONObject> results=new LinkedHashMap<>();for(String id:ids){try{results.put(id,files.result(id));}catch(Exception invalid){results.put(id,new org.json.JSONObject().put("state","Transcript unreadable; audio retained").put("text",""));}}
                 main.post(()->{if(closed || !voicePage || inboxToken!=voiceInboxSequence)return;content.removeAllViews();if(ids.isEmpty())content.addView(text("No recordings yet. Tap the microphone to record.",15));
@@ -712,8 +715,8 @@ public final class NotesController {
         });}catch(Exception failure){main.post(()->{if(closed || token!=folderPageSequence)return;Diagnostics.failure("folders.open.failure",failure);content.removeAllViews();content.addView(text(failure.getMessage()==null?"Main storage folder is unavailable":failure.getMessage(),15));content.addView(button("Choose main folder",()->{afterFolderSelection=()->renderFolders(moving,parent);host.chooseLocalFolder();}));content.addView(button("Storage settings",()->{renderStorage();pageBack=()->renderFolders(moving,parent);}));});}});
     }
     private void renderModelInfo(){
-        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("About & offline models",this::renderSettings);
-        ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));content.addView(design.heading("MyNotes"));content.addView(text(host.versionLabel(),14));content.addView(text("Your notes stay with you. No account, no ads, no Internet permission.",16));settingRow(content,"Voice recordings","Original audio stays in Voice inbox. Export it separately from note backups.",()->{renderVoiceInbox();pageBack=this::renderModelInfo;});LinearLayout technical=section(content,"Offline models & licences");TextView details=text("Reading bundled notices…",14);technical.addView(details);
+        voicePage=false;persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("About & offline models",this::renderSettings);
+        ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));content.addView(design.heading("MyNotes"));content.addView(text(host.versionLabel(),14));content.addView(text("Your notes stay with you. No account, no ads, no Internet permission.",16));settingRow(content,"Voice recordings","Original audio stays in Voice inbox. Export it separately from note backups.",()->renderVoiceInbox(this::renderModelInfo));LinearLayout technical=section(content,"Offline models & licences");TextView details=text("Reading bundled notices…",14);technical.addView(details);
         disk.execute(()->{StringBuilder value=new StringBuilder("Original recordings stay privately on this device, independent of note Trash. JSON backups exclude audio. Export important recordings before clearing data or uninstalling. Transcripts use conservative pause-based commas and sentence breaks, not a semantic punctuation model. Questions and exclamations are not guessed. Review punctuation against audio; raw recognized text is retained with the recording.\n\nAll inference runs locally on CPU. No network permission, platform SpeechRecognizer or model downloader. OCR: Tesseract4Android 4.9.0, tessdata_fast 4.1.0 English/Hindi/Kannada. Speech: Vosk 0.3.75 with bundled English small-en-us-0.15. Accuracy varies: review recognized text against the original. First use installs verified models in private storage; speech needs additional disk/RAM. Microphone is optional and only requested on Record voice. Voice inbox originals are excluded from JSON backup and never automatically deleted.\n\n");try{for(String name:context.getAssets().list("licenses")){value.append("\n\n===== ").append(name).append(" =====\n");try(java.io.InputStream in=context.getAssets().open("licenses/"+name)){java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);value.append(bytes.toString("UTF-8"));}}}catch(Exception e){value.append("Notices could not be read: ").append(e.getMessage());}main.post(()->{if(!closed && details.getParent()!=null)details.setText(value);});});
     }
     private void renderStorage(){
@@ -892,6 +895,7 @@ public final class NotesController {
         if(editing==null && !selectedIds.isEmpty()){selectedIds.clear();renderHome();return true;}
         if(prepared!=null){prepared=null;renderBackups();return true;}
         if(editing==null && storagePage){renderHome();return true;}
+        if(editing==null && activeFolder!=null){activeFolder=null;renderFolders(false);return true;}
         if(editing==null)return false;
         persistDraft(); renderHome(); return true;
     }

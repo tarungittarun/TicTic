@@ -41,3 +41,9 @@ Original recordings must remain playable/exportable if inference fails or import
 - User-visible progress/cancel/error recovery, no blank after-use sheets, large-font/dark/landscape layouts, final-source installed-byte update checks, then physical Motorola/SD-provider trials.
 
 Reminder recurrence/snooze/missed-event semantics and per-instance interactive widgets remain separate slices. Wall drag ordering stays last.
+
+## Implementation started after immutable0.12 publication
+
+Unpublished0.13/code14 now starts the pure-Java `ArchiveManifest` foundation: deterministic versioned binary metadata, canonical UUID entry names, length/digest/date/source-marker validation, bounded item/aggregate sizes and immutable records. Eight JVM tests cover round-trip, path safety, duplicate/size/optional-field bounds, every truncation, unsupported versions and noncanonical markers. The tests have been authored, not yet executed on Actions. No local Java/Android toolchain is available; Android builds remain Actions-only.
+
+This foundation is **not an audio-inclusive backup feature**. The streaming ZIP reader/writer, runtime semantic verification, transactional audio/library import, picker/progress/cancel UI and native/process-death qualification are still required. Published0.12/code13 and its reviewed artifacts remain unchanged.

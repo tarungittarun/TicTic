@@ -724,3 +724,21 @@ independent lint, APK audit, immutable inventory and final acceptance all green.
   font, landscape, night and tablet profiles, after fixing a board viewport collapse.
   Physical taps/IME/TalkBack are not universally certified by dispatched view tests.
 - Required offline OCR and voice transcription remain OPEN at this release checkpoint.
+
+## Repair evidence update — 0.12.0 (13), pending publication (2026-10-29 IST)
+
+This adds traceability without rewriting the permanent scope snapshots above into a false completion scoreboard. Published 0.11's emulator success was superseded by the user's physical-device rejection. [Repair diagnosis and limits](DEVICE-REPAIR-v0.12.md) govern current acceptance.
+
+| IDs | Implemented repair / evidence | Remaining boundary |
+|---|---|---|
+| K010 / K021 | Explicit selected-note permanent deletion and Empty Trash with readable confirmation, alongside seven-day automatic retention and reversible ordinary Trash. `CoreJourneysTest` exercises cancellation, selective/whole purge, live-note and original-audio preservation. | Permanent deletion is intentionally irreversible; old backups/history/audio are not forensic-erased. |
+| K016 / K061–062 | Seven drawing tools, seven inks, five widths, historical smoothing, Undo/Redo/Clear, pinch/pan/Fit/Focus, full-paper export and same-attachment editing with durable drafts. `runtime/DrawingToolsTest`, Core drawing save/recreation/edit cases and fresh captures. | Not a complete Keep-style drawing quick-capture/card workflow or physical stylus/palm/pressure qualification. |
+| K018 / K024 | Local image/MediaStore/photo-picker policies separated from backup-only document policy; detailed images automatically fit the bounded note/backup budget. Native real-source/noisy-image coverage and drawing/image editor captures. | No universal OEM/cloud-provider allowance, camera workflow, arbitrary attachment or unlimited library-size claim. |
+| K059–060 | Separate voice cards retain playback/seek/transport and conservative punctuation; About explains technical limits and audio exclusion from JSON. Parent/refresh navigation now has a native journey. | Inbox playback is not the entire proposed inline-note/audio-card scope. Physical acoustic accuracy and audio-inclusive backups remain open. |
+| K064 / NF-02 | Coloured paper previews/editor, light/dark groups, large-font Save layout, readable Trash confirmation and Settings children; five-profile rendered review. | Rendered approval is not TalkBack/physical-phone or complete all-colour contrast certification. |
+| ST-01 / ST-03 / ST-05 | Main-folder portable files, timestamp naming/collisions, copy/verify-first legacy naming migration, actual directories/moves, exact-owned cleanup and first-use folder-selection return. `RealFolderStorageTest` retains actual persisted provider grant and file-content assertions. | Provider revocation/full-disk/OEM/SD/power-loss outcomes are not universally certified. No speculative media GC or history destruction. |
+| NF-03 / HX-01 | Opt-in, content-excluding diagnostics inform these repairs; standalone-only app/build and frozen calculator/MySpace isolation retained. | Host appearance is a contract, not integrated MySpace certification. |
+
+Qualification baseline40771889450/sourcef86e2fc passed all21 Android lanes (156 unique methods); it did not publish because manual review was pending. Current-app review40774476746/sourceeebf780 produced186 fresh captures but was **not technically accepted**:13/21 lanes passed, with eight failures solely in the expanded folder fixture's hidden-caption lookup. The corrected helper retains all visibility, navigation and real-file assertions. Final run40777034325 must execute **157 unique Android /114 JVM cases,1278 planned Android executions across21 lanes**, and every gate must pass before publication. No failed case is waived by rendered approval.
+
+Still partial/open: K020/K089–092 per-instance interactive/quick-capture widgets; K031–032/K073–074/K093 richer reminder semantics; full editor undo/markdown, hashtag/list interactions, arbitrary/audio-inclusive portability, broader physical and host qualification. [Next slices](NEXT-ACCEPTANCE.md) and the [unimplemented audio archive contract](AUDIO-ARCHIVE-DESIGN.md) preserve those obligations. **K004 Wall drag ordering remains last.**

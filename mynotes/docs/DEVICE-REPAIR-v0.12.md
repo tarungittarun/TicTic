@@ -33,3 +33,9 @@ Workflow ceiling is45 expanded jobs (previously30). Current topology remains30 j
 All required technical gates, complete new native execution, actual five-profile screenshot inspection, updated overview PDF/README and immutable signed publication are still required. No physical Motorola/SD-provider/microphone/acoustic/TalkBack/ARM16KiB or future MySpace certification is implied. Broader audio-inclusive backup and reminder/widget functionality are not magically completed by these repairs; preserve honest scope and address device defects first.
 
 Latest complete qualification requested for the Settings/folder/voice Back fixes: 157 unique Android methods / 114 JVM cases, with no assertion waived. Workflow dispatch returned integration-permission HTTP 403, so use the normal deliberate Notes push trigger instead.
+
+## Baseline rendered inspection (not current-source publication approval)
+
+Inspected baseline40771889450 light, dark, 200%-font, landscape and tablet captures: Home/Library, grouped Settings/Storage/About, destructive Trash confirmation, focus drawing and saved image, coloured paper, label-filter sheet, formatting/keyboard, diagram tools, voice playback cards and note-colour controls. The prior Save wrap is gone; destructive confirmation remains readable at 200%, paper previews have distinct colours, and the technical About details are collapsed initially. Scrolling remains necessary on small/large-font screens. Fit-paper and Focus use the same outline glyph, distinguished by position, tooltip and accessible name; their visual distinction is a future polish item, not an assertion of perfect discoverability.
+
+The overview builder also passed a 23-page generation smoke check against this baseline, explicitly labelled pending/non-approved. No temporary baseline PDF was advertised as a final deliverable. The new parent-navigation source still needs its own complete native results and fresh five-profile review before approval/publication.

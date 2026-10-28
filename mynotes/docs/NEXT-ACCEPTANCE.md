@@ -1,12 +1,12 @@
 # Next MyNotes acceptance slices (planned, not shipped)
 
-This is the continuation plan alongside the **unpublished 0.12.0(13) repair**; published 0.11 was rejected by real-device feedback. This is, not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
+This is the continuation plan alongside the **unpublished 0.12.0(13) repair**; published 0.11 was rejected by real-device feedback. This is not a claim that the full Keep inventory is complete. Current outcomes and qualifications are in [REPORT-CARD.md](REPORT-CARD.md); the original permanent requirement IDs remain in [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## 1. Media foundations implemented; remaining portability boundaries
 
 The 0.11 baseline introduced owned image attachments, freehand drawing with durable drafts, 16 backgrounds, physical local SAF folders/moves, schema6 with reads1–6, self-contained bounded image backups and SHA-verified format2 selected-folder media generations (format1 remains readable). See [organisation/media outcomes](ORGANISATION-AND-MEDIA-v0.11.md) and [0.12 device repairs](DEVICE-REPAIR-v0.12.md) for actual outcomes, qualification status and exact limits. Earlier notes saying there are no image attachments are superseded.
 
-Still not delivered: embedding original voice recordings in library backups, arbitrary file attachments, media garbage collection/generation compaction, advanced stylus tools, or universal provider/power-loss atomicity. Original audio must be exported separately. Do not delete shared image blobs by age or visibility alone; future GC needs checked live/restorable references and a crash-safe grace period.
+Still not delivered: embedding original voice recordings in library backups, arbitrary file attachments, media garbage collection/generation compaction, advanced stylus tools, or universal provider/power-loss atomicity. Original audio must be exported separately. The next archive slice is specified in [the audio-inclusive archive contract](AUDIO-ARCHIVE-DESIGN.md), explicitly not implemented yet. Do not delete shared image blobs by age or visibility alone; future GC needs checked live/restorable references and a crash-safe grace period.
 
 Retain bounds, digest/path validation, non-destructive merge preview, late-ASR deletion guards and last-good-generation fallback. Broader OEM/SD/Downloads providers need offline provenance/capability checks and physical evidence, not a blanket URI allowance. Physical SAF/SD/camera/photo-picker/EXIF and external share apps still need actual devices; emulator/provider tests do not certify those outcomes.
 

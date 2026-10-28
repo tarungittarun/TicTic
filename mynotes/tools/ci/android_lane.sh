@@ -85,12 +85,20 @@ PYBASE
 cp upgrade-baseline/identity.json "$OUT/upgrade-baseline-identity.json"
 adb install -r upgrade-baseline/baseline.apk | tee "$OUT/install-baseline.txt"
 adb shell am start -W -n app.space.notes/.NotesActivity
+LAUNCHER_ANR_DISMISSED=0
 find_release_text() {
   local target="$1"
   for attempt in {1..8}; do
     adb shell rm -f /sdcard/notes-upgrade.xml
     if adb shell uiautomator dump /sdcard/notes-upgrade.xml >/dev/null && adb pull /sdcard/notes-upgrade.xml "$OUT/upgrade-window.xml" >/dev/null; then
       if python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --text "$target" > "$OUT/coordinates.txt"; then return 0; fi
+      if [[ "$LAUNCHER_ANR_DISMISSED" == 0 ]] && python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --known-launcher-anr > "$OUT/launcher-anr-coordinates.txt" 2>/dev/null; then
+        cp "$OUT/upgrade-window.xml" "$OUT/launcher-anr-before-dismiss.xml"
+        echo '::warning title=Known emulator launcher ANR::Closing the exact Quickstep system ANR once. This is not a MyNotes ANR waiver or an emulator/test retry; the real release UI must still pass.'
+        read -r ANR_X ANR_Y < "$OUT/launcher-anr-coordinates.txt"
+        LAUNCHER_ANR_DISMISSED=1
+        adb shell input tap "$ANR_X" "$ANR_Y"
+      fi
     fi
     # A null root during an Android taskbar/window transition is not a completed UI lookup.
     adb shell dumpsys window windows > "$OUT/selector-attempt-$attempt-window.txt" 2>&1 || true

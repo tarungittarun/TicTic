@@ -15,8 +15,17 @@ def coordinates(xml,text):
     if right<=left or bottom<=top:raise ValueError('Empty node bounds')
     return (left+right)//2,(top+bottom)//2
 
+def known_launcher_anr(xml):
+    """Only the observed AOSP Quickstep system dialog; never dismiss a MyNotes ANR."""
+    nodes=list(ET.fromstring(xml).iter('node'))
+    titles=[n for n in nodes if n.get('package')=='android' and n.get('resource-id')=='android:id/alertTitle' and n.get('text')=="Quickstep isn't responding"]
+    buttons=[n for n in nodes if n.get('package')=='android' and n.get('resource-id')=='android:id/aerr_close' and n.get('text')=='Close app' and n.get('enabled')=='true' and n.get('clickable')=='true']
+    if len(titles)!=1 or len(buttons)!=1:raise ValueError('No exact known launcher ANR')
+    # Reuse strict unique enabled-node and nonempty-bound checks.
+    return coordinates(ET.tostring(buttons[0],encoding='unicode'),'Close app')
+
 if __name__=='__main__':
     from pathlib import Path
-    p=argparse.ArgumentParser();p.add_argument('--xml',required=True);p.add_argument('--text',required=True);a=p.parse_args()
-    try:print(*coordinates(Path(a.xml).read_text(),a.text))
+    p=argparse.ArgumentParser();p.add_argument('--xml',required=True);choice=p.add_mutually_exclusive_group(required=True);choice.add_argument('--text');choice.add_argument('--known-launcher-anr',action='store_true');a=p.parse_args()
+    try:print(*(known_launcher_anr(Path(a.xml).read_text()) if a.known_launcher_anr else coordinates(Path(a.xml).read_text(),a.text)))
     except ValueError as error:raise SystemExit(str(error))

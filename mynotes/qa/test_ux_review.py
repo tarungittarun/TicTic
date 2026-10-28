@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from mynotes.tools.ci.ux_review import approved
-from mynotes.tools.ci.ui import coordinates
+from mynotes.tools.ci.ui import coordinates,known_launcher_anr
 
 class RenderedUxPublicationContracts(unittest.TestCase):
     def review(self,**changes):
@@ -25,6 +25,16 @@ class RenderedUxPublicationContracts(unittest.TestCase):
     def test_old_and_new_release_creation_names_have_bounded_coordinates(self):
         for attribute in ['text="+ Text"','content-desc="New text note"']:
             self.assertEqual((25,30),coordinates(f'<hierarchy><node {attribute} enabled="true" bounds="[10,20][40,40]"/></hierarchy>','+ Text'))
+    def test_launcher_anr_guard_is_exact_and_never_waives_notes(self):
+        xml="""<hierarchy><node package="android" resource-id="android:id/alertTitle" text="Quickstep isn't responding"/><node package="android" resource-id="android:id/aerr_close" text="Close app" enabled="true" clickable="true" bounds="[10,20][50,60]"/></hierarchy>"""
+        self.assertEqual((30,40),known_launcher_anr(xml))
+        for changed in [xml.replace('Quickstep', 'MyNotes'),xml.replace('package="android"','package="app.space.notes"'),xml.replace('aerr_close','other'),xml.replace('clickable="true"','clickable="false"'),xml.replace('[10,20][50,60]','[10,20][10,20]')]:
+            with self.subTest(xml=changed):
+                with self.assertRaises(ValueError):known_launcher_anr(changed)
+    def test_mixed_filter_tab_row_uses_visual_not_text_baselines(self):
+        source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/LibraryFilterView.java').read_text()
+        self.assertIn('row.setBaselineAligned(false)',source)
+        self.assertIn('row.setGravity(Gravity.CENTER_VERTICAL)',source)
     def test_every_synthetic_scene_is_collected_and_persisted(self):
         import re
         from mynotes.tools.ci.persist_ux import SCENES

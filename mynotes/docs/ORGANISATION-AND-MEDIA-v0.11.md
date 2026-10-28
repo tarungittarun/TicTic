@@ -22,7 +22,7 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 
 ## Qualification record
 
-- Local source gates: root **506**, Notes **116**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
+- Local source gates: root **508**, Notes **118**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
 - Android plan: **114 JVM / 144 unique Android** methods, partitioned across 21 emulator lanes; Actions is the only Android build path.
 - Run `40694075712` (c2c681e): failed. The real SAF operations passed on API26 but cleanup released a grant already revoked by directory deletion. API29 did not complete the picker; API-specific button matching and bounded UI-state failure diagnostics were added. A background test tried a hidden menu item without opening More actions. These harness corrections do not count as successful reruns.
 - Run `40696288757` (`75394e11d3b87de367c7c080cab21a31427c05f8`): nine Android lanes passed, including both real-folder/storage and UI partitions. Remaining lanes and the summary were cancelled/superseded, so this is **not** a fully qualified run.
@@ -34,7 +34,9 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Drawing layout review also identified text-heavy narrow controls at large font and a paper taller than its touch viewport in landscape. Brush/eraser and stroke history now use named icons; the paper is aspect-fitted inside the available viewport. Native capture asserts the complete paper bounds and unbroken Save drawing text.
 - Run `40703890515` (`2607d47`): 20 Android lanes passed, including corrected landscape pin and the expanded scene journey. Android36 failed **before** candidate installation/instrumentation: the previously published baseline New note control was not found after eight bounded UI lookups. The cause is not established. Bootstrap XML/focus annotations and a synthetic failed-bootstrap screenshot are now retained to diagnose a recurrence rather than repeatedly rerun blindly.
 - Expanded visual review confirmed the large-font drawing word breaks and crowded filter label controls. Filter confirmation is now a named check icon beside the tabs, visible on opening without scrolling; explicit all/none actions follow the label checkboxes instead of hiding them. The label viewport adapts to the lower sheet. Native capture checks confirmation visibility.
-- Production layout inputs are frozen at `8abe4d8` for the next complete qualification: fitted drawing paper/compact tools and top-of-sheet filter confirmation. No failed lane is waived; a new full green run and rendered inspection are still required before publication.
+- Run `40707019101` exposed a real filter-row regression: adding the confirmation icon changed Android baseline alignment and clipped the text tabs. The row now explicitly disables baseline alignment and vertically centres every child; the native unclipped-target assertions are unchanged.
+- Bootstrap diagnostics established the Android36 blocker: the **system launcher** showed “Quickstep isn't responding” over the previously published baseline. A strict fixture guard may close that exact system dialog once; package/title/resource ID/enabled/clickable/bounds are checked. A MyNotes ANR is never dismissed or accepted, and the release UI and all tests must still pass. No emulator/test reruns are added.
+- Complete qualification and fresh rendered inspection remain required before publication.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 
 ## Important limits

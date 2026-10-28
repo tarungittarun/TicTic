@@ -1,6 +1,6 @@
 # MyNotes 0.10 — interaction repair
 
-Status: candidate 0.10.0 (11), classifier correction freshly qualified and approved for gated publication. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
+**Published: MyNotes 0.10.0 (11).** [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.10.0-11/MyNotes-v0.10.0-11.apk). [Final publication run40642752968](https://github.com/tarungittarun/TicTic/actions/runs/40642752968) passed all required gates and all 21 Android lanes. Earlier pending/failure statements below are the investigation history; none was waived.
 
 ## Device report and evidence boundary
 
@@ -61,3 +61,7 @@ Run40639953784 blocked publication because API26 selected `Alpha bravo` when the
 ## Fresh classifier-corrected qualification
 
 [Run40641156198](https://github.com/tarungittarun/TicTic/actions/runs/40641156198), source `019459a9db566a5df646c315062e1a9f7c90e59f`, passed all 21 Android lanes and required source/domain/lint/APK gates. All six full resource profiles passed **123/123**, including the exact-word/numeric-line native selection checks and API36 dark/0.85 font. New source-pinned captures were inspected and the 17-page runtime PDF regenerated. Approval now pins only this corrected source and run. The failed publication was not bypassed; a fresh complete gated publication run is required.
+
+## Immutable delivery
+
+Final source `07fb72edff13aca5eca49ab6e410634bdcd052e0`; 66522692 bytes; SHA-256 `2ffc9457ee3ac0f6508d26981e60245cff9afebcfb1bd94e0db9475adb2aeb03`. Publication and acceptance jobs succeeded. Fresh classifier-corrected qualification and final publication both pass the strict native word/numeric-line selection checks and 123/123 cases in all six full-resource profiles. Existing package/certificate and schema are unchanged; versionCode11 installs over code10 without clearing data. Physical Motorola confirmation and exact alarm timing are not certified.

@@ -1,5 +1,21 @@
 # MyNotes — install and device acceptance guide
 
+## Current release: 0.10.0 (11) — interaction repair
+
+[**Download APK**](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.10.0-11/MyNotes-v0.10.0-11.apk) · [checksum](../releases/MyNotes-v0.10.0-11.apk.sha256) · [receipt](../releases/MyNotes-v0.10.0-11.apk.release.json). Install over the existing app; **do not uninstall or clear data**.
+
+- **+ / Add to note:** Diagram, Scan image, Record voice, Reminder.
+- **Palette:** Colour only. **Tag:** Labels directly.
+- **More:** Share, Export PDF, conversion/checklist editing; no note-level Copy/Trash. Long-press cards in the notes list for Trash or More → Copy. Native selected-text copy/paste remains available inside notes.
+- **Reminder chip:** distinct bell/date surface outside note text; tap to edit date/time, X to clear. Notification blocking is explained. Ordinary saves no longer cancel overdue inexact alarms or reschedule unchanged future alarms. Android/Doze/OEM delays and force-stop limits still apply.
+- **Selection:** automatic smart expansion and select-all-on-focus disabled; native handles and manual Select All retained.
+- **Library/Filter:** active panel mounted into fresh scroll state; repeated navigation must retain Settings without restart.
+
+[Final publication run40642752968](https://github.com/tarungittarun/TicTic/actions/runs/40642752968) passed all 21 Android lanes and required gates. All six complete resource variants passed **123/123**, including API36 dark/0.85 font. Source-pinned actual captures were reviewed in run40641156198 after an earlier API26 selection expansion blocked publication. See [investigation/outcomes](INTERACTION-REPAIR-v0.10.md). This is not physical Motorola/TalkBack/thermal or exact-time certification.
+
+## Previous 0.9 release and paragraph checks
+
+
 
 ## 0.9 practical UX check — not replaced by automated totals
 

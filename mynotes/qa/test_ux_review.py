@@ -25,6 +25,16 @@ class RenderedUxPublicationContracts(unittest.TestCase):
     def test_old_and_new_release_creation_names_have_bounded_coordinates(self):
         for attribute in ['text="+ Text"','content-desc="New text note"']:
             self.assertEqual((25,30),coordinates(f'<hierarchy><node {attribute} enabled="true" bounds="[10,20][40,40]"/></hierarchy>','+ Text'))
+    def test_every_synthetic_scene_is_collected_and_persisted(self):
+        import re
+        from mynotes.tools.ci.persist_ux import SCENES
+        root=Path(__file__).resolve().parents[1]
+        script=(root/'tools/ci/android_lane.sh').read_text()
+        collected=set(re.search(r'for scene in ([^;]+); do',script).group(1).split())
+        captured=set(re.findall(r'screenshot\("([a-z0-9-]+)"',(root/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()))
+        self.assertEqual(SCENES,collected)
+        self.assertTrue(captured <= collected,captured-collected)
+        self.assertTrue({'voice-inbox','drawing','filters-labels','backgrounds'} <= captured)
     def test_renderer_contains_real_raster_and_input_dispatch_checks(self):
         source=(Path(__file__).resolve().parents[1]/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
         for evidence in ['instrumentation.sendPointerSync','layout.draw(canvas)','pixels.getPixel','getLineTop(line)','getLineBottom(line)','takeScreenshot()','format-keyboard','HeadingTypingExtendsAndEnterReturnsToNormalText']:

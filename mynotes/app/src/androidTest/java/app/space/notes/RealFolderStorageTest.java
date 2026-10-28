@@ -50,4 +50,23 @@ public class RealFolderStorageTest {
  private android.view.View hint(android.view.View view,String hint){if(view instanceof android.widget.EditText && hint.contentEquals(((android.widget.EditText)view).getHint()))return view;if(view instanceof android.view.ViewGroup){android.view.ViewGroup group=(android.view.ViewGroup)view;for(int i=0;i<group.getChildCount();i++){android.view.View found=hint(group.getChildAt(i),hint);if(found!=null)return found;}}return null;}
  private void removeFixture(java.io.File file){java.io.File[] children=file.listFiles();if(children!=null)for(java.io.File child:children)removeFixture(child);file.delete();}
  @After public void cleanup()throws Exception{if(tree!=null && (DocumentsContract.getTreeDocumentId(tree).equals("primary:Documents/"+folder) || DocumentsContract.getTreeDocumentId(tree).equals("home:"+folder))){DocumentsContract.deleteDocument(context.getContentResolver(),DocumentsContract.buildDocumentUriUsingTree(tree,DocumentsContract.getTreeDocumentId(tree)));for(UriPermission permission:context.getContentResolver().getPersistedUriPermissions())if(permission.getUri().equals(tree))context.getContentResolver().releasePersistableUriPermission(tree,(permission.isReadPermission()?Intent.FLAG_GRANT_READ_URI_PERMISSION:0)|(permission.isWritePermission()?Intent.FLAG_GRANT_WRITE_URI_PERMISSION:0));}}
+ @Test public void fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox()throws Exception{
+  java.io.File fixture=new java.io.File(context.getCacheDir(),"audio-archive-native-"+UUID.randomUUID());assertTrue(fixture.mkdir());Context isolated=new ContextWrapper(context){@Override public Context getApplicationContext(){return this;}@Override public java.io.File getFilesDir(){return fixture;}};
+  Uri destination=null;try{
+   VoiceFiles voices=new VoiceFiles(isolated);String first=UUID.randomUUID().toString(),second=UUID.randomUUID().toString();
+   for(String id:Arrays.asList(first,second))try(java.io.RandomAccessFile wave=new java.io.RandomAccessFile(voices.audio(id),"rw")){wave.setLength(52);app.space.notes.domain.PcmWave.header(wave,8);wave.seek(44);wave.write(new byte[]{1,2,3,4,5,6,7,8});}
+   voices.result(first,"ಕನ್ನಡ transcript","Ready","original words","Conservative punctuation");voices.noteCreated(first);
+   Note note=Note.create(1).edit("Audio backup fixture","Library ಕನ್ನಡ retained",2);List<Note> notes=Collections.singletonList(note);
+   destination=DocumentsContract.createDocument(context.getContentResolver(),DocumentsContract.buildDocumentUriUsingTree(tree,rootId),"application/zip","audio-backup-test.zip");assertNotNull(destination);
+   app.space.notes.domain.ArchiveManifest exported=AudioArchiveFiles.write(isolated,destination,notes,null,null);assertEquals(2,exported.recordings.size());
+   try(AudioArchiveFiles.Stage stage=AudioArchiveFiles.inspect(isolated,destination,null,null)){
+    assertEquals(notes,stage.notes);assertArrayEquals(exported.encode(),stage.manifest.encode());assertEquals(52,stage.audio(first).length());assertEquals(52,stage.audio(second).length());
+    byte[] metadata=java.nio.file.Files.readAllBytes(stage.metadata(first).toPath());org.json.JSONObject value=new org.json.JSONObject(new String(metadata,java.nio.charset.StandardCharsets.UTF_8));assertEquals("original words",value.getString("rawText"));assertEquals("ಕನ್ನಡ transcript",value.getString("text"));assertFalse(stage.metadata(second).exists());
+    assertEquals(2,voices.list().size());assertTrue(voices.noteWasCreated(first));assertFalse("Inspection must not suppress a pending source note",voices.noteWasCreated(second));assertFalse(voices.transcript(second).exists());assertEquals("ಕನ್ನಡ transcript",voices.result(first).getString("text"));
+   }
+   java.io.File staging=new java.io.File(fixture,"archive-staging-v1");assertNotNull(staging.listFiles());assertEquals("Discarded preview must leave no temporary recording copies",0,staging.listFiles().length);
+  }finally{if(destination!=null)DocumentsContract.deleteDocument(context.getContentResolver(),destination);removeArchiveFixture(fixture);}
+ }
+ private void removeArchiveFixture(java.io.File file)throws Exception{if(file.isDirectory()){java.io.File[] children=file.listFiles();assertNotNull(children);for(java.io.File child:children)removeArchiveFixture(child);}assertTrue(file.delete());}
+
 }

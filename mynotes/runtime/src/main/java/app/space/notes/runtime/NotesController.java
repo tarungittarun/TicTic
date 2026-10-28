@@ -714,11 +714,11 @@ public final class NotesController {
         prepared=null;LinearLayout content=scrollContent("Backup & restore");pageBack=this::renderStorage;
         content.addView(text("A complete note backup includes text, checklists, diagrams, images, drawings, styles and folder placement.",16));
         settingRow(content,"Export backup","Choose a local file. Success is reported only after complete readback verification.",host::exportBackup);
-        settingRow(content,"Import backup","Review a merge first. Existing notes are never silently replaced or deleted.",host::importBackup);
+        settingRow(content,"Import backup","Choose a backup or exported .mynote.json file. Review a merge before anything is saved.",host::importBackup);
         settingRow(content,"Previous snapshot","Recover the checkpoint from before the latest restore or open-library operation.",()->prepareImport(null,false,true));
         content.addView(text("Backups are readable JSON, not encrypted. Original recordings are separate — export them from Voice inbox.",14));
         LinearLayout details=section(content,"Backup details");details.addView(text("Use the local Internal storage/SD-card provider. The current portable backup limit is 8 MiB, checked on export and import. Images are copied into notes at a bounded resolution; an addition that would break a complete verified backup is refused. Larger libraries need a future streaming format.",14));
-        details.addView(text("Import previews a merge: identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing the same conflict copy does not duplicate it. The previous snapshot is merged too, never used to delete newer work. Keep the source and old installation until the restored result is verified.",14));
+        details.addView(text("Backup envelopes verify a checksum. Visible per-note files are schema-validated (not encrypted or signed). Import previews a merge: identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing the same conflict copy does not duplicate it. The previous snapshot is merged too, never used to delete newer work. Keep the source and old installation until the restored result is verified.",14));
     }
 
     public void exportBackup(android.net.Uri uri) {

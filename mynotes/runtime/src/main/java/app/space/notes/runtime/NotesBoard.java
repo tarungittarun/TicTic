@@ -41,8 +41,8 @@ public final class NotesBoard extends RecyclerView {
     private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
     private TextView label(int size){TextView v=new TextView(getContext());v.setTextSize(size);return v;}
     private final class Holder extends ViewHolder {
-        final TextView title,body,tags;final LinearLayout box;
-        Holder(LinearLayout box,TextView title,TextView body,TextView tags){super(box);this.box=box;this.title=title;this.body=body;this.tags=tags;}
+        final TextView title,body,tags;final LinearLayout box;final FrameLayout preview;
+        Holder(LinearLayout box,TextView title,TextView body,TextView tags,FrameLayout preview){super(box);this.box=box;this.title=title;this.body=body;this.tags=tags;this.preview=preview;}
     }
     private final class BoardAdapter extends Adapter<Holder> {
         @Override public int getItemCount(){return rows.size();}
@@ -52,15 +52,15 @@ public final class NotesBoard extends RecyclerView {
             RecyclerView.LayoutParams lp=new RecyclerView.LayoutParams(-1,-2);lp.setMargins(dp(4),dp(4),dp(4),dp(4));box.setLayoutParams(lp);
             TextView title=label(type==0?13:18),body=label(15),tags=label(11);
             title.setTypeface(null,Typeface.BOLD);title.setMaxLines(3);title.setEllipsize(TextUtils.TruncateAt.END);tags.setMaxLines(3);tags.setEllipsize(TextUtils.TruncateAt.END);box.addView(title);
-            if(type!=0){body.setMaxLines(7);body.setEllipsize(TextUtils.TruncateAt.END);box.addView(body);box.addView(tags);}
-            return new Holder(box,title,body,tags);
+            FrameLayout preview=null;if(type!=0){preview=new FrameLayout(getContext());preview.setVisibility(GONE);box.addView(preview,new LinearLayout.LayoutParams(-1,dp(140)));body.setMaxLines(7);body.setEllipsize(TextUtils.TruncateAt.END);box.addView(body);box.addView(tags);}
+            return new Holder(box,title,body,tags,preview);
         }
         @Override public void onBindViewHolder(Holder h,int position){
             Object row=rows.get(position);
             if(h.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams)
                 ((StaggeredGridLayoutManager.LayoutParams)h.itemView.getLayoutParams()).setFullSpan(row instanceof String);
             if(row instanceof String){h.title.setText((String)row);h.title.setTextColor(design.muted);h.box.setBackground(null);h.box.setOnClickListener(null);h.box.setOnLongClickListener(null);return;}
-            Note n=(Note)row;boolean chosen=selection.contains(n.id);int ink=n.color==0?design.ink:Color.parseColor(dark?"#F5F5F5":"#202124");
+            Note n=(Note)row;if(h.preview!=null){h.preview.removeAllViews();h.preview.setVisibility(n.images.isEmpty()?GONE:VISIBLE);if(!n.images.isEmpty())h.preview.addView(new NoteImageView(getContext(),n.images.get(0)),new FrameLayout.LayoutParams(-1,-1));}boolean chosen=selection.contains(n.id);int ink=n.color==0?design.ink:Color.parseColor(dark?"#F5F5F5":"#202124");
             GradientDrawable bg=new GradientDrawable();bg.setColor(n.color==0?design.surface:colour(n.color,dark));bg.setCornerRadius(dp(16));
             bg.setStroke(dp(chosen?2:1),chosen?design.accent:design.outline);h.box.setBackground(n.background==0?bg:new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{new NoteBackground(n.background,n.color==0?design.surface:colour(n.color,dark),dark,getResources().getDisplayMetrics().density),border(chosen)}));
             h.title.setText((chosen?"✓  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));

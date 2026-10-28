@@ -11,7 +11,7 @@ public final class DiagramRenderer {
     public static void draw(Canvas canvas,Diagram diagram,boolean dark,String selected,NotesDesign design) {
         Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setStrokeWidth(3);int ink=design==null?Color.parseColor(dark?"#F1F3F4":"#202124"):design.ink;
         for(Diagram.Edge edge:diagram.edges){
-            Diagram.Node a=diagram.find(edge.from),b=diagram.find(edge.to);float ax=a.x+a.width/2f,ay=a.y+a.height/2f,bx=b.x+b.width/2f,by=b.y+b.height/2f;
+            Diagram.Node a=diagram.find(edge.from),b=diagram.find(edge.to);float ax=centerX(a),ay=centerY(a),bx=centerX(b),by=centerY(b);
             float dx=bx-ax,dy=by-ay;
             if(dx==0 && dy==0)continue;
             float[] start=boundary(a,dx,dy),end=boundary(b,-dx,-dy);float angle=(float)Math.atan2(end[1]-start[1],end[0]-start[0]);
@@ -31,10 +31,12 @@ public final class DiagramRenderer {
             drawText(canvas,node.text,node.x+inset,node.y+8,node.width-2*inset,node.height-16,ink,24);
         }
     }
+    private static float centerX(Diagram.Node n){return n.x+n.width/(n.shape.equals("rightTriangle")?3f:2f);}
+    private static float centerY(Diagram.Node n){return n.y+n.height*(n.shape.equals("rightTriangle")?2f/3:.5f);}
     public static float[] boundary(Diagram.Node n,float dx,float dy){
-        float cx=n.x+n.width/2f,cy=n.y+n.height/2f;
+        float cx=centerX(n),cy=centerY(n);
         if(dx==0 && dy==0)return new float[]{cx,cy};
-        if(!java.util.Arrays.asList("process","decision","ellipse","terminator","data","text").contains(n.shape)){
+        if(!java.util.Arrays.asList("process","decision","ellipse","text").contains(n.shape)){
             float[] points=shape(n,new RectF(n.x,n.y,n.x+n.width,n.y+n.height)).approximate(.25f);float nearest=Float.POSITIVE_INFINITY;
             for(int i=3;i<points.length;i+=3){float ax=points[i-2],ay=points[i-1],ex=points[i+1]-ax,ey=points[i+2]-ay;float cross=dx*ey-dy*ex;if(Math.abs(cross)<.0001f)continue;float t=((ax-cx)*ey-(ay-cy)*ex)/cross,u=((ax-cx)*dy-(ay-cy)*dx)/cross;if(t>=0 && u>=0 && u<=1)nearest=Math.min(nearest,t);}
             if(!Float.isInfinite(nearest))return new float[]{cx+dx*nearest,cy+dy*nearest};

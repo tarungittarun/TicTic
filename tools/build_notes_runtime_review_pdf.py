@@ -6,6 +6,8 @@ Usage: python3 tools/build_notes_runtime_review_pdf.py --run RUN_ID
 import argparse
 import hashlib
 import json
+import re
+import subprocess
 from pathlib import Path
 from xml.sax.saxutils import escape
 from reportlab.lib.colors import HexColor
@@ -38,6 +40,9 @@ def build(run, output):
     assert manifest['run'] == run
     source = manifest['source']
     assert len(source) == 40
+    gradle = subprocess.check_output(['git', 'show', source+':mynotes/app/build.gradle'], cwd=ROOT, text=True)
+    version = re.search(r"versionName '([^']+)'", gradle).group(1)
+    code = re.search(r'versionCode (\d+)', gradle).group(1)
     records = {(r['lane'], r['scene']): r for r in manifest['images']}
     for r in records.values():
         path = folder/r['path']
@@ -48,7 +53,7 @@ def build(run, output):
     approved = all_green and approval.get('reviewed_source') == source and str(approval.get('review_run')) == run
     status = 'Reviewed candidate' if approved else 'Pending review / not release approval'
     c = canvas.Canvas(str(output), pagesize=landscape(A4), pageCompression=1)
-    c.setTitle('MyNotes 0.9 - Paper & Ink / actual runtime overview')
+    c.setTitle(f'MyNotes {version} - Paper & Ink / actual runtime overview')
     c.setAuthor('MyNotes project')
     page = 0
 
@@ -74,9 +79,9 @@ def build(run, output):
         c.drawImage(ImageReader(str(folder/r['path'])), x+(width-dw)/2, y+height-dh, dw, dh, preserveAspectRatio=True, mask='auto')
         para(c, caption, x, y-7, width, 32, SMALL)
 
-    heading('Paper & Ink', 'MyNotes 0.9.0 (10) - a content-first redesign, with practical evidence instead of a mockup-only promise.')
+    heading('Paper & Ink', f'MyNotes {version} ({code}) - actual runtime captures and bounded interaction evidence.')
     image('full-api34', 'editor', 37, 90, 235, 400, 'One writing surface. Optional title. Native caret and selection.')
-    para(c, '<b>Less interface. More note.</b><br/><br/>Warm paper and charcoal ink; honey accents only where they help. A shared visual language across the editor, cards, diagrams and settings.<br/><br/><b>Context, not a button wall.</b><br/>Capture, formatting, organisation and note actions appear when needed. Existing capabilities stay available.<br/><br/><b>Paragraphs must behave like paragraphs.</b><br/>H1/H2 remeasure the native text layout. Following lines move naturally; composing a word and pressing Enter are tested.', 310, 470, 475, 260)
+    para(c, '<b>Less interface. More note.</b><br/><br/>Warm paper and charcoal ink; honey accents only where they help. A shared visual language across the editor, cards, diagrams and settings.<br/><br/><b>Context, not a button wall.</b><br/>Add, formatting and note actions appear when needed. Colour and labels have dedicated named controls in the interaction repair. Copy/Trash belong to list selection.<br/><br/><b>Paragraphs must behave like paragraphs.</b><br/>H1/H2 remeasure the native text layout. Following lines move naturally; composing a word and pressing Enter are tested.', 310, 470, 475, 260)
     para(c, '<b>Evidence boundary</b><br/>These are real emulator screen captures from synthetic fixtures, not photographs of a physical phone and not signed-release UI captures. Signed APK identity/update checks are separate. Green case counts do not automatically approve the look or first-use experience.<br/><br/>The old 0.8 functional build was published, but the user rejected its UI. This review replaces that acceptance claim; final device/user experience is still decisive.', 310, 194, 475, 130, SMALL)
     c.showPage()
 
@@ -134,6 +139,13 @@ def build(run, output):
     for i, (scene, caption) in enumerate((('capture', 'Plus: add to this note'), ('palette', 'Colour: names and a selected outline'), ('labels', 'Labels: reusable organisation'))):
         image('full-api34', scene, 35+i*259, 88, 247, 403, caption)
     c.showPage()
+
+    if ('full-api34', 'add-reminder') in records:
+        heading('Add, do not hide; navigate without restarting', 'Reminder belongs under Plus. Copy/Trash are list actions. Repeated native navigation must still reach Settings.')
+        image('full-api34', 'add-reminder', 35, 88, 247, 403, 'Plus: reminder alongside capture and diagram')
+        image('night-api34', 'settings-after-navigation', 294, 88, 247, 403, 'Dark: Settings after repeated sheet/page navigation')
+        image('full-api36', 'settings-after-navigation', 553, 88, 247, 403, 'Android16 / 0.85 font: Settings without restarting')
+        c.showPage()
 
     heading('Landscape and tablet are real layouts', 'The landscape editor requests no fullscreen/extract IME. Narrow writing columns and bounded sheets avoid stretching every control across a tablet.')
     image('landscape-api34', 'editor-keyboard', 35, 280, 370, 205, 'Landscape with the actual keyboard visible')

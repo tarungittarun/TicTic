@@ -54,6 +54,10 @@ Run [40615854257](https://github.com/tarungittarun/TicTic/actions/runs/406158542
 
 Two 70-minute component soaks are tracked separately: original redesigned text/layout source `9114bec` (run40610708876), and source `15ae085` (run40614747195). The latter has equivalent TextStyles/native exercise/storage/ML component inputs, but precedes the final toolbar viewport adjustment. Neither is described as 70 minutes of physical gestures or exact-final-UI navigation.
 
+The original run40610708876 completed successfully: API26 **4,200,310 ms /3,137 editor/native/durable cycles**, warm/peak PSS **205,664 /217,561 KiB**; API35 **4,201,116 ms /2,082 cycles**, **87,504 /137,861 KiB**. Original WAV SHA-256 stayed `dcfea5712c43a43ba7ae8083afb39d36993e5a69c46e88b68aaa72b65cb615bb`. These are measurements, not a leak-free, smooth-frame, battery or acoustic-accuracy claim.
+
+The stricter writing-viewport assertion then correctly rejected the first compact-toolbar implementation. Native measurements showed only **5 visible body pixels against a 77px native line** in landscape: the optional title still occupied the short scroll viewport. Merely requesting TextView bringPointIntoView did not scroll the containing document. Follow-up run [40618428108](https://github.com/tarungittarun/TicTic/actions/runs/40618428108), source `7d54ad298f24e7f59a1cdbe24c23b9da4fa85720`, now calculates the actual focused caret line in document coordinates and scrolls that line into the resized viewport. The assertion remains unchanged; final Android evidence is still required.
+
 ## Approval checklist — not automatically satisfied by green CI
 
 - [ ] Final-source light, dark, 200% font, landscape and tablet images inspected.

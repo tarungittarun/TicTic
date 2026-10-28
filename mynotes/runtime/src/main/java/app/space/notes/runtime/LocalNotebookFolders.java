@@ -47,10 +47,10 @@ public final class LocalNotebookFolders {
   Uri parent=directory(folder);String name=fileName(note.id);Entry existing=find(parent,name);byte[] payload=DocumentCodec.encode(Collections.singletonList(note));
   if(existing!=null){owned(existing,note.id);if(Arrays.equals(payload,read(existing.uri)))return;}
   // Copy/verify before changing any current file. A failed rename leaves recoverable copies.
-  Uri temporary=DocumentsContract.createDocument(resolver,parent,"application/json",".mynotes-pending-"+UUID.randomUUID()+".tmp");if(temporary==null)throw new IOException("Cannot prepare the note file");
+  Uri temporary=DocumentsContract.createDocument(resolver,parent,"application/json",".mynotes-pending-"+name+"-"+UUID.randomUUID()+".tmp");if(temporary==null)throw new IOException("Cannot prepare the note file");
   try(OutputStream out=resolver.openOutputStream(temporary,"w")){if(out==null)throw new IOException("Cannot write the note file");out.write(payload);out.flush();}
   if(!Arrays.equals(payload,read(temporary)))throw new IOException("Note file readback mismatch; original retained");Uri previous=null;
-  if(existing!=null){previous=DocumentsContract.renameDocument(resolver,existing.uri,".mynotes-previous-"+UUID.randomUUID()+".tmp");if(previous==null)throw new IOException("Cannot preserve the previous note file");}
+  if(existing!=null){previous=DocumentsContract.renameDocument(resolver,existing.uri,".mynotes-previous-"+name+"-"+UUID.randomUUID()+".tmp");if(previous==null)throw new IOException("Cannot preserve the previous note file");}
   Uri renamed=DocumentsContract.renameDocument(resolver,temporary,name);Entry current=find(parent,name);if(renamed==null || current==null || !current.uri.equals(renamed) || !Arrays.equals(payload,read(renamed)))throw new IOException("New note file could not be verified; previous copy and recovery retained");
   if(previous!=null && !DocumentsContract.deleteDocument(resolver,previous))throw new IOException("New note verified; an old recovery file remains in this folder");
 
@@ -60,7 +60,7 @@ public final class LocalNotebookFolders {
  public void reconcile(List<Note> notes)throws Exception{
   List<String> folders=list();for(Note note:notes)if(!note.folder.isEmpty() && !folders.contains(note.folder)){Entry existing=find(root,note.folder);if(existing==null)create(note.folder);directory(note.folder);folders=list();}
   List<String> locations=new ArrayList<>(folders);locations.add("");Map<String,List<Entry>> catalog=new LinkedHashMap<>();for(String folder:locations)catalog.put(folder,children(directory(folder)));
-  for(Note note:notes){String name=fileName(note.id);boolean placed=!note.folder.isEmpty();for(List<Entry> entries:catalog.values())for(Entry entry:entries)if(entry.name.equals(name))placed=true;if(!placed)continue;
+  for(Note note:notes){String name=fileName(note.id);boolean placed=!note.folder.isEmpty();for(List<Entry> entries:catalog.values())for(Entry entry:entries)if(entry.name.equals(name) || entry.name.startsWith(".mynotes-pending-"+name+"-") || entry.name.startsWith(".mynotes-previous-"+name+"-"))placed=true;if(!placed)continue;
    write(note.folder,note);for(Map.Entry<String,List<Entry>> location:catalog.entrySet())if(!location.getKey().equalsIgnoreCase(note.folder))for(Entry entry:location.getValue())if(entry.name.equals(name)){owned(entry,note.id);if(!DocumentsContract.deleteDocument(resolver,entry.uri))throw new IOException("Destination verified, but an old note copy remains. Retry save to finish moving.");}
   }
  }

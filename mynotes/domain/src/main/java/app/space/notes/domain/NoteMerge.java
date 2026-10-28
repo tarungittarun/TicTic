@@ -19,7 +19,7 @@ public final class NoteMerge {
             && a.updatedAt==b.updatedAt && a.reminderAt==b.reminderAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
             && a.archived==b.archived && a.color==b.color && structure(a).equals(structure(b));
     }
-    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0;}
+    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0 && n.images.isEmpty();}
     private static String structure(Note n) {
         if(plain(n))return "";
         StringBuilder out=new StringBuilder(n.checklist+":"+n.hideChecked+":"+n.items.size()+"#");
@@ -32,6 +32,7 @@ public final class NoteMerge {
         if(!n.voiceSources.isEmpty()){out.append("voice:");for(String source:n.voiceSources)out.append(source).append(';');}
         if(!n.folder.isEmpty())out.append("folder:").append(n.folder.length()).append(':').append(n.folder);
         if(n.background!=0)out.append("background:").append(n.background).append(';');
+        for(NoteImage image:n.images){String value=image.fingerprint();out.append("image:").append(value.length()).append(':').append(value);}
         return out.toString();
     }
     private static Note copy(Note n,String id) {

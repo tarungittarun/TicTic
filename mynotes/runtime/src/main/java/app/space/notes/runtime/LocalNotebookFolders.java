@@ -40,7 +40,7 @@ public final class LocalNotebookFolders {
  private static String fileName(String id)throws Exception{
   byte[] digest=MessageDigest.getInstance("SHA-256").digest(id.getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder value=new StringBuilder("note-");for(byte b:digest)value.append(String.format(Locale.ROOT,"%02x",b&255));return value+".mynote.json";
  }
- private byte[] read(Uri uri)throws IOException{try(InputStream in=resolver.openInputStream(uri)){if(in==null)throw new IOException("Cannot read note file");return LocalTreeBackend.readBytes(in);}}
+ private byte[] read(Uri uri)throws IOException{try(InputStream in=resolver.openInputStream(uri)){if(in==null)throw new IOException("Cannot read note file");ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1){if(out.size()+count>BackupCodec.MAX_BYTES)throw new IOException("Note file is too large; files left untouched");out.write(buffer,0,count);}return out.toByteArray();}}
  private Note owned(Entry entry,String id)throws Exception{if(DocumentsContract.Document.MIME_TYPE_DIR.equals(entry.mime))throw new IOException("A directory occupies the note file name");List<Note> decoded=DocumentCodec.decode(read(entry.uri));if(decoded.size()!=1 || !decoded.get(0).id.equals(id))throw new IOException("A foreign file occupies the note file name; it was not changed");return decoded.get(0);}
  /** Call only after journalling the current library privately. Readback must match before removal. */
  public void write(String folder,Note note)throws Exception{

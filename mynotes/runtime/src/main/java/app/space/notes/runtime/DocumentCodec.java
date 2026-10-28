@@ -16,13 +16,14 @@ public final class DocumentCodec {
         for(Note n:notes) {
             if(!ids.add(n.id))throw new IOException("Duplicate note ID");
             JSONArray items=new JSONArray(),marks=new JSONArray(),labels=new JSONArray(),voices=new JSONArray();
+            JSONArray images=new JSONArray();for(app.space.notes.domain.NoteImage image:n.images)images.put(new JSONObject().put("id",image.id).put("name",image.name).put("mime",image.mime).put("width",image.width).put("height",image.height).put("data",image.data));
             for(String source:n.voiceSources)voices.put(source);
             for(Note.Item item:n.items)items.put(new JSONObject().put("id",item.id).put("text",item.text).put("checked",item.checked).put("depth",item.depth));
             for(Note.Mark mark:n.marks)marks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end));
             for(String label:n.labels)labels.put(label);
             array.put(new JSONObject().put("id",n.id).put("title",n.title)
                 .put("body",n.body).put("createdAt",n.createdAt).put("updatedAt",n.updatedAt)
-                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)).put("voiceSources",voices).put("reminderAt",n.reminderAt).put("folder",n.folder).put("background",n.background));
+                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)).put("voiceSources",voices).put("reminderAt",n.reminderAt).put("folder",n.folder).put("background",n.background).put("images",images));
         }
         return new JSONObject().put("version",6).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
     }
@@ -53,10 +54,11 @@ public final class DocumentCodec {
                 for(int j=0;j<tags.length();j++)labels.add(tags.getString(j));
             }
             if(version>=4){JSONArray sources=n.getJSONArray("voiceSources");for(int j=0;j<sources.length();j++)voices.add(sources.getString(j));}
+            List<app.space.notes.domain.NoteImage> images=new ArrayList<>();JSONArray media=version>=6?n.optJSONArray("images"):null;if(media!=null){if(media.length()>8)throw new IOException("Too many images in note");for(int j=0;j<media.length();j++){JSONObject image=media.getJSONObject(j);images.add(new app.space.notes.domain.NoteImage(image.getString("id"),image.getString("name"),image.getString("mime"),image.getInt("width"),image.getInt("height"),image.getString("data")));}}
             Note note=new Note(n.getString("id"),n.getString("title"),n.getString("body"),
                 n.getLong("createdAt"),n.getLong("updatedAt"),n.getLong("deletedAt"),
                 n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),version>=2 && n.getBoolean("checklist"),
-                version>=2 && n.getBoolean("hideChecked"),items,marks,labels,version>=3?decodeDiagram(n.getJSONObject("diagram")):Diagram.empty(),voices,version>=5?n.getLong("reminderAt"):0,version>=6?n.getString("folder"):"",version>=6?n.getInt("background"):0);
+                version>=2 && n.getBoolean("hideChecked"),items,marks,labels,version>=3?decodeDiagram(n.getJSONObject("diagram")):Diagram.empty(),voices,version>=5?n.getLong("reminderAt"):0,version>=6?n.getString("folder"):"",version>=6?n.getInt("background"):0,images);
             if(!ids.add(note.id))throw new IOException("Duplicate note ID; data left untouched");
             notes.add(note);
         }

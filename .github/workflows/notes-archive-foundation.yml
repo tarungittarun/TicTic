@@ -1,4 +1,4 @@
-# Qualification iteration 2: strict streaming ZIP transport plus manifest.
+# Qualification iteration 3: exact executed-case accounting for the archive foundations.
 name: MyNotes archive foundation (JVM only)
 on:
   push:
@@ -24,9 +24,20 @@ jobs:
       - name: Execute complete pure JVM domain suite without building Android
         working-directory: mynotes
         run: ./gradlew :notes-domain:test --no-daemon --max-workers=2 --console=plain
+      - name: Verify every discovered JVM method executed once without skips
+        if: always()
+        run: |
+          python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/archive-jvm.json
+          python3 - <<'PYCOUNTS'
+          import json
+          value=json.load(open('evidence/archive-jvm.json'))
+          print('::notice title=Executed archive/domain coverage::'+str(value['passed'])+'/'+str(value['expected'])+' passed; missing='+str(len(value['missing']))+'; duplicates='+str(len(value['duplicates']))+'; failures='+str(len(value['failures'])))
+          PYCOUNTS
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-archive-foundation-jvm
-          path: mynotes/domain/build/test-results/test/
+          path: |
+            mynotes/domain/build/test-results/test/
+            evidence/archive-jvm.json
           if-no-files-found: warn

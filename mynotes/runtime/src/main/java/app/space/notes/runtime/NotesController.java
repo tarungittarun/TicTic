@@ -599,10 +599,12 @@ public final class NotesController {
         List<Note> chosen=propertyTargets();if(chosen.isEmpty())return;
         title=null;body=null;search=null;querySequence++;clearPage();header("Note colour",this::returnToNoteOrHome);
         ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        for(int row=0;row<4;row++){
+        // Large system text needs wider cells: names must not break in the middle of a word.
+        int columns=context.getResources().getConfiguration().fontScale>=1.5f?2:3;
+        for(int row=0;row<(NotesBoard.NAMES.length+columns-1)/columns;row++){
             LinearLayout line=new LinearLayout(context);
-            for(int col=0;col<3;col++){
-                final int colour=row*3+col;Button pick=button(NotesBoard.NAMES[colour],()->{
+            for(int col=0;col<columns;col++){
+                final int colour=row*columns+col;if(colour>=NotesBoard.NAMES.length)break;Button pick=button(NotesBoard.NAMES[colour],()->{
                     captureUndo(chosen,false);for(Note old:chosen){Note current=find(old.id);if(current!=null)replace(current.properties(colour,current.labels,System.currentTimeMillis()));}
                     queueSave();returnToNoteOrHome();log("colour","applied count="+chosen.size()+" colour="+colour);
                 });

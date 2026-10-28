@@ -6,7 +6,9 @@
 
 Repair baseline run [40771889450](https://github.com/tarungittarun/TicTic/actions/runs/40771889450), source `f86e2fc`, passed **all 21 Android lanes**, including **156 unique Android cases** and the retained large-font drawing assertion. Initial source/JVM/build/lint/signature gates passed. **The overall workflow failed its acceptance summary because new rendered approval was pending; it did not publish.** The persisted 186 synthetic captures do not certify the user's Motorola, SD provider, TalkBack or acoustic recording conditions.
 
-The subsequent folder/Settings/voice parent-navigation fixes and one new native journey are being qualified in [40774476746](https://github.com/tarungittarun/TicTic/actions/runs/40774476746): **157 unique Android / 114 JVM cases planned**, not yet a success claim. Latest local root/Notes gates pass **509 / 119**. Current-source screenshot review, updated overview and every publication gate remain required.
+The subsequent folder/Settings/voice parent fixes and one new native journey were reviewed on source `eebf780`. Run40774476746 failed eight lanes solely on the expanded folder fixture's hidden-caption lookup. Correcting that lookup let every folder journey pass in run40777034325, but that run was still **not accepted: 20/21 lanes**, with tablet failing an existing native heading/Undo metrics journey at formatting-control visibility.
+
+Replacement [40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571), source `e27dc7a`, explicitly separates that metrics journey from asynchronous new-note IME startup and adds missing-control state/screenshot capture. **157 unique Android / 114 JVM cases, 1278 Android executions are planned**, not a success claim. App inputs remain equivalent to the five-profile rendered review; the fixture/readiness changes waive no metric, Undo, reopen, folder or visibility assertion. Latest local root/Notes gates pass **509 / 119**. Every technical/publication gate is still required.
 
 ## Latest published: 0.11.0(12) — physically rejected, not repair acceptance
 

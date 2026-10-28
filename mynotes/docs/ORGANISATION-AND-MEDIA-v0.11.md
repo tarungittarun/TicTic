@@ -32,7 +32,8 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Run `40700836090` (`d15a569`): **20/21 Android lanes passed**; landscape passed 143/144 methods. The pin test tried the header during writing-IME viewport collapse; it now hides the IME before testing header actions. The expanded rendered journey itself passed all six full profiles.
 - Its new scene files were not collected because the shell collector still had the old scene list. The collector is now synchronized with the persistence allowlist, with a source self-test preventing silent omissions.
 - Drawing layout review also identified text-heavy narrow controls at large font and a paper taller than its touch viewport in landscape. Brush/eraser and stroke history now use named icons; the paper is aspect-fitted inside the available viewport. Native capture asserts the complete paper bounds and unbroken Save drawing text.
-- A fresh exact-source qualification is required; these failures are not waived.
+- Run `40703890515` (`2607d47`): 20 Android lanes passed, including corrected landscape pin and the expanded scene journey. Android36 failed **before** candidate installation/instrumentation: the previously published baseline New note control was not found after eight bounded UI lookups. The cause is not established. Bootstrap XML/focus annotations and a synthetic failed-bootstrap screenshot are now retained to diagnose a recurrence rather than repeatedly rerun blindly.
+- A fresh exact-source qualification is required for the drawing viewport changes; these failures are not waived.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 
 ## Important limits

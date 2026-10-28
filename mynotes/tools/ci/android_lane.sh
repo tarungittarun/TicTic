@@ -7,12 +7,14 @@ mkdir -p "$OUT"
 exec > >(tee "$OUT/lane.log") 2>&1
 set -x
 collect() {
-  for scene in filters-view filters-sort filters-labels library backgrounds background-editor drawing image-editor voice-inbox about add-reminder settings-after-navigation search-keyboard numeric-h1 numeric-h2 home editor editor-keyboard format format-keyboard capture palette labels diagram checklist settings storage; do
+  for scene in bootstrap-failure filters-view filters-sort filters-labels library backgrounds background-editor drawing image-editor voice-inbox about add-reminder settings-after-navigation search-keyboard numeric-h1 numeric-h2 home editor editor-keyboard format format-keyboard capture palette labels diagram checklist settings storage; do
     timeout 5s adb exec-out run-as app.space.notes.debug cat "files/ux-review/$scene.png" > "$OUT/ux-$scene.png" 2>/dev/null || true
   done
   timeout 15s adb logcat -d -t 500 > "$OUT/logcat.txt" 2>&1 || true
   timeout 15s adb shell dumpsys activity activities > "$OUT/activities.txt" 2>&1 || true
   timeout 15s adb exec-out screencap -p > "$OUT/final-state.png" 2>/dev/null || true
+  # This emulator contains only synthetic upgrade fixtures; retain a failed bootstrap surface.
+  if [[ ! -s "$OUT/instrumentation.txt" && -s "$OUT/final-state.png" ]]; then cp "$OUT/final-state.png" "$OUT/ux-bootstrap-failure.png"; fi
 }
 trap collect EXIT
 failure() {
@@ -22,6 +24,11 @@ failure() {
   python3 -m mynotes.tools.ci.results build --path "$OUT/lane.log" || true
   collect
   python3 -m mynotes.tools.ci.results build --path "$OUT/logcat.txt" || true
+  if [[ -s "$OUT/upgrade-window.xml" ]]; then python3 -m mynotes.tools.ci.results build --path "$OUT/upgrade-window.xml" || true; fi
+  if [[ -s "$OUT/selector-attempt-8-window.txt" ]]; then
+    grep -E 'mCurrentFocus|mFocusedApp|mHasSurface|mViewVisibility' "$OUT/selector-attempt-8-window.txt" > "$OUT/bootstrap-focus.txt" || true
+    python3 -m mynotes.tools.ci.results build --path "$OUT/bootstrap-focus.txt" || true
+  fi
   exit "$status"
 }
 trap 'failure "$?" "$BASH_COMMAND" "$LINENO"' ERR

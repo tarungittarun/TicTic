@@ -177,7 +177,7 @@ public final class NotesController {
     private void renderSettings(){
         persistDraft();editing=null;title=null;body=null;search=null;querySequence++;main.removeCallbacks(filter);storagePage=true;voicePage=false;clearPage();header("Settings");
         ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        settingRow(content,"Storage & recovery","On-device storage, local folders and text backups",this::renderStorage);
+        settingRow(content,"Storage & recovery","On-device storage, local folders and text backups",()->{renderStorage();pageBack=this::renderSettings;});
         settingRow(content,"Home widget","Place your pinned and recent notes on Home",host::requestHomeWidget);
         settingRow(content,"Offline models & licenses","Bundled OCR and English speech. No model downloads.",this::renderModelInfo);
         content.addView(design.heading("Local diagnostics"));
@@ -207,7 +207,7 @@ public final class NotesController {
     private void header(String name,Runnable back){header(name);pageBack=back;}
     private void header(String name) {headerIn(root,name);}
     private void headerIn(LinearLayout parent,String name){
-        LinearLayout bar=tools(parent);bar.addView(icon("Back","back",()->{if(voicePage || ocrPanel)back();else returnToNoteOrHome();}),new LinearLayout.LayoutParams(dp(48),dp(48)));
+        LinearLayout bar=tools(parent);bar.addView(icon("Back","back",this::back),new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView heading=design.heading(name);bar.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
         status=text("",12);status.setTextColor(muted);status.setVisibility(View.GONE);parent.addView(status);
     }
@@ -599,7 +599,7 @@ public final class NotesController {
         row(new String[]{"Cancel"},new Runnable[]{this::returnToNoteOrHome});
     }
     private void renderModelInfo(){
-        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("Offline models & licenses");
+        persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("Offline models & licenses",this::renderSettings);
         TextView details=text("Reading bundled notices…",14);ScrollView scroll=new ScrollView(context);scroll.addView(details);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));row(new String[]{"Back"},new Runnable[]{this::renderStorage});
         disk.execute(()->{StringBuilder value=new StringBuilder("All inference runs locally on CPU. No network permission, platform SpeechRecognizer or model downloader. OCR: Tesseract4Android 4.9.0, tessdata_fast 4.1.0 English/Hindi/Kannada. Speech: Vosk 0.3.75 with bundled English small-en-us-0.15. Accuracy varies: review recognized text against the original. First use installs verified models in private storage; speech needs additional disk/RAM. Microphone is optional and only requested on Record voice. Voice inbox originals are excluded from JSON backup and never automatically deleted.\n\n");try{for(String name:context.getAssets().list("licenses")){value.append("\n\n===== ").append(name).append(" =====\n");try(java.io.InputStream in=context.getAssets().open("licenses/"+name)){java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);value.append(bytes.toString("UTF-8"));}}}catch(Exception e){value.append("Notices could not be read: ").append(e.getMessage());}main.post(()->{if(!closed && details.getParent()!=null)details.setText(value);});});
     }

@@ -12,6 +12,10 @@ public final class NotesActivity extends Activity implements NotesHost {
     private String ocrLanguage="eng",voiceExportId;
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        // The light-navigation XML attribute starts at 27; the decor flag is supported at minSdk 26.
+        boolean light=(getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)!=android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
         if(state!=null){ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");}
         controller=new NotesController(this,this,state);
         setContentView(controller.view());

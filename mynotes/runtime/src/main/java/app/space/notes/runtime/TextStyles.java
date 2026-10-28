@@ -22,6 +22,7 @@ public final class TextStyles {
     public static List<Note.Mark> read(Spanned text) {
         List<Note.Mark> out=new ArrayList<>();
         for(Object span:text.getSpans(0,text.length(),Object.class)) {
+            if((text.getSpanFlags(span)&Spanned.SPAN_COMPOSING)!=0)continue;
             int start=text.getSpanStart(span),end=text.getSpanEnd(span);
             if(start<0 || end<=start || end>text.length())continue;
             if(span instanceof StyleSpan) {

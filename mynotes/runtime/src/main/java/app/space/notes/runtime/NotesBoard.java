@@ -66,7 +66,7 @@ public final class NotesBoard extends RecyclerView {
             String preview=n.plainText();if(!n.diagram.nodes.isEmpty())preview+=(preview.isEmpty()?"":"\n")+"▧ Diagram · "+n.diagram.nodes.size()+" shapes";String excerpt=preview.length()>400?preview.substring(0,400)+"…":preview;android.text.SpannableStringBuilder rich=new android.text.SpannableStringBuilder(excerpt);
             if(!n.checklist)for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(n.marks,n.body)){int end=Math.min(mark.end,Math.min(n.body.length(),excerpt.length()));if(mark.start<end)TextStyles.writeRange(rich,new Note.Mark(mark.type,mark.start,end),0);}h.body.setText(rich);
             h.body.setVisibility(preview.isEmpty()?GONE:VISIBLE);
-            h.tags.setText((n.labels.isEmpty()?"":String.join(" · ",n.labels)+"\n")+DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT).format(new Date(n.updatedAt)));
+            h.tags.setText(String.join(" · ",n.labels));h.tags.setVisibility(n.labels.isEmpty()?GONE:VISIBLE);
             h.box.setContentDescription((chosen?"Selected. ":"")+(n.pinned?"Pinned. ":"")+h.title.getText()+". "+(preview.length()>400?preview.substring(0,400):preview)+". Long press to select.");
             h.box.setOnClickListener(v->listener.open(n));h.box.setOnLongClickListener(v->{listener.select(n);return true;});
         }

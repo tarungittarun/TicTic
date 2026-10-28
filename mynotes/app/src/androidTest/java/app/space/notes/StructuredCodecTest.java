@@ -52,10 +52,15 @@ public class StructuredCodecTest {
         try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("duplicate rows must fail");}catch(IllegalArgumentException expected){ }
     }
     @Test public void androidSpanRoundTripRetainsAllStyles() {
-        SpannableStringBuilder editable=new SpannableStringBuilder("Hello world");List<Note.Mark> source=new ArrayList<>();
-        for(String type:new String[]{"bold","italic","underline","strike","h1","h2"})source.add(new Note.Mark(type,0,5));
+        SpannableStringBuilder editable=new SpannableStringBuilder("Heading one\nHeading two\nHello world");List<Note.Mark> source=new ArrayList<>();
+        source.add(new Note.Mark("h1",0,11));source.add(new Note.Mark("h2",12,23));
+        for(String type:new String[]{"bold","italic","underline","strike"})source.add(new Note.Mark(type,24,29));
         TextStyles.write(editable,source);List<Note.Mark> read=TextStyles.read(editable);assertEquals(6,read.size());
-        for(Note.Mark mark:read){assertEquals(0,mark.start);assertEquals(5,mark.end);}
+        for(Note.Mark mark:read){assertEquals(mark.type.equals("h1")?0:mark.type.equals("h2")?12:24,mark.start);assertEquals(mark.type.equals("h1")?11:mark.type.equals("h2")?23:29,mark.end);}
+    }
+    @Test public void transientKeyboardCompositionIsNotSavedAsUserFormatting(){
+        SpannableStringBuilder text=new SpannableStringBuilder("typing");text.setSpan(new android.text.style.UnderlineSpan(),0,6,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE|android.text.Spanned.SPAN_COMPOSING);assertTrue(TextStyles.read(text).isEmpty());
+        text.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),0,6,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);assertEquals("bold",TextStyles.read(text).get(0).type);
     }
     @Test public void spansFollowInsertedTextBeforeSerialization() {
         SpannableStringBuilder editable=new SpannableStringBuilder("Hello world");TextStyles.write(editable,Arrays.asList(new Note.Mark("bold",6,11)));

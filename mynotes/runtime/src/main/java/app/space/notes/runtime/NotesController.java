@@ -38,7 +38,7 @@ public final class NotesController {
     private final FrameLayout shell;
     private final NotesDesign design;
     private final NotesSheets sheets;
-    private LinearLayout formattingPanel;
+    private LinearLayout formattingPanel,writingDock;
     private Runnable pageBack;
     private String pendingParagraphStyle;
 
@@ -156,7 +156,7 @@ public final class NotesController {
         TextView v=new TextView(context); v.setText(value); v.setTextSize(size); v.setTextColor(ink);
         v.setPadding(0,dp(6),0,dp(6)); return v;
     }
-    private void clearPage(){pageBack=null;sheets.reset();formattingPanel=null;pendingParagraphStyle=null;root.removeAllViews();}
+    private void clearPage(){pageBack=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
     private void act(String label,Runnable action){if(busy){host.showMessage("Storage change in progress. Please wait.");return;}Diagnostics.record("ui.tap","control="+Diagnostics.controlName(label)+" screen="+(editing==null?page:"editor"));action.run();}
     private Button button(String label,Runnable action){return design.textAction(label,()->act(label,action));}
     private Button icon(String label,String symbol,Runnable action){return design.icon(label,symbol,()->act(label,action));}
@@ -214,7 +214,7 @@ public final class NotesController {
     private void renderHome(){
         voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null;title=null;body=null;visible.clear();diagramOpen=false;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
         LinearLayout top=tools(root);Button library=icon("Library","menu",()->{});top.addView(library,new LinearLayout.LayoutParams(dp(48),dp(48)));
-        TextView brand=design.heading(activeLabel.isEmpty()?page:activeLabel);brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(undoBatch!=null || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
+        TextView brand=design.heading(activeLabel.isEmpty()?page:activeLabel);brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(!undoBatch.isEmpty() || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
         LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Voice inbox","Storage","Home widget","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderVoiceInbox,this::renderStorage,host::requestHomeWidget,this::renderSettings});
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);
         LinearLayout searchBar=new LinearLayout(context);searchBar.setGravity(android.view.Gravity.CENTER_VERTICAL);searchBar.setBackground(design.shape(surface,24));root.addView(searchBar);
@@ -307,28 +307,27 @@ public final class NotesController {
         if(!n.diagram.nodes.isEmpty()){Button diagram=button("Diagram · "+n.diagram.nodes.size()+" shapes",this::renderDiagram);editor.addView(diagram);}
         if(n.reminderAt>0){Button reminder=button("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt)),this::chooseReminder);editor.addView(reminder);}
         if(!n.labels.isEmpty()){TextView chips=text(String.join("  ·  ",n.labels),13);chips.setTextColor(design.accent);editor.addView(chips);}
-        status=text("Saved · on this device",11);status.setTextColor(muted);status.setPadding(0,dp(20),0,dp(12));editor.addView(status);
+        status=text("Saved · on this device",11);status.setTextColor(muted);status.setPadding(0,dp(4),0,dp(4));status.setVisibility(View.GONE);root.addView(status,1);
         LinearLayout dock=tools(root);Button add=icon("Capture tools","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout capture=menu("Add to your note",add);menuRows(capture,new String[]{trashed?"View diagram":"Diagram","Export PDF"},new Runnable[]{this::renderDiagram,host::exportPdf});if(!trashed)menuRows(capture,new String[]{"Scan image","Record voice","Voice inbox"},new Runnable[]{this::chooseScan,host::requestVoiceCapture,this::renderVoiceInbox});
-        if(!trashed && !n.checklist)tool(dock,"Text formatting","format",this::toggleFormatting);
+        Button formattingControl=null;if(!trashed && !n.checklist){formattingControl=icon("Text formatting","format",this::toggleFormatting);dock.addView(formattingControl,new LinearLayout.LayoutParams(dp(48),dp(48)));}
         Button appearance=icon("Organise tools","palette",()->{});dock.addView(appearance,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout organise=menu("Colour, labels & reminder",appearance);if(!trashed)menuRows(organise,new String[]{"Colour","Labels","Reminder","Clear reminder"},new Runnable[]{this::renderColours,this::renderLabels,this::chooseReminder,()->setReminder(editing,0)});
         View spring=new View(context);dock.addView(spring,new LinearLayout.LayoutParams(0,1,1));Button more=icon("More actions","more",()->{});dock.addView(more,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout actions=menu("Note actions",more);
         if(trashed)menuRows(actions,new String[]{"Restore","Share"},new Runnable[]{()->changeState("restore"),this::shareSelected});else{menuRows(actions,new String[]{"Share","Copy","Trash"},new Runnable[]{this::shareSelected,this::duplicateNote,()->changeState("trash")});if(!n.checklist)menuRows(actions,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});else menuRows(actions,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove",n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove"),()->listAction("hide"),this::convertNote});}
-        if(!trashed && !n.checklist)buildFormatting();
+        if(!trashed && !n.checklist){writingDock=dock;buildFormatting(formattingControl);}
         title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
     }
-    private void buildFormatting(){
-        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);formattingPanel.setBackground(design.shape(surface,14));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(findFormattingControl(root));root.addView(formattingPanel);
+    private void buildFormatting(Button launcher){
+        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);formattingPanel.setBackground(design.shape(surface,14));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);root.addView(formattingPanel);
         LinearLayout paragraphs=tools(formattingPanel);String[] labels={"Text","Heading 1","Heading 2"},names={"Text","H1","H2"},types={"text","h1","h2"};
         for(int i=0;i<labels.length;i++){final String type=types[i];Button pick=button(names[i],()->format(type));pick.setContentDescription(labels[i]);pick.setTooltipText(labels[i]);pick.setTag("style:"+types[i]);pick.setPadding(dp(8),dp(10),dp(8),dp(10));pick.setGravity(android.view.Gravity.CENTER);paragraphs.addView(pick,new LinearLayout.LayoutParams(0,-2,1));}
-        paragraphs.addView(icon("Close formatting","close",this::toggleFormatting),new LinearLayout.LayoutParams(dp(48),dp(48)));
-        LinearLayout inline=tools(formattingPanel);String[] labels2={"Bold","Italic","Underline","Strike","Clear"},names2={"B","I","U","S","Clear"},types2={"bold","italic","underline","strike","clear"};
+        Button close=icon("Close formatting","close",this::toggleFormatting);paragraphs.addView(close,new LinearLayout.LayoutParams(dp(48),dp(48)));writingDock.setTag(close);paragraphs.setPadding(0,dp(2),0,dp(2));
+        LinearLayout inline=tools(formattingPanel);inline.setPadding(0,dp(2),0,dp(2));String[] labels2={"Bold","Italic","Underline","Strike","Clear"},names2={"B","I","U","S","Clear"},types2={"bold","italic","underline","strike","clear"};
         for(int i=0;i<labels2.length;i++){final String type=types2[i];Button pick=i==4?icon("Clear","erase",()->format(type)):button(names2[i],()->format(type));pick.setTag("style:"+types2[i]);pick.setContentDescription(labels2[i]);pick.setTooltipText(labels2[i]);pick.setTypeface(null,i==0?Typeface.BOLD:i==1?Typeface.ITALIC:Typeface.NORMAL);if(i==2)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.UNDERLINE_TEXT_FLAG);if(i==3)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);pick.setGravity(android.view.Gravity.CENTER);inline.addView(pick,new LinearLayout.LayoutParams(0,-2,1));}
     }
-    private Button findFormattingControl(View node){if(node instanceof Button && "Text formatting".contentEquals(node.getContentDescription()))return (Button)node;if(node instanceof ViewGroup){ViewGroup g=(ViewGroup)node;for(int i=0;i<g.getChildCount();i++){Button found=findFormattingControl(g.getChildAt(i));if(found!=null)return found;}}return null;}
-    private void toggleFormatting(){if(formattingPanel==null)return;formattingPanel.setVisibility(formattingPanel.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);if(body!=null)body.requestFocus();updateFormatting();}
+    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null)body.requestFocus();updateFormatting();}
     private void updateFormatting(){
-        if(binding || body==null || formattingPanel==null)return;String active=pendingParagraphStyle==null?"text":pendingParagraphStyle;int at=Math.max(0,body.getSelectionStart());List<Note.Mark> marks=TextStyles.read(body.getText());for(Note.Mark mark:marks)if(mark.start<=at && mark.end>=at && (mark.type.equals("h1") || mark.type.equals("h2")))active=mark.type;
-        for(int i=0;i<formattingPanel.getChildCount();i++){View row=formattingPanel.getChildAt(i);if(!(row instanceof ViewGroup))continue;ViewGroup buttons=(ViewGroup)row;for(int j=0;j<buttons.getChildCount();j++){View view=buttons.getChildAt(j);Object tag=view.getTag();if(!(tag instanceof String) || !tag.toString().startsWith("style:"))continue;String type=tag.toString().substring(6);boolean selected=type.equals(active);if(!type.equals("text") && !type.startsWith("h"))for(Note.Mark mark:marks)if(mark.type.equals(type) && mark.start<=at && mark.end>at)selected=true;view.setSelected(selected);view.setBackground(design.ripple(selected?(darkTheme?0x335F4A2E:0x22D8B16D):Color.TRANSPARENT,8));}}
+        if(binding || body==null || formattingPanel==null || formattingPanel.getVisibility()!=View.VISIBLE)return;String active=pendingParagraphStyle==null?"text":pendingParagraphStyle;int at=Math.max(0,body.getSelectionStart());List<Note.Mark> marks=TextStyles.read(body.getText());for(Note.Mark mark:marks)if(mark.start<=at && mark.end>=at && (mark.type.equals("h1") || mark.type.equals("h2")))active=mark.type;
+        for(int i=0;i<formattingPanel.getChildCount();i++){View row=formattingPanel.getChildAt(i);if(!(row instanceof ViewGroup))continue;ViewGroup buttons=(ViewGroup)row;for(int j=0;j<buttons.getChildCount();j++){View view=buttons.getChildAt(j);Object tag=view.getTag();if(!(tag instanceof String) || !tag.toString().startsWith("style:"))continue;String type=tag.toString().substring(6);boolean selected=type.equals(active);if(!type.equals("text") && !type.startsWith("h"))for(Note.Mark mark:marks)if(mark.type.equals(type) && mark.start<=at && mark.end>at)selected=true;if(view.isSelected()!=selected){view.setSelected(selected);view.setBackground(design.ripple(selected?(darkTheme?0x335F4A2E:0x22D8B16D):Color.TRANSPARENT,8));}}}
     }
     private TextWatcher paragraphWatcher(){return new TextWatcher(){int newlineFrom=-1,newlineTo,changedAt;boolean wasHeading;
         public void beforeTextChanged(CharSequence value,int start,int count,int after){wasHeading=false;for(Note.Mark mark:TextStyles.read(body.getText()))if((mark.type.equals("h1") || mark.type.equals("h2")) && mark.start<=start && mark.end>=start)wasHeading=true;}
@@ -754,9 +753,9 @@ public final class NotesController {
         if(status!=null)status.setText("Saving locally…");
         disk.execute(()->{
             try { repository.save(snapshot);markVoiceNotesCreated(snapshot); log("save","ok revision="+ticket+" count="+snapshot.size());
-                main.post(()->{if(!closed && !dirty && ticket==revision && status!=null)status.setText("Saved · "+repository.status());});
+                main.post(()->{if(!closed && !dirty && ticket==revision && status!=null){status.setText("Saved · "+repository.status());status.setVisibility(View.GONE);}});
             } catch(Exception e) { log("save","failed "+e.getClass().getSimpleName());Diagnostics.failure("save.failure",e);
-                main.post(()->{if(!closed){if(status!=null)status.setText(repository.status()+" · retry needed");
+                main.post(()->{if(!closed){if(status!=null){status.setText(repository.status()+" · retry needed");status.setVisibility(View.VISIBLE);}
                     host.showMessage("Save incomplete. "+repository.status()+". Check storage access, then use Retry save.");}});
             }
         });
@@ -765,7 +764,7 @@ public final class NotesController {
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); Diagnostics.record(action,outcome); }
     public boolean back() {
         if(sheets.close())return true;
-        if(formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE){formattingPanel.setVisibility(View.GONE);return true;}
+        if(formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE){toggleFormatting();return true;}
         if(pageBack!=null){Runnable next=pageBack;pageBack=null;next.run();return true;}
         if(busy){host.showMessage("Please wait for the current storage operation.");return true;}
         if(ocrPanel){cancelOcr();return true;}

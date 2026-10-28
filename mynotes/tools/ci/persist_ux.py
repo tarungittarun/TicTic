@@ -24,8 +24,13 @@ def persist(evidence,run,source):
         if not 1<=width<=540 or not 1<=height<=3000:raise ValueError('Unexpected proof dimensions')
         target=output/lane/(scene+'.png');target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(image,target)
         records.append({'lane':lane,'scene':scene,'path':str(target.relative_to(output)),'width':width,'height':height,'sha256':hashlib.sha256(data).hexdigest()})
-    if records:
-        (output/'provenance.json').write_text(json.dumps({'run':run,'source':source,'scope':'Real Android screen captures from synthetic, isolated debug-host fixtures. Not physical-device or official-release screenshots; test success and aesthetic inspection are separate.','images':records},indent=2)+'\n')
+    outcomes=[]
+    for result in sorted(Path(evidence).rglob('results.json')):
+        if result.parent.name not in VARIANTS:continue
+        if result.stat().st_size>256*1024:raise ValueError('Unexpectedly large runner result')
+        value=json.loads(result.read_text());target=output/result.parent.name/'results.json';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(json.dumps(value,indent=2)+'\n');outcomes.append(result.parent.name)
+    if records or outcomes:
+        (output/'provenance.json').write_text(json.dumps({'run':run,'source':source,'scope':'Real Android screen captures from synthetic, isolated debug-host fixtures. Not physical-device or official-release screenshots; test success and aesthetic inspection are separate.','images':records,'runner_outcomes':outcomes},indent=2)+'\n')
     print(f'Persisted {len(records)} bounded synthetic screenshots from run {run}')
     return len(records)
 

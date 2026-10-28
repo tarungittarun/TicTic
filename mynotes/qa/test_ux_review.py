@@ -29,3 +29,33 @@ class RenderedUxPublicationContracts(unittest.TestCase):
         source=(Path(__file__).resolve().parents[1]/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
         for evidence in ['instrumentation.sendPointerSync','layout.draw(canvas)','pixels.getPixel','getLineTop(line)','getLineBottom(line)','takeScreenshot()','format-keyboard','HeadingTypingExtendsAndEnterReturnsToNormalText']:
             self.assertIn(evidence,source)
+
+
+class SignaturePaletteReadability(unittest.TestCase):
+    """A numeric token check complements, but cannot replace, rendered/native review."""
+    def contrast(self, foreground, background):
+        def luminance(colour):
+            values=[int(colour[i:i+2],16)/255 for i in (1,3,5)]
+            linear=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in values]
+            return sum(v*w for v,w in zip(linear,(.2126,.7152,.0722)))
+        a,b=sorted((luminance(foreground),luminance(background)))
+        return (b+.05)/(a+.05)
+    def test_signature_text_and_hints_meet_normal_text_contrast(self):
+        import re
+        source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/NotesDesign.java').read_text()
+        pairs=dict((name,(night,light)) for name,night,light in re.findall(r'(background|surface|ink|muted|accent)=Color.parseColor\(dark\?"(#[A-Fa-f0-9]{6})":"(#[A-Fa-f0-9]{6})"\)',source))
+        self.assertEqual(set(pairs),{'background','surface','ink','muted','accent'})
+        for mode in (0,1):
+            for foreground in ('ink','muted','accent'):
+                for background in ('background','surface'):
+                    with self.subTest(mode=mode,foreground=foreground,background=background):
+                        self.assertGreaterEqual(self.contrast(pairs[foreground][mode],pairs[background][mode]),4.5)
+        self.assertGreaterEqual(self.contrast('#241A0B','#E8C58E'),4.5)
+    def test_note_card_text_remains_readable_on_every_note_colour(self):
+        import re
+        source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/NotesBoard.java').read_text()
+        for mode,ink in [('DARK','#F5F5F5'),('LIGHT','#202124')]:
+            colours=re.findall(r'#[A-Fa-f0-9]{6}',re.search(r'String\[\] '+mode+r'=\{([^}]+)\}',source).group(1))
+            self.assertEqual(len(colours),12)
+            for colour in colours:
+                with self.subTest(mode=mode,colour=colour):self.assertGreaterEqual(self.contrast(ink,colour),4.5)

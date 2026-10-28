@@ -38,7 +38,7 @@ public final class NotesController {
     private final FrameLayout shell;
     private final NotesDesign design;
     private final NotesSheets sheets;
-    private LinearLayout formattingPanel,writingDock;
+    private LinearLayout formattingPanel,writingDock,editorTopChrome;
     private Button undoControl;
     private String caretNote;private int caretAnchor,caretFocus;
     private Runnable pageBack;
@@ -106,7 +106,7 @@ public final class NotesController {
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(Diagnostics.enabled() && (r-l!=or-ol || b-t!=ob-ot))Diagnostics.record("ui.viewport","width_px="+(r-l)+" height_px="+(b-t)+" font_scale="+context.getResources().getConfiguration().fontScale+" night="+darkTheme);});
-        shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);
+        shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());
         TextView loading=text("Opening your notes…",18); root.addView(loading);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
         disk.execute(()->{
@@ -159,7 +159,7 @@ public final class NotesController {
         TextView v=new TextView(context); v.setText(value); v.setTextSize(size); v.setTextColor(ink);
         v.setPadding(0,dp(6),0,dp(6)); return v;
     }
-    private void clearPage(){pageBack=null;undoControl=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
+    private void clearPage(){editorTopChrome=null;pageBack=null;undoControl=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
     private void act(String label,Runnable action){if(busy){host.showMessage("Storage change in progress. Please wait.");return;}Diagnostics.record("ui.tap","control="+Diagnostics.controlName(label)+" screen="+(editing==null?page:"editor"));action.run();}
     private Button button(String label,Runnable action){return design.textAction(label,()->act(label,action));}
     private Button icon(String label,String symbol,Runnable action){return design.icon(label,symbol,()->act(label,action));}
@@ -263,7 +263,7 @@ public final class NotesController {
     }
     private void renderEditor(){
         voicePage=false;ocrPanel=false;diagramOpen=false;Note n=find(editing);if(n==null){renderHome();return;}main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;clearPage();root.setPadding(dp(20),dp(4),dp(20),dp(8));
-        LinearLayout top=tools(root);tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}undoControl=icon("Undo","undo",this::undo);top.addView(undoControl,new LinearLayout.LayoutParams(dp(48),dp(48)));syncUndoControl();
+        LinearLayout top=tools(root);editorTopChrome=top;tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}undoControl=icon("Undo","undo",this::undo);top.addView(undoControl,new LinearLayout.LayoutParams(dp(48),dp(48)));syncUndoControl();
         ScrollView document=new ScrollView(context);document.setFillViewport(true);document.setClipToPadding(false);LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);FrameLayout.LayoutParams column=new FrameLayout.LayoutParams(Math.min(dp(720),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2,android.view.Gravity.CENTER_HORIZONTAL);document.addView(editor,column);root.addView(document,new LinearLayout.LayoutParams(-1,0,1));
         title=new EditText(context);design.entry(title,26);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));title.setHint("Title");title.setText(n.title);title.setEnabled(!trashed);editor.addView(title,new LinearLayout.LayoutParams(-1,-2));
         body=null;
@@ -310,7 +310,7 @@ public final class NotesController {
         if(trashed)menuRows(actions,new String[]{"Restore","Share"},new Runnable[]{()->changeState("restore"),this::shareSelected});else{menuRows(actions,new String[]{"Share","Copy","Trash"},new Runnable[]{this::shareSelected,this::duplicateNote,()->changeState("trash")});if(!n.checklist)menuRows(actions,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});else menuRows(actions,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove",n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove"),()->listAction("hide"),this::convertNote});}
         TextView dates=text("Edited "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.updatedAt))+"\nCreated "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.createdAt)),12);dates.setTextColor(muted);actions.addView(dates);
         if(!trashed && !n.checklist){writingDock=dock;buildFormatting(formattingControl);}
-        title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
+        title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));root.post(this::adaptEditorViewport);
     }
     private void buildFormatting(Button launcher){
         formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);formattingPanel.setBackground(design.shape(surface,14));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);LinearLayout.LayoutParams formatWidth=new LinearLayout.LayoutParams(Math.min(dp(640),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2);formatWidth.gravity=android.view.Gravity.CENTER_HORIZONTAL;root.addView(formattingPanel,formatWidth);
@@ -320,7 +320,9 @@ public final class NotesController {
         LinearLayout inline=tools(formattingPanel);inline.setPadding(0,dp(2),0,dp(2));String[] labels2={"Bold","Italic","Underline","Strike","Clear"},names2={"B","I","U","S","Clear"},types2={"bold","italic","underline","strike","clear"};
         for(int i=0;i<labels2.length;i++){final String type=types2[i];Button pick=i==4?icon("Clear","erase",()->format(type)):button(names2[i],()->format(type));pick.setTag("style:"+types2[i]);pick.setContentDescription(labels2[i]);pick.setTooltipText(labels2[i]);pick.setTypeface(null,i==0?Typeface.BOLD:i==1?Typeface.ITALIC:Typeface.NORMAL);if(i==2)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.UNDERLINE_TEXT_FLAG);if(i==3)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);pick.setGravity(android.view.Gravity.CENTER);inline.addView(pick,new LinearLayout.LayoutParams(0,-2,1));}
     }
-    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(360))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}updateFormatting();}
+    /** Keep an actual writing viewport above a landscape IME; Back remains an Android system action. */
+    private void adaptEditorViewport(){if(editorTopChrome==null || shell.getHeight()<=0)return;boolean compact=shell.getHeight()<dp(240);int visibility=compact?View.GONE:View.VISIBLE;if(editorTopChrome.getVisibility()!=visibility)editorTopChrome.setVisibility(visibility);}
+    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(240))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}updateFormatting();}
     private void updateFormatting(){
         if(binding || body==null || formattingPanel==null || formattingPanel.getVisibility()!=View.VISIBLE)return;String active=pendingParagraphStyle==null?"text":pendingParagraphStyle;int at=Math.max(0,body.getSelectionStart());List<Note.Mark> marks=TextStyles.read(body.getText());for(Note.Mark mark:marks)if(mark.start<=at && mark.end>=at && (mark.type.equals("h1") || mark.type.equals("h2")))active=mark.type;
         for(int i=0;i<formattingPanel.getChildCount();i++){View row=formattingPanel.getChildAt(i);if(!(row instanceof ViewGroup))continue;ViewGroup buttons=(ViewGroup)row;for(int j=0;j<buttons.getChildCount();j++){View view=buttons.getChildAt(j);Object tag=view.getTag();if(!(tag instanceof String) || !tag.toString().startsWith("style:"))continue;String type=tag.toString().substring(6);boolean selected=type.equals(active);if(!type.equals("text") && !type.startsWith("h"))for(Note.Mark mark:marks)if(mark.type.equals(type) && mark.start<=at && mark.end>at)selected=true;if(view.isSelected()!=selected){view.setSelected(selected);view.setBackground(design.ripple(selected?(darkTheme?0x335F4A2E:0x22D8B16D):Color.TRANSPARENT,8));}}}

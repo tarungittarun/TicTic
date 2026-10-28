@@ -680,7 +680,7 @@ public final class NotesController {
         TextView current=text(repository==null?"Opening storage":repository.status(),16);current.setTextColor(design.accent);content.addView(current);content.addView(text("A private recovery copy stays on this device. Folder changes are verified before switching; previous files are kept.",14));
         settingRow(content,"Choose folder","Choose the main folder on this device or SD card; the library is verified before switching.",host::chooseLocalFolder);
         settingRow(content,"Open library","Open an existing local folder and preview a non-destructive merge.",host::openExistingFolder);
-        settingRow(content,"Backups","Back up notes, diagrams, folder placement and backgrounds. Export original recordings separately.",this::renderBackups);
+        settingRow(content,"Backups","Notes, diagrams, images, drawings and folder placement. Recordings are exported separately.",this::renderBackups);
         if(repository!=null && repository.status().toLowerCase(java.util.Locale.ROOT).contains("pending"))settingRow(content,"Retry save","Reconnect your local folder first; private edits are retained.",this::flush);
         settingRow(content,"Use device storage","Keep working from the private on-device library.",()->moveStorage(null));
         settingRow(content,"Folders","Create real subfolders and move notes",()->renderFolders(false));
@@ -712,14 +712,15 @@ public final class NotesController {
     }
     private void renderBackups() {
         prepared=null;LinearLayout content=scrollContent("Backup & restore");pageBack=this::renderStorage;
-        content.addView(text("Portable backups include text notes, checklists, diagrams, formatting, colours and labels. Original audio is separate: export important WAVs from Voice inbox.",16));
-        content.addView(text("Use the local Internal storage/SD-card provider. Backups are readable JSON, not encrypted. Export is confirmed only after reopening and checking the complete file.",15));
-        content.addView(text("Import always previews a MERGE: current notes stay; identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing that conflict copy is idempotent. No replacement/delete mode.",15));
-        content.addView(text("Previous snapshot recovers the local checkpoint taken before the most recent confirmed restore/open-library. It is also merged, never used to silently delete current notes. Uninstall removes this private checkpoint.",14));
-        content.addView(text("Current portable text-backup limit: 8 MiB (checked on export and import). Larger libraries need the future streaming backup format. Keep the old installation and your source until you verify restored notes.",14));
-        row(new String[]{"Export backup","Import backup"},new Runnable[]{host::exportBackup,host::importBackup});
-        row(new String[]{"Previous snapshot","Back"},new Runnable[]{()->prepareImport(null,false,true),this::renderStorage});
+        content.addView(text("A complete note backup includes text, checklists, diagrams, images, drawings, styles and folder placement.",16));
+        settingRow(content,"Export backup","Choose a local file. Success is reported only after complete readback verification.",host::exportBackup);
+        settingRow(content,"Import backup","Review a merge first. Existing notes are never silently replaced or deleted.",host::importBackup);
+        settingRow(content,"Previous snapshot","Recover the checkpoint from before the latest restore or open-library operation.",()->prepareImport(null,false,true));
+        content.addView(text("Backups are readable JSON, not encrypted. Original recordings are separate — export them from Voice inbox.",14));
+        LinearLayout details=section(content,"Backup details");details.addView(text("Use the local Internal storage/SD-card provider. The current portable backup limit is 8 MiB, checked on export and import. Images are copied into notes at a bounded resolution; an addition that would break a complete verified backup is refused. Larger libraries need a future streaming format.",14));
+        details.addView(text("Import previews a merge: identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing the same conflict copy does not duplicate it. The previous snapshot is merged too, never used to delete newer work. Keep the source and old installation until the restored result is verified.",14));
     }
+
     public void exportBackup(android.net.Uri uri) {
         whenReady(()->{
             persistDraft();busy=true;final List<Note> snapshot=new ArrayList<>(notes);

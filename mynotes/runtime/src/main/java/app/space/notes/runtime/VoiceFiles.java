@@ -29,7 +29,7 @@ public final class VoiceFiles {
     public synchronized void result(String id,String text,String state)throws Exception{result(id,text,state,text,"");}
     public synchronized void result(String id,String text,String state,String rawText,String formatting) throws Exception {synchronized(TRANSCRIPT_LOCK){
         // A failed retry or transient RUNNING update must not erase a previously successful transcript.
-        if(text.isEmpty() && transcript(id).exists()){try{JSONObject previous=result(id);text=previous.optString("text","");rawText=previous.optString("rawText",text);formatting=previous.optString("formatting","");}catch(Exception damaged){/* Original audio remains independent. */}}
+        if(text.isEmpty() && (transcript(id).exists() || new File(transcript(id)+".bak").exists())){try{JSONObject previous=result(id);text=previous.optString("text","");rawText=previous.optString("rawText",text);formatting=previous.optString("formatting","");}catch(Exception damaged){/* Original audio remains independent. */}}
 
         if(!audio(id).isFile())throw new IOException("Recording unavailable; transcript not written");AtomicFile target=new AtomicFile(transcript(id));FileOutputStream stream=null;
         try{stream=target.startWrite();stream.write(new JSONObject().put("version",1).put("id",id).put("text",text).put("rawText",rawText).put("formatting",formatting).put("state",state).toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));target.finishWrite(stream);stream=null;}

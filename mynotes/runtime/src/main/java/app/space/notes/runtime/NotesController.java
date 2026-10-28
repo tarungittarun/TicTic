@@ -372,7 +372,7 @@ public final class NotesController {
     private void setReminder(String id,long at){whenReady(()->{persistDraft();Note note=find(id);if(note==null || note.deletedAt>0)return;captureUndo(Arrays.asList(note),true);replace(note.reminder(at,System.currentTimeMillis()));queueSave();if(id.equals(editing))renderEditor();host.showMessage(at==0?"Reminder cleared.":"Local reminder saved. Android may delay delivery during battery saving. Force-stop disables alarms until reopening; notification settings must stay enabled.");});}
     private void renderDiagram(){
         persistDraft();Note note=find(editing);if(note==null){renderHome();return;}diagramOpen=true;title=null;body=null;search=null;querySequence++;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
-        LinearLayout top=tools(root);tool(top,"Back to note","back",()->{diagramOpen=false;renderEditor();});TextView name=design.heading("Diagram");top.addView(name,new LinearLayout.LayoutParams(0,-2,1));tool(top,"Undo diagram","undo",this::undoDiagram);tool(top,"Export PDF","export",host::exportPdf);
+        LinearLayout top=tools(root);tool(top,"Back to note","back",()->{diagramOpen=false;renderEditor();});TextView name=design.heading("Diagram");top.addView(name,new LinearLayout.LayoutParams(0,-2,1));tool(top,"Export PDF","export",host::exportPdf);
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);boolean readOnly=note.deletedAt>0;ensureDiagramHistory(note);
         ScrollView scroll=new ScrollView(context);LinearLayout area=new LinearLayout(context);area.setOrientation(LinearLayout.VERTICAL);scroll.addView(area);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         DiagramView canvas=new DiagramView(context,note.diagram,darkTheme,new DiagramView.Listener(){public void selected(String id){diagramSelection=id;}public void changed(Diagram value){if(!readOnly)saveDiagram(value);else renderDiagram();}});canvas.show(note.diagram,diagramSelection);area.addView(canvas,new LinearLayout.LayoutParams(-1,-2));
@@ -380,13 +380,13 @@ public final class NotesController {
         LinearLayout dock=tools(root);
         if(!readOnly){Button add=icon("Add shape","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout shapes=menu("Add shape",add);for(String shape:Diagram.SHAPES){Button option=button(Diagram.shapeName(shape),()->addShape(shape));DiagramShapeIcon preview=new DiagramShapeIcon(shape,darkTheme);preview.setBounds(0,0,dp(56),dp(40));option.setCompoundDrawablesRelative(preview,null,null,null);option.setCompoundDrawablePadding(dp(16));shapes.addView(option,new LinearLayout.LayoutParams(-1,-2));}
             Button edit=button("Edit shape",()->{});dock.addView(edit);LinearLayout editTools=menu("Selected shape",edit);menuRows(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
-            Button undoDiagram=icon("Undo diagram","undo",()->stepDiagramHistory(false));undoDiagram.setEnabled(diagramHistory.canUndo(note.diagram));dock.addView(undoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
-            Button redoDiagram=icon("Redo diagram","redo",()->stepDiagramHistory(true));redoDiagram.setEnabled(diagramHistory.canRedo(note.diagram));dock.addView(redoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
+            Button undoDiagram=icon("Undo diagram","undo",()->stepDiagramHistory(false));undoDiagram.setTag("diagram-undo");undoDiagram.setEnabled(diagramHistory.canUndo(note.diagram));dock.addView(undoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
+            Button redoDiagram=icon("Redo diagram","redo",()->stepDiagramHistory(true));redoDiagram.setTag("diagram-redo");redoDiagram.setEnabled(diagramHistory.canRedo(note.diagram));dock.addView(redoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
             Button grouping=button("Group",this::groupShapes);dock.addView(grouping);
             LinearLayout arrowTools=tools(area);arrowTools.addView(button("Edit arrows",this::chooseArrow));}
 
     }
-    private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;ensureDiagramHistory(n);diagramHistory.record(n.diagram,value);captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();}
+    private void saveDiagram(Diagram value){Note n=find(editing);if(n==null || n.deletedAt>0)return;ensureDiagramHistory(n);diagramHistory.record(n.diagram,value);captureUndo(Arrays.asList(n),true);replace(n.diagram(value,System.currentTimeMillis()));queueSave();View undo=root.findViewWithTag("diagram-undo"),redo=root.findViewWithTag("diagram-redo");if(undo!=null)undo.setEnabled(diagramHistory.canUndo(value));if(redo!=null)redo.setEnabled(diagramHistory.canRedo(value));}
     private void ensureDiagramHistory(Note note){if(!note.id.equals(diagramHistoryNote)){diagramHistoryNote=note.id;diagramHistory=new app.space.notes.domain.DiagramHistory();}}
     private void stepDiagramHistory(boolean redo){Note n=find(editing);if(n==null || n.deletedAt>0)return;ensureDiagramHistory(n);Diagram next=redo?diagramHistory.redo(n.diagram):diagramHistory.undo(n.diagram);if(next==n.diagram)return;replace(n.diagram(next,System.currentTimeMillis()));queueSave();renderDiagram();}
     private void groupShapes(){Note n=find(editing);if(n==null || n.deletedAt>0)return;String[] names=new String[n.diagram.nodes.size()];boolean[] checked=new boolean[names.length];Set<String> ids=new HashSet<>();for(int i=0;i<names.length;i++){Diagram.Node shape=n.diagram.nodes.get(i);names[i]=Diagram.shapeName(shape.shape)+" · "+shape.text;checked[i]=shape.id.equals(diagramSelection);if(checked[i])ids.add(shape.id);}
@@ -425,7 +425,6 @@ public final class NotesController {
         }
         saveDiagram(value);renderDiagram();
     }
-    private void undoDiagram(){undo();if(editing!=null)renderDiagram();}
     public void exportPdf(android.net.Uri uri){whenReady(()->{
         persistDraft();List<Note> snapshot=new ArrayList<>(targets());if(snapshot.isEmpty()){host.showMessage("Open or select notes before exporting PDF.");return;}
         busy=true;disk.execute(()->{

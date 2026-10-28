@@ -18,11 +18,13 @@ public final class DiagramRenderer {
             Path head=new Path();head.moveTo(end[0],end[1]);head.lineTo(end[0]-16*(float)Math.cos(angle-.45),end[1]-16*(float)Math.sin(angle-.45));head.moveTo(end[0],end[1]);head.lineTo(end[0]-16*(float)Math.cos(angle+.45),end[1]-16*(float)Math.sin(angle+.45));canvas.drawPath(head,paint);
             if(!edge.label.isEmpty())drawText(canvas,edge.label,(start[0]+end[0])/2-90,(start[1]+end[1])/2-32,180,50,ink,20);
         }
+        Diagram.Node selectedNode=diagram.find(selected);
         for(Diagram.Node node:diagram.nodes){
+            boolean highlighted=node.id.equals(selected) || (selectedNode!=null && !selectedNode.group.isEmpty() && selectedNode.group.equals(node.group));
             RectF r=new RectF(node.x,node.y,node.x+node.width,node.y+node.height);Path path=shape(node,r);
             if(!node.shape.equals("text")){paint.setStyle(Paint.Style.FILL);paint.setColor(NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
-            paint.setStyle(Paint.Style.STROKE);paint.setColor(node.id.equals(selected)?Color.parseColor("#B17400"):ink);paint.setStrokeWidth(node.id.equals(selected)?6:3);
-            if(!node.shape.equals("text") || node.id.equals(selected))canvas.drawPath(path,paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?Color.parseColor("#B17400"):ink);paint.setStrokeWidth(highlighted?6:3);
+            if(!node.shape.equals("text") || highlighted)canvas.drawPath(path,paint);
             details(canvas,node,r,paint);
             float inset=node.shape.equals("decision")?node.width*.23f:node.shape.equals("data")?node.width*.17f:12;
             drawText(canvas,node.text,node.x+inset,node.y+8,node.width-2*inset,node.height-16,ink,24);

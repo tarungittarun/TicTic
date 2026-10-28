@@ -77,18 +77,18 @@ public class DiagramJourneysTest {
     private void selectCard(String title,boolean first){main(()->{TextView v=card(controller.view(),title);assertNotNull(v);View card=(View)v.getParent();if(first)card.performLongClick();else card.performClick();});instrumentation.waitForIdleSync();}
     private Note note(String title){return Note.create(1).edit(title,"Body "+title,2);}
     @Test public void addCommonShapesMoveResizeDeleteAndUndoPersist() throws Exception {
-        start(Collections.emptyList());click("+ Text");main(()->input("Title").setText("Flowchart"));click("Diagram");click("Process");click("Decision");click("Start / End");
-        click("→");click("Wider");saved();Note current=new NotesRepository(context).load().get(0);assertEquals(3,current.diagram.nodes.size());assertEquals(240,current.diagram.nodes.get(2).width);
-        click("Delete shape");saved();assertEquals(2,new NotesRepository(context).load().get(0).diagram.nodes.size());click("Undo diagram");saved();assertEquals(3,new NotesRepository(context).load().get(0).diagram.nodes.size());
+        start(Collections.emptyList());click("+ Text");main(()->input("Title").setText("Flowchart"));click("Diagram");click("Rectangle");click("Diamond");click("Capsule");
+        main(()->{DiagramView canvas=findCanvas(controller.view());float scale=canvas.getWidth()/800f;long now=android.os.SystemClock.uptimeMillis();android.view.MotionEvent down=android.view.MotionEvent.obtain(now,now,0,550*scale,70*scale,0),move=android.view.MotionEvent.obtain(now,now+20,2,590*scale,100*scale,0),up=android.view.MotionEvent.obtain(now,now+40,1,590*scale,100*scale,0);canvas.onTouchEvent(down);canvas.onTouchEvent(move);canvas.onTouchEvent(up);down.recycle();move.recycle();up.recycle();});click("Wider");saved();Note current=new NotesRepository(context).load().get(0);assertEquals(3,current.diagram.nodes.size());assertEquals(240,current.diagram.nodes.get(2).width);assertEquals(550,current.diagram.nodes.get(2).x);
+        click("Delete shape");saved();assertEquals(2,new NotesRepository(context).load().get(0).diagram.nodes.size());click("Undo diagram");saved();assertEquals(3,new NotesRepository(context).load().get(0).diagram.nodes.size());click("Redo diagram");saved();assertEquals(2,new NotesRepository(context).load().get(0).diagram.nodes.size());click("Undo diagram");saved();assertEquals(3,new NotesRepository(context).load().get(0).diagram.nodes.size());
         click("Back to note");click("Back");await(()->card(controller.view(),"Flowchart")!=null);selectCard("Flowchart",true);click("Copy");saved();assertEquals(3,new NotesRepository(context).load().get(1).diagram.nodes.size());
     }
     @Test public void diagramSurvivesRotationSnapshotAndSearch() throws Exception {
-        start(Collections.emptyList());click("+ Text");click("Diagram");click("Input / Output");saved();
+        start(Collections.emptyList());click("+ Text");click("Diagram");click("Parallelogram");saved();
         android.os.Bundle state=new android.os.Bundle();main(()->{controller.saveState(state);controller.close();controller=new NotesController(context,host,state);activity.setContentView(controller.view());});
         await(()->text("Diagram")!=null);click("Diagram");assertEquals(1,new NotesRepository(context).load().get(0).diagram.nodes.size());
     }
     @Test public void cancelledCanvasDragDoesNotMutateRepository() throws Exception {
-        start(Collections.emptyList());click("+ Text");click("Diagram");click("Process");saved();
+        start(Collections.emptyList());click("+ Text");click("Diagram");click("Rectangle");saved();
         main(()->{DiagramView canvas=findCanvas(controller.view());assertNotNull(canvas);String before=canvas.diagram().fingerprint();long now=android.os.SystemClock.uptimeMillis();float scale=canvas.getWidth()/800f;
             android.view.MotionEvent down=android.view.MotionEvent.obtain(now,now,0,70*scale,70*scale,0),move=android.view.MotionEvent.obtain(now,now+20,2,200*scale,200*scale,0),cancel=android.view.MotionEvent.obtain(now,now+40,3,200*scale,200*scale,0);
             canvas.onTouchEvent(down);canvas.onTouchEvent(move);canvas.onTouchEvent(cancel);down.recycle();move.recycle();cancel.recycle();assertEquals(before,canvas.diagram().fingerprint());});

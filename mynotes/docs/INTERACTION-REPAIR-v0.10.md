@@ -1,6 +1,6 @@
 # MyNotes 0.10 — interaction repair
 
-Status: candidate 0.10.0 (11), not yet published. Prior 0.9 approval was deliberately cleared.
+Status: candidate 0.10.0 (11), approved for gated publication after runtime review. Prior 0.9 approval was deliberately cleared and replaced only after new evidence. Not yet published.
 
 ## Device report and evidence boundary
 
@@ -45,3 +45,11 @@ Source run40637486745 found two test/fixture assumptions that needed correction:
 Run40638337811 qualifies the follow-up, including 75 JVM cases /123 unique Android cases across 21 lanes. The API36 lane now explicitly uses the reported dark/0.85-font configuration; light/default-font and large-font variants remain in the other lanes. Native captures and full results are required before approval. Local gates before pushing: 505 root checks and 115 Notes checks passed.
 
 Calculator/MySpace remain untouched. Package/signing identity are unchanged, and the candidate versionCode rises to11. Publication stays gated until actual new captures and required runtime checks are accepted.
+
+## Reviewed follow-up outcome
+
+[Run40638337811](https://github.com/tarungittarun/TicTic/actions/runs/40638337811) completed with all 21 Android lanes passing, including **123/123 methods in all six complete resource variants**: light, dark, 200% font, landscape, tablet, and API36 dark/0.85 font. All required source/domain/lint/APK audits passed. Its overall summary correctly withheld publication while review approval was pending.
+
+The new captures were inspected, including direct Labels/Colour controls, Plus → Reminder, readable heading layout, landscape editor, and Settings after repeated navigation in dark mode and Android16/0.85 font. Native exact-word/numeric-line long presses, repeated sheets and list-only Copy/Trash assertions pass. Reminder reconciliation boundary/permission/deduplication checks pass. The runtime PDF now uses the source-pinned app version and adds the actual Add/reminder and post-navigation evidence page.
+
+Approval pins source `57990d0d0cd794cc7f2fc5b051eb3b658235b91a` and this reviewed run. A separate complete gated run must succeed before an immutable APK is shared. The precise original Motorola rendering cause was not established by the export; this repair and its passing sequence are not a claim of physical-device certification.

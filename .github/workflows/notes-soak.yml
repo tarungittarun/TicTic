@@ -25,7 +25,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: notes-soak-${{ github.ref }}
+  group: notes-soak-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   build:
@@ -38,7 +38,7 @@ jobs:
       - name: Build only standalone Notes instrumentation
         working-directory: mynotes
         run: sh gradlew --build-cache :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: notes-soak-apks
           path: |
@@ -61,7 +61,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-soak-apks
           path: test-apks
@@ -78,7 +78,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
           script: bash mynotes/tools/ci/native_soak.sh ${{ matrix.api }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: notes-soak-evidence-api${{ matrix.api }}

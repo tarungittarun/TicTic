@@ -39,7 +39,14 @@ public class StructuredCodecTest {
         for(String key:new String[]{"checklist","hideChecked","items","marks","labels"})n.remove(key);
         Note migrated=DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8)).get(0);
         assertEquals("plain",migrated.body);assertFalse(migrated.checklist);assertTrue(migrated.labels.isEmpty());
-        assertEquals(0,migrated.reminderAt);assertEquals(5,new JSONObject(new String(DocumentCodec.encode(Arrays.asList(migrated)),StandardCharsets.UTF_8)).getInt("version"));
+        assertEquals(0,migrated.reminderAt);assertEquals(6,new JSONObject(new String(DocumentCodec.encode(Arrays.asList(migrated)),StandardCharsets.UTF_8)).getInt("version"));
+    }
+    @Test public void schema6FolderBackgroundAndGroupsRoundTrip()throws Exception{
+        app.space.notes.domain.Diagram d=app.space.notes.domain.Diagram.empty().put(new app.space.notes.domain.Diagram.Node("a","star","A",0,0,100,100,0)).put(new app.space.notes.domain.Diagram.Node("b","cloud","B",200,200,100,100,0)).group(Arrays.asList("a","b"));
+        Note note=text().folder("Projects ಕನ್ನಡ",3).background(15,4).diagram(d,5).reminder(10000,6);Note read=BackupCodec.decode(BackupCodec.encode(Arrays.asList(note))).get(0);assertTrue(NoteMerge.same(note,read));assertEquals("Projects ಕನ್ನಡ",read.folder);assertEquals(15,read.background);assertEquals(d.fingerprint(),read.diagram.fingerprint());
+    }
+    @Test public void schema5DefaultsFolderAndBackground()throws Exception{
+        JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text().reminder(10000,3))),StandardCharsets.UTF_8));root.put("version",5);JSONObject fields=root.getJSONArray("notes").getJSONObject(0);fields.remove("folder");fields.remove("background");Note read=DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8)).get(0);assertEquals("",read.folder);assertEquals(0,read.background);assertEquals(10000,read.reminderAt);
     }
     @Test public void outOfRangeMarkRejectsWholeDocument() throws Exception {
         JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text())),StandardCharsets.UTF_8));

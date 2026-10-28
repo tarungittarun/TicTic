@@ -2,7 +2,7 @@ package app.space.notes.domain;
 import java.util.*;
 public final class NoteOperations {
     private NoteOperations() { }
-    public static Note duplicate(Note source,long now){return new Note(UUID.randomUUID().toString(),source.title,source.body,now,now,0,source.pinned,false,source.color,source.checklist,source.hideChecked,source.items,source.marks,source.labels,source.diagram,source.voiceSources);}
+    public static Note duplicate(Note source,long now){return new Note(UUID.randomUUID().toString(),source.title,source.body,now,now,0,source.pinned,false,source.color,source.checklist,source.hideChecked,source.items,source.marks,source.labels,source.diagram,source.voiceSources,0,source.folder,source.background);}
     public static Note merge(List<Note> sources,long now){
         if(sources.size()<2)throw new IllegalArgumentException("Select at least two notes");
         StringBuilder body=new StringBuilder();List<String> tags=new ArrayList<>();
@@ -11,6 +11,6 @@ public final class NoteOperations {
             if(body.length()>0)body.append("\n\n────────\n\n");
             if(!n.title.isEmpty())body.append(n.title).append('\n');body.append(n.plainText());tags.addAll(n.labels);
         }
-        return Note.create(now).edit("Merged notes",body.toString(),now).properties(sources.get(0).color,Note.normalizeLabels(tags),now);
+        return Note.create(now).edit("Merged notes",body.toString(),now).properties(sources.get(0).color,Note.normalizeLabels(tags),now).folder(sources.get(0).folder,now).background(sources.get(0).background,now);
     }
 }

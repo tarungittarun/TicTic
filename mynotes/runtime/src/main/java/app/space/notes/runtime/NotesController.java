@@ -68,6 +68,7 @@ public final class NotesController {
     private boolean darkTheme,grid=true;
     private String activeLabel="",homeQuery="",focusedItem;
     private boolean sortCreated,diagramOpen,filterExpanded;
+    private String activeFolder;private long folderPageSequence;
     private String diagramSelection,diagramHistoryNote;
     private app.space.notes.domain.DiagramHistory diagramHistory=new app.space.notes.domain.DiagramHistory();
     private LinearLayout selectionBar;
@@ -136,7 +137,7 @@ public final class NotesController {
                 if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
                 main.post(()->{ if(closed)return; notes.addAll(loaded); ready=true;
                     if(restored!=null) {
-                        page=restored.getString("page","Notes");
+                        page=restored.getString("page","Notes");activeFolder=restored.getString("activeFolder");
                         String id=restored.getString("editing");
                         if(id!=null && find(id)!=null) {
                             Note n=find(id);
@@ -166,7 +167,7 @@ public final class NotesController {
         TextView v=new TextView(context); v.setText(value); v.setTextSize(size); v.setTextColor(ink);
         v.setPadding(0,dp(6),0,dp(6)); return v;
     }
-    private void clearPage(){editorTopChrome=null;homeTopChrome=null;homeDockChrome=null;pageBack=null;undoControl=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
+    private void clearPage(){folderPageSequence++;editorTopChrome=null;homeTopChrome=null;homeDockChrome=null;pageBack=null;undoControl=null;sheets.reset();formattingPanel=null;writingDock=null;pendingParagraphStyle=null;root.removeAllViews();}
     private void act(String label,Runnable action){if(busy){host.showMessage("Storage change in progress. Please wait.");return;}Diagnostics.record("ui.tap","control="+Diagnostics.controlName(label)+" screen="+(editing==null?page:"editor"));action.run();}
     private Button button(String label,Runnable action){return design.textAction(label,()->act(label,action));}
     private Button icon(String label,String symbol,Runnable action){return design.icon(label,symbol,()->act(label,action));}
@@ -216,8 +217,8 @@ public final class NotesController {
     private void renderHome(){
         voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null;title=null;body=null;visible.clear();diagramOpen=false;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
         LinearLayout top=tools(root);homeTopChrome=top;Button library=icon("Library","menu",()->{});top.addView(library,new LinearLayout.LayoutParams(dp(48),dp(48)));
-        TextView brand=design.heading(activeLabel.isEmpty()?page:activeLabel);brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(!undoBatch.isEmpty() || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
-        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),this::renderVoiceInbox,this::renderSettings});
+        TextView brand=design.heading(activeFolder!=null?(activeFolder.isEmpty()?"Main folder":activeFolder):(activeLabel.isEmpty()?page:activeLabel));brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));if(!undoBatch.isEmpty() || undo!=null)top.addView(icon("Undo","undo",this::undo),new LinearLayout.LayoutParams(dp(48),dp(48)));
+        LinearLayout navigation=menu("Library",library);menuRows(navigation,new String[]{"Notes","Archive","Trash","Folders","Voice inbox","Settings"},new Runnable[]{()->navigate("Notes"),()->navigate("Archive"),()->navigate("Trash"),()->renderFolders(false),this::renderVoiceInbox,this::renderSettings});
         status=text("",12);status.setVisibility(View.GONE);root.addView(status);
         LinearLayout searchBar=new LinearLayout(context);searchBar.setGravity(android.view.Gravity.CENTER_VERTICAL);searchBar.setBackground(design.shape(surface,24));root.addView(searchBar);
         search=new EditText(context);search.setSingleLine(true);design.entry(search,16);search.setPadding(dp(18),dp(12),dp(4),dp(12));search.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));search.setHint("Search notes and labels");search.setText(homeQuery);searchBar.addView(search,new LinearLayout.LayoutParams(0,-2,1));
@@ -225,7 +226,7 @@ public final class NotesController {
         menuRows(filters,new String[]{grid?"List view":"Grid view",sortCreated?"Sort: created":"Sort: edited","All labels","Manage labels"},new Runnable[]{()->{grid=!grid;saveViewPreferences();renderHome();},()->{sortCreated=!sortCreated;saveViewPreferences();renderHome();},()->{activeLabel="";selectedIds.clear();renderHome();},this::manageLabels});
         TreeSet<String> labels=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);for(Note n:notes)if(n.deletedAt==0)labels.addAll(n.labels);for(String label:labels)filters.addView(button(label,()->{activeLabel=label;selectedIds.clear();renderHome();}));
         search.addTextChangedListener(watcher(()->{homeQuery=search.getText().toString();main.removeCallbacks(filter);main.postDelayed(filter,150);querySequence++;}));
-        selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);LinearLayout selectionTools=tools(selectionBar);tool(selectionTools,"Done","close",()->{selectedIds.clear();updateSelection();});TextView count=text("",16);count.setTag("selection-count");selectionTools.addView(count,new LinearLayout.LayoutParams(0,-2,1));tool(selectionTools,"Pin","pin",()->bulkState("pin"));tool(selectionTools,"Archive","archive",()->bulkState("archive"));tool(selectionTools,page.equals("Trash")?"Restore":"Trash",page.equals("Trash")?"undo":"trash",()->bulkState(page.equals("Trash")?"restore":"trash"));Button selectionMore=icon("Selection actions","more",()->{});selectionTools.addView(selectionMore,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout selectedMenu=menu("Selected notes",selectionMore);menuRows(selectedMenu,new String[]{"Labels","Colour","Share","Copy","Merge"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateSelected,this::mergeSelected});root.addView(selectionBar);
+        selectionBar=new LinearLayout(context);selectionBar.setOrientation(LinearLayout.VERTICAL);LinearLayout selectionTools=tools(selectionBar);tool(selectionTools,"Done","close",()->{selectedIds.clear();updateSelection();});TextView count=text("",16);count.setTag("selection-count");selectionTools.addView(count,new LinearLayout.LayoutParams(0,-2,1));tool(selectionTools,"Pin","pin",()->bulkState("pin"));tool(selectionTools,"Archive","archive",()->bulkState("archive"));tool(selectionTools,page.equals("Trash")?"Restore":"Trash",page.equals("Trash")?"undo":"trash",()->bulkState(page.equals("Trash")?"restore":"trash"));Button selectionMore=icon("Selection actions","more",()->{});selectionTools.addView(selectionMore,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout selectedMenu=menu("Selected notes",selectionMore);selectedMenu.addView(button("Move to folder",()->renderFolders(true)));menuRows(selectedMenu,new String[]{"Labels","Colour","Share","Copy","Merge"},new Runnable[]{this::renderLabels,this::renderColours,this::shareSelected,this::duplicateSelected,this::mergeSelected});root.addView(selectionBar);
         board=new NotesBoard(context,darkTheme,new NotesBoard.Listener(){public void open(Note n){if(!selectedIds.isEmpty()){toggleSelection(n);return;}editing=n.id;renderEditor();}public void select(Note n){toggleSelection(n);}},grid);
         emptyHint=text(homeQuery.isEmpty()?"A little space for your ideas.\nCreate a note below. It stays on your device.":"No matching notes. Try another search.",17);emptyHint.setTextColor(muted);emptyHint.setGravity(android.view.Gravity.CENTER);emptyHint.setPadding(dp(20),dp(28),dp(20),dp(28));emptyHint.setVisibility(View.GONE);root.addView(emptyHint);root.addView(board,new LinearLayout.LayoutParams(-1,0,1));
         LinearLayout dock=tools(root);homeDockChrome=dock;tool(dock,"+ Checklist","checklist",this::newChecklist);tool(dock,"Record voice","mic",host::requestVoiceCapture);View gap=new View(context);dock.addView(gap,new LinearLayout.LayoutParams(0,1,1));Button create=button(context.getResources().getConfiguration().fontScale>1.3f?"Note":"New note",this::newNote);create.setContentDescription("New text note");create.setTooltipText("New text note");create.setTextColor(design.accentInk);create.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));create.setMinHeight(dp(54));create.setPadding(dp(18),dp(8),dp(18),dp(8));dock.addView(create);
@@ -240,16 +241,16 @@ public final class NotesController {
         if(board!=null)board.show(visible,selectedIds,!page.equals("Trash"));
         if(status!=null && !selectedIds.isEmpty())status.setText(selectedIds.size()+" selected · tap cards to change selection");root.post(this::adaptEditorViewport);
     }
-    private void navigate(String name) { page=name;selectedIds.clear();activeLabel="";renderHome(); }
+    private void navigate(String name) { activeFolder=null;page=name;selectedIds.clear();activeLabel="";renderHome(); }
     private void newNote() {
-        long now=System.currentTimeMillis();Note n=Note.create(now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();
+        long now=System.currentTimeMillis();Note n=Note.create(now).folder(activeFolder==null?"":activeFolder,now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();
         queueSave(); renderEditor(); if(body!=null){body.requestFocus();body.post(()->{if(!closed && body!=null)((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});}
     }
-    private void newChecklist(){long now=System.currentTimeMillis();Note n=Note.create(now).convert(now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();queueSave();renderEditor();}
+    private void newChecklist(){long now=System.currentTimeMillis();Note n=Note.create(now).folder(activeFolder==null?"":activeFolder,now).convert(now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();queueSave();renderEditor();}
     private void filterNow() {
         if(closed || editing!=null || search==null)return;
         final String query=search.getText().toString(), currentPage=page,label=activeLabel;
-        final boolean created=sortCreated;
+        final boolean created=sortCreated;final String folder=activeFolder;
         final long ticket=++querySequence;
         final List<Note> snapshot=new ArrayList<>(notes);
         searchWorker.execute(()->{
@@ -257,7 +258,7 @@ public final class NotesController {
             for(Note n:snapshot) {
                 boolean included=currentPage.equals("Trash")?n.deletedAt>0:
                     n.deletedAt==0 && (currentPage.equals("Archive")==n.archived);
-                if(included && n.matches(query) && (label.isEmpty() || n.labels.stream().anyMatch(tag->tag.equalsIgnoreCase(label))))result.add(n);
+                if(included && (folder==null || n.folder.equalsIgnoreCase(folder)) && n.matches(query) && (label.isEmpty() || n.labels.stream().anyMatch(tag->tag.equalsIgnoreCase(label))))result.add(n);
             }
             result.sort(Comparator.comparing((Note n)->!n.pinned)
                 .thenComparing(Comparator.comparingLong((Note n)->created?n.createdAt:n.updatedAt).reversed()));
@@ -270,8 +271,8 @@ public final class NotesController {
     }
     private void renderEditor(){
         voicePage=false;ocrPanel=false;diagramOpen=false;Note n=find(editing);if(n==null){renderHome();return;}main.removeCallbacks(filter);querySequence++;search=null;board=null;selectionBar=null;clearPage();root.setPadding(dp(20),dp(4),dp(20),dp(8));
-        LinearLayout top=tools(root);editorTopChrome=top;tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin","pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}undoControl=icon("Undo","undo",this::undo);top.addView(undoControl,new LinearLayout.LayoutParams(dp(48),dp(48)));syncUndoControl();
-        ScrollView document=new ScrollView(context);document.setFillViewport(true);document.setClipToPadding(false);document.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(b-t!=ob-ot)document.postOnAnimation(()->revealWritingCaret(document));});LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);FrameLayout.LayoutParams column=new FrameLayout.LayoutParams(Math.min(dp(720),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2,android.view.Gravity.CENTER_HORIZONTAL);document.addView(editor,column);root.addView(document,new LinearLayout.LayoutParams(-1,0,1));
+        LinearLayout top=tools(root);editorTopChrome=top;tool(top,"Back","back",()->{persistDraft();renderHome();});View spacer=new View(context);top.addView(spacer,new LinearLayout.LayoutParams(0,1,1));boolean trashed=n.deletedAt>0;if(!trashed){tool(top,n.pinned?"Unpin":"Pin",n.pinned?"pinned":"pin",()->changeState("pin"));tool(top,n.archived?"Unarchive":"Archive","archive",()->changeState("archive"));}undoControl=icon("Undo","undo",this::undo);top.addView(undoControl,new LinearLayout.LayoutParams(dp(48),dp(48)));syncUndoControl();
+        ScrollView document=new ScrollView(context);document.setBackground(new NoteBackground(n.background,NotesBoard.colour(n.color,darkTheme),darkTheme,context.getResources().getDisplayMetrics().density));document.setFillViewport(true);document.setClipToPadding(false);document.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(b-t!=ob-ot)document.postOnAnimation(()->revealWritingCaret(document));});LinearLayout editor=new LinearLayout(context);editor.setOrientation(LinearLayout.VERTICAL);FrameLayout.LayoutParams column=new FrameLayout.LayoutParams(Math.min(dp(720),dp(context.getResources().getConfiguration().screenWidthDp-40)),-2,android.view.Gravity.CENTER_HORIZONTAL);document.addView(editor,column);root.addView(document,new LinearLayout.LayoutParams(-1,0,1));
         title=new EditText(context);design.entry(title,26);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));title.setOnFocusChangeListener((v,f)->root.post(this::adaptEditorViewport));title.setHint("Title");title.setText(n.title);title.setEnabled(!trashed);editor.addView(title,new LinearLayout.LayoutParams(-1,-2));
         body=null;
         if(n.checklist){LinearLayout rows=new LinearLayout(context);rows.setOrientation(LinearLayout.VERTICAL);editor.addView(rows);
@@ -315,7 +316,7 @@ public final class NotesController {
         Button formattingControl=null;if(!trashed && !n.checklist){formattingControl=icon("Text formatting","format",this::toggleFormatting);dock.addView(formattingControl,new LinearLayout.LayoutParams(dp(48),dp(48)));}
         if(!trashed){dock.addView(icon("Colour","palette",this::renderColours),new LinearLayout.LayoutParams(dp(48),dp(48)));dock.addView(icon("Labels","label",this::renderLabels),new LinearLayout.LayoutParams(dp(48),dp(48)));}
         View spring=new View(context);dock.addView(spring,new LinearLayout.LayoutParams(0,1,1));Button more=icon("More actions","more",()->{});dock.addView(more,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout actions=menu("Note actions",more);
-        if(trashed)menuRows(actions,new String[]{"Restore","Share"},new Runnable[]{()->changeState("restore"),this::shareSelected});else{menuRows(actions,new String[]{"Share","Export PDF"},new Runnable[]{this::shareSelected,host::exportPdf});if(!n.checklist)menuRows(actions,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});else menuRows(actions,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove",n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove"),()->listAction("hide"),this::convertNote});}
+        if(trashed)menuRows(actions,new String[]{"Restore","Share"},new Runnable[]{()->changeState("restore"),this::shareSelected});else{menuRows(actions,new String[]{"Share","Export PDF","Move to folder","Background"},new Runnable[]{this::shareSelected,host::exportPdf,()->renderFolders(true),this::renderBackgrounds});if(!n.checklist)menuRows(actions,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});else menuRows(actions,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove",n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove"),()->listAction("hide"),this::convertNote});}
         TextView dates=text("Edited "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.updatedAt))+"\nCreated "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.createdAt)),12);dates.setTextColor(muted);actions.addView(dates);
         if(!trashed && !n.checklist){writingDock=dock;buildFormatting(formattingControl);}
         title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));root.post(this::adaptEditorViewport);
@@ -633,6 +634,21 @@ public final class NotesController {
         }
         row(new String[]{"Cancel"},new Runnable[]{this::returnToNoteOrHome});
     }
+    private void renderBackgrounds(){
+        List<Note> chosen=propertyTargets();if(chosen.isEmpty())return;title=null;body=null;search=null;querySequence++;clearPage();header("Background",this::returnToNoteOrHome);
+        ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        for(int i=0;i<NoteBackground.NAMES.length;i++){final int value=i;Button option=button(NoteBackground.NAMES[i],()->{captureUndo(chosen,false);for(Note old:chosen){Note current=find(old.id);if(current!=null)replace(current.background(value,System.currentTimeMillis()));}queueSave();returnToNoteOrHome();});option.setBackground(new NoteBackground(i,surface,darkTheme,context.getResources().getDisplayMetrics().density));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(72));lp.setMargins(0,dp(5),0,dp(5));content.addView(option,lp);}
+    }
+    private void renderFolders(boolean moving){
+        persistDraft();List<Note> chosen=moving?propertyTargets():Collections.emptyList();if(moving && chosen.isEmpty())return;title=null;body=null;search=null;querySequence++;storagePage=true;clearPage();header(moving?"Move to folder":"Folders",moving?this::returnToNoteOrHome:this::renderHome);final long token=folderPageSequence;
+        ScrollView scroll=new ScrollView(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));content.addView(text("Reading your main storage folder…",14));
+        disk.execute(()->{try{List<String> folders=repository.folders().list();main.post(()->{if(closed || token!=folderPageSequence)return;content.removeAllViews();content.addView(text("Real folders inside your selected main storage location. Notes are stored as portable JSON files; the library also keeps recovery snapshots.",14));
+            if(!moving)content.addView(button("All notes",()->{activeFolder=null;renderHome();}));
+            java.util.function.Consumer<String> choose=folder->{if(moving){captureUndo(chosen,false);for(Note old:chosen){Note current=find(old.id);if(current!=null)replace(current.folder(folder,System.currentTimeMillis()));}queueSave();activeFolder=null;returnToNoteOrHome();}else{activeFolder=folder;page="Notes";selectedIds.clear();editing=null;renderHome();}};
+            content.addView(button("Main folder",()->choose.accept("")));for(String folder:folders){Button option=button(folder,()->choose.accept(folder));NotesIcon icon=new NotesIcon("folder",ink);icon.setBounds(0,0,dp(24),dp(24));option.setCompoundDrawablesRelative(icon,null,null,null);option.setCompoundDrawablePadding(dp(12));content.addView(option,new LinearLayout.LayoutParams(-1,-2));}
+            content.addView(button("Create folder",()->{EditText input=new EditText(context);design.entry(input,16);input.setHint("Folder name");android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(context).setTitle("Create real folder").setView(input).setPositiveButton("Create",null).setNegativeButton("Cancel",null).create();dialog.setOnShowListener(d->dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String name;try{name=app.space.notes.domain.FolderNames.require(input.getText().toString());}catch(IllegalArgumentException invalid){input.setError(invalid.getMessage());return;}if(busy)return;busy=true;dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setEnabled(false);disk.execute(()->{String error=null;try{repository.folders().create(name);}catch(Exception failure){error=failure.getMessage();}final String problem=error;main.post(()->{busy=false;if(closed)return;if(problem==null){dialog.dismiss();if(token==folderPageSequence)renderFolders(moving);}else{dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setEnabled(true);input.setError(problem);}});});}));dialog.show();}));
+        });}catch(Exception failure){main.post(()->{if(closed || token!=folderPageSequence)return;content.removeAllViews();content.addView(text(failure.getMessage()==null?"Main storage folder is unavailable":failure.getMessage(),15));content.addView(button("Storage settings",()->{renderStorage();pageBack=()->renderFolders(moving);}));});}});
+    }
     private void renderModelInfo(){
         persistDraft();editing=null;title=null;body=null;search=null;storagePage=true;clearPage();header("Offline models & licenses",this::renderSettings);
         TextView details=text("Reading bundled notices…",14);ScrollView scroll=new ScrollView(context);scroll.addView(details);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));row(new String[]{"Back"},new Runnable[]{this::renderStorage});
@@ -815,7 +831,7 @@ public final class NotesController {
     }
     public void flush() { Diagnostics.record("lifecycle.flush","requested"); if(ready && !busy){persistDraft();queueSave();} }
     public void saveState(Bundle state) {
-        persistDraft();state.putString("page",page);state.putString("editing",editing);if(body!=null){state.putInt("bodyAnchor",body.getSelectionStart());state.putInt("bodyFocus",body.getSelectionEnd());state.putBoolean("bodyFocused",body.hasFocus());}
+        persistDraft();state.putString("activeFolder",activeFolder);state.putString("page",page);state.putString("editing",editing);if(body!=null){state.putInt("bodyAnchor",body.getSelectionStart());state.putInt("bodyFocus",body.getSelectionEnd());state.putBoolean("bodyFocused",body.hasFocus());}
         if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());Diagnostics.failure("draft-snapshot.failure",e);}}
     }
     public void close() { Diagnostics.record("lifecycle.close","controller");

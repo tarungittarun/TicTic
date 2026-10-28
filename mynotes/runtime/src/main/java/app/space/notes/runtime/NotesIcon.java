@@ -27,6 +27,7 @@ final class NotesIcon extends Drawable {
  case "redo":c.save();c.translate(24,0);c.scale(-1,1);lines(c,8,5,3,10,8,15);lines(c,3,10,14,10);c.drawArc(9,10,21,22,270,150,false,p);c.restore();break;
  case "undo":lines(c,8,5,3,10,8,15);lines(c,3,10,14,10);c.drawArc(9,10,21,22,270,150,false,p);break;
  case "more":for(int y=5;y<=19;y+=7)c.drawCircle(12,y,1,p);break;
+ case "pinned":p.setStyle(Paint.Style.FILL);lines(c,8,3,16,3,15,9,19,14,5,14,9,9,8,3);p.setStyle(Paint.Style.STROKE);lines(c,12,14,12,22);break;
  case "pin":lines(c,8,3,16,3,15,9,19,14,5,14,9,9,8,3);lines(c,12,14,12,22);break;
  case "format":lines(c,5,18,12,4,19,18);lines(c,8,13,16,13);lines(c,4,22,20,22);break;
  case "label":lines(c,3,3,12,3,22,13,13,22,3,12,3,3);c.drawCircle(8,8,1.4f,p);break;

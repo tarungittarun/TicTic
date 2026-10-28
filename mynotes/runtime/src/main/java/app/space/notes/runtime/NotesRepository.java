@@ -31,6 +31,8 @@ public final class NotesRepository {
         if(!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory())throw new IllegalStateException("Cannot create Notes directory");
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
+    public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected));}
+    private void materializeFolders(List<Note> notes)throws Exception{if(folderAccess==null && selected!=null)folders().reconcile(notes);}
     public String status() {
         if(selected==null)return status;
         try {return status+" · "+android.provider.DocumentsContract.getTreeDocumentId(Uri.parse(selected));}
@@ -56,7 +58,7 @@ public final class NotesRepository {
                 status="Recovered locally · folder save pending";
                 return DocumentCodec.decode(cached); // Preserve expected old head; retry cannot clobber a foreign writer.
             }
-            head=external.head; writeLocal(external.payload,false,head);
+            head=external.head; if(pending)materializeFolders(DocumentCodec.decode(external.payload));writeLocal(external.payload,false,head);
             status="Selected local folder"; return DocumentCodec.decode(external.payload);
         } catch(Exception e) {
             if(cached==null)throw e;
@@ -73,8 +75,8 @@ public final class NotesRepository {
         writeLocal(payload,true,head); // Durable local recovery BEFORE trying the external destination.
         try {
             GenerationProtocol.Snapshot saved=protocol(selected).commit(payload,head);
-            head=saved.head; writeLocal(payload,false,head); status="Selected local folder";
-        } catch(Exception e) {status="Saved to private recovery · folder update pending";throw e;}
+            head=saved.head;materializeFolders(notes);writeLocal(payload,false,head); status="Selected local folder";
+        } catch(Exception e) {writeLocal(payload,true,head);status="Saved to private recovery · folder update pending";throw e;}
     }
     public void selectFolder(Uri uri,List<Note> notes) throws Exception {
         String target=uri.toString();
@@ -83,6 +85,7 @@ public final class NotesRepository {
         if(destination.read().head!=null)throw new IOException("This folder contains a library. Choose a new empty folder; existing data was not overwritten.");
         byte[] payload=DocumentCodec.encode(notes);
         GenerationProtocol.Snapshot saved=destination.commit(payload,null);
+        if(folderAccess==null)new LocalNotebookFolders(context.getContentResolver(),uri).reconcile(notes);
         // Destination verified first. Source generations are never deleted automatically.
         if(!settings.edit().putString("tree",target).commit())throw new IOException("Could not store folder selection; previous destination retained");
         selected=target;head=saved.head;

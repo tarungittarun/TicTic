@@ -59,10 +59,10 @@ public final class NotesBoard extends RecyclerView {
             if(row instanceof String){h.title.setText((String)row);h.title.setTextColor(Color.parseColor(dark?"#B9BCC6":"#625C50"));h.box.setBackground(null);h.box.setOnClickListener(null);h.box.setOnLongClickListener(null);return;}
             Note n=(Note)row;boolean chosen=selection.contains(n.id);int ink=Color.parseColor(dark?"#F5F5F5":"#202124");
             GradientDrawable bg=new GradientDrawable();bg.setColor(colour(n.color,dark));bg.setCornerRadius(dp(16));
-            bg.setStroke(dp(chosen?2:1),Color.parseColor(chosen?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));h.box.setBackground(bg);
+            bg.setStroke(dp(chosen?2:1),Color.parseColor(chosen?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));h.box.setBackground(n.background==0?bg:new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{new NoteBackground(n.background,colour(n.color,dark),dark,getResources().getDisplayMetrics().density),border(chosen)}));
             h.title.setText((chosen?"✓  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));
             h.title.setTextColor(ink);h.body.setTextColor(ink);h.tags.setTextColor(ink);h.body.setLineSpacing(dp(2),1.05f);
-            h.title.setVisibility(n.title.isEmpty() && !n.checklist && !chosen && !n.body.isEmpty()?GONE:VISIBLE);NotesIcon pin=n.pinned?new NotesIcon("pin",ink):null;if(pin!=null)pin.setBounds(0,0,dp(16),dp(16));h.title.setCompoundDrawablesRelative(pin,null,null,null);h.title.setCompoundDrawablePadding(dp(5));
+            h.title.setVisibility(n.title.isEmpty() && !n.checklist && !chosen && !n.pinned && !n.body.isEmpty()?GONE:VISIBLE);NotesIcon pin=n.pinned?new NotesIcon("pinned",ink):null;if(pin!=null)pin.setBounds(0,0,dp(16),dp(16));h.title.setCompoundDrawablesRelative(pin,null,null,null);h.title.setCompoundDrawablePadding(dp(5));
             String preview=n.plainText();if(!n.diagram.nodes.isEmpty())preview+=(preview.isEmpty()?"":"\n")+"▧ Diagram · "+n.diagram.nodes.size()+" shapes";String excerpt=preview.length()>400?preview.substring(0,400)+"…":preview;android.text.SpannableStringBuilder rich=new android.text.SpannableStringBuilder(excerpt);
             if(!n.checklist)for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(n.marks,n.body)){int end=Math.min(mark.end,Math.min(n.body.length(),excerpt.length()));if(mark.start<end)TextStyles.writeRange(rich,new Note.Mark(mark.type,mark.start,end),0);}h.body.setText(rich);
             h.body.setVisibility(preview.isEmpty()?GONE:VISIBLE);
@@ -72,4 +72,5 @@ public final class NotesBoard extends RecyclerView {
         }
         @Override public void onViewAttachedToWindow(Holder h){super.onViewAttachedToWindow(h);int p=h.getBindingAdapterPosition();if(p>=0 && h.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams)((StaggeredGridLayoutManager.LayoutParams)h.itemView.getLayoutParams()).setFullSpan(rows.get(p) instanceof String);}
     }
+    private android.graphics.drawable.Drawable border(boolean selected){GradientDrawable d=new GradientDrawable();d.setColor(Color.TRANSPARENT);d.setCornerRadius(dp(16));d.setStroke(dp(selected?2:1),Color.parseColor(selected?(dark?"#E8C58E":"#76551D"):(dark?"#3B414A":"#D9DDD8")));return d;}
 }

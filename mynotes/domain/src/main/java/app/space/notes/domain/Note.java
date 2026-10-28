@@ -2,10 +2,11 @@ package app.space.notes.domain;
 
 import java.util.*;
 
-/** Schema-v5 immutable document. v1 constructor remains supported for migration/tests. */
+/** Schema-v6 immutable document. v1 constructor remains supported for migration/tests. */
 public final class Note {
     public static final long TRASH_RETENTION_MS=7L*24*60*60*1000;
-    public final String id,title,body;
+    public final String id,title,body,folder;
+    public final int background;
     public final long createdAt,updatedAt,deletedAt,reminderAt;
     public final boolean pinned,archived,checklist,hideChecked;
     public final int color;
@@ -52,6 +53,13 @@ public final class Note {
     public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
                 boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
                 List<Item> items,List<Mark> marks,List<String> labels,Diagram diagram,List<String> voiceSources,long reminderAt) {
+        this(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,"",0);
+    }
+    public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
+                boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
+                List<Item> items,List<Mark> marks,List<String> labels,Diagram diagram,List<String> voiceSources,long reminderAt,String folder,int background) {
+        if(folder==null || (!folder.isEmpty() && !FolderNames.require(folder).equals(folder)))throw new IllegalArgumentException("Invalid folder name");
+        if(background<0 || background>15)throw new IllegalArgumentException("Unknown note background");this.folder=folder;this.background=background;
         if(reminderAt<0)throw new IllegalArgumentException("Invalid reminder time");this.reminderAt=reminderAt;
         Set<String> sourceIds=new LinkedHashSet<>();for(String source:voiceSources){UUID.fromString(source);if(!sourceIds.add(source))throw new IllegalArgumentException("Duplicate voice source");}
         this.voiceSources=Collections.unmodifiableList(new ArrayList<>(voiceSources));
@@ -80,7 +88,7 @@ public final class Note {
     }
     private Note copy(String title,String body,long now,long deleted,boolean pin,boolean archive,int colour,
                       boolean list,boolean hide,List<Item> rows,List<Mark> spans,List<String> tags) {
-        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags,diagram,voiceSources,reminderAt);
+        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags,diagram,voiceSources,reminderAt,folder,background);
     }
     public static Note create(long now){return new Note(UUID.randomUUID().toString(),"","",now,now,0,false,false,0);}
     public Note edit(String title,String body,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,
@@ -89,10 +97,12 @@ public final class Note {
     public Note list(String title,List<Item> rows,boolean hide,long now){return copy(title,"",now,deletedAt,pinned,archived,color,true,hide,rows,Collections.emptyList(),labels);}
     public Note properties(int color,List<String> labels,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
     public Note state(boolean pinned,boolean archived,long deletedAt,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
-    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt);}
-    public Note diagram(Diagram value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,value,voiceSources,reminderAt);}
-    public Note voiceSource(String source,long now){List<String> ids=new ArrayList<>(voiceSources);if(!ids.contains(source))ids.add(source);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,ids,reminderAt);}
-    public Note reminder(long time,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,time);}
+    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background);}
+    public Note diagram(Diagram value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,value,voiceSources,reminderAt,folder,background);}
+    public Note voiceSource(String source,long now){List<String> ids=new ArrayList<>(voiceSources);if(!ids.contains(source))ids.add(source);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,ids,reminderAt,folder,background);}
+    public Note reminder(long time,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,time,folder,background);}
+    public Note folder(String value,long now){String normalized=value.isEmpty()?"":FolderNames.require(value);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,normalized,background);}
+    public Note background(int value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,value);}
     public String plainText() {
         if(!checklist)return body;
         StringBuilder text=new StringBuilder();

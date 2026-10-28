@@ -8,7 +8,7 @@ import java.util.*;
 import app.space.notes.domain.Note;
 import app.space.notes.domain.Diagram;
 
-/** Writes schema 5, reads schemas 1 through 5; unknown future versions are refused. */
+/** Writes schema 6, reads schemas 1 through 6; unknown future versions are refused. */
 public final class DocumentCodec {
     private DocumentCodec() { }
     public static byte[] encode(List<Note> notes) throws Exception {
@@ -22,9 +22,9 @@ public final class DocumentCodec {
             for(String label:n.labels)labels.put(label);
             array.put(new JSONObject().put("id",n.id).put("title",n.title)
                 .put("body",n.body).put("createdAt",n.createdAt).put("updatedAt",n.updatedAt)
-                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)).put("voiceSources",voices).put("reminderAt",n.reminderAt));
+                .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)).put("voiceSources",voices).put("reminderAt",n.reminderAt).put("folder",n.folder).put("background",n.background));
         }
-        return new JSONObject().put("version",5).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
+        return new JSONObject().put("version",6).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
     }
     private static JSONObject encodeDiagram(Diagram diagram) throws Exception {
         JSONArray nodes=new JSONArray(),edges=new JSONArray();
@@ -41,7 +41,7 @@ public final class DocumentCodec {
     public static List<Note> decode(byte[] bytes) throws Exception {
         JSONObject root=new JSONObject(new String(bytes,StandardCharsets.UTF_8));
         int version=root.getInt("version");
-        if(version!=1 && version!=2 && version!=3 && version!=4 && version!=5)throw new IOException("Unsupported library format; data left untouched");
+        if(version!=1 && version!=2 && version!=3 && version!=4 && version!=5 && version!=6)throw new IOException("Unsupported library format; data left untouched");
         JSONArray array=root.getJSONArray("notes"); List<Note> notes=new ArrayList<>(); Set<String> ids=new HashSet<>();
         for(int i=0;i<array.length();i++) {
             JSONObject n=array.getJSONObject(i);
@@ -56,7 +56,7 @@ public final class DocumentCodec {
             Note note=new Note(n.getString("id"),n.getString("title"),n.getString("body"),
                 n.getLong("createdAt"),n.getLong("updatedAt"),n.getLong("deletedAt"),
                 n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),version>=2 && n.getBoolean("checklist"),
-                version>=2 && n.getBoolean("hideChecked"),items,marks,labels,version>=3?decodeDiagram(n.getJSONObject("diagram")):Diagram.empty(),voices,version>=5?n.getLong("reminderAt"):0);
+                version>=2 && n.getBoolean("hideChecked"),items,marks,labels,version>=3?decodeDiagram(n.getJSONObject("diagram")):Diagram.empty(),voices,version>=5?n.getLong("reminderAt"):0,version>=6?n.getString("folder"):"",version>=6?n.getInt("background"):0);
             if(!ids.add(note.id))throw new IOException("Duplicate note ID; data left untouched");
             notes.add(note);
         }

@@ -1,6 +1,6 @@
 # Paper & Ink — MyNotes 0.9 UX review
 
-**Candidate 0.9.0 (10), not published or accepted.** The user rejected 0.8's UI despite green functional CI. This redesign must earn acceptance from practical use and rendered evidence, not totals.
+**Candidate 0.9.0 (10): all 21 Android lanes passed; rendered review approved for gated publication. Not yet published.** The user rejected 0.8's UI despite green functional CI. This redesign must earn acceptance from practical use and rendered evidence, not totals.
 
 Requested refinement window: **28 October 2026, 00:03:08–03:03:08 UTC** (05:33:08–08:33:08 IST). Final qualification is a separate release gate; reaching the end of the window does not authorize bypassing it.
 
@@ -86,3 +86,11 @@ Original WAV remained unchanged: SHA-256 `dcfea5712c43a43ba7ae8083afb39d36993e5a
 - [ ] Approval pins equivalent production inputs and the actual reviewed run before immutable publication.
 
 Physical OEM/SAF/SD providers, TalkBack, microphone hardware, accent/noise, battery/thermal, ARM and 16KiB-device execution remain unqualified. Emulator screenshots and component soaks do not certify these. User/device experience remains decisive; “world class” is a goal, not a test-derived certification.
+
+## Follow-up resolution and publication approval
+
+Run [40623972980](https://github.com/tarungittarun/TicTic/actions/runs/40623972980), source `934c40980ff264d1c030f29d4efdea79b789a631`, completed with **all 21 Android lanes passing**, including **118/118 methods in each of the five full review profiles**. Its overall summary was intentionally red because approval was still withheld, not because an Android test failed.
+
+The new captures were inspected: large-font palette names now stay whole in two columns; tablet native H1/H2 and colour/recreation journeys pass without replacing real pointer input with direct clicks. Light/dark home/editor, numeric heading reflow, checklist, Settings/recovery and contextual tools remain consistent. Landscape actual-keyboard editor and search have readable content. The two previously blocking findings are resolved within these tested emulator configurations.
+
+Approval now pins this source and run, and the canonical 16-page PDF has been regenerated from its actual captures. A new full gated publication run is required; no failed lane is skipped or overridden. Earlier pending statements above are the historical investigation record. Device/user acceptance remains separate from this bounded release approval.

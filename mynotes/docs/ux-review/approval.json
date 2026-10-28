@@ -1,6 +1,12 @@
 {
-  "reviewed_source": null,
-  "review_run": null,
-  "inspected_variants": [],
-  "findings": "Not approved. Actual run40622598745/source d5cf717 captures were inspected: landscape editor and search are now readable, but tablet native taps failed in two journeys and the 200% palette splits colour names mid-word. Source934c409 in run40623972980 adds stable native tap readiness and wider large-font colour cells with a new native label-layout assertion. Await its complete results and actual captures; neither test counts nor the 180-minute deadline authorize publication."
+  "reviewed_source": "934c40980ff264d1c030f29d4efdea79b789a631",
+  "review_run": "40623972980",
+  "inspected_variants": [
+    "full-api34",
+    "night-api34",
+    "large-font-api34",
+    "landscape-api34",
+    "tablet-api34"
+  ],
+  "findings": "Inspected actual new emulator captures for all five profiles, including native numeric H1/H2, light/dark home and editor, checklist/settings/recovery, contextual tools, landscape editor/search with actual keyboard, tablet numeric heading and formatting, and the corrected 200% palette. Single-word colour names now fit; tablet native interactions and all 118 methods pass in each review profile. All 21 Android lanes, source/domain/lint and APK identity/update audits passed. Approves these bounded emulator scenes for candidate publication, not user aesthetic acceptance or physical-device/TalkBack/OEM/thermal/acoustic certification."
 }

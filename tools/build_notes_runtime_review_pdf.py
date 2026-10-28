@@ -34,6 +34,42 @@ def para(c, text, x, top, width, max_height=200, style=STYLE):
     return height
 
 
+def geometry(c, name, x, y, width, height):
+    """Explanatory vector legend; not presented as a runtime screenshot."""
+    import math
+    c.saveState();c.translate(x,y);c.scale(width,height);c.setStrokeColor(HONEY);c.setFillColor(HexColor('#F0F1EE'));c.setLineWidth(.022)
+    def polygon(points):
+        p=c.beginPath();p.moveTo(*points[0])
+        for point in points[1:]:p.lineTo(*point)
+        p.close();c.drawPath(p,fill=1,stroke=1)
+    if name=='Rectangle':c.rect(0,0,1,1,fill=1,stroke=1)
+    elif name=='Diamond':polygon([(.5,1),(1,.5),(.5,0),(0,.5)])
+    elif name=='Capsule':c.roundRect(0,0,1,1,.35,fill=1,stroke=1)
+    elif name=='Parallelogram':polygon([(.2,1),(1,1),(.8,0),(0,0)])
+    elif name=='Oval':c.ellipse(0,0,1,1,fill=1,stroke=1)
+    elif name=='Triangle':polygon([(.5,1),(1,0),(0,0)])
+    elif name=='Right triangle':polygon([(0,1),(1,0),(0,0)])
+    elif name in ('Pentagon','Hexagon','Octagon','Star'):
+        count={'Pentagon':5,'Hexagon':6,'Octagon':8,'Star':10}[name]
+        polygon([(.5+( .23 if name=='Star' and i%2 else .5)*math.cos(math.pi/2+i*2*math.pi/count),.5+( .23 if name=='Star' and i%2 else .5)*math.sin(math.pi/2+i*2*math.pi/count)) for i in range(count)])
+    elif name=='Trapezoid':polygon([(.2,1),(.8,1),(1,0),(0,0)])
+    elif name=='Cylinder':
+        c.rect(0,.15,1,.7,fill=1,stroke=0);c.line(0,.15,0,.85);c.line(1,.15,1,.85);c.ellipse(0,.7,1,1,fill=1,stroke=1);c.bezier(0,.15,0,-.05,1,-.05,1,.15)
+    elif name=='Cube':
+        polygon([(0,.2),(.6,0),(1,.3),(1,.8),(.4,1),(0,.7)]);c.line(0,.7,.6,.5);c.line(.6,.5,1,.8);c.line(.6,.5,.6,0)
+    elif name=='Wavy rectangle':
+        p=c.beginPath();p.moveTo(0,1);p.lineTo(0,.2);p.curveTo(.1,0,.3,.4,.5,.2);p.curveTo(.7,0,.9,.4,1,.2);p.lineTo(1,1);p.close();c.drawPath(p,fill=1,stroke=1)
+    elif name=='Cloud':
+        p=c.beginPath();p.moveTo(.2,.1);p.curveTo(-.1,.1,-.05,.55,.15,.6);p.curveTo(.05,.9,.35,1.1,.5,.85);p.curveTo(.7,1.1,1,.9,.85,.65);p.curveTo(1.15,.6,1.05,.15,.8,.15);p.curveTo(.7,-.05,.35,-.05,.2,.1);p.close();c.drawPath(p,fill=1,stroke=1)
+    elif name=='Right arrow':polygon([(0,.25),(.6,.25),(.6,0),(1,.5),(.6,1),(.6,.75),(0,.75)])
+    elif name=='Chevron':polygon([(0,0),(.65,0),(1,.5),(.65,1),(0,1),(.35,.5)])
+    elif name=='Semicircle':c.wedge(0,-1,1,1,0,180,fill=1,stroke=1)
+    elif name=='Heart':
+        p=c.beginPath();p.moveTo(.5,0);p.curveTo(.4,.1,0,.45,0,.7);p.curveTo(0,1,.3,1,.5,.8);p.curveTo(.7,1,1,1,1,.7);p.curveTo(1,.45,.6,.1,.5,0);p.close();c.drawPath(p,fill=1,stroke=1)
+    else:raise ValueError(name)
+    c.restoreState()
+
+
 def build(run, output):
     folder = ROOT/'mynotes/docs/ux-review'/run
     manifest = json.loads((folder/'provenance.json').read_text())
@@ -134,6 +170,15 @@ def build(run, output):
             block('text',600,110,160,48,'Text annotation')
             para(c, 'Add a shape, edit its words, connect endpoints, then move or resize. Save/reopen retains editable objects and labels. 20 named shapes and text annotation are available. Basic grouping moves linked shapes together; curves, layers and smart guides are not claimed.',60,85,720,35,SMALL)
             c.showPage()
+
+    heading('20 shapes, named for what you see', 'Explanatory vector legend, not runtime captures. Text annotation is an additional tool. Saved legacy shape IDs stay compatible.')
+    names=['Rectangle','Diamond','Capsule','Parallelogram','Oval','Triangle','Right triangle','Pentagon','Hexagon','Octagon','Star','Trapezoid','Cylinder','Cube','Wavy rectangle','Cloud','Right arrow','Chevron','Semicircle','Heart']
+    for i, name in enumerate(names):
+        col,row=i%5,i//5;x=35+col*155;y=400-row*94
+        geometry(c,name,x+45,y,65,40)
+        c.setFillColor(INK);c.setFont('Helvetica',9);c.drawCentredString(x+77,y-17,name)
+    para(c,'<b>Make it yours:</b> add a shape, tap to select, Edit shape to change words/colour, and Connect to draw an arrow. Drag shapes directly. Group selected shapes to move them together. Diagram Undo/Redo and freehand stroke Undo/Redo are separate histories.',35,88,W-70,42,SMALL)
+    c.showPage()
 
     new_surfaces = [
         ('Find the view that fits', ('filters-view','filters-sort','filters-labels'), ('View','Sort','Labels'), 'Swipe between the tabs. Label checkboxes support all, none or any chosen combination.'),

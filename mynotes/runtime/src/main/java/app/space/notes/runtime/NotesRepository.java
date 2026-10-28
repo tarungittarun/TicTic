@@ -121,7 +121,7 @@ public final class NotesRepository {
         if(!settings.edit().putString("tree",target).commit())
             throw new IOException("Destination verified, but selection could not be stored. Current library retained; target history also retained.");
         selected=target;head=committed.head;
-        try {writeLocal(payload,false,head);status="Opened existing local library";}
+        try {writeLocal(payload,true,head);try{materializeFolders(merged);}catch(Exception pendingFiles){status="Opened folder · note files sync pending";return;}writeLocal(payload,false,head);status="Opened existing local library";}
         catch(Exception localFailure) {
             // Target and selection are already durable. Do not let stale UI state overwrite them.
             status="Opened folder · private recovery copy unavailable; check device space";

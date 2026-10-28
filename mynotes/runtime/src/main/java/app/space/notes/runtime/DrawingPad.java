@@ -7,8 +7,8 @@ import java.util.*;
 final class DrawingPad extends View {
  private static final class Stroke {final Path path;final int color;Stroke(Path path,int color){this.path=path;this.color=color;}}
  private final List<Stroke> strokes=new ArrayList<>(),redo=new ArrayList<>();private Path current;private Bitmap base;private int color=Color.BLACK,strokeColor;private boolean ready;private long revision;private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
- DrawingPad(Context c){super(c);setContentDescription("Drawing canvas. Draw with a finger. Undo and redo controls are below.");setFocusable(true);paint.setStrokeWidth(4);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);paint.setStyle(Paint.Style.STROKE);}
- void loaded(Bitmap bitmap){base=bitmap;ready=true;invalidate();}
+ DrawingPad(Context c){super(c);setContentDescription("Drawing canvas. Draw with a finger. Undo and redo controls are below.");setFocusable(true);setEnabled(false);paint.setStrokeWidth(4);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);paint.setStyle(Paint.Style.STROKE);}
+ void loaded(Bitmap bitmap){base=bitmap;ready=true;setEnabled(true);invalidate();}
  boolean ready(){return ready;}
  long revision(){return revision;}
  void color(int value){color=value;}

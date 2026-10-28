@@ -388,10 +388,10 @@ public final class NotesController {
         if(note.diagram.nodes.isEmpty()){TextView hint=text("Start with a shape. Tap it to select; drag to move. Use Connect to add an arrow.",14);hint.setTextColor(muted);area.addView(hint);}
         LinearLayout dock=tools(root);
         if(!readOnly){Button add=icon("Add shape","add",()->{});dock.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout shapes=menu("Add shape",add);for(String shape:Diagram.SHAPES){Button option=button(Diagram.shapeName(shape),()->addShape(shape));DiagramShapeIcon preview=new DiagramShapeIcon(shape,darkTheme);preview.setBounds(0,0,dp(56),dp(40));option.setCompoundDrawablesRelative(preview,null,null,null);option.setCompoundDrawablePadding(dp(16));shapes.addView(option,new LinearLayout.LayoutParams(-1,-2));}
-            Button edit=button("Edit shape",()->{});dock.addView(edit);LinearLayout editTools=menu("Selected shape",edit);menuRows(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
+            Button edit=button("Edit shape",()->{});dock.addView(edit,new LinearLayout.LayoutParams(0,-2,1));LinearLayout editTools=menu("Selected shape",edit);menuRows(editTools,new String[]{"Edit shape","Connect","Delete shape","Wider","Narrower","Taller","Shorter"},new Runnable[]{this::editShape,this::connectShape,()->diagramChange("delete"),()->diagramChange("wider"),()->diagramChange("narrower"),()->diagramChange("taller"),()->diagramChange("shorter")});
             Button undoDiagram=icon("Undo diagram","undo",()->stepDiagramHistory(false));undoDiagram.setTag("diagram-undo");undoDiagram.setEnabled(diagramHistory.canUndo(note.diagram));dock.addView(undoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
             Button redoDiagram=icon("Redo diagram","redo",()->stepDiagramHistory(true));redoDiagram.setTag("diagram-redo");redoDiagram.setEnabled(diagramHistory.canRedo(note.diagram));dock.addView(redoDiagram,new LinearLayout.LayoutParams(dp(48),dp(48)));
-            Button grouping=button("Group",this::groupShapes);dock.addView(grouping);
+            Button grouping=button("Group",this::groupShapes);dock.addView(grouping,new LinearLayout.LayoutParams(0,-2,1));
             LinearLayout arrowTools=tools(area);arrowTools.addView(button("Edit arrows",this::chooseArrow));}
 
     }
@@ -410,11 +410,11 @@ public final class NotesController {
     private Diagram.Node selectedShape(){Note n=find(editing);Diagram.Node node=n==null?null:n.diagram.find(diagramSelection);if(node==null)host.showMessage("Tap a shape on the canvas first.");return node;}
     private void editShape(){Diagram.Node node=selectedShape();if(node==null)return;
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);EditText input=new EditText(context);input.setText(node.text);input.setHint("Shape text");content.addView(input);
-        Spinner colors=new Spinner(context);colors.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_dropdown_item,NotesBoard.NAMES));colors.setSelection(node.color);content.addView(colors);
+        Spinner colors=new Spinner(context);String[] colourNames=NotesBoard.NAMES.clone();colourNames[0]="Paper";content.setPadding(dp(20),dp(8),dp(20),dp(8));design.entry(input,18);content.addView(design.label("Shape colour",13,muted));colors.setContentDescription("Shape colour");colors.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_dropdown_item,colourNames));colors.setSelection(node.color);content.addView(colors);
         new android.app.AlertDialog.Builder(context).setTitle("Edit shape").setView(content).setPositiveButton("Save",(d,w)->{saveDiagram(find(editing).diagram.put(node.edit(input.getText().toString(),colors.getSelectedItemPosition())));renderDiagram();}).setNegativeButton("Cancel",null).show();
     }
     private void connectShape(){Diagram.Node from=selectedShape();if(from==null)return;List<Diagram.Node> others=new ArrayList<>();for(Diagram.Node n:find(editing).diagram.nodes)if(!n.id.equals(from.id))others.add(n);
-        if(others.isEmpty()){host.showMessage("Add another shape first.");return;}String[] names=new String[others.size()];for(int i=0;i<names.length;i++)names[i]=others.get(i).shape+" · "+others.get(i).text;
+        if(others.isEmpty()){host.showMessage("Add another shape first.");return;}String[] names=new String[others.size()];for(int i=0;i<names.length;i++)names[i]=Diagram.shapeName(others.get(i).shape)+" · "+others.get(i).text;
         new android.app.AlertDialog.Builder(context).setTitle("Arrow destination").setItems(names,(dialog,index)->{saveDiagram(find(editing).diagram.connect(from.id,others.get(index).id,""));renderDiagram();}).setNegativeButton("Cancel",null).show();
     }
     private void editArrow(String id){Note n=find(editing);for(Diagram.Edge edge:n.diagram.edges)if(edge.id.equals(id)){

@@ -48,6 +48,9 @@ public class StructuredCodecTest {
     @Test public void schema5DefaultsFolderAndBackground()throws Exception{
         JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text().reminder(10000,3))),StandardCharsets.UTF_8));root.put("version",5);JSONObject fields=root.getJSONArray("notes").getJSONObject(0);fields.remove("folder");fields.remove("background");Note read=DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8)).get(0);assertEquals("",read.folder);assertEquals(0,read.background);assertEquals(10000,read.reminderAt);
     }
+    @Test public void imagesAreSelfContainedInBackupAndRestore()throws Exception{
+        android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(20,20,android.graphics.Bitmap.Config.ARGB_8888);bitmap.eraseColor(android.graphics.Color.BLUE);java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,bytes));bitmap.recycle();app.space.notes.domain.NoteImage image=new app.space.notes.domain.NoteImage(UUID.randomUUID().toString(),"Drawing","image/png",20,20,Base64.getEncoder().encodeToString(bytes.toByteArray()));Note original=text().images(Arrays.asList(image),4);Note read=BackupCodec.decode(BackupCodec.encode(Arrays.asList(original))).get(0);assertTrue(NoteMerge.same(original,read));assertEquals(image.data,read.images.get(0).data);assertEquals(image.id,read.images.get(0).id);
+    }
     @Test public void outOfRangeMarkRejectsWholeDocument() throws Exception {
         JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text())),StandardCharsets.UTF_8));
         root.getJSONArray("notes").getJSONObject(0).getJSONArray("marks").getJSONObject(0).put("end",500);

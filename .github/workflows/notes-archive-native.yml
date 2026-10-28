@@ -1,3 +1,4 @@
+# Iteration 3: retain debug lint and add a real local-provider roundtrip, not just JSON fixtures.
 name: MyNotes archive native foundations (nonpublishing)
 on:
   push:
@@ -70,7 +71,7 @@ jobs:
           script: |
             adb install -r archive-apks/debug/notes-debug.apk
             adb install -r archive-apks/androidTest/debug/notes-debug-androidTest.apk
-            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
+            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
       - name: Require every archive semantic case once with successful completion
         if: always()
         run: |
@@ -81,6 +82,7 @@ jobs:
           from mynotes.tools.ci.test_plan import build_plan
           cls='app.space.notes.runtime.ArchiveSemanticTest'
           expected=[cls+'#'+method for method in build_plan()['android'][cls]]
+          expected.append('app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox')
           path=Path('archive-native.txt')
           result=android(path.read_text(errors='replace') if path.exists() else '',expected)
           Path('archive-native.json').write_text(json.dumps(result,indent=2)+'\n')

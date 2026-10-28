@@ -33,4 +33,15 @@ final class ArchiveJson {
             for(String field:new String[]{"rawText","formatting"})if(value.has(field) && !(value.opt(field) instanceof String))throw new IOException("Recording metadata fields are invalid");return value;
         }catch(IOException invalid){throw invalid;}catch(Exception | StackOverflowError invalid){throw new IOException("Recording metadata is not valid archive JSON");}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to validate recording metadata; source retained");}
     }
+    /** Ignore operational state and UUID when comparing substantive transcript content. */
+    static String metadataContentHash(byte[] bytes,String id)throws IOException{
+        try{JSONObject value=metadata(bytes,id);value.remove("id");value.remove("state");value.put("version",1);if(!value.has("rawText"))value.put("rawText",value.getString("text"));if(!value.has("formatting"))value.put("formatting","");return GenerationProtocol.digest(canonical(value).getBytes(StandardCharsets.UTF_8));}
+        catch(IOException invalid){throw invalid;}catch(Exception | StackOverflowError invalid){throw new IOException("Cannot compare recording metadata safely");}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to compare recording metadata; originals retained");}
+    }
+    private static String canonical(Object value)throws Exception{
+        if(value==null || value==JSONObject.NULL)return "null";if(value instanceof String)return JSONObject.quote((String)value);if(value instanceof Boolean)return value.toString();if(value instanceof Number)return JSONObject.numberToString((Number)value);
+        if(value instanceof JSONObject){JSONObject object=(JSONObject)value;java.util.TreeSet<String> keys=new java.util.TreeSet<>();java.util.Iterator<String> it=object.keys();while(it.hasNext())keys.add(it.next());StringBuilder out=new StringBuilder("{");boolean comma=false;for(String key:keys){if(comma)out.append(',');comma=true;out.append(JSONObject.quote(key)).append(':').append(canonical(object.get(key)));}return out.append('}').toString();}
+        if(value instanceof org.json.JSONArray){org.json.JSONArray array=(org.json.JSONArray)value;StringBuilder out=new StringBuilder("[");for(int i=0;i<array.length();i++){if(i>0)out.append(',');out.append(canonical(array.get(i)));}return out.append(']').toString();}throw new IOException("Unsupported recording metadata value");
+    }
+
 }

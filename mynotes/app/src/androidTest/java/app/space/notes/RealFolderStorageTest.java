@@ -60,7 +60,7 @@ public class RealFolderStorageTest {
    destination=DocumentsContract.createDocument(context.getContentResolver(),DocumentsContract.buildDocumentUriUsingTree(tree,rootId),"application/zip","audio-backup-test.zip");assertNotNull(destination);
    app.space.notes.domain.ArchiveManifest exported=AudioArchiveFiles.write(isolated,destination,notes,null,null);assertEquals(2,exported.recordings.size());
    try(AudioArchiveFiles.Stage stage=AudioArchiveFiles.inspect(isolated,destination,null,null)){
-    assertEquals(notes,stage.notes);assertArrayEquals(exported.encode(),stage.manifest.encode());assertEquals(52,stage.audio(first).length());assertEquals(52,stage.audio(second).length());
+    assertArrayEquals(DocumentCodec.encode(notes),DocumentCodec.encode(stage.notes));assertArrayEquals(exported.encode(),stage.manifest.encode());assertEquals(52,stage.audio(first).length());assertEquals(52,stage.audio(second).length());
     byte[] metadata=java.nio.file.Files.readAllBytes(stage.metadata(first).toPath());org.json.JSONObject value=new org.json.JSONObject(new String(metadata,java.nio.charset.StandardCharsets.UTF_8));assertEquals("original words",value.getString("rawText"));assertEquals("ಕನ್ನಡ transcript",value.getString("text"));assertFalse(stage.metadata(second).exists());
     assertEquals(2,voices.list().size());assertTrue(voices.noteWasCreated(first));assertFalse("Inspection must not suppress a pending source note",voices.noteWasCreated(second));assertFalse(voices.transcript(second).exists());assertEquals("ಕನ್ನಡ transcript",voices.result(first).getString("text"));
    }

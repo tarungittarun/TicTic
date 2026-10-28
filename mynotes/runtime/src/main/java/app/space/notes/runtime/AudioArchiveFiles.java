@@ -66,7 +66,7 @@ public final class AudioArchiveFiles {
             try(OutputStream out=new FileOutputStream(archive)){ArchiveZip.write(out,manifest,path->{File source=sources.get(path);if(source==null)throw new IOException("Archive source disappeared");return new FileInputStream(source);},cancelled,done->{if(progress!=null)progress.update("Packing backup",done,manifest.payloadBytes+ArchiveManifest.MAX_MANIFEST_BYTES);});}
             String written;MessageDigest hash=digest();check(cancelled);try(OutputStream out=context.getContentResolver().openOutputStream(destination,"rwt");InputStream in=new FileInputStream(archive)){if(out==null)throw new IOException("Cannot write local archive");byte[] buffer=new byte[64*1024];long done=0;int count;while((count=in.read(buffer))!=-1){check(cancelled);out.write(buffer,0,count);hash.update(buffer,0,count);done+=count;if(progress!=null)progress.update("Writing backup",done,archive.length());}out.flush();written=hex(hash.digest());}
             check(cancelled);long length=archive.length();String reopened=transfer(context.getContentResolver().openInputStream(destination),archive,Math.min(ArchiveZip.MAX_CONTAINER_BYTES,length),directory,cancelled,progress,"Reopening backup");if(!written.equals(reopened) || archive.length()!=length)throw new IOException("Archive readback differs; do not rely on this destination");ArchiveManifest verified=ArchiveZip.read(archive,null,cancelled,done->{if(progress!=null)progress.update("Verifying backup",done,manifest.payloadBytes+ArchiveManifest.MAX_MANIFEST_BYTES);});if(!Arrays.equals(manifest.encode(),verified.encode()))throw new IOException("Archive readback manifest changed");return verified;
-        }finally{remove(directory);}
+        }catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to export this archive; originals retained");}finally{remove(directory);}
     }
     /** Copies/validates into private staging. No current note, recording, source marker or transcript is mutated. */
     public static Stage inspect(Context context,Uri source,BooleanSupplier cancelled,Progress progress)throws Exception{
@@ -76,6 +76,14 @@ public final class AudioArchiveFiles {
             List<Note> notes=ArchiveJson.library(small(staged(directory,ArchiveManifest.LIBRARY_PATH),ArchiveManifest.MAX_LIBRARY_BYTES));
             for(ArchiveManifest.Recording recording:manifest.recordings){check(cancelled);wave(staged(directory,ArchiveManifest.audioPath(recording.id)));if(recording.metadataBytes>0)ArchiveJson.metadata(small(staged(directory,ArchiveManifest.metadataPath(recording.id)),ArchiveManifest.MAX_METADATA_BYTES),recording.id);}
             bytes(staged(directory,ArchiveManifest.MANIFEST_PATH),manifest.encode());Stage stage=new Stage(directory,manifest,notes);accepted=true;return stage;
-        }finally{if(!accepted)remove(directory);}
+        }catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to validate this archive; originals retained");}finally{if(!accepted)remove(directory);}
     }
+    /** Read-only conflict inventory and note-link preview; encoding must fit before any transaction starts. */
+    public static ArchiveMerge.Plan preview(Context context,Stage stage,List<Note> current,BooleanSupplier cancelled)throws Exception{
+        try{if(stage.closed)throw new IOException("Archive preview has already been discarded");Map<String,String> fingerprints=new HashMap<>();for(ArchiveManifest.Recording recording:stage.manifest.recordings){check(cancelled);if(recording.metadataBytes>0)fingerprints.put(recording.id,ArchiveJson.metadataContentHash(small(stage.metadata(recording.id),ArchiveManifest.MAX_METADATA_BYTES),recording.id));}
+        VoiceFiles voices=new VoiceFiles(context);Map<String,ArchiveMerge.Content> cache=new HashMap<>();Set<String> absent=new HashSet<>();ArchiveMerge.Plan plan=ArchiveMerge.preview(stage.manifest,fingerprints,current,stage.notes,id->{
+            check(cancelled);if(cache.containsKey(id))return cache.get(id);if(absent.contains(id))return null;File audio=voices.audio(id);if(!audio.exists()){absent.add(id);return null;}if(!audio.isFile())throw new IOException("Current recording is not a regular file; nothing imported");long length=audio.length();String audioHash=length>ArchiveManifest.MAX_AUDIO_BYTES?String.join("",Collections.nCopies(64,"0")):hash(audio,ArchiveManifest.MAX_AUDIO_BYTES,cancelled);byte[] metadata=voices.archiveMetadata(id);String fingerprint=metadata==null?null:ArchiveJson.metadataContentHash(metadata,id);ArchiveMerge.Content content=new ArchiveMerge.Content(length,audioHash,fingerprint);cache.put(id,content);return content;
+        });DocumentCodec.encode(plan.notes.notes);return plan;}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to preview this archive; originals retained");}
+    }
+
 }

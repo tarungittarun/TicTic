@@ -40,6 +40,7 @@ public final class NotesController {
     private final NotesSheets sheets;
     private LinearLayout formattingPanel,writingDock;
     private Button undoControl;
+    private String caretNote;private int caretAnchor,caretFocus;
     private Runnable pageBack;
     private String pendingParagraphStyle;
 
@@ -104,6 +105,7 @@ public final class NotesController {
         design=new NotesDesign(context,dark);bg=design.background;ink=design.ink;surface=design.surface;muted=design.muted;
         root=new LinearLayout(context); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
+        root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(Diagnostics.enabled() && (r-l!=or-ol || b-t!=ob-ot))Diagnostics.record("ui.viewport","width_px="+(r-l)+" height_px="+(b-t)+" font_scale="+context.getResources().getConfiguration().fontScale+" night="+darkTheme);});
         shell=new FrameLayout(context);shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);
         TextView loading=text("Opening your notes…",18); root.addView(loading);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
@@ -132,7 +134,7 @@ public final class NotesController {
                         if(id!=null && find(id)!=null) {
                             Note n=find(id);
                             try {byte[] draft=restored.getByteArray("draftDocument");if(draft!=null){List<Note> decoded=DocumentCodec.decode(draft);if(decoded.size()==1 && decoded.get(0).id.equals(id))n=decoded.get(0);}}catch(Exception invalid){log("draft-restore","invalid snapshot ignored");}
-                            replace(n); editing=id; renderEditor(); queueSave(); deliverDeferred(); return;
+                            replace(n);editing=id;caretNote=id;caretAnchor=restored.getInt("bodyAnchor",0);caretFocus=restored.getInt("bodyFocus",caretAnchor);renderEditor();if(body!=null && restored.getBoolean("bodyFocused",false))body.requestFocus();queueSave(); deliverDeferred(); return;
                         }
                     }
                     renderHome(); log("load","ok count="+notes.size()); deliverDeferred();
@@ -194,7 +196,7 @@ public final class NotesController {
     }
     private void row(String[] labels,Runnable[] actions) {rowIn(root,labels,actions);}
     private void rowIn(LinearLayout parent,String[] labels,Runnable[] actions){
-        LinearLayout actionsRow=new LinearLayout(context);boolean stacked=labels.length>2 || context.getResources().getConfiguration().fontScale>1.3f;actionsRow.setOrientation(stacked?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
+        LinearLayout actionsRow=new LinearLayout(context);int count=0;for(String label:labels)if(!label.equals("Back"))count++;boolean stacked=count>2 || (context.getResources().getConfiguration().fontScale>1.3f && context.getResources().getConfiguration().screenWidthDp<600);actionsRow.setOrientation(stacked?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
         for(int i=0;i<labels.length;i++){if(labels[i].equals("Back"))continue;Button action=button(labels[i],actions[i]);LinearLayout.LayoutParams lp=stacked?new LinearLayout.LayoutParams(-1,-2):new LinearLayout.LayoutParams(0,-2,1);actionsRow.addView(action,lp);}if(actionsRow.getChildCount()>0)parent.addView(actionsRow);
     }
     private void header(String name,Runnable back){header(name);pageBack=back;}
@@ -270,7 +272,7 @@ public final class NotesController {
             for(Note.Item item:n.items){
                 if(item.checked)checked++;
                 LinearLayout line=new LinearLayout(context);line.setGravity(android.view.Gravity.CENTER_VERTICAL);line.setPadding(dp(item.depth*16),0,0,0);
-                CheckBox tick=new CheckBox(context);tick.setContentDescription("Complete list item");tick.setChecked(item.checked);tick.setButtonTintList(android.content.res.ColorStateList.valueOf(ink));tick.setEnabled(!trashed);line.addView(tick);
+                CheckBox tick=new CheckBox(context);tick.setContentDescription("Complete list item");tick.setChecked(item.checked);tick.setMinWidth(dp(48));tick.setMinHeight(dp(48));tick.setButtonTintList(new android.content.res.ColorStateList(new int[][]{new int[]{android.R.attr.state_checked},new int[]{}},new int[]{design.accent,muted}));tick.setEnabled(!trashed);line.addView(tick);
                 EditText input=new EditText(context);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);input.setHint("List item");design.entry(input,18);input.setText(item.text);input.setEnabled(!trashed);
                 input.setPaintFlags(item.checked?input.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG:input.getPaintFlags()&~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
                 line.addView(input,new LinearLayout.LayoutParams(0,-2,1));rows.addView(line);
@@ -290,14 +292,14 @@ public final class NotesController {
                     replace(current.list(title.getText().toString(),changed,current.hideChecked,System.currentTimeMillis()));queueSave();
                     input.setPaintFlags(value?input.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG:input.getPaintFlags()&~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
                     if(current.hideChecked && value)line.setVisibility(View.GONE);
-                    footer.setText(changed.stream().filter(i->i.checked).count()+" checked");
+                    long completed=changed.stream().filter(i->i.checked).count();footer.setText(completed+" checked");footer.setVisibility(completed>0?View.VISIBLE:View.GONE);
                 });
             }
-            footer.setText(checked+" checked");rows.addView(footer);if(!trashed){Button addItem=button("+ List item",()->listAction("add"));addItem.setContentDescription("Add checklist item");rows.addView(addItem);}
+            footer.setText(checked+" checked");footer.setVisibility(checked>0?View.VISIBLE:View.GONE);rows.addView(footer);if(!trashed){Button addItem=button("+ List item",()->listAction("add"));addItem.setContentDescription("Add checklist item");rows.addView(addItem);}
         }else{
-            body=new WritingField(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);design.entry(body,18);body.setHint("Write your note…");body.setGravity(android.view.Gravity.TOP);body.setMinLines(1);body.setText(n.body);TextStyles.write(body.getText(),n.marks);body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,-2));body.addTextChangedListener(paragraphWatcher());((WritingField)body).selectionChanged=this::updateFormatting;editor.setOnClickListener(v->{if(body!=null && !trashed){body.requestFocus();body.setSelection(body.length());((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);}});
+            body=new WritingField(context);body.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);design.entry(body,18);body.setHint("Write your note…");body.setGravity(android.view.Gravity.TOP);body.setMinLines(1);body.setText(n.body);TextStyles.write(body.getText(),n.marks);if(n.id.equals(caretNote))body.setSelection(Math.max(0,Math.min(caretAnchor,body.length())),Math.max(0,Math.min(caretFocus,body.length())));body.setEnabled(!trashed);editor.addView(body,new LinearLayout.LayoutParams(-1,-2));body.addTextChangedListener(paragraphWatcher());((WritingField)body).selectionChanged=this::updateFormatting;editor.setOnClickListener(v->{if(body!=null && !trashed){body.requestFocus();body.setSelection(body.length());((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(body,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);}});
         }
-        if(!n.diagram.nodes.isEmpty()){Button diagram=button("Diagram · "+n.diagram.nodes.size()+" shapes",this::renderDiagram);editor.addView(diagram);}
+        if(!n.diagram.nodes.isEmpty()){Button diagram=button("Diagram · "+n.diagram.nodes.size()+(n.diagram.nodes.size()==1?" shape":" shapes"),this::renderDiagram);editor.addView(diagram);}
         if(n.reminderAt>0){Button reminder=button("Reminder · "+java.text.DateFormat.getDateTimeInstance().format(new Date(n.reminderAt)),this::chooseReminder);editor.addView(reminder);}
         if(!n.labels.isEmpty()){TextView chips=text(String.join("  ·  ",n.labels),13);chips.setTextColor(design.accent);editor.addView(chips);}
         status=text("Saved · on this device",11);status.setTextColor(muted);status.setPadding(0,dp(4),0,dp(4));status.setVisibility(View.GONE);root.addView(status,1);
@@ -306,6 +308,7 @@ public final class NotesController {
         Button appearance=icon("Organise tools","palette",()->{});dock.addView(appearance,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout organise=menu("Colour, labels & reminder",appearance);if(!trashed)menuRows(organise,new String[]{"Colour","Labels","Reminder","Clear reminder"},new Runnable[]{this::renderColours,this::renderLabels,this::chooseReminder,()->setReminder(editing,0)});
         View spring=new View(context);dock.addView(spring,new LinearLayout.LayoutParams(0,1,1));Button more=icon("More actions","more",()->{});dock.addView(more,new LinearLayout.LayoutParams(dp(48),dp(48)));LinearLayout actions=menu("Note actions",more);
         if(trashed)menuRows(actions,new String[]{"Restore","Share"},new Runnable[]{()->changeState("restore"),this::shareSelected});else{menuRows(actions,new String[]{"Share","Copy","Trash"},new Runnable[]{this::shareSelected,this::duplicateNote,()->changeState("trash")});if(!n.checklist)menuRows(actions,new String[]{"Convert to checklist"},new Runnable[]{this::convertNote});else menuRows(actions,new String[]{"+ Item","↑","↓","Indent","Outdent","Remove",n.hideChecked?"Show checked":"Hide checked","To text"},new Runnable[]{()->listAction("add"),()->listAction("up"),()->listAction("down"),()->listAction("indent"),()->listAction("outdent"),()->listAction("remove"),()->listAction("hide"),this::convertNote});}
+        TextView dates=text("Edited "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.updatedAt))+"\nCreated "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(n.createdAt)),12);dates.setTextColor(muted);actions.addView(dates);
         if(!trashed && !n.checklist){writingDock=dock;buildFormatting(formattingControl);}
         title.addTextChangedListener(watcher(()->{if(!binding){invalidateFullUndo();scheduleDraft();}}));
     }
@@ -317,7 +320,7 @@ public final class NotesController {
         LinearLayout inline=tools(formattingPanel);inline.setPadding(0,dp(2),0,dp(2));String[] labels2={"Bold","Italic","Underline","Strike","Clear"},names2={"B","I","U","S","Clear"},types2={"bold","italic","underline","strike","clear"};
         for(int i=0;i<labels2.length;i++){final String type=types2[i];Button pick=i==4?icon("Clear","erase",()->format(type)):button(names2[i],()->format(type));pick.setTag("style:"+types2[i]);pick.setContentDescription(labels2[i]);pick.setTooltipText(labels2[i]);pick.setTypeface(null,i==0?Typeface.BOLD:i==1?Typeface.ITALIC:Typeface.NORMAL);if(i==2)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.UNDERLINE_TEXT_FLAG);if(i==3)pick.setPaintFlags(pick.getPaintFlags()|android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);pick.setGravity(android.view.Gravity.CENTER);inline.addView(pick,new LinearLayout.LayoutParams(0,-2,1));}
     }
-    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null)body.requestFocus();updateFormatting();}
+    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(360))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}updateFormatting();}
     private void updateFormatting(){
         if(binding || body==null || formattingPanel==null || formattingPanel.getVisibility()!=View.VISIBLE)return;String active=pendingParagraphStyle==null?"text":pendingParagraphStyle;int at=Math.max(0,body.getSelectionStart());List<Note.Mark> marks=TextStyles.read(body.getText());for(Note.Mark mark:marks)if(mark.start<=at && mark.end>=at && (mark.type.equals("h1") || mark.type.equals("h2")))active=mark.type;
         for(int i=0;i<formattingPanel.getChildCount();i++){View row=formattingPanel.getChildAt(i);if(!(row instanceof ViewGroup))continue;ViewGroup buttons=(ViewGroup)row;for(int j=0;j<buttons.getChildCount();j++){View view=buttons.getChildAt(j);Object tag=view.getTag();if(!(tag instanceof String) || !tag.toString().startsWith("style:"))continue;String type=tag.toString().substring(6);boolean selected=type.equals(active);if(!type.equals("text") && !type.startsWith("h"))for(Note.Mark mark:marks)if(mark.type.equals(type) && mark.start<=at && mark.end>at)selected=true;if(view.isSelected()!=selected){view.setSelected(selected);view.setBackground(design.ripple(selected?(darkTheme?0x335F4A2E:0x22D8B16D):Color.TRANSPARENT,8));}}}
@@ -438,8 +441,8 @@ public final class NotesController {
         try{
             capture=new VoiceCapture(context,new VoiceCapture.Listener(){
                 public void started(String id){main.post(()->{if(closed)return;voicePage=true;title=null;body=null;search=null;clearPage();header("Recording voice");
-                    LinearLayout recording=new LinearLayout(context);recording.setOrientation(LinearLayout.VERTICAL);recording.setGravity(android.view.Gravity.CENTER);root.addView(recording,new LinearLayout.LayoutParams(-1,0,1));TextView live=design.heading("Microphone on");recording.addView(live);android.widget.Chronometer timer=new android.widget.Chronometer(context);timer.setTextColor(design.accent);timer.setTextSize(36);timer.setBase(android.os.SystemClock.elapsedRealtime());timer.start();recording.addView(timer);TextView privacy=text("Audio stays on this device",14);privacy.setTextColor(muted);recording.addView(privacy);
-                    root.addView(text("Stop to save the original audio and start bundled offline English transcription. Review the transcript; language, accent and noise affect accuracy. Leaving the app stops recording safely.",14));Button stop=button("Stop and transcribe",()->{if(capture!=null)capture.stop();timer.stop();live.setText("Saving audio…");});stop.setGravity(android.view.Gravity.CENTER);stop.setTextColor(design.accentInk);stop.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));root.addView(stop,new LinearLayout.LayoutParams(-1,-2));});}
+                    LinearLayout recording=new LinearLayout(context);recording.setOrientation(LinearLayout.VERTICAL);recording.setGravity(android.view.Gravity.CENTER);ScrollView recordingScroll=new ScrollView(context);recordingScroll.setFillViewport(true);recordingScroll.addView(recording);root.addView(recordingScroll,new LinearLayout.LayoutParams(-1,0,1));TextView live=design.heading("Microphone on");recording.addView(live);android.widget.Chronometer timer=new android.widget.Chronometer(context);timer.setTextColor(design.accent);timer.setTextSize(36);timer.setBase(android.os.SystemClock.elapsedRealtime());timer.start();recording.addView(timer);TextView privacy=text("Audio stays on this device",14);privacy.setTextColor(muted);recording.addView(privacy);
+                    recording.addView(text("Stop to save the original audio and start bundled offline English transcription. Review the transcript; language, accent and noise affect accuracy. Leaving the app stops recording safely.",14));Button stop=button("Stop and transcribe",()->{if(capture!=null)capture.stop();timer.stop();live.setText("Saving audio…");});stop.setGravity(android.view.Gravity.CENTER);stop.setTextColor(design.accentInk);stop.setBackground(design.ripple(Color.parseColor("#E8C58E"),18));root.addView(stop,new LinearLayout.LayoutParams(-1,-2));});}
                 public void saved(String id){VoiceTasks.transcribe(context,id);main.post(()->{capture=null;if(closed)return;addVoicePlaceholder(id);if(voicePage)renderVoiceInbox();host.showMessage("Audio saved locally. Offline English transcription started automatically.");});}
                 public void failed(String message){main.post(()->{capture=null;if(closed)return;voicePage=false;returnToNoteOrHome();host.showMessage("Recording stopped: "+message+". Other features remain available; check Voice inbox for recovered audio.");});}
             });captureWorker.execute(capture);
@@ -718,6 +721,7 @@ public final class NotesController {
     private void replace(Note n) { for(int i=0;i<notes.size();i++)if(notes.get(i).id.equals(n.id)){notes.set(i,n);return;} }
     private void persistDraft() {
         main.removeCallbacks(saveDraft);
+        if(body!=null && editing!=null){caretNote=editing;caretAnchor=Math.max(0,body.getSelectionStart());caretFocus=Math.max(0,body.getSelectionEnd());}
         if(!ready || editing==null || title==null)return;
         Note n=find(editing);if(n==null || n.deletedAt>0)return;
         Note candidate=n.checklist?n.list(title.getText().toString(),n.items,n.hideChecked,n.updatedAt):
@@ -774,7 +778,7 @@ public final class NotesController {
     }
     public void flush() { Diagnostics.record("lifecycle.flush","requested"); if(ready && !busy){persistDraft();queueSave();} }
     public void saveState(Bundle state) {
-        persistDraft();state.putString("page",page);state.putString("editing",editing);
+        persistDraft();state.putString("page",page);state.putString("editing",editing);if(body!=null){state.putInt("bodyAnchor",body.getSelectionStart());state.putInt("bodyFocus",body.getSelectionEnd());state.putBoolean("bodyFocused",body.hasFocus());}
         if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());Diagnostics.failure("draft-snapshot.failure",e);}}
     }
     public void close() { Diagnostics.record("lifecycle.close","controller");

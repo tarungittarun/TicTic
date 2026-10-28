@@ -81,9 +81,12 @@ adb shell am start -W -n app.space.notes/.NotesActivity
 find_release_text() {
   local target="$1"
   for attempt in {1..8}; do
-    adb shell uiautomator dump /sdcard/notes-upgrade.xml >/dev/null
-    adb pull /sdcard/notes-upgrade.xml "$OUT/upgrade-window.xml" >/dev/null
-    if python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --text "$target" > "$OUT/coordinates.txt"; then return 0; fi
+    adb shell rm -f /sdcard/notes-upgrade.xml
+    if adb shell uiautomator dump /sdcard/notes-upgrade.xml >/dev/null && adb pull /sdcard/notes-upgrade.xml "$OUT/upgrade-window.xml" >/dev/null; then
+      if python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --text "$target" > "$OUT/coordinates.txt"; then return 0; fi
+    fi
+    # A null root during an Android taskbar/window transition is not a completed UI lookup.
+    adb shell dumpsys window windows > "$OUT/selector-attempt-$attempt-window.txt" 2>&1 || true
   done
   return 1
 }

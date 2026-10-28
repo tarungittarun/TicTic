@@ -25,7 +25,9 @@ Queued immutable snapshots coalesce before disk work, avoiding a long queue of o
 - Local source gates: root **505**, Notes **115**, whitespace check pass at the implementation boundary. These are not Android compilation or execution.
 - Android plan: **114 JVM / 144 unique Android** methods, partitioned across 21 emulator lanes; Actions is the only Android build path.
 - Run `40694075712` (c2c681e): failed. The real SAF operations passed on API26 but cleanup released a grant already revoked by directory deletion. API29 did not complete the picker; API-specific button matching and bounded UI-state failure diagnostics were added. A background test tried a hidden menu item without opening More actions. These harness corrections do not count as successful reruns.
-- Latest runtime source `75394e11d3b87de367c7c080cab21a31427c05f8`, qualification `40696288757`: **in progress**, not approved. Later synthetic-scene capture changes are test-only and still need execution.
+- Run `40696288757` (`75394e11d3b87de367c7c080cab21a31427c05f8`): nine Android lanes passed, including both real-folder/storage and UI partitions. Remaining lanes and the summary were cancelled/superseded, so this is **not** a fully qualified run.
+- Visual inspection of earlier light/dark/large-font/landscape/tablet captures found diagram action words breaking at 200% font. The large-font dock now uses two rows; native layout assertions were added.
+- Latest runtime source `e5c59f2748e3f84344164fea2600f147feeb6880`, qualification `40697610539`: **in progress**, not approved. Expanded synthetic captures now exercise Library, all filter tabs, backgrounds, drawing/image and voice cards.
 - Publication, the final rendered overview PDF, and real-device confirmation remain pending. The previous 0.10 artifact is unchanged.
 
 ## Important limits

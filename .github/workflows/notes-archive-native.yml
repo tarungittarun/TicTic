@@ -18,7 +18,12 @@ jobs:
       - uses: ./.github/actions/setup-mynotes
       - name: Compile debug app/instrumentation and lint without publication
         working-directory: mynotes
-        run: sh gradlew :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:lintDebug --no-daemon --max-workers=2 --console=plain
+        run: |
+          set -o pipefail
+          sh gradlew :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:lintDebug --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/archive-native-build.log
+      - name: Bounded compiler and lint diagnostics in check annotations
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/archive-native-build.log
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: archive-foundation-test-apks

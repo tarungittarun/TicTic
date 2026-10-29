@@ -1,4 +1,4 @@
-# Iteration 1: actual drawing, clipboard, resize and editor journeys; no publication.
+# Iteration 2: signature surfaces, grouped actions and actual fixture rendering; no publication.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -84,6 +84,14 @@ jobs:
             adb shell cmd uimode night ${{ matrix.night }}
             adb shell am instrument -w -r -e class app.space.notes.runtime.DrawingToolsTest,app.space.notes.runtime.DiagramResizeViewTest,app.space.notes.DiagramJourneysTest,app.space.notes.CoreJourneysTest app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+
+      - name: Bounded rendered fixture previews through check annotations
+        if: always()
+        run: |
+          if test -s refinement-captures.tar; then
+            python3 -m pip install 'Pillow==11.3.0'
+            python3 -m mynotes.tools.ci.render_review --archive refinement-captures.tar
+          fi
 
       - name: Require every selected UI method once with successful completion
         if: always()

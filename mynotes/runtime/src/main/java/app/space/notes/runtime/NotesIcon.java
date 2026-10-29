@@ -9,6 +9,15 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "circle":c.drawCircle(12,12,8,p);break;
+ case "save":lines(c,4,3,17,3,21,7,21,21,3,21,3,3);lines(c,7,3,7,9,16,9,16,3);c.drawRect(7,14,17,21,p);break;
+ case "copy":c.drawRoundRect(8,7,21,21,2,2,p);lines(c,16,3,3,3,3,16);break;
+ case "line":lines(c,4,20,20,4);break;
+ case "rectangle":c.drawRect(3,5,21,19,p);break;
+ case "oval":c.drawOval(3,5,21,19,p);break;
+ case "pencil":lines(c,4,17,16,5,20,9,8,21,3,22,4,17);lines(c,6,16,10,20);break;
+ case "highlighter":lines(c,5,14,14,3,21,10,12,20,5,14);lines(c,4,19,10,23);break;
+ case "grid":for(int n=4;n<=20;n+=8){lines(c,n,3,n,21);lines(c,3,n,21,n);}break;
  case "image":c.drawRoundRect(3,3,21,21,2,2,p);c.drawCircle(8,8,2,p);lines(c,3,18,9,12,13,16,17,11,21,16);break;
  case "scan":lines(c,3,8,3,3,8,3);lines(c,16,3,21,3,21,8);lines(c,21,16,21,21,16,21);lines(c,8,21,3,21,3,16);lines(c,6,12,18,12);break;
  case "diagram":c.drawRoundRect(2,3,10,10,1,1,p);c.drawRoundRect(14,14,22,21,1,1,p);lines(c,6,10,6,17,14,17);break;

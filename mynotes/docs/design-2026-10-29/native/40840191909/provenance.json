@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "source_sha": "ae8aee42673a93dbac9e82ba82aee33b5f1f1aa5",
+  "capture_run": "40840191909",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "full-api34": {
+      "ok": false,
+      "expected": 184,
+      "passed": 183,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1776 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 57,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation",
+        "app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent: status -2 java.lang.AssertionError: Pin must be discoverable before tapping\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.lambda$tap$56(CoreJourneysTest.java:155)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda94.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage: status -2 java.lang.AssertionError: expected:<11> but was:<7>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat org.junit.Assert.assertEquals(Assert.java:633)\n\tat app.space.notes.CoreJourneysTest.lambda$reverseSelectionSurvivesRecreationOnAPropertyPage$111$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:235)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda163.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=936 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation: status -2 java.lang.AssertionError: Anchor captured before rebuilding editor expected:<11> but was:<7>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$nativeCaretSurvivesColourPageAndControllerRecreation$103$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:229)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda156.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 60,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1776 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 184,
+      "passed": 182,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment: status -2 java.lang.AssertionError: Input dispatch rejected for Add to note; active_window=app.space.notes.debug target_rect=Rect(60, 843 - 204, 987)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:160)\n\tat app.space.notes.CoreJourneysTest.savedDrawingCanBeEditedWithoutAddingAnotherAttachment(CoreJourneysTest.java:105)\n\t... 34 trimmed\nCaused by: java.lang.SecurityException: Injecting to another application requires INJECT_EVENTS permission\n\tat android.os.Parcel.readException(Parcel.java:1943)\n\tat android.os.Parcel.readException(Parcel.java:1889)\n\tat android.hardware.input.IInputManager$Stub$Proxy.injectInputEvent(IInputManager.java:548)\n\tat android.hardware.input.InputManager.injectInputEvent(InputManager.java:868)\n\tat android.app.Instrumentation.sendPointerSync(Instrumentation.java:1048)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1704 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    },
+    "night-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 60,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1776 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    },
+    "phone-api36": {
+      "ok": false,
+      "expected": 184,
+      "passed": 183,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1776 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    },
+    "tablet-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 59,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:82)\n",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control not visible: Filter & view ime=false root_height=1880 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:154)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:232)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:59)\n\t... 37 more\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

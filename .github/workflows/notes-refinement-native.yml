@@ -1,4 +1,4 @@
-# Approved continuation 2: missing JUnit import corrected; 3 listed jobs used, 5 allocated now, <=15 total; no publication.
+# Approved continuation 3: 8 listed jobs used; build + API26/landscape + evidence = 4 more, <=15 total.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -55,7 +55,6 @@ jobs:
         include:
           - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
           - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
-          - {id: tablet-api34, api: 34, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 9', group: focused}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v8.0.2

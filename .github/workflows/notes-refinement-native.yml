@@ -1,4 +1,4 @@
-# Iteration 5.2: full API26/34/36 plus four focused environment variants; no publication.
+# Approved continuation 1: build + API26/landscape/tablet + evidence = 5 of 15 additional jobs; no publication.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -54,12 +54,8 @@ jobs:
       matrix:
         include:
           - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
-          - {id: full-api34, api: 34, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
-          - {id: night-api34, api: 34, font: 1.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
-          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
           - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
           - {id: tablet-api34, api: 34, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 9', group: focused}
-          - {id: phone-api36, api: 36, font: 0.85, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: all}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v8.0.2

@@ -25,3 +25,6 @@ Trash has a consistent lower Library control and no creation actions. Group requ
 
 ## Workflow mistake
 15 runs / 113 listed jobs, including 17 cancelled and 9 skipped. 104 non-skipped jobs exceeded the 45-job allowance. Overlapping publishing triggers were corrected; no additional qualification jobs were launched after the budget stop. The audit preserves IDs and outcomes. This wasted work is not presented as useful extra coverage.
+
+## Approved continuation
+User approved up to **15 additional jobs** after the checkpoint. First allocation: build, API26 full, landscape focused, tablet focused, evidence preservation: five jobs, ten reserved. This does not waive release gates or guarantee an APK within the cap. No calculator workflow is authorized.

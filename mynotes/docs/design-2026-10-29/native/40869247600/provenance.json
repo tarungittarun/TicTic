@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source_sha": "19db0fdac0c015e10e980a695d700c15676daacc",
+  "capture_run": "40869247600",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 60,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent: status -2 java.lang.AssertionError: Control did not settle unclipped: Pin shown=false target=Button[top=18 h=144 measured=144 scroll=0 visibility=0]LinearLayout[top=12 h=180 measured=180 scroll=0 visibility=0]LinearLayout[top=0 h=936 measured=936 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=936 measured=936 scroll=0 visibility=0]FrameLayout[top=72 h=936 measured=936 scroll=0 visibility=0]FrameLayout[top=0 h=1008 measured=1008 scroll=0 visibility=0] root_height=936 window_focus=false visible_frame=Rect(0, 0 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:163)\n\tat app.space.notes.CoreJourneysTest.backgroundAndPinStateAreVisibleAndPersistent(CoreJourneysTest.java:116)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:61)\n\t... 37 more\n"
+      ]
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 184,
+      "passed": 184,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "release_approval": false
+}

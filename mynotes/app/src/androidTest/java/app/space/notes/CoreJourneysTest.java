@@ -273,6 +273,16 @@ public class CoreJourneysTest {
         tap("About & offline models");
         screenshot("about");
     }
+
+    @Test public void addMenuExplainsVisualContentCaptureAndScheduleCategories()throws Exception{
+        start(Collections.emptyList());tap("New text note");tap("Add to note");main(()->{assertTrue(text("Visual content").isShown());assertTrue(text("Capture text").isShown());assertTrue(text("Schedule this note").isShown());assertNotNull(text("Drawing"));assertNotNull(text("Image"));assertNotNull(text("Diagram"));assertNotNull(text("Read image"));assertNotNull(text("Reminder"));});tap("Close tools");main(()->assertNotNull(input("Write your note…")));
+    }
+    @Test public void drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection()throws Exception{
+        start(Collections.emptyList());tap("New text note");tap("Add to note");tap("Drawing");String name="Drawing canvas. Draw with a finger. Undo and redo controls are below.";await(()->{View canvas=UiActions.named(controller.view(),name);return canvas!=null && canvas.isEnabled() && canvas.getHeight()>0;});main(()->{View save=UiActions.named(controller.view(),"Save drawing"),more=UiActions.named(controller.view(),"Drawing options");assertNotNull(save);assertNotNull(more);assertTrue(save.getParent()==more.getParent());assertTrue(save.getLeft()<more.getLeft());assertEquals(0,((TextView)save).getText().length());assertTrue(text("Pen").isSelected());assertTrue(text("Pinch to zoom; two fingers to pan. Back keeps a draft.")==null);});tap("Pencil");main(()->{assertTrue(text("Pencil").isSelected());assertFalse(text("Pen").isSelected());});tap("Drawing options");main(()->{assertNotNull(text("Copy drawing as image"));assertNotNull(text("Delete drawing"));});tap("Close tools");tap("Save drawing");await(()->input("Write your note…")!=null);saved();
+    }
+    @Test public void appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation()throws Exception{
+        start(Collections.emptyList());tap("Library");tap("Settings");tap("Appearance");main(()->{assertTrue(text("System").isShown());assertTrue(text("System").isSelected());assertTrue(text("Light").isShown());assertTrue(text("Dark").isShown());});tap("Dark");assertEquals("dark",NotesAppearance.choice(context));android.os.Bundle state=new android.os.Bundle();main(()->{controller.saveState(state);controller.close();controller=new NotesController(context,host,state);activity.setContentView(controller.view());});await(()->text("Appearance")!=null && text("Appearance").isShown());main(()->{assertTrue(text("Settings").isShown());assertNotNull(text("Storage & recovery"));});tap("Appearance");main(()->assertTrue(text("Dark").isSelected()));tap("Cancel");
+    }
     private void remove(File f){File[] files=f.listFiles();if(files!=null)for(File child:files)remove(child);f.delete();}
     @After public void cleanup(){if(controller!=null)main(controller::close);if(activity!=null){for(String name:new String[]{"mynotes-storage-v1","mynotes-ui"})activity.deleteSharedPreferences(fixture.getName()+"-"+name);main(activity::finish);}if(fixture!=null)remove(fixture);}
 }

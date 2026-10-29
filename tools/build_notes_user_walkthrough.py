@@ -51,7 +51,7 @@ slides=[
 ('PROPOSED: consistent anatomy','Every card has a type badge, preview and compact action strip. Use Drawing, Image or Diagram as the primary type. Show a filename or caption only when useful, not as a second competing heading.'),
 ('PROPOSED: compact controls','Use an edit icon with a specific accessible name, and a secondary More menu for removal and related actions. Do not place tall, full-width Edit drawing / Remove image text rows under every preview.'),
 ('Removal semantics','Remove drawing, Remove image and Remove diagram must describe the actual content. Removal is not deletion of the entire note. Destructive actions need a clear target and a recovery/confirmation policy.')]),
-('11 / Drawing: current issue','Why the supplied screen feels unfinished','drawing',[
+('11 / Drawing: current issue','Why the supplied screen feels unfinished','drawing-current',[
 ('CURRENT: what your screenshots show','The landscape white paper sits inside a tall dark page, leaving large empty regions. The selected tool looks like plain text. Save is a text button and delete competes with frequent controls.'),
 ('Your requested direction','Let the workspace use the available screen between compact top and bottom controls. Give tools real selection states, icons and names. Remove the persistent gesture paragraph.'),
 ('Acceptance, not decoration','The redesign must work for portrait, landscape and larger text. Canvas coordinates and exports must not stretch. Existing saved drawings and drafts must remain readable.')]),
@@ -133,13 +133,32 @@ slides=[
 ('User device decides','New native tests, rendered screen review and real-device retest are separate evidence. An authored test is not a passing test; a passing emulator is not acceptance on the Motorola Android 16 device.')]),
 ('31 / Progress card','This document is the first deliverable, not a completion claim','map',[
 ('DONE for this handoff','App vocabulary and categories documented. Detailed screen and feature walkthrough supplied. Requested drawing, attachment, appearance and diagram changes specified as proposals. Vector PDF/SVG handoff supplied.'),
-('NEXT in the refinement streak','Implement canvas/dock and tool selection; add More actions and image clipboard; compact typed attachment cards; rename Read image; implement diagram resize handles; unify priority sheets.'),
-('PENDING acceptance','Runtime changes for this new request, build/lint, focused native interaction tests, rendered review, updated APK and physical retest. The older archive qualification does not qualify this redesign.')]),
+('WORKING BRANCH: implemented, not shipped','Adaptive paper, selected icon tools, top Save/More, PNG clipboard, typed cards, Read image, direct shape handles and grouped Add actions are implemented in development. Newer signature-dialog polish still needs qualification.'),
+('QUALIFICATION checkpoint / 07:05 UTC','First pass: 148 JVM/build/lint passed; 48 selected native methods passed on Android 14 at 200% text/dark. Android 8 passed 47/48: one clipboard test-thread fixture is being corrected. Newer changes, rendered review, APK and physical retest remain pending.')]),
 ('32 / Quick reference','If you want to...','glossary',[
 ('Find, organise or recover','Find: Search. Change list/grid/order: Filter & view. Move location: Folders. Tag: Labels. Keep out of active list: Archive. Recover deletion: Trash. Recover a library: Backups/Storage & recovery.'),
 ('Create or capture content','Write: Text/Checklist. Add a photo: Image. Ink: Drawing. Editable flowchart: Diagram. Extract words from a photo: Read image. Capture speech: Record voice; originals live in Voice inbox.'),
 ('Change behaviour or appearance','Schedule: Reminder in Add, then its note chip. Note appearance: Colour/Background. App appearance: Settings > Appearance. File destination: Storage & recovery. Troubleshoot: Diagnostics. Version/models: About.')])
 ]
+slides.extend([
+('33 / Drawing tools reference','What each tool actually does','drawing',[
+('Pen, Pencil and Highlighter','Pen draws a solid stroke. Pencil uses a lighter, finer stroke. Highlighter lays a broader translucent stroke so underlying marks remain visible. Ink colour and stroke width affect new strokes, not all previous marks.'),
+('Eraser, Line, Rectangle and Oval','Eraser paints white over the raster drawing; it is not object selection. Line makes one straight segment. Rectangle and Oval create outlines, not filled blocks. Drag from one extent of the shape to the other.'),
+('Undo, Redo, Fit and grid','Undo/Redo act on this editing session. Fit resets the view, not the artwork. Grid is a visual guide, not artwork. Older drawings reopen as pixels; individual historical strokes are not promised to remain editable after reopening.')]),
+('34 / Diagram shapes reference','Choose geometry for meaning','diagram',[
+('Common flowchart choices','Rectangle: a process or activity. Diamond: a decision. Capsule: start/end. Parallelogram: input/output. Oval: an alternative start/end or general shape. Text annotation adds a label without a process box.'),
+('Other available geometry','Triangle, Right triangle, Pentagon, Hexagon, Octagon, Star, Trapezoid, Cylinder, Cube, Wavy rectangle, Cloud, Right arrow, Chevron, Semicircle and Heart. Shape labels and connectors supply your meaning; geometry is not automatic flowchart validation.'),
+('Connector and group meanings','An arrow links two shapes and can have a label such as Yes/No. A group moves related shapes together. Selecting a shape is not selecting its whole text or copying its pixels. Resize handles adjust its bounds, not the note font.')]),
+('35 / Offline and size boundaries','Useful limits to know before a large import','settings',[
+('Images and library data','Published note images: up to eight per note. Imported image streams are bounded to 20 MiB, normalised to a maximum 1600 px edge and a bounded encoded payload. The complete JSON library/backup safety boundary is 8 MiB.'),
+('Offline language distinction','Read image uses bundled English, Hindi/Devanagari and Kannada OCR. The bundled speech recogniser is the small English model; it is not a promise of equivalent Hindi/Kannada speech support or universal accent accuracy.'),
+('Not promised as delivered','Arbitrary file attachments, rich recurring reminders, complete widgets, wall drag ordering, universal providers and audio-inclusive backup restoration are not all completed. No login/cloud sync is required for normal local notes. A detailed guide must not invent missing features.')]),
+('36 / Troubleshooting by outcome','Know what happened, not just what button you pressed','settings',[
+('The image or drawing is missing','Check the original note, attachment limit and library-size warning. An unsuccessful image operation must leave the existing note unchanged. A retained drawing draft is not the same as a saved attachment.'),
+('The file exists but may be unusable','A zero-byte filename is not a successful PDF or backup. Export should report a verified result only after checking the output. Local provider restrictions are intentional; choose Internal storage or SD card rather than a cloud destination.'),
+('Help without exposing your notes','Diagnostics are optional local app-event logs, not a screen recording. They omit note bodies/audio/images and intentionally hide notice content. Lack of a crash/error record does not prove the UI worked well. Review any export before sharing.')])
+])
+
 def text(p,rect,s,size=14,color=INK):
     rc=p.insert_textbox(fitz.Rect(rect),s,fontname='helv',fontsize=size,color=color,lineheight=1.35)
     if rc<0: raise RuntimeError(f'Text overflow ({rc}): {s[:90]}')
@@ -149,16 +168,34 @@ def pill(p,x,y,label,active=False,w=100):
     text(p,(x+7,y+6,x+w-4,y+27),label,10,BG if active else INK)
 def wire(p,kind):
     x,y,w,h=45,145,310,355
-    box(p,(x,y,x+w,y+h),(.09,.10,.12),(.24,.27,.31));text(p,(x+15,y+12,x+w-15,y+40),'MyNotes  /  '+kind.replace('-',' ').title(),15)
-    if kind.startswith('drawing'):
-        text(p,(x+15,y+46,x+w-15,y+66),'Back     Drawing                  Save   More',11,GOLD)
-        box(p,(x+10,y+74,x+w-10,y+257),(.98,.98,.96))
+    if kind.startswith('drawing'):x,w=110,180
+    box(p,(x,y,x+w,y+h),(.09,.10,.12),(.24,.27,.31));
+    if not kind.startswith('drawing'):text(p,(x+15,y+12,x+w-15,y+40),'MyNotes  /  '+kind.replace('-',' ').title(),15)
+    if kind=='drawing-current':
+        text(p,(x+8,y+11,x+w-8,y+35),'Back   Drawing',11,GOLD)
+        text(p,(x+8,y+43,x+w-8,y+76),'Pinch to zoom; two fingers to pan. Back keeps a draft.',8,MUTED)
+        box(p,(x+7,y+116,x+w-7,y+240),(.98,.98,.96))
+        p.draw_polyline([(x+20,y+215),(x+58,y+145),(x+106,y+209),(x+154,y+165)],color=(.12,.35,.6),width=2)
+        text(p,(x+8,y+271,x+w-8,y+295),'Pen     Ink     Width',10)
+        text(p,(x+8,y+301,x+w-8,y+348),'Undo   Redo   Clear\nSave drawing   Delete',9,MUTED)
+    elif kind.startswith('drawing'):
+        text(p,(x+8,y+11,x+122,y+40),'Back   Drawing',11,GOLD)
+        p.draw_rect((x+133,y+10,x+149,y+27),color=GOLD,width=1)
+        p.draw_rect((x+137,y+11,x+145,y+16),color=GOLD,width=.7)
+        p.draw_rect((x+137,y+21,x+145,y+27),color=GOLD,width=.7)
+        for yy in [13,18,23]:p.draw_circle((x+164,y+yy),.9,color=GOLD,fill=GOLD)
+        box(p,(x+7,y+40,x+w-7,y+267),(.98,.98,.96))
         if kind=='drawing-menu':
-            box(p,(x+125,y+83,x+w-17,y+218),PANEL);text(p,(x+137,y+95,x+w-22,y+210),'Grid lines      [on]\nCopy as image\nClear canvas\nGesture help',11)
-        else:
-            p.draw_polyline([(x+38,y+212),(x+100,y+110),(x+174,y+198),(x+260,y+125)],color=(.12,.35,.6),width=2)
-        for i,label in enumerate(['Pen','Pencil','Ink','Erase']):pill(p,x+10+i*73,y+267,label,i==0,68)
-        text(p,(x+15,y+310,x+w-15,y+343),'Colour   Width    Undo   Redo   Fit',12,MUTED)
+            box(p,(x+28,y+55,x+w-10,y+195),PANEL);text(p,(x+38,y+67,x+w-17,y+185),'Grid lines   [on]\nCopy as image\nClear canvas\nDelete drawing\nDrawing help',10)
+        else:p.draw_polyline([(x+24,y+200),(x+66,y+90),(x+113,y+180),(x+154,y+123)],color=(.12,.35,.6),width=2)
+        xx=x+5
+        for i,(label,ww) in enumerate([('Pen',40),('Pencil',44),('Highlighter',74)]):
+            box(p,(xx,y+280,xx+ww,y+312),GOLD if i==0 else PANEL)
+            stroke=BG if i==0 else GOLD
+            p.draw_polyline([(xx+6,y+288),(xx+12,y+282),(xx+15,y+285),(xx+9,y+291),(xx+6,y+292),(xx+6,y+288)],color=stroke,width=.7)
+            text(p,(xx+4,y+296,xx+ww-2,y+311),label,8,BG if i==0 else INK)
+            xx+=ww+3
+        text(p,(x+7,y+324,x+w-5,y+348),'Ink  Width  Undo  Redo  Fit',8,MUTED)
     elif kind=='diagram':
         box(p,(x+12,y+58,x+w-12,y+320),(.96,.97,.96));p.draw_rect((x+85,y+97,x+220,y+161),color=(.16,.42,.6),width=2)
         for xx in [x+85,x+220]:
@@ -186,7 +223,7 @@ def wire(p,kind):
     else:
         for i,label in enumerate(['Notes / active documents','Archive / kept, not deleted','Trash / recover or delete','Folders / locations','Voice inbox / originals']):
             yy=y+57+i*52;box(p,(x+12,yy,x+w-12,yy+43),PANEL);text(p,(x+22,yy+12,x+w-20,yy+40),label,11,GOLD if i==0 else INK)
-    text(p,(45,510,355,540),'SCHEMATIC / proposed visual hierarchy\nNot a screenshot or shipped-build proof.',9,MUTED)
+    text(p,(45,510,355,540),'SCHEMATIC / supplied 0.12 issue\nNot a screenshot; compare with the next slide.' if kind=='drawing-current' else 'SCHEMATIC / proposed visual hierarchy\nNot a screenshot or shipped-build proof.',9,MUTED)
 def main():
     doc=fitz.open()
     for idx,(eyebrow,title,kind,blocks) in enumerate(slides,1):
@@ -197,6 +234,7 @@ def main():
         for j,(head,body) in enumerate(blocks):
             yy=145+j*130;box(p,(382,yy,956,yy+118),PANEL);text(p,(398,yy+12,940,yy+37),head,15,GOLD);text(p,(398,yy+40,938,yy+113),body,12)
         text(p,(42,581,955,612),f'CURRENT = published 0.12 scope   |   PROPOSED = requested, not shipped   |   Page {idx:02d} / {len(slides):02d}',10,MUTED)
+    doc.set_toc([[1,title,idx] for idx,(_,title,_,_) in enumerate(slides,1)])
     doc.set_metadata({'title':'MyNotes — Detailed user map, walkthrough and refinement specification','author':'MyNotes project','subject':'Current app guide and explicitly proposed UX refinements; no private diagnostics embedded'})
     doc.save(OUT,garbage=4,deflate=True)
     svgdir=ROOT/'mynotes/docs/design-2026-10-29';svgdir.mkdir(parents=True,exist_ok=True)

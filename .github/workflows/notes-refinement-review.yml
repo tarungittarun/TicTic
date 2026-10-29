@@ -1,0 +1,51 @@
+# Documentation-only relay of public synthetic fixtures; no Android build or APK release.
+name: MyNotes refinement fixture review relay
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-refinement-review.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: notes-refinement-review-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: refinement-native-api26
+          run-id: 40833264747
+          github-token: ${{ github.token }}
+          path: legacy-fixtures/api26
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: refinement-native-api34
+          run-id: 40833264747
+          github-token: ${{ github.token }}
+          path: legacy-fixtures/api34
+      - name: Materialize bounded fixture review files with explicit provenance
+        run: |
+          python3 -m pip install 'Pillow==11.3.0' 'PyYAML==6.0.3'
+          python3 -m mynotes.tools.ci.render_review --archive legacy-fixtures/api26/refinement-captures.tar --output mynotes/docs/design-2026-10-29/native/40833264747/api26
+          python3 -m mynotes.tools.ci.render_review --archive legacy-fixtures/api34/refinement-captures.tar --output mynotes/docs/design-2026-10-29/native/40833264747/api34
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          root=Path('mynotes/docs/design-2026-10-29/native/40833264747')
+          (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':'5af264c84e13d6322a8e3acd22b0d3fc2109e732','capture_run':'40833264747','run_url':'https://github.com/tarungittarun/TicTic/actions/runs/40833264747','scope':'synthetic debug-host fixture screenshots, not user data','qualification':'NOT APPROVED: API26 49/51 and API34 50/51. These are rendered-review inputs, not passing-run evidence.','profiles':{'api26':'Android 8, normal font, light','api34':'Android 14, 200% font, dark'}},indent=2)+'\n')
+          (root/'README.md').write_text('# Native fixture review — run 40833264747\n\nCaptured source: `5af264c84e13d6322a8e3acd22b0d3fc2109e732`. Synthetic debug-host notes only. JPEG previews are for visual inspection; original PNGs remain in the normal Actions artifact and each manifest records their hashes.\n\n**Not a release approval:** this run had native failures (49/51 API26; 50/51 API34). Later code changes do not retroactively update these screenshots. The directory is named for the immutable capture run.\n')
+          PY
+      - name: Preserve review evidence only on the session branch after source gates
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa && python3 -m unittest discover -s mynotes/qa -t . && git diff --check && git add mynotes/docs/design-2026-10-29/native/40833264747 && git commit -m 'Preserve explicitly unapproved synthetic native review fixtures [skip ci]' && git push origin arena/3caca636-tictic

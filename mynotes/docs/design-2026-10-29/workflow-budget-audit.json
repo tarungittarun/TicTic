@@ -1,0 +1,1010 @@
+{
+  "schema": 1,
+  "scope": "Session-branch runs created on 2026-10-29 at or after 06:30 UTC",
+  "captured_at_utc": "2026-10-29T08:53:00Z",
+  "workflow_runs": 15,
+  "listed_jobs": 113,
+  "outcomes": {
+    "success": 53,
+    "failure": 34,
+    "skipped": 9,
+    "cancelled": 17
+  },
+  "caveat": "Listed jobs include cancelled jobs that may not have run a full test workload. This is not a billable-minute estimate. The 45-job allowance was exceeded; no additional qualification is being launched.",
+  "runs": [
+    {
+      "run": 40843257072,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123344491931,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:35:42Z",
+          "completed_at": "2026-10-29T08:37:45Z"
+        },
+        {
+          "id": 123345330848,
+          "name": "native (tablet-api34, 34, 1, no, portrait, Nexus 9, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:37:48Z",
+          "completed_at": "2026-10-29T08:46:08Z"
+        },
+        {
+          "id": 123345330855,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:37:48Z",
+          "completed_at": "2026-10-29T08:44:49Z"
+        },
+        {
+          "id": 123345330857,
+          "name": "native (full-api34, 34, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:37:47Z",
+          "completed_at": "2026-10-29T08:46:44Z"
+        },
+        {
+          "id": 123345330879,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:37:48Z",
+          "completed_at": "2026-10-29T08:49:46Z"
+        },
+        {
+          "id": 123345330896,
+          "name": "native (night-api34, 34, 1, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:37:48Z",
+          "completed_at": "2026-10-29T08:45:47Z"
+        },
+        {
+          "id": 123345330925,
+          "name": "native (phone-api36, 36, 0.85, yes, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:37:47Z",
+          "completed_at": "2026-10-29T08:47:14Z"
+        },
+        {
+          "id": 123345331243,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:37:47Z",
+          "completed_at": "2026-10-29T08:46:40Z"
+        },
+        {
+          "id": 123350104923,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:49:48Z",
+          "completed_at": "2026-10-29T08:50:25Z"
+        }
+      ]
+    },
+    {
+      "run": 40842884241,
+      "name": "Stop overlapping MyNotes publication attempts",
+      "jobs": [
+        {
+          "id": 123343269588,
+          "name": "stop-unintended-duplicates",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:32:40Z",
+          "completed_at": "2026-10-29T08:32:45Z"
+        }
+      ]
+    },
+    {
+      "run": 40842602599,
+      "name": "MyNotes standalone",
+      "jobs": [
+        {
+          "id": 123342516388,
+          "name": "Android lint and API/resource analysis",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:32:02Z"
+        },
+        {
+          "id": 123342516670,
+          "name": "Domain and migration rules",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:31:41Z"
+        },
+        {
+          "id": 123342516671,
+          "name": "Compile debug host and instrumentation",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:31:47Z"
+        },
+        {
+          "id": 123342516681,
+          "name": "Source, protocol and CI self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:31:08Z"
+        },
+        {
+          "id": 123342516780,
+          "name": "Compile signed release candidate",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:32:08Z"
+        },
+        {
+          "id": 123342516981,
+          "name": "Immutable releases and dependency hygiene",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:30:47Z",
+          "completed_at": "2026-10-29T08:31:03Z"
+        },
+        {
+          "id": 123343072717,
+          "name": "APK privacy, signature and update contract",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:32:08Z",
+          "completed_at": "2026-10-29T08:32:08Z"
+        },
+        {
+          "id": 123343072806,
+          "name": "MyNotes acceptance summary",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:32:10Z",
+          "completed_at": "2026-10-29T08:32:24Z"
+        },
+        {
+          "id": 123343073337,
+          "name": "Android / ${{ matrix.id }}",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:32:08Z",
+          "completed_at": "2026-10-29T08:32:08Z"
+        },
+        {
+          "id": 123343074522,
+          "name": "Publish immutable version (all gates required)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:32:08Z",
+          "completed_at": "2026-10-29T08:32:08Z"
+        }
+      ]
+    },
+    {
+      "run": 40842602541,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123342355442,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:30:23Z",
+          "completed_at": "2026-10-29T08:31:31Z"
+        },
+        {
+          "id": 123342832702,
+          "name": "native",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:31:32Z",
+          "completed_at": "2026-10-29T08:31:31Z"
+        },
+        {
+          "id": 123342836079,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:31:32Z",
+          "completed_at": "2026-10-29T08:31:32Z"
+        }
+      ]
+    },
+    {
+      "run": 40842177367,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123340921717,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:26:48Z",
+          "completed_at": "2026-10-29T08:27:42Z"
+        },
+        {
+          "id": 123341297108,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:27:43Z",
+          "completed_at": "2026-10-29T08:27:43Z"
+        },
+        {
+          "id": 123341297237,
+          "name": "native",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:27:43Z",
+          "completed_at": "2026-10-29T08:27:43Z"
+        }
+      ]
+    },
+    {
+      "run": 40842177306,
+      "name": "MyNotes standalone",
+      "jobs": [
+        {
+          "id": 123341343364,
+          "name": "Source, protocol and CI self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:27:51Z",
+          "completed_at": "2026-10-29T08:28:08Z"
+        },
+        {
+          "id": 123341343588,
+          "name": "Compile debug host and instrumentation",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:27:52Z",
+          "completed_at": "2026-10-29T08:28:59Z"
+        },
+        {
+          "id": 123341343619,
+          "name": "Compile signed release candidate",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:27:52Z",
+          "completed_at": "2026-10-29T08:30:24Z"
+        },
+        {
+          "id": 123341343657,
+          "name": "Immutable releases and dependency hygiene",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:27:52Z",
+          "completed_at": "2026-10-29T08:28:08Z"
+        },
+        {
+          "id": 123341343679,
+          "name": "Domain and migration rules",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:27:52Z",
+          "completed_at": "2026-10-29T08:28:47Z"
+        },
+        {
+          "id": 123341343726,
+          "name": "Android lint and API/resource analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:27:52Z",
+          "completed_at": "2026-10-29T08:29:55Z"
+        },
+        {
+          "id": 123342374852,
+          "name": "MyNotes acceptance summary",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:30:26Z",
+          "completed_at": "2026-10-29T08:30:44Z"
+        },
+        {
+          "id": 123342375467,
+          "name": "APK privacy, signature and update contract",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:30:24Z",
+          "completed_at": "2026-10-29T08:30:24Z"
+        },
+        {
+          "id": 123342375957,
+          "name": "Android / ${{ matrix.id }}",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:30:24Z",
+          "completed_at": "2026-10-29T08:30:24Z"
+        },
+        {
+          "id": 123342377182,
+          "name": "Publish immutable version (all gates required)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:30:24Z",
+          "completed_at": "2026-10-29T08:30:24Z"
+        }
+      ]
+    },
+    {
+      "run": 40840191909,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123334410233,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:10:02Z",
+          "completed_at": "2026-10-29T08:12:00Z"
+        },
+        {
+          "id": 123335195708,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:19:18Z"
+        },
+        {
+          "id": 123335195727,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:18:20Z"
+        },
+        {
+          "id": 123335195735,
+          "name": "native (night-api34, 34, 1, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:18:07Z"
+        },
+        {
+          "id": 123335195806,
+          "name": "native (phone-api36, 36, 0.85, yes, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:19:24Z"
+        },
+        {
+          "id": 123335195812,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:19:12Z"
+        },
+        {
+          "id": 123335195850,
+          "name": "native (full-api34, 34, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:19:49Z"
+        },
+        {
+          "id": 123335195878,
+          "name": "native (tablet-api34, 34, 1, no, portrait, Nexus 9, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:12:02Z",
+          "completed_at": "2026-10-29T08:19:28Z"
+        },
+        {
+          "id": 123338223159,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:19:52Z",
+          "completed_at": "2026-10-29T08:20:28Z"
+        }
+      ]
+    },
+    {
+      "run": 40840191954,
+      "name": "MyNotes standalone",
+      "jobs": [
+        {
+          "id": 123334900162,
+          "name": "Compile debug host and instrumentation",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:12:34Z"
+        },
+        {
+          "id": 123334900478,
+          "name": "Immutable releases and dependency hygiene",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:11:30Z"
+        },
+        {
+          "id": 123334900622,
+          "name": "Compile signed release candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:13:34Z"
+        },
+        {
+          "id": 123334900629,
+          "name": "Source, protocol and CI self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:11:33Z"
+        },
+        {
+          "id": 123334900652,
+          "name": "Android lint and API/resource analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:12:38Z"
+        },
+        {
+          "id": 123334900680,
+          "name": "Domain and migration rules",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:11:16Z",
+          "completed_at": "2026-10-29T08:12:06Z"
+        },
+        {
+          "id": 123335806456,
+          "name": "APK privacy, signature and update contract",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:13:37Z",
+          "completed_at": "2026-10-29T08:15:08Z"
+        },
+        {
+          "id": 123336421500,
+          "name": "Android / share-labels-api34",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:24Z"
+        },
+        {
+          "id": 123336421517,
+          "name": "Android / night-api34",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:17:23Z",
+          "completed_at": "2026-10-29T08:25:03Z"
+        },
+        {
+          "id": 123336421535,
+          "name": "Android / storage-api29",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:16Z"
+        },
+        {
+          "id": 123336421552,
+          "name": "Android / large-font-api34",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:17:18Z",
+          "completed_at": "2026-10-29T08:24:45Z"
+        },
+        {
+          "id": 123336421596,
+          "name": "Android / diagram-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:29Z"
+        },
+        {
+          "id": 123336421622,
+          "name": "Android / landscape-api34",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:17:26Z",
+          "completed_at": "2026-10-29T08:23:59Z"
+        },
+        {
+          "id": 123336421630,
+          "name": "Android / diagram-api34",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:16Z"
+        },
+        {
+          "id": 123336421657,
+          "name": "Android / share-labels-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:26Z"
+        },
+        {
+          "id": 123336421675,
+          "name": "Android / ui-api26",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:20:52Z"
+        },
+        {
+          "id": 123336421676,
+          "name": "Android / voice-api34",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:21:15Z",
+          "completed_at": "2026-10-29T08:23:22Z"
+        },
+        {
+          "id": 123336421688,
+          "name": "Android / ui-api29",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:21:13Z"
+        },
+        {
+          "id": 123336421702,
+          "name": "Android / ocr-api34",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:20:18Z",
+          "completed_at": "2026-10-29T08:22:03Z"
+        },
+        {
+          "id": 123336421714,
+          "name": "Android / full-api34",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:17:18Z",
+          "completed_at": "2026-10-29T08:24:13Z"
+        },
+        {
+          "id": 123336421789,
+          "name": "Android / full-api36",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:22:05Z",
+          "completed_at": "2026-10-29T08:27:11Z"
+        },
+        {
+          "id": 123336421791,
+          "name": "Android / tablet-api34",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:17:28Z",
+          "completed_at": "2026-10-29T08:27:24Z"
+        },
+        {
+          "id": 123336421804,
+          "name": "Android / ocr-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:17:31Z",
+          "completed_at": "2026-10-29T08:20:16Z"
+        },
+        {
+          "id": 123336421811,
+          "name": "Android / voice-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:20:53Z",
+          "completed_at": "2026-10-29T08:23:18Z"
+        },
+        {
+          "id": 123336421878,
+          "name": "Android / storage-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:15:11Z",
+          "completed_at": "2026-10-29T08:17:21Z"
+        },
+        {
+          "id": 123336423947,
+          "name": "Android / mic-granted-api26",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:23:20Z",
+          "completed_at": "2026-10-29T08:25:45Z"
+        },
+        {
+          "id": 123336424049,
+          "name": "Android / mic-granted-api35",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:23:24Z",
+          "completed_at": "2026-10-29T08:25:37Z"
+        },
+        {
+          "id": 123336424178,
+          "name": "Android / system-api34",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:24:01Z",
+          "completed_at": "2026-10-29T08:25:50Z"
+        },
+        {
+          "id": 123341173430,
+          "name": "MyNotes acceptance summary",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:27:27Z",
+          "completed_at": "2026-10-29T08:27:49Z"
+        },
+        {
+          "id": 123341175578,
+          "name": "Publish immutable version (all gates required)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:27:25Z",
+          "completed_at": "2026-10-29T08:27:24Z"
+        }
+      ]
+    },
+    {
+      "run": 40840101316,
+      "name": "MyNotes standalone",
+      "jobs": [
+        {
+          "id": 123334247218,
+          "name": "Immutable releases and dependency hygiene",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:09:36Z",
+          "completed_at": "2026-10-29T08:09:49Z"
+        },
+        {
+          "id": 123334247465,
+          "name": "Android lint and API/resource analysis",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:35Z",
+          "completed_at": "2026-10-29T08:10:53Z"
+        },
+        {
+          "id": 123334247682,
+          "name": "Compile signed release candidate",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:35Z",
+          "completed_at": "2026-10-29T08:10:53Z"
+        },
+        {
+          "id": 123334247721,
+          "name": "Source, protocol and CI self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:09:36Z",
+          "completed_at": "2026-10-29T08:09:55Z"
+        },
+        {
+          "id": 123334247731,
+          "name": "Compile debug host and instrumentation",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:36Z",
+          "completed_at": "2026-10-29T08:10:53Z"
+        },
+        {
+          "id": 123334247742,
+          "name": "Domain and migration rules",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:35Z",
+          "completed_at": "2026-10-29T08:10:19Z"
+        },
+        {
+          "id": 123334767074,
+          "name": "APK privacy, signature and update contract",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:10:53Z",
+          "completed_at": "2026-10-29T08:10:53Z"
+        },
+        {
+          "id": 123334770825,
+          "name": "MyNotes acceptance summary",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:10:56Z",
+          "completed_at": "2026-10-29T08:11:13Z"
+        },
+        {
+          "id": 123334772424,
+          "name": "Android / ${{ matrix.id }}",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:10:54Z",
+          "completed_at": "2026-10-29T08:10:54Z"
+        },
+        {
+          "id": 123334773081,
+          "name": "Publish immutable version (all gates required)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:10:54Z",
+          "completed_at": "2026-10-29T08:10:54Z"
+        }
+      ]
+    },
+    {
+      "run": 40839866334,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123333353661,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:07:14Z",
+          "completed_at": "2026-10-29T08:08:13Z"
+        },
+        {
+          "id": 123333737183,
+          "name": "native",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:08:14Z",
+          "completed_at": "2026-10-29T08:08:14Z"
+        },
+        {
+          "id": 123333737884,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-29T08:08:14Z",
+          "completed_at": "2026-10-29T08:08:14Z"
+        }
+      ]
+    },
+    {
+      "run": 40839866240,
+      "name": "MyNotes standalone",
+      "jobs": [
+        {
+          "id": 123333353645,
+          "name": "Compile debug host and instrumentation",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:07:14Z",
+          "completed_at": "2026-10-29T08:08:08Z"
+        },
+        {
+          "id": 123333353927,
+          "name": "Compile signed release candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:07:15Z",
+          "completed_at": "2026-10-29T08:09:11Z"
+        },
+        {
+          "id": 123333353940,
+          "name": "Domain and migration rules",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:07:15Z",
+          "completed_at": "2026-10-29T08:08:00Z"
+        },
+        {
+          "id": 123333353981,
+          "name": "Source, protocol and CI self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:07:14Z",
+          "completed_at": "2026-10-29T08:07:30Z"
+        },
+        {
+          "id": 123333353987,
+          "name": "Immutable releases and dependency hygiene",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:07:15Z",
+          "completed_at": "2026-10-29T08:07:26Z"
+        },
+        {
+          "id": 123333353992,
+          "name": "Android lint and API/resource analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T08:07:15Z",
+          "completed_at": "2026-10-29T08:08:55Z"
+        },
+        {
+          "id": 123334103518,
+          "name": "APK privacy, signature and update contract",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:11Z",
+          "completed_at": "2026-10-29T08:09:12Z"
+        },
+        {
+          "id": 123334114066,
+          "name": "MyNotes acceptance summary",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T08:09:15Z",
+          "completed_at": "2026-10-29T08:09:33Z"
+        },
+        {
+          "id": 123334115065,
+          "name": "Android / ${{ matrix.id }}",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:13Z",
+          "completed_at": "2026-10-29T08:09:13Z"
+        },
+        {
+          "id": 123334116273,
+          "name": "Publish immutable version (all gates required)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-29T08:09:13Z",
+          "completed_at": "2026-10-29T08:09:13Z"
+        }
+      ]
+    },
+    {
+      "run": 40837054318,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123324180000,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:41:32Z",
+          "completed_at": "2026-10-29T07:43:55Z"
+        },
+        {
+          "id": 123325011910,
+          "name": "native (night-api34, 34, 1, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:43:57Z",
+          "completed_at": "2026-10-29T07:49:42Z"
+        },
+        {
+          "id": 123325011918,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:43:57Z",
+          "completed_at": "2026-10-29T07:51:02Z"
+        },
+        {
+          "id": 123325011948,
+          "name": "native (full-api34, 34, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:43:57Z",
+          "completed_at": "2026-10-29T07:51:32Z"
+        },
+        {
+          "id": 123325012033,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T07:43:58Z",
+          "completed_at": "2026-10-29T07:51:15Z"
+        },
+        {
+          "id": 123325012037,
+          "name": "native (tablet-api34, 34, 1, no, portrait, Nexus 9, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T07:43:57Z",
+          "completed_at": "2026-10-29T07:53:52Z"
+        },
+        {
+          "id": 123325012177,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:43:57Z",
+          "completed_at": "2026-10-29T07:50:12Z"
+        },
+        {
+          "id": 123328485277,
+          "name": "evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:53:55Z",
+          "completed_at": "2026-10-29T07:54:28Z"
+        }
+      ]
+    },
+    {
+      "run": 40835207220,
+      "name": "MyNotes refinement fixture review relay",
+      "jobs": [
+        {
+          "id": 123318263138,
+          "name": "review",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:24:21Z",
+          "completed_at": "2026-10-29T07:24:47Z"
+        }
+      ]
+    },
+    {
+      "run": 40833264747,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123312082257,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T07:06:08Z",
+          "completed_at": "2026-10-29T07:07:50Z"
+        },
+        {
+          "id": 123312671720,
+          "name": "native (26, 1, no)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T07:07:52Z",
+          "completed_at": "2026-10-29T07:13:15Z"
+        },
+        {
+          "id": 123312671742,
+          "name": "native (34, 2, yes)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T07:07:53Z",
+          "completed_at": "2026-10-29T07:15:13Z"
+        }
+      ]
+    },
+    {
+      "run": 40831654435,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "jobs": [
+        {
+          "id": 123307018577,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T06:50:31Z",
+          "completed_at": "2026-10-29T06:52:13Z"
+        },
+        {
+          "id": 123307578838,
+          "name": "native (34, 2, yes)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-29T06:52:15Z",
+          "completed_at": "2026-10-29T06:58:47Z"
+        },
+        {
+          "id": 123307578925,
+          "name": "native (26, 1, no)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-29T06:52:15Z",
+          "completed_at": "2026-10-29T06:57:30Z"
+        }
+      ]
+    }
+  ]
+}

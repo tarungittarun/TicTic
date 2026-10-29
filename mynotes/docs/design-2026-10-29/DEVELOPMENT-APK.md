@@ -1,14 +1,14 @@
 # Updated development APK — not release approval
 
-Build source: `a1c21dc`, run [40866956311](https://github.com/tarungittarun/TicTic/actions/runs/40866956311).
+Build source: `19db0fd`, run [40869247600](https://github.com/tarungittarun/TicTic/actions/runs/40869247600).
 
-[Download the build ZIP](https://github.com/tarungittarun/TicTic/actions/runs/40866956311/artifacts/12893847667)
+[Download the build ZIP](https://github.com/tarungittarun/TicTic/actions/runs/40869247600/artifacts/12894867659)
 
-Extract **`release/notes-release.apk`**. Do not install the debug or Android-test APKs. This is version **0.13.0 / code14**, package `app.space.notes`. GitHub authentication may be required. Artifact retention is one day; this is not a permanent Release asset.
+Extract **`release/notes-release.apk`**. Do not install the debug or Android-test APKs. This is version **0.13.1 / code15**, package `app.space.notes`. GitHub authentication may be required. Artifact retention is one day; this is not a permanent Release asset. This replaces the earlier code14 development link.
 
 ## Qualification boundary
 
-Compilation succeeded. The three blocker profiles (API26, landscape and tablet) are still being checked at the time this note was written. Full publication qualification has not cleared. The artifact is an explicitly unqualified development candidate, not a production-ready recommendation. The published Release remains 0.12/code13.
+Compilation, 148 JVM tests and debug/release lint succeeded. API26 passed 184/184; landscape passed 60/61, with the Pin journey still red. Tablet passed 61/61 on the preceding code14 source, not this code15 source. Full publication qualification has not cleared. The artifact is an explicitly unqualified development candidate, not a production-ready recommendation. The published Release remains 0.12/code13.
 
 ## Protect existing data
 

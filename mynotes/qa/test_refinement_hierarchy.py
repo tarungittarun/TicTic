@@ -62,3 +62,10 @@ class RefinementHierarchyContracts(unittest.TestCase):
         source = (ROOT / 'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
         for helper in set(re.findall(r'\b(assert(?:Equals|Null|NotNull|True|False|Same|NotSame|NotEquals|ArrayEquals))\s*\(', source)):
             self.assertIn('import static org.junit.Assert.' + helper + ';', source)
+
+    def test_pin_journey_does_not_issue_two_competing_ime_dismissals(self):
+        source = (ROOT / 'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        case = source.split('void backgroundAndPinStateAreVisibleAndPersistent()', 1)[1].split('@Test', 1)[0]
+        self.assertNotIn('hideSoftInputFromWindow', case)
+        self.assertIn('tap("Pin")', case)
+        self.assertIn('text("Unpin")', case)

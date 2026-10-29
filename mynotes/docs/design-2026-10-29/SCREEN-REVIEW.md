@@ -34,3 +34,7 @@ Source `33c97f9` completed seven-profile qualification in run `40843257072`: 775
 ## Presentation handoff
 
 The PDF contains the vocabulary, category map, practical journeys, acceptance boundaries and source-pinned runtime examples. SVGs are an importable Figma-style handoff, **not** a hosted Figma project. Native examples are explicitly labelled fixtures and must not be mistaken for a production-device screenshot or visual approval.
+
+## Continuation renders, 12:10 UTC
+
+Reviewed `40869247600` / `19db0fd`: landscape drawing now shows a genuinely wide paper workspace, compact tool strip and top Save/More; API26 Trash has no creation controls and keeps Library below; Group and unavailable Ungroup are visibly dimmed until valid. API26 184/184 and landscape 60/61 are the exact runtime outcomes. This supersedes the earlier pending-render statements for these specific changes, not the overall release or rare-screen acceptance boundary. One Pin journey and broader physical/full-release gates remain unresolved.

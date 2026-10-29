@@ -23,3 +23,13 @@ The built APK artifact exists (12935431340), but local download failed with EOF 
 ## Attempt 2
 
 Reserve another **4 jobs** for rebuild, API26 full, API34 landscape focused, evidence. Maximum cumulative usage after this attempt: **8/15**, leaving **7**. Deliberate workflow-path trigger only.
+
+## Attempt 2 results — run 40961354160
+
+**4 further jobs completed; cumulative 8/15 used.** Build/JVM/lint passed; landscape **67/67 passed**, API26 **189/190**. The corrected OCR test now enters the review; native dispatch exposes an actual baseline-layout clipping issue on API26: Append button top offset 17px inside a row whose height already equals the button's height. No assertion was waived. Source fix disables baseline alignment and centers controls vertically in shared action rows.
+
+## Attempt 3 — revised reservation
+
+Reserve **5 jobs**: build/JVM/lint, API26 full regression, API34 2.0-font dark focused, API34 tablet focused, evidence. Maximum cumulative **13/15**, leaving **2**. Do not launch an unrelated workflow. Add explicit synthetic crop-preview and checklist-item-action captures (registry 54, bounded cap remains 56).
+
+A separate raw-file upload uses the official upload-artifact v7 `archive: false` support. This will provide an authenticated **installable APK artifact, not a ZIP**, if the upload succeeds. Verify the established signing-certificate SHA256 before uploading; retain file SHA256 and signer receipt. It is a development artifact, not a public Release or full acceptance.

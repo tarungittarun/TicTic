@@ -65,3 +65,8 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertLess(action.index('index<0){host.showMessage('), action.index('captureUndo('))
         self.assertLess(action.index('rows.get(index).depth==0)))return;'), action.index('captureUndo('))
         self.assertIn('action.equals("add-after") && index>=0?index+1:rows.size()', action)
+
+    def test_review_action_rows_do_not_baseline_shift_buttons_outside_the_row(self):
+        row = self.controller.split('private LinearLayout rowIn(', 1)[1].split('private void header(', 1)[0]
+        self.assertIn('actionsRow.setBaselineAligned(false)', row)
+        self.assertIn('actionsRow.setGravity(android.view.Gravity.CENTER_VERTICAL)', row)

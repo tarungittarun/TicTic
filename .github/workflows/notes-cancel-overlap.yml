@@ -1,0 +1,29 @@
+name: Stop overlapping MyNotes publication attempts
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-cancel-overlap.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop-unintended-duplicates:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Cancel only active full Notes publication runs on this session branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SESSION_BRANCH: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          rows=json.loads(subprocess.check_output(['gh','run','list','--workflow','notes-ci.yml','--branch',os.environ['SESSION_BRANCH'],'--limit','20','--json','databaseId,status,workflowName']))
+          for row in rows:
+              if row['workflowName']!='MyNotes standalone':raise RuntimeError('Unexpected workflow identity')
+              if row['status']=='completed':continue
+              print('Cancelling overlapping publication run',row['databaseId'],row['status'],flush=True)
+              subprocess.run(['gh','run','cancel',str(row['databaseId'])],check=True)
+          PY

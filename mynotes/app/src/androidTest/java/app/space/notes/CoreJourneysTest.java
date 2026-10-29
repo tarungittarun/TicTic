@@ -25,6 +25,18 @@ import static org.junit.Assert.assertNull;
 /** Real editor/controller journeys, isolated files/prefs. dispatch-first, no shell gestures. */
 @RunWith(AndroidJUnit4.class)
 public class CoreJourneysTest {
+    /** Authored coverage; requires the next explicitly authorized Android qualification. */
+    @Test public void imageEditRasterMatchesPreviewGeometryWithoutChangingSource() throws Exception {
+        android.graphics.Bitmap source=android.graphics.Bitmap.createBitmap(3,2,android.graphics.Bitmap.Config.ARGB_8888);
+        int[] colors={0xffff0000,0xff00ff00,0xff0000ff,0xffffff00,0xffff00ff,0xff00ffff};source.setPixels(colors,0,3,0,0,3,2);
+        java.lang.reflect.Method render=Class.forName("app.space.notes.runtime.ImageEditView").getDeclaredMethod("render",android.graphics.Bitmap.class,app.space.notes.domain.ImageEditPlan.class);render.setAccessible(true);
+        try{for(int turns=0;turns<4;turns++)for(int mirror=0;mirror<2;mirror++)for(int crop=0;crop<2;crop++){
+            app.space.notes.domain.ImageEditPlan plan=new app.space.notes.domain.ImageEditPlan(3,2);for(int i=0;i<turns;i++)plan=plan.rotateRight();if(mirror==1)plan=plan.mirror();if(crop==1)plan=plan.crop(0,0,plan.width()-1,plan.height()-1);
+            android.graphics.Bitmap output=(android.graphics.Bitmap)render.invoke(null,source,plan);
+            try{assertEquals(plan.cropWidth(),output.getWidth());assertEquals(plan.cropHeight(),output.getHeight());float[] matrix=plan.matrix();for(int y=0;y<2;y++)for(int x=0;x<3;x++){int px=(int)(matrix[0]*(x+.5f)+matrix[1]*(y+.5f)+matrix[2]),py=(int)(matrix[3]*(x+.5f)+matrix[4]*(y+.5f)+matrix[5]);if(px>=plan.left && px<plan.right && py>=plan.top && py<plan.bottom)assertEquals(colors[y*3+x],output.getPixel(px-plan.left,py-plan.top));assertEquals(colors[y*3+x],source.getPixel(x,y));}}finally{output.recycle();}
+        }}finally{source.recycle();}
+    }
+
     private final Instrumentation instrumentation=InstrumentationRegistry.getInstrumentation();
     private Activity activity;private Context context;private File fixture;private NotesController controller;
     private String shared;
@@ -304,6 +316,14 @@ public class CoreJourneysTest {
         start(Collections.emptyList());tap("New text note");tap("Add to note");tap("Diagram");tap("Add shape");tap("Rectangle");tap("Edit shape");tap("Edit shape");screenshot("shape-dialog",false);dialogTap("Cancel");tap("Add shape");tap("Oval");tap("Diagram options");tap("Group shapes");screenshot("diagram-group",false);dialogTap("Cancel");tap("Back to note");
         // Render the exact native picker types/theme separately from notification permission gates.
         Calendar date=Calendar.getInstance();main(()->{app.space.notes.runtime.NotesDesign design=new app.space.notes.runtime.NotesDesign(context,app.space.notes.runtime.NotesAppearance.dark(context,host));design.show(new android.app.DatePickerDialog(context,(v,y,m,d)->design.show(new android.app.TimePickerDialog(context,(clock,hour,minute)->{},12,30,false)),date.get(Calendar.YEAR),date.get(Calendar.MONTH),date.get(Calendar.DAY_OF_MONTH)));});screenshot("reminder-date",false);dialogTap("OK");screenshot("reminder-time",false);dialogTap("Cancel");saved();assertEquals(0,new NotesRepository(context).load().get(0).reminderAt);
+    }
+    @Test public void importedImageEditRequiresSaveKeepsIdentityAndRestoresHistory()throws Exception{
+        app.space.notes.domain.NoteImage original=fixtureImage("Image",android.graphics.Color.BLUE);Note seed=note("Editable image").images(Collections.singletonList(original),System.currentTimeMillis());start(Collections.singletonList(seed));main(()->controller.openNote(seed.id));await(()->input("Write your note…")!=null);tap("Edit image");await(()->{TextView crop=text("Crop");return crop!=null && crop.isEnabled();});main(()->assertFalse(text("Save image edits").isEnabled()));tap("Rotate right");tap("Undo");main(()->assertFalse(text("Save image edits").isEnabled()));tap("Redo");assertEquals(original.data,new NotesRepository(context).load().get(0).images.get(0).data);
+        tap("Back");tap("Cancel");tap("Back");main(()->assertNotNull(text("Discard image edits?")));tap("Cancel");
+        android.os.Bundle state=new android.os.Bundle();main(()->{controller.saveState(state);controller.close();controller=new NotesController(context,host,state);activity.setContentView(controller.view());});await(()->{TextView save=text("Save image edits");return save!=null && save.isEnabled();});tap("Undo");main(()->assertFalse(text("Save image edits").isEnabled()));tap("Redo");tap("Save image edits");await(()->input("Write your note…")!=null);saved();List<app.space.notes.domain.NoteImage> images=new NotesRepository(context).load().get(0).images;assertEquals(1,images.size());assertEquals(original.id,images.get(0).id);assertEquals(24,images.get(0).width);assertEquals(32,images.get(0).height);tap("Undo");saved();assertEquals(original.data,new NotesRepository(context).load().get(0).images.get(0).data);
+    }
+    @Test public void checklistRowActionsDisableBoundariesAndInsertImmediatelyBelow()throws Exception{
+        Note seed=note("Editable list").list("Editable list",Arrays.asList(new Note.Item("first","First",false,0),new Note.Item("second","Second",false,0)),false,System.currentTimeMillis());start(Collections.singletonList(seed));main(()->controller.openNote(seed.id));await(()->text("Actions for list item 1")!=null);tap("Actions for list item 1");main(()->{assertFalse(text("Move item up").isEnabled());assertFalse(text("Outdent item").isEnabled());assertTrue(text("Move item down").isEnabled());});tap("Add item below");saved();List<Note.Item> items=new NotesRepository(context).load().get(0).items;assertEquals(3,items.size());assertEquals("first",items.get(0).id);assertEquals("",items.get(1).text);assertEquals("second",items.get(2).id);tap("Undo");saved();assertEquals(2,new NotesRepository(context).load().get(0).items.size());
     }
     private app.space.notes.domain.NoteImage fixtureImage(String name,int color)throws Exception{android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(32,24,android.graphics.Bitmap.Config.ARGB_8888);bitmap.eraseColor(color);java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,bytes));bitmap.recycle();return new app.space.notes.domain.NoteImage(UUID.randomUUID().toString(),name,"image/png",32,24,java.util.Base64.getEncoder().encodeToString(bytes.toByteArray()));}
     @Test public void mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems()throws Exception{

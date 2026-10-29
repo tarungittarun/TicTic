@@ -1,0 +1,15 @@
+package app.space.notes.domain;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class ImageEditPlanTest {
+ @Test public void initialPlanKeepsEveryPixel(){ImageEditPlan p=new ImageEditPlan(600,400);assertFalse(p.changed());assertEquals(600,p.cropWidth());assertEquals(400,p.cropHeight());}
+ @Test public void fourRotationsAndTwoMirrorsRestoreOriginalIncludingCrop(){ImageEditPlan p=new ImageEditPlan(600,400).crop(11,23,512,345);assertEquals(p,p.rotateRight().rotateRight().rotateRight().rotateRight());assertEquals(p,p.mirror().mirror());assertEquals(p,p.rotateRight().rotateLeft());}
+ @Test public void screenRotationMovesCropToSameVisualPixels(){ImageEditPlan p=new ImageEditPlan(600,400).crop(10,20,500,300).rotateRight();assertEquals(400,p.width());assertEquals(600,p.height());assertEquals(100,p.left);assertEquals(10,p.top);assertEquals(380,p.right);assertEquals(500,p.bottom);}
+ @Test public void rotationAfterMirrorUsesScreenSpaceDirection(){ImageEditPlan p=new ImageEditPlan(600,400).mirror().rotateRight();assertEquals(3,p.turns);assertTrue(p.mirrored);assertEquals(new ImageEditPlan(600,400).rotateLeft().mirror(),p);}
+ @Test public void matrixMapsEveryCornerIntoOrientedBounds(){for(int turns=0;turns<4;turns++)for(int mirrored=0;mirrored<2;mirrored++){ImageEditPlan p=new ImageEditPlan(17,11);for(int i=0;i<turns;i++)p=p.rotateRight();if(mirrored==1)p=p.mirror();float[] m=p.matrix();for(int x:new int[]{0,17})for(int y:new int[]{0,11}){float px=m[0]*x+m[1]*y+m[2],py=m[3]*x+m[4]*y+m[5];assertTrue(px==0 || px==p.width());assertTrue(py==0 || py==p.height());}}}
+ @Test public void presetUsesFullOrientedImageNotRepeatedlyShrinkingCrop(){ImageEditPlan p=new ImageEditPlan(600,400).crop(200,150,300,250).aspect(1,1);assertEquals(400,p.cropWidth());assertEquals(400,p.cropHeight());assertEquals(600,p.aspect(3,2).cropWidth());assertEquals(400,p.aspect(3,2).cropHeight());}
+ @Test public void smallImageAndExtremeRatioKeepAtLeastOnePixel(){ImageEditPlan p=new ImageEditPlan(1,1).aspect(100,1);assertEquals(1,p.cropWidth());assertEquals(1,p.cropHeight());}
+ @Test public void stateIsSmallIndependentAndValidated(){ImageEditPlan p=new ImageEditPlan(600,400).rotateRight().mirror().crop(5,6,300,500);int[] state=p.state();assertEquals(p,ImageEditPlan.restore(state));state[0]=1;assertEquals(600,p.sourceWidth);assertThrows(IllegalArgumentException.class,()->ImageEditPlan.restore(state));assertThrows(IllegalArgumentException.class,()->ImageEditPlan.restore(new int[7]));assertThrows(IllegalArgumentException.class,()->ImageEditPlan.restore(new int[]{5,5,0,2,0,0,5,5}));}
+ @Test public void invalidBoundsNeverReachRasterExport(){assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(0,1));assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(1601,1));assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(30,20).crop(-1,0,10,10));assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(30,20).crop(0,0,31,10));assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(30,20).crop(0,0,0,10));assertThrows(IllegalArgumentException.class,()->new ImageEditPlan(30,20).aspect(0,1));}
+}

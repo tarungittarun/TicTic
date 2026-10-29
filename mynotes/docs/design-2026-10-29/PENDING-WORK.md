@@ -58,3 +58,8 @@ Syntax/structural checks are not javac, Android resource linking, lint, APK gene
 - Archive enhancement remains paused. Wall drag ordering stays last. Calculator code is unchanged.
 
 The approved CI allocation is exhausted. Any further build/test job requires renewed approval; publication gates have not been relaxed.
+
+
+## New deep-refinement request (30 October IST)
+
+Source-only follow-up: imported-image crop/rotate/mirror/history editor and per-row checklist actions. See `../REFINEMENT-360-2026-10-30.md`, `../FEATURE-EDIT-AUDIT-2026-10-30.md` and `../LOCAL-AI-PRIVACY-ASSESSMENT.md`. Local source checks now 542 root / 152 Notes; 108 Java syntax parses. Nine JVM and three native cases authored, unexecuted. This does not replace the code15 evidence, produce a code16 APK, complete native acceptance, authorize CI or fulfill the six-hour elapsed-work request.

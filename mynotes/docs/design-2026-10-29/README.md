@@ -97,3 +97,11 @@ Updated development APK **0.13.1/code15**, source `19db0fd`, is available as a o
 Latest run `40869247600`: JVM148/build/debug+release lint passed; API26 **184/184**, landscape **60/61**. One-shot focus recovery across measured compact IME shrink removed the prior 19 focus-readiness failures without rewriting native selections. The remaining Pin fixture contained competing programmatic/native IME dismissals; the redundant programmatic hide is now removed in source, but is unexecuted on Android and is not waived. Preceding-source tablet was **61/61**, not a code15 tablet qualification.
 
 The version bump unexpectedly triggered the old long-soak Gradle path. Soak is now explicit-only. User approved one cleanup job beyond the 15-job continuation, and it successfully cancelled the unintended soak. Revised allowance is exhausted at16 listed jobs; no further qualification runs are being started. No public release, all-profile approval, or physical Motorola acceptance is claimed.
+
+### Pending-work continuation — 18:20 UTC
+
+Source-only candidate **0.13.2/code16** now handles zero/one-shape grouping with a useful Add shape prerequisite sheet, and makes empty OCR review explicit with disabled, live-updating Save/Append actions and readable language names. Existing single-member legacy groups can still reach Ungroup. The Pin fixture now captures attachment/Activity/decor state and a real system screenshot on an unclipped timeout without waiting on the lost fixture window; it still fails rather than bypassing native input checks.
+
+Three additional Android cases and seven capture fixtures are prepared for grouping/picker, OCR/language review and backup/restore cancellation. **They have not run or been rendered.** Planned inventories are 187 full / 64 focused, not replacement pass totals. The reviewed main-screen count stays40. Source guards now also pin expensive workflow triggers to explicit configuration changes, preventing another incidental app/version-triggered farm.
+
+Local structural gates: **534 root / 144 Notes passed**; 105 Java files parsed without syntax errors, and Notes XML parsed. These are not Android compilation or execution. No new CI jobs or APK were produced. The provided code15 artifact remains the latest development binary. Read `PENDING-WORK.md` for the exact work, boundaries and still-pending acceptance.

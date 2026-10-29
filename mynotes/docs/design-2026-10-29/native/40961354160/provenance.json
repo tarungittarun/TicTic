@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source_sha": "e895b0415741b16252edb1ad00e6989b6704306c",
+  "capture_run": "40961354160",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": true,
+      "expected": 67,
+      "passed": 67,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 190,
+      "passed": 189,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError: Control did not settle unclipped: Append to note shown=true target=Button[top=17 h=174 measured=174 scroll=0 visibility=0]LinearLayout[top=1506 h=174 measured=174 scroll=0 visibility=0]LinearLayout[top=0 h=1704 measured=1704 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1704 measured=1704 scroll=0 visibility=0]FrameLayout[top=72 h=1704 measured=1704 scroll=0 visibility=0]FrameLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0] root_height=1704 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1080, 1776)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:175)\n\tat app.space.notes.CoreJourneysTest.ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal(CoreJourneysTest.java:350)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 37 more\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

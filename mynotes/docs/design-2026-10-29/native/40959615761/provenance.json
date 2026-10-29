@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "source_sha": "e27afd12eff2b33a91723ba83b5192dc56961046",
+  "capture_run": "40959615761",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 67,
+      "passed": 66,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat org.junit.Assert.assertNotNull(Assert.java:723)\n\tat app.space.notes.CoreJourneysTest.lambda$click$2$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:82)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda97.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 190,
+      "passed": 189,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat org.junit.Assert.assertNotNull(Assert.java:723)\n\tat app.space.notes.CoreJourneysTest.lambda$click$2$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:82)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda97.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

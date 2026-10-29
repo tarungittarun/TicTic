@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "source_sha": "33c97f98859ed7fb6867c177b8b482d1c6ae906d",
+  "capture_run": "40843257072",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "full-api34": {
+      "ok": true,
+      "expected": 184,
+      "passed": 184,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 42,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories",
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent",
+        "app.space.notes.CoreJourneysTest#drawingBrushAndHistoryControlsExposeActualState",
+        "app.space.notes.CoreJourneysTest#drawingDraftSurvivesControllerRecreationAndSavesEmbeddedImage",
+        "app.space.notes.CoreJourneysTest#drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection",
+        "app.space.notes.CoreJourneysTest#embeddedHostOwnsPaletteAndOverridesStandaloneAppearance",
+        "app.space.notes.CoreJourneysTest#nativeCaretAndReverseSelectionStyleWholeParagraphOnly",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation",
+        "app.space.notes.CoreJourneysTest#nativeHeadingClearUndoAndReopenRetainParagraphMetrics",
+        "app.space.notes.CoreJourneysTest#nativeHeadingReflowsBeforeAndAfterParagraphsWithoutGlyphOverlap",
+        "app.space.notes.CoreJourneysTest#nativeHeadingTypingExtendsAndEnterReturnsToNormalText",
+        "app.space.notes.CoreJourneysTest#nativeInputConnectionComposingWordAndEnterKeepParagraphIntent",
+        "app.space.notes.CoreJourneysTest#nativeNumericFirstLineMatchesReportedOverlapCase",
+        "app.space.notes.CoreJourneysTest#nativeSheetDismissalDoesNotLeakTouchesIntoTheDocument",
+        "app.space.notes.CoreJourneysTest#nativeSignatureShapeAndPickerDialogsRenderWithoutChangingReminder",
+        "app.space.notes.CoreJourneysTest#nativeWrappedHeadingAndMixedScriptsKeepSeparateLineBoxes",
+        "app.space.notes.CoreJourneysTest#repeatedDrawingSaveDoesNotAttachDuplicateImages",
+        "app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage",
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.savedDrawingCanBeEditedWithoutAddingAnotherAttachment(CoreJourneysTest.java:106)\n",
+        "app.space.notes.CoreJourneysTest#drawingBrushAndHistoryControlsExposeActualState: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.drawingBrushAndHistoryControlsExposeActualState(CoreJourneysTest.java:308)\n",
+        "app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.backgroundAndPinStateAreVisibleAndPersistent(CoreJourneysTest.java:115)\n",
+        "app.space.notes.CoreJourneysTest#nativeCaretAndReverseSelectionStyleWholeParagraphOnly: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeCaretAndReverseSelectionStyleWholeParagraphOnly(CoreJourneysTest.java:207)\n",
+        "app.space.notes.CoreJourneysTest#embeddedHostOwnsPaletteAndOverridesStandaloneAppearance: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.embeddedHostOwnsPaletteAndOverridesStandaloneAppearance(CoreJourneysTest.java:97)\n",
+        "app.space.notes.CoreJourneysTest#nativeHeadingClearUndoAndReopenRetainParagraphMetrics: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeHeadingClearUndoAndReopenRetainParagraphMetrics(CoreJourneysTest.java:213)\n",
+        "app.space.notes.CoreJourneysTest#nativeHeadingReflowsBeforeAndAfterParagraphsWithoutGlyphOverlap: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeHeadingReflowsBeforeAndAfterParagraphsWithoutGlyphOverlap(CoreJourneysTest.java:201)\n",
+        "app.space.notes.CoreJourneysTest#nativeSheetDismissalDoesNotLeakTouchesIntoTheDocument: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeSheetDismissalDoesNotLeakTouchesIntoTheDocument(CoreJourneysTest.java:216)\n",
+        "app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.reverseSelectionSurvivesRecreationOnAPropertyPage(CoreJourneysTest.java:239)\n",
+        "app.space.notes.CoreJourneysTest#nativeSignatureShapeAndPickerDialogsRenderWithoutChangingReminder: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeSignatureShapeAndPickerDialogsRenderWithoutChangingReminder(CoreJourneysTest.java:298)\n",
+        "app.space.notes.CoreJourneysTest#drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection(CoreJourneysTest.java:291)\n",
+        "app.space.notes.CoreJourneysTest#nativeInputConnectionComposingWordAndEnterKeepParagraphIntent: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeInputConnectionComposingWordAndEnterKeepParagraphIntent(CoreJourneysTest.java:219)\n",
+        "app.space.notes.CoreJourneysTest#nativeNumericFirstLineMatchesReportedOverlapCase: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeNumericFirstLineMatchesReportedOverlapCase(CoreJourneysTest.java:222)\n",
+        "app.space.notes.CoreJourneysTest#nativeHeadingTypingExtendsAndEnterReturnsToNormalText: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeHeadingTypingExtendsAndEnterReturnsToNormalText(CoreJourneysTest.java:210)\n",
+        "app.space.notes.CoreJourneysTest#repeatedDrawingSaveDoesNotAttachDuplicateImages: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.repeatedDrawingSaveDoesNotAttachDuplicateImages(CoreJourneysTest.java:109)\n",
+        "app.space.notes.CoreJourneysTest#drawingDraftSurvivesControllerRecreationAndSavesEmbeddedImage: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.drawingDraftSurvivesControllerRecreationAndSavesEmbeddedImage(CoreJourneysTest.java:100)\n",
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.addMenuExplainsVisualContentCaptureAndScheduleCategories(CoreJourneysTest.java:288)\n",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeCaretSurvivesColourPageAndControllerRecreation(CoreJourneysTest.java:233)\n",
+        "app.space.notes.CoreJourneysTest#nativeWrappedHeadingAndMixedScriptsKeepSeparateLineBoxes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:60)\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:153)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.nativeWrappedHeadingAndMixedScriptsKeepSeparateLineBoxes(CoreJourneysTest.java:204)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 61,
+      "passed": 61,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 184,
+      "passed": 183,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation: status -2 java.lang.AssertionError: Input dispatch rejected for Library; active_window=app.space.notes.debug target_rect=Rect(48, 834 - 192, 978)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:164)\n\tat app.space.notes.CoreJourneysTest.appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation(CoreJourneysTest.java:294)\n\t... 34 trimmed\nCaused by: java.lang.SecurityException: Injecting to another application requires INJECT_EVENTS permission\n\tat android.os.Parcel.readException(Parcel.java:1943)\n\tat android.os.Parcel.readException(Parcel.java:1889)\n\tat android.hardware.input.IInputManager$Stub$Proxy.injectInputEvent(IInputManager.java:548)\n\tat android.hardware.input.InputManager.injectInputEvent(InputManager.java:868)\n\tat android.app.Instrumentation.sendPointerSync(Instrumentation.java:1048)\n\t... 37 more\n"
+      ]
+    },
+    "night-api34": {
+      "ok": true,
+      "expected": 61,
+      "passed": 61,
+      "missing": [],
+      "failures": []
+    },
+    "phone-api36": {
+      "ok": true,
+      "expected": 184,
+      "passed": 184,
+      "missing": [],
+      "failures": []
+    },
+    "tablet-api34": {
+      "ok": false,
+      "expected": 61,
+      "passed": 60,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: Leading-edge candidate at measured 1536x1880\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.assertGestureState(CoreJourneysTest.java:55)\n\tat app.space.notes.CoreJourneysTest.lambda$leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection$6$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:83)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda12.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

@@ -1,9 +1,7 @@
-import base64
 import io
-import json
 import tarfile
 import unittest
-from mynotes.tools.ci.render_review import annotation, fixtures, MAX_IMAGE_BYTES
+from mynotes.tools.ci.render_review import preview_record, fixtures, MAX_IMAGE_BYTES
 
 
 class RenderedFixtureReview(unittest.TestCase):
@@ -44,11 +42,11 @@ class RenderedFixtureReview(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'No rendered'):
             list(fixtures([item]))
 
-    def test_annotation_is_bounded_and_reconstructable(self):
-        value = annotation('drawing', b'fixture bytes', 480, 800)
-        row = json.loads(value.split('NOTES_RENDER=', 1)[1])
-        self.assertEqual(b'fixture bytes', base64.b64decode(row['data']))
+    def test_preview_manifest_is_bounded_and_hashes_real_bytes(self):
+        row = preview_record('drawing', b'fixture bytes', 480, 800)
+        self.assertNotIn('data', row)
+        self.assertEqual(13, row['bytes'])
         self.assertEqual('image/jpeg', row['mime'])
         self.assertEqual(64, len(row['sha256']))
         with self.assertRaises(ValueError):
-            annotation('drawing', b'x' * 46000, 480, 800)
+            preview_record('drawing', b'x' * 46000, 480, 800)

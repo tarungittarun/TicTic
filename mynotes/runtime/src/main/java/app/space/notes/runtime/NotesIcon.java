@@ -9,6 +9,12 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "up":lines(c,12,21,12,3);lines(c,5,10,12,3,19,10);break;
+ case "down":lines(c,12,3,12,21);lines(c,5,14,12,21,19,14);break;
+ case "indent":for(int y=5;y<=19;y+=7)lines(c,11,y,21,y);lines(c,3,8,7,12,3,16);break;
+ case "outdent":for(int y=5;y<=19;y+=7)lines(c,11,y,21,y);lines(c,7,8,3,12,7,16);break;
+ case "text":lines(c,4,6,20,6);lines(c,12,6,12,21);lines(c,8,21,16,21);break;
+ case "merge":lines(c,3,4,9,10,9,13,17,13);lines(c,3,21,9,15,9,13);lines(c,14,8,20,13,14,18);break;
  case "widget":for(int x=3;x<=14;x+=11)for(int y=3;y<=14;y+=11)c.drawRoundRect(x,y,x+7,y+7,1,1,p);break;
  case "info":c.drawCircle(12,12,9,p);c.drawCircle(12,7,1,p);lines(c,12,11,12,17);break;
  case "diagnostics":lines(c,2,12,6,12,9,5,14,19,17,12,22,12);break;

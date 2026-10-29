@@ -1,14 +1,14 @@
-"""Bounded fixture-only visual evidence in check annotations when artifact URLs fail.
+"""Bounded synthetic fixture previews for visual review when artifact URLs fail.
 
-Original PNG screenshots remain in the normal artifact. JPEG annotations are review
-previews, not pixel-exact assertions. Never point this at real-user screenshots.
+Original PNGs remain in the normal artifact. JPEGs are review previews, not
+pixel-exact assertions. Never point this tool at real-user screenshots.
+GitHub workflow annotations truncate at 4 KiB, so image payloads are files.
 """
 import argparse
-import base64
 import hashlib
 import io
 import json
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 import re
 import tarfile
 
@@ -39,14 +39,11 @@ def fixtures(archive):
         raise ValueError('No rendered fixture screenshots')
 
 
-def annotation(name, preview, width, height):
-    row = {'name': name, 'mime': 'image/jpeg', 'width': width, 'height': height,
-           'sha256': hashlib.sha256(preview).hexdigest(),
-           'data': base64.b64encode(preview).decode('ascii')}
-    message = 'NOTES_RENDER=' + json.dumps(row, separators=(',', ':'))
-    if len(message) > 60000:
-        raise ValueError('Review annotation exceeds bound')
-    return f'::notice title=Rendered fixture {name}::{message}'
+def preview_record(name, preview, width, height):
+    if len(preview) > 44000:
+        raise ValueError('Review preview exceeds bound')
+    return {'name': name, 'mime': 'image/jpeg', 'width': width, 'height': height,
+            'bytes': len(preview), 'sha256': hashlib.sha256(preview).hexdigest()}
 
 
 def main():
@@ -54,7 +51,11 @@ def main():
     Image.MAX_IMAGE_PIXELS = 16_000_000
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive', required=True)
+    parser.add_argument('--output', required=True)
     args = parser.parse_args()
+    output = Path(args.output)
+    output.mkdir(parents=True, exist_ok=True)
+    records = []
     with tarfile.open(args.archive, 'r:*') as archive:
         for name, data in fixtures(archive):
             with Image.open(io.BytesIO(data)) as image:
@@ -62,13 +63,18 @@ def main():
                     raise ValueError('Unexpected fixture image format or geometry')
                 image = image.convert('RGB')
                 image.thumbnail((480, 1800), Image.Resampling.LANCZOS)
-                # Bound annotation payload independently from PNG compression ratio.
+                # Bound preview file size independently from PNG compression ratio.
                 for quality in (78, 65, 50, 35):
                     out = io.BytesIO()
                     image.save(out, format='JPEG', quality=quality, optimize=True)
                     if len(out.getvalue()) <= 44000:
                         break
-                print(annotation(name, out.getvalue(), image.width, image.height))
+                record = preview_record(name, out.getvalue(), image.width, image.height)
+                record['original_png_sha256'] = hashlib.sha256(data).hexdigest()
+                (output / (name + '.jpg')).write_bytes(out.getvalue())
+                records.append(record)
+    (output / 'manifest.json').write_text(json.dumps({'schema': 1, 'scope': 'synthetic debug-host fixtures only', 'previews': records}, indent=2) + '\n')
+    print('Wrote', len(records), 'bounded fixture previews to', output)
 
 
 if __name__ == '__main__':

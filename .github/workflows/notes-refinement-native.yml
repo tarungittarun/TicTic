@@ -85,12 +85,12 @@ jobs:
             adb shell am instrument -w -r -e class app.space.notes.runtime.DrawingToolsTest,app.space.notes.runtime.DiagramResizeViewTest,app.space.notes.DiagramJourneysTest,app.space.notes.CoreJourneysTest app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
 
-      - name: Bounded rendered fixture previews through check annotations
+      - name: Bounded rendered fixture files for review
         if: always()
         run: |
           if test -s refinement-captures.tar; then
             python3 -m pip install 'Pillow==11.3.0'
-            python3 -m mynotes.tools.ci.render_review --archive refinement-captures.tar
+            python3 -m mynotes.tools.ci.render_review --archive refinement-captures.tar --output refinement-review
           fi
 
       - name: Require every selected UI method once with successful completion
@@ -118,5 +118,6 @@ jobs:
           path: |
             refinement-native.*
             refinement-captures.tar
+            refinement-review/
           retention-days: 7
           if-no-files-found: warn

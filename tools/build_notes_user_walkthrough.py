@@ -205,7 +205,7 @@ def wire(p,kind):
     elif kind in ['attachments','editor','add','reminder']:
         text(p,(x+17,y+52,x+w-17,y+78),'Project planning',15);text(p,(x+17,y+84,x+w-17,y+115),'Your writing stays the main content.',11,MUTED)
         for i,label in enumerate(['IMAGE  /  Site photo','DRAWING  /  Sketch','DIAGRAM  /  Workflow']):
-            yy=y+128+i*58;box(p,(x+12,yy,x+w-12,yy+50),PANEL);text(p,(x+22,yy+11,x+w-20,yy+45),label+'      Edit  More',10)
+            yy=y+128+i*58;box(p,(x+12,yy,x+w-12,yy+50),PANEL);text(p,(x+22,yy+11,x+w-20,yy+45),label+('      More' if i==0 else '      Edit  More'),10)
         text(p,(x+17,y+320,x+w-17,y+349),'Add   Format   Colour   Labels   More',10,GOLD)
     elif kind in ['settings','appearance']:
         for i,label in enumerate(['Appearance','Home widget','Storage & recovery','Backups','Diagnostics','About & offline models']):

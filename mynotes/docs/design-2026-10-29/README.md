@@ -35,3 +35,13 @@ Qualification is distinct from implementation:
 The PDF remains a walkthrough/specification, not runtime proof. See this timestamped checkpoint for implementation status rather than interpreting its proposed layouts as shipped UI.
 
 Audio archive development is paused for this feedback. Its earlier qualification is not evidence for this redesign. Published 0.12 remains immutable.
+
+## Second qualification / source 5af264c
+
+Run **40833264747** compiled debug app/tests, lint and all 148 JVM methods successfully. It executed all 51 selected native methods per profile, with **49 passing on API26** and **50 on API34**. The three new grouping/tool/appearance-route methods passed. The clipboard Looper fixture fix passed.
+
+Remaining failures are not waived: closing a sheet left its active panel VISIBLE inside a hidden overlay, so dispatch-first test disclosure could not reopen Merge. Close now parks the panel GONE, with its launcher retained. API26 also rejected one input injection; the tap helper now captures the active window package and a real screenshot rather than silently retrying.
+
+The annotation image relay was experimentally unusable: GitHub truncates messages at 4 KiB and limits annotations per step. The replacement writes bounded synthetic JPEG fixtures and provenance for a same-branch documentation relay; no private screenshots or release APKs are involved.
+
+Further local changes awaiting the next native pass: explicit disabled Undo/Redo states, current ink swatch and selected colour, readable checklist commands, semantic menu icons, bounded extreme-aspect drawing migration, and native shape/picker/mixed-content review cases.

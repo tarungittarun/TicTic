@@ -56,3 +56,9 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertIn('draw(p,1100,100,1100,300)', source)
         self.assertIn('b.getPixel(939,171)', source)
         self.assertIn('b.sameAs(after)', source)
+
+    def test_core_junit_assertion_helpers_are_explicitly_imported(self):
+        import re
+        source = (ROOT / 'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        for helper in set(re.findall(r'\b(assert(?:Equals|Null|NotNull|True|False|Same|NotSame|NotEquals|ArrayEquals))\s*\(', source)):
+            self.assertIn('import static org.junit.Assert.' + helper + ';', source)

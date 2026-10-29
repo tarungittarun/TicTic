@@ -28,3 +28,5 @@ Trash has a consistent lower Library control and no creation actions. Group requ
 
 ## Approved continuation
 User approved up to **15 additional jobs** after the checkpoint. First allocation: build, API26 full, landscape focused, tablet focused, evidence preservation: five jobs, ten reserved. This does not waive release gates or guarantee an APK within the cap. No calculator workflow is authorized.
+
+First continuation run `40866684038` stopped at test compilation: the new Trash assertions omitted the explicit static `assertNull` import. No native tests ran. Three jobs were listed (build failed; native/evidence skipped). Corrected the import and added a local import guard. Second run allocation: five jobs; conservative listed total can reach eight of the approved fifteen.

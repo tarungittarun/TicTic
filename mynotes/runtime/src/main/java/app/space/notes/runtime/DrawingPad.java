@@ -13,7 +13,7 @@ final class DrawingPad extends View {
  }
  private final List<Stroke> strokes=new ArrayList<>(),redo=new ArrayList<>();
  private Path current;private Bitmap base;private int color=Color.BLACK,strokeColor,mode,strokeMode;private float width=4,strokeWidth,startX,startY,lastX,lastY;
- private boolean ready,saving,navigating,grid;private int paperHeight=768;private boolean sized;private long revision;private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
+ private boolean ready,saving,navigating,grid,fitToPaper;private int paperHeight=768;private boolean sized;private long revision;private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
  private Runnable stateChanged=()->{};
  private float zoom=1,panX,panY,focusX,focusY;private final ScaleGestureDetector scale;
  DrawingPad(Context c){super(c);setContentDescription("Drawing canvas. Draw with a finger. Undo and redo controls are below.");setFocusable(true);setEnabled(false);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);
@@ -21,8 +21,8 @@ final class DrawingPad extends View {
  }
  void loaded(Bitmap bitmap){base=bitmap;if(bitmap!=null)paperHeight=Math.max(paperHeight,Math.min(4096,Math.round(bitmap.getHeight()*1024f/bitmap.getWidth())));ready=true;setEnabled(true);invalidate();stateChanged.run();}
  boolean grid(){return grid;}void grid(boolean value){grid=value;invalidate();}
- private float scale(){return Math.min(getWidth()/1024f,getHeight()/(float)paperHeight);}
- private float offsetX(){return (getWidth()-1024*scale())/2;}private float offsetY(){return (getHeight()-paperHeight*scale())/2;}
+ private float scale(){return fitToPaper?Math.min(getWidth()/1024f,getHeight()/(float)paperHeight):getWidth()/1024f;}
+ private float offsetX(){return (getWidth()-1024*scale())/2;}private float offsetY(){return fitToPaper?(getHeight()-paperHeight*scale())/2:0;}
  private float worldX(float x){return Math.max(0,Math.min(1024,(x-panX-offsetX())/(zoom*scale())));}
  private float worldY(float y){return Math.max(0,Math.min(paperHeight,(y-panY-offsetY())/(zoom*scale())));}
  boolean ready(){return ready;}boolean saving(){return saving;}
@@ -36,7 +36,7 @@ final class DrawingPad extends View {
  int tool(){return mode;}
  void width(float value){width=Math.max(1,Math.min(48,value));}
  float width(){return width;}
- void fit(){zoom=1;panX=panY=0;invalidate();}
+ void fit(){fitToPaper=true;zoom=1;panX=panY=0;invalidate();}
  void clear(){if(!ready || saving)return;Path area=new Path();area.addRect(0,0,1024,paperHeight,Path.Direction.CW);strokes.add(new Stroke(area,Color.WHITE,1,true));redo.clear();revision++;invalidate();stateChanged.run();}
  void undo(){if(!saving && !strokes.isEmpty()){redo.add(strokes.remove(strokes.size()-1));revision++;invalidate();stateChanged.run();}}
  void redo(){if(!saving && !redo.isEmpty()){strokes.add(redo.remove(redo.size()-1));revision++;invalidate();stateChanged.run();}}

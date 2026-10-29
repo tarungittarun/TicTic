@@ -1,0 +1,27 @@
+# MyNotes refinement — 180-minute checkpoint
+
+Window: 29 October 2026, 06:30–09:30 UTC (12:00–15:00 IST). This is a progress checkpoint, not completion or release approval.
+
+## Delivered
+- Updated presentation PDF: detailed vocabulary, feature/category map, practical walkthroughs, schematic design handoff, source-pinned native examples and explicit qualification boundaries.
+- Seven editable SVG companion frames and the presentation's JSON source.
+- Visual review ledger covering 40 main scene types, not every possible modal/profile or physical-device acceptance.
+- Development implementation: canvas-first controls, icon/text tools, top Save/More, grid and PNG clipboard copy, scoped media controls, Read image, direct diagram handles and signature primary/secondary treatments.
+
+## Exact validation
+Latest completed Android qualification: run 40843257072, source 33c97f9, **775/796** native checks. Full API34 184/184; Android16 184/184; night 61/61; 200% text 61/61. API26 183/184, tablet 60/61, landscape 42/61. Build, 148 JVM cases and debug/release lint passed for that source.
+
+Current local gate after workspace recovery: **521 root / 131 Notes checks passed**. The previously reported 527/137 included six uncommitted guardrails which did not survive the reopened workspace. Those higher counts are not the current saved result. The saved branch was recovered from GitHub without switching branches.
+
+## Local-only, unqualified changes
+Trash has a consistent lower Library control and no creation actions. Group requires two choices; unavailable Ungroup is disabled. Confirmations distinguish Clear from Delete. New-note focus waits for field layout; input injection uses UiAutomation with touchscreen source, bounds checks and no click fallback. Latest drawing source defaults to full-width retained paper with top alignment; Fit is an explicit whole-page overview. A rotation/right-edge pixel regression was authored but has not been run on Android.
+
+## Not finished
+- Resolve and execute landscape IME, API26 injection and exact tablet edge checks.
+- Android-compile/run the subsequent local-only source before publishing any replacement.
+- Physical Motorola selection/rotation, foreign-app PNG paste, reminder delivery and real storage operations.
+- Broader rare OCR/restore/provider flows; complete replacement of platform-looking widget internals is not claimed.
+- Archive enhancement remains paused. Public APK remains 0.12/code13.
+
+## Workflow mistake
+15 runs / 113 listed jobs, including 17 cancelled and 9 skipped. 104 non-skipped jobs exceeded the 45-job allowance. Overlapping publishing triggers were corrected; no additional qualification jobs were launched after the budget stop. The audit preserves IDs and outcomes. This wasted work is not presented as useful extra coverage.

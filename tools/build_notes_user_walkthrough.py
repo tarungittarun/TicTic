@@ -241,6 +241,9 @@ def main():
         folder=ROOT/'mynotes/docs/design-2026-10-29/native'/args.native_run
         provenance=json.loads((folder/'provenance.json').read_text())
         previews=[
+            ('Folders: first use','full-api34','folders','A primary Choose main folder action explains why physical folder browsing needs a configured local destination.','Choose the main folder, then create and move notes. This fixture does not demonstrate an actual system-provider grant.'),
+            ('Opt-in diagnostics','full-api34','diagnostics','Collection is off by default. Export and deletion are distinct, with the local-only privacy boundary visible.','Enable before reproducing a problem. Review exported text before sharing. Previously exported copies are not deleted by clearing local logs.'),
+            ('Grouping: availability matters','full-api34','diagram-group','Captured before the last local-only validation polish. The latest source disables Group until two choices and dims unavailable Ungroup.','Select two shapes to group. The new availability treatment has not been Android-compiled or captured; do not mistake this older fixture for proof.'),
             ('Drawing workspace','full-api34','drawing','Back, selected tool chips, top Save and More. White paper uses the available viewport; control rows stay outside exported pixels.','Draw, choose another tool, Undo/Redo, then use the top Save icon to attach the image. Use More for a guide grid or Copy drawing as image.'),
             ('Large-text tool selection','large-font-api34','drawing-tools','Android renders the actual selected Pencil state at 200% system font. The strip can scroll horizontally rather than shrink tool labels.','Choose the named tool. Its outlined/tinted state and accessibility selection change. Ink colour shows the current swatch; Undo and Redo indicate availability.'),
             ('Classified Add actions','full-api34','capture','Visual content, text capture and scheduling are separate categories. Normal-font portrait checks require the whole Reminder target to be visible.','Image attaches a picture. Drawing opens the ink board. Diagram edits shapes. Read image extracts text. Reminder schedules the existing note.'),
@@ -254,6 +257,20 @@ def main():
         for index,(title,profile,scene,observation,workflow) in enumerate(previews,len(slides)):
             if not (folder/profile/(scene+'.jpg')).is_file():raise ValueError('Missing native preview '+profile+'/'+scene)
             slides.append((f'{index:02d} / Development preview',title,'native:'+args.native_run+':'+profile+':'+scene,[('Actual rendered layout',observation),('End-user walkthrough',workflow),('Qualification boundary','Captured source '+provenance['source_sha'][:12]+'. Synthetic debug-host notes, not personal data. Refer to the run reports for exact automated results. Android emulation is not acceptance on the Motorola Android 16 phone; no release approval is implied.')]))
+    slides.extend([
+        ('Progress / 29 October','Development is not release approval','drawing',[
+            ('Implemented in development','Canvas-first controls; icon-and-text tools with selected state; top Save and More; guide grid, PNG copy and deletion; typed visual cards; Read image; direct diagram handles.'),
+            ('Latest Android result: 775 / 796','API34 full 184/184, Android16 184/184, night 61/61 and 200% font 61/61. API26 183/184; tablet 60/61; landscape 42/61. Three profiles remain red.'),
+            ('Latest source is local-only','Trash navigation, grouping availability, confirmations, focus/injection diagnostics and full-width existing-page drawing changes await Android compilation and execution. Public APK remains 0.12/code13.')]),
+        ('Progress / qualification boundary','What remains unfinished','settings',[
+            ('Real-device acceptance','Motorola rotation/IME and precise selection, foreign-app PNG paste, actual reminder delivery, physical folder operations and voice accuracy remain device checks. Calendar/clock internals remain platform widgets.'),
+            ('Review coverage','40 main scene types visually examined, not every modal/profile. OCR review, backup/merge/provider flows and rare runtime states need broader rendered or physical walkthroughs. Archive enhancement work remains paused.'),
+            ('Workflow allowance exceeded','Audit: 15 runs, 113 listed jobs; 104 non-skipped, including cancelled jobs. Accidental overlapping publishing triggers wasted work. No additional qualification jobs were launched after the budget stop. No new APK is claimed.')]),
+        ('Walkthrough / drawing orientation','Full-width workspace versus Fit overview','drawing',[
+            ('Default workspace: latest local source','A tall retained page opens at full width instead of fitting into a narrow strip. Two fingers pan through the page. Artwork is retained in the complete exported image; the viewport is not the export boundary.'),
+            ('Fit is an explicit choice','Fit shows the whole page and can intentionally leave margins when page and window differ. It must not modify artwork or undo history. This last refinement is source-only, not a captured Android success.'),
+            ('Acceptance test authored, not executed','Start portrait, add ink low on the page, rotate to a wide viewport and draw near the right edge. Verify both strokes in export. Fit should show the overview without changing exported pixels.')])
+    ])
     doc=fitz.open()
     for idx,(eyebrow,title,kind,blocks) in enumerate(slides,1):
         p=doc.new_page(width=1000,height=625);box(p,(0,0,1000,625),BG)

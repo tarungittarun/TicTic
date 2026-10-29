@@ -1,5 +1,7 @@
 # Pending-work continuation — 29 October 2026
 
+> **30 October update:** code16 now has a built, signed, installable development APK (raw file, not ZIP), and current-source native results of 190/190 API26, 67/67 dark/2.0-font and 67/67 tablet. See `../DEVELOPMENT-APK-0.13.2-16.md`. The code15/source-only statements below are historical checkpoints, not the latest delivery boundary. No public release or full acceptance is claimed. New allocation: 13/15 used, 2 remain.
+
 ## Current delivery boundary
 
 The supplied development APK remains **0.13.1/code15**, source `19db0fd`. It is not a published Release. Last Android results for that source: API26 **184/184**, landscape **60/61**. The remaining Pin journey is not waived. Tablet **61/61** belongs to the preceding code14 source. Public Release remains 0.12/code13.

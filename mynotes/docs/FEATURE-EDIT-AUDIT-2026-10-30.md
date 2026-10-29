@@ -31,3 +31,7 @@ Source inspection, 30 October 2026. **Not device acceptance.** “Implemented”
 7. Font scales 1.0/1.3/2.0, narrow portrait, landscape, light/dark, TalkBack and gesture navigation. Confirm readable action labels, 48dp minimum icon targets and no empty sheets.
 
 A JVM geometry test class and three native tests (raster pixels, image editing/recreation and checklist targeting) have been authored. Neither has been executed in Android/Gradle in this environment. Local Python source guards are separate evidence only.
+
+## Qualification update
+
+The previously unexecuted image/checklist and prior grouping/OCR/restore cases have now run on Android. Current source `9ed1ca4`: API26 190/190, dark/2.0-font 67/67, tablet 67/67. The new crop and checklist action captures exist on all three profiles. Build/JVM/lint passed. An API26 OCR action-row clipping issue found by the native test was fixed without relaxing assertions. See DEVELOPMENT-APK-0.13.2-16.md for the direct APK, precise older-source landscape boundary, and remaining acceptance gaps. This supersedes the initial authored-but-unexecuted status, not the open typing-history or physical-device work.

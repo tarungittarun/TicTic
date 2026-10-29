@@ -33,3 +33,15 @@ Reserve another **4 jobs** for rebuild, API26 full, API34 landscape focused, evi
 Reserve **5 jobs**: build/JVM/lint, API26 full regression, API34 2.0-font dark focused, API34 tablet focused, evidence. Maximum cumulative **13/15**, leaving **2**. Do not launch an unrelated workflow. Add explicit synthetic crop-preview and checklist-item-action captures (registry 54, bounded cap remains 56).
 
 A separate raw-file upload uses the official upload-artifact v7 `archive: false` support. This will provide an authenticated **installable APK artifact, not a ZIP**, if the upload succeeds. Verify the established signing-certificate SHA256 before uploading; retain file SHA256 and signer receipt. It is a development artifact, not a public Release or full acceptance.
+
+## Attempt 3 final results — run 40962976726
+
+Source `9ed1ca4c5474d8505d6390ba45b8d616254fe4b0`; all **5 jobs succeeded**. Cumulative new allocation **13/15 jobs used, 2 unused**. No further job is started by this handoff.
+
+- Build, JVM inventory, debug/release lint and established signing-certificate verification passed.
+- API26: **190/190**; API34 dark/2.0-font: **67/67**; API34 tablet: **67/67**.
+- Source-pinned synthetic reports/captures preserved by commit `65c6446`. Newly captured crop preview and checklist actions are present on all three profiles.
+- Raw development APK artifact **12937000778** successfully uploaded with `archive: false`, named `MyNotes-v0.13.2-16-development.apk`, 66,605,116 bytes, expiry 2026-11-05T22:06:03Z. No public Release. See DEVELOPMENT-APK-0.13.2-16.md.
+- Latest-source landscape is not represented by the prior source's 67/67 pass. Full matrix, physical acceptance, remaining typing history and broad refinement remain open.
+
+Local handoff gates: **543 root / 153 Notes Python checks passed**. These counts are separate from native execution.

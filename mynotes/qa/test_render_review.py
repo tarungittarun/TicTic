@@ -1,7 +1,7 @@
 import io
 import tarfile
 import unittest
-from mynotes.tools.ci.render_review import preview_record, fixtures, MAX_IMAGE_BYTES
+from mynotes.tools.ci.render_review import preview_record, fixtures, MAX_IMAGE_BYTES, MAX_IMAGES
 
 
 class RenderedFixtureReview(unittest.TestCase):
@@ -25,7 +25,7 @@ class RenderedFixtureReview(unittest.TestCase):
                 list(fixtures(archive))
 
     def test_empty_and_excessive_count_rejected(self):
-        for names in [[], ['ux-review/drawing.png'] * 41]:
+        for names in [[], ['ux-review/drawing.png'] * (MAX_IMAGES + 1)]:
             with self.archive(names) as archive, self.assertRaises(ValueError):
                 list(fixtures(archive))
 

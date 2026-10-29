@@ -35,7 +35,7 @@ def snapshot(stage: str) -> None:
     # Artifact only: synthetic test device, not a product diagnostics feature.
     sections = {name: adb(*command, required=False) for name, command in {
         "size": ("wm", "size"), "density": ("wm", "density"),
-        "windows": ("dumpsys", "window", "windows"),
+        "windows": ("dumpsys", "window"),
         "last_anr": ("dumpsys", "activity", "lastanr"),
         "activity": ("dumpsys", "activity", "activities"),
     }.items()}

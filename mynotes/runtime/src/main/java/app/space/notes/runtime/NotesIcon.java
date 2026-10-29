@@ -9,6 +9,7 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "group":c.drawRoundRect(2,2,15,15,2,2,p);c.drawRoundRect(9,9,22,22,2,2,p);break;
  case "up":lines(c,12,21,12,3);lines(c,5,10,12,3,19,10);break;
  case "down":lines(c,12,3,12,21);lines(c,5,14,12,21,19,14);break;
  case "indent":for(int y=5;y<=19;y+=7)lines(c,11,y,21,y);lines(c,3,8,7,12,3,16);break;

@@ -9,7 +9,7 @@ import struct
 from mynotes.tools.ci.audit import REPO
 
 VARIANTS={'full-api36','full-api34','night-api34','large-font-api34','landscape-api34','tablet-api34'}
-SCENES={'reminder-time','shape-dialog','reminder-date','remove-image-confirmation','input-injection-failure','mixed-note-header','drawing-options','control-failure','trash','trash-confirmation','drawing-tools','drawing-focus','bootstrap-failure','filters-view','filters-sort','filters-labels','library','backgrounds','background-editor','drawing','image-editor','voice-inbox','about','add-reminder','settings-after-navigation','search-keyboard','numeric-h1','numeric-h2','home','editor','editor-keyboard','format','format-keyboard','capture','palette','labels','diagram','checklist','settings','storage'}
+SCENES={'diagram-options','reminder-time','shape-dialog','reminder-date','remove-image-confirmation','input-injection-failure','mixed-note-header','drawing-options','control-failure','trash','trash-confirmation','drawing-tools','drawing-focus','bootstrap-failure','filters-view','filters-sort','filters-labels','library','backgrounds','background-editor','drawing','image-editor','voice-inbox','about','add-reminder','settings-after-navigation','search-keyboard','numeric-h1','numeric-h2','home','editor','editor-keyboard','format','format-keyboard','capture','palette','labels','diagram','checklist','settings','storage'}
 
 def persist(evidence,run,source):
     if not run.isdigit() or len(source)!=40 or any(c not in '0123456789abcdef' for c in source):raise ValueError('Invalid run/source provenance')

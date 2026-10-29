@@ -314,7 +314,7 @@
       ],
       [
         "CURRENT operations",
-        "Choose among the supported shape types, select a shape, edit its label/type, move it, connect it and use Undo/Redo. Grouping and arrow editing have distinct controls."
+        "Choose among the supported shape types, select a shape, edit its label/colour, move it, connect it and use Undo/Redo. Grouping and arrow editing have distinct controls."
       ],
       [
         "PROPOSED direct sizing",
@@ -337,7 +337,7 @@
       ],
       [
         "Coordinate correctness",
-        "Handle hit targets are screen-sized even when zoomed. Convert pointer positions through the viewport transform. Resizing grouped shapes, moving connectors, rotated displays and Undo need explicit tests before acceptance."
+        "Handle hit targets remain screen-sized when the display changes. Convert pointer positions through the viewport scale. Resizing grouped shapes, moving connectors, rotated displays and Undo need explicit tests before acceptance."
       ]
     ]
   ],
@@ -580,7 +580,7 @@
       ],
       [
         "Diagram and signature surfaces",
-        "Direct handles replace size command buttons. Test every supported shape and connector behaviour with zoom and Undo. Review signature sheets in light/dark, large font and narrow layouts."
+        "Direct handles replace size command buttons. Test supported geometry, connector attachment, cancellation and Undo. Review signature sheets in light/dark, large font and narrow layouts."
       ],
       [
         "User device decides",

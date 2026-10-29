@@ -45,3 +45,11 @@ Remaining failures are not waived: closing a sheet left its active panel VISIBLE
 The annotation image relay was experimentally unusable: GitHub truncates messages at 4 KiB and limits annotations per step. The replacement writes bounded synthetic JPEG fixtures and provenance for a same-branch documentation relay; no private screenshots or release APKs are involved.
 
 Further local changes awaiting the next native pass: explicit disabled Undo/Redo states, current ink swatch and selected colour, readable checklist commands, semantic menu icons, bounded extreme-aspect drawing migration, and native shape/picker/mixed-content review cases.
+
+## Rendered findings addressed after inspecting run 40833264747
+
+The actual normal-font Add screenshot hid Reminder below the fold. It now uses adaptive visual/capture tiles instead of six tall rows; the title is shortened and the normal-font portrait test requires the full Reminder target to be visible. Large text retains scrolling and word-sized columns.
+
+Library is restored to the lower dock (with a top fallback in Trash, where creation controls are hidden). Its swipe threshold is the requested left 20%, and its sheet measures content rather than forcing a half-screen clipping window.
+
+Diagram uses a single compact Add / Undo / Redo / Edit / More icon dock; Group shapes and Edit arrows live in More rather than beneath the canvas. Trash diagrams are view-only. Labels/OCR/merge receive a visually primary confirmation; host palette pairs remain authoritative. Voice cards omit seconds and bound transcript previews to four lines so playback controls remain findable. These changes are still awaiting native qualification.

@@ -73,12 +73,12 @@ slides=[
 ('Keep the distinction visible','An imported photo is not a Drawing. OCR output is editable text, not a Diagram. Do not label all three with the same generic image removal wording or claim OCR attaches the original automatically.')]),
 ('16 / Diagram','Structured visual thinking, not freehand ink','diagram',[
 ('What a diagram is','A flowchart or structured sketch made from separate shapes and connectors. Each shape has a type, label, position and size. Unlike a flattened drawing, its elements remain individually editable.'),
-('CURRENT operations','Choose among the supported shape types, select a shape, edit its label/type, move it, connect it and use Undo/Redo. Grouping and arrow editing have distinct controls.'),
+('CURRENT operations','Choose among the supported shape types, select a shape, edit its label/colour, move it, connect it and use Undo/Redo. Grouping and arrow editing have distinct controls.'),
 ('PROPOSED direct sizing','Tap a shape to show resize handles at the appropriate corners or fixed points. Drag a handle for a live size preview, then release to commit one undoable change. Remove Wider/Narrower/Taller/Shorter from the normal menu.')]),
 ('17 / Diagram interaction contract','Select, move, resize, connect','diagram',[
 ('Selection is visible','Show a clear outline and reachable handles. A first tap selects; a drag inside moves. A drag beginning on a handle resizes. Connector endpoints must not be mistaken for resize handles.'),
 ('Shape-aware resizing','Rectangles and ellipses use bounds handles; diamonds use the meaningful bounds/vertices. Keep minimum sizes and readable labels. Do not invert a shape or silently drag it off the document.'),
-('Coordinate correctness','Handle hit targets are screen-sized even when zoomed. Convert pointer positions through the viewport transform. Resizing grouped shapes, moving connectors, rotated displays and Undo need explicit tests before acceptance.')]),
+('Coordinate correctness','Handle hit targets remain screen-sized when the display changes. Convert pointer positions through the viewport scale. Resizing grouped shapes, moving connectors, rotated displays and Undo need explicit tests before acceptance.')]),
 ('18 / Reminder','A schedule attached to a note','reminder',[
 ('Set it','Open a note, choose Add > Reminder, then choose date and time. A distinct reminder chip shows the scheduled time. Tap the chip to edit; a clear action removes the schedule without deleting content.'),
 ('Android delivery','Notification permission and device power/background policies affect delivery. Permission denial must leave normal note editing usable. Check notification settings if a reminder did not alert.'),
@@ -129,7 +129,7 @@ slides=[
 ('Avoid unnecessary decoration','No permanent explanatory paragraph crowding the canvas. Put optional gesture help in More. Do not sacrifice native text selection, contrast or Back behaviour to match a mockup.')]),
 ('30 / Refinement acceptance','What must be checked before calling this finished','diagram',[
 ('Drawing and content cards','Full available workspace; distinct selected tool chips; two compact rows; top Save and More; working grid toggle; real PNG clipboard; scoped deletion; correct Drawing/Image labels and no stale draft loss.'),
-('Diagram and signature surfaces','Direct handles replace size command buttons. Test every supported shape and connector behaviour with zoom and Undo. Review signature sheets in light/dark, large font and narrow layouts.'),
+('Diagram and signature surfaces','Direct handles replace size command buttons. Test supported geometry, connector attachment, cancellation and Undo. Review signature sheets in light/dark, large font and narrow layouts.'),
 ('User device decides','New native tests, rendered screen review and real-device retest are separate evidence. An authored test is not a passing test; a passing emulator is not acceptance on the Motorola Android 16 device.')]),
 ('31 / Progress card','This document is the first deliverable, not a completion claim','map',[
 ('DONE for this handoff','App vocabulary and categories documented. Detailed screen and feature walkthrough supplied. Requested drawing, attachment, appearance and diagram changes specified as proposals. Vector PDF/SVG handoff supplied.'),
@@ -201,7 +201,7 @@ def wire(p,kind):
         for xx in [x+85,x+220]:
             for yy in [y+97,y+161]:box(p,(xx-5,yy-5,xx+5,yy+5),GOLD)
         text(p,(x+103,y+120,x+215,y+150),'Selected shape',11,(.1,.16,.2));p.draw_line((x+151,y+162),(x+151,y+213),color=(.16,.42,.6),width=2);p.draw_oval((x+91,y+214,x+213,y+267),color=(.16,.42,.6),width=2)
-        text(p,(x+20,y+327,x+w-12,y+350),'Add shape    Connect    Undo',11,MUTED)
+        text(p,(x+20,y+327,x+w-12,y+350),'Add    Undo    Redo    Edit    More',11,MUTED)
     elif kind in ['attachments','editor','add','reminder']:
         text(p,(x+17,y+52,x+w-17,y+78),'Project planning',15);text(p,(x+17,y+84,x+w-17,y+115),'Your writing stays the main content.',11,MUTED)
         for i,label in enumerate(['IMAGE  /  Site photo','DRAWING  /  Sketch','DIAGRAM  /  Workflow']):

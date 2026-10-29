@@ -1,4 +1,4 @@
-name: Stop overlapping MyNotes publication attempts
+name: Stop explicitly approved unintended Notes soak
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -7,12 +7,12 @@ permissions:
   contents: read
   actions: write
 jobs:
-  stop-unintended-duplicates:
+  stop-approved-soak:
     if: github.ref == 'refs/heads/arena/3caca636-tictic'
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
-      - name: Cancel only active full Notes publication runs on this session branch
+      - name: Cancel only the unintended soak approved by the user
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -20,10 +20,15 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os,subprocess
-          rows=json.loads(subprocess.check_output(['gh','run','list','--workflow','notes-ci.yml','--branch',os.environ['SESSION_BRANCH'],'--limit','20','--json','databaseId,status,workflowName']))
-          for row in rows:
-              if row['workflowName']!='MyNotes standalone':raise RuntimeError('Unexpected workflow identity')
-              if row['status']=='completed':continue
-              print('Cancelling overlapping publication run',row['databaseId'],row['status'],flush=True)
-              subprocess.run(['gh','run','cancel',str(row['databaseId'])],check=True)
+          run_id='40869247523'
+          run=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GH_REPO']+'/actions/runs/'+run_id]))
+          if run['name']!='MyNotes extended native soak' or run['head_branch']!=os.environ['SESSION_BRANCH']:
+              raise RuntimeError('Refusing to cancel an unexpected workflow or branch')
+          if run['head_sha']!='19db0fdac0c015e10e980a695d700c15676daacc':
+              raise RuntimeError('Refusing to cancel an unexpected source revision')
+          if run['status']=='completed':
+              print('Approved target already completed; no cancellation needed',run['conclusion'])
+          else:
+              print('Cancelling only approved unintended soak',run_id,flush=True)
+              subprocess.run(['gh','run','cancel',run_id],check=True)
           PY

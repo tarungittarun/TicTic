@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Slide-style user map + proposed refinement wireframes. No private screenshots/logs embedded."""
 from pathlib import Path
-import json, textwrap
+import argparse, json, textwrap
 import pymupdf as fitz
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'MYNOTES-USER-MAP-AND-REFINEMENT.pdf'
@@ -167,6 +167,14 @@ def pill(p,x,y,label,active=False,w=100):
     box(p,(x,y,x+w,y+29),GOLD if active else PANEL)
     text(p,(x+7,y+6,x+w-4,y+27),label,10,BG if active else INK)
 def wire(p,kind):
+    if kind.startswith('native:'):
+        _,run,profile,scene=kind.split(':')
+        folder=ROOT/'mynotes/docs/design-2026-10-29/native'/run
+        provenance=json.loads((folder/'provenance.json').read_text())
+        picture=folder/profile/(scene+'.jpg')
+        p.insert_image(fitz.Rect(45,145,355,500),filename=str(picture),keep_proportion=True)
+        text(p,(45,510,355,554),'NATIVE DEBUG-HOST FIXTURE / '+profile+'\nSource '+provenance['source_sha'][:12]+'; synthetic notes only.\nNot physical-device acceptance or release approval.',8,MUTED)
+        return
     x,y,w,h=45,145,310,355
     if kind.startswith('drawing'):x,w=110,180
     box(p,(x,y,x+w,y+h),(.09,.10,.12),(.24,.27,.31));
@@ -225,6 +233,27 @@ def wire(p,kind):
             yy=y+57+i*52;box(p,(x+12,yy,x+w-12,yy+43),PANEL);text(p,(x+22,yy+12,x+w-20,yy+40),label,11,GOLD if i==0 else INK)
     text(p,(45,510,355,540),'SCHEMATIC / supplied 0.12 issue\nNot a screenshot; compare with the next slide.' if kind=='drawing-current' else 'SCHEMATIC / proposed visual hierarchy\nNot a screenshot or shipped-build proof.',9,MUTED)
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--native-run',help='Append source-pinned synthetic Android review examples from this captured run')
+    args=parser.parse_args()
+    if args.native_run:
+        if not args.native_run.isdigit():raise ValueError('Native run must be numeric')
+        folder=ROOT/'mynotes/docs/design-2026-10-29/native'/args.native_run
+        provenance=json.loads((folder/'provenance.json').read_text())
+        previews=[
+            ('Drawing workspace','full-api34','drawing','Back, selected tool chips, top Save and More. White paper uses the available viewport; control rows stay outside exported pixels.','Draw, choose another tool, Undo/Redo, then use the top Save icon to attach the image. Use More for a guide grid or Copy drawing as image.'),
+            ('Large-text tool selection','large-font-api34','drawing-tools','Android renders the actual selected Pencil state at 200% system font. The strip can scroll horizontally rather than shrink tool labels.','Choose the named tool. Its outlined/tinted state and accessibility selection change. Ink colour shows the current swatch; Undo and Redo indicate availability.'),
+            ('Classified Add actions','full-api34','capture','Visual content, text capture and scheduling are separate categories. Normal-font portrait checks require the whole Reminder target to be visible.','Image attaches a picture. Drawing opens the ink board. Diagram edits shapes. Read image extracts text. Reminder schedules the existing note.'),
+            ('Mixed-note hierarchy','full-api34','mixed-note-header','Synthetic note properties precede the main writing. Typed cards and scoped edit/More controls belong to their own content.','Read the title and reminder/labels first, write the observation, then review visual content. Removal must preserve other items and the note.'),
+            ('Direct diagram handles','large-font-api34','diagram','Selected bounds show corner handles. The compact dock holds Add, Undo, Redo, Edit and More rather than a second large text toolbar.','Select a shape, drag a corner to resize, or drag inside to move. Group shapes and Edit arrows are secondary options. Release commits one undoable change.'),
+            ('Signature native dialogs','large-font-api34','reminder-date','Rounded, theme-coloured native picker fixture. This exercises picker rendering without passing the notification permission gate.','Real reminders still require Add > Reminder, notification permission, a future date/time and actual Android delivery. This picture does not prove notification delivery.'),
+            ('Settings and appearance','full-api34','settings','App-level preferences, storage and help are separated. Icons carry specific meanings rather than repeating a generic gear.','Choose Appearance to select System, Light or Dark. Returning after recreation must stay in Settings, not silently jump to the library.'),
+            ('A clear label confirmation','full-api34','labels','Labels remain native selectable choices; Save is visually primary and Cancel remains secondary. Label data is not changed by merely opening the page.','Create or check labels, then Save labels. To filter, return to Filter & view > Labels. Folders remain locations, not another name for tags.'),
+            ('Original voice recordings','large-font-api34','voice-inbox','Bounded transcript previews keep transport controls findable. Dates omit unnecessary seconds. Model details stay in About.','Play/pause, seek and stop here. Open note for editable text; export WAV or retry transcription as secondary actions. Model failure must retain the original.'),
+        ]
+        for index,(title,profile,scene,observation,workflow) in enumerate(previews,len(slides)):
+            if not (folder/profile/(scene+'.jpg')).is_file():raise ValueError('Missing native preview '+profile+'/'+scene)
+            slides.append((f'{index:02d} / Development preview',title,'native:'+args.native_run+':'+profile+':'+scene,[('Actual rendered layout',observation),('End-user walkthrough',workflow),('Qualification boundary','Captured source '+provenance['source_sha'][:12]+'. Synthetic debug-host notes, not personal data. Refer to the run reports for exact automated results. Android emulation is not acceptance on the Motorola Android 16 phone; no release approval is implied.')]))
     doc=fitz.open()
     for idx,(eyebrow,title,kind,blocks) in enumerate(slides,1):
         p=doc.new_page(width=1000,height=625);box(p,(0,0,1000,625),BG)

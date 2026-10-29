@@ -59,6 +59,7 @@ jobs:
           - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
           - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
           - {id: tablet-api34, api: 34, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 9', group: focused}
+          - {id: phone-api36, api: 36, font: 0.85, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: all}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v8.0.2
@@ -90,7 +91,7 @@ jobs:
           arch: x86_64
           profile: ${{ matrix.profile }}
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -camera-back none
           script: |
             if test '${{ matrix.api }}' = 26; then adb root; python3 -m mynotes.tools.ci.adb_state --uid 0; fi
             adb shell settings put global airplane_mode_on 1
@@ -101,9 +102,12 @@ jobs:
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale ${{ matrix.font }}
             adb shell cmd uimode night ${{ matrix.night }}
-            adb shell settings put system accelerometer_rotation 0
-            if test '${{ matrix.orientation }}' = landscape; then adb shell settings put system user_rotation 1; adb shell wm set-ignore-orientation-request true; adb shell wm fixed-to-user-rotation enabled; adb shell wm user-rotation lock 1; fi
+            python3 -m mynotes.tools.ci.native_environment --snapshot before
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            if test '${{ matrix.id }}' = tablet-api34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
       - name: Require every selected method once, without skipped or duplicate outcomes
         if: always()
@@ -126,6 +130,7 @@ jobs:
           path: |
             refinement-native.*
             refinement-expected.json
+            refinement-environment-*
             refinement-captures.tar
           retention-days: 7
           if-no-files-found: warn
@@ -161,6 +166,9 @@ jobs:
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(report,output/'native-results.json')
                   parsed=json.loads(report.read_text());results[lane]={k:parsed.get(k) for k in ['ok','expected','passed','missing','failures']}
+              for environment in artifact.glob('refinement-environment-*.json'):
+                  output.mkdir(parents=True,exist_ok=True)
+                  shutil.copyfile(environment,output/environment.name)
               capture=artifact/'refinement-captures.tar'
               if capture.exists() and capture.stat().st_size:
                   subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)

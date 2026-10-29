@@ -3,7 +3,8 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      - 'mynotes/**'
+      # Publication qualification is deliberate: touch this workflow to request it.
+      # Refinement has its own nonpublishing workflow; avoid starting 21 duplicate emulators.
       - '.github/workflows/notes-ci.yml'
       - '.github/actions/setup-mynotes/**'
   workflow_dispatch:

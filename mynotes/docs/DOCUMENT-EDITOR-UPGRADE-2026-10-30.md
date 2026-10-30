@@ -84,3 +84,9 @@ Security hardening in final source: route external document MIME drops at the ro
 ## Final bounded qualification reservation
 
 Reserve **5 jobs** for build/JVM/lint/signing, full API26, API34 landscape, API34 dark/2.0-font, and evidence. This uses at most **17/17**; no further jobs may be launched under this approval. This qualification covers the **partial code17 batch**, not the still-unimplemented mixed-document migration, tables/hyperlinks, typography, visual names, numbering or selected-text checklist conversion.
+
+## Final result — run 41008698148
+
+**17/17 authorized jobs consumed; 0 remain.** Source `260eac0`: all five jobs passed (build/JVM/lint/signing, API26 197/197, dark 2× font 74/74, landscape 74/74, evidence). Actual injected drag now passes without weakening reorder/metadata/Undo assertions. Evidence committed as `2ec10d0`. The last local-gate failure was a brittle source-string expectation after adding non-content no-op diagnostics; its replacement still asserts return before captureUndo. Both local suites passed before push (551/161).
+
+Raw installable code17 artifact, exact hash, data precautions, all 13 statuses and physical acceptance limitations are recorded in `CODE17-DEVELOPMENT-HANDOFF.md`. `DOCUMENT-FORMAT-MIGRATION-PLAN.md` is a design, not completed functionality. No additional Actions jobs are authorized; no 180-minute actual-work completion is claimed. Documentation-only follow-up uses `[skip ci]`.

@@ -29,26 +29,41 @@ final class ContentCodec {
         }return new JSONObject().put("writingLines",content.writingLines).put("blocks",array);
     }
     static DocumentContent decode(JSONObject content)throws Exception{
-        JSONArray array=content.getJSONArray("blocks");
+        keys(content,"writingLines","blocks");JSONArray array=content.getJSONArray("blocks");
         if(array.length()>DocumentContent.MAX_BLOCKS)throw new IOException("Too many content sections");
         List<DocumentContent.Block> blocks=new ArrayList<>();
         for(int i=0;i<array.length();i++){
-            JSONObject in=array.getJSONObject(i);String id=in.getString("id"),name=in.getString("name");DocumentContent.Kind kind=DocumentContent.Kind.valueOf(in.getString("kind"));
+            JSONObject in=array.getJSONObject(i);String id=string(in,"id"),name=string(in,"name");DocumentContent.Kind kind=DocumentContent.Kind.valueOf(string(in,"kind"));
             switch(kind){
                 case TEXT:
-                    List<Note.Mark> marks=new ArrayList<>();JSONArray ms=in.getJSONArray("marks");for(int j=0;j<ms.length();j++){JSONObject mark=ms.getJSONObject(j);marks.add(new Note.Mark(mark.getString("type"),mark.getInt("start"),mark.getInt("end"),mark.optString("value","")));}
-                    if(!name.isEmpty())throw new IOException("Unexpected text section name");blocks.add(DocumentContent.Block.text(id,new RichText(in.getString("text"),marks)));break;
+                    keys(in,"id","kind","name","text","marks");if(!name.isEmpty())throw new IOException("Unexpected text section name");blocks.add(DocumentContent.Block.text(id,new RichText(string(in,"text"),marks(in.getJSONArray("marks")))));break;
                 case CHECKLIST:
-                    List<Note.Item> items=new ArrayList<>();JSONArray rs=in.getJSONArray("rows");for(int j=0;j<rs.length();j++){JSONObject row=rs.getJSONObject(j);List<Note.Mark> rowMarks=new ArrayList<>();JSONArray styles=row.getJSONArray("marks");for(int k=0;k<styles.length();k++){JSONObject mark=styles.getJSONObject(k);rowMarks.add(new Note.Mark(mark.getString("type"),mark.getInt("start"),mark.getInt("end"),mark.getString("value")));}items.add(new Note.Item(row.getString("id"),row.getString("text"),row.getBoolean("checked"),row.getInt("depth"),rowMarks));}
-                    if(!name.isEmpty())throw new IOException("Unexpected checklist section name");blocks.add(DocumentContent.Block.checklist(id,items,in.getBoolean("hideChecked")));break;
+                    keys(in,"id","kind","name","rows","hideChecked");JSONArray rs=in.getJSONArray("rows");if(rs.length()>DocumentContent.MAX_EDITABLE_FIELDS)throw new IOException("Too many checklist rows");List<Note.Item> items=new ArrayList<>();
+                    for(int j=0;j<rs.length();j++){JSONObject row=rs.getJSONObject(j);keys(row,"id","text","checked","depth","marks");items.add(new Note.Item(string(row,"id"),string(row,"text"),bool(row,"checked"),integer(row,"depth"),marks(row.getJSONArray("marks"))));}
+                    if(!name.isEmpty())throw new IOException("Unexpected checklist section name");blocks.add(DocumentContent.Block.checklist(id,items,bool(in,"hideChecked")));break;
                 case IMAGE:case DRAWING:
-                    JSONObject image=in.getJSONObject("image");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(image.getString("id"),image.getString("name"),image.getString("mime"),image.getInt("width"),image.getInt("height"),image.getString("data"))));break;
-                case DIAGRAM:blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;
+                    keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");keys(image,"id","name","mime","width","height","data");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(string(image,"id"),string(image,"name"),string(image,"mime"),integer(image,"width"),integer(image,"height"),string(image,"data"))));break;
+                case DIAGRAM:keys(in,"id","kind","name","diagram");blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;
                 case TABLE:
-                    JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");
-                    List<List<RichText>> rows=new ArrayList<>();for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);JSONArray cellMarks=cell.getJSONArray("marks");List<Note.Mark> style=new ArrayList<>();for(int m=0;m<cellMarks.length();m++){JSONObject mark=cellMarks.getJSONObject(m);style.add(new Note.Mark(mark.getString("type"),mark.getInt("start"),mark.getInt("end"),mark.getString("value")));}values.add(new RichText(cell.getString("text"),style));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows)));break;
+                    keys(in,"id","kind","name","rows");JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");List<List<RichText>> rows=new ArrayList<>();
+                    for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);keys(cell,"text","marks");values.add(new RichText(string(cell,"text"),marks(cell.getJSONArray("marks"))));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows)));break;
                 default:throw new IOException("Unsupported content kind");
             }
-        }return new DocumentContent(blocks,content.getBoolean("writingLines"));
+        }return new DocumentContent(blocks,bool(content,"writingLines"));
+    }
+    private static List<Note.Mark> marks(JSONArray array)throws Exception{
+        if(array.length()>RichText.MAX_MARKS)throw new IOException("Too many text styles");List<Note.Mark> marks=new ArrayList<>();for(int i=0;i<array.length();i++){JSONObject mark=array.getJSONObject(i);keys(mark,"type","start","end","value");marks.add(new Note.Mark(string(mark,"type"),integer(mark,"start"),integer(mark,"end"),string(mark,"value")));}return marks;
+    }
+    static void keys(JSONObject object,String... expected)throws IOException{
+        Set<String> actual=new HashSet<>();Iterator<String> names=object.keys();while(names.hasNext())actual.add(names.next());if(!actual.equals(new HashSet<>(Arrays.asList(expected))))throw new IOException("Unsupported or incomplete note fields; source left untouched");
+    }
+    static String string(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof String))throw new IOException("Expected note text: "+key);return (String)value;}
+    static boolean bool(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof Boolean))throw new IOException("Expected note switch: "+key);return (Boolean)value;}
+    static long whole(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof Integer) && !(value instanceof Long))throw new IOException("Expected whole note number: "+key);return ((Number)value).longValue();}
+    static int integer(JSONObject object,String key)throws Exception{long value=whole(object,key);if(value<Integer.MIN_VALUE || value>Integer.MAX_VALUE)throw new IOException("Note number out of range: "+key);return (int)value;}
+    static void metadata(JSONObject object)throws Exception{
+        keys(object,"id","title","createdAt","updatedAt","deletedAt","pinned","archived","color","labels","voiceSources","reminderAt","folder","background","content");
+        for(String key:Arrays.asList("id","title","folder"))string(object,key);for(String key:Arrays.asList("createdAt","updatedAt","deletedAt","reminderAt"))whole(object,key);for(String key:Arrays.asList("color","background"))integer(object,key);for(String key:Arrays.asList("pinned","archived"))bool(object,key);
+        for(String key:Arrays.asList("labels","voiceSources")){JSONArray array=object.getJSONArray(key);for(int i=0;i<array.length();i++)if(!(array.get(i) instanceof String))throw new IOException("Expected note tag text");}
     }
 }

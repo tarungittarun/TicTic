@@ -20,7 +20,7 @@ public final class PdfExporter {
                 content.setSpan(new android.text.style.StyleSpan(Typeface.BOLD),0,content.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);content.append("\n\n");int offset=content.length();content.append(note.plainText());
                 if(!note.checklist){for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(note.marks,note.body))TextStyles.writeRange(content,mark,offset);}
                 if(!note.labels.isEmpty())content.append("\n\nLabels: ").append(String.join(", ",note.labels));
-                TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTextSize(14);
+                TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.linkColor=Color.rgb(32,71,146);paint.setTextSize(14);
                 StaticLayout layout=StaticLayout.Builder.obtain(content,0,content.length(),paint,499).setIncludePad(false).setLineSpacing(3,1).build();
                 int first=0;
                 while(first<layout.getLineCount()){
@@ -61,11 +61,11 @@ public final class PdfExporter {
         void next()throws IOException{finish();if(number>=200)throw new IOException("PDF exceeds 200 pages; notes remain unchanged");page=pdf.startPage(new PdfDocument.PageInfo.Builder(595,842,++number).create());canvas=page.getCanvas();y=48;}
         void finish(){if(page!=null){footer(canvas,number);pdf.finishPage(page);page=null;canvas=null;}}
         void space(float height)throws IOException{if(page==null || y+height>758)next();}
-        StaticLayout layout(CharSequence text,int width){TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTextSize(14);return StaticLayout.Builder.obtain(text,0,text.length(),paint,Math.max(1,width)).setIncludePad(false).setLineSpacing(3,1).build();}
+        StaticLayout layout(CharSequence text,int width){TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.linkColor=Color.rgb(32,71,146);paint.setTextSize(14);return StaticLayout.Builder.obtain(text,0,text.length(),paint,Math.max(1,width)).setIncludePad(false).setLineSpacing(3,1).build();}
         CharSequence styled(app.space.notes.domain.RichText rich){
             SpannableStringBuilder text=new SpannableStringBuilder(rich.text);
             for(Note.Mark mark:rich.marks){if(mark.type.equals("number"))continue;if(mark.type.equals("size"))text.setSpan(new android.text.style.AbsoluteSizeSpan(Integer.parseInt(mark.value)),mark.start,mark.end,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);else TextStyles.writeRange(text,mark,0);}
-            java.util.List<Note.Mark> numbering=new java.util.ArrayList<>();for(Note.Mark mark:rich.marks)if(mark.type.equals("number"))numbering.add(mark);numbering.sort((a,b)->Integer.compare(b.start,a.start));for(Note.Mark mark:numbering)text.insert(mark.start,mark.value+". ");
+            java.util.List<Note.Mark> numbering=new java.util.ArrayList<>();for(Note.Mark mark:rich.marks)if(mark.type.equals("number") || mark.type.equals("link"))numbering.add(mark);numbering.sort((a,b)->Integer.compare(b.type.equals("number")?b.start:b.end,a.type.equals("number")?a.start:a.end));for(Note.Mark mark:numbering)if(mark.type.equals("number"))text.insert(mark.start,mark.value+". ");else if(!rich.text.substring(mark.start,mark.end).equals(mark.value))text.insert(mark.end," ("+mark.value+")");
             return text;
         }
         void text(app.space.notes.domain.RichText rich)throws Exception{
@@ -75,9 +75,25 @@ public final class PdfExporter {
         void image(app.space.notes.domain.NoteImage image)throws Exception{Bitmap bitmap=NoteImageFiles.decode(image);if(bitmap==null)throw new IOException("Image could not be decoded; no complete PDF produced");try{float scale=Math.min(499f/bitmap.getWidth(),650f/bitmap.getHeight()),width=bitmap.getWidth()*scale,height=bitmap.getHeight()*scale;space(height);canvas.drawBitmap(bitmap,null,new RectF(48+(499-width)/2,y,48+(499+width)/2,y+height),new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));y+=height+16;}finally{bitmap.recycle();}}
         void diagram(app.space.notes.domain.Diagram diagram)throws Exception{float height=1000*499f/800;space(height);canvas.save();canvas.translate(48,y);canvas.scale(499f/800,499f/800);DiagramRenderer.draw(canvas,diagram,false,null);canvas.restore();y+=height+16;}
         void table(app.space.notes.domain.TextTable table)throws Exception{
-            float width=499f/table.columns;Paint border=new Paint(Paint.ANTI_ALIAS_FLAG);border.setColor(Color.DKGRAY);border.setStyle(Paint.Style.STROKE);border.setStrokeWidth(.5f);
-            for(java.util.List<app.space.notes.domain.RichText> row:table.cells){java.util.List<StaticLayout> cells=new java.util.ArrayList<>();int total=0;for(app.space.notes.domain.RichText cell:row){StaticLayout layout=layout(styled(cell),(int)width-8);cells.add(layout);total=Math.max(total,layout.getHeight());}int offset=0;do{space(24);float height=Math.min(total-offset+8,758-y);for(int c=0;c<cells.size();c++){float x=48+c*width;canvas.drawRect(x,y,x+width,y+height,border);canvas.save();canvas.clipRect(x+4,y+4,x+width-4,y+height-4);canvas.translate(x+4,y+4-offset);cells.get(c).draw(canvas);canvas.restore();}offset+=(int)(height-8);y+=height;if(offset<total)next();}while(offset<total);}
-            y+=12;
+            Paint border=new Paint(Paint.ANTI_ALIAS_FLAG);border.setColor(Color.DKGRAY);border.setStyle(Paint.Style.STROKE);border.setStrokeWidth(.5f);
+            // Wide tables use legible column panels. Never cut glyphs at arbitrary vertical pixels.
+            for(int first=0;first<table.columns;first+=4){
+                int columns=Math.min(4,table.columns-first);float width=499f/columns;
+                if(table.columns>4)text(new app.space.notes.domain.RichText("Columns "+(first+1)+"–"+(first+columns),java.util.Collections.emptyList()));
+                for(java.util.List<app.space.notes.domain.RichText> row:table.cells){
+                    java.util.List<StaticLayout> cells=new java.util.ArrayList<>();for(int column=first;column<first+columns;column++)cells.add(layout(styled(row.get(column)),(int)width-12));
+                    int[] line=new int[columns];boolean remaining=true;
+                    while(remaining){
+                        float minimum=0;for(int column=0;column<columns;column++){StaticLayout cell=cells.get(column);if(line[column]<cell.getLineCount())minimum=Math.max(minimum,cell.getLineBottom(line[column])-cell.getLineTop(line[column]));}
+                        space(minimum+12);float available=758-y-12,height=0;int[] end=line.clone();
+                        for(int column=0;column<columns;column++){StaticLayout cell=cells.get(column);if(line[column]>=cell.getLineCount())continue;int top=cell.getLineTop(line[column]);while(end[column]<cell.getLineCount() && cell.getLineBottom(end[column])-top<=available)end[column]++;if(end[column]==line[column])throw new IOException("A table line cannot fit on a PDF page; notes remain unchanged");height=Math.max(height,cell.getLineBottom(end[column]-1)-top);}
+                        remaining=false;
+                        for(int column=0;column<columns;column++){StaticLayout cell=cells.get(column);float x=48+column*width;canvas.drawRect(x,y,x+width,y+height+12,border);if(end[column]>line[column]){int top=cell.getLineTop(line[column]),bottom=cell.getLineBottom(end[column]-1);canvas.save();canvas.clipRect(x+6,y+6,x+width-6,y+6+bottom-top);canvas.translate(x+6,y+6-top);cell.draw(canvas);canvas.restore();}line[column]=end[column];remaining|=line[column]<cell.getLineCount();}
+                        y+=height+12;if(remaining)next();
+                    }
+                }
+                y+=12;
+            }
         }
     }
     private static void footer(Canvas canvas,int number){Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);p.setColor(Color.DKGRAY);p.setTextSize(10);canvas.drawText("MyNotes · "+number,48,813,p);}

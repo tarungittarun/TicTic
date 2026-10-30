@@ -7,7 +7,7 @@ import java.util.*;
  * Never install it as a second editable body alongside Note.body/items/images.
  */
 public final class DocumentContent {
-    public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048;
+    public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048,MAX_MARKS=16384,MAX_TEXT_WEIGHT=2*1024*1024;
     public enum Kind {TEXT, CHECKLIST, IMAGE, DRAWING, DIAGRAM, TABLE}
     public static final class Block {
         public final String id,name;
@@ -47,6 +47,7 @@ public final class DocumentContent {
             return new Block(id,name,Kind.TABLE,null,null,false,null,null,table);
         }
         public Block renamed(String name){
+            if(name==null || name.trim().isEmpty())throw new IllegalArgumentException("Enter a content name");
             if(kind==Kind.TEXT || kind==Kind.CHECKLIST)throw new IllegalArgumentException("Text sections do not have visual names");
             return new Block(id,name,kind,text,items,hideChecked,image,diagram,table);
         }
@@ -57,14 +58,18 @@ public final class DocumentContent {
         this.writingLines=writingLines;
         if(blocks==null || blocks.size()>MAX_BLOCKS)throw new IllegalArgumentException("Content block limit exceeded");
         Set<String> ids=new HashSet<>(),images=new HashSet<>(),rows=new HashSet<>();
-        long fields=0;for(Block block:blocks){
+        long fields=0,weight=0,styles=0;for(Block block:blocks){
             if(block==null || !ids.add(block.id))throw new IllegalArgumentException("Duplicate or missing content block");
             fields+=(block.text!=null?1:0)+block.items.size()+(block.table==null?0:(long)block.table.rows.size()*block.table.columns);if(fields>MAX_EDITABLE_FIELDS)throw new IllegalArgumentException("Too many editable fields in document");
-            for(Note.Item row:block.items)if(!rows.add(row.id))throw new IllegalArgumentException("Duplicate checklist row across sections");
+            if(block.text!=null){weight+=textWeight(block.text.text,block.text.marks);styles+=block.text.marks.size();}
+            for(Note.Item row:block.items){if(!rows.add(row.id))throw new IllegalArgumentException("Duplicate checklist row across sections");weight+=textWeight(row.text,row.marks);styles+=row.marks.size();}
+            if(block.table!=null)for(List<RichText> row:block.table.cells)for(RichText cell:row){weight+=textWeight(cell.text,cell.marks);styles+=cell.marks.size();}
+            if(weight>MAX_TEXT_WEIGHT || styles>MAX_MARKS)throw new IllegalArgumentException("Document text or formatting limit exceeded");
             if(block.image!=null && !images.add(block.image.id))throw new IllegalArgumentException("Duplicate visual reference");
         }
         this.blocks=Collections.unmodifiableList(new ArrayList<>(blocks));
     }
+    private static long textWeight(String text,List<Note.Mark> marks){long weight=text.length();for(Note.Mark mark:marks)weight+=mark.value.length()+mark.type.length();return weight;}
     /** Read-only deterministic projection. Does not save, rewrite, rename or flatten the source. */
     public static DocumentContent fromLegacy(Note note){
         if(note==null)throw new IllegalArgumentException("Missing source note");
@@ -134,10 +139,10 @@ public final class DocumentContent {
     }
     public String plainText(){
         List<String> pieces=new ArrayList<>();for(Block block:blocks){
-            if(block.text!=null)pieces.add(block.text.text);
-            else if(block.kind==Kind.CHECKLIST){StringBuilder rows=new StringBuilder();for(Note.Item item:block.items){if(rows.length()>0)rows.append('\n');for(int i=0;i<item.depth;i++)rows.append("  ");rows.append(item.checked?"[x] ":"[ ] ").append(item.text);}pieces.add(rows.toString());}
+            if(block.text!=null)pieces.add(block.text.plainText());
+            else if(block.kind==Kind.CHECKLIST){StringBuilder rows=new StringBuilder();for(Note.Item item:block.items){if(rows.length()>0)rows.append('\n');for(int i=0;i<item.depth;i++)rows.append("  ");rows.append(item.checked?"[x] ":"[ ] ").append(RichText.plainText(item.text,item.marks));}pieces.add(rows.toString());}
             else if(block.diagram!=null)pieces.add(block.name+"\n"+block.diagram.plainText());
-            else if(block.table!=null){List<String> rows=new ArrayList<>();for(List<String> row:block.table.rows)rows.add(String.join("\t",row));pieces.add(block.name+"\n"+String.join("\n",rows));}
+            else if(block.table!=null){List<String> rows=new ArrayList<>();for(List<RichText> row:block.table.cells){List<String> cells=new ArrayList<>();for(RichText cell:row)cells.add(cell.plainText());rows.add(String.join("\t",cells));}pieces.add(block.name+"\n"+String.join("\n",rows));}
             else pieces.add(block.name);
         }return String.join("\n",pieces);
     }

@@ -97,7 +97,8 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertTrue({'group-prerequisites', 'shape-picker', 'read-image-language',
                          'ocr-review-empty', 'ocr-review', 'backups', 'restore-preview'} <= SCENES)
         self.assertLessEqual(len(SCENES), MAX_IMAGES)
-        self.assertLessEqual(MAX_IMAGES, 56)
+        self.assertLessEqual(MAX_IMAGES, 62)
+        self.assertTrue({'document-mixed','document-table','document-format','document-keyboard','document-visuals','document-dragged'} <= SCENES)
 
     def test_pin_fault_capture_does_not_wait_on_a_lost_fixture_window(self):
         source = (ROOT / 'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()

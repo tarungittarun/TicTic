@@ -6,16 +6,24 @@ import java.util.List;
 
 /** Lossless UTF-16 text/legacy marks primitive for the future block editor. */
 public final class RichText {
+    public static final int MAX_MARKS=4096;
     public final String text;
     public final List<Note.Mark> marks;
     public RichText(String text,List<Note.Mark> marks){
-        if(text==null || marks==null)throw new IllegalArgumentException("Missing rich text");
+        if(text==null || marks==null || marks.size()>MAX_MARKS)throw new IllegalArgumentException("Missing rich text");
         for(Note.Mark mark:marks){
             if(mark==null || mark.end>text.length())throw new IllegalArgumentException("Text mark outside text");
             boundary(text,mark.start);boundary(text,mark.end);
         }
         this.text=text;this.marks=Collections.unmodifiableList(new ArrayList<>(marks));
     }
+    private static final class Addition {final int at,order;final String text;Addition(int at,int order,String text){this.at=at;this.order=order;this.text=text;}}
+    /** Sharing/search projection retains the visible number and the safe link destination. */
+    public static String plainText(String source,List<Note.Mark> marks){
+        List<Addition> additions=new ArrayList<>();for(Note.Mark mark:marks){if(mark.type.equals("number"))additions.add(new Addition(mark.start,0,mark.value+". "));else if(mark.type.equals("link") && !source.substring(mark.start,mark.end).equals(mark.value))additions.add(new Addition(mark.end,1," ("+mark.value+")"));}
+        if(additions.isEmpty())return source;additions.sort(java.util.Comparator.comparingInt((Addition value)->value.at).reversed().thenComparingInt(value->value.order));StringBuilder result=new StringBuilder(source);for(Addition addition:additions)result.insert(addition.at,addition.text);return result.toString();
+    }
+    public String plainText(){return plainText(text,marks);}
     public String fingerprint(){StringBuilder value=new StringBuilder().append(text.length()).append(':').append(text).append(':').append(marks.size());for(Note.Mark mark:marks)value.append(':').append(mark.type).append(':').append(mark.start).append(':').append(mark.end).append(':').append(mark.value.length()).append(':').append(mark.value);return value.toString();}
     public RichText slice(int start,int end){
         if(start<0 || end<start || end>text.length())throw new IllegalArgumentException("Invalid text selection");

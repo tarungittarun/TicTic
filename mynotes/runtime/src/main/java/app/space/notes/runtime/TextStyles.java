@@ -20,13 +20,13 @@ public final class TextStyles {
 
     }
     private static final class FontSize extends MetricAffectingSpan {
-        final int size;FontSize(int size){this.size=size;}
-        public void updateDrawState(android.text.TextPaint paint){paint.setTextSize(size*android.content.res.Resources.getSystem().getDisplayMetrics().scaledDensity);}
+        final int size;final float pixels;FontSize(int size,float scale){this.size=size;this.pixels=size*scale;}
+        public void updateDrawState(android.text.TextPaint paint){paint.setTextSize(pixels);}
         public void updateMeasureState(android.text.TextPaint paint){updateDrawState(paint);}
     }
     private static final class Numbered implements LeadingMarginSpan {
         final String value;final android.graphics.Paint paint=new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);final int margin;
-        Numbered(String value){this.value=value;android.util.DisplayMetrics metrics=android.content.res.Resources.getSystem().getDisplayMetrics();paint.setTextSize(18*metrics.scaledDensity);margin=(int)Math.ceil(paint.measureText(value+".")+8*metrics.density);}
+        Numbered(String value,android.util.DisplayMetrics metrics){this.value=value;paint.setTextSize(18*metrics.scaledDensity);margin=(int)Math.ceil(paint.measureText(value+".")+8*metrics.density);}
         public int getLeadingMargin(boolean first){return margin;}
         public void drawLeadingMargin(android.graphics.Canvas canvas,android.graphics.Paint original,int x,int dir,int top,int baseline,int bottom,CharSequence text,int start,int end,boolean first,android.text.Layout layout){
             if(first && text instanceof Spanned && ((Spanned)text).getSpanStart(this)==start){paint.setColor(original.getColor());float width=paint.measureText(value+".");canvas.drawText(value+".",dir>0?x:x-width,baseline,paint);}
@@ -52,13 +52,16 @@ public final class TextStyles {
         }
         out.sort(Comparator.comparing((Note.Mark m)->m.type).thenComparingInt(m->m.start).thenComparingInt(m->m.end));return out;
     }
-    public static void write(Spannable text,List<Note.Mark> marks) {
+    public static void write(Spannable text,List<Note.Mark> marks) {write(text,marks,android.content.res.Resources.getSystem().getDisplayMetrics());}
+    public static void write(Spannable text,List<Note.Mark> marks,android.util.DisplayMetrics metrics) {
         for(Object span:text.getSpans(0,text.length(),Object.class))
             if((text.getSpanFlags(span)&Spanned.SPAN_COMPOSING)==0 && (span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading || span instanceof TypefaceSpan || span instanceof FontSize || span instanceof URLSpan || span instanceof Numbered))text.removeSpan(span);
-        for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(marks,text.toString()))writeRange(text,mark,0);
+        for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(marks,text.toString()))writeRange(text,mark,0,metrics);
+        for(Numbered span:text.getSpans(0,text.length(),Numbered.class))text.setSpan(span,text.getSpanStart(span),text.getSpanEnd(span),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         for(Heading span:text.getSpans(0,text.length(),Heading.class))text.setSpan(span,text.getSpanStart(span),text.getSpanEnd(span),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
     }
-    public static void writeRange(Spannable text,Note.Mark mark,int offset) {
+    public static void writeRange(Spannable text,Note.Mark mark,int offset) {writeRange(text,mark,offset,android.content.res.Resources.getSystem().getDisplayMetrics());}
+    private static void writeRange(Spannable text,Note.Mark mark,int offset,android.util.DisplayMetrics metrics) {
             Object span;
             switch(mark.type) {
                 case "bold":span=new StyleSpan(Typeface.BOLD);break;
@@ -66,9 +69,9 @@ public final class TextStyles {
                 case "underline":span=new UnderlineSpan();break;
                 case "strike":span=new StrikethroughSpan();break;
                 case "font":span=new TypefaceSpan(mark.value);break;
-                case "size":span=new FontSize(Integer.parseInt(mark.value));break;
+                case "size":span=new FontSize(Integer.parseInt(mark.value),metrics.scaledDensity);break;
                 case "link":span=new URLSpan(mark.value);break;
-                case "number":span=new Numbered(mark.value);break;
+                case "number":span=new Numbered(mark.value,metrics);break;
                 default:span=new Heading(mark.type);
             }
             if(offset>=0 && mark.end+offset<=text.length())text.setSpan(span,mark.start+offset,mark.end+offset,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -77,7 +80,7 @@ public final class TextStyles {
     public static void reflow(android.widget.EditText editor,List<Note.Mark> marks){
         int start=editor.getSelectionStart(),end=editor.getSelectionEnd();
         android.text.SpannableStringBuilder formatted=new android.text.SpannableStringBuilder(editor.getText().toString());
-        write(formatted,marks);editor.setText(formatted,android.widget.TextView.BufferType.EDITABLE);
+        write(formatted,marks,editor.getResources().getDisplayMetrics());editor.setText(formatted,android.widget.TextView.BufferType.EDITABLE);
         if(start>=0 && end>=0)editor.setSelection(Math.min(start,formatted.length()),Math.min(end,formatted.length()));
         editor.requestLayout();editor.invalidate();
     }

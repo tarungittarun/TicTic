@@ -72,3 +72,19 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   self.assertIn('getLineBounds(line,bounds)',self.controller)
   self.assertIn('textRuling', (JAVA/'NoteBackground.java').read_text())
   self.assertIn('if(repository.appOnlyStorage())',self.controller)
+
+class JavaJourneySignatureContracts(unittest.TestCase):
+ def test_core_helpers_do_not_have_duplicate_top_level_signatures(self):
+  import re
+  from mynotes.tools.ci.test_plan import mask_comments_and_strings
+  source=mask_comments_and_strings((ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text())
+  depth=[0]*(len(source)+1)
+  for i,char in enumerate(source):depth[i+1]=depth[i]+(char=='{')-(char=='}')
+  signatures=set()
+  for match in re.finditer(r'\b(?:public|private|protected)\s+(?:static\s+)?[\w.<>\[\],? ]+?\s+(\w+)\s*\(([^()]*)\)',source):
+   if depth[match.start()]!=1:continue
+   parameters=tuple(re.sub(r'\s+\w+$','',value.strip()) for value in match[2].split(',') if value.strip())
+   signature=(match[1],parameters)
+   self.assertNotIn(signature,signatures,'Duplicate Java helper signature; catch this before spending an Android job')
+   signatures.add(signature)
+  self.assertGreater(len(signatures),80)

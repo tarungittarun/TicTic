@@ -27,3 +27,11 @@ Four jobs started: build124035914708 PASS; full API26 124036877373 **229/229 PAS
 ## Reservation3:2 jobs, total8/35 reserved,27 unreserved
 
 Reserve shared rebuild plus focused landscape replay. Only native dialog-scrolling synchronization changes: allow the real accessibility scroll animation/cache to settle350ms rather than repeatedly paging every50ms, retaining the same5-second bound, actual menu click and all formatting/persistence assertions. Production app source is unchanged from8a0ea83. No failed test is skipped/waived. Retain API26/dark source-pinned outcomes fromcdb783a; qualify the same app with the corrected landscape harness. New user guide documents exact controls, device-local preset backup exclusion and optional guide defaults.
+
+## Reservation3 outcome (source9a932cb, run41049424165)
+
+Build124041495922 PASS, exact JVM212 gate/lint/stable signing PASS. Landscape124042456206 **100/100 PASS**, including the formerly failing Hyperlink journey; independent actual-PDF gate PASS. No app production changes versus8a0ea83. Documentation preservation failed because the single-artifact download is flattened, whereas the script expected per-artifact directories: diagnostic explicitly reports no native execution reports to preserve. This explains the same single-profile first-probe failure; the three-profile run had subdirectories and succeeded. Original overall run remains failed, not relabelled green.
+
+## Reservation4:1 evidence-only job, total9/35 reserved,26 unreserved
+
+Recover the existing landscape artifact by NAME into an explicit per-lane path, avoiding single-artifact flattening ambiguity. Before preservation, assert the original source SHA and that BOTH original native inventory and independent PDF steps passed. Assert actual recovered JSON100/100/ok and PDF report ok, render the existing screenshots, then gated documentation-only commit with capture source9a932cb/run41049424165 and separate preservation-run ID. No Android rebuild or test rerun; no failed assertion waived. This preserves the exact final runtime evidence at minimum runner overhead.

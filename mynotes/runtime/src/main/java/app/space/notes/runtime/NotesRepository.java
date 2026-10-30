@@ -31,6 +31,7 @@ public final class NotesRepository {
         if(!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory())throw new IllegalStateException("Cannot create Notes directory");
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
+    public boolean appOnlyStorage(){return selected==null;}
     public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected));}
     /** Persist deletion intent before removing notes so provider failures can be retried after restart. */
     public void schedulePortableDeletion(Set<String> ids)throws IOException{

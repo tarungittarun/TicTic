@@ -62,3 +62,15 @@ Local checks and native tests are separate; drag behavior, IME composition, styl
 - Use a private checklist drag MIME type rather than text/plain, preventing native EditText from treating an internal row move as text insertion. Keep local-only state and no global drag flags. Add a real input-dispatched drag regression, separate from accessible position reordering.
 
 Reserve **5 more jobs**, maximum cumulative **10/17**, leaving **7**. Code17 is not shared until qualification results and its partial scope are recorded. The major mixed-document, tables, hyperlinks, names, lines, fonts and numbering work remains pending; no unsafe schema migration is introduced to imply progress.
+
+## Attempt 2 — run 41006920985
+
+Five more jobs completed: **10/17 used**. Build/JVM/lint/signing passed. API26 194/195; large-font/landscape 71/72 each. Menu scoping, new file-location display, cloud-file rejection/grant release and text history passed. Sole failure: the new drag test called the text-body-only `laidOut()` helper on a checklist (which has no body), timing out before any drag. Replace that precondition with measured checklist-handle/row/window/IME readiness; preserve the actual input injection and reorder assertions.
+
+## Targeted probe — reservation 2 jobs
+
+Use a build plus one API26 native job for exactly three named cases: actual handle drag, app-only folder setup, and ruled writing guides. This is explicitly a **probe**, not full qualification. Maximum cumulative **12/17**, leaving **5** for a final full three-profile qualification after any needed fix. Exact three-case inventory is still enforced; no skipped/duplicate outcomes or coordinate fallback.
+
+The new folder setup screen treats app-only storage as a normal configuration, not a failed folder read. The attached diagnostics contained 563 parsed events, including five folder-open IOException events; their messages are intentionally absent, so their exact cause is not inferred. Raw attachment/device identifiers are not committed.
+
+Ruled backgrounds now draw guide lines at actual native text baselines rather than a fixed grid behind images. The persisted existing background value 3 is reused; no schema migration. Select Background → Ruled. Other background rendering remains unchanged. PDF guide alignment and physical-device behavior are separate acceptance items.

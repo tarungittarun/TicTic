@@ -7,7 +7,7 @@ import java.util.*;
  * Never install it as a second editable body alongside Note.body/items/images.
  */
 public final class DocumentContent {
-    public static final int MAX_BLOCKS=4096,MAX_EDITABLE_FIELDS=2048;
+    public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048;
     public enum Kind {TEXT, CHECKLIST, IMAGE, DRAWING, DIAGRAM, TABLE}
     public static final class Block {
         public final String id,name;
@@ -51,8 +51,10 @@ public final class DocumentContent {
             return new Block(id,name,kind,text,items,hideChecked,image,diagram,table);
         }
     }
-    public final List<Block> blocks;
-    public DocumentContent(List<Block> blocks){
+    public final List<Block> blocks;public final boolean writingLines;
+    public DocumentContent(List<Block> blocks){this(blocks,false);}
+    public DocumentContent(List<Block> blocks,boolean writingLines){
+        this.writingLines=writingLines;
         if(blocks==null || blocks.size()>MAX_BLOCKS)throw new IllegalArgumentException("Content block limit exceeded");
         Set<String> ids=new HashSet<>(),images=new HashSet<>(),rows=new HashSet<>();
         long fields=0;for(Block block:blocks){
@@ -72,23 +74,27 @@ public final class DocumentContent {
         else blocks.add(Block.text(legacyId(note.id,"text"),new RichText(note.body,note.marks)));
         for(NoteImage image:note.images)blocks.add(Block.visual(legacyId(note.id,"image:"+image.id),image.name,"Drawing".equals(image.name)?Kind.DRAWING:Kind.IMAGE,image));
         if(!note.diagram.nodes.isEmpty())blocks.add(Block.diagram(legacyId(note.id,"diagram"),"Diagram01",note.diagram));
-        return new DocumentContent(blocks);
+        return new DocumentContent(blocks,note.background==3);
     }
     private static String legacyId(String note,String suffix){return UUID.nameUUIDFromBytes((note.length()+":"+note+":"+suffix).getBytes(StandardCharsets.UTF_8)).toString();}
+    public DocumentContent insertAtText(String id,int offset,Block insertion){
+        Block source=block(id);if(source.text==null)throw new IllegalArgumentException("Choose a text section");
+        RichText before=source.text.slice(0,offset),after=source.text.slice(offset,source.text.text.length());List<Block> next=new ArrayList<>(blocks);int at=index(id);next.set(at,Block.text(id,before));next.add(at+1,insertion);next.add(at+2,Block.text(UUID.randomUUID().toString(),after));return new DocumentContent(next,writingLines);
+    }
     public DocumentContent insert(int edge,Block block){
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
-        List<Block> next=new ArrayList<>(blocks);next.add(edge,block);return new DocumentContent(next);
+        List<Block> next=new ArrayList<>(blocks);next.add(edge,block);return new DocumentContent(next,writingLines);
     }
     public DocumentContent replace(String id,Block replacement){
         int at=index(id);if(replacement==null || !id.equals(replacement.id))throw new IllegalArgumentException("Replacement must preserve block identity");
         if(blocks.get(at)==replacement)return this;
-        List<Block> next=new ArrayList<>(blocks);next.set(at,replacement);return new DocumentContent(next);
+        List<Block> next=new ArrayList<>(blocks);next.set(at,replacement);return new DocumentContent(next,writingLines);
     }
     /** Edge semantics match checklist drag: the insertion edge refers to the original order. */
     public DocumentContent move(String id,int edge){
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
         int from=index(id),to=edge>from?edge-1:edge;if(from==to)return this;
-        List<Block> next=new ArrayList<>(blocks);Block block=next.remove(from);next.add(to,block);return new DocumentContent(next);
+        List<Block> next=new ArrayList<>(blocks);Block block=next.remove(from);next.add(to,block);return new DocumentContent(next,writingLines);
     }
     public String nextVisualName(Kind kind){
         String prefix;
@@ -105,9 +111,10 @@ public final class DocumentContent {
         for(String line:selected.text.split("\n",-1)){RichText row=selected.slice(at,at+line.length());rows.add(new Note.Item(UUID.randomUUID().toString(),row.text,false,0,row.marks));at+=line.length()+1;}
         List<Block> next=new ArrayList<>(blocks);int position=index(id);next.remove(position);
         next.add(position,Block.text(source.id,slices.get(0)));next.add(position+1,Block.checklist(UUID.randomUUID().toString(),rows,false));next.add(position+2,Block.text(UUID.randomUUID().toString(),slices.get(2)));
-        return new DocumentContent(next);
+        return new DocumentContent(next,writingLines);
     }
-    public DocumentContent remove(String id){List<Block> next=new ArrayList<>(blocks);next.remove(index(id));return new DocumentContent(next);}
+    public DocumentContent withWritingLines(boolean enabled){return enabled==writingLines?this:new DocumentContent(blocks,enabled);}
+    public DocumentContent remove(String id){List<Block> next=new ArrayList<>(blocks);next.remove(index(id));return new DocumentContent(next,writingLines);}
     public Block block(String id){return blocks.get(index(id));}
     public List<NoteImage> images(){List<NoteImage> result=new ArrayList<>();for(Block block:blocks)if(block.image!=null)result.add(block.image);return Collections.unmodifiableList(result);}
     /** Legacy preview only. Editors must address a diagram block explicitly. */
@@ -121,7 +128,7 @@ public final class DocumentContent {
         Map<String,NoteImage> remaining=new LinkedHashMap<>();for(NoteImage image:images)if(image==null || remaining.put(image.id,image)!=null)throw new IllegalArgumentException("Duplicate or missing visual");
         List<Block> next=new ArrayList<>();
         for(Block block:blocks){if(block.image==null){next.add(block);continue;}NoteImage image=remaining.remove(block.image.id);if(image!=null)next.add(Block.visual(block.id,block.name,block.kind,image));}
-        DocumentContent result=new DocumentContent(next);
+        DocumentContent result=new DocumentContent(next,writingLines);
         for(NoteImage image:remaining.values()){Kind kind="Drawing".equals(image.name)?Kind.DRAWING:Kind.IMAGE;result=result.insert(result.blocks.size(),Block.visual(UUID.randomUUID().toString(),result.nextVisualName(kind),kind,image));}
         return result;
     }
@@ -136,12 +143,12 @@ public final class DocumentContent {
     }
     /** Length-delimited canonical representation; never a human-facing export or log payload. */
     public String fingerprint(){
-        StringBuilder out=new StringBuilder();part(out,Integer.toString(blocks.size()));for(Block block:blocks){part(out,block.id);part(out,block.kind.name());part(out,block.name);
+        StringBuilder out=new StringBuilder();part(out,Boolean.toString(writingLines));part(out,Integer.toString(blocks.size()));for(Block block:blocks){part(out,block.id);part(out,block.kind.name());part(out,block.name);
             if(block.text!=null){part(out,block.text.text);part(out,Integer.toString(block.text.marks.size()));for(Note.Mark mark:block.text.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}part(out,"end marks");}
             if(block.kind==Kind.CHECKLIST){part(out,Boolean.toString(block.hideChecked));part(out,Integer.toString(block.items.size()));for(Note.Item item:block.items){part(out,item.id);part(out,item.text);part(out,Boolean.toString(item.checked));part(out,Integer.toString(item.depth));part(out,Integer.toString(item.marks.size()));for(Note.Mark mark:item.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}part(out,"end rows");}
             if(block.image!=null)part(out,block.image.fingerprint());
             if(block.diagram!=null)part(out,block.diagram.fingerprint());
-            if(block.table!=null){part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<String> row:block.table.rows)for(String cell:row)part(out,cell);}
+            if(block.table!=null){part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<RichText> row:block.table.cells)for(RichText cell:row){part(out,cell.text);part(out,Integer.toString(cell.marks.size()));for(Note.Mark mark:cell.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}}
         }return out.toString();
     }
     private static void part(StringBuilder out,String text){out.append(text.length()).append(':').append(text);}

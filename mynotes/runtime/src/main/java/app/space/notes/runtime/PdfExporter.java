@@ -62,18 +62,21 @@ public final class PdfExporter {
         void finish(){if(page!=null){footer(canvas,number);pdf.finishPage(page);page=null;canvas=null;}}
         void space(float height)throws IOException{if(page==null || y+height>758)next();}
         StaticLayout layout(CharSequence text,int width){TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTextSize(14);return StaticLayout.Builder.obtain(text,0,text.length(),paint,Math.max(1,width)).setIncludePad(false).setLineSpacing(3,1).build();}
-        void text(app.space.notes.domain.RichText rich)throws Exception{
+        CharSequence styled(app.space.notes.domain.RichText rich){
             SpannableStringBuilder text=new SpannableStringBuilder(rich.text);
             for(Note.Mark mark:rich.marks){if(mark.type.equals("number"))continue;if(mark.type.equals("size"))text.setSpan(new android.text.style.AbsoluteSizeSpan(Integer.parseInt(mark.value)),mark.start,mark.end,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);else TextStyles.writeRange(text,mark,0);}
             java.util.List<Note.Mark> numbering=new java.util.ArrayList<>();for(Note.Mark mark:rich.marks)if(mark.type.equals("number"))numbering.add(mark);numbering.sort((a,b)->Integer.compare(b.start,a.start));for(Note.Mark mark:numbering)text.insert(mark.start,mark.value+". ");
-            StaticLayout layout=layout(text,499);int line=0;
+            return text;
+        }
+        void text(app.space.notes.domain.RichText rich)throws Exception{
+            StaticLayout layout=layout(styled(rich),499);int line=0;
             while(line<layout.getLineCount()){space(Math.min(710,layout.getLineBottom(line)-layout.getLineTop(line)));int top=layout.getLineTop(line),last=line;while(last+1<layout.getLineCount() && layout.getLineBottom(last+1)-top<=758-y)last++;float height=Math.min(758-y,layout.getLineBottom(last)-top);canvas.save();canvas.clipRect(48,y,547,y+height);canvas.translate(48,y-top);layout.draw(canvas);canvas.restore();y+=height;line=last+1;if(line<layout.getLineCount())next();}y+=12;
         }
         void image(app.space.notes.domain.NoteImage image)throws Exception{Bitmap bitmap=NoteImageFiles.decode(image);if(bitmap==null)throw new IOException("Image could not be decoded; no complete PDF produced");try{float scale=Math.min(499f/bitmap.getWidth(),650f/bitmap.getHeight()),width=bitmap.getWidth()*scale,height=bitmap.getHeight()*scale;space(height);canvas.drawBitmap(bitmap,null,new RectF(48+(499-width)/2,y,48+(499+width)/2,y+height),new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));y+=height+16;}finally{bitmap.recycle();}}
         void diagram(app.space.notes.domain.Diagram diagram)throws Exception{float height=1000*499f/800;space(height);canvas.save();canvas.translate(48,y);canvas.scale(499f/800,499f/800);DiagramRenderer.draw(canvas,diagram,false,null);canvas.restore();y+=height+16;}
         void table(app.space.notes.domain.TextTable table)throws Exception{
             float width=499f/table.columns;Paint border=new Paint(Paint.ANTI_ALIAS_FLAG);border.setColor(Color.DKGRAY);border.setStyle(Paint.Style.STROKE);border.setStrokeWidth(.5f);
-            for(java.util.List<String> row:table.rows){java.util.List<StaticLayout> cells=new java.util.ArrayList<>();int total=0;for(String cell:row){StaticLayout layout=layout(cell,(int)width-8);cells.add(layout);total=Math.max(total,layout.getHeight());}int offset=0;do{space(24);float height=Math.min(total-offset+8,758-y);for(int c=0;c<cells.size();c++){float x=48+c*width;canvas.drawRect(x,y,x+width,y+height,border);canvas.save();canvas.clipRect(x+4,y+4,x+width-4,y+height-4);canvas.translate(x+4,y+4-offset);cells.get(c).draw(canvas);canvas.restore();}offset+=(int)(height-8);y+=height;if(offset<total)next();}while(offset<total);}
+            for(java.util.List<app.space.notes.domain.RichText> row:table.cells){java.util.List<StaticLayout> cells=new java.util.ArrayList<>();int total=0;for(app.space.notes.domain.RichText cell:row){StaticLayout layout=layout(styled(cell),(int)width-8);cells.add(layout);total=Math.max(total,layout.getHeight());}int offset=0;do{space(24);float height=Math.min(total-offset+8,758-y);for(int c=0;c<cells.size();c++){float x=48+c*width;canvas.drawRect(x,y,x+width,y+height,border);canvas.save();canvas.clipRect(x+4,y+4,x+width-4,y+height-4);canvas.translate(x+4,y+4-offset);cells.get(c).draw(canvas);canvas.restore();}offset+=(int)(height-8);y+=height;if(offset<total)next();}while(offset<total);}
             y+=12;
         }
     }

@@ -16,6 +16,7 @@ public final class RichText {
         }
         this.text=text;this.marks=Collections.unmodifiableList(new ArrayList<>(marks));
     }
+    public String fingerprint(){StringBuilder value=new StringBuilder().append(text.length()).append(':').append(text).append(':').append(marks.size());for(Note.Mark mark:marks)value.append(':').append(mark.type).append(':').append(mark.start).append(':').append(mark.end).append(':').append(mark.value.length()).append(':').append(mark.value);return value.toString();}
     public RichText slice(int start,int end){
         if(start<0 || end<start || end>text.length())throw new IllegalArgumentException("Invalid text selection");
         boundary(text,start);boundary(text,end);

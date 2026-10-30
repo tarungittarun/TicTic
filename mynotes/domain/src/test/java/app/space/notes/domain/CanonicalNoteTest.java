@@ -9,7 +9,7 @@ public class CanonicalNoteTest {
         assertSame(content,note.properties(2,Arrays.asList("work"),4).content);
         assertSame(content,note.state(true,true,5,5).content);
         assertSame(content,note.folder("Work",5).content);
-        assertSame(content,note.background(3,5).content);
+        assertSame(content,note.background(2,5).content);
         assertSame(content,note.reminder(100,5).content);
         assertSame(content,note.withId("copy").content);
         assertSame(content,note.voiceSource(UUID.randomUUID().toString(),5).content);
@@ -43,5 +43,12 @@ public class CanonicalNoteTest {
         assertThrows(IllegalArgumentException.class,()->new Note.Mark("size",0,1,"500"));
         assertThrows(IllegalArgumentException.class,()->new Note.Mark("font",0,1,"/sdcard/font.ttf"));
         for(String link:Arrays.asList("javascript:alert(1)","file:///data/a","content://private/a","intent://a","https://user:pass@example.com","https://example.com\n"))assertThrows(IllegalArgumentException.class,()->SafeLinks.requireWeb(link));
+    }
+    @Test public void insertionAtCaretPreservesBothTextHalvesAndTheirFormatting(){
+        Note note=sample();String id=note.content.blocks.get(0).id;
+        DocumentContent next=note.content.insertAtText(id,7,DocumentContent.Block.table("t","Table01",TextTable.empty(1,1)));
+        assertEquals("before ",next.blocks.get(0).text.text);assertEquals("selected after",next.blocks.get(2).text.text);
+        assertEquals(7,next.blocks.get(0).text.marks.get(0).end);assertEquals(14,next.blocks.get(2).text.marks.get(0).end);
+        assertEquals("before selected after",note.content.blocks.get(0).text.text);
     }
 }

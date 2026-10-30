@@ -64,4 +64,10 @@ public class TextTableTest {
         assertThrows(IllegalArgumentException.class,()->TextTable.empty(1,20).insertColumn(0));
         assertEquals("D",table.rows.get(1).get(1));
     }
+    @Test public void formattingMovesWithCellsAndPlainReplacementCannotFlattenIt(){
+        RichText rich=new RichText("Styled",Arrays.asList(new Note.Mark("font",0,6,"serif"),new Note.Mark("link",0,6,"https://example.com")));
+        TextTable table=TextTable.empty(2,2).withRichCell(1,1,rich),moved=table.insertRow(0).insertColumn(0);
+        assertSame(rich,moved.cells.get(2).get(2));assertSame(rich,moved.deleteRow(0).deleteColumn(0).cells.get(1).get(1));
+        assertThrows(IllegalStateException.class,()->table.withCell(1,1,"plain overwrite"));assertEquals(2,table.cells.get(1).get(1).marks.size());
+    }
 }

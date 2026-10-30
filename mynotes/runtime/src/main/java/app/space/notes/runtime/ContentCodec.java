@@ -8,7 +8,7 @@ import java.util.*;
 /** Canonical schema7 content: pixels and tables occur once, at their ordered block position. */
 final class ContentCodec {
     private ContentCodec(){}
-    static JSONArray encode(DocumentContent content)throws Exception{
+    static JSONObject encode(DocumentContent content)throws Exception{
         JSONArray array=new JSONArray();
         for(DocumentContent.Block block:content.blocks){
             JSONObject out=new JSONObject().put("id",block.id).put("kind",block.kind.name()).put("name",block.name);
@@ -23,12 +23,13 @@ final class ContentCodec {
                     NoteImage image=block.image;out.put("image",new JSONObject().put("id",image.id).put("name",image.name).put("mime",image.mime).put("width",image.width).put("height",image.height).put("data",image.data));break;
                 case DIAGRAM:out.put("diagram",DocumentCodec.encodeDiagram(block.diagram));break;
                 case TABLE:
-                    JSONArray table=new JSONArray();for(List<String> row:block.table.rows){JSONArray cells=new JSONArray();for(String cell:row)cells.put(cell);table.put(cells);}out.put("rows",table);break;
+                    JSONArray table=new JSONArray();for(List<RichText> row:block.table.cells){JSONArray cells=new JSONArray();for(RichText cell:row){JSONArray cellMarks=new JSONArray();for(Note.Mark mark:cell.marks)cellMarks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end).put("value",mark.value));cells.put(new JSONObject().put("text",cell.text).put("marks",cellMarks));}table.put(cells);}out.put("rows",table);break;
                 default:throw new IOException("Unsupported content kind");
             }array.put(out);
-        }return array;
+        }return new JSONObject().put("writingLines",content.writingLines).put("blocks",array);
     }
-    static DocumentContent decode(JSONArray array)throws Exception{
+    static DocumentContent decode(JSONObject content)throws Exception{
+        JSONArray array=content.getJSONArray("blocks");
         if(array.length()>DocumentContent.MAX_BLOCKS)throw new IOException("Too many content sections");
         List<DocumentContent.Block> blocks=new ArrayList<>();
         for(int i=0;i<array.length();i++){
@@ -45,9 +46,9 @@ final class ContentCodec {
                 case DIAGRAM:blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;
                 case TABLE:
                     JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");
-                    List<List<String>> rows=new ArrayList<>();for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<String> values=new ArrayList<>();for(int c=0;c<cells.length();c++)values.add(cells.getString(c));rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,new TextTable(rows)));break;
+                    List<List<RichText>> rows=new ArrayList<>();for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);JSONArray cellMarks=cell.getJSONArray("marks");List<Note.Mark> style=new ArrayList<>();for(int m=0;m<cellMarks.length();m++){JSONObject mark=cellMarks.getJSONObject(m);style.add(new Note.Mark(mark.getString("type"),mark.getInt("start"),mark.getInt("end"),mark.getString("value")));}values.add(new RichText(cell.getString("text"),style));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows)));break;
                 default:throw new IOException("Unsupported content kind");
             }
-        }return new DocumentContent(blocks);
+        }return new DocumentContent(blocks,content.getBoolean("writingLines"));
     }
 }

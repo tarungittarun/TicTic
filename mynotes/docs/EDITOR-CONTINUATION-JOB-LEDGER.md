@@ -28,3 +28,9 @@ Next gates remain canonical schema/codec and mutation integration, rollback/roun
 ## Reservation 2 — connected editor and persistence
 
 Reserve **2 jobs**, cumulative at most **3/25**: shared build/JVM/lint/signing and full API26 native suite. Canonical schema7 is now wired through Note mutations, duplicate/archive remapping, fingerprints/conflicts, portable/backup codecs, search/plain-text and ordered PDF. Legacy-only libraries still encode6. New UI is reached by the deliberate Document editor upgrade, whose worker verifies canonical round-trip and a retained first-upgrade private checkpoint before saving. Text projection mutation throws rather than flattening. Additional inline styles and rich checklist rows are schema-aware. No new APK is handed off at this development gate. Full three-profile qualification and native coverage of every new feature still required.
+
+### Connected gate result and reservation 3
+
+Run41016768825, source28ee1b7: build failed at a missing `DocumentContent` import in NotesController; all **191 JVM tests passed**, native job was skipped. Charge the full two-job reservation conservatively (**3/25**, including that unstarted native job). No APK delivered. Correct the import and continue, not suppress compilation/native failures.
+
+Reserve **2 further jobs** for the updated shared build and full API26 suite, maximum **5/25**, leaving20. This source additionally preserves formatted table cells, supports actual caret-position block insertion including asynchronous images/drawings, has an independent persisted writing-lines switch, and rejects external URI/Intent coercion inside editable fields. All remain subject to compilation/native qualification.

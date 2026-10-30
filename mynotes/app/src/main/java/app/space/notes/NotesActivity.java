@@ -8,7 +8,7 @@ import app.space.notes.runtime.NotesController;
 import app.space.notes.runtime.NotesHost;
 /** Thin standalone host. Business/UI code is reusable by a future MySpace adapter. */
 public final class NotesActivity extends Activity implements NotesHost {
-    private NotesController controller;
+    private NotesController controller;private boolean pdfPrintGuides;
     private String ocrLanguage="eng",voiceExportId,imageNoteId;
     @Override public void onCreate(Bundle state) {
         boolean dark=app.space.notes.runtime.NotesAppearance.dark(this,this);setTheme(dark?R.style.NotesThemeDark:R.style.NotesThemeLight);
@@ -17,7 +17,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         boolean light=!dark;
         int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
-        if(state!=null){ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
+        if(state!=null){pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
         controller=new NotesController(this,this,state);
         setContentView(controller.view());
         installDocumentDrop();
@@ -49,7 +49,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");}
     @Override protected void onPause() { controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
-        state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
+        state.putBoolean("pdfPrintGuides",pdfPrintGuides);state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
         controller.saveState(state); super.onSaveInstanceState(state);
     }
     @Override protected void onDestroy() { controller.close(); super.onDestroy(); }
@@ -73,6 +73,9 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);app.space.notes.runtime.Diagnostics.record("permission.result","request="+request+" granted="+(grants.length>0 && grants[0]==0));if(request==89){if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.chooseReminder();else showMessage("Notifications were not enabled. Notes and all other features still work; choose Reminder again if you change your mind.");return;}if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
     @Override public void exportVoice(String id){voiceExportId=id;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("audio/wav");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-voice-"+id+".wav");openPicker(picker,100);}
     @Override public void exportPdf() {
+        new android.app.AlertDialog.Builder(this).setTitle("PDF export options").setMultiChoiceItems(new String[]{"Print writing guides where Writing lines is on"},new boolean[]{pdfPrintGuides},(dialog,which,checked)->pdfPrintGuides=checked).setMessage(null).setPositiveButton("Choose PDF file",(dialog,which)->choosePdfDestination()).setNegativeButton("Cancel",null).show();
+    }
+    private void choosePdfDestination(){
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".pdf");openPicker(picker,98);
     }
@@ -104,7 +107,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
         if(request==99){controller.recognizeImage(uri,ocrLanguage);return;}
         if(request==100){if(voiceExportId!=null)controller.exportVoice(voiceExportId,uri);return;}
-        if(request==98){controller.exportPdf(uri);return;}
+        if(request==98){controller.exportPdf(uri,pdfPrintGuides);return;}
         if(request==96) {controller.exportBackup(uri);return;}
         if(request==97) {controller.importBackup(uri);return;}
         try {

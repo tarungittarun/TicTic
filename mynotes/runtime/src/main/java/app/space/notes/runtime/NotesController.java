@@ -516,13 +516,14 @@ public final class NotesController {
         EditText input=new EditText(context);design.entry(input,16);input.setText(edge.label);input.setHint("Arrow label, e.g. Yes / No");design.show(new android.app.AlertDialog.Builder(context).setTitle("Arrow label").setView(input).setPositiveButton("Save",(d,w)->{saveDiagram(currentDiagram(find(editing)).labelEdge(id,input.getText().toString()));renderDiagram();}).setNeutralButton("Remove arrow",(d,w)->{saveDiagram(currentDiagram(find(editing)).removeEdge(id));renderDiagram();}).setNegativeButton("Cancel",null).create());return;
     }}
     private void deleteSelectedShape(){Diagram.Node node=selectedShape();if(node==null)return;Diagram value=currentDiagram(find(editing)).remove(node.id);diagramSelection=null;saveDiagram(value);renderDiagram();}
-    public void exportPdf(android.net.Uri uri){whenReady(()->{
+    public void exportPdf(android.net.Uri uri){exportPdf(uri,false);}
+    public void exportPdf(android.net.Uri uri,boolean printGuides){whenReady(()->{
         persistDraft();List<Note> snapshot=new ArrayList<>(targets());if(snapshot.isEmpty()){host.showMessage("Open or select notes before exporting PDF.");return;}
         busy=true;disk.execute(()->{
             java.io.File temporary=null;String message;
             try{
                 LocalBackupFiles.requireLocal(uri);temporary=java.io.File.createTempFile("mynotes-pdf-",".pdf",context.getCacheDir());int pages;
-                try(java.io.OutputStream out=new java.io.FileOutputStream(temporary)){pages=PdfExporter.write(snapshot,out);}
+                try(java.io.OutputStream out=new java.io.FileOutputStream(temporary)){pages=PdfExporter.write(snapshot,out,printGuides);}
                 try(java.io.InputStream in=new java.io.FileInputStream(temporary);java.io.OutputStream out=context.getContentResolver().openOutputStream(uri,"rwt")){
                     if(out==null)throw new java.io.IOException("Cannot open PDF destination");byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1)out.write(buffer,0,count);out.flush();
                 }

@@ -1,0 +1,43 @@
+# New continuation allowance: reserve 1 of 25 jobs, not an APK qualification.
+name: MyNotes editor foundation (JVM only)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-editor-foundation.yml']
+permissions:
+  contents: read
+concurrency:
+  group: notes-editor-foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  domain:
+    name: Complete domain suite and inactive editor foundations
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+        with:
+          sdk: 'false'
+      - name: Execute all domain tests without APKs, offline models or emulators
+        working-directory: mynotes
+        run: |
+          set -o pipefail
+          sh gradlew :notes-domain:test --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/editor-foundation-jvm.log
+      - name: Require every discovered JVM method once without skips
+        if: always()
+        run: python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/editor-foundation-jvm.json
+      - name: Surface bounded compilation failures
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/editor-foundation-jvm.log
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: notes-editor-foundation-jvm
+          path: |
+            mynotes/domain/build/test-results/test/
+            evidence/editor-foundation-jvm.json
+            /tmp/editor-foundation-jvm.log
+          retention-days: 7
+          if-no-files-found: warn

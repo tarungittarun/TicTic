@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "source_sha": "0a7b51205c7765cb06079378d9ab7798a48ebcfd",
+  "capture_run": "41056664304",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 111,
+      "passed": 110,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\tat app.space.notes.CoreJourneysTest.settingsChildrenReturnToTheirActualParents(CoreJourneysTest.java:198)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 111,
+      "passed": 110,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\tat app.space.notes.CoreJourneysTest.settingsChildrenReturnToTheirActualParents(CoreJourneysTest.java:198)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 240,
+      "passed": 238,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents",
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#settingsChildrenReturnToTheirActualParents: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\tat app.space.notes.CoreJourneysTest.settingsChildrenReturnToTheirActualParents(CoreJourneysTest.java:198)\n",
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles: status -2 java.lang.AssertionError: Folder UI did not reach the expected state\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat app.space.notes.RealFolderStorageTest.awaitUi(RealFolderStorageTest.java:42)\n\tat app.space.notes.RealFolderStorageTest.folderBrowserCreationAndMoveFlowWritesRealVisibleFiles(RealFolderStorageTest.java:47)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

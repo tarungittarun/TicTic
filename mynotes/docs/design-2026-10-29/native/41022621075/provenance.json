@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "source_sha": "6d1fdc3769998ee1e7aeba26d1e7a1a8a7a760b7",
+  "capture_run": "41022621075",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 86,
+      "passed": 81,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows",
+        "app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields",
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides",
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo",
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides: status -2 java.lang.AssertionError: A canonical writing field remains visible above the keyboard\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.lambda$canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides$271$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:410)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda184.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$nativeDocumentDrag$299$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:430)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda28.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields: status -2 java.lang.AssertionError: Dialog action Font\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:100)\n\tat app.space.notes.CoreJourneysTest.canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields(CoreJourneysTest.java:394)\n",
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation: status -2 java.lang.AssertionError: Anchor before Document expected:<11> but was:<7>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$canonicalReverseSelectionSurvivesColourAndControllerRecreation$264$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:407)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda202.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$nativeDocumentDrag$299$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:430)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda28.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 86,
+      "passed": 85,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation: status -2 java.lang.AssertionError: Anchor before Document expected:<11> but was:<7>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$canonicalReverseSelectionSurvivesColourAndControllerRecreation$264$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:407)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda202.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 220,
+      "passed": 219,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation: status -2 java.lang.AssertionError: Anchor before Document expected:<11> but was:<7>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$canonicalReverseSelectionSurvivesColourAndControllerRecreation$264$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:407)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda202.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

@@ -22,7 +22,7 @@ public final class NoteOperations {
             if(!source.title.isEmpty())blocks.add(DocumentContent.Block.text(UUID.randomUUID().toString(),new RichText(source.title,Arrays.asList(new Note.Mark("h1",0,source.title.length())))));
             for(DocumentContent.Block block:DocumentContent.fromLegacy(source).blocks){String id=UUID.randomUUID().toString();switch(block.kind){
                 case TEXT:blocks.add(DocumentContent.Block.text(id,block.text));break;
-                case CHECKLIST:List<Note.Item> items=new ArrayList<>();for(Note.Item item:block.items){String row=item.id;if(!rows.add(row)){row=UUID.randomUUID().toString();rows.add(row);}items.add(new Note.Item(row,item.text,item.checked,item.depth,item.marks));}blocks.add(DocumentContent.Block.checklist(id,items,block.hideChecked));break;
+                case CHECKLIST:List<Note.Item> items=new ArrayList<>();for(Note.Item item:block.items){String row=item.id;if(!rows.add(row)){row=UUID.randomUUID().toString();rows.add(row);}items.add(new Note.Item(row,item.text,item.checked,item.depth,item.marks));}blocks.add(DocumentContent.Block.checklist(id,block.name,items,block.hideChecked));break;
                 case IMAGE:case DRAWING:NoteImage image=block.image;if(!images.add(image.id)){image=new NoteImage(UUID.randomUUID().toString(),image.name,image.mime,image.width,image.height,image.data);images.add(image.id);}blocks.add(DocumentContent.Block.visual(id,block.name,block.kind,image));break;
                 case DIAGRAM:blocks.add(DocumentContent.Block.diagram(id,block.name,block.diagram));break;
                 case TABLE:blocks.add(DocumentContent.Block.table(id,block.name,block.table));break;

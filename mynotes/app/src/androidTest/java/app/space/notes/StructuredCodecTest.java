@@ -109,4 +109,10 @@ public class StructuredCodecTest {
 
     @Test public void canonicalDiagramUnknownFieldsAndFractionalCoordinatesAreNotDiscarded()throws Exception{app.space.notes.domain.Diagram diagram=app.space.notes.domain.Diagram.empty().put(new app.space.notes.domain.Diagram.Node("node","process","Node",0,0,120,80,0));Note note=Note.create(1).withContent(new app.space.notes.domain.DocumentContent(Arrays.asList(app.space.notes.domain.DocumentContent.Block.diagram("diagram","Diagram01",diagram))),2);byte[] bytes=DocumentCodec.encode(Arrays.asList(note));for(int mutation=0;mutation<2;mutation++){JSONObject root=new JSONObject(new String(bytes,StandardCharsets.UTF_8)),node=root.getJSONArray("notes").getJSONObject(0).getJSONObject("content").getJSONArray("blocks").getJSONObject(0).getJSONObject("diagram").getJSONArray("nodes").getJSONObject(0);if(mutation==0)node.put("futureStroke","must not disappear");else node.put("x",0.5);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Unsupported diagram data must leave the source unchanged");}catch(java.io.IOException expected){}}assertTrue(NoteMerge.same(note,DocumentCodec.decode(bytes).get(0)));}
 
+
+    @Test public void namedChecklistRoundTripsLibraryBackupAndMergeWithoutDroppingName()throws Exception{
+        app.space.notes.domain.DocumentContent.Block list=app.space.notes.domain.DocumentContent.Block.checklist("box","Shopping",Arrays.asList(new Note.Item("rich-row","Keep",true,2,Arrays.asList(new Note.Mark("italic",0,4)))),true);
+        Note original=text().withContent(new app.space.notes.domain.DocumentContent(Arrays.asList(list)),5);
+        Note stored=DocumentCodec.decode(DocumentCodec.encode(Arrays.asList(original))).get(0),backup=BackupCodec.decode(BackupCodec.encode(Arrays.asList(original))).get(0);assertTrue(NoteMerge.same(original,stored));assertTrue(NoteMerge.same(original,backup));assertEquals("Shopping",stored.content.block("box").name);assertEquals("italic",stored.content.block("box").items.get(0).marks.get(0).type);
+    }
 }

@@ -68,4 +68,29 @@ public class DocumentContentTest {
         assertThrows(UnsupportedOperationException.class,()->list.items.clear());
         assertEquals("intro",content.blocks.get(0).text.text);assertEquals("end",content.blocks.get(3).text.text);
     }
+
+    @Test public void checklistNamesPreserveIdentityPayloadAndFingerprint(){
+        Note.Item row=new Note.Item("row","Checked",true,2,Arrays.asList(new Note.Mark("bold",0,7)));
+        DocumentContent.Block list=DocumentContent.Block.checklist("list",Arrays.asList(row),true).renamed("Shopping");
+        assertEquals("Shopping",list.name);assertSame(row,list.items.get(0));assertTrue(list.hideChecked);
+        DocumentContent document=new DocumentContent(Arrays.asList(list));assertTrue(document.plainText().contains("Shopping"));assertEquals("Checklist01",document.nextVisualName(DocumentContent.Kind.CHECKLIST));
+        assertNotEquals(document.fingerprint(),document.replace("list",list.renamed("Work")).fingerprint());
+        assertThrows(IllegalArgumentException.class,()->list.renamed(" "));assertThrows(IllegalArgumentException.class,()->list.renamed(String.join("",Collections.nCopies(201,"x"))));
+    }
+    @Test public void checklistMoveInsideRichTextPreservesSlicesAndSource(){
+        DocumentContent.Block list=DocumentContent.Block.checklist("list","Plan",Arrays.asList(new Note.Item("row","Keep",true,1)),false);
+        DocumentContent.Block writing=DocumentContent.Block.text("text",new RichText("One\nTwo\nThree",Arrays.asList(new Note.Mark("italic",0,13))));
+        DocumentContent original=new DocumentContent(Arrays.asList(list,writing),true),moved=original.moveChecklistIntoText("list","text",4);
+        assertEquals(3,moved.blocks.size());assertEquals("One\n",moved.blocks.get(0).text.text);assertSame(list,moved.blocks.get(1));assertEquals("Two\nThree",moved.blocks.get(2).text.text);assertEquals(4,moved.blocks.get(0).text.marks.get(0).end);assertEquals(9,moved.blocks.get(2).text.marks.get(0).end);assertTrue(moved.writingLines);assertSame(list,original.blocks.get(0));
+    }
+    @Test public void checklistMoveAtEdgesDoesNotCreateEmptyTextOrDuplicateRows(){
+        DocumentContent.Block list=DocumentContent.Block.checklist("list","Todo",Arrays.asList(new Note.Item("row","Keep",false,0)),false);
+        DocumentContent original=new DocumentContent(Arrays.asList(text("text","abc"),list));
+        DocumentContent first=original.moveChecklistIntoText("list","text",0);assertEquals(2,first.blocks.size());assertSame(list,first.blocks.get(0));
+        DocumentContent last=first.moveChecklistIntoText("list","text",3);assertEquals(2,last.blocks.size());assertSame(list,last.blocks.get(1));
+    }
+    @Test public void checklistMoveRejectsStaleOffsetsAndSplitSurrogatesAtomically(){
+        DocumentContent.Block list=DocumentContent.Block.checklist("list",Collections.emptyList(),false);DocumentContent original=new DocumentContent(Arrays.asList(list,text("text","😀a")));
+        assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("list","text",1));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("list","text",4));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("missing","text",0));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("text","list",0));assertEquals(2,original.blocks.size());assertSame(list,original.blocks.get(0));
+    }
 }

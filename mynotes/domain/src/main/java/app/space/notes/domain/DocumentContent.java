@@ -30,9 +30,12 @@ public final class DocumentContent {
             return new Block(id,"",Kind.TEXT,text,null,false,null,null,null);
         }
         public static Block checklist(String id,List<Note.Item> items,boolean hideChecked){
+            return checklist(id,"",items,hideChecked);
+        }
+        public static Block checklist(String id,String name,List<Note.Item> items,boolean hideChecked){
             if(items==null)throw new IllegalArgumentException("Missing checklist");
             Set<String> ids=new HashSet<>();for(Note.Item item:items)if(item==null || !ids.add(item.id))throw new IllegalArgumentException("Invalid checklist identities");
-            return new Block(id,"",Kind.CHECKLIST,null,items,hideChecked,null,null,null);
+            return new Block(id,name,Kind.CHECKLIST,null,items,hideChecked,null,null,null);
         }
         public static Block visual(String id,String name,Kind kind,NoteImage image){
             if(image==null || (kind!=Kind.IMAGE && kind!=Kind.DRAWING))throw new IllegalArgumentException("Invalid visual kind");
@@ -48,7 +51,7 @@ public final class DocumentContent {
         }
         public Block renamed(String name){
             if(name==null || name.trim().isEmpty())throw new IllegalArgumentException("Enter a content name");
-            if(kind==Kind.TEXT || kind==Kind.CHECKLIST)throw new IllegalArgumentException("Text sections do not have visual names");
+            if(kind==Kind.TEXT)throw new IllegalArgumentException("Text sections do not have visual names");
             return new Block(id,name,kind,text,items,hideChecked,image,diagram,table);
         }
     }
@@ -102,9 +105,20 @@ public final class DocumentContent {
         int from=index(id),to=edge>from?edge-1:edge;if(from==to)return this;
         List<Block> next=new ArrayList<>(blocks);Block block=next.remove(from);next.add(to,block);return new DocumentContent(next,writingLines);
     }
+    /** Move one checklist into a precise UTF-16 text position, preserving rows, names and rich slices.
+     * The source is removed before splitting; validation is immutable and failures leave both intact. */
+    public DocumentContent moveChecklistIntoText(String checklistId,String textId,int offset){
+        Block list=block(checklistId),target=block(textId);
+        if(list.kind!=Kind.CHECKLIST || target.text==null)throw new IllegalArgumentException("Choose a checklist and a writing position");
+        target.text.slice(0,offset);target.text.slice(offset,target.text.text.length());
+        DocumentContent without=remove(checklistId);
+        if(offset==0)return without.insert(without.index(textId),list);
+        if(offset==target.text.text.length())return without.insert(without.index(textId)+1,list);
+        return without.insertAtText(textId,offset,list);
+    }
     public String nextVisualName(Kind kind){
         String prefix;
-        switch(kind){case IMAGE:prefix="Image";break;case DRAWING:prefix="Drawing";break;case DIAGRAM:prefix="Diagram";break;case TABLE:prefix="Table";break;default:throw new IllegalArgumentException("Not a named visual");}
+        switch(kind){case IMAGE:prefix="Image";break;case DRAWING:prefix="Drawing";break;case DIAGRAM:prefix="Diagram";break;case TABLE:prefix="Table";break;case CHECKLIST:prefix="Checklist";break;default:throw new IllegalArgumentException("Not a named visual");}
         Set<String> names=new HashSet<>();for(Block block:blocks)if(block.kind==kind)names.add(block.name);
         for(int i=1;i<=MAX_BLOCKS+1;i++){String candidate=prefix+String.format(Locale.ROOT,"%02d",i);if(!names.contains(candidate))return candidate;}
         throw new IllegalStateException("No visual name available");
@@ -116,7 +130,7 @@ public final class DocumentContent {
         List<Note.Item> rows=new ArrayList<>();int at=0;
         for(String line:selected.text.split("\n",-1)){RichText row=selected.slice(at,at+line.length());rows.add(new Note.Item(UUID.randomUUID().toString(),row.text,false,0,row.marks));at+=line.length()+1;}
         List<Block> next=new ArrayList<>(blocks);int position=index(id);next.remove(position);
-        next.add(position,Block.text(source.id,slices.get(0)));next.add(position+1,Block.checklist(UUID.randomUUID().toString(),rows,false));next.add(position+2,Block.text(UUID.randomUUID().toString(),slices.get(2)));
+        next.add(position,Block.text(source.id,slices.get(0)));next.add(position+1,Block.checklist(UUID.randomUUID().toString(),nextVisualName(Kind.CHECKLIST),rows,false));next.add(position+2,Block.text(UUID.randomUUID().toString(),slices.get(2)));
         return new DocumentContent(next,writingLines);
     }
     public DocumentContent withWritingLines(boolean enabled){return enabled==writingLines?this:new DocumentContent(blocks,enabled);}
@@ -141,7 +155,7 @@ public final class DocumentContent {
     public String plainText(){
         List<String> pieces=new ArrayList<>();for(Block block:blocks){
             if(block.text!=null)pieces.add(block.text.plainText());
-            else if(block.kind==Kind.CHECKLIST){StringBuilder rows=new StringBuilder();for(Note.Item item:block.items){if(rows.length()>0)rows.append('\n');for(int i=0;i<item.depth;i++)rows.append("  ");rows.append(item.checked?"[x] ":"[ ] ").append(RichText.plainText(item.text,item.marks));}pieces.add(rows.toString());}
+            else if(block.kind==Kind.CHECKLIST){StringBuilder rows=new StringBuilder();for(Note.Item item:block.items){if(rows.length()>0)rows.append('\n');for(int i=0;i<item.depth;i++)rows.append("  ");rows.append(item.checked?"[x] ":"[ ] ").append(RichText.plainText(item.text,item.marks));}pieces.add((block.name.isEmpty()?"":block.name+"\n")+rows.toString());}
             else if(block.diagram!=null)pieces.add(block.name+"\n"+block.diagram.plainText());
             else if(block.table!=null){List<String> rows=new ArrayList<>();for(List<RichText> row:block.table.cells){List<String> cells=new ArrayList<>();for(RichText cell:row)cells.add(cell.plainText());rows.add(String.join("\t",cells));}pieces.add(block.name+"\n"+String.join("\n",rows));}
             else pieces.add(block.name);

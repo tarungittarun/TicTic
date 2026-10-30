@@ -40,7 +40,7 @@ final class ContentCodec {
                 case CHECKLIST:
                     keys(in,"id","kind","name","rows","hideChecked");JSONArray rs=in.getJSONArray("rows");if(rs.length()>DocumentContent.MAX_EDITABLE_FIELDS)throw new IOException("Too many checklist rows");List<Note.Item> items=new ArrayList<>();
                     for(int j=0;j<rs.length();j++){JSONObject row=rs.getJSONObject(j);keys(row,"id","text","checked","depth","marks");items.add(new Note.Item(string(row,"id"),string(row,"text"),bool(row,"checked"),integer(row,"depth"),marks(row.getJSONArray("marks"))));}
-                    if(!name.isEmpty())throw new IOException("Unexpected checklist section name");blocks.add(DocumentContent.Block.checklist(id,items,bool(in,"hideChecked")));break;
+                    blocks.add(DocumentContent.Block.checklist(id,name,items,bool(in,"hideChecked")));break;
                 case IMAGE:case DRAWING:
                     keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");keys(image,"id","name","mime","width","height","data");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(string(image,"id"),string(image,"name"),string(image,"mime"),integer(image,"width"),integer(image,"height"),string(image,"data"))));break;
                 case DIAGRAM:keys(in,"id","kind","name","diagram");diagram(in.getJSONObject("diagram"));blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;

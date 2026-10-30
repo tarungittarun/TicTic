@@ -48,6 +48,7 @@ public final class PdfExporter {
             switch(block.kind){
                 case TEXT:flow.text(block.text);break;
                 case CHECKLIST:
+                    if(!block.name.isEmpty())flow.text(new app.space.notes.domain.RichText(block.name,java.util.Collections.emptyList()));
                     for(Note.Item item:block.items){if(block.hideChecked && item.checked)continue;String prefix=String.join("",java.util.Collections.nCopies(item.depth,"  "))+(item.checked?"[x] ":"[ ] ");java.util.List<Note.Mark> marks=new java.util.ArrayList<>();for(Note.Mark mark:item.marks)marks.add(new Note.Mark(mark.type,mark.start+prefix.length(),mark.end+prefix.length(),mark.value));flow.text(new app.space.notes.domain.RichText(prefix+item.text,marks));}break;
                 case IMAGE:case DRAWING:flow.text(new app.space.notes.domain.RichText(block.name,java.util.Collections.emptyList()));flow.image(block.image);break;
                 case DIAGRAM:flow.text(new app.space.notes.domain.RichText(block.name,java.util.Collections.emptyList()));flow.diagram(block.diagram);break;

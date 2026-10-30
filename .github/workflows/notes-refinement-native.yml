@@ -1,6 +1,6 @@
 # New approval: up to35 additional individual jobs for style presets/typing and PDF links/guides.
 # Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
-# Search/folders/history reservation3: four jobs, updated folder-navigation readiness; cumulative19/35,16 unreserved.
+# Writing stage reservation1: four jobs for scoped Aa/named-checklist UI; cumulative23/35,12 unreserved.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -41,14 +41,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.17.0-20-development.apk
-          sha256sum MyNotes-v0.17.0-20-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.17.0-20-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.18.0-21-development.apk
+          sha256sum MyNotes-v0.18.0-21-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.18.0-21-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.17.0-20-development.apk
+          path: MyNotes-v0.18.0-21-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

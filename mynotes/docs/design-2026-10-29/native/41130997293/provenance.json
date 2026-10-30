@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "source_sha": "eccac1c2d025a2699934fd21450b40e5e1871082",
+  "capture_run": "41130997293",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 121,
+      "passed": 120,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: Control did not settle unclipped: Back shown=false target=Button[top=0 h=144 measured=144 scroll=0 visibility=0]LinearLayout[top=0 h=144 measured=144 scroll=0 visibility=8]DocumentEditorView[top=12 h=279 measured=279 scroll=0 visibility=0]LinearLayout[top=0 h=303 measured=303 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=303 measured=303 scroll=0 visibility=0]FrameLayout[top=72 h=303 measured=303 scroll=0 visibility=0] root_height=303 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 375)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:180)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:409)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 37 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 121,
+      "passed": 121,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 252,
+      "passed": 252,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

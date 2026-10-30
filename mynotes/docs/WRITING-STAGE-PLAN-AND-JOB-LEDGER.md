@@ -47,3 +47,13 @@ Build124194830465 PASS/JVM221/lint/stable signing. API26/124196005693 **244/244*
 ## Reservation3 — BEFORE launch
 
 Four jobs: shared build, full API26, dark2×API34 and landscapeAPI34. **31/35 cumulative reserved,4 unreserved**;12 jobs for this stage. Adapt drag edge zones to at most one fifth of the actual viewport while retaining48dp upper bound. The native journey uses matching viewport-relative safe zones, remeasures the intended line after screenshot settling, and asserts the actual marker offset equals6 immediately before dropping. Original strict text-slice/row-preservation/Undo assertions remain; do not merely accept whichever line was hit. No table or visual editor redesign. Exact inventories remain221 JVM/244 full/114 focused.
+
+## Reservation3 outcome — source65062be3/run41096558875
+
+All four jobs PASS: build124203716427/JVM221/lint/stable signing; full API26/124205111364 **244/244**; dark2×/124205111381 **114/114**; landscape/124205111405 **114/114**. Independent PDF gates PASS on all profiles. Adaptive short-viewport edge scrolling and the exact pre-drop marker assertion qualify together. No assertions waived.
+
+Screenshot review of Aa at2× revealed an avoidable word break in Underline and insufficient horizontal room for the size prompt plus both steppers. This stage is about usability, so passing automation alone is not the final acceptance.
+
+## Reservation4 — BEFORE launch; final allowance reservation
+
+Four jobs: shared build/full API26/dark2×API34/landscapeAPI34. **35/35 cumulative reserved,0 unreserved**;16 jobs for this stage. No further run is authorised under this allowance. Aa uses two columns for inline styles at fontScale≥1.5, a full-width Normal paragraph followed by two heading choices, and a separate equally sized minus/plus row. Shorter scope explanation, familiar font labels and styled button labels improve readability without changing the formatting engine. Add native size-increase/new-typing assertion to the existing Aa journey. Inventories stay221 JVM/244 full/114 focused. All other production changes are identical to the passing65062be3 candidate. No speculative wider redesign.

@@ -52,6 +52,7 @@ final class NotesIcon extends Drawable {
  case "menu":for(int y=6;y<=18;y+=6)lines(c,4,y,20,y);break;
  case "add":lines(c,12,5,12,19);lines(c,5,12,19,12);break;
  case "checklist":for(int y=6;y<=18;y+=6){lines(c,3,y,5,y+2,8,y-2);lines(c,11,y,21,y);}break;
+ case "search":c.drawCircle(10,10,6,p);lines(c,14.5f,14.5f,21,21);break;
  case "filter":lines(c,4,6,20,6);lines(c,7,12,17,12);lines(c,10,18,14,18);break;
  case "back":lines(c,13,5,6,12,13,19);lines(c,6,12,21,12);break;
  case "redo":c.save();c.translate(24,0);c.scale(-1,1);lines(c,8,5,3,10,8,15);lines(c,3,10,14,10);c.drawArc(9,10,21,22,270,150,false,p);c.restore();break;

@@ -14,7 +14,7 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
    self.assertNotIn(forbidden,self.history)
  def test_history_application_suppresses_watchers_and_updates_checklist_data(self):
   method=self.controller.split('private boolean stepTextHistory(',1)[1].split('private void syncUndoControl()',1)[0]
-  for token in ['binding=true','finally{binding=previous;}','item.change(field.getText().toString(),item.checked,item.depth)','scheduleDraft()','restartInput(field)']:
+  for token in ['binding=true','finally{binding=previous;historyStepping=false;}','item.change(field.getText().toString(),item.checked,item.depth)','dirty=true;persistDraft()','historyFor(before.id).align(before,target,redo)','restartInput(history.field())']:
    self.assertIn(token,method)
  def test_redundant_checklist_commands_are_absent_from_document_and_item_menus(self):
   item=self.controller.split('private void listItemOptions(',1)[1].split('private void listAction(',1)[0]

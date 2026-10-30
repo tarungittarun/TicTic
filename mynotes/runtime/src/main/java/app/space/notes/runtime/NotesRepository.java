@@ -32,6 +32,17 @@ public final class NotesRepository {
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
     public boolean appOnlyStorage(){return selected==null;}
+    public List<String> listFolders(List<Note> notes)throws IOException{
+        if(!appOnlyStorage())return folders().list();
+        File root=new File(context.getFilesDir(),"note-folders");TreeSet<String> names=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        File[] children=root.listFiles();if(children!=null)for(File f:children)if(f.isDirectory() && f.getCanonicalFile().getParentFile().equals(root.getCanonicalFile()))try{names.add(app.space.notes.domain.FolderNames.require(f.getName()));}catch(IllegalArgumentException invalid){}
+        for(Note n:notes)if(!n.folder.isEmpty())names.add(n.folder);return new ArrayList<>(names);
+    }
+    public void createFolder(String name,List<Note> notes)throws IOException{
+        if(!appOnlyStorage()){folders().create(name);return;}
+        String safe=app.space.notes.domain.FolderNames.require(name);List<String> existing=listFolders(notes);for(String f:existing)if(f.equalsIgnoreCase(safe))throw new IOException("That folder already exists");if(existing.size()>=128)throw new IOException("Keep at most 128 private folders");
+        File root=new File(context.getFilesDir(),"note-folders");if(!root.isDirectory() && !root.mkdirs())throw new IOException("Could not create private folders");File folder=new File(root,safe);if(!folder.getCanonicalFile().getParentFile().equals(root.getCanonicalFile()) || !folder.mkdir())throw new IOException("Could not create this folder");
+    }
     public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected));}
     /** Persist deletion intent before removing notes so provider failures can be retried after restart. */
     public void schedulePortableDeletion(Set<String> ids)throws IOException{

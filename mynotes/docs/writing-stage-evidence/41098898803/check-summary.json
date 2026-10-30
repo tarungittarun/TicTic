@@ -1,0 +1,425 @@
+{
+  "schema": 1,
+  "source_sha": "9e7547b3055071fc22eb5e18a693100aa09fc879",
+  "run": "41098898803",
+  "captured_at": "2026-10-30T17:55:17.464953+00:00",
+  "run_status": "completed",
+  "run_conclusion": "failure",
+  "evidence_type": "GitHub job/check annotations and artifact metadata, NOT recovered native result JSON or screenshot archive",
+  "release_approval": false,
+  "jobs": [
+    {
+      "id": 124211784854,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ./.github/actions/setup-mynotes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile debug app/instrumentation and lint without publication",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify exact executed JVM coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Bounded compiler and lint diagnostics in check annotations",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare clearly named installable development APK",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload APK directly without ZIP wrapping (not a public Release)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run ./.github/actions/setup-mynotes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "title": "",
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, gradle/actions/setup-gradle@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+          "annotation_level": "warning",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        }
+      ]
+    },
+    {
+      "id": 124213217684,
+      "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, focused)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Enable KVM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare exact selected execution inventory",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Await peer profile uploads without another runner job",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Preserve source-pinned synthetic fixtures and exact native reports",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Gate and commit only fixture documentation on the session branch",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "pending",
+          "conclusion": null
+        }
+      ],
+      "annotations": [
+        {
+          "title": "Native refinement coverage",
+          "message": "114/114 methods passed, exact inventory",
+          "annotation_level": "notice",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        }
+      ]
+    },
+    {
+      "id": 124213217727,
+      "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, all)",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Enable KVM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare exact selected execution inventory",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Await peer profile uploads without another runner job",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Preserve source-pinned synthetic fixtures and exact native reports",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Gate and commit only fixture documentation on the session branch",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "pending",
+          "conclusion": null
+        }
+      ],
+      "annotations": [
+        {
+          "title": "",
+          "message": "Process completed with exit code 128.",
+          "annotation_level": "failure",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        },
+        {
+          "title": "",
+          "message": "Process completed with exit code 1.",
+          "annotation_level": "failure",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        },
+        {
+          "title": "",
+          "message": "Process completed with exit code 1.",
+          "annotation_level": "failure",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        },
+        {
+          "title": "Native refinement coverage",
+          "message": "244/244 methods passed, exact inventory",
+          "annotation_level": "notice",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        }
+      ]
+    },
+    {
+      "id": 124213217814,
+      "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, focused)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Enable KVM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare exact selected execution inventory",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Await peer profile uploads without another runner job",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/download-artifact@v8.0.2",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Preserve source-pinned synthetic fixtures and exact native reports",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Gate and commit only fixture documentation on the session branch",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "pending",
+          "conclusion": null
+        }
+      ],
+      "annotations": [
+        {
+          "title": "Native refinement coverage",
+          "message": "114/114 methods passed, exact inventory",
+          "annotation_level": "notice",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/9e7547b3055071fc22eb5e18a693100aa09fc879/.github"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12999061304,
+      "name": "refinement-native-landscape-api34",
+      "size_in_bytes": 1031336,
+      "digest": "sha256:c3e30f084ef657cc172d126ccc6d655e848fe8e2025d5e0d9e43783feeb53822",
+      "created_at": "2026-10-30T17:40:44Z",
+      "expires_at": "2026-11-06T17:40:42Z",
+      "expired": false
+    },
+    {
+      "id": 12998745090,
+      "name": "refinement-foundation-lint",
+      "size_in_bytes": 17852,
+      "digest": "sha256:fa2dc39c60c3ab118a70caf33765bb8459d5f000479c825d74a35568d96b77b2",
+      "created_at": "2026-10-30T17:29:02Z",
+      "expires_at": "2026-11-06T17:29:01Z",
+      "expired": false
+    },
+    {
+      "id": 12997657741,
+      "name": "refinement-native-min-api26",
+      "size_in_bytes": 3112299,
+      "digest": "sha256:2583ce600f1bcb44153ca63dc7f7a13beab34d688cf3c9af890dd5b793070f67",
+      "created_at": "2026-10-30T17:37:58Z",
+      "expires_at": "2026-11-06T17:37:57Z",
+      "expired": false
+    },
+    {
+      "id": 12997637903,
+      "name": "refinement-native-large-font-api34",
+      "size_in_bytes": 3651599,
+      "digest": "sha256:a5a0030aab8eac1cdff0a18edf0f6e42d9165622a2be8c76cc351e7904b1aa2b",
+      "created_at": "2026-10-30T17:39:37Z",
+      "expires_at": "2026-11-06T17:39:36Z",
+      "expired": false
+    },
+    {
+      "id": 12997023408,
+      "name": "refinement-foundation-test-apks",
+      "size_in_bytes": 69700768,
+      "digest": "sha256:81724fc6d67f2353b80150d9fd02f008a7090913855b3e63102d75ffafc33212",
+      "created_at": "2026-10-30T17:28:58Z",
+      "expires_at": "2026-10-31T17:28:54Z",
+      "expired": false
+    },
+    {
+      "id": 12996819517,
+      "name": "MyNotes-v0.18.0-21-development.apk",
+      "size_in_bytes": 66682092,
+      "digest": "sha256:821da2ae1b00470e6c32da0faae978bfbde98b13ac3ba27b34a5d423dee34a6f",
+      "created_at": "2026-10-30T17:29:01Z",
+      "expires_at": "2026-11-06T17:28:59Z",
+      "expired": false
+    }
+  ]
+}

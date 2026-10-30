@@ -71,7 +71,7 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   self.assertIn('((WritingField)body).ruling(n.background==3',self.controller)
   self.assertIn('getLineBounds(line,bounds)',self.controller)
   self.assertIn('textRuling', (JAVA/'NoteBackground.java').read_text())
-  self.assertIn('if(repository.appOnlyStorage())',self.controller)
+  self.assertIn('repository.listFolders(folderSnapshot)',self.controller)
 
 class JavaJourneySignatureContracts(unittest.TestCase):
  def test_core_helpers_do_not_have_duplicate_top_level_signatures(self):

@@ -1,6 +1,6 @@
 # New approval: up to35 additional individual jobs for style presets/typing and PDF links/guides.
 # Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
-# New request: search/folders/restart history. Reserve2 jobs from remaining26; cumulative11/35,24 unreserved.
+# Search/folders/history reservation2: four jobs; cumulative15/35,20 unreserved.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -75,6 +75,8 @@ jobs:
       matrix:
         include:
           - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
+          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
+          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -159,11 +161,26 @@ jobs:
             refinement-pdf-*
           retention-days: 7
           if-no-files-found: warn
+      - name: Await peer profile uploads without another runner job
+        if: always() && matrix.group == 'all'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYWAIT'
+          import json,os,subprocess,time
+          url='repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/jobs'
+          for attempt in range(80):
+              jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['jobs']
+              peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
+              if len(peers)==2 and all(job['status']=='completed' for job in peers):break
+              time.sleep(15)
+          else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
+          PYWAIT
       - uses: actions/download-artifact@v8.0.2
         if: always() && matrix.group == 'all'
         with:
-          name: refinement-native-min-api26
-          path: fixture-artifacts/refinement-native-min-api26
+          pattern: refinement-native-*
+          path: fixture-artifacts
       - name: Preserve source-pinned synthetic fixtures and exact native reports
         if: always() && matrix.group == 'all'
         run: |

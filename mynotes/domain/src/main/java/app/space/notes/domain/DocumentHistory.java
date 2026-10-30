@@ -24,6 +24,7 @@ public final class DocumentHistory {
         boolean coalesce=field!=null && field.equals(group) && now>=last && now-last<=750 && !undo.isEmpty();
         if(!coalesce)undo.addLast(before);group=field;last=now;redo.clear();trim();prune(before,after);
     }
+    public void invalidateRedo(){redo.clear();}
     public boolean canUndo(){return !undo.isEmpty();}public boolean canRedo(){return !redo.isEmpty();}
     public Note undo(Note current){if(undo.isEmpty())return current;redo.addLast(current);group=null;Note result=undo.removeLast();trim();prune(current,result);return result;}
     public Note redo(Note current){if(redo.isEmpty())return current;undo.addLast(current);group=null;Note result=redo.removeLast();trim();prune(current,result);return result;}

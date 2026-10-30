@@ -58,7 +58,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void openExistingFolder() { chooseTree(95); }
     @Override public void exportDiagnostics(){Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-diagnostics.txt");openPicker(picker,101);}
     @Override public void exportBackup() {
-        Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json");
+        Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         picker.addCategory(Intent.CATEGORY_OPENABLE);
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-backup-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".json");
         openPicker(picker,96);
@@ -80,7 +80,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".pdf");openPicker(picker,98);
     }
     @Override public void importBackup() {
-        Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");
+        Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         picker.addCategory(Intent.CATEGORY_OPENABLE);openPicker(picker,97);
     }
     private void openPicker(Intent picker,int request) {
@@ -88,7 +88,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         catch(android.content.ActivityNotFoundException e) {showMessage("No document picker is installed.");}
     }
     private void chooseTree(int request) {
-        Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
         try { startActivityForResult(picker,request); }

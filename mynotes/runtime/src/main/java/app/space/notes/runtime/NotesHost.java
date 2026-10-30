@@ -7,6 +7,7 @@ public interface NotesHost {
     void openExistingFolder();
     void exportBackup();
     void importBackup();
+    default void chooseNoteDocument(){importBackup();}
     default void chooseNoteImage(String noteId){showMessage("Image import is unavailable in this host.");}
     default void exportPdf(){showMessage("PDF export is not available in this host.");}
     default void chooseOcrImage(String language){showMessage("Image OCR is unavailable in this host.");}

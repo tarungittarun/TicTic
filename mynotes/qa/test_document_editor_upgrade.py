@@ -29,8 +29,31 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   method=self.controller.split('private static final class ChecklistDrag',1)[1].split('private void listItemOptions(',1)[0]
   self.assertIn('event.getLocalState() instanceof ChecklistDrag',method)
   self.assertNotIn('DRAG_FLAG_GLOBAL',method)
+  self.assertIn('application/vnd.mynotes.checklist-item',method)
+  self.assertNotIn('ClipData.newPlainText',method)
   self.assertNotIn('getClipData()',method)
   self.assertIn('noteId.equals(editing)',method)
   self.assertIn('ChecklistOrder.move(note.items,itemId,insertion)',method)
   self.assertIn('if(moved==note.items)return',method)
   self.assertIn('"Position "+(i+1)',method)
+
+ def test_open_with_and_drop_are_local_read_only_reviewed_intake(self):
+  activity=(ROOT/'app/src/main/java/app/space/notes/NotesActivity.java').read_text()
+  for token in ['Intent.ACTION_VIEW','intent.getData()!=null','installDocumentDrop','getItemCount()!=1','LocalBackupFiles.requireLocal(uri)','requestDragAndDropPermissions(event)','permissions::release','Intent.EXTRA_LOCAL_ONLY,true']:
+   self.assertIn(token,activity)
+  grant=self.controller.split('public void openNoteDocument(',1)[1].split('public void importBackup(',1)[0]
+  self.assertIn('busy || prepared!=null',grant)
+  self.assertIn('deferredResults.size()>=8',grant)
+  self.assertIn('finally {main.post(release);}',self.controller)
+  self.assertIn('for(DocumentGrant grant:new ArrayList<>(documentGrants))grant.run()',self.controller)
+ def test_file_location_lookup_never_materializes_or_fabricates_a_file(self):
+  files=(JAVA/'LocalNotebookFolders.java').read_text()
+  method=files.split('public String location(',1)[1].split('/** Call only after journalling',1)[0]
+  for forbidden in ['createDocument(','renameDocument(','deleteDocument(','timestampName(']:
+   self.assertNotIn(forbidden,method)
+  self.assertIn('No verified individual note file found',method)
+  self.assertIn('not a filesystem path',method)
+  repository=(JAVA/'NotesRepository.java').read_text()
+  method=repository.split('public String documentLocation(',1)[1].split('private boolean exists()',1)[0]
+  self.assertIn('not an individual note file',method)
+  self.assertNotIn('Diagnostics.',method)

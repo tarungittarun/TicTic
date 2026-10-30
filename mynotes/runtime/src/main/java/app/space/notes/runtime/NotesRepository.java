@@ -44,6 +44,13 @@ public final class NotesRepository {
         try {return status+" · "+android.provider.DocumentsContract.getTreeDocumentId(Uri.parse(selected));}
         catch(Exception invalid) {return status;}
     }
+    /** Serial-worker only. Location details are UI content and must never enter diagnostics. */
+    public String documentLocation(Note note)throws Exception{
+        String recovery="Private library file:\n"+file.getBaseFile().getAbsolutePath()+"\n\nThis is a library containing multiple notes, not an individual note file. It is accessible only to MyNotes under normal Android permissions.";
+        if(selected==null)return "Storage: app-only\n\n"+recovery;
+        String folder;try{folder=folders().location(note);}catch(Exception unavailable){folder="Folder copy cannot be verified now. Reconnect the selected storage folder and retry save. Do not clear app data.";}
+        return folder+"\n\nRecovery: "+recovery;
+    }
     private boolean exists() {
         return file.getBaseFile().exists() || new File(file.getBaseFile()+".bak").exists();
     }

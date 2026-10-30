@@ -20,12 +20,22 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(state!=null){ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
         controller=new NotesController(this,this,state);
         setContentView(controller.view());
+        installDocumentDrop();
         if(state==null)acceptIncoming(getIntent());
     }
     @Override public boolean managesAppearance(){return false;}
     @Override public void appearanceChanged(){recreate();}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
-    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
+    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openNoteDocument(intent.getData(),()->{});return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
+    /** External drops are read-only intake. The validated merge always requires confirmation. */
+    private void installDocumentDrop(){controller.view().setOnDragListener((view,event)->{
+        if(event.getLocalState()!=null)return false;android.content.ClipDescription description=event.getClipDescription();if(description==null || !(description.hasMimeType("application/json") || description.hasMimeType("application/octet-stream") || description.hasMimeType("application/vnd.mynotes.document")))return false;
+        if(event.getAction()!=android.view.DragEvent.ACTION_DROP)return true;
+        android.content.ClipData data=event.getClipData();if(data==null || data.getItemCount()!=1 || data.getItemAt(0).getUri()==null){showMessage("Drop one local MyNotes document at a time. Your notes are unchanged.");return true;}
+        Uri uri=data.getItemAt(0).getUri();try{app.space.notes.runtime.LocalBackupFiles.requireLocal(uri);}catch(java.io.IOException invalid){showMessage("Choose a local MyNotes document, not a cloud or web link.");return true;}
+        android.view.DragAndDropPermissions permissions=requestDragAndDropPermissions(event);if(permissions==null){showMessage("The file manager did not grant read access. Use Open note file instead.");return true;}
+        controller.openNoteDocument(uri,permissions::release);return true;
+    });}
     @Override public void requestHomeWidget(){android.appwidget.AppWidgetManager manager=android.appwidget.AppWidgetManager.getInstance(this);if(manager.isRequestPinAppWidgetSupported())manager.requestPinAppWidget(new android.content.ComponentName(this,app.space.notes.runtime.NotesWidget.class),null,null);else NotesHost.super.requestHomeWidget();}
     @Override public void requestReminderPermission(){if(android.os.Build.VERSION.SDK_INT>=33)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},89);else controller.chooseReminder();}
     private void acceptShare(Intent intent){
@@ -53,6 +63,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-backup-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".json");
         openPicker(picker,96);
     }
+    @Override public void chooseNoteDocument(){Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,103);}
     @Override public void chooseNoteImage(String noteId){imageNoteId=noteId;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,102);}
     @Override public void chooseOcrImage(String language){ocrLanguage=language;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,99);}
     @Override public void requestVoiceCapture(){
@@ -82,12 +93,13 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>102)return;
+        if(request<94 || request>103)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }
         app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
+        if(request==103){controller.openNoteDocument(uri,()->{});return;}
         if(request==102){if(imageNoteId!=null)controller.attachImage(imageNoteId,uri);return;}
         if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
         if(request==99){controller.recognizeImage(uri,ocrLanguage);return;}

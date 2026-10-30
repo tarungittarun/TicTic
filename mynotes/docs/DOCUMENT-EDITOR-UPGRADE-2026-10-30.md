@@ -49,3 +49,16 @@ Stored schema remains 6, with **no migration or rewrite introduced** in this bat
 Reserve **5 of 17** jobs for attempt 1: build/JVM/lint/signing, full API26, dark/2.0-font API34, landscape API34, evidence. Up to 12 remain after that attempt. Existing code16 APK remains the last delivered artifact until an actual replacement is shared.
 
 Local checks and native tests are separate; drag behavior, IME composition, styles, selection and persistence still need execution. No new permission, cloud engine or raw diagnostic attachment is included.
+
+## Attempt 1 — run 41005605946
+
+**5 jobs used, 12 available before the next reservation.** Source `1723f0b`: Android build/JVM/lint/signing passed. API26 191/192; landscape and dark/2.0-font each 68/69. Typing/body-formatting/checklist history tests passed. The sole failing case incorrectly searched the entire view tree for absence of Hide checked, finding the intentionally separate hidden Checklist options panel. Scope the assertion to the shown Note actions panel; do not suppress any missing action or reorder failure.
+
+## Second source batch / attempt 2 reservation
+
+- Add a dedicated Open note file picker, compatible content-URI Open with handler, and single-file external drop intake. Local provider allowlist, bounded decode and existing non-destructive review/merge/checkpoint behavior are reused. Source files are not edited in place. Temporary drag grants release after reading or on close; repeated releases are idempotent; concurrent preview/queue overflow is rejected safely.
+- Add read-only File location in the document menu. Distinguish the private multi-note library from a verified provider document, show stale/missing copy state honestly, and never create a file merely to display its location. No location data enters diagnostics.
+- Explain Open note file versus Open library versus Choose folder in storage settings. Further visual simplification remains pending.
+- Use a private checklist drag MIME type rather than text/plain, preventing native EditText from treating an internal row move as text insertion. Keep local-only state and no global drag flags. Add a real input-dispatched drag regression, separate from accessible position reordering.
+
+Reserve **5 more jobs**, maximum cumulative **10/17**, leaving **7**. Code17 is not shared until qualification results and its partial scope are recorded. The major mixed-document, tables, hyperlinks, names, lines, fonts and numbering work remains pending; no unsafe schema migration is introduced to imply progress.

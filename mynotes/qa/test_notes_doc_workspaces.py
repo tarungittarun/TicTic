@@ -18,3 +18,9 @@ class NotesDocWorkspaces(unittest.TestCase):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   for token in ['new DiagramPreview','"Cell actions"','"Move content"','moveIntoText','"Header row · On"']:
    self.assertIn(token,editor)
+
+ def test_doc_tools_are_adaptive_not_horizontally_hidden(self):
+  editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
+  self.assertNotIn('horizontally(this',editor)
+  for token in ['compactButton','if(large && i==3)','Continue writing…','Move · choose destination','BlockBoundaryLine','Text to display','Remove link']:
+   self.assertIn(token,editor)

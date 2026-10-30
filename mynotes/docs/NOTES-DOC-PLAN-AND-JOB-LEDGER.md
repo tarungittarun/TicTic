@@ -35,9 +35,10 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 
 | Reservation | Jobs | Cumulative reserved | Run/source | Outcome |
 |---|---:|---:|---|---|
-| 1: initial Notes/Doc qualification | 4 | 4/24 | pending launch | pending |
+| 1: initial Notes/Doc qualification | 4 | 4/24 | 41118729220 / 953daf0f | build PASS; dark115/116 and landscape95/116 FAIL (home viewport); API26 reporting pending at next checkpoint |
+| 2: complete Doc usability + home viewport repairs | 4 | 8/24 | pending launch | pending |
 
-20 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
+16 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
 Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
@@ -55,3 +56,25 @@ results must not be claimed from source contracts alone.
 - Regression inventory for earlier Notes data/storage/security/capture/history workflows.
 - Preserve source-pinned screenshots/reports; inspect visuals and independent PDF checks.
 - Deliver raw development APK with exact source/hash and honest completed/pending status.
+
+## Checkpoint 2 implementation and evidence
+
+- Complete adaptive Doc tools: no sideways toolbar; compact top save/history/overflow,
+  two-row large-text tools, compact overflow fallback, document-wide writing lines.
+- Writing continuation reuses an existing following field; insertion with no anchor asks
+  the user to choose a location instead of silently appending.
+- Caret link insertion is one immutable history transaction, with display text and safe URL;
+  existing links expose Open/Edit/Remove without deleting words or other styling.
+- Whole-object and row destination choices supplement drag; object boundaries have preview
+  lines. Object previews open contextual Edit/Rename/Move controls; redundant Edit rows are
+  removed. Image ratios are bounded, check visibility moves into checklist context.
+- Home content/empty state shares one bounded weighted viewport, so tabs cannot push the
+  dock outside landscape. Tabs hide during search IME to retain the earlier search space.
+- Initial failing exact annotations retained in notes-doc-evidence/41118729220. No failures
+  waived: dark search-title and landscape home-control clipping are the defects repaired.
+- Manual cancel was denied with integration permission403. Reservation1 remains counted;
+  the next deliberate workflow checkpoint may supersede it via existing concurrency.
+- Peer reporting now observes source check-runs rather than stale jobs statuses; bounded
+  GitHub lookup/pull retries retain genuine failure exit codes. No test inventories reduced.
+- Current local root566/Notes176 PASS; all Java files parsed with tree-sitter (syntax only).
+  Authored next inventory:232 JVM,249 full native; Android execution still pending.

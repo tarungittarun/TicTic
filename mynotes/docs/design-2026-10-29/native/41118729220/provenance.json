@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_sha": "953daf0fade21683db800e5b67961710f13218bf",
+  "capture_run": "41118729220",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "large-font-api34": {
+      "ok": false,
+      "expected": 116,
+      "passed": 115,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard: status -2 java.lang.AssertionError: The result title must fit above the keyboard\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.lambda$nativeSearchRetainsReadableResultsAboveTheKeyboard$107$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:242)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda346.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

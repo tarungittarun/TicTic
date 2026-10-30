@@ -21,7 +21,7 @@ final class DocumentEditorView extends LinearLayout {
     private final Map<String,EditText> fields=new LinkedHashMap<>();
     private EditText selected;private String selectedBlock,selectedRow,focusAfterRender;
     private final TextView saveStatus;TextView saveStatus(){return saveStatus;}
-    private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight;
+    private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight,lastViewportHeight;
     private int dragDirection;
     private final Runnable dragTick=new Runnable(){public void run(){if(dragDirection!=0 && scroll!=null && isAttachedToWindow()){scroll.scrollBy(0,dragDirection*dp(16));postDelayed(this,50);}}};
     private void stopDragScroll(){dragDirection=0;removeCallbacks(dragTick);}
@@ -114,12 +114,14 @@ final class DocumentEditorView extends LinearLayout {
     private String label(DocumentContent.Block block){if(!block.name.isEmpty())return block.name;String kind=block.kind.name().toLowerCase(java.util.Locale.ROOT);return Character.toUpperCase(kind.charAt(0))+kind.substring(1);}
     private void adaptViewport(){
         if(getHeight()<=0 || topControls==null || documentControls==null)return;
+        boolean shrank=lastViewportHeight>0 && getHeight()<lastViewportHeight;lastViewportHeight=getHeight();
         topHeight=Math.max(topHeight,topControls.getMeasuredHeight());documentHeight=Math.max(documentHeight,documentControls.getMeasuredHeight());statusHeight=Math.max(statusHeight,saveStatus.getMeasuredHeight());
         int format=formatControls==null?0:formatControls.getMeasuredHeight(),line=selected==null?dp(24):selected.getLineHeight();boolean compact=getHeight()<dp(240) || getHeight()-topHeight-documentHeight-statusHeight-format<Math.max(dp(80),line*2);
+        if(shrank && compact && selected!=null){final EditText remembered=selected;postOnAnimation(()->{if(isAttachedToWindow() && selected==remembered && findFocus()==null && hasWindowFocus() && getHeight()<dp(240) && remembered.isShown() && remembered.isEnabled())remembered.requestFocus();});}
         int visibility=compact?GONE:VISIBLE;boolean changed=topControls.getVisibility()!=visibility || documentControls.getVisibility()!=visibility;
         topControls.setVisibility(visibility);documentControls.setVisibility(visibility);if(!saveStatus.getText().toString().contains("retry"))saveStatus.setVisibility(visibility);
         EditText title=fields.get("title");if(title!=null){int show=compact && !title.hasFocus()?GONE:VISIBLE;changed|=title.getVisibility()!=show;title.setVisibility(show);}
-        if(changed)requestLayout();if(selected!=null && selected.hasFocus())selected.post(()->{if(selected!=null && selected.isAttachedToWindow()){android.graphics.Rect caret=new android.graphics.Rect();selected.getFocusedRect(caret);selected.requestRectangleOnScreen(caret,true);}});
+        if(changed)requestLayout();if(selected!=null)selected.post(()->{EditText field=selected;if(field==null || !field.isAttachedToWindow() || field.getLayout()==null || scroll.getHeight()<=0)return;android.text.Layout layout=field.getLayout();int line=layout.getLineForOffset(Math.max(0,Math.min(field.length(),field.getSelectionEnd()))),top=field.getCompoundPaddingTop()+layout.getLineTop(line)-field.getScrollY();View current=field;while(current!=scroll && current.getParent() instanceof View){top+=current.getTop();current=(View)current.getParent();if(current!=scroll)top-=current.getScrollY();}if(current!=scroll)return;int bottom=top+layout.getLineBottom(line)-layout.getLineTop(line),at=scroll.getScrollY(),height=scroll.getHeight()-scroll.getPaddingBottom();if(top<at)at=top;else if(bottom>at+height)at=bottom-height;scroll.scrollTo(0,Math.max(0,at));});
     }
     private void renderBlock(LinearLayout parent,DocumentContent.Block block){
         LinearLayout card=new LinearLayout(getContext());card.setOrientation(VERTICAL);card.setPadding(0,dp(4),0,dp(8));parent.addView(card,new LayoutParams(-1,-2));

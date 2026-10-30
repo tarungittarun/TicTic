@@ -71,6 +71,10 @@ public final class NotesController {
         @Override public boolean onDragEvent(android.view.DragEvent event){if(event.getLocalState() instanceof ChecklistDrag)return false;if(DocumentEditorView.internalDrag(event))return false;if(event.getAction()==android.view.DragEvent.ACTION_DROP && event.getLocalState()==null && event.getClipData()!=null){for(int i=0;i<event.getClipData().getItemCount();i++){android.content.ClipData.Item item=event.getClipData().getItemAt(i);if(item.getUri()!=null || item.getIntent()!=null){android.widget.Toast.makeText(getContext(),"Use Open note file for compatible local documents. Only plain text can be dropped into writing fields.",android.widget.Toast.LENGTH_LONG).show();return false;}}}return super.onDragEvent(event);}
         @Override public boolean onTextContextMenuItem(int id){if(id==android.R.id.undo && undoText!=null)return undoText.getAsBoolean();if(id==android.R.id.redo && redoText!=null)return redoText.getAsBoolean();return super.onTextContextMenuItem(id);}
         WritingField(Context c){super(c);setSelectAllOnFocus(false);}
+        // Lazy native selection-controller creation may normalize the first reverse range.
+        // Retry only the exact application-requested range, once; native touch handles stay native.
+        @Override public void setSelection(int start,int end){super.setSelection(start,end);if(start>end && (getSelectionStart()!=start || getSelectionEnd()!=end))super.setSelection(start,end);}
+
         @Override public boolean onTouchEvent(android.view.MotionEvent event){
             // Keep selection-handle drags in the native editor, not its enclosing ScrollView.
             if(getParent()!=null){if(event.getActionMasked()==android.view.MotionEvent.ACTION_DOWN || (event.getActionMasked()==android.view.MotionEvent.ACTION_MOVE && hasSelection()))getParent().requestDisallowInterceptTouchEvent(true);else if(event.getActionMasked()==android.view.MotionEvent.ACTION_MOVE || event.getActionMasked()==android.view.MotionEvent.ACTION_UP || event.getActionMasked()==android.view.MotionEvent.ACTION_CANCEL)getParent().requestDisallowInterceptTouchEvent(false);}

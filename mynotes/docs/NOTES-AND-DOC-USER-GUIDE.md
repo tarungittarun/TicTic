@@ -17,7 +17,7 @@ marked **Doc**. Search on the Notes/Doc home screen searches the current workspa
 ## Keep a note and make a rich copy
 
 Open a simple note → **More actions → Copy to Doc → Create Doc copy**.
-The original stays in Notes with its original identity/content. The separate Doc copy
+The original stays in its current location with its original identity/content. The separate Doc copy
 can be edited independently. This is not a destructive upgrade or a conversion of all notes.
 Backups retains the verified first document-editor recovery checkpoint; it is not a new
 per-copy version archive. Export your own backup before major edits or installing updates.
@@ -79,6 +79,10 @@ Do not uninstall/clear app data to install a development update. Do not downgrad
 saving newer rich data: older APKs reject metadata they cannot preserve. Keep an exported
 backup outside the app. Processing and existing permission/diagnostics boundaries remain
 local/opt-in; no cloud service has been added for this separation.
+
+Local backups omit original recordings, private empty folders, edit history and saved style
+presets. Keep separate copies of important original recordings. Doc is a workspace name,
+not a promise of Word/.docx import.
 
 This guide describes the implementation under qualification, not proof of usability.
 See `NOTES-DOC-PLAN-AND-JOB-LEDGER.md` for exact source/run results and remaining checks.

@@ -344,10 +344,10 @@ public final class NotesController {
     private void upgradeDocumentEditor(){
         persistDraft();Note source=find(editing);if(source==null || source.deletedAt>0 || busy)return;
         if(source.content!=null){renderEditor();return;}
-        confirmSheet("Copy this note to Doc?","The original note stays in Notes, unchanged. A separate editable Doc copy keeps its text, formatting, checklist states and visuals. A verified recovery snapshot is retained in Backups.","Create Doc copy",()->{
+        confirmSheet("Copy this note to Doc?","The original note stays in its current location, unchanged. A separate editable Doc copy keeps its text, formatting, checklist states and visuals. A verified recovery snapshot is retained in Backups.","Create Doc copy",()->{
             persistDraft();final Note before=find(editing);if(before==null || busy)return;final List<Note> base=new ArrayList<>(notes),candidate=new ArrayList<>(notes);
             final Note upgraded=app.space.notes.domain.Workspace.copyToDocument(before,System.currentTimeMillis());candidate.add(upgraded);busy=true;clearPage();title=null;body=null;root.addView(text("Verifying document and keeping the original recovery snapshot…",17));
-            disk.execute(()->{try{boolean complete=repository.upgradeDocument(base,candidate);main.post(()->{busy=false;notes.clear();notes.addAll(candidate);if(closed)return;editing=upgraded.id;documentsWorkspace=true;canonicalState.clear();renderEditor();host.showMessage(complete?"Doc copy created. Your original stays in Notes.":"Doc retained privately; folder update is pending. Use Retry save.");});}catch(Exception failure){Diagnostics.failure("document-upgrade.failure",failure);main.post(()->{busy=false;if(!closed){renderEditor();host.showMessage("Document was not upgraded: "+failure.getMessage());}});}});
+            disk.execute(()->{try{boolean complete=repository.upgradeDocument(base,candidate);main.post(()->{busy=false;notes.clear();notes.addAll(candidate);if(closed)return;editing=upgraded.id;documentsWorkspace=true;canonicalState.clear();renderEditor();host.showMessage(complete?"Doc copy created. Your original is unchanged.":"Doc retained privately; folder update is pending. Use Retry save.");});}catch(Exception failure){Diagnostics.failure("document-upgrade.failure",failure);main.post(()->{busy=false;if(!closed){renderEditor();host.showMessage("Doc copy was not created; original retained: "+failure.getMessage());}});}});
         });
     }
     private void renderCanonicalEditor(Note note){

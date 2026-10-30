@@ -37,9 +37,10 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 |---|---:|---:|---|---|
 | 1: initial Notes/Doc qualification | 4 | 4/24 | 41118729220 / 953daf0f | build PASS; dark115/116 and landscape95/116 FAIL (home viewport); API26 reporting pending at next checkpoint |
 | 2: complete Doc usability + home viewport repairs | 4 | 8/24 | 41122179331 / 7e849b9f | build232 PASS; API26 248/249, dark117/118, land116/118; preview-helper discovery failure plus land Doc focus/viewport failure |
-| 3: final flow and native dispatch repairs | 4 | 12/24 | pending launch | pending |
+| 3: final flow and native dispatch repairs | 4 | 12/24 | 41124708672 / 15515e93 | build232 PASS, API26 251/251 PASS, dark120/120 PASS, land119/120 FAIL (actual writing line clipped) |
+| 4: measured IME caret correction | 4 | 16/24 | pending launch | pending |
 
-12 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
+8 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
 Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
@@ -104,3 +105,22 @@ control regressions no longer appear. Its remaining failures are not waived:
 
 Local gates: root568/Notes178 PASS, Java syntax parsed. Authored inventory232 JVM/251 full
 native/120 focused. Builds/native checks for these latest fixes remain pending.
+
+## Checkpoint 4 — measured caret correction, not a relaxed assertion
+
+The new diagnostic established that the writer **was focused**. In the tiny landscape
+IME viewport, ScrollView was123px tall, field144px, scroll69px: only75px of the field
+remained visible versus a77px line. More importantly, Android's late rectangle request
+clipped the top of the actual glyph line. The previous focus-recovery change alone did
+not solve that. No check is waived.
+
+Reapply the exact caret-line reveal after native scroll changes during a bounded1000ms
+IME/focus-settling window. Explicit scroll/touch/drag cancels the window, so normal reading
+is not pulled back to the caret. No timer loop or continuous scrolling watcher is added.
+Native assertion is stronger: the **actual line top and bottom** must both lie inside the
+field's visible rectangle, not merely some field area at least one line high. Controls
+retain48dp targets; no font or touch target was reduced to make the check pass.
+
+Source15515e93 evidence (all three profiles, PDFs, screenshots) is preserved under
+`design-2026-10-29/native/41124708672/`. Checkpoint4 retains the232/251/120 inventory,
+local root568/Notes178 gates, and requires a new exact-source Android qualification.

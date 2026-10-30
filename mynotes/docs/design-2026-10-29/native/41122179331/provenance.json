@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "source_sha": "7e849b9f47ecbc5b07bea1b242baadeb3e847182",
+  "capture_run": "41122179331",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 118,
+      "passed": 116,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides",
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\tat app.space.notes.CoreJourneysTest.canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides(CoreJourneysTest.java:427)\n",
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections: status -2 java.lang.AssertionError: Control not visible: Preview Diagram02 ime=false root_height=936 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:172)\n\tat app.space.notes.CoreJourneysTest.canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections(CoreJourneysTest.java:431)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 37 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 118,
+      "passed": 117,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections: status -2 java.lang.AssertionError: Control not visible: Preview Diagram02 ime=false root_height=1776 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:172)\n\tat app.space.notes.CoreJourneysTest.canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections(CoreJourneysTest.java:431)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 37 more\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 249,
+      "passed": 248,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections: status -2 java.lang.AssertionError: Control not visible: Preview Diagram02 ime=false root_height=1704 window_focus=true formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:172)\n\tat app.space.notes.CoreJourneysTest.canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections(CoreJourneysTest.java:431)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 37 more\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

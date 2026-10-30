@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "source_sha": "15515e934c81be5b133ab500042ee84516300746",
+  "capture_run": "41124708672",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 120,
+      "passed": 119,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides: status -2 java.lang.AssertionError: Doc keyboard viewport: field=WritingField[top=0 h=144 measured=144 scroll=0 visibility=0]LinearLayout[top=0 h=144 measured=144 scroll=0 visibility=0]LinearLayout[top=0 h=192 measured=192 scroll=0 visibility=0]ScrollView[top=0 h=123 measured=123 scroll=69 visibility=0]DocumentEditorView[top=12 h=279 measured=279 scroll=0 visibility=0]LinearLayout[top=0 h=303 measured=303 scroll=0 visibility=0] focused=true visible=Rect(48, 84 - 1872, 159) line=77 owner=app.space.notes.runtime.NotesController$WritingField root=303\n\tat app.space.notes.CoreJourneysTest.canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides(CoreJourneysTest.java:437)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:73)\n\t... 36 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 120,
+      "passed": 120,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 251,
+      "passed": 251,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

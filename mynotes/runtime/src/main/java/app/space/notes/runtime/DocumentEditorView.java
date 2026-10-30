@@ -30,14 +30,14 @@ final class DocumentEditorView extends LinearLayout {
         if(event.getAction()==DragEvent.ACTION_DRAG_ENDED || event.getAction()==DragEvent.ACTION_DROP){stopDragScroll();return;}
         if(readOnly() || event.getAction()!=DragEvent.ACTION_DRAG_LOCATION)return;int[] at=new int[2],viewport=new int[2];target.getLocationOnScreen(at);scroll.getLocationOnScreen(viewport);float y=at[1]+event.getY()-viewport[1];int direction=y<dp(48)?-1:y>scroll.getHeight()-dp(48)?1:0;if(direction!=dragDirection){stopDragScroll();dragDirection=direction;if(direction!=0)post(dragTick);}
     }
-    private ScrollView scroll;private Button undo,redo;private boolean building,formattingChange,paragraphBoundaryChange,insertionUsesCaret=true,selectionLocked,restoringSelection;
+    private ScrollView scroll;private Button undo,redo;private boolean building,formattingChange,paragraphBoundaryChange,insertionUsesCaret=true,selectionLocked,restoringSelection,focusTransition;
     static final class BlockDrag {final String id;BlockDrag(String id){this.id=id;}}
     static final class RowDrag {final String block,item;RowDrag(String block,String item){this.block=block;this.item=item;}}
     static boolean internalDrag(DragEvent event){return event.getLocalState() instanceof BlockDrag || event.getLocalState() instanceof RowDrag;}
     DocumentEditorView(Context context,NotesDesign design,Host host,Bundle state){super(context);this.host=host;this.design=design;this.state=state;saveStatus=design.label("Saved · on this device",12,design.muted);setOrientation(VERTICAL);addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->post(this::adaptViewport));render();}
     private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
     private boolean readOnly(){return host.current().deletedAt>0;}
-    void saveState(){if(selectionLocked)return;for(Map.Entry<String,EditText> entry:fields.entrySet())if(entry.getValue().hasFocus()){state.putString("note",host.current().id);state.putString("field",entry.getKey());state.putInt("start",entry.getValue().getSelectionStart());state.putInt("end",entry.getValue().getSelectionEnd());}if(scroll!=null)state.putInt("scroll",scroll.getScrollY());}
+    void saveState(){if(selectionLocked || restoringSelection || focusTransition)return;for(Map.Entry<String,EditText> entry:fields.entrySet())if(entry.getValue().hasFocus()){state.putString("note",host.current().id);state.putString("field",entry.getKey());state.putInt("start",entry.getValue().getSelectionStart());state.putInt("end",entry.getValue().getSelectionEnd());}if(scroll!=null)state.putInt("scroll",scroll.getScrollY());}
     private Button button(String name,Runnable action){Button b=design.textAction(name,()->{try{saveState();selectionLocked=true;action.run();}catch(IllegalArgumentException|IllegalStateException failure){selectionLocked=false;message(failure.getMessage());}});b.setAllCaps(false);return b;}
     private void message(String text){android.widget.Toast.makeText(getContext(),text,Toast.LENGTH_LONG).show();}
     private LinearLayout row(LinearLayout parent){LinearLayout row=new LinearLayout(getContext());row.setGravity(Gravity.CENTER_VERTICAL);parent.addView(row,new LayoutParams(-1,-2));return row;}
@@ -76,7 +76,11 @@ final class DocumentEditorView extends LinearLayout {
         input.setOnFocusChangeListener((v,focus)->{if(focus){selected=input;selectedBlock=block;selectedRow=item;post(this::adaptViewport);}});
         final RichText[] lastGood={value};final boolean[] editingText={false},headingAtEdit={false};
         final int[] pendingNumber={-1},pendingStart={-1},lastNewline={-1},insertedEnd={0};final String[] numberAtEdit={null};
-        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection){host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();}};
+        // Android Editor normalizes reverse anchor/focus when hiding selection handles.
+        // Snapshot before native focus/window transitions, restore after, without treating it as a user edit.
+        input.beforeFocusTransition=()->{if(!building && !restoringSelection && !selectionLocked)saveState();focusTransition=true;};
+        input.afterFocusTransition=()->{focusTransition=false;if(!building && !restoringSelection && input.hasFocus() && key.equals(state.getString("field"))){restoringSelection=true;try{input.setSelection(Math.max(0,Math.min(input.length(),state.getInt("start"))),Math.max(0,Math.min(input.length(),state.getInt("end"))));}finally{restoringSelection=false;}}};
+        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection && !focusTransition){host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();}};
         input.addTextChangedListener(new TextWatcher(){
             public void beforeTextChanged(CharSequence s,int start,int count,int after){
                 editingText[0]=true;if(!formattingChange)selectionLocked=false;paragraphBoundaryChange=false;for(int i=start;i<Math.min(s.length(),start+count);i++)if(s.charAt(i)=='\n')paragraphBoundaryChange=true;numberAtEdit[0]=null;headingAtEdit[0]=false;

@@ -58,7 +58,8 @@ public final class NotesRepository {
     private GenerationProtocol protocol(String uri) throws Exception {
         return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri))):folderAccess.open(uri);
     }
-    public List<Note> load() throws Exception {
+    public List<Note> load() throws Exception {try{return loadVerified();}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to open this library safely; existing files were not replaced",pressure);}}
+    private List<Note> loadVerified() throws Exception {
         JSONObject local=exists()?new JSONObject(app.space.notes.domain.JsonLimits.text(atomicRead(file))):null;
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
         if(cached!=null)DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.

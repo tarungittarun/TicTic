@@ -7,7 +7,7 @@ import java.util.*;
  * Schema6 libraries remain untouched until an explicit, verified upgrade.
  */
 public final class DocumentContent {
-    public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048,MAX_MARKS=16384,MAX_TEXT_WEIGHT=2*1024*1024;
+    public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048,MAX_MARKS=16384,MAX_TEXT_WEIGHT=2*1024*1024,MAX_DIAGRAM_NODES=1024,MAX_DIAGRAM_EDGES=4096;
     public enum Kind {TEXT, CHECKLIST, IMAGE, DRAWING, DIAGRAM, TABLE}
     public static final class Block {
         public final String id,name;
@@ -21,7 +21,7 @@ public final class DocumentContent {
         private Block(String id,String name,Kind kind,RichText text,List<Note.Item> items,boolean hideChecked,NoteImage image,Diagram diagram,TextTable table){
             if(id==null || id.isEmpty() || id.length()>256 || name==null || name.length()>200)
                 throw new IllegalArgumentException("Invalid content identity or name");
-            this.id=id;this.name=name;this.kind=kind;this.text=text;this.hideChecked=hideChecked;
+            RichText.requireText(id);RichText.requireText(name);this.id=id;this.name=name;this.kind=kind;this.text=text;this.hideChecked=hideChecked;
             this.items=items==null?Collections.emptyList():Collections.unmodifiableList(new ArrayList<>(items));
             this.image=image;this.diagram=diagram;this.table=table;
         }
@@ -58,12 +58,13 @@ public final class DocumentContent {
         this.writingLines=writingLines;
         if(blocks==null || blocks.size()>MAX_BLOCKS)throw new IllegalArgumentException("Content block limit exceeded");
         Set<String> ids=new HashSet<>(),images=new HashSet<>(),rows=new HashSet<>();
-        long fields=0,weight=0,styles=0;for(Block block:blocks){
+        long fields=0,weight=0,styles=0,nodes=0,edges=0;for(Block block:blocks){
             if(block==null || !ids.add(block.id))throw new IllegalArgumentException("Duplicate or missing content block");
             fields+=(block.text!=null?1:0)+block.items.size()+(block.table==null?0:(long)block.table.rows.size()*block.table.columns);if(fields>MAX_EDITABLE_FIELDS)throw new IllegalArgumentException("Too many editable fields in document");
             if(block.text!=null){weight+=textWeight(block.text.text,block.text.marks);styles+=block.text.marks.size();}
             for(Note.Item row:block.items){if(!rows.add(row.id))throw new IllegalArgumentException("Duplicate checklist row across sections");weight+=textWeight(row.text,row.marks);styles+=row.marks.size();}
             if(block.table!=null)for(List<RichText> row:block.table.cells)for(RichText cell:row){weight+=textWeight(cell.text,cell.marks);styles+=cell.marks.size();}
+            weight+=block.name.length();if(block.diagram!=null){nodes+=block.diagram.nodes.size();edges+=block.diagram.edges.size();for(Diagram.Node node:block.diagram.nodes){RichText.requireText(node.text);RichText.requireText(node.id);RichText.requireText(node.group);if(node.text.length()>4096 || node.id.length()>256 || node.group.length()>256)throw new IllegalArgumentException("Diagram label or identity limit exceeded");weight+=node.text.length()+node.id.length()+node.group.length();}for(Diagram.Edge edge:block.diagram.edges){RichText.requireText(edge.label);if(edge.label.length()>4096 || edge.id.length()>256 || edge.from.length()>256 || edge.to.length()>256)throw new IllegalArgumentException("Diagram label or identity limit exceeded");weight+=edge.label.length()+edge.id.length()+edge.from.length()+edge.to.length();}if(nodes>MAX_DIAGRAM_NODES || edges>MAX_DIAGRAM_EDGES)throw new IllegalArgumentException("Diagram safety limit exceeded");}
             if(weight>MAX_TEXT_WEIGHT || styles>MAX_MARKS)throw new IllegalArgumentException("Document text or formatting limit exceeded");
             if(block.image!=null && !images.add(block.image.id))throw new IllegalArgumentException("Duplicate visual reference");
         }

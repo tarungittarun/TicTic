@@ -56,9 +56,11 @@ class ImageEditingContracts(unittest.TestCase):
     def test_checklist_actions_target_the_row_and_disable_boundaries(self):
         self.assertIn('"Actions for list item "+(n.items.indexOf(item)+1)', self.controller)
         options = self.controller.split('private void listItemOptions(', 1)[1].split('private void listAction(', 1)[0]
-        for token in ['focusedItem=itemId','index>0','index+1<note.items.size()','item.depth<3','item.depth>0','controlAvailable(option,allowed[i])']:
+        for token in ['focusedItem=itemId','item.depth<3','item.depth>0','controlAvailable(option,allowed[i])']:
             self.assertIn(token, options)
-        self.assertIn('"Add item below"', options)
+        for removed in ['Add item below','Move item up','Move item down']:
+            self.assertNotIn(removed, options)
+        self.assertIn('checklistHandle(n.id,item.id', self.controller)
 
     def test_invalid_checklist_moves_do_not_replace_undo(self):
         action = self.controller.split('private void listAction(', 1)[1].split('private void convertNote()', 1)[0]

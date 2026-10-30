@@ -116,3 +116,8 @@ Run41024603014/source8d225ec: **build/JVM204/lint/signing PASS; API26 220/220 PA
 Verified final count: **25 individual job IDs,19 started,6 skipped**. No26th job has run. The raw code18 APK source8d225ec is a development handoff with the incomplete gate explicitly disclosed, not a public release/full qualification. Artifact12962923344,66,659,248 bytes,SHA256c555c5a630685844c0b3c2b18f4804a84eb762aa3d5c726486bfdb9470e527db, expires2026-11-06T08:11:36Z.
 
 Prepare, but DO NOT execute, a single native dark2x replay that downloads existing build/test APKs from41024603014, requires zero non-doc MyNotes source differences from8d225ec, and invokes the existing Pixel Launcher force-stop after preserving preflight diagnostics. It keeps the exact86-test inventory and source-pinned reports/screenshots in that same runner. Original full three-profile/four-job workflow is retained as a nonexecuting template under docs/ci. This push uses **[skip ci]**; another job requires explicit cap extension. Reusable instrumentation artifacts expire after one day. Detailed done/pending/testing/security/installation handoff: EDITOR-V18-DEVELOPMENT-HANDOFF.md.
+
+
+### Additional single-job approval
+
+User answered **Yes** to the explicit request for one additional dark/2x verification job. Reserve exactly **one** job, cumulative maximum **26 individual IDs** (25 previously used). Reuse unexpired APK/instrumentation artifact12963246423 from41024603014; no rebuild, app-source changes, assertion relaxation or additional runner is authorized. Current workflow already verifies unchanged non-documentation MyNotes sources against8d225ec and force-stops the external Pixel Launcher after preserving preflight diagnostics. Outcome pending.

@@ -31,3 +31,9 @@ Build124065798156 PASS, exact JVM217 gate/lint/stable signing PASS. API34 dark2�
 ## Reservation3 — four jobs; cumulative19/35 reserved,16 unreserved
 
 Reserve before launch: shared build and all three profiles. Correct stale folder readiness and route the real-SAF journey through Storage settings → Choose folder, awaiting the verified storage-change acknowledgement before continuing. Retain ALL parent-navigation, requested-picker, real-file, original-body and folder-move assertions. No skipped methods, no weakened Undo/Redo or recovery assertions, no production app edits after0a7b512. Source inventories remain217 JVM/240 full native/111 focused. This full replay is preferred to a partial assertion waiver; no further jobs are planned if green.
+
+## Reservation3 final outcome — source009e92f/run41058786300
+
+All four jobs completed successfully: build124072943776 (compilation, exact executed JVM217, debug/release lint, stable signing); full API26/124073945271 **240/240**; dark2×API34/124073945284 **111/111**; landscapeAPI34/124073945475 **111/111**. Exact inventories pass with no skipped/duplicate outcomes. All three independent exported-PDF gates PASS. Source-pinned evidence commit94b7348 includes reports, provenance and synthetic screenshots; final provenance explicitly keeps release_approval=false. Production app source/build configuration is unchanged from0a7b512.
+
+Actual final accounting:10 jobs started for this request,19/35 cumulative including prior code19's9,16 unused/unreserved. No additional run is planned. Final docs-only handoff uses `[skip ci]` after local gates. Physical Motorola edge50neo Android16 acceptance/public approval remain pending. See [development handoff](SEARCH-FOLDERS-HISTORY-DEVELOPMENT-HANDOFF.md) and [user guide](SEARCH-FOLDERS-HISTORY-USER-GUIDE.md).

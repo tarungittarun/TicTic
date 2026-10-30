@@ -34,3 +34,9 @@ Reserve **2 jobs**, cumulative at most **3/25**: shared build/JVM/lint/signing a
 Run41016768825, source28ee1b7: build failed at a missing `DocumentContent` import in NotesController; all **191 JVM tests passed**, native job was skipped. Charge the full two-job reservation conservatively (**3/25**, including that unstarted native job). No APK delivered. Correct the import and continue, not suppress compilation/native failures.
 
 Reserve **2 further jobs** for the updated shared build and full API26 suite, maximum **5/25**, leaving20. This source additionally preserves formatted table cells, supports actual caret-position block insertion including asynchronous images/drawings, has an independent persisted writing-lines switch, and rejects external URI/Intent coercion inside editable fields. All remain subject to compilation/native qualification.
+
+### Reservation 3 result / reservation 4
+
+Run41017331436, source50e811d: domain compilation/tests passed; Android compilation caught the checked exception declared by the existing digest helper in two new main-thread insertion-anchor call sites. Native was skipped. Charge the full reservation conservatively: **5/25 including two skipped natives**. Handle the digest failure explicitly without abandoning the verified insertion contract.
+
+Reserve **2 more jobs**, cumulative maximum **7/25**, for corrected build + full API26. Remaining after reservation18. No APK handed off and no tests reclassified as passing.

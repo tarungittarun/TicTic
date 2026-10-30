@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "source_sha": "cdb783a480f006dd4238bcdabb74bb69d75fea24",
+  "capture_run": "41047748847",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 100,
+      "passed": 99,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields: status -2 java.lang.AssertionError: Dialog action Hyperlink\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:101)\n\tat app.space.notes.CoreJourneysTest.canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields(CoreJourneysTest.java:396)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 100,
+      "passed": 100,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 229,
+      "passed": 229,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "release_approval": false
+}

@@ -19,3 +19,11 @@ Both jobs started: build124031109206 passed Java compilation, exact JVM gate, li
 ## Reservation2:4 jobs, total6/35 reserved,29 unreserved
 
 Reserve before launch: one shared build and three native profiles (full API26; API34 dark2× font; API34 landscape). Add three explicitly whitelisted synthetic screenshots (saved-style picker, styled subsequent typing, PDF guide option) and one native PDF-options cancellation/immutability journey. Screenshot bound grows from62 to65 ONLY for these three scenes, retaining per-image/path/size checks and an explicit QA requirement. Add bounded diagnostic annotations for evidence preservation; existing runtime and PDF gates remain mandatory. Estimate remains5–9 actual engineering/testing hours, not measured work already completed.
+
+## Reservation2 outcome (sourcecdb783a, run41047748847)
+
+Four jobs started: build124035914708 PASS; full API26 124036877373 **229/229 PASS**; dark2× API34 124036877431 **100/100 PASS**; landscape124036877348 **99/100**, failed `canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields` at dialog action Hyperlink. All three independent PDF gates PASS. Exact reports, synthetic screenshots and real PDF fixtures preserved in evidence commit5deead6. Preservation succeeded this time; the first run's reporting failure remains unexplained, not falsely attributed to an app fix.
+
+## Reservation3:2 jobs, total8/35 reserved,27 unreserved
+
+Reserve shared rebuild plus focused landscape replay. Only native dialog-scrolling synchronization changes: allow the real accessibility scroll animation/cache to settle350ms rather than repeatedly paging every50ms, retaining the same5-second bound, actual menu click and all formatting/persistence assertions. Production app source is unchanged from8a0ea83. No failed test is skipped/waived. Retain API26/dark source-pinned outcomes fromcdb783a; qualify the same app with the corrected landscape harness. New user guide documents exact controls, device-local preset backup exclusion and optional guide defaults.

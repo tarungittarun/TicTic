@@ -1,6 +1,6 @@
 # New approval: up to35 additional individual jobs for style presets/typing and PDF links/guides.
 # Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
-# Reservation2: four jobs, full API26 plus dark large-font and landscape API34; total6/35.
+# Reservation3: shared build and landscape replay after dialog-scroll synchronization; total8/35.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -74,8 +74,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
-          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
           - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
     steps:
       - uses: actions/checkout@v5
@@ -161,28 +159,13 @@ jobs:
             refinement-pdf-*
           retention-days: 7
           if-no-files-found: warn
-      - name: Await peer profile uploads without another runner job
-        if: always() && matrix.group == 'all'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PYWAIT'
-          import json,os,subprocess,time
-          url='repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/jobs'
-          for attempt in range(80):
-              jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['jobs']
-              peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
-              if len(peers)==2 and all(job['status']=='completed' for job in peers):break
-              time.sleep(15)
-          else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
-          PYWAIT
       - uses: actions/download-artifact@v8.0.2
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'landscape-api34'
         with:
           pattern: refinement-native-*
           path: fixture-artifacts
       - name: Preserve source-pinned synthetic fixtures and exact native reports
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'landscape-api34'
         run: |
           set -Eeuo pipefail
           exec > >(tee -a /tmp/style-evidence.log) 2>&1
@@ -223,7 +206,7 @@ jobs:
           (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')
           PYREVIEW
       - name: Gate and commit only fixture documentation on the session branch
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'landscape-api34'
         run: |
           set -Eeuo pipefail
           exec > >(tee -a /tmp/style-evidence.log) 2>&1

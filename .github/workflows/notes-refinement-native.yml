@@ -1,4 +1,5 @@
-# Document-editor approval: 12 jobs used; final qualification reserves 5; maximum 17/17.
+# Continuation approval: up to 25 NEW jobs; previous 17-job allocation exhausted.
+# Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -32,7 +33,6 @@ jobs:
         with:
           name: refinement-foundation-test-apks
           path: |
-            mynotes/app/build/outputs/apk/release/notes-release.apk
             mynotes/app/build/outputs/apk/debug/notes-debug.apk
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
           retention-days: 1
@@ -104,7 +104,8 @@ jobs:
           arch: x86_64
           profile: ${{ matrix.profile }}
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -camera-back none
+          # AVDs are recreated per job; do not spend shutdown time saving unused snapshots.
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
           script: |
             if test '${{ matrix.api }}' = 26; then adb root; python3 -m mynotes.tools.ci.adb_state --uid 0; fi
             adb shell settings put global airplane_mode_on 1

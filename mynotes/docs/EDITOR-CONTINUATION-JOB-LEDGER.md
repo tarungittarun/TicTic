@@ -121,3 +121,10 @@ Prepare, but DO NOT execute, a single native dark2x replay that downloads existi
 ### Additional single-job approval
 
 User answered **Yes** to the explicit request for one additional dark/2x verification job. Reserve exactly **one** job, cumulative maximum **26 individual IDs** (25 previously used). Reuse unexpired APK/instrumentation artifact12963246423 from41024603014; no rebuild, app-source changes, assertion relaxation or additional runner is authorized. Current workflow already verifies unchanged non-documentation MyNotes sources against8d225ec and force-stops the external Pixel Launcher after preserving preflight diagnostics. Outcome pending.
+
+
+### Approved replay complete — automated qualification green
+
+Run **41033973969**, harness6cb80a2, job **123990165309**, succeeded in9m20s. Exactly **one** job was created and started. The unchanged-source guard passed against APK/app/instrumentation source8d225ec; no rebuild occurred. Dark theme/API34/2x exact inventory **86/86 PASS**, missing/unexpected/duplicates/failures all empty. Source-pinned reports/screenshots/provenance were preserved in the same runner and committed as9c1d7a5. Keyboard and formatting captures were visually inspected. Earlier launcher-ANR failures remain preserved, not waived or rewritten.
+
+Final approved usage: **26 individual IDs,20 started,6 skipped**. All three planned automated lanes now pass for the same app/test sources: API26 **220/220**, API34 landscape **86/86**, API34 dark2x **86/86**. Root552/MyNotes162/JVM204 and build/lint/signing results remain pinned to the original v18 build. The raw APK and SHA256 are unchanged. Handoff updated to automated qualification complete; Motorola/Android16 physical acceptance and public-release approval remain outstanding. No further Actions job is authorized or launched; final documentation push uses [skip ci].

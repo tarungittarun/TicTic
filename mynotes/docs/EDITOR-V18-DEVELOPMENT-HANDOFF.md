@@ -1,4 +1,4 @@
-# MyNotes v18 development handoff — implementation complete, qualification not fully green
+# MyNotes v18 development handoff — implementation and automated qualification complete
 
 ## Installable APK
 
@@ -53,11 +53,13 @@ Run: [41024603014](https://github.com/tarungittarun/TicTic/actions/runs/41024603
 |Debug/release compilation, lint, APK signing/signer gate|PASS|
 |API26, full native inventory|**220/220 PASS**|
 |API34 landscape, focused native inventory|**86/86 PASS**|
-|API34 dark theme,2× system text|**36/86 PASS; gate FAILED**, not waived|
+|API34 dark theme,2× system text|**86/86 PASS** in authorized replay41033973969, using unchanged v18 app/instrumentation sources|
 |Three-profile synthetic evidence preservation|PASS, integrated into API26 job; source-pinned reports/screenshots committed as `1c2619c`|
 |Motorola edge50neo / Android16 physical acceptance|Not performed; still required|
 
-The dark/2× emulator had a **Pixel Launcher ANR** overlay stealing window focus. This is directly recorded in `large-font-api34/control-failure.jpg` and `refinement-environment-after.json`: the focused system window is `Application Not Responding: com.google.android.apps.nexuslauncher`. The report is not a successful dark/2× qualification and the failures have not been deleted, skipped or relabelled as passes. The earlier dark/2× run41022621075 passed85/86, with only reverse selection failing; that bug is now fixed and passes the current API26 and landscape runs. Earlier results do not replace a current-source passing gate.
+The first dark/2× attempt failed36/86 because a **Pixel Launcher ANR** overlay stole window focus. The original failed report, screenshot and environment diagnostics remain preserved, not relabelled as passes. The user authorized exactly one extra job. [Replay41033973969](https://github.com/tarungittarun/TicTic/actions/runs/41033973969) reused the existing compiled APKs, verified zero non-documentation MyNotes source differences from8d225ec, preserved preflight diagnostics and force-stopped the external Pixel Launcher. Its exact inventory passed **86/86**, with no missing, unexpected, duplicate or failed methods. Evidence is committed as `9c1d7a5`; provenance separately identifies app/APK source8d225ec and harness source6cb80a2. Representative dark/2× keyboard and formatting captures were visually inspected. No app code, data permission or test assertion was changed for the replay.
+
+**All three planned automated profiles now pass for the same application/test sources.** API26/full and landscape results remain source-pinned to41024603014; dark/2× results are source-pinned to41033973969. This completes automated qualification, not Motorola physical-device acceptance or public-release approval.
 
 Actual native tests now verify table/image caret insertion, fonts/size/links, rich-row and section dragging, reverse anchor/focus before Document/after Colour/after controller recreation, focused landscape writing above the IME, numbering, separate diagrams and rich mixed-content persistence.
 
@@ -72,10 +74,12 @@ Actual native tests now verify table/image caret insertion, fonts/size/links, ri
 
 Calculator is unchanged; Archive remains paused and Wall drag remains last. No180-minute actual-work total or physical-device acceptance is being claimed.
 
-## The remaining gate and the job cap
+## Remaining acceptance and final job count
 
-The approved continuation has used **25 actual individual GitHub job IDs:19 started and6 skipped**. Earlier reservation estimates overcounted four matrix entries that GitHub never created; the ledger reconciles every run/job count explicitly. No26th job was launched.
+The authorized single-job replay has completed successfully. Final count: **26 individual GitHub job IDs:20 started and6 skipped**, including the one explicitly approved extension beyond25. The replay used exactly one job, without a rebuild or separate evidence runner. No further job has been launched or assumed authorized.
 
-A **single-job dark/2× replay is prepared but NOT launched** in `notes-refinement-native.yml`. It reuses the already compiled app/instrumentation APKs from41024603014, verifies that all non-documentation MyNotes sources are unchanged from8d225ec, retains preflight diagnostics, and applies the existing Pixel Launcher force-stop helper before testing. It does not hide MyNotes ANRs or relax native assertions. Its report/captures are preserved in the same runner, avoiding another build/evidence job. The full four-job/three-profile workflow is archived at `mynotes/docs/ci/notes-editor-three-profiles-template.yml`.
+The APK download, version, SHA256 and signature above are **unchanged**: no reinstall is needed if this exact v18 build is already installed. All13 feature areas and planned automated checks are complete within the documented scope and limits. Physical acceptance on the Motorola edge50neo/Android16 remains unperformed and decisive; this remains a development handoff, not public release approval.
 
-**One additional job needs explicit authorization beyond the25-job cap** to close this qualification gate. The reusable instrumentation artifact has one-day retention, so a later retry after its expiry would require a fresh build instead. Until that gate passes and the phone checks succeed, this remains a development handoff, not a fully qualified/public release.
+For phone acceptance: back up before upgrading; enable the document editor on a copied/sample legacy note; insert a visual/table between text; style a selection; convert only selected lines to a checklist; reorder rows/sections; test Undo/Redo, rotation, keyboard visibility and reopen; then verify Open note/Open folder, File location and an exported/restored backup. Do not uninstall or clear app data to test this.
+
+The single-profile replay workflow is retained for reproducibility, not authorization to launch another job. The full four-job/three-profile workflow remains archived at `mynotes/docs/ci/notes-editor-three-profiles-template.yml`.

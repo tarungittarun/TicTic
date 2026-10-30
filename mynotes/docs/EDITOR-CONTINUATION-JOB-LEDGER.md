@@ -16,3 +16,11 @@
 1. **Reserve 1/25**: `notes-editor-foundation.yml`, full discovered JVM/domain suite and exact executed-inventory verification. Tests cover immutable tables, ordered content draft, legacy read-only projection, visual kind/name separation, Unicode-safe rich-text selection, plus every pre-existing domain rule. Result pending until run completion. This is not Android compilation or completed editor functionality.
 
 Remaining after this reservation: **24 jobs**. Record run ID and outcome before reserving more.
+
+### Reservation 1 result
+
+Run [41014957791](https://github.com/tarungittarun/TicTic/actions/runs/41014957791), source `925c96b`: **1/1 job passed**, 2026-10-30 06:35:24–06:36:28 UTC (**64 seconds job duration**, not an actual-work tally). All **180 discovered JVM methods** passed the exact inventory gate, including 18 new table/ordered-content/rich-text tests; no skipped/duplicate/missing outcomes accepted. This compiled and executed the new Java primitives, unlike the earlier Python source-only check. **1/25 used; 24 remain.** No Android/APK job was launched.
+
+The full runtime workflow transfer/snapshot optimizations are prepared but have not been benchmarked. The measured 64 seconds is for the new isolated domain gate only; do not compare it with a full emulator qualification as if equivalent coverage were obtained.
+
+Next gates remain canonical schema/codec and mutation integration, rollback/round-trip/search/export/merge/recovery coverage, followed by actual mixed-block editing and native qualification. DocumentContent/RichText/TextTable are inactive and not a second editable source of truth. The qualified code17 APK and all 13 statuses in its handoff remain unchanged.

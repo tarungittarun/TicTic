@@ -42,3 +42,9 @@ Qualify migration fixtures (all legacy schema versions), corrupt/unknown formats
 The user requested completion of the pending items after receiving code17. Implementation resumed without launching any more CI jobs. First isolated primitive: `TextTable`, an immutable rectangular plain-text table draft supporting cell edits and row/column insertion/deletion, deep immutable snapshots, strict dimension/text limits, and rejection rather than truncation of invalid content. Six JUnit cases cover snapshots, structural edits, invalid input, limits and unchanged originals after rejection.
 
 This primitive is **not connected to Note, persistence, imports, export or the Android UI**, and tables remain pending for the user. No schema is activated. The Python source suites pass (551 root/161 Notes), but this environment has no JDK; the new Java tests have **not been compiled or executed**. Android builds remain Actions-only. The previous 17-job allocation remains exhausted. Obtain a new explicit job allowance before any build/qualification workflow; use `[skip ci]` for intermediate pushes.
+
+### First foundation execution
+
+The continuation now has `DocumentContent` (immutable ordered typed blocks, stable legacy IDs, independent visual name/kind, object-preserving move/replace/insert), `RichText` (mark-preserving UTF-16 selection/slicing with surrogate-boundary checks), and `TextTable`. The read-only legacy projection retains original item/media objects and formatting; it does not save or activate migration. RichText still supports the existing mark vocabulary only; hyperlinks/fonts and rich checklist-row formatting are not implied.
+
+Run41014957791 compiled and executed all 180 discovered domain tests successfully in one job. New allowance: 1/25 used, 24 remain. Runtime codec, mutations, persistence and editor integration remain unimplemented; no newer APK or full-upgrade completion is claimed.

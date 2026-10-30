@@ -107,3 +107,12 @@ The previous **25 reservation** count included matrix entries that GitHub NEVER 
 |**Total verified IDs**|**21**|**15**|**6**|
 
 On failed builds a three-entry native matrix is one skipped placeholder job, NOT three individual jobs. Recover only the **four never-created reservation slots**, not the six skipped jobs that have IDs. Reserve **4 real jobs** (shared build + all three native profiles with integrated evidence tail): maximum **25/25 individual GitHub job IDs including skipped**, no further allowance assumed. Same inventories, source-pinned preservation and physical-device caveats remain. No extra approval is needed or requested within the existing25-job authorization.
+
+
+### Final authorized run result and held one-job replay
+
+Run41024603014/source8d225ec: **build/JVM204/lint/signing PASS; API26 220/220 PASS; API34 landscape86/86 PASS; API34 dark2x36/86 FAIL**. API26's integrated peer wait/download/render/root-gate/evidence commit succeeded (1c2619c), saving a fifth runner. Inspect the actual dark `control-failure.jpg` and environment-after JSON: the blocking foreground system dialog says **Pixel Launcher isn't responding**, and focused windows/ANR identify `com.google.android.apps.nexuslauncher`, not MyNotes. This remains a failed qualification gate; no exceptions/fixtures were weakened or failures erased. Current-source reverse selection, real native edge drag and focused landscape keyboard viewport pass in both successful lanes.
+
+Verified final count: **25 individual job IDs,19 started,6 skipped**. No26th job has run. The raw code18 APK source8d225ec is a development handoff with the incomplete gate explicitly disclosed, not a public release/full qualification. Artifact12962923344,66,659,248 bytes,SHA256c555c5a630685844c0b3c2b18f4804a84eb762aa3d5c726486bfdb9470e527db, expires2026-11-06T08:11:36Z.
+
+Prepare, but DO NOT execute, a single native dark2x replay that downloads existing build/test APKs from41024603014, requires zero non-doc MyNotes source differences from8d225ec, and invokes the existing Pixel Launcher force-stop after preserving preflight diagnostics. It keeps the exact86-test inventory and source-pinned reports/screenshots in that same runner. Original full three-profile/four-job workflow is retained as a nonexecuting template under docs/ci. This push uses **[skip ci]**; another job requires explicit cap extension. Reusable instrumentation artifacts expire after one day. Detailed done/pending/testing/security/installation handoff: EDITOR-V18-DEVELOPMENT-HANDOFF.md.

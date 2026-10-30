@@ -1,0 +1,211 @@
+# Continuation approval: up to 25 NEW jobs; previous 17-job allocation exhausted.
+# Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
+# Four-job candidate: corrected caret-line local name; API26 preserves all profiles after peers finish.
+name: MyNotes user refinement qualification (nonpublishing)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-refinement-native.yml']
+permissions:
+  contents: read
+concurrency:
+  group: notes-refinement-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Compile debug app/instrumentation and lint without publication
+        working-directory: mynotes
+        run: |
+          set -o pipefail
+          sh gradlew :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:lintDebug :notes:assembleRelease :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/refinement-native-build.log
+      - name: Verify exact executed JVM coverage
+        if: always()
+        run: python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/refinement-jvm.json
+      - name: Bounded compiler and lint diagnostics in check annotations
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/refinement-native-build.log
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: refinement-foundation-test-apks
+          path: |
+            mynotes/app/build/outputs/apk/debug/notes-debug.apk
+            mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
+          retention-days: 1
+          if-no-files-found: error
+      - name: Prepare clearly named installable development APK
+        run: |
+          set -euo pipefail
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.15.0-18-development.apk
+          sha256sum MyNotes-v0.15.0-18-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.15.0-18-development.apk | tee notes-development-signature.txt
+          grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
+      - name: Upload APK directly without ZIP wrapping (not a public Release)
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: MyNotes-v0.15.0-18-development.apk
+          archive: false
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: refinement-foundation-lint
+          path: |
+            mynotes/app/build/reports/lint-results-debug.*
+            notes-development-sha256.txt
+            notes-development-signature.txt
+          retention-days: 7
+          if-no-files-found: warn
+  native:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    needs: build
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
+          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
+          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: refinement-foundation-test-apks
+          path: refinement-apks
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare exact selected execution inventory
+        env:
+          REVIEW_GROUP: ${{ matrix.group }}
+        run: |
+          python3 - <<'PYPLAN'
+          import json,os
+          from pathlib import Path
+          from mynotes.tools.ci.test_plan import build_plan,cases
+          plan=build_plan()
+          selected=plan['android'] if os.environ['REVIEW_GROUP']=='all' else {k:plan['android'][k] for k in ['app.space.notes.runtime.DrawingToolsTest','app.space.notes.runtime.DiagramResizeViewTest','app.space.notes.DiagramJourneysTest','app.space.notes.CoreJourneysTest','app.space.notes.EnvironmentQualificationTest']}
+          Path('refinement-expected.json').write_text(json.dumps(cases(selected)))
+          with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
+          PYPLAN
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: true
+          # AVDs are recreated per job; do not spend shutdown time saving unused snapshots.
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: |
+            if test '${{ matrix.api }}' = 26; then adb root; python3 -m mynotes.tools.ci.adb_state --uid 0; fi
+            adb shell settings put global airplane_mode_on 1
+            adb shell svc wifi disable
+            adb shell svc data disable
+            if test '${{ matrix.api }}' = 26; then adb unroot; python3 -m mynotes.tools.ci.adb_state --uid 2000; fi
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            adb shell settings put system font_scale ${{ matrix.font }}
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --snapshot before
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            if test '${{ matrix.id }}' = tablet-api34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
+            adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+      - name: Require every selected method once, without skipped or duplicate outcomes
+        if: always()
+        run: |
+          python3 - <<'PYRESULT'
+          from pathlib import Path
+          import json,sys
+          from mynotes.tools.ci.results import android,write_report
+          expected=json.loads(Path('refinement-expected.json').read_text())
+          path=Path('refinement-native.txt')
+          result=android(path.read_text(errors='replace') if path.exists() else '',expected)
+          write_report(result,'refinement-native.json')
+          if not result['ok']:sys.exit(1)
+          print('::notice title=Native refinement coverage::'+str(result['passed'])+'/'+str(result['expected'])+' methods passed, exact inventory')
+          PYRESULT
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: refinement-native-${{ matrix.id }}
+          path: |
+            refinement-native.*
+            refinement-expected.json
+            refinement-environment-*
+            refinement-captures.tar
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Await peer profile uploads without another runner job
+        if: always() && matrix.group == 'all'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYWAIT'
+          import json,os,subprocess,time
+          url='repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/jobs'
+          for attempt in range(80):
+              jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['jobs']
+              peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
+              if len(peers)==2 and all(job['status']=='completed' for job in peers):break
+              time.sleep(15)
+          else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
+          PYWAIT
+      - uses: actions/download-artifact@v8.0.2
+        if: always() && matrix.group == 'all'
+        with:
+          pattern: refinement-native-*
+          path: fixture-artifacts
+      - name: Preserve source-pinned synthetic fixtures and exact native reports
+        if: always() && matrix.group == 'all'
+        run: |
+          python3 -m pip install 'Pillow==11.3.0' 'PyYAML==6.0.3'
+          python3 - <<'PYREVIEW'
+          import json,os,shutil,subprocess
+          from pathlib import Path
+          root=Path('mynotes/docs/design-2026-10-29/native')/os.environ['GITHUB_RUN_ID']
+          results={}
+          for artifact in sorted(Path('fixture-artifacts').iterdir()):
+              lane=artifact.name.removeprefix('refinement-native-')
+              output=root/lane
+              report=artifact/'refinement-native.json'
+              if report.exists():
+                  output.mkdir(parents=True,exist_ok=True)
+                  shutil.copyfile(report,output/'native-results.json')
+                  parsed=json.loads(report.read_text());results[lane]={k:parsed.get(k) for k in ['ok','expected','passed','missing','failures']}
+              for environment in artifact.glob('refinement-environment-*.json'):
+                  output.mkdir(parents=True,exist_ok=True)
+                  shutil.copyfile(environment,output/environment.name)
+              capture=artifact/'refinement-captures.tar'
+              if capture.exists() and capture.stat().st_size:
+                  subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)
+          if not results:raise SystemExit('No native execution reports to preserve')
+          root.mkdir(parents=True,exist_ok=True)
+          (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'release_approval':False},indent=2)+'\n')
+          (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')
+          PYREVIEW
+      - name: Gate and commit only fixture documentation on the session branch
+        if: always() && matrix.group == 'all'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa && python3 -m unittest discover -s mynotes/qa -t . && git diff --check && git add mynotes/docs/design-2026-10-29/native/${{ github.run_id }} && git commit -m 'Preserve source-pinned refinement qualification fixtures [skip ci]' && git push origin arena/3caca636-tictic

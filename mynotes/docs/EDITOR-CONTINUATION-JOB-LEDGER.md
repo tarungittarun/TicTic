@@ -85,3 +85,25 @@ A diagnostic assertion proves reverse selection was already normalized synchrono
 Landscape also exposed fixture assumptions: short native dialogs require actual accessibility scrolling; two sections need not fit simultaneously before a drag. The dialog helper now scrolls the real list. The drag helper starts on a visible source, injects actual edge drag/autoscroll, then requires an actual visible lower-half target outside the moving edge zone (or a clamped end of document) before dropping. It never invokes model/onDragEvent directly. Keyboard test waits for a focused, visible writing line after IME layout, retaining original line-height/Format-control assertions and capturing its whitelisted scene even on failure. Production reveal translates the actual caret line to document-scroll coordinates; a single measured compact shrink can recover the remembered input only when no view has focus and the window is active, never stealing dialog/button focus.
 
 Reserve **4 remaining conservatively counted jobs**, maximum **25/25**, for a shared build and all three unchanged profiles. Save the fifth evidence runner by letting API26's tail wait for both peer uploads, then run the SAME artifact download, source-pinned render/report preservation, root gates and documentation commit/push. Keep all three profiles even on failure and do not call failure a pass. No qualified code18 APK delivered. Seven earlier skipped/unstarted jobs remain conservatively charged; no attempt is made to consume that unused runner capacity.
+
+
+### Exact job-ID reconciliation and corrected final four-job launch
+
+Run41024271745/sourced7f6955 failed compilation because the new caret-line lambda reused the enclosing method's `line` local name. Rename it `caretLine`; this is not an Android API or behavior change. No emulator ran and no APK is qualified. This avoidable local-variable integration error is recorded rather than hidden by syntax-only checks.
+
+The previous **25 reservation** count included matrix entries that GitHub NEVER CREATED after build failures. Reconcile against GitHub's actual `/actions/runs/<id>/jobs?filter=all` results, counting even skipped jobs with IDs:
+
+| Run | Individual job IDs | Started | Skipped |
+|---|---:|---:|---:|
+|41014957791|1|1|0|
+|41016768825|2|1|1|
+|41017331436|2|1|1|
+|41017566800|2|1|1|
+|41019484710|2|2|0|
+|41021022787|2|2|0|
+|41022310526|3|1|2|
+|41022621075|5|5|0|
+|41024271745|2|1|1|
+|**Total verified IDs**|**21**|**15**|**6**|
+
+On failed builds a three-entry native matrix is one skipped placeholder job, NOT three individual jobs. Recover only the **four never-created reservation slots**, not the six skipped jobs that have IDs. Reserve **4 real jobs** (shared build + all three native profiles with integrated evidence tail): maximum **25/25 individual GitHub job IDs including skipped**, no further allowance assumed. Same inventories, source-pinned preservation and physical-device caveats remain. No extra approval is needed or requested within the existing25-job authorization.

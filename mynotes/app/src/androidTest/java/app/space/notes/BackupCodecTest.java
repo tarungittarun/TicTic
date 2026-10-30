@@ -41,7 +41,7 @@ public class BackupCodecTest {
     }
     @Test public void truncatedBackupRejected() throws Exception {
         try {BackupCodec.decode("{".getBytes(StandardCharsets.UTF_8));fail("must reject");}
-        catch(org.json.JSONException expected) { }
+        catch(org.json.JSONException | java.io.IOException expected) { }
     }
     @Test public void boundedReadRejectsOversize() throws Exception {
         try {BackupCodec.read(new java.io.InputStream(){int remaining=BackupCodec.MAX_BYTES+1;public int read(){if(remaining--<=0)return -1;return 0;}public int read(byte[] b,int offset,int length){if(remaining<=0)return -1;int count=Math.min(length,remaining);java.util.Arrays.fill(b,offset,offset+count,(byte)0);remaining-=count;return count;}});fail("must bound memory");}

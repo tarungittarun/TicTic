@@ -69,7 +69,7 @@ public class NotesPersistenceTest {
             out.write("{broken".getBytes(StandardCharsets.UTF_8));
         }
         try { repository.load(); fail("Corrupt data must be reported"); }
-        catch(org.json.JSONException expected) { }
+        catch(org.json.JSONException | java.io.IOException expected) { }
         assertEquals(7,file.length());
     }
     @Test public void emptyCommitIsPersisted() throws Exception {

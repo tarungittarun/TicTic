@@ -22,7 +22,7 @@ public final class RichText {
         List<Note.Mark> result=new ArrayList<>();
         for(Note.Mark mark:marks){
             int from=Math.max(start,mark.start),to=Math.min(end,mark.end);
-            if(from<to)result.add(new Note.Mark(mark.type,from-start,to-start));
+            if(from<to)result.add(new Note.Mark(mark.type,from-start,to-start,mark.value));
         }
         return new RichText(text.substring(start,end),result);
     }

@@ -18,7 +18,7 @@ public final class LocalBackupFiles {
     }
     /** Visible per-note files are schema-validated imports; backup envelopes additionally verify SHA-256. */
     public static List<Note> decodeImport(byte[] bytes)throws Exception{
-        if(bytes.length>BackupCodec.MAX_BYTES)throw new IOException("Import exceeds 8 MiB");org.json.JSONObject root=new org.json.JSONObject(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));if(root.has("format"))return BackupCodec.decode(bytes);return DocumentCodec.decode(bytes);
+        if(bytes.length>BackupCodec.MAX_BYTES)throw new IOException("Import exceeds 8 MiB");app.space.notes.domain.JsonLimits.require(bytes);org.json.JSONObject root=new org.json.JSONObject(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));if(root.has("format"))return BackupCodec.decode(bytes);return DocumentCodec.decode(bytes);
     }
     public static void write(ContentResolver resolver,Uri uri,List<Note> notes) throws Exception {
         requireLocal(uri);byte[] bytes=BackupCodec.encode(notes);

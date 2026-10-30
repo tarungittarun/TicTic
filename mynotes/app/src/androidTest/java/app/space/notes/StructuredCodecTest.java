@@ -78,4 +78,24 @@ public class StructuredCodecTest {
         SpannableStringBuilder editable=new SpannableStringBuilder("Hello world");TextStyles.write(editable,Arrays.asList(new Note.Mark("bold",6,11)));
         editable.insert(0,"New ");Note.Mark mark=TextStyles.read(editable).get(0);assertEquals(10,mark.start);assertEquals(15,mark.end);
     }
+    @Test public void schema7CanonicalContentRoundTripsWithoutEditableLegacyDuplicates()throws Exception{
+        app.space.notes.domain.DocumentContent document=app.space.notes.domain.DocumentContent.fromLegacy(text());String first=document.blocks.get(0).id;
+        document=document.selectionToChecklist(first,0,5).insert(2,app.space.notes.domain.DocumentContent.Block.table("table","Table01",app.space.notes.domain.TextTable.empty(2,2).withCell(1,1,"table ಕನ್ನಡ")));
+        Note original=text().withContent(document,5);byte[] encoded=DocumentCodec.encode(Arrays.asList(original,list()));JSONObject root=new JSONObject(new String(encoded,StandardCharsets.UTF_8));assertEquals(7,root.getInt("version"));JSONObject fields=root.getJSONArray("notes").getJSONObject(0);assertFalse(fields.has("body"));assertFalse(fields.has("images"));assertTrue(fields.has("content"));
+        List<Note> reopened=BackupCodec.decode(BackupCodec.encode(Arrays.asList(original,list())));assertTrue(NoteMerge.same(original,reopened.get(0)));assertTrue(NoteMerge.same(list(),reopened.get(1)));assertEquals("bold",reopened.get(0).content.blocks.get(1).items.get(0).marks.get(0).type);assertTrue(reopened.get(0).matches("table ಕನ್ನಡ"));
+    }
+    @Test public void schema7PreservesVisualKindNamePixelsAndAllInlineStyleValues()throws Exception{
+        android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(2,2,android.graphics.Bitmap.Config.ARGB_8888);java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,bytes);bitmap.recycle();app.space.notes.domain.NoteImage image=new app.space.notes.domain.NoteImage(UUID.randomUUID().toString(),"Drawing","image/png",2,2,Base64.getEncoder().encodeToString(bytes.toByteArray()));
+        app.space.notes.domain.RichText rich=new app.space.notes.domain.RichText("Styled link",Arrays.asList(new Note.Mark("font",0,11,"serif"),new Note.Mark("size",0,11,"24"),new Note.Mark("link",0,11,"https://example.com/path"),new Note.Mark("number",0,11,"3")));
+        app.space.notes.domain.DocumentContent document=new app.space.notes.domain.DocumentContent(Arrays.asList(app.space.notes.domain.DocumentContent.Block.text("text",rich),app.space.notes.domain.DocumentContent.Block.visual("ink","My sketch",app.space.notes.domain.DocumentContent.Kind.DRAWING,image),app.space.notes.domain.DocumentContent.Block.text("after",new app.space.notes.domain.RichText("After image",Collections.emptyList()))));
+        Note original=text().withContent(document,6),read=DocumentCodec.decode(DocumentCodec.encode(Arrays.asList(original))).get(0);assertTrue(NoteMerge.same(original,read));assertEquals("My sketch",read.content.blocks.get(1).name);assertEquals(app.space.notes.domain.DocumentContent.Kind.DRAWING,read.content.blocks.get(1).kind);assertEquals(image.data,read.images.get(0).data);
+        SpannableStringBuilder nativeText=new SpannableStringBuilder(rich.text);TextStyles.write(nativeText,rich.marks);List<Note.Mark> styles=TextStyles.read(nativeText);assertEquals(4,styles.size());for(Note.Mark mark:styles)assertFalse(mark.value.isEmpty());
+    }
+    @Test public void schema7MalformedTableAndUnknownFutureFormatAreRejected()throws Exception{
+        app.space.notes.domain.DocumentContent content=new app.space.notes.domain.DocumentContent(Arrays.asList(app.space.notes.domain.DocumentContent.Block.table("table","Table01",app.space.notes.domain.TextTable.empty(2,2))));JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text().withContent(content,5))),StandardCharsets.UTF_8));JSONArray table=root.getJSONArray("notes").getJSONObject(0).getJSONArray("content").getJSONObject(0).getJSONArray("rows");table.put(1,new JSONArray().put("lost cell"));try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Ragged table accepted");}catch(IllegalArgumentException expected){}
+        root.put("version",8);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Future format accepted");}catch(java.io.IOException expected){}
+    }
+    @Test public void recursiveJsonBombIsRejectedBeforeAndroidParserRuns()throws Exception{
+        String nested=String.join("",Collections.nCopies(1000,"["))+"0"+String.join("",Collections.nCopies(1000,"]"));try{app.space.notes.runtime.LocalBackupFiles.decodeImport(nested.getBytes(StandardCharsets.UTF_8));fail("Deep JSON accepted");}catch(java.io.IOException expected){}
+    }
 }

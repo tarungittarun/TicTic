@@ -19,6 +19,19 @@ public final class TextStyles {
         @Override public void chooseHeight(CharSequence text,int start,int end,int spanStartV,int v,android.graphics.Paint.FontMetricsInt fm,android.text.TextPaint paint){chooseHeight(text,start,end,spanStartV,v,fm);}
 
     }
+    private static final class FontSize extends MetricAffectingSpan {
+        final int size;FontSize(int size){this.size=size;}
+        public void updateDrawState(android.text.TextPaint paint){paint.setTextSize(size*android.content.res.Resources.getSystem().getDisplayMetrics().scaledDensity);}
+        public void updateMeasureState(android.text.TextPaint paint){updateDrawState(paint);}
+    }
+    private static final class Numbered implements LeadingMarginSpan {
+        final String value;final android.graphics.Paint paint=new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);final int margin;
+        Numbered(String value){this.value=value;android.util.DisplayMetrics metrics=android.content.res.Resources.getSystem().getDisplayMetrics();paint.setTextSize(18*metrics.scaledDensity);margin=(int)Math.ceil(paint.measureText(value+".")+8*metrics.density);}
+        public int getLeadingMargin(boolean first){return margin;}
+        public void drawLeadingMargin(android.graphics.Canvas canvas,android.graphics.Paint original,int x,int dir,int top,int baseline,int bottom,CharSequence text,int start,int end,boolean first,android.text.Layout layout){
+            if(first && text instanceof Spanned && ((Spanned)text).getSpanStart(this)==start){paint.setColor(original.getColor());float width=paint.measureText(value+".");canvas.drawText(value+".",dir>0?x:x-width,baseline,paint);}
+        }
+    }
     public static List<Note.Mark> read(Spanned text) {
         List<Note.Mark> out=new ArrayList<>();
         for(Object span:text.getSpans(0,text.length(),Object.class)) {
@@ -31,13 +44,17 @@ public final class TextStyles {
                 if((style&Typeface.ITALIC)!=0)out.add(new Note.Mark("italic",start,end));
             } else if(span instanceof UnderlineSpan)out.add(new Note.Mark("underline",start,end));
             else if(span instanceof StrikethroughSpan)out.add(new Note.Mark("strike",start,end));
+            else if(span instanceof TypefaceSpan)out.add(new Note.Mark("font",start,end,((TypefaceSpan)span).getFamily()));
+            else if(span instanceof FontSize)out.add(new Note.Mark("size",start,end,Integer.toString(((FontSize)span).size)));
+            else if(span instanceof URLSpan)out.add(new Note.Mark("link",start,end,((URLSpan)span).getURL()));
+            else if(span instanceof Numbered)out.add(new Note.Mark("number",start,end,((Numbered)span).value));
             else if(span instanceof Heading)out.add(new Note.Mark(((Heading)span).type,start,end));
         }
         out.sort(Comparator.comparing((Note.Mark m)->m.type).thenComparingInt(m->m.start).thenComparingInt(m->m.end));return out;
     }
     public static void write(Spannable text,List<Note.Mark> marks) {
         for(Object span:text.getSpans(0,text.length(),Object.class))
-            if((text.getSpanFlags(span)&Spanned.SPAN_COMPOSING)==0 && (span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading))text.removeSpan(span);
+            if((text.getSpanFlags(span)&Spanned.SPAN_COMPOSING)==0 && (span instanceof StyleSpan || span instanceof UnderlineSpan || span instanceof StrikethroughSpan || span instanceof Heading || span instanceof TypefaceSpan || span instanceof FontSize || span instanceof URLSpan || span instanceof Numbered))text.removeSpan(span);
         for(Note.Mark mark:app.space.notes.domain.TextFormatting.normalizeParagraphs(marks,text.toString()))writeRange(text,mark,0);
         for(Heading span:text.getSpans(0,text.length(),Heading.class))text.setSpan(span,text.getSpanStart(span),text.getSpanEnd(span),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
     }
@@ -48,6 +65,10 @@ public final class TextStyles {
                 case "italic":span=new StyleSpan(Typeface.ITALIC);break;
                 case "underline":span=new UnderlineSpan();break;
                 case "strike":span=new StrikethroughSpan();break;
+                case "font":span=new TypefaceSpan(mark.value);break;
+                case "size":span=new FontSize(Integer.parseInt(mark.value));break;
+                case "link":span=new URLSpan(mark.value);break;
+                case "number":span=new Numbered(mark.value);break;
                 default:span=new Heading(mark.type);
             }
             if(offset>=0 && mark.end+offset<=text.length())text.setSpan(span,mark.start+offset,mark.end+offset,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

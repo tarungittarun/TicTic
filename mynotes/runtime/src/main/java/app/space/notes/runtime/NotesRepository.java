@@ -110,6 +110,21 @@ public final class NotesRepository {
         if(snapshot.payload==null)throw new IOException("No MyNotes library in this folder. Use Choose folder for a new library.");
         DocumentCodec.decode(snapshot.payload);return snapshot;
     }
+    private AtomicFile beforeDocumentUpgrade(){return new AtomicFile(new File(file.getBaseFile().getParentFile(),"before-document-editor-v7.json"));}
+    public List<Note> documentUpgradeSnapshot()throws Exception{return DocumentCodec.decode(atomicRead(beforeDocumentUpgrade()));}
+    /** Source-pinned migration: verify round trip and immutable old checkpoint before any schema7 save. */
+    public boolean upgradeDocument(List<Note> current,List<Note> candidate)throws Exception{
+        byte[] expected=DocumentCodec.encode(current),encoded=DocumentCodec.encode(candidate);
+        List<Note> reopened=DocumentCodec.decode(encoded);if(reopened.size()!=candidate.size())throw new IOException("Document migration verification failed");
+        for(int i=0;i<reopened.size();i++)if(!app.space.notes.domain.NoteMerge.same(candidate.get(i),reopened.get(i)))throw new IOException("Document migration changed content");
+        synchronized(SNAPSHOT_LOCK){
+            if(!Arrays.equals(expected,DocumentCodec.encode(localSnapshot())))throw new IOException("Library changed; retry document upgrade");
+            AtomicFile checkpoint=beforeDocumentUpgrade();
+            if(!checkpoint.getBaseFile().exists()){atomicWrite(checkpoint,expected);if(!Arrays.equals(expected,atomicRead(checkpoint)))throw new IOException("Upgrade checkpoint verification failed");}
+            DocumentCodec.decode(atomicRead(checkpoint)); // Never replace a corrupt checkpoint silently.
+            try{save(candidate);return true;}catch(Exception failure){if(Arrays.equals(encoded,DocumentCodec.encode(localSnapshot())))return false;throw failure;}
+        }
+    }
     private AtomicFile beforeRestore() {
         return new AtomicFile(new File(file.getBaseFile().getParentFile(),"before-restore-v1.json"));
     }

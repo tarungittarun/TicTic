@@ -26,6 +26,7 @@ public final class BackupCodec {
     public static List<Note> decode(byte[] bytes) throws Exception {
         try {
             if(bytes.length>MAX_BYTES)throw new IOException("Backup exceeds 8 MiB safety limit");
+            app.space.notes.domain.JsonLimits.require(bytes);
             JSONObject root=new JSONObject(new String(bytes,StandardCharsets.UTF_8));
             if(!"MyNotesBackup".equals(root.getString("format")) || root.getInt("version")!=1)
                 throw new IOException("Unsupported backup format; current library unchanged");

@@ -12,7 +12,8 @@ public final class VoiceTranscripts {
     public static Note apply(Note note,String id,String transcript,long now){
         UUID.fromString(id);if(note.deletedAt>0 || note.voiceSources.contains(id) || transcript.trim().isEmpty())return note;
         String value="Automatic transcript (review against audio):\n"+transcript;Note result;
-        if(note.checklist){List<Note.Item> rows=new ArrayList<>(note.items);for(String line:value.split("\n",-1))rows.add(new Note.Item(UUID.randomUUID().toString(),line,false,0));result=note.list(note.title,rows,note.hideChecked,now);}
+        if(note.content!=null){result=note.withContent(note.content.insert(note.content.blocks.size(),DocumentContent.Block.text(UUID.randomUUID().toString(),new RichText(value,Collections.emptyList()))),now);}
+        else if(note.checklist){List<Note.Item> rows=new ArrayList<>(note.items);for(String line:value.split("\n",-1))rows.add(new Note.Item(UUID.randomUUID().toString(),line,false,0));result=note.list(note.title,rows,note.hideChecked,now);}
         else{String prefix=note.body.equals(pending(id))?"Audio saved in Voice inbox: "+id:note.body;result=note.rich(note.title,prefix+(prefix.isEmpty()?"":"\n\n")+value,note.marks,now);}
         return result.voiceSource(id,now);
     }

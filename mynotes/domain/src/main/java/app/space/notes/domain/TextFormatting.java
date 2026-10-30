@@ -16,8 +16,8 @@ public final class TextFormatting {
         for(Note.Mark m:source) {
             boolean relevant=type.equals("clear") || m.type.equals(type) || (type.startsWith("h") && m.type.startsWith("h"));
             if(!relevant || m.end<=start || m.start>=end){result.add(m);continue;}
-            if(m.start<start)result.add(new Note.Mark(m.type,m.start,start));
-            if(m.end>end)result.add(new Note.Mark(m.type,end,m.end));
+            if(m.start<start)result.add(new Note.Mark(m.type,m.start,start,m.value));
+            if(m.end>end)result.add(new Note.Mark(m.type,end,m.end,m.value));
         }
         if(!type.equals("clear") && !covered)result.add(new Note.Mark(type,start,end));
         return result;

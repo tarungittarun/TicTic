@@ -72,7 +72,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
 
     def test_grouping_prerequisites_offer_a_real_next_action(self):
         group = self.source.split('private void groupShapes(){', 1)[1].split('private void chooseArrow()', 1)[0]
-        self.assertIn('n.diagram.nodes.size()<2', group)
+        self.assertIn('currentDiagram(n).nodes.size()<2', group)
         self.assertIn('selectedBefore.group.isEmpty()', group)
         self.assertIn('Add at least two shapes before grouping. Your diagram is unchanged.', group)
         self.assertIn('button("Add shape"', group)

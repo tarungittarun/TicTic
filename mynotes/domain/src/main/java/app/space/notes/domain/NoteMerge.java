@@ -19,13 +19,14 @@ public final class NoteMerge {
             && a.updatedAt==b.updatedAt && a.reminderAt==b.reminderAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
             && a.archived==b.archived && a.color==b.color && structure(a).equals(structure(b));
     }
-    private static boolean plain(Note n){return !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0 && n.images.isEmpty();}
+    private static boolean plain(Note n){return n.content==null && !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0 && n.images.isEmpty();}
     private static String structure(Note n) {
         if(plain(n))return "";
         StringBuilder out=new StringBuilder(n.checklist+":"+n.hideChecked+":"+n.items.size()+"#");
         for(Note.Item item:n.items)out.append(item.id.length()).append(':').append(item.id).append(item.text.length()).append(':').append(item.text).append(':').append(item.checked).append(':').append(item.depth).append(';');
         out.append(n.marks.size()).append('#');
         for(Note.Mark mark:n.marks)out.append(mark.type).append(':').append(mark.start).append(':').append(mark.end).append(';');
+        for(Note.Mark mark:n.marks)if(!mark.value.isEmpty())out.append("style-value:").append(mark.value.length()).append(':').append(mark.value);
         out.append(n.labels.size()).append('#');for(String label:n.labels)out.append(label.length()).append(':').append(label);
         if(!n.diagram.nodes.isEmpty())out.append("diagram:").append(n.diagram.fingerprint());
         if(n.reminderAt!=0)out.append("reminder:").append(n.reminderAt).append(';');
@@ -33,6 +34,7 @@ public final class NoteMerge {
         if(!n.folder.isEmpty())out.append("folder:").append(n.folder.length()).append(':').append(n.folder);
         if(n.background!=0)out.append("background:").append(n.background).append(';');
         for(NoteImage image:n.images){String value=image.fingerprint();out.append("image:").append(value.length()).append(':').append(value);}
+        if(n.content!=null){String content=n.content.fingerprint();out.append("content:").append(content.length()).append(':').append(content);}
         return out.toString();
     }
     private static Note copy(Note n,String id) {

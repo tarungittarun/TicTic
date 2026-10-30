@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Lossless UTF-16 text/legacy marks primitive for the future block editor. */
+/** Immutable Unicode text and lossless marks for ordered document fields. */
 public final class RichText {
     public static final int MAX_MARKS=4096;
     public final String text;
     public final List<Note.Mark> marks;
     public RichText(String text,List<Note.Mark> marks){
         if(text==null || marks==null || marks.size()>MAX_MARKS)throw new IllegalArgumentException("Missing rich text");
-        for(Note.Mark mark:marks){
+        requireText(text);for(Note.Mark mark:marks){
             if(mark==null || mark.end>text.length())throw new IllegalArgumentException("Text mark outside text");
-            boundary(text,mark.start);boundary(text,mark.end);
+            requireText(mark.value);boundary(text,mark.start);boundary(text,mark.end);
         }
         this.text=text;this.marks=Collections.unmodifiableList(new ArrayList<>(marks));
     }
+    public boolean same(RichText other){if(other==null || !text.equals(other.text) || marks.size()!=other.marks.size())return false;for(int i=0;i<marks.size();i++){Note.Mark a=marks.get(i),b=other.marks.get(i);if(a.start!=b.start || a.end!=b.end || !a.type.equals(b.type) || !a.value.equals(b.value))return false;}return true;}
     private static final class Addition {final int at,order;final String text;Addition(int at,int order,String text){this.at=at;this.order=order;this.text=text;}}
     /** Sharing/search projection retains the visible number and the safe link destination. */
     public static String plainText(String source,List<Note.Mark> marks){
@@ -41,6 +42,7 @@ public final class RichText {
         List<RichText> result=new ArrayList<>();result.add(slice(0,start));result.add(selected);result.add(slice(end,text.length()));
         return Collections.unmodifiableList(result);
     }
+    public static void requireText(String text){for(int i=0;i<text.length();i++){char value=text.charAt(i);if(Character.isHighSurrogate(value)){if(++i>=text.length() || !Character.isLowSurrogate(text.charAt(i)))throw new IllegalArgumentException("Invalid Unicode text; source retained");}else if(Character.isLowSurrogate(value))throw new IllegalArgumentException("Invalid Unicode text; source retained");}}
     private static void boundary(String text,int offset){
         if(offset>0 && offset<text.length() && Character.isHighSurrogate(text.charAt(offset-1)) && Character.isLowSurrogate(text.charAt(offset)))
             throw new IllegalArgumentException("Selection splits a Unicode character");

@@ -3,8 +3,8 @@ package app.space.notes.domain;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/** Ordered immutable content draft. Deliberately NOT written by the schema6 codec.
- * Never install it as a second editable body alongside Note.body/items/images.
+/** Authoritative ordered schema7 content. Legacy Note fields are derived read-only projections.
+ * Schema6 libraries remain untouched until an explicit, verified upgrade.
  */
 public final class DocumentContent {
     public static final int MAX_BLOCKS=512,MAX_EDITABLE_FIELDS=2048,MAX_MARKS=16384,MAX_TEXT_WEIGHT=2*1024*1024;

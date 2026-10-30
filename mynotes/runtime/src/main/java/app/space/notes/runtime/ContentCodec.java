@@ -57,7 +57,7 @@ final class ContentCodec {
     static void keys(JSONObject object,String... expected)throws IOException{
         Set<String> actual=new HashSet<>();Iterator<String> names=object.keys();while(names.hasNext())actual.add(names.next());if(!actual.equals(new HashSet<>(Arrays.asList(expected))))throw new IOException("Unsupported or incomplete note fields; source left untouched");
     }
-    static String string(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof String))throw new IOException("Expected note text: "+key);return (String)value;}
+    static String string(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof String))throw new IOException("Expected note text: "+key);RichText.requireText((String)value);return (String)value;}
     static boolean bool(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof Boolean))throw new IOException("Expected note switch: "+key);return (Boolean)value;}
     static long whole(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof Integer) && !(value instanceof Long))throw new IOException("Expected whole note number: "+key);return ((Number)value).longValue();}
     static int integer(JSONObject object,String key)throws Exception{long value=whole(object,key);if(value<Integer.MIN_VALUE || value>Integer.MAX_VALUE)throw new IOException("Note number out of range: "+key);return (int)value;}

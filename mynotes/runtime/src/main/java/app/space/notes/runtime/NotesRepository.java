@@ -59,7 +59,7 @@ public final class NotesRepository {
         return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri))):folderAccess.open(uri);
     }
     public List<Note> load() throws Exception {
-        JSONObject local=exists()?new JSONObject(new String(atomicRead(file),StandardCharsets.UTF_8)):null;
+        JSONObject local=exists()?new JSONObject(app.space.notes.domain.JsonLimits.text(atomicRead(file))):null;
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
         if(cached!=null)DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
         if(selected==null) {status="Device storage";List<Note> notes=cached==null?new ArrayList<>():DocumentCodec.decode(cached);updateSurfaces(notes);return notes;}
@@ -171,7 +171,7 @@ public final class NotesRepository {
         selected=null;head=null;status="Device storage · previous folder retained";
     }
     private void writeLocal(byte[] payload,boolean pending,String folderHead) throws Exception {
-        JSONObject root=new JSONObject(new String(payload,StandardCharsets.UTF_8));
+        JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(payload));
         root.put("pending",pending).put("folderHead",folderHead==null?JSONObject.NULL:folderHead);
         byte[] bytes=root.toString().getBytes(StandardCharsets.UTF_8);
         atomicWrite(file,bytes);updateSurfaces(DocumentCodec.decode(payload));

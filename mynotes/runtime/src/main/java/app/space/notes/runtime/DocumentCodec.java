@@ -42,8 +42,8 @@ public final class DocumentCodec {
         return new Diagram(nodes,edges);
     }
     public static List<Note> decode(byte[] bytes) throws Exception {
-        app.space.notes.domain.JsonLimits.require(bytes);
-        JSONObject root=new JSONObject(new String(bytes,StandardCharsets.UTF_8));
+
+        JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(bytes));
         int version=root.getInt("version");
         if(version!=1 && version!=2 && version!=3 && version!=4 && version!=5 && version!=6 && version!=7)throw new IOException("Unsupported library format; data left untouched");
         JSONArray array=root.getJSONArray("notes"); List<Note> notes=new ArrayList<>(); Set<String> ids=new HashSet<>();

@@ -42,7 +42,7 @@ public class CanonicalNoteTest {
         assertEquals("https://example.com/path",rich.slice(2,8).marks.get(0).value);
         assertThrows(IllegalArgumentException.class,()->new Note.Mark("size",0,1,"500"));
         assertThrows(IllegalArgumentException.class,()->new Note.Mark("font",0,1,"/sdcard/font.ttf"));
-        for(String link:Arrays.asList("javascript:alert(1)","file:///data/a","content://private/a","intent://a","https://user:pass@example.com","https://example.com\n"))assertThrows(IllegalArgumentException.class,()->SafeLinks.requireWeb(link));
+        for(String link:Arrays.asList("javascript:alert(1)","file:///data/a","content://private/a","intent://a","https://user:pass@example.com","https://example.com\n","https://example.com/path\u202eevil"))assertThrows(IllegalArgumentException.class,()->SafeLinks.requireWeb(link));
     }
     @Test public void insertionAtCaretPreservesBothTextHalvesAndTheirFormatting(){
         Note note=sample();String id=note.content.blocks.get(0).id;
@@ -60,5 +60,9 @@ public class CanonicalNoteTest {
     @Test public void excessiveFormattingAndTextAreRejectedWithoutChangingTheSource(){Note source=sample();List<Note.Mark> marks=new ArrayList<>();for(int i=0;i<=RichText.MAX_MARKS;i++)marks.add(new Note.Mark("bold",0,1));assertThrows(IllegalArgumentException.class,()->new RichText("x",marks));String huge=String.join("",Collections.nCopies(DocumentContent.MAX_TEXT_WEIGHT+1,"x"));assertThrows(IllegalArgumentException.class,()->new DocumentContent(Arrays.asList(DocumentContent.Block.text("huge",new RichText(huge,Collections.emptyList())))));assertEquals("before selected after",source.content.blocks.get(0).text.text);}
 
     @Test public void repeatedUndoRedoDoesNotRetainDeadCursorSnapshots()throws Exception{Note initial=sample(),current=initial.title("Edited",4);DocumentHistory history=new DocumentHistory();history.rememberCursor(initial,new DocumentHistory.Cursor("title",0,0));history.record(initial,current,null,1);history.rememberCursor(current,new DocumentHistory.Cursor("title",6,6));for(int i=0;i<200;i++){Note target=i%2==0?history.undo(current):history.redo(current);DocumentHistory.Cursor cursor=history.cursor(target);assertNotNull(cursor);current=target.state(target.pinned,target.archived,target.deletedAt,10+i);history.rememberCursor(current,cursor);}java.lang.reflect.Field field=DocumentHistory.class.getDeclaredField("cursors");field.setAccessible(true);assertTrue(((Map<?,?>)field.get(history)).size()<=3);}
+
+    @Test public void malformedUnicodeCannotBecomeQuestionMarksDuringCanonicalSave(){for(String text:Arrays.asList("\ud800","\udc00","a\ud800b"))assertThrows(IllegalArgumentException.class,()->new RichText(text,Collections.emptyList()));String valid="😀 ಕನ್ನಡ é 👩‍💻";assertEquals(valid,new RichText(valid,Collections.emptyList()).text);}
+
+    @Test public void transcriptArrivalCleansOnlyAnUntouchedCanonicalPendingMarker(){String id=UUID.randomUUID().toString();Note old=VoiceTranscripts.placeholder(id,1),canonical=old.withContent(DocumentContent.fromLegacy(old),2),applied=VoiceTranscripts.apply(canonical,id,"Offline text",3);assertFalse(applied.plainText().contains("transcription pending"));assertTrue(applied.plainText().contains("Offline text"));assertTrue(applied.voiceSources.contains(id));assertSame(applied,VoiceTranscripts.apply(applied,id,"Repeated",4));Note edited=canonical.withContent(canonical.content.replace(canonical.content.blocks.get(0).id,DocumentContent.Block.text(canonical.content.blocks.get(0).id,new RichText("My edits: "+VoiceTranscripts.pending(id),Collections.emptyList()))),4);assertTrue(VoiceTranscripts.apply(edited,id,"Text",5).plainText().contains("My edits: "+VoiceTranscripts.pending(id)));}
 
 }

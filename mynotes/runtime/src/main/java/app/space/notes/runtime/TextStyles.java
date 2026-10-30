@@ -20,13 +20,13 @@ public final class TextStyles {
 
     }
     private static final class FontSize extends MetricAffectingSpan {
-        final int size;final float pixels;FontSize(int size,float scale){this.size=size;this.pixels=size*scale;}
+        final int size;final float pixels;FontSize(int size,float pixels){this.size=size;this.pixels=pixels;}
         public void updateDrawState(android.text.TextPaint paint){paint.setTextSize(pixels);}
         public void updateMeasureState(android.text.TextPaint paint){updateDrawState(paint);}
     }
     private static final class Numbered implements LeadingMarginSpan {
         final String value;final android.graphics.Paint paint=new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);final int margin;
-        Numbered(String value,android.util.DisplayMetrics metrics){this.value=value;paint.setTextSize(18*metrics.scaledDensity);margin=(int)Math.ceil(paint.measureText(value+".")+8*metrics.density);}
+        Numbered(String value,android.util.DisplayMetrics metrics){this.value=value;paint.setTextSize(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,18,metrics));margin=(int)Math.ceil(paint.measureText(value+".")+8*metrics.density);}
         public int getLeadingMargin(boolean first){return margin;}
         public void drawLeadingMargin(android.graphics.Canvas canvas,android.graphics.Paint original,int x,int dir,int top,int baseline,int bottom,CharSequence text,int start,int end,boolean first,android.text.Layout layout){
             if(first && text instanceof Spanned && ((Spanned)text).getSpanStart(this)==start){paint.setColor(original.getColor());float width=paint.measureText(value+".");canvas.drawText(value+".",dir>0?x:x-width,baseline,paint);}
@@ -69,7 +69,7 @@ public final class TextStyles {
                 case "underline":span=new UnderlineSpan();break;
                 case "strike":span=new StrikethroughSpan();break;
                 case "font":span=new TypefaceSpan(mark.value);break;
-                case "size":span=new FontSize(Integer.parseInt(mark.value),metrics.scaledDensity);break;
+                case "size":span=new FontSize(Integer.parseInt(mark.value),android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,Integer.parseInt(mark.value),metrics));break;
                 case "link":span=new URLSpan(mark.value);break;
                 case "number":span=new Numbered(mark.value,metrics);break;
                 default:span=new Heading(mark.type);

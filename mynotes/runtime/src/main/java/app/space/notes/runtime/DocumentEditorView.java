@@ -30,7 +30,7 @@ final class DocumentEditorView extends LinearLayout {
     @Override protected void onDetachedFromWindow(){stopDragScroll();super.onDetachedFromWindow();}
     private void trackDrag(DragEvent event,View target){
         if(event.getAction()==DragEvent.ACTION_DRAG_ENDED || event.getAction()==DragEvent.ACTION_DROP){stopDragScroll();return;}
-        if(readOnly() || event.getAction()!=DragEvent.ACTION_DRAG_LOCATION)return;int[] at=new int[2],viewport=new int[2];target.getLocationOnScreen(at);scroll.getLocationOnScreen(viewport);float y=at[1]+event.getY()-viewport[1];int direction=y<dp(48)?-1:y>scroll.getHeight()-dp(48)?1:0;if(direction!=dragDirection){stopDragScroll();dragDirection=direction;if(direction!=0)post(dragTick);}
+        if(readOnly() || event.getAction()!=DragEvent.ACTION_DRAG_LOCATION)return;int[] at=new int[2],viewport=new int[2];target.getLocationOnScreen(at);scroll.getLocationOnScreen(viewport);float y=at[1]+event.getY()-viewport[1];int edge=Math.min(dp(48),Math.max(dp(8),scroll.getHeight()/5));int direction=y<edge?-1:y>scroll.getHeight()-edge?1:0;if(direction!=dragDirection){stopDragScroll();dragDirection=direction;if(direction!=0)post(dragTick);}
     }
     private final Map<String,TypingStyle> pendingTyping=new HashMap<>();
     private ScrollView scroll;private Button undo,redo;private boolean building,formattingChange,paragraphBoundaryChange,insertionUsesCaret=true,selectionLocked,restoringSelection,focusTransition;

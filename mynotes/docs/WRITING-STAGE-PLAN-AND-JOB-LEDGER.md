@@ -39,3 +39,11 @@ Both failed methods are new: Aa scope inspection called String.contentEquals on 
 ## Reservation2 — BEFORE launch
 
 Four jobs: build/full API26/dark2×API34/landscapeAPI34. **27/35 cumulative reserved,8 unreserved**. This stage now reserves8 total; no fresh allowance. Inventories unchanged221 JVM/244 full/114 focused. Final qualification remains pending; original failures remain in source-pinned evidence, not waived.
+
+## Reservation2 outcome — sourceb1e1d3f/run41093980631
+
+Build124194830465 PASS/JVM221/lint/stable signing. API26/124196005693 **244/244** and dark2×/124196005633 **114/114** PASS. Landscape/124196005649 **113/114**: native checklist drag expected before Second but dropped before Third. All independent PDF gates PASS. Evidence preserved in2db89e33. The landscape screenshot shows the insertion marker actually before Third: the helper's original screen coordinates became stale during edge scrolling/screenshot settling. Fixed48dp scroll edge zones occupy too much of a short writing viewport, allowing the target to keep shifting while holding.
+
+## Reservation3 — BEFORE launch
+
+Four jobs: shared build, full API26, dark2×API34 and landscapeAPI34. **31/35 cumulative reserved,4 unreserved**;12 jobs for this stage. Adapt drag edge zones to at most one fifth of the actual viewport while retaining48dp upper bound. The native journey uses matching viewport-relative safe zones, remeasures the intended line after screenshot settling, and asserts the actual marker offset equals6 immediately before dropping. Original strict text-slice/row-preservation/Undo assertions remain; do not merely accept whichever line was hit. No table or visual editor redesign. Exact inventories remain221 JVM/244 full/114 focused.

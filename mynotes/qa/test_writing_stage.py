@@ -18,7 +18,7 @@ class WritingStage(unittest.TestCase):
   self.assertIn('Block.checklist(id,block.name,items',(ROOT/'domain/src/main/java/app/space/notes/domain/NoteOperations.java').read_text())
  def test_checklist_drag_is_local_and_has_preview_and_alternative(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
-  for token in ['ChecklistInsertionLine','getLineStart','moveChecklistIntoText','Cancel move','Move checklist','event.getLocalState() instanceof BlockDrag','input.setForeground(null)']:
+  for token in ['ChecklistInsertionLine','getLineStart','moveChecklistIntoText','Cancel move','Move checklist','event.getLocalState() instanceof BlockDrag','input.setForeground(null)','scroll.getHeight()/5']:
    self.assertIn(token,editor)
   self.assertNotIn('DRAG_FLAG_GLOBAL',editor)
  def test_no_plain_text_management_header_or_schema_bump(self):

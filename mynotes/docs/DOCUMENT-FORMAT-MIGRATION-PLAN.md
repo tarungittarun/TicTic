@@ -36,3 +36,9 @@ Treat destinations as untrusted data. Validate an explicit URL scheme allowlist;
 A block reorder must create one undoable transaction and preserve cursor/selection in unaffected blocks. Text Undo/Redo needs a document-level history design across block changes and style operations; the present bounded per-field session history is an incremental improvement, not the finished Word-like history. Rotation/process death must not duplicate blocks, lose a table draft, apply stale selections or overwrite a changed source.
 
 Qualify migration fixtures (all legacy schema versions), corrupt/unknown formats, round trips, existing backup restore, conflicted folder writers, keyboard/large-font/landscape, native drag/selection, exports and actual Motorola provider flows before declaring the remaining features complete. No permissive legacy flattening or fake placeholder buttons are acceptable substitutes.
+
+## Continuation checkpoint — 2026-10-30
+
+The user requested completion of the pending items after receiving code17. Implementation resumed without launching any more CI jobs. First isolated primitive: `TextTable`, an immutable rectangular plain-text table draft supporting cell edits and row/column insertion/deletion, deep immutable snapshots, strict dimension/text limits, and rejection rather than truncation of invalid content. Six JUnit cases cover snapshots, structural edits, invalid input, limits and unchanged originals after rejection.
+
+This primitive is **not connected to Note, persistence, imports, export or the Android UI**, and tables remain pending for the user. No schema is activated. The Python source suites pass (551 root/161 Notes), but this environment has no JDK; the new Java tests have **not been compiled or executed**. Android builds remain Actions-only. The previous 17-job allocation remains exhausted. Obtain a new explicit job allowance before any build/qualification workflow; use `[skip ci]` for intermediate pushes.

@@ -45,10 +45,11 @@ Document actions reachable, including Undo/Redo.
 ## Tables
 
 **+ → Table** starts with an editable 2×2 table and focuses its first cell.
+Cells have visible boundaries, with full-height rows even when text wraps.
 Tap a cell → **Cell actions** to add a row above/below or a column left/right.
 Deletion asks for confirmation and remains undoable. **Header row · Off/On** changes the
-first row's role without injecting bold formatting into stored cell text. PDF displays
-header emphasis. Header repetition on every PDF page is not promised.
+first row's display role without injecting bold formatting into stored cell text. The
+editor and PDF display header emphasis. Header repetition on every PDF page is not promised.
 
 Deleting the first row removes its header role. To insert above a header, first turn the
 header role off. Wider tables scroll sideways; the page provides an overflow cue.

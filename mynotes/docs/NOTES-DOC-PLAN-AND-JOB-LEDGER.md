@@ -39,9 +39,10 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 | 2: complete Doc usability + home viewport repairs | 4 | 8/24 | 41122179331 / 7e849b9f | build232 PASS; API26 248/249, dark117/118, land116/118; preview-helper discovery failure plus land Doc focus/viewport failure |
 | 3: final flow and native dispatch repairs | 4 | 12/24 | 41124708672 / 15515e93 | build232 PASS, API26 251/251 PASS, dark120/120 PASS, land119/120 FAIL (actual writing line clipped) |
 | 4: measured IME caret correction | 4 | 16/24 | 41126842332 / d79f8b68 | ALL PASS:232 JVM,251/251 API26,120/120 dark,120/120 landscape; all3 independent PDFs and complete fixtures |
-| 5: exact table identity and post-settling regression | 4 | 20/24 | pending launch | pending |
+| 5: exact table identity and post-settling regression | 4 | 20/24 | 41128791793 / e9fcf0d0 | build232 PASS, API26 252/252 PASS, dark121/121 PASS, land120/121 FAIL (journey tried hidden Back before dismissing IME) |
+| 6: final grid clarity + native keyboard-aware Back | 4 | 24/24 | pending launch | pending |
 
-4 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
+**0 jobs remain unreserved. The new24-job allowance is fully reserved; do not launch further jobs without new approval.** Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
 Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
@@ -136,3 +137,20 @@ The native caret check also waits beyond the1000ms correction window and recheck
 actual line, preventing a merely transient visibility pass. No production controls or
 text sizes are reduced. Authored final inventory232 JVM/252 full/121 focused.
 Local root569/Notes179 PASS before launch; all Java source syntax parsed.
+
+## Checkpoint 6 — final reservation
+
+Checkpoint5's landscape failure was a real timing-dependent **journey error**: it called
+programmatic `click(Back)` while the existing legacy Notes header was hidden by its tiny
+IME viewport. The same journey now uses the existing **native** `tap(Back)` helper, which
+dismisses IME when the named header is hidden, waits for its real unclipped rectangle and
+injects DOWN/UP. No visibility is forced and no assertion is removed. The strengthened
+post-settling caret case passed; the table-prefix isolation case passed.
+
+Visual review of the actual large-font table fixture also exposed insufficient body-cell
+boundaries. Add visible theme-aware1dp borders,6dp horizontal text padding, header display
+emphasis (not stored bold marks), and uniform full-row cell heights for wrapped text.
+The existing native header/edit/Undo/reopen case now uses a multiline value and asserts
+matching sibling heights/padding, in addition to unchanged data checks. No inventory shrinks:
+232 JVM,252 full,121 focused. Local root570/Notes180 and Java syntax must pass before push.
+This is the sixth/final4-job reservation;24/24 conservatively counted.

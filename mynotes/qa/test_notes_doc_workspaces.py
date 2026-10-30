@@ -38,3 +38,9 @@ class NotesDocWorkspaces(unittest.TestCase):
  def test_cell_context_requires_exact_identity(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   self.assertIn('!id.equals(selectedBlock)',editor)
+
+ def test_table_cells_have_legible_borders_and_uniform_rows(self):
+  editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
+  self.assertIn('cellBorder.setStroke(dp(1),design.outline)',editor)
+  self.assertIn('cell.setPadding(dp(6),dp(8),dp(6),dp(8))',editor)
+  self.assertIn('row.addView(cell,new LayoutParams(dp(160),-1))',editor)

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source_sha": "5363548d90c853fb00d5a3df7351516f5c57a189",
+  "capture_run": "41091891301",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 114,
+      "passed": 112,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText: status -2 java.lang.NullPointerException: Attempt to invoke interface method 'int java.lang.CharSequence.length()' on a null object reference\n\tat java.lang.String.contentEquals(String.java:1371)\n\tat app.space.notes.CoreJourneysTest.dialogContains(CoreJourneysTest.java:456)\n\tat app.space.notes.CoreJourneysTest.aaPanelDistinguishesSelectionFromTypingAndKeepsRichText(CoreJourneysTest.java:459)\n",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows: status -2 java.lang.AssertionError: Dialog action Rename\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:101)\n\tat app.space.notes.CoreJourneysTest.namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows(CoreJourneysTest.java:463)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 114,
+      "passed": 112,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText: status -2 java.lang.NullPointerException: Attempt to invoke interface method 'int java.lang.CharSequence.length()' on a null object reference\n\tat java.lang.String.contentEquals(String.java:1371)\n\tat app.space.notes.CoreJourneysTest.dialogContains(CoreJourneysTest.java:456)\n\tat app.space.notes.CoreJourneysTest.aaPanelDistinguishesSelectionFromTypingAndKeepsRichText(CoreJourneysTest.java:459)\n",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows: status -2 java.lang.AssertionError: Dialog action Rename\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:101)\n\tat app.space.notes.CoreJourneysTest.namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows(CoreJourneysTest.java:463)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 244,
+      "passed": 242,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText: status -2 java.lang.NullPointerException: Attempt to invoke interface method 'int java.lang.CharSequence.length()' on a null object reference\n\tat java.lang.String.contentEquals(String.java:1029)\n\tat app.space.notes.CoreJourneysTest.dialogContains(CoreJourneysTest.java:456)\n\tat app.space.notes.CoreJourneysTest.aaPanelDistinguishesSelectionFromTypingAndKeepsRichText(CoreJourneysTest.java:459)\n",
+        "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows: status -2 java.lang.AssertionError: Dialog action Rename\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:101)\n\tat app.space.notes.CoreJourneysTest.namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows(CoreJourneysTest.java:463)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

@@ -14,6 +14,7 @@ class WritingStage(unittest.TestCase):
   self.assertNotIn('Block.checklist(block.id,rows',editor)
   codec=(ROOT/'runtime/src/main/java/app/space/notes/runtime/ContentCodec.java').read_text()
   self.assertIn('Block.checklist(id,name,items',codec)
+  self.assertIn('description=label(list)+", list item "+position',editor)
   self.assertIn('Block.checklist(id,block.name,items',(ROOT/'domain/src/main/java/app/space/notes/domain/NoteOperations.java').read_text())
  def test_checklist_drag_is_local_and_has_preview_and_alternative(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()

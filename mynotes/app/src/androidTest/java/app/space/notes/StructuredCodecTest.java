@@ -113,6 +113,6 @@ public class StructuredCodecTest {
     @Test public void namedChecklistRoundTripsLibraryBackupAndMergeWithoutDroppingName()throws Exception{
         app.space.notes.domain.DocumentContent.Block list=app.space.notes.domain.DocumentContent.Block.checklist("box","Shopping",Arrays.asList(new Note.Item("rich-row","Keep",true,2,Arrays.asList(new Note.Mark("italic",0,4)))),true);
         Note original=text().withContent(new app.space.notes.domain.DocumentContent(Arrays.asList(list)),5);
-        Note stored=DocumentCodec.decode(DocumentCodec.encode(Arrays.asList(original))).get(0),backup=BackupCodec.decode(BackupCodec.encode(Arrays.asList(original))).get(0);assertTrue(NoteMerge.same(original,stored));assertTrue(NoteMerge.same(original,backup));assertEquals("Shopping",stored.content.block("box").name);assertEquals("italic",stored.content.block("box").items.get(0).marks.get(0).type);
+        Note stored=DocumentCodec.decode(DocumentCodec.encode(Arrays.asList(original))).get(0),backup=BackupCodec.decode(BackupCodec.encode(Arrays.asList(original))).get(0);assertTrue(NoteMerge.same(original,stored));assertTrue(NoteMerge.same(original,backup));Note merged=app.space.notes.domain.NoteOperations.merge(Arrays.asList(original,original),6);assertEquals(2,merged.content.blocks.stream().filter(block->block.name.equals("Shopping")).count());assertEquals("Shopping",stored.content.block("box").name);assertEquals("italic",stored.content.block("box").items.get(0).marks.get(0).type);
     }
 }

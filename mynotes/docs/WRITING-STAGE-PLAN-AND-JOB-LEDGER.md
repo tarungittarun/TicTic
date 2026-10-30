@@ -29,3 +29,13 @@ Four individual jobs: build (compilation, JVM inventory, debug/release lint, sta
 Expected authored inventories:221 JVM,244 full native and114 focused. New tests exercise named-checklist codec/backup roundtrip, name-sensitive immutable model/moves, selected/new-typing panel behaviour, name/edit/move/Undo/Redo/cold-controller reopen and actual injected native checklist-to-text drag with visible marker. Existing native assertions remain; only Format→Aa and the explicitly reorganised More text options paths change. Source guards pass562 root/172 MyNotes (overlapping discovery). These are not Android runtime PASS claims.
 
 Code21/version0.18.0 retains package/signer. Qualification pending. No final APK recommendation until native outcomes and screenshots are reviewed. Physical Motorola acceptance is separate.
+
+## Reservation1 outcome — source5363548/run41091891301
+
+Build124187617748 PASS: compilation, exact executed JVM221, debug/release lint and stable signing. API26/124188824408 **242/244**; dark2×/124188824437 and landscape/124188824496 **112/114** each. All existing journeys, named-box codec/backup and actual native whole-box drag-to-text/marker tests passed; independent PDF gates PASS in all three profiles. Reports/screenshots preserved by65340331.
+
+Both failed methods are new: Aa scope inspection called String.contentEquals on an accessibility node with null text; named-box journey found the row's identical box-name content description instead of the actual name button, so Rename never opened. Fix the test helper's null handling and distinguish actual row accessibility labels as `box name, list item N`. Preserve all assertions. Extend the codec test with actual canonical merge name-preservation assertions. No edit to visual/table/legacy controller flows.
+
+## Reservation2 — BEFORE launch
+
+Four jobs: build/full API26/dark2×API34/landscapeAPI34. **27/35 cumulative reserved,8 unreserved**. This stage now reserves8 total; no fresh allowance. Inventories unchanged221 JVM/244 full/114 focused. Final qualification remains pending; original failures remain in source-pinned evidence, not waived.

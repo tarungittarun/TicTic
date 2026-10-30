@@ -34,7 +34,8 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   self.assertNotIn('getClipData()',method)
   self.assertIn('noteId.equals(editing)',method)
   self.assertIn('ChecklistOrder.move(note.items,itemId,insertion)',method)
-  self.assertIn('if(moved==note.items)return',method)
+  self.assertIn('if(moved==note.items){checklistDragState="no-op";return;}',method)
+  self.assertLess(method.index('if(moved==note.items)'),method.index('captureUndo('))
   self.assertIn('"Position "+(i+1)',method)
 
  def test_open_with_and_drop_are_local_read_only_reviewed_intake(self):
@@ -43,6 +44,8 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
    self.assertIn(token,activity)
   grant=self.controller.split('public void openNoteDocument(',1)[1].split('public void importBackup(',1)[0]
   self.assertIn('busy || prepared!=null',grant)
+  for mode in ['drawingPad!=null','imageEditor!=null','diagramOpen','ocrPanel','capture!=null']:
+   self.assertIn(mode,grant)
   self.assertIn('deferredResults.size()>=8',grant)
   self.assertIn('finally {main.post(release);}',self.controller)
   self.assertIn('for(DocumentGrant grant:new ArrayList<>(documentGrants))grant.run()',self.controller)
@@ -57,3 +60,15 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   method=repository.split('public String documentLocation(',1)[1].split('private boolean exists()',1)[0]
   self.assertIn('not an individual note file',method)
   self.assertNotIn('Diagnostics.',method)
+
+ def test_document_drop_is_intercepted_before_native_text_uri_coercion(self):
+  shell=(JAVA/'LibraryGestureLayout.java').read_text()
+  method=shell.split('public boolean dispatchDragEvent(',1)[1].split('LibraryGestureLayout(Context',1)[0]
+  self.assertIn('event.getLocalState()==null',method)
+  self.assertLess(method.index('documentDrop.onDrag(this,event)'),method.index('super.dispatchDragEvent(event)'))
+  self.assertIn('if(event.getLocalState() instanceof ChecklistDrag)return false',self.controller)
+ def test_ruling_uses_existing_saved_background_and_native_line_geometry(self):
+  self.assertIn('((WritingField)body).ruling(n.background==3',self.controller)
+  self.assertIn('getLineBounds(line,bounds)',self.controller)
+  self.assertIn('textRuling', (JAVA/'NoteBackground.java').read_text())
+  self.assertIn('if(repository.appOnlyStorage())',self.controller)

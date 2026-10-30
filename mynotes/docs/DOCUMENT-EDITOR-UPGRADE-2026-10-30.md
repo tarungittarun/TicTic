@@ -74,3 +74,13 @@ Use a build plus one API26 native job for exactly three named cases: actual hand
 The new folder setup screen treats app-only storage as a normal configuration, not a failed folder read. The attached diagnostics contained 563 parsed events, including five folder-open IOException events; their messages are intentionally absent, so their exact cause is not inferred. Raw attachment/device identifiers are not committed.
 
 Ruled backgrounds now draw guide lines at actual native text baselines rather than a fixed grid behind images. The persisted existing background value 3 is reused; no schema migration. Select Background → Ruled. Other background rendering remains unchanged. PDF guide alignment and physical-device behavior are separate acceptance items.
+
+## Probe — run 41008133768
+
+**2 jobs used; cumulative 12/17.** Build/JVM/lint/signing passed; native probe 2/3. App-only folder setup and text-baseline guide rendering passed. Actual drag reached injection but did not reorder. Production correction: native editable fields must reject the local ChecklistDrag object so their own drop handlers do not consume the row drop. Add non-content drag-phase diagnostics and a synthetic fault screenshot without weakening reorder assertions.
+
+Security hardening in final source: route external document MIME drops at the root before native editable children can coerce a URI into text; reject opening while visual/OCR/recording/file review drafts are active; retain/release temporary grants deterministically. Open note file is reachable directly from Library, not only storage settings. External provider and file-manager behavior remains a physical acceptance requirement.
+
+## Final bounded qualification reservation
+
+Reserve **5 jobs** for build/JVM/lint/signing, full API26, API34 landscape, API34 dark/2.0-font, and evidence. This uses at most **17/17**; no further jobs may be launched under this approval. This qualification covers the **partial code17 batch**, not the still-unimplemented mixed-document migration, tables/hyperlinks, typography, visual names, numbering or selected-text checklist conversion.

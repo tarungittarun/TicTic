@@ -2,6 +2,8 @@
 
 Open **this directory**, not the repository root, in Android Studio.
 
+Latest signed development checkpoint: [code19 — saved typing styles and linked/optionally guided PDF](docs/STYLE-PDF-DEVELOPMENT-HANDOFF.md). [User instructions](docs/STYLE-PDF-USER-GUIDE.md). Automated qualification is not physical-device/public-release approval.
+
 - `app/`: standalone app.space.notes host (debug uses .debug).
 - `runtime/`: reusable Notes UI and private-storage repository.
 - `domain/`: pure Java document rules.

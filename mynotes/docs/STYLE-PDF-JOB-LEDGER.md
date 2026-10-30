@@ -35,3 +35,9 @@ Build124041495922 PASS, exact JVM212 gate/lint/stable signing PASS. Landscape124
 ## Reservation4:1 evidence-only job, total9/35 reserved,26 unreserved
 
 Recover the existing landscape artifact by NAME into an explicit per-lane path, avoiding single-artifact flattening ambiguity. Before preservation, assert the original source SHA and that BOTH original native inventory and independent PDF steps passed. Assert actual recovered JSON100/100/ok and PDF report ok, render the existing screenshots, then gated documentation-only commit with capture source9a932cb/run41049424165 and separate preservation-run ID. No Android rebuild or test rerun; no failed assertion waived. This preserves the exact final runtime evidence at minimum runner overhead.
+
+## Final outcome
+
+Recovery41051111000/job124047101337 **PASS**, evidence commit81b7359. Original source/run and passed mandatory runtime/PDF gates were verified, recovered JSON confirms100/100, and exact landscape evidence is preserved under capture run41049424165 with preservation run recorded separately. API26 **229/229**, dark2× **100/100**, landscape **100/100**, JVM **212**, compilation/lint/stable signing and all independent PDF gates PASS. No production app changes after8a0ea83; later qualification sources differ only in tests/workflow/docs/evidence. Original reporting failures and99/100 attempt remain recorded, not waived or erased.
+
+Final new-budget usage: **9 individual jobs started,0 jobs skipped,26 unused of35**. No more jobs reserved or launched. Raw code19 APK, exact sources/digest and physical-device/public-release caveats are in STYLE-PDF-DEVELOPMENT-HANDOFF.md. Estimate5–9 actual engineering/testing hours is not a claim of measured hours. Calculator/Archive/Wall scope unchanged.

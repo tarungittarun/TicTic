@@ -24,3 +24,13 @@ class NotesDocWorkspaces(unittest.TestCase):
   self.assertNotIn('horizontally(this',editor)
   for token in ['compactButton','if(large && i==3)','Continue writing…','Move · choose destination','BlockBoundaryLine','Text to display','Remove link']:
    self.assertIn(token,editor)
+
+ def test_home_hint_cannot_push_the_dock_out_of_view(self):
+  controller=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text()
+  self.assertIn('libraryArea.addView(emptyHint,new FrameLayout.LayoutParams(-1,-1))',controller)
+  self.assertNotIn('root.addView(emptyHint)',controller)
+  self.assertIn('viewportVisibility(homeWorkspaceChrome,keyboardVisible()',controller)
+ def test_empty_doc_has_a_writing_recovery_path(self):
+  editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
+  self.assertIn('note.content.blocks.isEmpty()',editor)
+  self.assertIn('"Start writing"',editor)

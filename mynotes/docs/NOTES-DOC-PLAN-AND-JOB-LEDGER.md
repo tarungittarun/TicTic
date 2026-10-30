@@ -36,9 +36,10 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 | Reservation | Jobs | Cumulative reserved | Run/source | Outcome |
 |---|---:|---:|---|---|
 | 1: initial Notes/Doc qualification | 4 | 4/24 | 41118729220 / 953daf0f | build PASS; dark115/116 and landscape95/116 FAIL (home viewport); API26 reporting pending at next checkpoint |
-| 2: complete Doc usability + home viewport repairs | 4 | 8/24 | pending launch | pending |
+| 2: complete Doc usability + home viewport repairs | 4 | 8/24 | 41122179331 / 7e849b9f | build232 PASS; API26 248/249, dark117/118, land116/118; preview-helper discovery failure plus land Doc focus/viewport failure |
+| 3: final flow and native dispatch repairs | 4 | 12/24 | pending launch | pending |
 
-16 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
+12 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
 Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
@@ -78,3 +79,28 @@ results must not be claimed from source contracts alone.
   GitHub lookup/pull retries retain genuine failure exit codes. No test inventories reduced.
 - Current local root566/Notes176 PASS; all Java files parsed with tree-sitter (syntax only).
   Authored next inventory:232 JVM,249 full native; Android execution still pending.
+
+## Checkpoint 3
+
+Checkpoint2 preserved all three native reports, screenshots and independent PDF reports
+in design-2026-10-29/native/41122179331 (source7e849b9f). Home Notes search and landscape
+control regressions no longer appear. Its remaining failures are not waived:
+
+- The native tap helper searched TextViews only and could not discover DiagramPreview.
+  It now discovers named Views too, still sends actual Android DOWN/UP events and retains
+  complete, stable, unclipped rectangles for toolbar/control targets. Scrollable image/
+  diagram content can exceed viewport height; native taps require a visible48dp rectangle
+  inside the actual focused app window and inject at that visible rectangle's center.
+- Landscape Doc keyboard case retained a keyboard but failed focus/line visibility. Wait
+  for modal/layout restoration before requesting IME. The measured-shrink recovery also
+  restores its remembered writer when focus fell to a non-EditText, not just null; it never
+  steals focus from another text field or a modal window. Diagnostic failures now identify
+  actual field geometry/focus/visible line, not a generic timeout alone.
+- Explicit Start writing recovers documents whose last content section was removed.
+- Tapping a previously focused text field after object controls restores that text anchor
+  and clears the object outline. New native journeys cover this and empty-document recovery.
+- Evidence collector waits for all three uploaded profile names and reports missing profiles
+  explicitly rather than silently accepting a partial fixture set.
+
+Local gates: root568/Notes178 PASS, Java syntax parsed. Authored inventory232 JVM/251 full
+native/120 focused. Builds/native checks for these latest fixes remain pending.

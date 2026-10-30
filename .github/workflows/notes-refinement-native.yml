@@ -1,5 +1,5 @@
 # Notes/Doc split and completion: 24 NEW individual jobs explicitly approved.
-# Reservation 2: four jobs for complete Doc usability and home viewport repairs; 8/24 reserved.
+# Reservation 3: native preview dispatch, short-viewport focus and empty-document recovery; 12/24 reserved.
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
@@ -169,12 +169,17 @@ jobs:
           python3 - <<'PYWAIT'
           import json,os,subprocess,time
           url='repos/'+os.environ['GITHUB_REPOSITORY']+'/commits/'+os.environ['GITHUB_SHA']+'/check-runs'
-          for attempt in range(80):
+          for attempt in range(40):
               try:jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['check_runs']
               except (subprocess.CalledProcessError,json.JSONDecodeError):
                   time.sleep(15);continue
               peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
-              if len(peers)==2 and all(job['status']=='completed' for job in peers):break
+              if len(peers)==2 and all(job['status']=='completed' for job in peers):
+                  try:artifacts=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/artifacts'],text=True))['artifacts']
+                  except (subprocess.CalledProcessError,json.JSONDecodeError):
+                      time.sleep(15);continue
+                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34'}
+                  if required <= {item['name'] for item in artifacts if item['size_in_bytes']>0}:break
               time.sleep(15)
           else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
           PYWAIT
@@ -210,9 +215,11 @@ jobs:
               if capture.exists() and capture.stat().st_size:
                   subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)
           if not results:raise SystemExit('No native execution reports to preserve')
+          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34'}-set(results))
           root.mkdir(parents=True,exist_ok=True)
-          (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'release_approval':False},indent=2)+'\n')
+          (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'missing_profiles':missing_profiles,'release_approval':False},indent=2)+'\n')
           (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')
+          if missing_profiles:raise SystemExit('Incomplete native evidence; missing profiles: '+','.join(missing_profiles))
           PYREVIEW
       - name: Gate and commit only fixture documentation on the session branch
         if: always() && matrix.group == 'all'

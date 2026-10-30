@@ -39,6 +39,7 @@ Document actions reachable, including Undo/Redo.
   insertion retains that anchor. Reminders and hyperlinks are also available here.
 - Tap **Continue writing…** below an object where no writing area exists. A repeated tap
   reuses the following text area instead of repeatedly adding empty sections.
+- If every section was removed, **Start writing** creates a fresh writing area without changing your title.
 - **Document → Writing lines** changes ruling independently of the background.
 
 ## Tables

@@ -83,8 +83,9 @@ public final class PdfExporter {
             for(int first=0;first<table.columns;first+=4){
                 int columns=Math.min(4,table.columns-first);float width=499f/columns;
                 if(table.columns>4)text(new app.space.notes.domain.RichText("Columns "+(first+1)+"–"+(first+columns),java.util.Collections.emptyList()));
-                for(java.util.List<app.space.notes.domain.RichText> row:table.cells){
-                    java.util.List<StaticLayout> cells=new java.util.ArrayList<>();for(int column=first;column<first+columns;column++)cells.add(layout(styled(row.get(column)),(int)width-12));
+                for(int rowIndex=0;rowIndex<table.cells.size();rowIndex++){
+                    java.util.List<app.space.notes.domain.RichText> row=table.cells.get(rowIndex);
+                    java.util.List<StaticLayout> cells=new java.util.ArrayList<>();for(int column=first;column<first+columns;column++){SpannableStringBuilder value=new SpannableStringBuilder(styled(row.get(column)));if(table.hasHeader && rowIndex==0 && value.length()>0)value.setSpan(new android.text.style.StyleSpan(Typeface.BOLD),0,value.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);cells.add(layout(value,(int)width-12));}
                     int[] line=new int[columns];boolean remaining=true;
                     while(remaining){
                         float minimum=0;for(int column=0;column<columns;column++){StaticLayout cell=cells.get(column);if(line[column]<cell.getLineCount())minimum=Math.max(minimum,cell.getLineBottom(line[column])-cell.getLineTop(line[column]));}

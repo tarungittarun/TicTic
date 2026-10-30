@@ -110,8 +110,13 @@ public final class DocumentContent {
     public DocumentContent moveChecklistIntoText(String checklistId,String textId,int offset){
         Block list=block(checklistId),target=block(textId);
         if(list.kind!=Kind.CHECKLIST || target.text==null)throw new IllegalArgumentException("Choose a checklist and a writing position");
+        return moveIntoText(checklistId,textId,offset);
+    }
+    /** Move any whole content section to an exact text boundary; never flatten the payload. */
+    public DocumentContent moveIntoText(String sourceId,String textId,int offset){
+        Block list=block(sourceId),target=block(textId);if(sourceId.equals(textId) || target.text==null)throw new IllegalArgumentException("Choose another writing area as destination");
         target.text.slice(0,offset);target.text.slice(offset,target.text.text.length());
-        DocumentContent without=remove(checklistId);
+        DocumentContent without=remove(sourceId);
         if(offset==0)return without.insert(without.index(textId),list);
         if(offset==target.text.text.length())return without.insert(without.index(textId)+1,list);
         return without.insertAtText(textId,offset,list);
@@ -168,7 +173,7 @@ public final class DocumentContent {
             if(block.kind==Kind.CHECKLIST){part(out,Boolean.toString(block.hideChecked));part(out,Integer.toString(block.items.size()));for(Note.Item item:block.items){part(out,item.id);part(out,item.text);part(out,Boolean.toString(item.checked));part(out,Integer.toString(item.depth));part(out,Integer.toString(item.marks.size()));for(Note.Mark mark:item.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}part(out,"end rows");}
             if(block.image!=null)part(out,block.image.fingerprint());
             if(block.diagram!=null)part(out,block.diagram.fingerprint());
-            if(block.table!=null){part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<RichText> row:block.table.cells)for(RichText cell:row){part(out,cell.text);part(out,Integer.toString(cell.marks.size()));for(Note.Mark mark:cell.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}}
+            if(block.table!=null){if(block.table.hasHeader)part(out,"header row");part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<RichText> row:block.table.cells)for(RichText cell:row){part(out,cell.text);part(out,Integer.toString(cell.marks.size()));for(Note.Mark mark:cell.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}}
         }return out.toString();
     }
     private static void part(StringBuilder out,String text){out.append(text.length()).append(':').append(text);}

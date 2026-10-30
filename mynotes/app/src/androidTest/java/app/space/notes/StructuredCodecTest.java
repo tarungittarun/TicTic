@@ -19,6 +19,9 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class StructuredCodecTest {
+    @Test public void headerRoleRoundTripsAndRejectsMalformedInput()throws Exception{
+        Note old=Note.create(1);app.space.notes.domain.DocumentContent content=app.space.notes.domain.DocumentContent.fromLegacy(old).insert(1,app.space.notes.domain.DocumentContent.Block.table("t","Table01",app.space.notes.domain.TextTable.empty(2,2).withHeader(true)));Note doc=old.withContent(content,2);byte[] bytes=DocumentCodec.encode(Arrays.asList(doc));Note read=DocumentCodec.decode(bytes).get(0);assertTrue(read.content.block("t").table.hasHeader);assertTrue(NoteMerge.same(doc,read));String raw=new String(bytes,StandardCharsets.UTF_8);assertTrue(raw.contains("\"header\":true"));try{DocumentCodec.decode(raw.replace("\"header\":true","\"header\":\"true\"").getBytes(StandardCharsets.UTF_8));fail("Non-boolean header accepted");}catch(java.io.IOException expected){}
+    }
     private Note text(){return Note.create(1).rich("नोट","Hello ಕನ್ನಡ",Arrays.asList(new Note.Mark("bold",0,5),new Note.Mark("h1",6,11)),2).properties(8,Arrays.asList("Work","Personal"),2);}
     private Note list(){return Note.create(1).list("Shopping",Arrays.asList(new Note.Item("row1","Milk",false,0),new Note.Item("row2","ಕನ್ನಡ",true,2)),true,2).properties(4,Arrays.asList("Home"),2);}
     @Test public void schema2RetainsRichTextAndLabels() throws Exception {

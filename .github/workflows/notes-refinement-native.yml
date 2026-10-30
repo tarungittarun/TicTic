@@ -1,6 +1,6 @@
-# New approval: up to35 additional individual jobs for style presets/typing and PDF links/guides.
-# Launch only deliberate qualified checkpoints; documentation pushes use [skip ci].
-# Writing stage reservation4: final four jobs, responsive Aa controls plus native size assertion; cumulative35/35,0 unreserved.
+# Notes/Doc split and completion: 24 NEW individual jobs explicitly approved.
+# Reservation 1: build + API26 + API34 dark2x + API34 landscape = 4/24 reserved.
+# Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
   push:
@@ -41,14 +41,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.18.0-21-development.apk
-          sha256sum MyNotes-v0.18.0-21-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.18.0-21-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.19.0-22-development.apk
+          sha256sum MyNotes-v0.19.0-22-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.19.0-22-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.18.0-21-development.apk
+          path: MyNotes-v0.19.0-22-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -170,7 +170,9 @@ jobs:
           import json,os,subprocess,time
           url='repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/jobs'
           for attempt in range(80):
-              jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['jobs']
+              try:jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['jobs']
+              except (subprocess.CalledProcessError,json.JSONDecodeError):
+                  time.sleep(15);continue
               peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
               if len(peers)==2 and all(job['status']=='completed' for job in peers):break
               time.sleep(15)

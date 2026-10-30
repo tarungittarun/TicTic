@@ -23,6 +23,7 @@ final class ContentCodec {
                     NoteImage image=block.image;out.put("image",new JSONObject().put("id",image.id).put("name",image.name).put("mime",image.mime).put("width",image.width).put("height",image.height).put("data",image.data));break;
                 case DIAGRAM:out.put("diagram",DocumentCodec.encodeDiagram(block.diagram));break;
                 case TABLE:
+                    if(block.table.hasHeader)out.put("header",true);
                     JSONArray table=new JSONArray();for(List<RichText> row:block.table.cells){JSONArray cells=new JSONArray();for(RichText cell:row){JSONArray cellMarks=new JSONArray();for(Note.Mark mark:cell.marks)cellMarks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end).put("value",mark.value));cells.put(new JSONObject().put("text",cell.text).put("marks",cellMarks));}table.put(cells);}out.put("rows",table);break;
                 default:throw new IOException("Unsupported content kind");
             }array.put(out);
@@ -45,8 +46,8 @@ final class ContentCodec {
                     keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");keys(image,"id","name","mime","width","height","data");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(string(image,"id"),string(image,"name"),string(image,"mime"),integer(image,"width"),integer(image,"height"),string(image,"data"))));break;
                 case DIAGRAM:keys(in,"id","kind","name","diagram");diagram(in.getJSONObject("diagram"));blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;
                 case TABLE:
-                    keys(in,"id","kind","name","rows");JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");List<List<RichText>> rows=new ArrayList<>();
-                    for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);keys(cell,"text","marks");values.add(new RichText(string(cell,"text"),marks(cell.getJSONArray("marks"))));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows)));break;
+                    if(in.has("header"))keys(in,"id","kind","name","rows","header");else keys(in,"id","kind","name","rows");JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");List<List<RichText>> rows=new ArrayList<>();
+                    for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);keys(cell,"text","marks");values.add(new RichText(string(cell,"text"),marks(cell.getJSONArray("marks"))));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows,in.has("header") && bool(in,"header"))));break;
                 default:throw new IOException("Unsupported content kind");
             }
         }return new DocumentContent(blocks,bool(content,"writingLines"));

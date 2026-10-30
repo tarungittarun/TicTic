@@ -38,9 +38,10 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 | 1: initial Notes/Doc qualification | 4 | 4/24 | 41118729220 / 953daf0f | build PASS; dark115/116 and landscape95/116 FAIL (home viewport); API26 reporting pending at next checkpoint |
 | 2: complete Doc usability + home viewport repairs | 4 | 8/24 | 41122179331 / 7e849b9f | build232 PASS; API26 248/249, dark117/118, land116/118; preview-helper discovery failure plus land Doc focus/viewport failure |
 | 3: final flow and native dispatch repairs | 4 | 12/24 | 41124708672 / 15515e93 | build232 PASS, API26 251/251 PASS, dark120/120 PASS, land119/120 FAIL (actual writing line clipped) |
-| 4: measured IME caret correction | 4 | 16/24 | pending launch | pending |
+| 4: measured IME caret correction | 4 | 16/24 | 41126842332 / d79f8b68 | ALL PASS:232 JVM,251/251 API26,120/120 dark,120/120 landscape; all3 independent PDFs and complete fixtures |
+| 5: exact table identity and post-settling regression | 4 | 20/24 | pending launch | pending |
 
-8 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
+4 jobs remain unreserved. Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
 Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
@@ -116,7 +117,7 @@ not solve that. No check is waived.
 
 Reapply the exact caret-line reveal after native scroll changes during a bounded1000ms
 IME/focus-settling window. Explicit scroll/touch/drag cancels the window, so normal reading
-is not pulled back to the caret. No timer loop or continuous scrolling watcher is added.
+is not pulled back to the caret. No polling/timer loop is added; correction from scroll notifications is limited to that settling window.
 Native assertion is stronger: the **actual line top and bottom** must both lie inside the
 field's visible rectangle, not merely some field area at least one line high. Controls
 retain48dp targets; no font or touch target was reduced to make the check pass.
@@ -124,3 +125,14 @@ retain48dp targets; no font or touch target was reduced to make the check pass.
 Source15515e93 evidence (all three profiles, PDFs, screenshots) is preserved under
 `design-2026-10-29/native/41124708672/`. Checkpoint4 retains the232/251/120 inventory,
 local root568/Notes178 gates, and requires a new exact-source Android qualification.
+
+## Checkpoint 5 — final data-isolation guard
+
+Manual source review identified that a selected cell's string key could share a prefix
+with another imported table ID (e.g. `a` and `a:child`). Cell actions now require exact
+selected-block identity as well as a cell key. New native journey exercises both IDs,
+rejects the wrong table's context, edits the correct table and checks Undo isolation.
+The native caret check also waits beyond the1000ms correction window and rechecks the
+actual line, preventing a merely transient visibility pass. No production controls or
+text sizes are reduced. Authored final inventory232 JVM/252 full/121 focused.
+Local root569/Notes179 PASS before launch; all Java source syntax parsed.

@@ -34,3 +34,7 @@ class NotesDocWorkspaces(unittest.TestCase):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   self.assertIn('note.content.blocks.isEmpty()',editor)
   self.assertIn('"Start writing"',editor)
+
+ def test_cell_context_requires_exact_identity(self):
+  editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
+  self.assertIn('!id.equals(selectedBlock)',editor)

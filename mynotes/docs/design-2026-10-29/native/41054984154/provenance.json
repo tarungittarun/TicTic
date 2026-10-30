@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_sha": "ab1d4fb78476807ffa441864d8610b71c400d337",
+  "capture_run": "41054984154",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "min-api26": {
+      "ok": false,
+      "expected": 238,
+      "passed": 237,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#textUndoRedoPreservesFormattingSelectionAndSavesReviewedResult"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#textUndoRedoPreservesFormattingSelectionAndSavesReviewedResult: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertFalse(Assert.java:65)\n\tat org.junit.Assert.assertFalse(Assert.java:75)\n\tat app.space.notes.CoreJourneysTest.lambda$textUndoRedoPreservesFormattingSelectionAndSavesReviewedResult$179$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:330)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda137.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "release_approval": false
+}

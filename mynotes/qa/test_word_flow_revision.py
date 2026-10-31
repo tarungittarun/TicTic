@@ -42,6 +42,22 @@ class WordFlowRevision(unittest.TestCase):
   for token in ['drawing?5:3','design),5,"Diagram"','Math.max(1,Math.min(maximum,value))','ScaleGestureDetector','Zoom out','Reset','Close zoom']:
    self.assertIn(token,s)
   self.assertNotIn('host.change',s)
+ def test_table_ruling_is_excluded_but_text_guides_remain(self):
+  s=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('!key.startsWith("cell:") && host.current().content.writingLines',s)
+  pdf=(JAVA/'PdfExporter.java').read_text()
+  self.assertNotIn('guides(canvas,cell,',pdf)
+  self.assertIn('if(rules)guides(canvas,layout,',pdf)
+ def test_default_writing_looks_like_an_edit_field_not_an_insert_command(self):
+  s=(JAVA/'DocumentEditorView.java').read_text().split('private EditText writingPlaceholder',1)[1].split('private void continueWriting',1)[0]
+  self.assertIn('new EditText',s)
+  self.assertIn('setHint("Write text…")',s)
+  self.assertIn('!writing.isAttachedToWindow()',s)
+  self.assertNotIn('host.change',s)
+ def test_stale_dialogs_cannot_mutate_a_replaced_editor(self):
+  s=(JAVA/'DocumentEditorView.java').read_text()
+  for token in ['uiGeneration++','requireCurrentPage(offered)','uiGeneration!=linkGeneration','linkSnapshot.equals(host.current().content.fingerprint())','fields.get(field.getTag().toString())!=field']:
+   self.assertIn(token,s)
  def test_explicit_diagnostic_deletion_is_confirmed(self):
   s=(JAVA/'NotesController.java').read_text().split('settingRow(content,"Delete diagnostic logs"',1)[1].split('content.addView(text(',1)[0]
   self.assertLess(s.index('confirmSheet('),s.index('Diagnostics.clear()'))

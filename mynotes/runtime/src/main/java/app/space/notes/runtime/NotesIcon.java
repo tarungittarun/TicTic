@@ -28,6 +28,10 @@ final class NotesIcon extends Drawable {
  case "next":lines(c,9,5,16,12,9,19);break;
  case "circle":c.drawCircle(12,12,8,p);break;
  case "save":lines(c,4,3,17,3,21,7,21,21,3,21,3,3);lines(c,7,3,7,9,16,9,16,3);c.drawRect(7,14,17,21,p);break;
+ case "minus":lines(c,5,12,19,12);break;
+ case "chevron-down":lines(c,6,9,12,15,18,9);break;
+ case "cut":c.drawCircle(6,6,3,p);c.drawCircle(6,18,3,p);lines(c,8,8,20,20);lines(c,8,16,20,4);break;
+ case "paste":c.drawRoundRect(5,4,20,22,2,2,p);c.drawRoundRect(9,2,16,6,1,1,p);lines(c,9,11,16,11);lines(c,9,16,16,16);break;
  case "copy":c.drawRoundRect(8,7,21,21,2,2,p);lines(c,16,3,3,3,3,16);break;
  case "line":lines(c,4,20,20,4);break;
  case "rectangle":c.drawRect(3,5,21,19,p);break;

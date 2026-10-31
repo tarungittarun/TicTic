@@ -17,7 +17,7 @@ final class DrawingPad extends View {
  private Runnable stateChanged=()->{};
  private float zoom=1,panX,panY,focusX,focusY;private final ScaleGestureDetector scale;
  DrawingPad(Context c){super(c);setContentDescription("Drawing canvas. Draw with a finger. Undo and redo controls are below.");setFocusable(true);setEnabled(false);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);
-  scale=new ScaleGestureDetector(c,new ScaleGestureDetector.SimpleOnScaleGestureListener(){@Override public boolean onScale(ScaleGestureDetector d){float next=Math.max(1,Math.min(4,zoom*d.getScaleFactor()));panX=d.getFocusX()-offsetX()-(d.getFocusX()-offsetX()-panX)*next/zoom;panY=d.getFocusY()-offsetY()-(d.getFocusY()-offsetY()-panY)*next/zoom;zoom=next;clampPan();invalidate();return true;}});
+  scale=new ScaleGestureDetector(c,new ScaleGestureDetector.SimpleOnScaleGestureListener(){@Override public boolean onScale(ScaleGestureDetector d){float next=Math.max(1,Math.min(5,zoom*d.getScaleFactor()));panX=d.getFocusX()-offsetX()-(d.getFocusX()-offsetX()-panX)*next/zoom;panY=d.getFocusY()-offsetY()-(d.getFocusY()-offsetY()-panY)*next/zoom;zoom=next;clampPan();invalidate();return true;}});
  }
  void loaded(Bitmap bitmap){base=bitmap;if(bitmap!=null)paperHeight=Math.max(paperHeight,Math.min(4096,Math.round(bitmap.getHeight()*1024f/bitmap.getWidth())));ready=true;setEnabled(true);invalidate();stateChanged.run();}
  boolean grid(){return grid;}void grid(boolean value){grid=value;invalidate();}

@@ -30,7 +30,8 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 
 | Reservation | Jobs | Cumulative reserved | Source/run | Result |
 |---|---:|---:|---|---|
-|1: full implementation and new data/UI safety coverage|5|5/40|launching|Local604 root; native pending|
+|1: full implementation and new data/UI safety coverage|5|5/40|8daa3baa /41223351324|Build245 JVM PASS; API26/API36 271/276 each, large-font/landscape135/140 each; all4 PDF PASS. Same5 UI failures in each profile; not qualified.|
+|2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|launching|Local gates pending;247 JVM/280 Android inventory|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -39,3 +40,13 @@ Default-width tables and ordinary existing notes retain prior schema output. No 
 using saved table sizing; backups preserve rich cells, names, header and width. Table Cut is
 deferred until successful Paste inside the source document; Copy supports another open Doc in
 the same app process. The structured table clipboard is app-memory only, not a public system clip.
+
+Round2: no paper ruling within table cells; bounded live styled fit with per-column debounce and
+matching PDF width proportions. Preserve mixed styles when editing link URLs and inherit style
+when inserting a link.5x drawing creation/viewing and focus-anchored zoom. Grouped More, font
+previews, real icons, large-font Appearance layout; fifth Background tool in Notes and Doc.
+Guard stale dialogs and changed hyperlink forms before applying edits. Source1 failures audited:
+row menu test did not focus its cell; Labels and palette expectations obsolete; bulk-label helper
+opened wrong overflow; table menu required native-window settling/scroll; visual locator required
+non-TextView accessibility matching. Data assertions retained. New real native long-press regression
+and word-zoom screenshot remain unqualified until reservation2. No150-minute claim.

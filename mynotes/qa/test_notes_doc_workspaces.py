@@ -22,7 +22,7 @@ class NotesDocWorkspaces(unittest.TestCase):
  def test_doc_tools_are_adaptive_not_horizontally_hidden(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   self.assertNotIn('horizontally(this',editor)
-  for token in ['compactButton','if(large && i==3)','Continue writing…','Move · choose destination','BlockBoundaryLine','Text to display','Remove link']:
+  for token in ['compactButton','if(large && i==3)','writingPlaceholder','Move · choose destination','BlockBoundaryLine','Text to display','Remove link']:
    self.assertIn(token,editor)
 
  def test_home_hint_cannot_push_the_dock_out_of_view(self):

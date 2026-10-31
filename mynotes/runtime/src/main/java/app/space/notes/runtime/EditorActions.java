@@ -16,7 +16,8 @@ final class EditorActions {
    case "Sans serif":case "Serif":case "Monospace":case "Cursive":return "format";
    case "Text":case "Convert to text":case "Writing lines":return "text";
    case "Image":return "image";case "Drawing":return "pencil";case "Diagram":return "diagram";
-   case "Table":case "Cell actions":return "grid";
+   case "Cut":return "cut";case "Paste table":return "paste";
+   case "Fit to content":return "fit";case "Rows and columns":case "Fixed column width":case "Table":case "Cell actions":return "grid";
    case "Reminder":case "Rename reminder":return "bell";
    case "Undo":case "Restore":return "undo";case "Redo":return "redo";
    case "Share":return "share";case "Export PDF":return "export";

@@ -5,6 +5,9 @@ public final class RichLinks {
  private RichLinks(){}
  public static RichText replace(RichText source,int start,int end,String label,String url){
   if(start<0 || end<start || end>source.text.length())throw new IllegalArgumentException("Invalid link selection");
+  SafeLinks.requireWeb(url);if(label==null || label.trim().isEmpty())throw new IllegalArgumentException("Enter text to display");
+  if(start==end)return insert(source,start,label,url);
+  if(label.equals(source.text.substring(start,end))){List<Note.Mark> kept=new ArrayList<>();for(Note.Mark mark:source.marks){if(!mark.type.equals("link") || mark.end<=start || mark.start>=end)kept.add(mark);else{if(mark.start<start)kept.add(new Note.Mark("link",mark.start,start,mark.value));if(mark.end>end)kept.add(new Note.Mark("link",end,mark.end,mark.value));}}kept.add(new Note.Mark("link",start,end,SafeLinks.requireWeb(url)));return new RichText(source.text,kept);}
   RichText left=source.slice(0,start),right=source.slice(end,source.text.length());List<Note.Mark> marks=new ArrayList<>(left.marks);int shift=start;
   for(Note.Mark mark:right.marks)marks.add(new Note.Mark(mark.type,mark.start+shift,mark.end+shift,mark.value));
   RichText removed=new RichText(left.text+right.text,marks);RichText linked=insert(removed,start,label,url);List<Note.Mark> formatted=new ArrayList<>(linked.marks);

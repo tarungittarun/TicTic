@@ -44,3 +44,10 @@ class NotesDocWorkspaces(unittest.TestCase):
   self.assertIn('cellBorder.setStroke(dp(1),design.outline)',editor)
   self.assertIn('cell.setPadding(dp(6),dp(8),dp(6),dp(8))',editor)
   self.assertIn('row.addView(cell,new LayoutParams(dp(160),-1))',editor)
+
+ def test_workspace_journey_waits_for_new_editor_ime_before_back(self):
+  source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  journey=source.split('void notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn()',1)[1].split('@Test',1)[0]
+  self.assertIn('documentImeReady();tap("Back")',journey)
+  self.assertIn('editorImeReady();tap("Back")',journey)
+  self.assertIn('keyboardVisibleForTest() && controller.view().hasWindowFocus()',source)

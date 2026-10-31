@@ -40,7 +40,7 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 | 3: final flow and native dispatch repairs | 4 | 12/24 | 41124708672 / 15515e93 | build232 PASS, API26 251/251 PASS, dark120/120 PASS, land119/120 FAIL (actual writing line clipped) |
 | 4: measured IME caret correction | 4 | 16/24 | 41126842332 / d79f8b68 | ALL PASS:232 JVM,251/251 API26,120/120 dark,120/120 landscape; all3 independent PDFs and complete fixtures |
 | 5: exact table identity and post-settling regression | 4 | 20/24 | 41128791793 / e9fcf0d0 | build232 PASS, API26 252/252 PASS, dark121/121 PASS, land120/121 FAIL (journey tried hidden Back before dismissing IME) |
-| 6: final grid clarity + native keyboard-aware Back | 4 | 24/24 | pending launch | pending |
+| 6: final grid clarity + native keyboard-aware Back | 4 | 24/24 | 41130997293 / eccac1c2 | build232 PASS, API26 252/252 PASS, dark121/121 PASS, landscape120/121 FAIL: late IME hides Doc Back after helper check |
 
 **0 jobs remain unreserved. The new24-job allowance is fully reserved; do not launch further jobs without new approval.** Skipped/cancelled jobs remain conservatively reserved.
 
@@ -154,3 +154,27 @@ The existing native header/edit/Undo/reopen case now uses a multiline value and 
 matching sibling heights/padding, in addition to unchanged data checks. No inventory shrinks:
 232 JVM,252 full,121 focused. Local root570/Notes180 and Java syntax must pass before push.
 This is the sixth/final4-job reservation;24/24 conservatively counted.
+
+## Additional10-job authorization — explicit user response “Take 10”
+
+The preceding24-job allowance is exhausted, not reused. The user authorized **10 additional
+individual Actions jobs** after checkpoint6 failed. Reserve before launch; cap is not a target.
+
+| Reservation | Jobs | New allowance used/reserved | Run/source | Outcome |
+|---|---:|---:|---|---|
+| 1: deterministic new-editor IME readiness |4|4/10| pending launch | pending |
+
+**6/10 remain unreserved.** No automatic spending of the remainder.
+
+Checkpoint6 preserved all3 profiles/PDFs. API26 252/252, dark121/121 and232 JVM passed;
+landscape120/121 failed the same separation journey, now at Doc Back: IME opened **after**
+the native helper's initial hidden-header check. The previous correction was insufficient.
+No production bug/data loss is inferred from this test-only timing failure, and it is not waived.
+
+The journey now waits for actual focused-editor IME readiness and stable resized layout
+before navigating Back from a newly created Doc, and uses existing `editorImeReady` before
+navigating from a new simple note. This also verifies that both new editors open ready to type.
+Native DOWN/UP, complete visible target/stable rectangle, data assertions and full inventory
+remain unchanged. No forced visibility, sleeps, ignored cases or blind rerun.
+Expected local571/Notes181,232 JVM,252 full/121 focused. Source changes in this reservation
+are test-only; production code remains checkpoint6. Latest-source build/validation still required.

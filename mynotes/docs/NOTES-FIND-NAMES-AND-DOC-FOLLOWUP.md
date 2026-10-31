@@ -14,9 +14,10 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 |1: Find/conversion/names + Doc continuation|4|4/30|41185836938 / b2f9a866|240 JVM and257/257 API26 PASS; dark123/124 and landscape123/124 FAIL reminder state-description mismatch; all3 PDFs PASS|
 |2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|41186948827 / f9ad2fad|build FAIL: missing fail() assertion import in new instrumentation wait helper; native skipped, all4 conservatively counted|
 |3: instrumentation helper/import guard and no-op safety|4|12/30|41187174320 /8fc28925|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs, complete provenance|
-|4: final caption/data-memory bounds|4|16/30|pending launch|pending|
+|4: final caption/data-memory bounds|4|16/30|41188250094 /b14cfce0|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs/provenance complete|
+|5: Android16 full compatibility plus previous profiles|5|21/30|pending launch|pending|
 
-**14 new jobs unreserved.** Older unspent6 not automatically added to this cap.
+**9 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
 ## Implemented for qualification
 - Notes → More actions → Find in note. Literal case-insensitive matching with original
@@ -93,3 +94,14 @@ and use “Writing” rather than an input prompt as the body label.
 
 No inventory shrinks:240 JVM,258 full,125 focused. Local577/Notes187 and Java syntax before
 push. Final-source native/PDF/visual qualification still required.16/30 reserved,14 unreserved.
+
+## Checkpoint5 — advance pending Android16 acceptance
+Checkpoint4 fully qualified the software changes. Add a full API36/Android16 emulator
+inventory, corresponding to the user's phone OS (not its Motorola hardware/OEM behavior).
+This deliberately expands qualification without changing production application code.
+Retain the original3 profiles. One build+4 native jobs =5, total21/30,9 unreserved.
+
+Only min-api26 collects/pushes all fixtures, avoiding a second all-group collector deadlock.
+It requires3 completed peers, all4 artifact names and all4 provenance profiles. Full API36
+executes258 cases; dark/landscape remain125 each; JVM240. Local578/Notes188 expected.
+Physical phone, novice tasks and OEM delivery remain outstanding, not replaced by this emulator.

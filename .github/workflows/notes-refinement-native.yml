@@ -1,5 +1,5 @@
 # New request: user explicitly approves30 additional individual Actions jobs.
-# Reservation4: bounded caption layout and direct metadata validation;16/30 reserved.
+# Reservation5: add full Android16/API36 compatibility;5 jobs,21/30 reserved.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
@@ -78,6 +78,7 @@ jobs:
           - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
           - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
           - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
+          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -163,7 +164,7 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
       - name: Await peer profile uploads without another runner job
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'min-api26'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -175,22 +176,22 @@ jobs:
               except (subprocess.CalledProcessError,json.JSONDecodeError):
                   time.sleep(15);continue
               peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
-              if len(peers)==2 and all(job['status']=='completed' for job in peers):
+              if len(peers)==3 and all(job['status']=='completed' for job in peers):
                   try:artifacts=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/artifacts'],text=True))['artifacts']
                   except (subprocess.CalledProcessError,json.JSONDecodeError):
                       time.sleep(15);continue
-                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34'}
+                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34','refinement-native-current-api36'}
                   if required <= {item['name'] for item in artifacts if item['size_in_bytes']>0}:break
               time.sleep(15)
           else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
           PYWAIT
       - uses: actions/download-artifact@v8.0.2
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'min-api26'
         with:
           pattern: refinement-native-*
           path: fixture-artifacts
       - name: Preserve source-pinned synthetic fixtures and exact native reports
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'min-api26'
         run: |
           python3 -m pip install 'Pillow==11.3.0' 'PyYAML==6.0.3'
           python3 - <<'PYREVIEW'
@@ -216,14 +217,14 @@ jobs:
               if capture.exists() and capture.stat().st_size:
                   subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)
           if not results:raise SystemExit('No native execution reports to preserve')
-          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34'}-set(results))
+          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34','current-api36'}-set(results))
           root.mkdir(parents=True,exist_ok=True)
           (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'missing_profiles':missing_profiles,'release_approval':False},indent=2)+'\n')
           (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')
           if missing_profiles:raise SystemExit('Incomplete native evidence; missing profiles: '+','.join(missing_profiles))
           PYREVIEW
       - name: Gate and commit only fixture documentation on the session branch
-        if: always() && matrix.group == 'all'
+        if: always() && matrix.id == 'min-api26'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

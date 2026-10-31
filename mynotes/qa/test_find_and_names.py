@@ -40,3 +40,12 @@ class FindAndNames(unittest.TestCase):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text()
   self.assertIn('ContentCodec.metadata(n)',source)
   self.assertNotIn('new JSONObject(n.toString())',source)
+
+ def test_android16_is_full_and_all_four_profiles_are_required(self):
+  workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
+  self.assertIn("id: current-api36, api: 36",workflow)
+  self.assertIn("group: all}",workflow.split('id: current-api36',1)[1])
+  self.assertIn('if len(peers)==3',workflow)
+  self.assertIn("'refinement-native-current-api36'",workflow)
+  self.assertIn("'landscape-api34','current-api36'}-set(results)",workflow)
+  self.assertNotIn("if: always() && matrix.group == 'all'",workflow)

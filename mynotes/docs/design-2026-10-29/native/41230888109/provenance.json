@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "source_sha": "51321a63ee16c137a3e34eca091773acecc59201",
+  "capture_run": "41230888109",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 280,
+      "passed": 279,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:75)\n\tat app.space.notes.CoreJourneysTest.canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo(CoreJourneysTest.java:515)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 144,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:75)\n\tat app.space.notes.CoreJourneysTest.canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo(CoreJourneysTest.java:515)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 144,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:75)\n\tat app.space.notes.CoreJourneysTest.canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo(CoreJourneysTest.java:515)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 280,
+      "passed": 277,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo",
+        "app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting",
+        "app.space.notes.CoreJourneysTest#savedStyleAppliesToSubsequentTypingSurvivesRecreationAndDoesNotCopyText"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#savedStyleAppliesToSubsequentTypingSurvivesRecreationAndDoesNotCopyText: status -2 java.lang.AssertionError: Dialog action More text options\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:109)\n\tat app.space.notes.CoreJourneysTest.savedStyleAppliesToSubsequentTypingSurvivesRecreationAndDoesNotCopyText(CoreJourneysTest.java:535)\n",
+        "app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:75)\n\tat app.space.notes.CoreJourneysTest.canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo(CoreJourneysTest.java:515)\n",
+        "app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting: status -2 java.lang.AssertionError: Native link action not available: Open link; root=android.view.accessibility.AccessibilityNodeInfo@80006dbf; boundsInParent: Rect(0, 0 - 1080, 1920); boundsInScreen: Rect(0, 0 - 1080, 1920); packageName: app.space.notes.debug; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]\n\tat app.space.notes.CoreJourneysTest.linkContextAction(CoreJourneysTest.java:420)\n\tat app.space.notes.CoreJourneysTest.nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting(CoreJourneysTest.java:421)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

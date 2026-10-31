@@ -35,3 +35,8 @@ class FindAndNames(unittest.TestCase):
    if '*' in imports:continue
    used={name for name in helpers if re.search(r'(?<![\w.])'+name+r'\s*\(',source)}
    self.assertFalse(used-imports,str(path)+': '+str(used-imports))
+
+ def test_canonical_metadata_validation_does_not_clone_embedded_pixels(self):
+  source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text()
+  self.assertIn('ContentCodec.metadata(n)',source)
+  self.assertNotIn('new JSONObject(n.toString())',source)

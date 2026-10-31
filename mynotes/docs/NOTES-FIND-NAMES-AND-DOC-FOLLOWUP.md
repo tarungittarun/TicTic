@@ -13,9 +13,10 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 |---|---:|---:|---|---|
 |1: Find/conversion/names + Doc continuation|4|4/30|41185836938 / b2f9a866|240 JVM and257/257 API26 PASS; dark123/124 and landscape123/124 FAIL reminder state-description mismatch; all3 PDFs PASS|
 |2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|41186948827 / f9ad2fad|build FAIL: missing fail() assertion import in new instrumentation wait helper; native skipped, all4 conservatively counted|
-|3: instrumentation helper/import guard and no-op safety|4|12/30|pending launch|pending|
+|3: instrumentation helper/import guard and no-op safety|4|12/30|41187174320 /8fc28925|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs, complete provenance|
+|4: final caption/data-memory bounds|4|16/30|pending launch|pending|
 
-**18 new jobs unreserved.** Older unspent6 not automatically added to this cap.
+**14 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
 ## Implemented for qualification
 - Notes → More actions → Find in note. Literal case-insensitive matching with original
@@ -74,3 +75,21 @@ to silently reuse them. This reservation is12/30,18 remain. No-op Save name now 
 without an Undo entry, timestamp/storage rewrite or unnecessary schema8 opt-in. Find's
 compact query/Close pane has an accessibility title without a bulky visible title row.
 Expected local576/Notes186;240 JVM,258 full,125 focused unchanged.
+
+## Checkpoint4 — final hardening, not a blind retry
+Checkpoint3 was fully green. All3 native/PDF/provenance reports imported in bot54835302;
+visually reviewed actual dark200% and landscape Find sheets and selected-word fixture.
+The remaining data review found that metadata validation cloned an entire canonical JSON
+object merely to remove the optional names key. This needlessly duplicated embedded image
+payloads on reads. Validate the explicit optional key directly, keeping strict type/key
+checks and eliminating the copy. New source contract prevents reintroducing that allocation.
+
+Long image/diagram/Doc captions display at most2 lines with ellipsis; full names remain in
+storage, accessibility, Rename, Find and backups. The native drawing-rename journey now uses
+a139-character name, requires a real full-target native tap on Drawing actions, checks<=2
+caption lines, and Undo/byte/kind preservation. Custom diagram PDF captions wrap (rather than
+truncate) and the drawing scales into the remaining page area. Search results say “1 match”
+and use “Writing” rather than an input prompt as the body label.
+
+No inventory shrinks:240 JVM,258 full,125 focused. Local577/Notes187 and Java syntax before
+push. Final-source native/PDF/visual qualification still required.16/30 reserved,14 unreserved.

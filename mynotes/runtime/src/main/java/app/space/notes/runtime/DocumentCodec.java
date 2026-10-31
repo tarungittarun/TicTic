@@ -55,7 +55,7 @@ public final class DocumentCodec {
         for(int i=0;i<array.length();i++) {
             JSONObject n=array.getJSONObject(i);
             if(version>=7 && n.has("content")){
-                JSONObject metadata=new JSONObject(n.toString());metadata.remove("contentNames");ContentCodec.metadata(metadata);
+                ContentCodec.metadata(n);
                 List<String> labels=new ArrayList<>(),voices=new ArrayList<>();JSONArray ls=n.getJSONArray("labels"),vs=n.getJSONArray("voiceSources");for(int j=0;j<ls.length();j++)labels.add(ls.getString(j));for(int j=0;j<vs.length();j++)voices.add(vs.getString(j));
                 Note canonical=new Note(n.getString("id"),n.getString("title"),"",n.getLong("createdAt"),n.getLong("updatedAt"),n.getLong("deletedAt"),n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),false,false,Collections.emptyList(),Collections.emptyList(),labels,Diagram.empty(),voices,n.getLong("reminderAt"),n.getString("folder"),n.getInt("background"),Collections.emptyList(),ContentCodec.decode(n.getJSONObject("content")));
                 if(!ids.add(canonical.id))throw new IOException("Duplicate note ID; data left untouched");notes.add(canonical.withContentNames(decodeNames(n,version),canonical.updatedAt));continue;

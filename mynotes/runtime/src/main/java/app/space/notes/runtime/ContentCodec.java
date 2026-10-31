@@ -68,6 +68,7 @@ final class ContentCodec {
     static long whole(JSONObject object,String key)throws Exception{Object value=object.get(key);if(!(value instanceof Integer) && !(value instanceof Long))throw new IOException("Expected whole note number: "+key);return ((Number)value).longValue();}
     static int integer(JSONObject object,String key)throws Exception{long value=whole(object,key);if(value<Integer.MIN_VALUE || value>Integer.MAX_VALUE)throw new IOException("Note number out of range: "+key);return (int)value;}
     static void metadata(JSONObject object)throws Exception{
+        if(object.has("contentNames"))keys(object,"id","title","createdAt","updatedAt","deletedAt","pinned","archived","color","labels","voiceSources","reminderAt","folder","background","content","contentNames");else
         keys(object,"id","title","createdAt","updatedAt","deletedAt","pinned","archived","color","labels","voiceSources","reminderAt","folder","background","content");
         for(String key:Arrays.asList("id","title","folder"))string(object,key);for(String key:Arrays.asList("createdAt","updatedAt","deletedAt","reminderAt"))whole(object,key);for(String key:Arrays.asList("color","background"))integer(object,key);for(String key:Arrays.asList("pinned","archived"))bool(object,key);
         for(String key:Arrays.asList("labels","voiceSources")){JSONArray array=object.getJSONArray(key);for(int i=0;i<array.length();i++)if(!(array.get(i) instanceof String))throw new IOException("Expected note tag text");else RichText.requireText((String)array.get(i));}

@@ -40,9 +40,10 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 |---|---:|---:|---|---|
 |1: inline Find, named vector tools, docked Doc formatting and scoped branded trays|5|5/35|41198034897 /94a641f8|241 JVM PASS;260/261 full,126/127 focused: old Aa-name assertion failed on all4; all4 PDFs PASS|
 |2: measured label fit, scope, persistent ribbon and same-page metadata trays|5|10/35|41199283231 /79cb44cd|241 JVM PASS;264/265 API26/API36,131/131 dark200%,129/131 landscape; all4 PDFs PASS|
-|3: fit palette/Insert, anchored folder chooser and safe Create/Cancel/Move/Undo|5|15/35|launching|593 root/203 Notes + Java syntax PASS; Android pending|
+|3: fit palette/Insert, anchored folder chooser and safe Create/Cancel/Move/Undo|5|15/35|41200568121 /7166d341|build failed: missing Gravity qualification;1 executed, native skipped|
+|4: fully qualify Android Gravity; same266/132 native inventory|5|20/35|launching|593 root/203 Notes PASS; Android pending|
 
-20/35 unreserved. No other run authorized/reserved in this ledger.
+15/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
 landscape100% focused. Exact inventory must include all existing cases plus new native Find cases.
 Every source push is gated by root unittest, Notes unittest and diff checks. No tests.yml changes.
@@ -120,3 +121,10 @@ under Lists & reminders instead of adding a tall descriptive List section. All e
 remain. Native folder case also exercises Create-without-moving, Cancel, explicit Move and Undo
 with exact rich-content fingerprints. Creating a draft label then Cancel must not persist it.
 Source3 inventory266 full/132 focused;241 JVM. No physical/novice or180-minute acceptance claim.
+
+Third run build124535378981 failed at NotesController871: unimported Gravity in the new
+Create folder dialog placement. Java-parser only checked grammar, not Android symbol resolution.
+Correct to android.view.Gravity.BOTTOM, consistent with this controller. No native job executed;
+keep its5-slot reservation conservatively counted (1 actual execution, remaining native skipped).
+After reservation4 there are20/35 conservatively reserved,15 unreserved; actual executed before
+run4 is11. No root/Notes red gate was pushed; local gates do not claim Android compilation.

@@ -42,6 +42,8 @@ default. Cancel leaves it unchanged. Saving an unchanged name does not create an
 
 Names change the caption, not the attachment's identity, pixels, drawing type, diagram
 shapes or reminder time. They survive reopening, local/folder storage, backup and copy.
+Long visual captions use up to two lines with an ellipsis; the full name is still available
+in Rename, accessibility, Find, storage and backups. PDF captions wrap the custom name.
 Undo reverses a rename. New reminder notifications use the reminder's custom name; Android
 permission, battery policy and inexact-delivery limitations still apply.
 

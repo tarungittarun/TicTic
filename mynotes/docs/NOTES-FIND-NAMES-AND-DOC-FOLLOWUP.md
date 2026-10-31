@@ -16,7 +16,7 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 |3: instrumentation helper/import guard and no-op safety|4|12/30|41187174320 /8fc28925|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs, complete provenance|
 |4: final caption/data-memory bounds|4|16/30|41188250094 /b14cfce0|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs/provenance complete|
 |5: Android16 full compatibility plus previous profiles|5|21/30|41189322492 /a510d9c3|superseded; conservatively retain all5 slots|
-|6: recording-aware restore name preservation|5|26/30|pending launch|pending|
+|6: recording-aware restore name preservation|5|26/30|41189599678 /7e46d59e|ALL PASS:241 JVM,259/259 API26,259/259 API36,125/125 dark,125/125 landscape; all4 PDFs/provenance complete|
 
 **4 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
@@ -42,7 +42,7 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 Local source gates and Android build/native/PDF qualification required before APK handoff.
 Java syntax parsing is not compilation. New tests cover clean conversion, search offsets/caps,
 naming mutation/copy/kind preservation, codec/backup round trips/rejection and native Find/Undo.
-The screenshot allowlist grows by one synthetic scene; bounded renderer limit73 (was72).
+The screenshot allowlist includes both Find sheets; bounded renderer limit74 (was72).
 No fixtures or assertions are removed.
 
 Review the approved Doc acceptance against final screenshots/journeys, not just feature presence.
@@ -94,7 +94,7 @@ truncate) and the drawing scales into the remaining page area. Search results sa
 and use “Writing” rather than an input prompt as the body label.
 
 No inventory shrinks:240 JVM,258 full,125 focused. Local577/Notes187 and Java syntax before
-push. Final-source native/PDF/visual qualification still required.16/30 reserved,14 unreserved.
+push. At launch16/30 were reserved. Outcome: all3 native/PDF profiles PASS; complete provenance.
 
 ## Checkpoint5 — advance pending Android16 acceptance
 Checkpoint4 fully qualified the software changes. Add a full API36/Android16 emulator
@@ -115,7 +115,17 @@ identities and legacy/canonical content. Regression: one JVM method covers all6 
 with image kind/name, reminder and diagram metadata; one native BackupCodec method covers
 legacy/canonical decode→restore→encode with/without recording conflicts.
 
-Stop superseded checkpoint5 to avoid unnecessary compute; all5 slots remain reserved
+Checkpoint5 was cancelled by workflow concurrency to avoid unnecessary compute; all5 slots remain reserved
 conservatively. Checkpoint6 requires one build+4 native jobs, total26/30,4 unreserved.
 Expected241 JVM,259 API26,259 API36,125 dark and125 landscape; local579/189 PASS.
 No version bump needed: code23 has not been delivered. Do not downgrade schema8 data.
+
+## Delivered development receipt
+Source7e46d59e,run41189599678: all5 jobs green.241 JVM;259/259 API26 and API36;
+125/125 dark200% portrait and125/125 landscape100%; all4 independent PDFs PASS,
+no missing profiles. Bot evidencebf900b92 imported. Actual Android16 writing and Find
+screenshots inspected. New recording-aware restore names regression passed both full profiles.
+Final local579/Notes189 PASS (subset, not additive). Final handoff is
+`NOTES-FIND-NAMES-DEVELOPMENT-HANDOFF.md`, with exact raw APK/hash/expiry and remaining limits.
+No further run reserved:26/30 conservative slots,4 unreserved. Source5 cancellation confirmed.
+Physical novice/OEM acceptance, public release and a measured189-minute streak are not claimed.

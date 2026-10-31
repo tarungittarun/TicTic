@@ -2,15 +2,15 @@
 
 ## Candidate / qualification
 
-Source `8fc28925f1de346fc5a75dc5b712cb6359ae9dbc`.
-[Qualification41187174320](https://github.com/tarungittarun/TicTic/actions/runs/41187174320).
-**Android build passed; native qualification is pending. Not yet a PASS receipt.**
+Source `7e46d59e6a948c3a88b25391b0ea08a3d0e27173`.
+[Qualification41189599678](https://github.com/tarungittarun/TicTic/actions/runs/41189599678).
+**All software qualification gates PASS. Development APK, not physical/novice/public-release approval.**
 
-[Raw signed development APK — MyNotes-v0.20.0-23-development.apk](https://github.com/tarungittarun/TicTic/actions/runs/41187174320/artifacts/13037571274)
+[Raw signed development APK — MyNotes-v0.20.0-23-development.apk](https://github.com/tarungittarun/TicTic/actions/runs/41189599678/artifacts/13038830015)
 
-- Raw APK, not a ZIP; GitHub sign-in may be required. Expires2026-11-07T09:06:37Z.
--66,697,876 bytes. GitHub raw artifact SHA-256:
-  `58ba7d583de198d465337a0aa057926d1af29784d1990677a6d53b581574eb11`.
+- Raw APK, not a ZIP; GitHub sign-in may be required. Expires2026-11-07T09:42:21Z.
+- 66,698,248 bytes. GitHub raw artifact SHA-256:
+  `c79b6edebfff3bfbecca930b026758683b30f3ef46e7cd6c14e0d9b193ed86fd`.
 - Package `app.space.notes`; version0.20.0/code23; min26/target34/compile35.
 - CI verifies retained signer SHA-256:
   `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca`.
@@ -57,15 +57,16 @@ work is not silently declared done. Calculator is unchanged; no cloud service wa
 
 | Gate | Result |
 |---|---|
-| Repository Python |576 PASS |
-| Standalone Notes Python |186 PASS (subset, not additive) |
-| Java syntax parse |PASS; syntax alone is not compilation |
-| Android debug/release/instrumentation compilation, lint/JVM |PASS;240 JVM |
-| API26 full native |pending |
-| API34 dark200% font |pending |
-| API34 landscape |pending |
-| Independent PDF checks / complete provenance |pending |
-| Final-source visual inspection |pending |
+| Repository Python |579 PASS |
+| Standalone Notes Python |189 PASS (subset, not additive) |
+| Compilation |Android debug/release/instrumentation PASS; not just syntax parsing |
+| Android debug/release/instrumentation compilation, lint/JVM |PASS;241 JVM |
+| API26 portrait/100% full native |259/259 PASS |
+| API36/Android16 portrait/100% full native |259/259 PASS |
+| API34 dark portrait/200% font |125/125 PASS |
+| API34 landscape/100% font |125/125 PASS |
+| Independent PDF checks / complete provenance |all4 PASS; no missing profiles |
+| Final-source visual inspection |Android16 writing and Find screenshots inspected |
 
 No failure waived. Checkpoint1 passed257/257 API26 but dark/landscape123/124 failed the
 reminder's accessible state-description mismatch; its full equality assertion stays.
@@ -85,7 +86,31 @@ native/JVM tests. Both prior checkpoint evidence and job reservations remain in 
 - Backups still omit original recordings, private empty folders, history and saved styles.
   Private writes/external mirrors are not one cross-filesystem transaction. Doc is not Word import.
 
-**12/30 newly approved job slots reserved**, including skipped native slots conservatively;
-**18 remain unreserved**. Earlier unused6 from the previous10 are not silently added.
+**26/30 newly approved job slots reserved**, including skipped native slots conservatively;
+**4 remain unreserved**. Earlier unused6 from the previous10 are not silently added.
 The189-minute uninterrupted streak is **not claimed or guaranteed**; no measured-work-hours
 or billing claim is made. Automated passing alone cannot prove novice excellence.
+
+### Final hardening
+The preceding source8fc28925/run41187174320 was fully green:240 JVM,258/258 API26,
+125/125 dark,125/125 landscape and all3 independent PDFs, with complete provenance.
+Final source avoids copying complete canonical image JSON during metadata validation.
+Long captions use at most2 display lines (full names remain stored/searchable/accessible);
+the native drawing journey uses a139-character name and full-target native action taps.
+PDF custom image/diagram captions wrap rather than truncating the name. Search shows “1 match”.
+Checkpoint4 also passed all3 native/PDF profiles. The recording-aware Notes restore review
+then found and fixed a missing metadata copy. New JVM/native tests exercise names through
+legacy/canonical backup codec and recording-link conflicts. Checkpoint5 was cancelled by
+workflow concurrency; all5 slots remain counted. The current source requires4 native/PDF
+profiles, adding full Android16; preceding green evidence is not substituted.
+
+
+## Final receipt
+All4 profiles and independent PDF results were inspected from
+[exact-source evidence](design-2026-10-29/native/41189599678/provenance.json).
+The4 profiles above are separate; this does not qualify combined200%-font landscape.
+Actual Android16 writing and Find JPEGs were opened and inspected. The compact Find
+sheet visibly shows its query,48dp Close, “1 match” and “Writing” result; writing remains
+above the keyboard with insertion/format/list/Labels/Colour controls.
+The new restore regression passes on both API26 and API36; no failure was waived.
+No further qualification run is reserved.26/30 conservative slots,4 unreserved.

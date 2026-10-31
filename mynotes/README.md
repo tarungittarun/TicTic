@@ -2,7 +2,7 @@
 
 Open **this directory**, not the repository root, in Android Studio.
 
-Latest development: **0.19.0 (22), simple Notes and rich Doc in one APK**. [APK, exact qualification and limits](docs/NOTES-DOC-DEVELOPMENT-HANDOFF.md) · [Notes/Doc guide](docs/NOTES-AND-DOC-USER-GUIDE.md) · [job ledger](docs/NOTES-DOC-PLAN-AND-JOB-LEDGER.md). Install over existing data; never uninstall/clear data. Automated qualification is not novice/physical-device/public-release approval.
+Latest development: **0.20.0 (23), Find, clean checklist conversion and content names in Notes + rich Doc**. [Raw APK, exact qualification and limits](docs/NOTES-FIND-NAMES-DEVELOPMENT-HANDOFF.md) · [Find/names guide](docs/NOTES-FIND-NAMES-USER-GUIDE.md) · [rich Doc guide](docs/NOTES-AND-DOC-USER-GUIDE.md) · [job ledger](docs/NOTES-FIND-NAMES-AND-DOC-FOLLOWUP.md). Install over existing data; never uninstall/clear data. Back up recordings separately; do not downgrade schema8 data. All4 emulator/PDF profiles pass, including Android16; automation is not novice/physical-device/public-release approval.
 
 - `app/`: standalone app.space.notes host (debug uses .debug).
 - `runtime/`: reusable Notes UI and private-storage repository.

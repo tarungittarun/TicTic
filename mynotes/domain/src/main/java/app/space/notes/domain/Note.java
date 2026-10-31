@@ -4,6 +4,7 @@ import java.util.*;
 
 /** Schema-v6 immutable document. v1 constructor remains supported for migration/tests. */
 public final class Note {
+    public final Map<String,String> contentNames;
     public static final long TRASH_RETENTION_MS=7L*24*60*60*1000;
     public final String id,title,body,folder;
     public final int background;
@@ -79,9 +80,20 @@ public final class Note {
     public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
                 boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
                 List<Item> items,List<Mark> marks,List<String> labels,Diagram diagram,List<String> voiceSources,long reminderAt,String folder,int background,List<NoteImage> images,DocumentContent content) {
+        this(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,images,content,Collections.emptyMap());
+    }
+    public Note(String id,String title,String body,long createdAt,long updatedAt,long deletedAt,
+                boolean pinned,boolean archived,int color,boolean checklist,boolean hideChecked,
+                List<Item> items,List<Mark> marks,List<String> labels,Diagram diagram,List<String> voiceSources,long reminderAt,String folder,int background,List<NoteImage> images,DocumentContent content,Map<String,String> contentNames) {
+        if(contentNames==null || contentNames.size()>10)throw new IllegalArgumentException("Too many content names");
+        TreeMap<String,String> names=new TreeMap<>();for(Map.Entry<String,String> entry:contentNames.entrySet()){
+            String key=entry.getKey(),name=entry.getValue();if(key==null || name==null || name.trim().isEmpty() || name.length()>200 || name.contains("\n") || name.contains("\r"))throw new IllegalArgumentException("Invalid content name");
+            if(!key.equals("diagram") && !key.equals("reminder")){if(!key.startsWith("image:"))throw new IllegalArgumentException("Unknown named content");UUID.fromString(key.substring(6));}
+            RichText.requireText(name);names.put(key,name);
+        }this.contentNames=Collections.unmodifiableMap(names);
         this.content=content;
         if(content!=null){body=content.plainText();checklist=false;hideChecked=false;items=Collections.emptyList();marks=Collections.emptyList();images=content.images();diagram=content.diagramProjection();}
-        if(images.size()>8)throw new IllegalArgumentException("Maximum eight images per note");Set<String> imageIds=new HashSet<>();for(NoteImage image:images)if(!imageIds.add(image.id))throw new IllegalArgumentException("Duplicate image ID");this.images=Collections.unmodifiableList(new ArrayList<>(images));
+        if(images.size()>8)throw new IllegalArgumentException("Maximum eight images per note");Set<String> imageIds=new HashSet<>();for(NoteImage image:images)if(!imageIds.add(image.id))throw new IllegalArgumentException("Duplicate image ID");this.images=Collections.unmodifiableList(new ArrayList<>(images));for(String key:this.contentNames.keySet())if(key.startsWith("image:") && !imageIds.contains(key.substring(6)))throw new IllegalArgumentException("Name references a missing image");
         if(folder==null || (!folder.isEmpty() && !FolderNames.require(folder).equals(folder)))throw new IllegalArgumentException("Invalid folder name");
         if(background<0 || background>15)throw new IllegalArgumentException("Unknown note background");this.folder=folder;this.background=background;
         if(reminderAt<0)throw new IllegalArgumentException("Invalid reminder time");this.reminderAt=reminderAt;
@@ -113,7 +125,7 @@ public final class Note {
     }
     private Note copy(String title,String body,long now,long deleted,boolean pin,boolean archive,int colour,
                       boolean list,boolean hide,List<Item> rows,List<Mark> spans,List<String> tags) {
-        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags,diagram,voiceSources,reminderAt,folder,background,images,content);
+        return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deleted,pin,archive,colour,list,hide,rows,spans,tags,diagram,voiceSources,reminderAt,folder,background,images,content,contentNames);
     }
     public static Note create(long now){return new Note(UUID.randomUUID().toString(),"","",now,now,0,false,false,0);}
     public Note edit(String title,String body,long now){if(content!=null && !body.equals(this.body))throw new IllegalStateException("Edit canonical content, not its text projection");return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,
@@ -122,14 +134,18 @@ public final class Note {
     public Note list(String title,List<Item> rows,boolean hide,long now){if(content!=null)throw new IllegalStateException("Edit a checklist section, not the whole document");return copy(title,"",now,deletedAt,pinned,archived,color,true,hide,rows,Collections.emptyList(),labels);}
     public Note properties(int color,List<String> labels,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
     public Note state(boolean pinned,boolean archived,long deletedAt,long now){return copy(title,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
-    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,images,content);}
-    public Note diagram(Diagram value,long now){if(content!=null)return withContent(content.withDiagram(value),now);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,value,voiceSources,reminderAt,folder,background,images,content);}
-    public Note voiceSource(String source,long now){List<String> ids=new ArrayList<>(voiceSources);if(!ids.contains(source))ids.add(source);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,ids,reminderAt,folder,background,images,content);}
-    public Note reminder(long time,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,time,folder,background,images,content);}
-    public Note folder(String value,long now){String normalized=value.isEmpty()?"":FolderNames.require(value);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,normalized,background,images,content);}
-    public Note background(int value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,value,images,content!=null && value==3?content.withWritingLines(true):content);}
-    public Note images(List<NoteImage> value,long now){if(content!=null)return withContent(content.withImages(value),now);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,value);}
-    public Note withContent(DocumentContent value,long now){if(value==null)throw new IllegalArgumentException("Cannot discard canonical document content");return new Note(id,title,"",createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,false,false,Collections.emptyList(),Collections.emptyList(),labels,Diagram.empty(),voiceSources,reminderAt,folder,background,Collections.emptyList(),value);}
+    public Note withId(String id){return new Note(id,title,body,createdAt,updatedAt,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,images,content,contentNames);}
+    public Note diagram(Diagram value,long now){if(content!=null)return withContent(content.withDiagram(value),now);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,value,voiceSources,reminderAt,folder,background,images,content,contentNames);}
+    public Note voiceSource(String source,long now){List<String> ids=new ArrayList<>(voiceSources);if(!ids.contains(source))ids.add(source);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,ids,reminderAt,folder,background,images,content,contentNames);}
+    public Note reminder(long time,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,time,folder,background,images,content,contentNames);}
+    public Note folder(String value,long now){String normalized=value.isEmpty()?"":FolderNames.require(value);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,normalized,background,images,content,contentNames);}
+    public Note background(int value,long now){return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,value,images,content!=null && value==3?content.withWritingLines(true):content,contentNames);}
+    public Note images(List<NoteImage> value,long now){if(content!=null)return withContent(content.withImages(value),now);return new Note(id,title,body,createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,value,null,namesForImages(value));}
+    public Note withContent(DocumentContent value,long now){if(value==null)throw new IllegalArgumentException("Cannot discard canonical document content");return new Note(id,title,"",createdAt,Math.max(updatedAt,now),deletedAt,pinned,archived,color,false,false,Collections.emptyList(),Collections.emptyList(),labels,Diagram.empty(),voiceSources,reminderAt,folder,background,Collections.emptyList(),value,namesForImages(value.images()));}
+    private Map<String,String> namesForImages(List<NoteImage> images){Map<String,String> names=new TreeMap<>(contentNames);Set<String> ids=new HashSet<>();for(NoteImage image:images)ids.add("image:"+image.id);names.keySet().removeIf(key->key.startsWith("image:") && !ids.contains(key));return names;}
+    public Note namedContent(String key,String name,long now){Map<String,String> names=new TreeMap<>(contentNames);if(name.trim().isEmpty())names.remove(key);else names.put(key,name.trim());return withContentNames(names,now);}
+    public Note withContentNames(Map<String,String> names,long now){return new Note(id,title,body,createdAt,Math.max(now,updatedAt),deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels,diagram,voiceSources,reminderAt,folder,background,images,content,names);}
+    public String contentName(String key,String fallback){return contentNames.getOrDefault(key,fallback);}
     public Note title(String value,long now){return copy(value,body,now,deletedAt,pinned,archived,color,checklist,hideChecked,items,marks,labels);}
     public String plainText() {
         if(content!=null)return content.plainText();
@@ -140,7 +156,11 @@ public final class Note {
     }
     public Note convert(long now) {
         if(content!=null)throw new IllegalStateException("Convert selected content, not the whole document");
-        if(checklist)return copy(title,plainText(),now,deletedAt,pinned,archived,color,false,false,Collections.emptyList(),Collections.emptyList(),labels);
+        if(checklist){
+            StringBuilder text=new StringBuilder();
+            for(int row=0;row<items.size();row++){if(row>0)text.append('\n');Item item=items.get(row);for(int i=0;i<item.depth;i++)text.append("  ");text.append(item.text);}
+            return copy(title,text.toString(),now,deletedAt,pinned,archived,color,false,false,Collections.emptyList(),Collections.emptyList(),labels);
+        }
         List<Item> rows=new ArrayList<>();
         for(String line:body.split("\n",-1)){
             int depth=0;while(depth<3 && line.startsWith("  ")){depth++;line=line.substring(2);}
@@ -151,6 +171,6 @@ public final class Note {
         return list(title,rows,false,now);
     }
     public boolean expired(long now){return deletedAt>0 && now>=deletedAt && now-deletedAt>=TRASH_RETENTION_MS;}
-    public boolean matches(String query){String q=query.trim().toLowerCase(Locale.ROOT);return diagram.plainText().toLowerCase(Locale.ROOT).contains(q) || title.toLowerCase(Locale.ROOT).contains(q)
+    public boolean matches(String query){String q=query.trim().toLowerCase(Locale.ROOT);return String.join(" ",contentNames.values()).toLowerCase(Locale.ROOT).contains(q) || diagram.plainText().toLowerCase(Locale.ROOT).contains(q) || title.toLowerCase(Locale.ROOT).contains(q)
         || plainText().toLowerCase(Locale.ROOT).contains(q) || String.join(" ",labels).toLowerCase(Locale.ROOT).contains(q);}
 }

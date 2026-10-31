@@ -13,7 +13,7 @@ import re
 import tarfile
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
-MAX_IMAGES = 72
+MAX_IMAGES = 73
 
 
 def fixtures(archive):

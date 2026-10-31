@@ -1,5 +1,6 @@
-# Previous Notes/Doc allowance:24/24 used. User subsequently approved10 more individual jobs.
-# New allowance reservation1: deterministic new-editor IME readiness;4/10 reserved,6 unreserved.
+# New request: user explicitly approves30 additional individual Actions jobs.
+# Reservation1: Find, clean conversion, durable content names and Doc continuation;4/30 reserved.
+# Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
 on:
@@ -41,14 +42,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.19.0-22-development.apk
-          sha256sum MyNotes-v0.19.0-22-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.19.0-22-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.20.0-23-development.apk
+          sha256sum MyNotes-v0.20.0-23-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.20.0-23-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.19.0-22-development.apk
+          path: MyNotes-v0.20.0-23-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

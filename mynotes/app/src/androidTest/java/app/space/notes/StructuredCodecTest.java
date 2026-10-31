@@ -19,6 +19,12 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class StructuredCodecTest {
+    @Test public void schema8NamesRoundTripLegacyCanonicalAndBackup()throws Exception{
+        Note legacy=text().namedContent("diagram","Project",3).namedContent("reminder","Call",3);Note canonical=legacy.withId("named-doc").withContent(app.space.notes.domain.DocumentContent.fromLegacy(legacy),4);byte[] bytes=DocumentCodec.encode(Arrays.asList(legacy,canonical));assertEquals(8,new JSONObject(new String(bytes,StandardCharsets.UTF_8)).getInt("version"));java.util.List<Note> read=DocumentCodec.decode(bytes);assertEquals(legacy.contentNames,read.get(0).contentNames);assertEquals(canonical.contentNames,read.get(1).contentNames);assertEquals(legacy.contentNames,app.space.notes.runtime.BackupCodec.decode(app.space.notes.runtime.BackupCodec.encode(Arrays.asList(legacy))).get(0).contentNames);
+    }
+    @Test public void malformedNamesAndFutureSchemaAreRejected()throws Exception{
+        JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text().namedContent("diagram","Name",3))),StandardCharsets.UTF_8));root.getJSONArray("notes").getJSONObject(0).getJSONObject("contentNames").put("diagram",42);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Reject nontext names");}catch(Exception expected){}root.getJSONArray("notes").getJSONObject(0).getJSONObject("contentNames").put("diagram","Name");root.put("version",9);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Reject future schema");}catch(Exception expected){}
+    }
     @Test public void headerRoleRoundTripsAndRejectsMalformedInput()throws Exception{
         Note old=Note.create(1);app.space.notes.domain.DocumentContent content=app.space.notes.domain.DocumentContent.fromLegacy(old).insert(1,app.space.notes.domain.DocumentContent.Block.table("t","Table01",app.space.notes.domain.TextTable.empty(2,2).withHeader(true)));Note doc=old.withContent(content,2);byte[] bytes=DocumentCodec.encode(Arrays.asList(doc));Note read=DocumentCodec.decode(bytes).get(0);assertTrue(read.content.block("t").table.hasHeader);assertTrue(NoteMerge.same(doc,read));String raw=new String(bytes,StandardCharsets.UTF_8);assertTrue(raw.contains("\"header\":true"));try{DocumentCodec.decode(raw.replace("\"header\":true","\"header\":\"true\"").getBytes(StandardCharsets.UTF_8));fail("Non-boolean header accepted");}catch(java.io.IOException expected){}
     }
@@ -96,7 +102,7 @@ public class StructuredCodecTest {
     }
     @Test public void schema7MalformedTableAndUnknownFutureFormatAreRejected()throws Exception{
         app.space.notes.domain.DocumentContent content=new app.space.notes.domain.DocumentContent(Arrays.asList(app.space.notes.domain.DocumentContent.Block.table("table","Table01",app.space.notes.domain.TextTable.empty(2,2))));JSONObject root=new JSONObject(new String(DocumentCodec.encode(Arrays.asList(text().withContent(content,5))),StandardCharsets.UTF_8));JSONArray table=root.getJSONArray("notes").getJSONObject(0).getJSONObject("content").getJSONArray("blocks").getJSONObject(0).getJSONArray("rows");table.put(1,new JSONArray().put("lost cell"));try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Ragged table accepted");}catch(IllegalArgumentException | org.json.JSONException expected){}
-        root.put("version",8);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Future format accepted");}catch(java.io.IOException expected){}
+        root.put("version",9);try{DocumentCodec.decode(root.toString().getBytes(StandardCharsets.UTF_8));fail("Future format accepted");}catch(java.io.IOException expected){}
     }
     @Test public void recursiveJsonBombIsRejectedBeforeAndroidParserRuns()throws Exception{
         String nested=String.join("",Collections.nCopies(1000,"["))+"0"+String.join("",Collections.nCopies(1000,"]"));try{app.space.notes.runtime.LocalBackupFiles.decodeImport(nested.getBytes(StandardCharsets.UTF_8));fail("Deep JSON accepted");}catch(java.io.IOException expected){}

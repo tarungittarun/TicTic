@@ -81,8 +81,8 @@ public final class DocumentContent {
         List<Block> blocks=new ArrayList<>();
         if(note.checklist)blocks.add(Block.checklist(legacyId(note.id,"list"),note.items,note.hideChecked));
         else blocks.add(Block.text(legacyId(note.id,"text"),new RichText(note.body,note.marks)));
-        for(NoteImage image:note.images)blocks.add(Block.visual(legacyId(note.id,"image:"+image.id),image.name,"Drawing".equals(image.name)?Kind.DRAWING:Kind.IMAGE,image));
-        if(!note.diagram.nodes.isEmpty())blocks.add(Block.diagram(legacyId(note.id,"diagram"),"Diagram01",note.diagram));
+        for(NoteImage image:note.images)blocks.add(Block.visual(legacyId(note.id,"image:"+image.id),note.contentName("image:"+image.id,image.name),"Drawing".equals(image.name)?Kind.DRAWING:Kind.IMAGE,image));
+        if(!note.diagram.nodes.isEmpty())blocks.add(Block.diagram(legacyId(note.id,"diagram"),note.contentName("diagram","Diagram01"),note.diagram));
         return new DocumentContent(blocks,note.background==3);
     }
     private static String legacyId(String note,String suffix){return UUID.nameUUIDFromBytes((note.length()+":"+note+":"+suffix).getBytes(StandardCharsets.UTF_8)).toString();}
@@ -107,6 +107,13 @@ public final class DocumentContent {
     }
     /** Move one checklist into a precise UTF-16 text position, preserving rows, names and rich slices.
      * The source is removed before splitting; validation is immutable and failures leave both intact. */
+    /** Explicit reverse conversion preserves visible text, caption, indentation and row marks. */
+    public DocumentContent checklistToText(String id){
+        Block list=block(id);if(list.kind!=Kind.CHECKLIST)throw new IllegalArgumentException("Choose a checklist");StringBuilder text=new StringBuilder();List<Note.Mark> marks=new ArrayList<>();
+        if(!list.name.isEmpty())text.append(list.name).append('\n');
+        for(int i=0;i<list.items.size();i++){if(i>0)text.append('\n');Note.Item item=list.items.get(i);for(int depth=0;depth<item.depth;depth++)text.append("  ");int offset=text.length();text.append(item.text);for(Note.Mark mark:item.marks)marks.add(new Note.Mark(mark.type,offset+mark.start,offset+mark.end,mark.value));}
+        return replace(id,Block.text(id,new RichText(text.toString(),marks)));
+    }
     public DocumentContent moveChecklistIntoText(String checklistId,String textId,int offset){
         Block list=block(checklistId),target=block(textId);
         if(list.kind!=Kind.CHECKLIST || target.text==null)throw new IllegalArgumentException("Choose a checklist and a writing position");

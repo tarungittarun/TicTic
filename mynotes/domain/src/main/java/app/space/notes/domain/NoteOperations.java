@@ -2,7 +2,7 @@ package app.space.notes.domain;
 import java.util.*;
 public final class NoteOperations {
     private NoteOperations() { }
-    public static Note duplicate(Note source,long now){return new Note(UUID.randomUUID().toString(),source.title,source.body,now,now,0,source.pinned,false,source.color,source.checklist,source.hideChecked,source.items,source.marks,source.labels,source.diagram,source.voiceSources,0,source.folder,source.background,source.images,source.content);}
+    public static Note duplicate(Note source,long now){return new Note(UUID.randomUUID().toString(),source.title,source.body,now,now,0,source.pinned,false,source.color,source.checklist,source.hideChecked,source.items,source.marks,source.labels,source.diagram,source.voiceSources,0,source.folder,source.background,source.images,source.content,source.contentNames);}
     public static Note merge(List<Note> sources,long now){
         if(sources.size()<2)throw new IllegalArgumentException("Select at least two notes");
         for(Note note:sources)if(note.content!=null)return mergeCanonical(sources,now);

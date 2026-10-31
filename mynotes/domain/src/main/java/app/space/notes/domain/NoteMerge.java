@@ -19,7 +19,7 @@ public final class NoteMerge {
             && a.updatedAt==b.updatedAt && a.reminderAt==b.reminderAt && a.deletedAt==b.deletedAt && a.pinned==b.pinned
             && a.archived==b.archived && a.color==b.color && structure(a).equals(structure(b));
     }
-    private static boolean plain(Note n){return n.content==null && !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0 && n.images.isEmpty();}
+    private static boolean plain(Note n){return n.contentNames.isEmpty() && n.content==null && !n.checklist && !n.hideChecked && n.items.isEmpty() && n.marks.isEmpty() && n.labels.isEmpty() && n.diagram.nodes.isEmpty() && n.voiceSources.isEmpty() && n.reminderAt==0 && n.folder.isEmpty() && n.background==0 && n.images.isEmpty();}
     private static String structure(Note n) {
         if(plain(n))return "";
         StringBuilder out=new StringBuilder(n.checklist+":"+n.hideChecked+":"+n.items.size()+"#");
@@ -35,6 +35,7 @@ public final class NoteMerge {
         if(n.background!=0)out.append("background:").append(n.background).append(';');
         for(NoteImage image:n.images){String value=image.fingerprint();out.append("image:").append(value.length()).append(':').append(value);}
         if(n.content!=null){String content=n.content.fingerprint();out.append("content:").append(content.length()).append(':').append(content);}
+        for(Map.Entry<String,String> name:n.contentNames.entrySet())out.append("content-name:").append(name.getKey().length()).append(':').append(name.getKey()).append(name.getValue().length()).append(':').append(name.getValue());
         return out.toString();
     }
     private static Note copy(Note n,String id) {

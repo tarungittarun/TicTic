@@ -31,7 +31,8 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 | Reservation | Jobs | Cumulative reserved | Source/run | Result |
 |---|---:|---:|---|---|
 |1: full implementation and new data/UI safety coverage|5|5/40|8daa3baa /41223351324|Build245 JVM PASS; API26/API36 271/276 each, large-font/landscape135/140 each; all4 PDF PASS. Same5 UI failures in each profile; not qualified.|
-|2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|launching|Local gates pending;247 JVM/280 Android inventory|
+|2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|c52e49ca /41224792310|Build PASS. Focused profiles142/144 each: native link toolbar both, dock label clipping large-font, drag viewport landscape. Full profiles cancelled at48/280, not passes. Both completed PDF probes PASS.|
+|3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|launching|Local gates below; full qualification required|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -50,3 +51,9 @@ row menu test did not focus its cell; Labels and palette expectations obsolete; 
 opened wrong overflow; table menu required native-window settling/scroll; visual locator required
 non-TextView accessibility matching. Data assertions retained. New real native long-press regression
 and word-zoom screenshot remain unqualified until reservation2. No150-minute claim.
+
+Reservation3 remediation: measured row capacity replaces hardcoded2+3 Notes dock split.
+Native link actions notify ActionMode on prepare and are prioritized; test waits for actual
+action readiness instead of assuming overflow presence. Native drag takes container focus,
+hides IME and suppresses caret reveal until drop/end. No data assertions removed. Notes
+formatting close now uses X as requested. Cancelled full lanes remain unqualified.

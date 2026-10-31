@@ -62,3 +62,19 @@ class WordFlowRevision(unittest.TestCase):
   s=(JAVA/'NotesController.java').read_text().split('settingRow(content,"Delete diagnostic logs"',1)[1].split('content.addView(text(',1)[0]
   self.assertLess(s.index('confirmSheet('),s.index('Diagnostics.clear()'))
   self.assertIn('cannot be undone',s)
+
+class NativeFailureRegressions(unittest.TestCase):
+ def test_notes_dock_measures_capacity_instead_of_fixed_three_tool_row(self):
+  source=(JAVA/'NotesController.java').read_text().split('private void reflowEditorDock',1)[1].split('private void showNoteFind',1)[0]
+  self.assertIn('width/Math.max(dp(48),needed)',source)
+  self.assertIn('i%columns==0',source)
+ def test_drag_keeps_keyboard_and_caret_reveal_out_of_native_drag(self):
+  source=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('draggingContent=true',source)
+  self.assertIn('private void revealCaret(){if(draggingContent)return;',source)
+  self.assertIn('hideSoftInputFromWindow(getWindowToken(),0)',source)
+ def test_link_actions_notify_native_menu_and_are_prioritized(self):
+  source=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertNotIn('addLinkActions(input,menu);return false;',source)
+  self.assertIn('"Open link").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)',source)
+  self.assertIn('"Copy link").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)',source)

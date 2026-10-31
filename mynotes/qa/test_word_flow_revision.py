@@ -94,13 +94,11 @@ class NativeFailureRegressions(unittest.TestCase):
   self.assertIn('new NotesController.WritingField(getContext())',source)
   self.assertIn('DocumentEditorView.internalDrag(event)',(JAVA/'NotesController.java').read_text())
 
- def test_dialog_focus_restores_only_after_document_window_returns(self):
+ def test_link_touch_hold_does_not_depend_on_native_selected_word_drag_state(self):
   source=(JAVA/'DocumentEditorView.java').read_text()
-  self.assertIn('if(focused)postOnAnimation(this::restoreAfterDialog)',source)
-  restore=source.split('private void restoreAfterDialog()',1)[1].split('private void choose',1)[0]
-  self.assertIn('!hasWindowFocus()',restore)
-  self.assertIn('field.requestFocus()',restore)
-  self.assertIn('if(block==null && !selectionLocked)closeFormatting()',source)
+  self.assertIn('input.postDelayed(linkHold,android.view.ViewConfiguration.getLongPressTimeout())',source)
+  self.assertIn('input.removeCallbacks(linkHold)',source)
+  self.assertIn('linkTouch[0]=movingChecklist==null',source)
  def test_link_menu_action_collapses_native_selection_for_repeat_long_press(self):
   source=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('input.setSelection(mark.end);state.putInt("start",mark.end);state.putInt("end",mark.end);',source)

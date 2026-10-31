@@ -35,7 +35,8 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 |3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|03e04617 /41228015699|Build PASS; large-font143/144, landscape141/144. Full profiles timed out at48/280 each. Not qualified.|
 |4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|51321a63 /41230888109|Build PASS; API36 279/280; API26 277/280; large-font/landscape143/144 each. Common failure: section drop consumed by ordinary blank text field. API26 additionally: More text options and second link long-press. Four PDF probes PASS.|
 |5: internal-drag-safe ordinary writing placeholders|5|25/40|0b78a88b /41232258716|Build247 JVM PASS; API36 280/280; large-font/landscape144/144 each; API26 279/280, second link long-press fails. Four PDF probes PASS.|
-|6: repeat link long-press and native dialog focus restoration|5|30/40|launching|Local615 root/225 Notes gates; full qualification required|
+|6: repeat link long-press and native dialog focus restoration|5|30/40|c51e3a9d /41233656092|Build PASS; API36 279/280, focused143/144 each: saved-style regression. API26 279/280: repeated link gesture still fails. Not qualified.|
+|7: isolated link touch hold; revert broad focus restoration|5|35/40|launching|Local615 root/225 Notes gates; full qualification required|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -81,3 +82,10 @@ selection restoration waits for the document window to regain focus and restores
 field focus; transient title focus cannot close a locked formatting tray. Same real native
 Copy/Open/Cancel and data-preservation tests retained. API26 saved-style failure in source4
 was absent in source5; the explicit focus guard nevertheless covers the audited transition.
+
+Reservation7 reverts reservation6 focus restoration after exact native style assertions detected
+obsolete-range restoration. Link-only touch hold now schedules at the native long-press timeout,
+cancels on movement/cancel, offers the same two-action menu, and avoids Editor's selected-word
+native text-drag state on API26. Single tap still positions the caret/opens typing; non-link
+writing keeps native selection. Accessibility long-click shares the same safe menu. No test
+assertions dropped; full retained matrix repeated. Five jobs remain unreserved under fresh40.

@@ -67,4 +67,18 @@ public class BackupCodecTest {
             fail("must be local only");
         }catch(IOException expected) { }
     }
+    @Test public void restoredRecordingLinksKeepContentNamesThroughBackupCodec() throws Exception {
+        String id="00000000-0000-0000-0000-000000000001",hash=String.join("",java.util.Collections.nCopies(64,"a")),otherHash=String.join("",java.util.Collections.nCopies(64,"b"));
+        Note source=Note.create(1).withId(app.space.notes.domain.VoiceTranscripts.noteId(id)).edit("Named note","Original writing",2).voiceSource(id,3).reminder(9999,4).namedContent("reminder","Call Mum",5).namedContent("diagram","Plan",5);
+        app.space.notes.domain.ArchiveManifest manifest=new app.space.notes.domain.ArchiveManifest(2,hash,Arrays.asList(new app.space.notes.domain.ArchiveManifest.Recording(id,1,44,hash,0,null,false)));
+        for(boolean canonical:new boolean[]{false,true}){
+            Note seed=canonical?source.withContent(app.space.notes.domain.DocumentContent.fromLegacy(source),6):source;
+            Note decoded=BackupCodec.decode(BackupCodec.encode(Arrays.asList(seed))).get(0);
+            for(boolean conflict:new boolean[]{false,true}){
+                app.space.notes.domain.ArchiveMerge.Plan restore=app.space.notes.domain.ArchiveMerge.preview(manifest,java.util.Collections.emptyMap(),java.util.Collections.emptyList(),Arrays.asList(decoded),key->conflict&&key.equals(id)?new app.space.notes.domain.ArchiveMerge.Content(44,otherHash,null):null);
+                Note restored=BackupCodec.decode(BackupCodec.encode(restore.notes.notes)).get(0);
+                assertEquals(seed.contentNames,restored.contentNames);assertEquals(seed.reminderAt,restored.reminderAt);assertEquals(seed.body,restored.body);assertEquals(seed.content==null?null:seed.content.fingerprint(),restored.content==null?null:restored.content.fingerprint());assertEquals("Call Mum",restored.contentName("reminder",""));assertEquals(Arrays.asList(restore.recordings.get(0).targetId),restored.voiceSources);
+            }
+        }
+    }
 }

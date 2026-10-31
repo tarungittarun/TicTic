@@ -15,9 +15,10 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 |2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|41186948827 / f9ad2fad|build FAIL: missing fail() assertion import in new instrumentation wait helper; native skipped, all4 conservatively counted|
 |3: instrumentation helper/import guard and no-op safety|4|12/30|41187174320 /8fc28925|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs, complete provenance|
 |4: final caption/data-memory bounds|4|16/30|41188250094 /b14cfce0|ALL PASS:240 JVM,258/258 API26,125/125 dark,125/125 landscape; all3 PDFs/provenance complete|
-|5: Android16 full compatibility plus previous profiles|5|21/30|pending launch|pending|
+|5: Android16 full compatibility plus previous profiles|5|21/30|41189322492 /a510d9c3|superseded; conservatively retain all5 slots|
+|6: recording-aware restore name preservation|5|26/30|pending launch|pending|
 
-**9 new jobs unreserved.** Older unspent6 not automatically added to this cap.
+**4 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
 ## Implemented for qualification
 - Notes → More actions → Find in note. Literal case-insensitive matching with original
@@ -105,3 +106,16 @@ Only min-api26 collects/pushes all fixtures, avoiding a second all-group collect
 It requires3 completed peers, all4 artifact names and all4 provenance profiles. Full API36
 executes258 cases; dark/landscape remain125 each; JVM240. Local578/Notes188 expected.
 Physical phone, novice tasks and OEM delivery remain outstanding, not replaced by this emulator.
+
+## Checkpoint6 — restore-path data-safety review
+Audit of every production `new Note(...)` outside Note/codec found ArchiveMerge reconstructing
+incoming notes without contentNames. This affects Notes' recording-aware backup restore,
+not the paused standalone Archive app. Preserve names through new/reused/conflicting audio
+identities and legacy/canonical content. Regression: one JVM method covers all6 combinations
+with image kind/name, reminder and diagram metadata; one native BackupCodec method covers
+legacy/canonical decode→restore→encode with/without recording conflicts.
+
+Stop superseded checkpoint5 to avoid unnecessary compute; all5 slots remain reserved
+conservatively. Checkpoint6 requires one build+4 native jobs, total26/30,4 unreserved.
+Expected241 JVM,259 API26,259 API36,125 dark and125 landscape; local579/189 PASS.
+No version bump needed: code23 has not been delivered. Do not downgrade schema8 data.

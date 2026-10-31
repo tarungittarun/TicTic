@@ -49,3 +49,8 @@ class FindAndNames(unittest.TestCase):
   self.assertIn("'refinement-native-current-api36'",workflow)
   self.assertIn("'landscape-api34','current-api36'}-set(results)",workflow)
   self.assertNotIn("if: always() && matrix.group == 'all'",workflow)
+
+ def test_recording_restore_copies_names_instead_of_using_legacy_constructor(self):
+  source=(ROOT/'domain/src/main/java/app/space/notes/domain/ArchiveMerge.java').read_text()
+  self.assertIn('note.images,note.content,note.contentNames)',source)
+  self.assertNotIn('note.images,note.content)',source)

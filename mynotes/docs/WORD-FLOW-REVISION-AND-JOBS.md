@@ -33,8 +33,9 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 |1: full implementation and new data/UI safety coverage|5|5/40|8daa3baa /41223351324|Build245 JVM PASS; API26/API36 271/276 each, large-font/landscape135/140 each; all4 PDF PASS. Same5 UI failures in each profile; not qualified.|
 |2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|c52e49ca /41224792310|Build PASS. Focused profiles142/144 each: native link toolbar both, dock label clipping large-font, drag viewport landscape. Full profiles cancelled at48/280, not passes. Both completed PDF probes PASS.|
 |3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|03e04617 /41228015699|Build PASS; large-font143/144, landscape141/144. Full profiles timed out at48/280 each. Not qualified.|
-|4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|51321a63 /41230888109|Build PASS; API26/API36 279/280 each; large-font/landscape143/144 each. Only common failure: section drop consumed by ordinary blank text field. Four PDF probes PASS.|
-|5: internal-drag-safe ordinary writing placeholders|5|25/40|launching|Local613 root/223 Notes gates; full qualification pending|
+|4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|51321a63 /41230888109|Build PASS; API36 279/280; API26 277/280; large-font/landscape143/144 each. Common failure: section drop consumed by ordinary blank text field. API26 additionally: More text options and second link long-press. Four PDF probes PASS.|
+|5: internal-drag-safe ordinary writing placeholders|5|25/40|0b78a88b /41232258716|Build247 JVM PASS; API36 280/280; large-font/landscape144/144 each; API26 279/280, second link long-press fails. Four PDF probes PASS.|
+|6: repeat link long-press and native dialog focus restoration|5|30/40|launching|Local615 root/225 Notes gates; full qualification required|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -73,3 +74,10 @@ Reservation5 keeps the default writing appearance, but uses the existing Writing
 for blank lines so native internal drags bubble to the containing section instead of being
 consumed by Android EditText. Same native reorder/Undo/data assertions retained. Source4
 completed all methods in both full lanes; no hang remains in that evidence.
+
+Reservation6 collapses the selected link after its menu action, preserving text/marks while
+allowing API26 repeat long-press instead of dragging an already-selected native word. Dialog
+selection restoration waits for the document window to regain focus and restores original
+field focus; transient title focus cannot close a locked formatting tray. Same real native
+Copy/Open/Cancel and data-preservation tests retained. API26 saved-style failure in source4
+was absent in source5; the explicit focus guard nevertheless covers the audited transition.

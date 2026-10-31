@@ -71,7 +71,7 @@ backup first and keep separate copies of important original recordings: note bac
 include original audio, private empty folders, edit history or saved styles.
 
 This redesign does not change the data schema. Content names introduced earlier still use
-schema8; older APKs reject those named notes rather than silently dropping their names. Do not
+schema8; APKs without schema8 support reject named notes rather than silently dropping names. Do not
 downgrade after using content names. Processing remains local; this work adds no network service.
 
 Native tests and rendered screenshots are evidence, not novice approval. A physical-device

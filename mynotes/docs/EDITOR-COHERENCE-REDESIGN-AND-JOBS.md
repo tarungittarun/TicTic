@@ -44,7 +44,7 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 |4: fully qualify Android Gravity; same266/132 native inventory|5|20/35|41200715192 /479ee9da|241 JVM;132/132 both focused profiles;265/266 API36;264/266 API26|
 |5: temporary-panel release, editor dialog identity and correctly scoped provider test|5|25/35|41202239736 /783726ba|241 JVM;132/132 dark;131/132 land;265/266 both full profiles|
 |6: target the actual async folder tray and await native accessibility cache updates|5|30/35|41203529856 /58238865|ALL5 PASS:241 JVM,266 API26,266 API36,132 dark,132 landscape; all4 PDF probes PASS|
-|7: live Find tracks editable writing and cleans up observers|5|35/35|launching|596 root/206 Notes + Java syntax PASS;268/134 native pending|
+|7: live Find tracks editable writing and cleans up observers|5|35/35|41204791613 /9e0e470b|ALL5 PASS:241 JVM,268 API26,268 API36,134 dark,134 landscape; all4 PDF probes PASS|
 
 0/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
@@ -197,3 +197,22 @@ checks accept2 matches or1/2, then verify the actual7..13 selected range. No cas
 Reservation7 consumes final planned5 slots:35/35 conservatively reserved,31 actual executions if
 all5 run,4 skipped slots retained in the conservative ledger; no unreserved planned slots remain.
 No180-minute, novice, physical-device or public-release approval claim.
+
+## Final qualification / handoff
+Run41204791613 completed successfully; evidence bot11a03654 imported. Exact reports show
+268/268 on each full profile,134/134 on each focused profile, no missing/failed cases, and
+all4 independent PDF probes pass. Final source9e0e470bf45a91509d03a65d7d59ae73fc3579ee.
+Final raw APK artifact13044376601:66,707,516 bytes, metadata SHA256
+c386b4c3a658ae8374f4e073894c1c8fc69c49cba624303e3db84cea310d7a18.
+Expiry2026-11-07T13:17:50Z. This digest is GitHub metadata, not a local download/hash.
+
+Manual visual review included sixth-run formatting/typing frames on all4 profiles and final-run
+API36 Notes Find with keyboard, API26 Doc Find, dark200% Doc Find and landscape Notes Find
+with keyboard. The compact landscape count/arrows/Close remain visible above the keyboard;
+large-text preview truncates while writing and navigation remain visible. Screenshots cannot
+establish actual OEM keyboard, TalkBack or novice acceptance.
+
+Final ledger:35/35 conservatively reserved; **31 actual job executions**,4 skipped native slots
+from the compile-failed third run held unused. No extra run/retry or historical budget used.
+The180-minute streak was not met and is not claimed. No idle padding or public-release approval.
+See EDITOR-COHERENCE-DEVELOPMENT-HANDOFF.md for installation and exact evidence links.

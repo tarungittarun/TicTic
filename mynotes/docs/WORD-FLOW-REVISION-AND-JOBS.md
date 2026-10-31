@@ -33,7 +33,8 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 |1: full implementation and new data/UI safety coverage|5|5/40|8daa3baa /41223351324|Build245 JVM PASS; API26/API36 271/276 each, large-font/landscape135/140 each; all4 PDF PASS. Same5 UI failures in each profile; not qualified.|
 |2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|c52e49ca /41224792310|Build PASS. Focused profiles142/144 each: native link toolbar both, dock label clipping large-font, drag viewport landscape. Full profiles cancelled at48/280, not passes. Both completed PDF probes PASS.|
 |3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|03e04617 /41228015699|Build PASS; large-font143/144, landscape141/144. Full profiles timed out at48/280 each. Not qualified.|
-|4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|launching|Local gates below; full qualification required|
+|4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|51321a63 /41230888109|Build PASS; API26/API36 279/280 each; large-font/landscape143/144 each. Only common failure: section drop consumed by ordinary blank text field. Four PDF probes PASS.|
+|5: internal-drag-safe ordinary writing placeholders|5|25/40|launching|Local613 root/223 Notes gates; full qualification pending|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -67,3 +68,8 @@ hang repeated immediately after48 methods: audited compact-layout padding feedba
 threshold using stable normal padding, not its own changing dock padding. Instrumentation bounded
 at20min within30min job so a future hang can retain partial diagnostics. No retries or ignored
 exit codes, and no weakening of full inventory.30min source3 cancellations are not passes.
+
+Reservation5 keeps the default writing appearance, but uses the existing WritingField subclass
+for blank lines so native internal drags bubble to the containing section instead of being
+consumed by Android EditText. Same native reorder/Undo/data assertions retained. Source4
+completed all methods in both full lanes; no hang remains in that evidence.

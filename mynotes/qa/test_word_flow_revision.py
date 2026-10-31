@@ -50,7 +50,7 @@ class WordFlowRevision(unittest.TestCase):
   self.assertIn('if(rules)guides(canvas,layout,',pdf)
  def test_default_writing_looks_like_an_edit_field_not_an_insert_command(self):
   s=(JAVA/'DocumentEditorView.java').read_text().split('private EditText writingPlaceholder',1)[1].split('private void continueWriting',1)[0]
-  self.assertIn('new EditText',s)
+  self.assertIn('new NotesController.WritingField',s)
   self.assertIn('setHint("Write text…")',s)
   self.assertIn('!writing.isAttachedToWindow()',s)
   self.assertNotIn('host.change',s)
@@ -88,3 +88,8 @@ class NativeFailureRegressions(unittest.TestCase):
  def test_compact_threshold_does_not_feed_back_its_own_padding_change(self):
   source=(JAVA/'NotesController.java').read_text()
   self.assertIn('writingDock.getMeasuredHeight()-writingDock.getPaddingTop()-writingDock.getPaddingBottom()+dp(12)',source)
+
+ def test_writing_placeholders_reject_internal_native_drag_payloads(self):
+  source=(JAVA/'DocumentEditorView.java').read_text().split('private EditText writingPlaceholder',1)[1].split('private void',1)[0]
+  self.assertIn('new NotesController.WritingField(getContext())',source)
+  self.assertIn('DocumentEditorView.internalDrag(event)',(JAVA/'NotesController.java').read_text())

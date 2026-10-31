@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "source_sha": "783726ba33b42dfdaa12b2420aa95f209b6f4286",
+  "capture_run": "41202239736",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 266,
+      "passed": 265,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles: status -2 java.lang.AssertionError: Control must be shown after opening its category: Library text=\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.UiActions.reveal(UiActions.java:11)\n\tat app.space.notes.UiActions.reveal(UiActions.java:11)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$1$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:43)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda9.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 132,
+      "passed": 131,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.aaPanelDistinguishesSelectionFromTypingAndKeepsRichText(CoreJourneysTest.java:535)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 132,
+      "passed": 132,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 266,
+      "passed": 265,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles: status -2 java.lang.AssertionError: Control must be shown after opening its category: Library text=\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.UiActions.reveal(UiActions.java:11)\n\tat app.space.notes.UiActions.reveal(UiActions.java:11)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$1$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:43)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda9.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

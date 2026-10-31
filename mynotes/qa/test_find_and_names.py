@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class FindAndNames(unittest.TestCase):
  def test_find_is_bounded_off_thread_and_never_adds_persisted_marks(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NoteFindDialog.java').read_text()
-  for token in ['worker.submit','task[0].cancel(true)','request!=generation[0]','LengthFilter(256)','setSelection(match.start,match.end)']:
+  for token in ['worker.submit','task.cancel(true)','request!=generation','LengthFilter(256)','setSelection(match.start,match.end)']:
    self.assertIn(token,source)
   self.assertNotIn('setSpan(',source)
  def test_names_are_not_a_change_to_drawing_type(self):

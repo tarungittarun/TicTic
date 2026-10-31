@@ -9,6 +9,7 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "link":c.drawArc(2,8,14,20,40,280,false,p);c.drawArc(10,2,22,14,220,280,false,p);lines(c,8,16,16,8);break;
  case "drag":for(int x=9;x<=15;x+=6)for(int y=6;y<=18;y+=6)c.drawCircle(x,y,.8f,p);break;
  case "crop":lines(c,7,2,7,17,22,17);lines(c,2,7,17,7,17,22);break;
  case "mirror":lines(c,12,2,12,22);lines(c,9,5,3,19,9,19,9,5);lines(c,15,5,21,19,15,19,15,5);break;

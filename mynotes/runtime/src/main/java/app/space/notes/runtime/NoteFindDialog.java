@@ -1,5 +1,4 @@
 package app.space.notes.runtime;
-import android.app.AlertDialog;
 import android.graphics.Rect;
 import android.text.*;
 import android.view.*;
@@ -8,18 +7,61 @@ import android.widget.*;
 import app.space.notes.domain.FindInNote;
 import java.util.*;
 import java.util.concurrent.*;
-/** Search is read-only, bounded and off-thread. Jumping uses selection, never injected text marks. */
+
+/** In-editor Find mode. Historical class name retained; no dialog or separate editing screen. */
 final class NoteFindDialog {
+ private static final Map<View,Session> sessions=new WeakHashMap<>();
  private static void fields(View view,List<TextView> out){if(view instanceof EditText || view instanceof TextView && "find-caption".equals(view.getTag()))out.add((TextView)view);else if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)fields(group.getChildAt(i),out);}}
+ static boolean open(View content){return content!=null && sessions.containsKey(content);}
+ static boolean close(View content){Session current=sessions.get(content);if(current==null)return false;current.close();return true;}
  static void show(NotesDesign design,View content,ExecutorService worker){
-  android.content.Context context=content.getContext();List<TextView> targets=new ArrayList<>();fields(content,targets);List<String> snapshot=new ArrayList<>();for(TextView field:targets)snapshot.add(field.getText().toString());
-  LinearLayout panel=new LinearLayout(context);panel.setOrientation(LinearLayout.VERTICAL);androidx.core.view.ViewCompat.setAccessibilityPaneTitle(panel,content instanceof DocumentEditorView?"Find in document":"Find in note");int pad=(int)(16*context.getResources().getDisplayMetrics().density);panel.setPadding(pad,pad,pad,pad);
-  EditText query=new EditText(context);design.entry(query,16);query.setSingleLine(true);query.setFilters(new InputFilter[]{new InputFilter.LengthFilter(256)});query.setHint(content instanceof DocumentEditorView?"Find in document":"Find in note");LinearLayout searchRow=new LinearLayout(context);searchRow.setOrientation(LinearLayout.HORIZONTAL);searchRow.addView(query,new LinearLayout.LayoutParams(0,-2,1));Button close=new Button(context);close.setText("×");close.setContentDescription("Close find");close.setMinWidth(0);close.setMinimumWidth(0);close.setPadding(0,0,0,0);close.setTextColor(design.ink);close.setBackground(design.ripple(design.surface,12));searchRow.addView(close,new LinearLayout.LayoutParams(pad*3,pad*3));panel.addView(searchRow,new LinearLayout.LayoutParams(-1,-2));
-  TextView status=new TextView(context);status.setTextColor(design.ink);status.setText("Type to find. Tap a result to jump to it.");panel.addView(status);
-  ScrollView scroll=new ScrollView(context);LinearLayout results=new LinearLayout(context);results.setOrientation(LinearLayout.VERTICAL);scroll.addView(results);panel.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-  AlertDialog dialog=new AlertDialog.Builder(context).setView(panel).create();close.setOnClickListener(v->dialog.dismiss());dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);query.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI|android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN);query.setOnEditorActionListener((v,action,event)->{if(action==android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH){((InputMethodManager)context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(query.getWindowToken(),0);return true;}return false;});final int[] generation={0};final Future<?>[] task={null};
-  query.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int a,int c,int after){}public void onTextChanged(CharSequence s,int a,int before,int count){}public void afterTextChanged(Editable value){int request=++generation[0];if(task[0]!=null)task[0].cancel(true);String needle=value.toString();results.removeAllViews();status.setText(needle.isEmpty()?"Enter text to find":"Searching…");if(needle.isEmpty())return;
-   task[0]=worker.submit(()->{List<FindInNote.Match> matches=FindInNote.search(snapshot,needle);content.post(()->{if(!dialog.isShowing() || request!=generation[0])return;status.setText(matches.isEmpty()?"No matches":matches.size()>FindInNote.LIMIT?"100+ matches — refine your search":matches.size()+(matches.size()==1?" match":" matches"));for(int i=0;i<Math.min(matches.size(),FindInNote.LIMIT);i++){FindInNote.Match match=matches.get(i);String text=snapshot.get(match.field);int start=Math.max(0,match.start-24),end=Math.min(text.length(),match.end+40);String hint=targets.get(match.field).getHint()==null?"Content":targets.get(match.field).getHint().toString();if(hint.equals("Write your note…"))hint="Writing";Button row=new Button(context);row.setTextColor(design.ink);row.setTextSize(16);row.setBackground(design.ripple(design.surface,12));row.setAllCaps(false);row.setMinHeight(pad*3);row.setText(hint+" · "+text.substring(start,end).replace('\n',' '));row.setContentDescription("Find result "+(i+1)+": "+row.getText());row.setOnClickListener(v->{TextView field=targets.get(match.field);android.os.IBinder token=query.getWindowToken();dialog.dismiss();if(!field.isAttachedToWindow() || !field.getText().toString().equals(snapshot.get(match.field)))return;((InputMethodManager)context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(token,0);if(field instanceof EditText){field.requestFocus();((EditText)field).setSelection(match.start,match.end);}field.postOnAnimation(()->{android.text.Layout layout=field.getLayout();if(layout==null)return;int line=layout.getLineForOffset(match.start);field.requestRectangleOnScreen(new Rect(0,layout.getLineTop(line)+field.getTotalPaddingTop(),field.getWidth(),layout.getLineBottom(line)+field.getTotalPaddingTop()),false);field.announceForAccessibility("Match found: "+needle);});});results.addView(row,new LinearLayout.LayoutParams(-1,-2));}});});
-  }});View.OnAttachStateChangeListener lifecycle=new View.OnAttachStateChangeListener(){public void onViewAttachedToWindow(View v){}public void onViewDetachedFromWindow(View v){dialog.dismiss();}};content.addOnAttachStateChangeListener(lifecycle);dialog.setOnDismissListener(d->{content.removeOnAttachStateChangeListener(lifecycle);generation[0]++;if(task[0]!=null)task[0].cancel(true);});design.show(dialog);query.requestFocus();
+  if(content==null || !content.isAttachedToWindow())return;
+  Session old=sessions.get(content);if(old!=null){old.query.requestFocus();return;}
+  LinearLayout owner=content instanceof DocumentEditorView?(LinearLayout)content:content.getParent() instanceof LinearLayout?(LinearLayout)content.getParent():null;
+  if(owner==null)return;
+  Session session=new Session(design,content,owner,worker);sessions.put(content,session);session.attach();
+ }
+ private static final class Session implements View.OnAttachStateChangeListener {
+  final NotesDesign design;final View content;final LinearLayout owner,bar;final ExecutorService worker;
+  final EditText query;final TextView count;final Button result,previous,next;
+  final List<TextView> targets=new ArrayList<>();final List<String> snapshot=new ArrayList<>();
+  List<FindInNote.Match> matches=Collections.emptyList();Future<?> task;int generation,index;boolean closed;
+  final Map<View,Integer> chrome=new LinkedHashMap<>();
+  Session(NotesDesign design,View content,LinearLayout owner,ExecutorService worker){
+   this.design=design;this.content=content;this.owner=owner;this.worker=worker;
+   fields(content,targets);for(TextView field:targets)snapshot.add(field.getText().toString());
+   bar=new LinearLayout(content.getContext());bar.setOrientation(LinearLayout.VERTICAL);bar.setTag("inline-find");bar.setPadding(0,0,0,design.dp(4));bar.setBackground(design.shape(design.background,12));
+   androidx.core.view.ViewCompat.setAccessibilityPaneTitle(bar,content instanceof DocumentEditorView?"Find in document":"Find in note");
+   LinearLayout row=new LinearLayout(content.getContext());row.setGravity(Gravity.CENTER_VERTICAL);
+   query=new EditText(content.getContext());design.entry(query,16);query.setSingleLine(true);query.setFilters(new InputFilter[]{new InputFilter.LengthFilter(256)});query.setHint(content instanceof DocumentEditorView?"Find in document":"Find in note");query.setContentDescription(query.getHint());row.addView(query,new LinearLayout.LayoutParams(0,-2,1));
+   previous=design.icon("Previous match","up",()->move(-1));next=design.icon("Next match","down",()->move(1));
+   row.addView(previous,new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));row.addView(next,new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));row.addView(design.icon("Close find","close",this::close),new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));bar.addView(row);
+   LinearLayout status=new LinearLayout(content.getContext());status.setGravity(Gravity.CENTER_VERTICAL);count=design.label("Find in this note",12,design.muted);status.addView(count,new LinearLayout.LayoutParams(-2,-2));
+   result=design.textAction("Type a word to find",()->{if(!matches.isEmpty()){FindInNote.Match match=matches.get(index);close();jump(match);}});result.setTextSize(13);result.setPadding(design.dp(8),0,design.dp(4),0);result.setMaxLines(1);result.setEllipsize(TextUtils.TruncateAt.END);result.setMinWidth(0);result.setMinimumWidth(0);result.setMinHeight(design.dp(48));status.addView(result,new LinearLayout.LayoutParams(0,-2,1));bar.addView(status);
+   previous.setEnabled(false);next.setEnabled(false);result.setEnabled(false);
+   query.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI|android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN);
+   query.setOnEditorActionListener((v,action,event)->{if(action==android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH){hideKeyboard();if(!matches.isEmpty())jump(matches.get(index));return true;}return false;});
+   query.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int a,int c,int after){}public void onTextChanged(CharSequence s,int a,int before,int n){}public void afterTextChanged(Editable value){search(value.toString());}});
+  }
+  void attach(){
+   for(int i=0;i<owner.getChildCount();i++){View child=owner.getChildAt(i);if("editor-top-chrome".equals(child.getTag()) || "editor-dock".equals(child.getTag())){chrome.put(child,child.getVisibility());child.setVisibility(View.GONE);}}
+   owner.addView(bar,Math.min(1,owner.getChildCount()),new LinearLayout.LayoutParams(-1,-2));content.addOnAttachStateChangeListener(this);bar.addOnAttachStateChangeListener(this);hideKeyboard();query.requestFocus();owner.requestLayout();
+  }
+  void hideKeyboard(){((InputMethodManager)content.getContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(query.getWindowToken()!=null?query.getWindowToken():content.getWindowToken(),0);}
+  void search(String needle){
+   int request=++generation;if(task!=null)task.cancel(true);matches=Collections.emptyList();index=0;previous.setEnabled(false);next.setEnabled(false);result.setEnabled(false);result.setText(needle.isEmpty()?"Type a word to find":"Searching…");count.setText("");if(needle.isEmpty())return;
+   List<String> copy=new ArrayList<>(snapshot);
+   task=worker.submit(()->{List<FindInNote.Match> found=FindInNote.search(copy,needle);content.post(()->{if(closed || request!=generation)return;matches=found.size()>FindInNote.LIMIT?new ArrayList<>(found.subList(0,FindInNote.LIMIT)):found;index=0;count.setText(found.isEmpty()?"No matches":found.size()>FindInNote.LIMIT?"100+ matches":found.size()+(found.size()==1?" match":" matches"));render();});});
+  }
+  void render(){boolean any=!matches.isEmpty();previous.setEnabled(matches.size()>1);next.setEnabled(any);result.setEnabled(any);if(!any){result.setText("Try another word");return;}FindInNote.Match match=matches.get(index);String text=snapshot.get(match.field),hint=targets.get(match.field).getHint()==null?"Content":targets.get(match.field).getHint().toString();if(hint.equals("Write your note…"))hint="Writing";result.setText(hint+" · "+text.substring(Math.max(0,match.start-24),Math.min(text.length(),match.end+40)).replace('\n',' '));result.setContentDescription("Find result "+(index+1)+": "+result.getText());next.setTooltipText("Next match · "+(index+1)+" of "+matches.size());}
+  void move(int direction){if(matches.isEmpty())return;index=(index+direction+matches.size())%matches.size();render();jump(matches.get(index));count.setText((index+1)+" of "+matches.size());}
+  void jump(FindInNote.Match match){
+   TextView field=targets.get(match.field);if(!field.isAttachedToWindow())return;
+   if(!field.getText().toString().equals(snapshot.get(match.field))){for(int i=0;i<targets.size();i++)snapshot.set(i,targets.get(i).getText().toString());search(query.getText().toString());return;}
+   hideKeyboard();if(field instanceof EditText){field.setVisibility(View.VISIBLE);field.requestFocus();((EditText)field).setSelection(match.start,match.end);}
+   field.postOnAnimation(()->{android.text.Layout layout=field.getLayout();if(layout==null)return;int line=layout.getLineForOffset(match.start);field.requestRectangleOnScreen(new Rect(0,layout.getLineTop(line)+field.getTotalPaddingTop(),field.getWidth(),layout.getLineBottom(line)+field.getTotalPaddingTop()),false);field.announceForAccessibility("Match "+(index+1)+" of "+matches.size());});
+  }
+  void close(){if(closed)return;closed=true;generation++;if(task!=null)task.cancel(true);sessions.remove(content);content.removeOnAttachStateChangeListener(this);bar.removeOnAttachStateChangeListener(this);if(bar.getParent()==owner)owner.removeView(bar);for(Map.Entry<View,Integer> entry:chrome.entrySet())entry.getKey().setVisibility(entry.getValue());owner.requestLayout();}
+  public void onViewAttachedToWindow(View v){}public void onViewDetachedFromWindow(View v){close();}
  }
 }

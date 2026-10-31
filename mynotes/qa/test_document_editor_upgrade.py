@@ -23,7 +23,7 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   for label in ['Add item below','Move item up','Move item down','Add item']:
    self.assertNotIn('"'+label+'"',item)
    self.assertNotIn('"'+label+'"',document)
-  self.assertIn('icon("Checklist options"',editor)
+  self.assertIn('editorTool("List","Checklist options"',editor)
   self.assertIn('button("+ List item"',editor)
  def test_reordering_accepts_local_state_only_and_preserves_item_payload(self):
   method=self.controller.split('private static final class ChecklistDrag',1)[1].split('private void listItemOptions(',1)[0]

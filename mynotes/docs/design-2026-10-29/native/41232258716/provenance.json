@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "source_sha": "0b78a88b0c89ef0260ed5841110ca9de25336f3c",
+  "capture_run": "41232258716",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 280,
+      "passed": 280,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 144,
+      "passed": 144,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 144,
+      "passed": 144,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 280,
+      "passed": 279,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting: status -2 java.lang.AssertionError: Native link action not available: Open link; root=android.view.accessibility.AccessibilityNodeInfo@80006dc4; boundsInParent: Rect(0, 0 - 1080, 1920); boundsInScreen: Rect(0, 0 - 1080, 1920); packageName: app.space.notes.debug; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]\n\tat app.space.notes.CoreJourneysTest.linkContextAction(CoreJourneysTest.java:420)\n\tat app.space.notes.CoreJourneysTest.nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting(CoreJourneysTest.java:421)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

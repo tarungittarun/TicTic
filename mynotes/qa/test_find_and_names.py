@@ -22,3 +22,16 @@ class FindAndNames(unittest.TestCase):
   self.assertIn('offset+mark.start',source)
   self.assertNotIn('[x]',source)
   self.assertNotIn('[ ]',source)
+
+ def test_all_mynotes_junit_helpers_have_imports(self):
+  import re
+  from mynotes.tools.ci.test_plan import mask_comments_and_strings
+  helpers={'assertEquals','assertNull','assertNotNull','assertTrue','assertFalse','assertSame','assertNotSame','assertArrayEquals','assertThat','assertThrows','assertNotEquals','fail'}
+  paths=list((ROOT/'domain/src/test/java').rglob('*.java'))+list((ROOT/'app/src/androidTest/java').rglob('*.java'))
+  self.assertGreater(len(paths),20)
+  for path in paths:
+   source=mask_comments_and_strings(path.read_text())
+   imports=set(re.findall(r'import static org\.junit\.Assert\.(\w+|\*);',source))
+   if '*' in imports:continue
+   used={name for name in helpers if re.search(r'(?<![\w.])'+name+r'\s*\(',source)}
+   self.assertFalse(used-imports,str(path)+': '+str(used-imports))

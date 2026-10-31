@@ -12,9 +12,10 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 | Reservation | Jobs | New total | Run/source | Outcome |
 |---|---:|---:|---|---|
 |1: Find/conversion/names + Doc continuation|4|4/30|41185836938 / b2f9a866|240 JVM and257/257 API26 PASS; dark123/124 and landscape123/124 FAIL reminder state-description mismatch; all3 PDFs PASS|
-|2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|pending launch|pending|
+|2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|41186948827 / f9ad2fad|build FAIL: missing fail() assertion import in new instrumentation wait helper; native skipped, all4 conservatively counted|
+|3: instrumentation helper/import guard and no-op safety|4|12/30|pending launch|pending|
 
-**22 new jobs unreserved.** Older unspent6 not automatically added to this cap.
+**18 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
 ## Implemented for qualification
 - Notes → More actions → Find in note. Literal case-insensitive matching with original
@@ -60,3 +61,16 @@ retained). Legacy PDF renders custom image/diagram captions; image kind/bytes re
 A native journey names image/diagram/reminder, verifies durable data/bytes/time/shape and Undo.
 The Doc reverse-conversion journey uses Document → Undo, the supported compact-viewport route.
 240 JVM /258 full /125 focused expected; local575/Notes185 and Java syntax gates before push.
+
+## Checkpoint3
+Checkpoint2 compiled production code but failed instrumentation compilation: the new wait
+helper called `fail()` without a static import. This was my test error, not waived. Replace
+with explicit AssertionError and add an import contract over **all** MyNotes JVM/native
+sources, including wildcard imports and masked strings/comments. Local syntax alone had
+not detected the missing symbol; root's old import contract only covered root JVM modules.
+
+All4 checkpoint2 slots stay conservatively reserved despite native being skipped. No attempt
+to silently reuse them. This reservation is12/30,18 remain. No-op Save name now dismisses
+without an Undo entry, timestamp/storage rewrite or unnecessary schema8 opt-in. Find's
+compact query/Close pane has an accessibility title without a bulky visible title row.
+Expected local576/Notes186;240 JVM,258 full,125 focused unchanged.

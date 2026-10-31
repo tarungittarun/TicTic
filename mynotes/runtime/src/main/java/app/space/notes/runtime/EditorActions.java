@@ -21,7 +21,7 @@ final class EditorActions {
    case "Undo":case "Restore":return "undo";case "Redo":return "redo";
    case "Share":return "share";case "Export PDF":return "export";
    case "File location":return "folder";
-   case "Background":case "Colour":return "palette";case "Labels":return "label";
+   case "Appearance":case "Background":case "Colour":return "palette";case "Labels":return "label";
    case "Pin":case "Unpin":return "pin";case "Archive":case "Unarchive":return "archive";
    case "Indent":return "indent";case "Outdent":return "outdent";
    case "Hyperlink":case "Open link":return "link";

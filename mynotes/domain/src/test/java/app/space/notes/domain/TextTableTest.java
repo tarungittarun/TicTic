@@ -5,6 +5,8 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class TextTableTest {
+    @Test public void columnSizingSurvivesEveryCellAndStructureEdit(){TextTable fixed=sample().withColumnWidth(240).withHeader(true);assertEquals(240,fixed.withCell(1,0,"new").columnWidth);assertEquals(240,fixed.insertRow(1).deleteRow(1).columnWidth);assertEquals(240,fixed.insertColumn(1).deleteColumn(1).columnWidth);assertEquals(240,fixed.withHeader(false).columnWidth);assertEquals(0,fixed.withColumnWidth(0).insertRow(1).columnWidth);assertEquals(160,sample().columnWidth);}
+    @Test public void widthBoundsAndFingerprintProtectHistory(){for(int value:new int[]{-1,1,79,481,Integer.MAX_VALUE})assertThrows(IllegalArgumentException.class,()->sample().withColumnWidth(value));DocumentContent before=new DocumentContent(Arrays.asList(DocumentContent.Block.table("t","Table",sample())));assertNotEquals(before.fingerprint(),before.replace("t",DocumentContent.Block.table("t","Table",sample().withColumnWidth(0))).fingerprint());assertEquals(before.block("t").table.rows,before.replace("t",DocumentContent.Block.table("t","Table",sample().withColumnWidth(240))).block("t").table.rows);}
     private TextTable sample(){return new TextTable(Arrays.asList(Arrays.asList(" A\n", "B"),Arrays.asList("C","D")));}
     @Test public void takesDeepImmutableSnapshotWithoutChangingWhitespace(){
         List<String> row=new ArrayList<>(Arrays.asList(" A\n","B"));

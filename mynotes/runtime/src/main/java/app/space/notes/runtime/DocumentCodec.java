@@ -8,7 +8,7 @@ import java.util.*;
 import app.space.notes.domain.Note;
 import app.space.notes.domain.Diagram;
 
-/** Legacy-only libraries stay schema6; canonical content uses schema7. Reads 1–8 and refuses future formats. */
+/** Legacy-only libraries stay schema6; canonical content uses schema7. Reads 1–9 and refuses future formats. */
 public final class DocumentCodec {
     private DocumentCodec() { }
     public static byte[] encode(List<Note> notes) throws Exception {
@@ -28,6 +28,7 @@ public final class DocumentCodec {
                 .put("deletedAt",n.deletedAt).put("pinned",n.pinned).put("archived",n.archived).put("color",n.color).put("checklist",n.checklist).put("hideChecked",n.hideChecked).put("items",items).put("marks",marks).put("labels",labels).put("diagram",encodeDiagram(n.diagram)).put("voiceSources",voices).put("reminderAt",n.reminderAt).put("folder",n.folder).put("background",n.background).put("images",images));
         }
         for(int i=0;i<notes.size();i++)if(!notes.get(i).contentNames.isEmpty()){array.getJSONObject(i).put("contentNames",new JSONObject(notes.get(i).contentNames));schema=8;}
+        for(Note note:notes)if(note.content!=null)for(app.space.notes.domain.DocumentContent.Block block:note.content.blocks)if(block.table!=null && block.table.columnWidth!=160)schema=9;
         return new JSONObject().put("version",schema).put("notes",array).toString().getBytes(StandardCharsets.UTF_8);
     }
     private static Map<String,String> decodeNames(JSONObject note,int version)throws Exception{
@@ -50,7 +51,7 @@ public final class DocumentCodec {
 
         JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(bytes));
         int version=root.getInt("version");
-        if(version!=1 && version!=2 && version!=3 && version!=4 && version!=5 && version!=6 && version!=7 && version!=8)throw new IOException("Unsupported library format; data left untouched");
+        if(version!=1 && version!=2 && version!=3 && version!=4 && version!=5 && version!=6 && version!=7 && version!=8 && version!=9)throw new IOException("Unsupported library format; data left untouched");
         JSONArray array=root.getJSONArray("notes"); List<Note> notes=new ArrayList<>(); Set<String> ids=new HashSet<>();
         for(int i=0;i<array.length();i++) {
             JSONObject n=array.getJSONObject(i);
@@ -58,6 +59,7 @@ public final class DocumentCodec {
                 ContentCodec.metadata(n);
                 List<String> labels=new ArrayList<>(),voices=new ArrayList<>();JSONArray ls=n.getJSONArray("labels"),vs=n.getJSONArray("voiceSources");for(int j=0;j<ls.length();j++)labels.add(ls.getString(j));for(int j=0;j<vs.length();j++)voices.add(vs.getString(j));
                 Note canonical=new Note(n.getString("id"),n.getString("title"),"",n.getLong("createdAt"),n.getLong("updatedAt"),n.getLong("deletedAt"),n.getBoolean("pinned"),n.getBoolean("archived"),n.getInt("color"),false,false,Collections.emptyList(),Collections.emptyList(),labels,Diagram.empty(),voices,n.getLong("reminderAt"),n.getString("folder"),n.getInt("background"),Collections.emptyList(),ContentCodec.decode(n.getJSONObject("content")));
+                if(version<9)for(app.space.notes.domain.DocumentContent.Block block:canonical.content.blocks)if(block.table!=null && block.table.columnWidth!=160)throw new IOException("Table sizing requires schema9; data left untouched");
                 if(!ids.add(canonical.id))throw new IOException("Duplicate note ID; data left untouched");notes.add(canonical.withContentNames(decodeNames(n,version),canonical.updatedAt));continue;
             }
             List<Note.Item> items=new ArrayList<>();List<Note.Mark> marks=new ArrayList<>();List<String> labels=new ArrayList<>(),voices=new ArrayList<>();

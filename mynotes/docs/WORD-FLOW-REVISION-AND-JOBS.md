@@ -1,0 +1,41 @@
+# Word-like editing revision — fresh 40-job authorization
+
+Started 2026-10-31 approximately17:02 UTC. Requested effort150 minutes; actual duration must be
+reported truthfully, never padded or inferred from CI waiting. Fresh cap40 individual Actions jobs,
+independent of every earlier allowance. Reservation1 now books5 jobs (build + four native profiles);35/40 unreserved.
+
+## Requested contract
+- Ordinary writing is text by default; no Text choice in Insert. Preserve existing rich blocks.
+- Table header: name, edit at right, overflow for cell/row/column/header and layout options.
+  One Rows and columns entry, not duplicate structure menus. No native underline inside cells.
+- Table handle menu only Rename, Copy, Cut, Delete. Paste at a text caret, preserving rich cells,
+  header and name. Cut must not lose data on failed placement; Undo remains available.
+- Fit table to content or fixed column width. Display preference must not silently mutate data.
+- Top-only Undo/Redo/Find, not duplicate overflow actions. Remove Colour/Background from overflow.
+  Fifth bottom tool combines Colours/Background tabs. Labels only in overflow.
+- Formatting: section/option separation, close X, no visible New typing heading. Font and Size
+  look like dropdown selectors, with accessible descriptions retaining selection/typing scope.
+- Hyperlink visible text and URL in one form; blue links; long-press Open/Copy link.
+- Local visual viewer supports image3x, drawing/diagram5x; no pixel mutation from viewing.
+- Confirm user-triggered permanent deletion, including diagnostic logs. Preserve automatic bounded
+  cache/history maintenance and documented Trash retention separately from explicit delete actions.
+- Same design language in Notes where applicable; Calculator unchanged; no cloud dependency.
+
+## Qualification plan
+Root and Notes tests before every push; Android builds only in authorized Actions workflow.
+Retain API26/API36 full suites, dark200% and landscape focused suites, PDF probes and existing data
+preservation tests. Update obsolete UI expectations, never remove data assertions to obtain green.
+Physical novice/OEM approval remains separate. New install must clearly identify a newer version
+than rejected0.20 and prior0.21. No public-release approval claim.
+
+| Reservation | Jobs | Cumulative reserved | Source/run | Result |
+|---|---:|---:|---|---|
+|1: full implementation and new data/UI safety coverage|5|5/40|launching|Local604 root; native pending|
+
+No previous unused slots are combined with this cap. Failed/cancelled executions count.
+
+First candidate:0.22.0/code25, schema9 only when a table has non-default sizing. Reads1–9.
+Default-width tables and ordinary existing notes retain prior schema output. No downgrade after
+using saved table sizing; backups preserve rich cells, names, header and width. Table Cut is
+deferred until successful Paste inside the source document; Copy supports another open Doc in
+the same app process. The structured table clipboard is app-memory only, not a public system clip.

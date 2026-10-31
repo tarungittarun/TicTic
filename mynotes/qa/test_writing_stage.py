@@ -6,7 +6,7 @@ class WritingStage(unittest.TestCase):
  def test_aa_has_visible_controls_and_explicit_scope(self):
   s=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   panel=s.split('private void formatMenu(){')[1].split('private void applyFormat(')[0]
-  for token in ['Selected text','New typing','Bold','Italic','Underline','Heading 1','Heading 2','Font','Size (8–72 sp)','design.choice(on)','setStateDescription','ScrollView','fontScale>=1.5f','Decrease text size','Increase text size']:
+  for token in ['Format','Selected words','Only new typing','Bold','Italic','Underline','Heading 1','Heading 2','Font','Size (8–72 sp)','design.choice(on)','setStateDescription','ScrollView','fontScale>=1.5f','Decrease text size','Increase text size']:
    self.assertIn(token,panel)
  def test_checklist_names_survive_all_editor_mutations_and_codec(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()

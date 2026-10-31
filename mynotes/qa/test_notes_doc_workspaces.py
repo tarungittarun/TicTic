@@ -16,7 +16,7 @@ class NotesDocWorkspaces(unittest.TestCase):
   self.assertIn('if(block.table.hasHeader)part(out,"header row")',model)
  def test_inline_preview_and_contextual_moves(self):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
-  for token in ['new DiagramPreview','"Cell actions"','"Move content"','moveIntoText','"Header row · On"']:
+  for token in ['new DiagramPreview','"Rows and columns"','"Move content"','moveIntoText','"Header row · On"']:
    self.assertIn(token,editor)
 
  def test_doc_tools_are_adaptive_not_horizontally_hidden(self):
@@ -43,7 +43,7 @@ class NotesDocWorkspaces(unittest.TestCase):
   editor=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java').read_text()
   self.assertIn('cellBorder.setStroke(dp(1),design.outline)',editor)
   self.assertIn('cell.setPadding(dp(6),dp(8),dp(6),dp(8))',editor)
-  self.assertIn('row.addView(cell,new LayoutParams(dp(160),-1))',editor)
+  self.assertIn('row.addView(cell,new LayoutParams(dp(widths[c]),-1))',editor)
 
  def test_workspace_journey_waits_for_new_editor_ime_before_back(self):
   source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()

@@ -20,10 +20,11 @@ final class NotesSheets {
   overlay.addView(surface,new FrameLayout.LayoutParams(Math.min(design.dp(560),design.dp(design.context.getResources().getConfiguration().screenWidthDp)),design.dp(420),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL));shell.addView(overlay,new FrameLayout.LayoutParams(-1,-1));
   shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->resize());
  }
+ /** A null launcher denotes a one-shot panel, released rather than parked when closed. */
  LinearLayout panel(String title,View launcher){LinearLayout panel=new LinearLayout(design.context);panel.setOrientation(LinearLayout.VERTICAL);panel.setVisibility(View.GONE);panel.setTag(launcher);panel.setContentDescription(title);parking.addView(panel,new LinearLayout.LayoutParams(-1,-2));panels.add(panel);return panel;}
  void footer(LinearLayout panel,View actions){if(!panels.contains(panel))throw new IllegalArgumentException("Unknown tool panel");footers.put(panel,actions);}
  void show(LinearLayout panel,String title){
-  if(!panels.contains(panel))return;android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)design.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE);keyboard.hideSoftInputFromWindow(shell.getWindowToken(),0);
+  if(!panels.contains(panel))return;if(current!=null && current!=panel)close();android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)design.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE);keyboard.hideSoftInputFromWindow(shell.getWindowToken(),0);
   // Only the active panel participates in scroll measurement. Recreate transient scroll state:
   // reused GONE siblings/focus and retained scroll offsets must never produce a blank sheet.
   for(LinearLayout p:panels){if(p.getParent()!=null)((ViewGroup)p.getParent()).removeView(p);p.setVisibility(View.GONE);if(p!=panel)parking.addView(p,new LinearLayout.LayoutParams(-1,-2));}
@@ -37,7 +38,7 @@ final class NotesSheets {
  }
  private void resize(){if(shell.getHeight()<=0)return;FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)surface.getLayoutParams();int height=Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*.72f)));if(current!=null){int width=Math.max(1,Math.min(shell.getWidth(),lp.width)-surface.getPaddingLeft()-surface.getPaddingRight());int w=View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),h=View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);current.measure(w,h);View heading=surface.getChildAt(0);heading.measure(w,h);int footerHeight=0;if(currentFooter!=null){currentFooter.measure(w,h);footerHeight=currentFooter.getMeasuredHeight();}height=Math.max(design.dp(112),Math.min(height,current.getMeasuredHeight()+heading.getMeasuredHeight()+footerHeight+surface.getPaddingTop()+surface.getPaddingBottom()));}if(lp.height!=height){lp.height=height;surface.setLayoutParams(lp);}}
  void refresh(){resize();}
- boolean close(){if(overlay.getVisibility()!=View.VISIBLE)return false;overlay.setVisibility(View.GONE);shell.getChildAt(0).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);if(current!=null){if(current.getParent()!=null)((ViewGroup)current.getParent()).removeView(current);current.setVisibility(View.GONE);parking.addView(current,new LinearLayout.LayoutParams(-1,-2));}if(currentFooter!=null){surface.removeView(currentFooter);currentFooter=null;}current=null;return true;}
+ boolean close(){if(overlay.getVisibility()!=View.VISIBLE)return false;overlay.setVisibility(View.GONE);shell.getChildAt(0).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);if(current!=null){if(current.getParent()!=null)((ViewGroup)current.getParent()).removeView(current);current.setVisibility(View.GONE);if(current.getTag()==null){panels.remove(current);footers.remove(current);}else parking.addView(current,new LinearLayout.LayoutParams(-1,-2));}if(currentFooter!=null){surface.removeView(currentFooter);currentFooter=null;}current=null;return true;}
  void reset(){close();scroll.removeAllViews();parking.removeAllViews();panels.clear();footers.clear();current=null;}
  boolean open(){return overlay.getVisibility()==View.VISIBLE;}
 }

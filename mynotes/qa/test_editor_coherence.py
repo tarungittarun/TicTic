@@ -84,6 +84,7 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('sheets.footer(panel,button("Cancel",()->sheets.close()))',part)
   self.assertIn('token!=folderPageSequence || !panel.isShown()',part)
   self.assertIn('loadMoveFolders(panel,content,chosen)',part)
+  self.assertIn('design.showEditorSheet(dialog)',part)
 
  def test_colour_targets_fit_the_short_landscape_scroll_view_without_smaller_text(self):
   s=(JAVA/'NotesController.java').read_text().split('private void renderColours()',1)[1].split('private java.io.File drawingDraft',1)[0]
@@ -92,3 +93,17 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('pick.setTextSize(13)',s)
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   self.assertIn('assertEquals(text("Reminder").getHeight(),visible.height())',native)
+
+ def test_one_shot_panels_release_hidden_inputs_and_fixed_footers(self):
+  s=(JAVA/'NotesSheets.java').read_text()
+  self.assertIn('if(current!=null && current!=panel)close()',s)
+  self.assertIn('current.getTag()==null',s)
+  self.assertIn('panels.remove(current);footers.remove(current)',s)
+
+ def test_real_provider_journey_cannot_click_archive_behind_the_folder_tray(self):
+  s=(ROOT/'app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java').read_text()
+  self.assertIn('View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS)return null',s)
+  self.assertIn('Confirmed move must empty the old real provider folder',s)
+  native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('controller.view().isAttachedToWindow() && controller.view().hasWindowFocus()',native)
+  self.assertIn('storeScreenshot("control-failure",instrumentation.getUiAutomation().takeScreenshot())',native)

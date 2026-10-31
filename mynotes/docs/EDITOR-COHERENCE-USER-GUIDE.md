@@ -19,6 +19,8 @@ Use the magnifying glass in the upper bar for **Find in note**. It is also avail
 Type a word, use the previous/next arrows, and tap the current match preview to reveal it.
 **Close find** returns to the same editor. Find never writes highlight formatting into your note.
 With the keyboard open the Find controls become compact; the writing page remains underneath.
+If you edit the writing while Find is open, its match count updates after a short pause without
+moving your writing caret. Close find removes its temporary observers and leaves no saved marks.
 
 Colour, Labels, Background and Move to folder open temporary bottom trays, not new writing pages.
 Cancel or Android Back closes the tray. Choosing a colour, background or destination applies it;

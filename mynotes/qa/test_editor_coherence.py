@@ -109,3 +109,8 @@ class EditorCoherence(unittest.TestCase):
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   self.assertIn('controller.view().isAttachedToWindow() && controller.view().hasWindowFocus()',native)
   self.assertIn('storeScreenshot("control-failure",instrumentation.getUiAutomation().takeScreenshot())',native)
+
+ def test_editable_find_refreshes_live_text_and_releases_content_observers(self):
+  s=(JAVA/'NoteFindDialog.java').read_text()
+  for token in ['field.addTextChangedListener(contentWatcher)','field.removeTextChangedListener(contentWatcher)','owner.removeCallbacks(refreshContent)','search(query.getText().toString(),false)','if(!matches.isEmpty() && jump(matches.get(index)))close()','if(scrollToMatch)reveal(match)']:
+   self.assertIn(token,s)

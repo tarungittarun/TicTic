@@ -43,9 +43,10 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 |3: fit palette/Insert, anchored folder chooser and safe Create/Cancel/Move/Undo|5|15/35|41200568121 /7166d341|build failed: missing Gravity qualification;1 executed, native skipped|
 |4: fully qualify Android Gravity; same266/132 native inventory|5|20/35|41200715192 /479ee9da|241 JVM;132/132 both focused profiles;265/266 API36;264/266 API26|
 |5: temporary-panel release, editor dialog identity and correctly scoped provider test|5|25/35|41202239736 /783726ba|241 JVM;132/132 dark;131/132 land;265/266 both full profiles|
-|6: target the actual async folder tray and await native accessibility cache updates|5|30/35|launching|595 root/205 Notes + Java syntax PASS; Android pending|
+|6: target the actual async folder tray and await native accessibility cache updates|5|30/35|41203529856 /58238865|ALL5 PASS:241 JVM,266 API26,266 API36,132 dark,132 landscape; all4 PDF probes PASS|
+|7: live Find tracks editable writing and cleans up observers|5|35/35|launching|596 root/206 Notes + Java syntax PASS;268/134 native pending|
 
-5/35 unreserved. No other run authorized/reserved in this ledger.
+0/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
 landscape100% focused. Exact inventory must include all existing cases plus new native Find cases.
 Every source push is gated by root unittest, Notes unittest and diff checks. No tests.yml changes.
@@ -172,3 +173,27 @@ assertion. If the real label does not update, it must fail; no production refres
 selection rewrite is introduced merely to make a test pass. Root595/Notes205 remain PASS.
 Reservation6:30/35 conservative slots,5 unreserved;26 actual jobs if all5 execute. No production
 change since783726ba in this sixth source; test corrections still require full Android gates.
+
+## Sixth result and final live-writing audit
+Evidence botf56e0c91 imported. All5 jobs green:241 JVM,266/266 API26 and API36,132/132 dark200%
+and landscape. All4 pypdf profiles ok. Provider source/destination/body assertions passed, as did
+the synchronous real-ribbon label and native accessibility label checks. Qualified intermediate
+APK source58238865/artifact13043421221,66,706,580 bytes, metadata SHA256
+25cd0185c062120a1e7a2c63688d8f1867637a9d1f6c718ee93a983aeb3678da; not delivered as final.
+
+Final audit: because Find is now in-page, writing can be edited without leaving it. Its initial
+snapshot was static: counts/new queries could stay stale, and tapping a stale preview closed Find
+before jump() could refresh it. This did not rewrite note text, but is not a coherent live editor.
+Observe writer fields while Find is attached, debounce120ms, mark cached text dirty, refresh only
+changed snapshots, cancel old work/generations, and remove observers/callbacks on close. Content
+refresh updates matches without scrolling away from the writing caret; query/navigation still
+reveals the chosen match. A stale preview refreshes rather than closing prematurely. Keep literal
+256-query/100-match bounds and no persisted highlight marks. Doc's preview says Writing, and its
+initial scope says document, not note. Add2 native cases: mutate Notes/Doc writing while Find is
+open, expect2 live matches, retain caret, navigate exact second range, close, continue editing and
+verify exact text plus unchanged original bold mark/no new marks on the found words.
+Inventory241 JVM/268 full/134 focused. Normal/compact counters represent the same count; the new
+checks accept2 matches or1/2, then verify the actual7..13 selected range. No case removed.
+Reservation7 consumes final planned5 slots:35/35 conservatively reserved,31 actual executions if
+all5 run,4 skipped slots retained in the conservative ledger; no unreserved planned slots remain.
+No180-minute, novice, physical-device or public-release approval claim.

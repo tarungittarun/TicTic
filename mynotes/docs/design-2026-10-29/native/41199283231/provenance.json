@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "source_sha": "79cb44cd019adde9b79e6a0e46cdff53bb02c99e",
+  "capture_run": "41199283231",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 265,
+      "passed": 264,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories: status -2 java.lang.AssertionError: expected:<156> but was:<56>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat org.junit.Assert.assertEquals(Assert.java:633)\n\tat app.space.notes.CoreJourneysTest.lambda$addMenuExplainsVisualContentCaptureAndScheduleCategories$146$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:320)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda37.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 131,
+      "passed": 129,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation: status -2 java.lang.AssertionError: Control did not settle unclipped: Blue shown=true target=Button[top=9 h=312 measured=312 scroll=0 visibility=0]LinearLayout[top=753 h=330 measured=330 scroll=0 visibility=0]LinearLayout[top=0 h=1413 measured=1413 scroll=0 visibility=0]ScrollView[top=176 h=293 measured=293 scroll=762 visibility=0]LinearLayout[top=263 h=673 measured=673 scroll=0 visibility=0]FrameLayout[top=0 h=936 measured=936 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:189)\n\tat app.space.notes.CoreJourneysTest.canonicalReverseSelectionSurvivesColourAndControllerRecreation(CoreJourneysTest.java:478)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:74)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation: status -2 java.lang.AssertionError: Control did not settle unclipped: Blue shown=true target=Button[top=9 h=312 measured=312 scroll=0 visibility=0]LinearLayout[top=753 h=330 measured=330 scroll=0 visibility=0]LinearLayout[top=0 h=1413 measured=1413 scroll=0 visibility=0]ScrollView[top=176 h=293 measured=293 scroll=762 visibility=0]LinearLayout[top=263 h=673 measured=673 scroll=0 visibility=0]FrameLayout[top=0 h=936 measured=936 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:189)\n\tat app.space.notes.CoreJourneysTest.nativeCaretSurvivesColourPageAndControllerRecreation(CoreJourneysTest.java:260)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:74)\n\t... 37 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 131,
+      "passed": 131,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 265,
+      "passed": 264,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories: status -2 java.lang.AssertionError: expected:<156> but was:<4>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat org.junit.Assert.assertEquals(Assert.java:633)\n\tat app.space.notes.CoreJourneysTest.lambda$addMenuExplainsVisualContentCaptureAndScheduleCategories$146$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:320)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda37.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

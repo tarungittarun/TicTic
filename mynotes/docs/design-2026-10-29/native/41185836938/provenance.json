@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "source_sha": "b2f9a8669d5850ef5eff7b79f2923deedabbd234",
+  "capture_run": "41185836938",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "landscape-api34": {
+      "ok": false,
+      "expected": 124,
+      "passed": 123,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems: status -2 org.junit.ComparisonFailure: expected:<[Reminder\n]Nov 1, 2026\n8:57 AM> but was:<[]Nov 1, 2026\n8:57 AM>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.CoreJourneysTest.lambda$mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems$205$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:362)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda258.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 124,
+      "passed": 123,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems: status -2 org.junit.ComparisonFailure: expected:<[Reminder\n]Nov 1, 2026\n8:55 AM> but was:<[]Nov 1, 2026\n8:55 AM>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.CoreJourneysTest.lambda$mixedContentPropertiesComeBeforeWritingAndRemovalKeepsOtherItems$205$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:362)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda258.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 257,
+      "passed": 257,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

@@ -13,6 +13,7 @@ final class EditorActions {
   if(label.startsWith("Heading") || label.contains("format") || label.equals("Font") || label.startsWith("Size"))return "format";
   if(label.contains("checklist") || label.contains("checked") || label.equals("Checklist"))return "checklist";
   switch(label){
+   case "Sans serif":case "Serif":case "Monospace":case "Cursive":return "format";
    case "Text":case "Convert to text":case "Writing lines":return "text";
    case "Image":return "image";case "Drawing":return "pencil";case "Diagram":return "diagram";
    case "Table":case "Cell actions":return "grid";
@@ -28,9 +29,9 @@ final class EditorActions {
   }
  }
  static String scope(String title){
-  if(title.equals("Document actions") || title.equals("Note actions"))return "Manage this "+(title.startsWith("Document")?"document":"note")+". Your writing stays unchanged.";
+  if(title.equals("Document actions") || title.equals("Note actions"))return "Manage this "+(title.startsWith("Document")?"document":"note")+". Share, organise or review its history.";
   if(title.startsWith("Insert"))return "Add content where you are writing.";
-  if(title.contains("Checklist") || title.contains("Content") || title.contains("Table") || title.contains("List item"))return "Only this content. The rest of your document stays unchanged.";
+  if(title.contains("Checklist") || title.contains("Content") || title.contains("Table") || title.contains("List item") || title.endsWith(" options"))return "Only this content. The rest of your document stays unchanged.";
   return "";
  }
 }

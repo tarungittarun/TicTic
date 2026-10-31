@@ -28,3 +28,50 @@ class EditorCoherence(unittest.TestCase):
  def test_back_closes_find_before_leaving_document(self):
   s=(JAVA/'NotesController.java').read_text().split('public boolean back()',1)[1]
   self.assertLess(s.index('NoteFindDialog.close'),s.index('persistDraft(); renderHome()'))
+
+ def test_conversion_is_in_insert_not_note_management(self):
+  s=(JAVA/'NotesController.java').read_text();editor=s.split('private void renderEditor()',1)[1].split('private void buildFormatting',1)[0]
+  self.assertIn('captureAction(capture,"Convert to checklist"',editor)
+  management=editor.split('LinearLayout actions=menu("Note actions"',1)[1]
+  self.assertNotIn('new String[]{"Convert to checklist"}',management)
+ def test_find_compacts_without_shrinking_touch_controls(self):
+  s=(JAVA/'NoteFindDialog.java').read_text()
+  self.assertIn('owner.addOnLayoutChangeListener(resizeListener)',s)
+  self.assertIn('statusRow.setVisibility(View.GONE)',s)
+  self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)
+ def test_basic_document_formatting_is_nonmodal_and_docked(self):
+  s=(JAVA/'DocumentEditorView.java').read_text();part=s.split('private void formatMenu()',1)[1].split('private String fontLabel',1)[0]
+  self.assertIn('InlineFormatTray dialog',part)
+  self.assertNotIn('AlertDialog',part)
+  self.assertIn('tray.setTag("document-formatting")',s)
+
+ def test_content_removal_is_last_and_rename_edit_are_direct(self):
+  s=(JAVA/'DocumentEditorView.java').read_text().split('private void blockMenu',1)[1].split('private void moveMenu',1)[0]
+  self.assertLess(s.index('options.add("Edit")'),s.index('options.add("Rename")'))
+  self.assertLess(s.index('options.add("Rename")'),s.index('options.add("Remove section")'))
+  self.assertIn('choose(title,options.toArray',s)
+
+ def test_properties_keep_editor_and_have_fixed_actions_outside_scroll(self):
+  s=(JAVA/'NotesController.java').read_text()
+  for name,end in [('renderLabels','manageLabels'),('renderColours','drawingDraft'),('renderBackgrounds','renderFolders')]:
+   part=s.split('private void '+name+'()',1)[1].split('private ',1)[0]
+   self.assertNotIn('clearPage()',part)
+   self.assertIn('sheets.panel(',part)
+  sheets=(JAVA/'NotesSheets.java').read_text()
+  self.assertIn('footers.get(panel)',sheets)
+  self.assertIn('surface.addView(currentFooter',sheets)
+  self.assertIn('footers.clear()',sheets)
+ def test_basic_styles_can_be_combined_in_one_open_ribbon(self):
+  s=(JAVA/'DocumentEditorView.java').read_text()
+  part=s.split('String[] types={"bold"',1)[1].split('panel.addView(design.label("Paragraph"',1)[0]
+  self.assertNotIn('dialog.dismiss()',part)
+  self.assertIn('dialog.toggles.put(type,control)',part)
+  self.assertIn('refreshFormatRibbon()',s)
+
+ def test_footer_reflows_by_measured_scaled_words_not_smaller_font(self):
+  s=(JAVA/'NotesController.java').read_text()
+  self.assertIn('button.getPaint().measureText(button.getText().toString())',s)
+  self.assertIn('reflowEditorDock(dock)',s)
+  design=(JAVA/'NotesDesign.java').read_text().split('public Button editorTool',1)[1].split('public Button actionRow',1)[0]
+  self.assertIn('b.setMaxLines(1)',design)
+  self.assertNotIn('setTextScaleX',design)

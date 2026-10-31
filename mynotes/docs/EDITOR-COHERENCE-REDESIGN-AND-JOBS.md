@@ -38,9 +38,10 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 
 | Reservation | Jobs | Total | Run/source | Status |
 |---|---:|---:|---|---|
-|1: inline Find, named vector tools, docked Doc formatting and scoped branded trays|5|5/35|not yet launched|584 root/194 Notes PASS; Android pending|
+|1: inline Find, named vector tools, docked Doc formatting and scoped branded trays|5|5/35|41198034897 /94a641f8|241 JVM PASS;260/261 full,126/127 focused: old Aa-name assertion failed on all4; all4 PDFs PASS|
+|2: measured label fit, scope, persistent ribbon and same-page metadata trays|5|10/35|launching|591 root/201 Notes + Java syntax PASS; Android pending|
 
-30/35 unreserved. No other run authorized/reserved in this ledger.
+25/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
 landscape100% focused. Exact inventory must include all existing cases plus new native Find cases.
 Every source push is gated by root unittest, Notes unittest and diff checks. No tests.yml changes.
@@ -56,3 +57,40 @@ Session began approximately11:34 UTC2026-10-31 from tool clock. Requested180 min
 target, not a verified uninterrupted-work claim. Waiting on CI is not invented active work.
 
 Checkpoint1 expected inventory:241 JVM,261 full native,127 focused; no inventory shrink.
+
+## Reference follow-up and staged second pass (not yet another job reservation)
+Official product help reviewed, not just framework examples:
+- Keep Android: https://support.google.com/keep/answer/2888246?hl=en&co=GENIE.Platform%3DAndroid
+  Select words, Format, then B/I/U; heading removal operates on paragraphs. Keep Notes simple.
+- Docs Android Find: https://support.google.com/docs/answer/62754?hl=en&co=GENIE.Platform%3DAndroid
+  Query/Search, top-right arrows through occurrences, Done returns to document. We implement Find,
+  not its additional Replace feature, and add a direct search shortcut without removing More fallback.
+- Docs Android formatting: https://support.google.com/docs/answer/1663349?hl=en&co=GENIE.Platform%3DAndroid
+  Select text using native handles, Format, then text/font/size choices. Do not replace native selection.
+- Word Android ribbon: https://support.microsoft.com/en-us/office/show-or-hide-the-ribbon-in-word-for-mobile-devices-b8a5b4c3-a187-45b7-a945-718e0524bfe1
+  Show/hide editing tools to preserve reading/writing space; do not transplant desktop ribbon density.
+Microsoft's forum reports of Android16 toolbar occlusion are not authoritative product guidance;
+we do not copy a reported broken layout or recommend their workaround of inserting unwanted text.
+
+Staged improvements: combine B/I/U/heading/size toggles in one persistent docked ribbon with live
+scope and state; contextual content Edit/Rename first, Remove last; whole-Note conversion under
+Insert/List, not note management; compact Find count beside query during a short IME viewport;
+read-only match preview scrolls without stealing query focus; explicit controller-close cleanup.
+Colour, Labels and Background become bottom trays over the same editor, not page replacements.
+Labels Save/Cancel and palette Cancel are fixed outside scrolling content. Native tests must prove
+Cancel retains the very same writing View/cursor and data. Native keyboard Find must retain a real
+writing line and a full48dp Close target. One old Aa visibility assertion must follow the new Format
+control name, retaining its actual-visible-control assertion rather than deleting it.
+
+## Checkpoint1 actual visual review
+Evidence bot0ca8a48d imported; complete4 profiles,4 PDFs PASS. Only native failure is the
+assertNotNull(text("Aa")) in the keyboard journey; change to Text formatting, retain its visibility
+and native-line/caret assertions. No app failure is waived as a label mismatch.
+Opened actual API36 Find, selected-word result and Doc selected-text ribbon, plus dark200% Notes
+keyboard. Find stays in-page; ribbon is docked, but old spacing and word labels waste room.
+Critically, the200% footer splits Format/Colour/Labels mid-word. Source2 measures real scaled
+label widths, reflows Notes into writing-versus-note tool rows only where needed, and forbids
+multiline/ellipsized tool labels in a native regression. No text-scale reduction. On wide landscape
+it stays one row. Native actual keyboard Find, same-writing-view property Cancel and two style
+choices in one open ribbon are added; expected265 full/131 focused,241 JVM.
+3 necessary synthetic scenes added (Doc Find, keyboard Find, contextual options); bounded cap77.

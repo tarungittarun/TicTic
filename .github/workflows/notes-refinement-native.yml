@@ -1,5 +1,5 @@
 # Fresh request: Word-like flow, tables, links, zoom and deletion;40 individual jobs approved.
-# Reservation3:15/40; build plus four retained native profiles, no prior-budget slots combined.
+# Reservation4:20/40; build plus four retained native profiles, no prior-budget slots combined.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
@@ -128,7 +128,7 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
-            adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            timeout 1200s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar

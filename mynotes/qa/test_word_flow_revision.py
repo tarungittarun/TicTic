@@ -84,3 +84,7 @@ class NativeFailureRegressions(unittest.TestCase):
   self.assertIn('input.setOnLongClickListener',source)
   self.assertIn('input.getOffsetForPosition(event.getX(),event.getY())',source)
   self.assertIn('choose("Link",new String[]{"Open link","Copy link"}',source)
+
+ def test_compact_threshold_does_not_feed_back_its_own_padding_change(self):
+  source=(JAVA/'NotesController.java').read_text()
+  self.assertIn('writingDock.getMeasuredHeight()-writingDock.getPaddingTop()-writingDock.getPaddingBottom()+dp(12)',source)

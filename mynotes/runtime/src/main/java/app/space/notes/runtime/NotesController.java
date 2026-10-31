@@ -464,7 +464,7 @@ public final class NotesController {
     /** Keep an actual writing viewport above a landscape IME; Back remains an Android system action. */
     private void adaptEditorViewport(){
         if(closed || shell.getHeight()<=0)return;boolean compact=shell.getHeight()<dp(240),changed=false;
-        if(editorTopChrome!=null && body!=null && writingDock!=null && (body.hasFocus() || lastWritingFocus==body)){int controls=formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?formattingPanel.getMeasuredHeight():writingDock.getMeasuredHeight(),titleSpace=title==null?0:title.getMeasuredHeight();compact|=shell.getHeight()-Math.max(dp(48),editorTopChrome.getMeasuredHeight())-controls-titleSpace<Math.max(dp(80),body.getLineHeight()*2);}
+        if(editorTopChrome!=null && body!=null && writingDock!=null && (body.hasFocus() || lastWritingFocus==body)){int controls=formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?formattingPanel.getMeasuredHeight():writingDock.getMeasuredHeight()-writingDock.getPaddingTop()-writingDock.getPaddingBottom()+dp(12),titleSpace=title==null?0:title.getMeasuredHeight();compact|=shell.getHeight()-Math.max(dp(48),editorTopChrome.getMeasuredHeight())-controls-titleSpace<Math.max(dp(80),body.getLineHeight()*2);}
         if(editorTopChrome!=null){int height=shell.getHeight();boolean shrank=lastEditorViewportHeight>0 && height<lastEditorViewportHeight;lastEditorViewportHeight=height;EditText remembered=lastWritingFocus;
             // A zero-height intermediate ScrollView during IME resize can drop its focused child.
             // Recover focus once for this measured shrink, never force or rewrite a native selection.

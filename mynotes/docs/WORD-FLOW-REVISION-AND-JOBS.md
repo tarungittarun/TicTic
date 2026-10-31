@@ -32,7 +32,8 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 |---|---:|---:|---|---|
 |1: full implementation and new data/UI safety coverage|5|5/40|8daa3baa /41223351324|Build245 JVM PASS; API26/API36 271/276 each, large-font/landscape135/140 each; all4 PDF PASS. Same5 UI failures in each profile; not qualified.|
 |2: live table fit, mixed links, visual/UI polish, lifecycle safety and updated native navigation|5|10/40|c52e49ca /41224792310|Build PASS. Focused profiles142/144 each: native link toolbar both, dock label clipping large-font, drag viewport landscape. Full profiles cancelled at48/280, not passes. Both completed PDF probes PASS.|
-|3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|launching|Local gates below; full qualification required|
+|3: measured dock row capacity, link action refresh/priority, drag focus and caret isolation|5|15/40|03e04617 /41228015699|Build PASS; large-font143/144, landscape141/144. Full profiles timed out at48/280 each. Not qualified.|
+|4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|launching|Local gates below; full qualification required|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -57,3 +58,12 @@ Native link actions notify ActionMode on prepare and are prioritized; test waits
 action readiness instead of assuming overflow presence. Native drag takes container focus,
 hides IME and suppresses caret reveal until drop/end. No data assertions removed. Notes
 formatting close now uses X as requested. Cancelled full lanes remain unqualified.
+
+Reservation4: direct two-action link long-press menu keyed to touched character; plain writing
+retains native selection. ActionMode prepare reports only actual menu changes. Native drag test
+uses a visible lower-half target, and always releases its pointer even on assertion failure.
+Disclosure test closes Format with X before navigating Back in a compact viewport. Full-lane
+hang repeated immediately after48 methods: audited compact-layout padding feedback, now computes
+threshold using stable normal padding, not its own changing dock padding. Instrumentation bounded
+at20min within30min job so a future hang can retain partial diagnostics. No retries or ignored
+exit codes, and no weakening of full inventory.30min source3 cancellations are not passes.

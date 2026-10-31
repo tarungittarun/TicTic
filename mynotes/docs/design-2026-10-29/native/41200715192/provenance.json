@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source_sha": "479ee9da50a31ae2f15c9835b5b0ba134b576bd7",
+  "capture_run": "41200715192",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 266,
+      "passed": 265,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.RealFolderStorageTest.folderBrowserCreationAndMoveFlowWritesRealVisibleFiles(RealFolderStorageTest.java:47)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 132,
+      "passed": 132,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 132,
+      "passed": 132,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 266,
+      "passed": 264,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#selectedTrashDeletionLeavesOtherTrashedNotesAndOriginalAudio",
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#selectedTrashDeletionLeavesOtherTrashedNotesAndOriginalAudio: status -2 java.lang.AssertionError: Control not visible: Library ime=false root_height=957 window_focus=false formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:185)\n\tat app.space.notes.CoreJourneysTest.selectedTrashDeletionLeavesOtherTrashedNotesAndOriginalAudio(CoreJourneysTest.java:111)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:74)\n\t... 37 more\n\tSuppressed: java.lang.AssertionError\n\t\tat org.junit.Assert.fail(Assert.java:87)\n\t\tat org.junit.Assert.assertTrue(Assert.java:42)\n\t\tat org.junit.Assert.assertTrue(Assert.java:53)\n\t\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:270)\n\t\t... 37 more\n",
+        "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.RealFolderStorageTest.folderBrowserCreationAndMoveFlowWritesRealVisibleFiles(RealFolderStorageTest.java:47)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

@@ -78,3 +78,9 @@ class NativeFailureRegressions(unittest.TestCase):
   self.assertNotIn('addLinkActions(input,menu);return false;',source)
   self.assertIn('"Open link").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)',source)
   self.assertIn('"Copy link").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)',source)
+
+ def test_link_long_press_uses_touched_character_not_a_floating_toolbar_assumption(self):
+  source=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('input.setOnLongClickListener',source)
+  self.assertIn('input.getOffsetForPosition(event.getX(),event.getY())',source)
+  self.assertIn('choose("Link",new String[]{"Open link","Copy link"}',source)

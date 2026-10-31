@@ -2,7 +2,8 @@
 
 Started 2026-10-31 approximately17:02 UTC. Requested effort150 minutes; actual duration must be
 reported truthfully, never padded or inferred from CI waiting. Fresh cap40 individual Actions jobs,
-independent of every earlier allowance. Reservation1 now books5 jobs (build + four native profiles);35/40 unreserved.
+independent of every earlier allowance. Closed after final successful qualification:35/40 jobs executed/reserved;5 unused. No further
+job launch is needed for this revision.
 
 ## Requested contract
 - Ordinary writing is text by default; no Text choice in Insert. Preserve existing rich blocks.
@@ -36,7 +37,7 @@ than rejected0.20 and prior0.21. No public-release approval claim.
 |4: direct link long-press, stable compact threshold and measured native drop target|5|20/40|51321a63 /41230888109|Build PASS; API36 279/280; API26 277/280; large-font/landscape143/144 each. Common failure: section drop consumed by ordinary blank text field. API26 additionally: More text options and second link long-press. Four PDF probes PASS.|
 |5: internal-drag-safe ordinary writing placeholders|5|25/40|0b78a88b /41232258716|Build247 JVM PASS; API36 280/280; large-font/landscape144/144 each; API26 279/280, second link long-press fails. Four PDF probes PASS.|
 |6: repeat link long-press and native dialog focus restoration|5|30/40|c51e3a9d /41233656092|Build PASS; API36 279/280, focused143/144 each: saved-style regression. API26 279/280: repeated link gesture still fails. Not qualified.|
-|7: isolated link touch hold; revert broad focus restoration|5|35/40|launching|Local615 root/225 Notes gates; full qualification required|
+|7: isolated link touch hold; revert broad focus restoration|5|35/40|1d7462c6 /41235123128|ALL5 JOBS PASS.247 JVM; API26/API36 280/280 each; dark200%/landscape144/144 each; all4 PDF probes PASS. Local615 root/225 Notes PASS.|
 
 No previous unused slots are combined with this cap. Failed/cancelled executions count.
 
@@ -89,3 +90,16 @@ cancels on movement/cancel, offers the same two-action menu, and avoids Editor's
 native text-drag state on API26. Single tap still positions the caret/opens typing; non-link
 writing keeps native selection. Accessibility long-click shares the same safe menu. No test
 assertions dropped; full retained matrix repeated. Five jobs remain unreserved under fresh40.
+
+## Final result
+
+Final source1d7462c694df4735fa771ab126b708846d6f63d0; run41235123128 SUCCESS;
+evidence commit5820bc4d. Final reports independently read: no missing/duplicate/failure outcomes;
+all4 PDF probes PASS.77 retained synthetic previews per profile within84 maximum; four new
+word-* scenes plus drag and saved-style captures verified in every profile. Final API26 saved
+style, large-font500% zoom and landscape table previews visually reviewed.
+
+[Exact APK, changes, safety and remaining physical validation](WORD-FLOW-DEVELOPMENT-HANDOFF.md).
+Raw artifact13054959507, v0.22.0/code25. Fresh40 closed35 executed/reserved,5 unused;
+prior caps remain separate.150-minute uninterrupted streak is not certified or inferred from
+elapsed wall time/CI waiting. Physical novice/OEM acceptance is separate and still pending.

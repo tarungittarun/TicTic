@@ -104,6 +104,8 @@ class EditorCoherence(unittest.TestCase):
   s=(ROOT/'app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java').read_text()
   self.assertIn('View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS)return null',s)
   self.assertIn('Confirmed move must empty the old real provider folder',s)
+  self.assertIn('tapFolderDestination(controller,"Archive")',s)
+  self.assertIn('Destination belongs to the active tray',s)
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   self.assertIn('controller.view().isAttachedToWindow() && controller.view().hasWindowFocus()',native)
   self.assertIn('storeScreenshot("control-failure",instrumentation.getUiAutomation().takeScreenshot())',native)

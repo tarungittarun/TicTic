@@ -42,9 +42,10 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 |2: measured label fit, scope, persistent ribbon and same-page metadata trays|5|10/35|41199283231 /79cb44cd|241 JVM PASS;264/265 API26/API36,131/131 dark200%,129/131 landscape; all4 PDFs PASS|
 |3: fit palette/Insert, anchored folder chooser and safe Create/Cancel/Move/Undo|5|15/35|41200568121 /7166d341|build failed: missing Gravity qualification;1 executed, native skipped|
 |4: fully qualify Android Gravity; same266/132 native inventory|5|20/35|41200715192 /479ee9da|241 JVM;132/132 both focused profiles;265/266 API36;264/266 API26|
-|5: temporary-panel release, editor dialog identity and correctly scoped provider test|5|25/35|launching|595 root/205 Notes + Java syntax PASS; Android pending|
+|5: temporary-panel release, editor dialog identity and correctly scoped provider test|5|25/35|41202239736 /783726ba|241 JVM;132/132 dark;131/132 land;265/266 both full profiles|
+|6: target the actual async folder tray and await native accessibility cache updates|5|30/35|launching|595 root/205 Notes + Java syntax PASS; Android pending|
 
-10/35 unreserved. No other run authorized/reserved in this ledger.
+5/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
 landscape100% focused. Exact inventory must include all existing cases plus new native Find cases.
 Every source push is gated by root unittest, Notes unittest and diff checks. No tests.yml changes.
@@ -156,3 +157,18 @@ not note. Normal corpus79 + one conditional fault image gives bounded cap80. Dat
 Calculator diff against delivered61b10ab0 is empty. No180-minute or novice acceptance claim.
 Reservation5 means25/35 conservatively reserved; after5 actual jobs,21 executed/4 skipped slots
 retained in reservations.10 slots remain unreserved. Never count a skipped job as an execution.
+
+## Fifth result; no case excluded
+Evidence botaec4ac4c imported. All release/view-count, same-view Cancel, draft-label Cancel,
+Create-without-moving, rich Move/Undo and the API26 selected-Trash case passed. Dark132/132.
+Both full profiles only failed the real folder UI flow: a hidden **parked Library menu** also
+contains Archive. Ignoring the scrim-covered main view alone still allows its hidden fallback.
+Use an explicit active Move-to-folder panel locator for async waiting and clicking, assert that
+the destination is shown and belongs to that panel. Preserve every real-file/data assertion.
+Landscape sole failure: aaPanelDistinguishesSelectionFromTypingAndKeepsRichText's immediate
+accessibility-tree New typing assertion at535. Add a stronger synchronous assertion on the
+actual aa-scope TextView and then a bounded awaitDialogText before the unchanged native tree
+assertion. If the real label does not update, it must fail; no production refresh or automatic
+selection rewrite is introduced merely to make a test pass. Root595/Notes205 remain PASS.
+Reservation6:30/35 conservative slots,5 unreserved;26 actual jobs if all5 execute. No production
+change since783726ba in this sixth source; test corrections still require full Android gates.

@@ -28,7 +28,8 @@ The page contains your title and writing—not a management header above every t
 The toolbar exposes **+**, **Aa**, **☑**, **Labels** and **Colour**. At larger text sizes it
 uses two rows rather than hiding tools sideways. The top bar provides Back, save state,
 Undo/Redo and **⋯ Document**. In a very short keyboard viewport, the lower **⋯** keeps
-Document actions reachable, including Undo/Redo.
+Document actions reachable, including Undo/Redo. In a very short viewport, dismiss the
+keyboard with Android Back to restore the top navigation bar.
 
 - Tap in text, then **Aa**. The sheet says **Selected text** or **New typing**.
   Bold, italic, underline, strike, headings, font and size remain available.
@@ -85,6 +86,6 @@ Local backups omit original recordings, private empty folders, edit history and 
 presets. Keep separate copies of important original recordings. Doc is a workspace name,
 not a promise of Word/.docx import.
 
-This guide describes the implementation under qualification, not proof of usability.
+This guide describes the implementation, not proof of novice usability.
 See `NOTES-DOC-PLAN-AND-JOB-LEDGER.md` for exact source/run results and remaining checks.
 A real-device novice walkthrough is still required before calling the experience excellent.

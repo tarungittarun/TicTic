@@ -2,7 +2,7 @@
 
 Open **this directory**, not the repository root, in Android Studio.
 
-Latest signed development checkpoint: [code19 — saved typing styles and linked/optionally guided PDF](docs/STYLE-PDF-DEVELOPMENT-HANDOFF.md). [User instructions](docs/STYLE-PDF-USER-GUIDE.md). Automated qualification is not physical-device/public-release approval.
+Latest development: **0.19.0 (22), simple Notes and rich Doc in one APK**. [APK, exact qualification and limits](docs/NOTES-DOC-DEVELOPMENT-HANDOFF.md) · [Notes/Doc guide](docs/NOTES-AND-DOC-USER-GUIDE.md) · [job ledger](docs/NOTES-DOC-PLAN-AND-JOB-LEDGER.md). Install over existing data; never uninstall/clear data. Automated qualification is not novice/physical-device/public-release approval.
 
 - `app/`: standalone app.space.notes host (debug uses .debug).
 - `runtime/`: reusable Notes UI and private-storage repository.
@@ -34,8 +34,11 @@ entry points; implementation evidence is under mynotes/docs.
 
 ## Workflow policy (owner instruction)
 
-`.github/workflows/notes-ci.yml` runs automatically on this branch, path-filtered
-to MyNotes and its workflow. `notes-model-audit.yml` separately inspects the official
+`.github/workflows/notes-ci.yml` requests broad publication qualification only on a deliberate
+workflow/setup-action change or explicit dispatch. The nonpublishing refinement workflow
+runs one build plus three native profiles on a deliberate workflow-file change. Reserve jobs
+first: the original24 are exhausted; a later10-job allowance has4 reserved/6 unreserved.
+Documentation/evidence pushes use `[skip ci]`; no automatic spending of the remainder. `notes-model-audit.yml` separately inspects the official
 offline speech model only when that provenance workflow changes; it does not publish an app. Existing Android CI and Tests are paused here: automatic
 triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions are
 retained so they can be restored deliberately. GitHub's global disable API returned
@@ -43,7 +46,9 @@ retained so they can be restored deliberately. GitHub's global disable API retur
 
 See [interaction repair](docs/INTERACTION-REPAIR-v0.10.md): Plus → Reminder, dedicated Labels/Colour, list-only Copy/Trash, fresh sheet state, precise native word selection and reminder reconciliation fixes.
 
-Current published release: **0.12.0 (13)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk) · [checksum](releases/MyNotes-v0.12.0-13.apk.sha256) · [receipt](releases/MyNotes-v0.12.0-13.apk.release.json).
+## Historical public release (not the latest development APK)
+
+Last published release: **0.12.0 (13)**. [Download APK](https://github.com/tarungittarun/TicTic/releases/download/mynotes-v0.12.0-13/MyNotes-v0.12.0-13.apk) · [checksum](releases/MyNotes-v0.12.0-13.apk.sha256) · [receipt](releases/MyNotes-v0.12.0-13.apk.release.json).
 
 [Qualification40779382571](https://github.com/tarungittarun/TicTic/actions/runs/40779382571) passed all **30 jobs /21 Android lanes**, **114 JVM /157 unique Android cases /1278 Android executions**, with all prior-release note seeds retained and installed APK hashes matched. Fresh light/dark/200%-font/landscape/tablet review is recorded. Source `e27dc7a863bb0f57b6ae127f8fa465e30a8072c9`; stable package/certificate; schema6 reads1–6.
 
@@ -56,8 +61,10 @@ do not uninstall/clear data. JSON backups exclude voice WAVs: export important r
 
 Reminders are **inexact**, notifications/microphone are optional and contextual, and no Internet or
 exact-alarm permission is declared. Widget is a four-title projection, not an interactive checklist.
-Arbitrary file attachments, audio-inclusive backups, richer/recurring reminders, full undo/markdown/hashtag workflows, physical-device
-qualification, Play publication and eventual MySpace integration remain open. Wall dragging stays last.
+At this historical release, arbitrary attachments, audio-inclusive backups, richer recurring
+reminders, full undo/markdown/hashtag workflows, physical-device qualification, Play and
+MySpace integration were open. Later development added bounded restart-safe Undo/Redo
+and rich Doc: the latest handoff above, not this historical list, defines current scope. Wall dragging stays last.
 See [device guide](docs/STANDALONE-TEST-GUIDE.md), [local OS surfaces](docs/LOCAL-SURFACES-v0.7.md)
 and [offline model scope](docs/OFFLINE-ML-v0.6.md). The historical, source-scoped native/disk soak **passed 70 measured
 minutes each on API26/35, totaling 5,300 complete OCR/ASR/PCM/repository/backup cycles**. This is debug

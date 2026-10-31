@@ -42,15 +42,18 @@ Cap is not a target or billing authorization; no claim to have checked charges.
 | 5: exact table identity and post-settling regression | 4 | 20/24 | 41128791793 / e9fcf0d0 | build232 PASS, API26 252/252 PASS, dark121/121 PASS, land120/121 FAIL (journey tried hidden Back before dismissing IME) |
 | 6: final grid clarity + native keyboard-aware Back | 4 | 24/24 | 41130997293 / eccac1c2 | build232 PASS, API26 252/252 PASS, dark121/121 PASS, landscape120/121 FAIL: late IME hides Doc Back after helper check |
 
-**0 jobs remain unreserved. The new24-job allowance is fully reserved; do not launch further jobs without new approval.** Skipped/cancelled jobs remain conservatively reserved.
+**The preceding24-job allowance is exhausted. Later explicit10-job approval is recorded below; only that new allowance may be used.** Skipped/cancelled jobs remain conservatively reserved.
 
 ## Current validation
-Local Python root **565 PASS**, standalone Notes **175 PASS** before workflow/version
-metadata edits; rerun is mandatory before committing/pushing. Android builds are Actions-only.
-No Java executable is installed locally: attempted pure-domain javac/JUnit did not run;
-new JVM and Android tests are authored, **not yet executed**. Prior APK/code21 evidence is
-historical and does not qualify this source. Device/novice usability and independent PDF
-results must not be claimed from source contracts alone.
+**Final source `fda80d5fed5a3b32a0d2c1c5dfdb371bd42b7055`, run41164036746: ALL PASS.**
+Local root571/Notes181 (Notes subset, not additive); build/lint and232 JVM;
+252/252 API26;121/121 dark200%;121/121 landscape. All3 independent PDFs pass;
+source-pinned provenance has no missing profiles/cases/failures. Evidence imported from
+bot commit74d01fcd. Manually inspected final Notes home, dark header/wrapped table and
+landscape full writing line above IME. See [delivery receipt](NOTES-DOC-DEVELOPMENT-HANDOFF.md).
+Historical failed checkpoints are retained; none waived. Android builds are Actions-only.
+Physical Motorola/Android16 and novice walkthrough remain outstanding.
+Original24 exhausted; later10 allowance uses4, leaving6 unreserved. No billing/time claim.
 
 ## Qualification checklist
 - Build/JVM/debug + release lint; stable package/signer and increasing code22.
@@ -162,7 +165,7 @@ individual Actions jobs** after checkpoint6 failed. Reserve before launch; cap i
 
 | Reservation | Jobs | New allowance used/reserved | Run/source | Outcome |
 |---|---:|---:|---|---|
-| 1: deterministic new-editor IME readiness |4|4/10| pending launch | pending |
+| 1: deterministic new-editor IME readiness |4|4/10| 41164036746 / fda80d5f | ALL PASS:232 JVM,252/252 API26,121/121 dark,121/121 landscape; all3 PDFs/provenance complete |
 
 **6/10 remain unreserved.** No automatic spending of the remainder.
 
@@ -178,3 +181,9 @@ Native DOWN/UP, complete visible target/stable rectangle, data assertions and fu
 remain unchanged. No forced visibility, sleeps, ignored cases or blind rerun.
 Expected local571/Notes181,232 JVM,252 full/121 focused. Source changes in this reservation
 are test-only; production code remains checkpoint6. Latest-source build/validation still required.
+
+### Final reservation outcome
+Run41164036746 completed success. Build124427610956; API26 124428187931;
+dark124428187920; landscape124428187893 all SUCCESS. No additional jobs launched.
+Final raw APK artifact13028450916 identity/hash/expiry and installation warnings are in the
+handoff. Documentation-only final updates use `[skip ci]`; production source remainsfda80d5f.

@@ -39,9 +39,10 @@ and older allowances. Cap is not a target or a billing promise. Android builds A
 | Reservation | Jobs | Total | Run/source | Status |
 |---|---:|---:|---|---|
 |1: inline Find, named vector tools, docked Doc formatting and scoped branded trays|5|5/35|41198034897 /94a641f8|241 JVM PASS;260/261 full,126/127 focused: old Aa-name assertion failed on all4; all4 PDFs PASS|
-|2: measured label fit, scope, persistent ribbon and same-page metadata trays|5|10/35|launching|591 root/201 Notes + Java syntax PASS; Android pending|
+|2: measured label fit, scope, persistent ribbon and same-page metadata trays|5|10/35|41199283231 /79cb44cd|241 JVM PASS;264/265 API26/API36,131/131 dark200%,129/131 landscape; all4 PDFs PASS|
+|3: fit palette/Insert, anchored folder chooser and safe Create/Cancel/Move/Undo|5|15/35|launching|593 root/203 Notes + Java syntax PASS; Android pending|
 
-25/35 unreserved. No other run authorized/reserved in this ledger.
+20/35 unreserved. No other run authorized/reserved in this ledger.
 Original4 profiles retained: API26 full, Android16/API36 full, dark200% portrait focused,
 landscape100% focused. Exact inventory must include all existing cases plus new native Find cases.
 Every source push is gated by root unittest, Notes unittest and diff checks. No tests.yml changes.
@@ -94,3 +95,28 @@ multiline/ellipsized tool labels in a native regression. No text-scale reduction
 it stays one row. Native actual keyboard Find, same-writing-view property Cancel and two style
 choices in one open ribbon are added; expected265 full/131 focused,241 JVM.
 3 necessary synthetic scenes added (Doc Find, keyboard Find, contextual options); bounded cap77.
+
+## Third candidate corrections
+Move to folder was still a full-page editor replacement. Its editor/list selection entry now
+uses a bounded bottom tray with fixed Cancel, off-thread folder reads, explicit folder choice,
+and a scoped Create folder dialog. No note moves on Cancel or on Create alone. A created folder
+is an explicit filesystem operation, not undone by cancelling the subsequent move. Late reads
+and creation completions cannot reopen a closed/stale panel. Storage errors keep the writing
+page and offer retry; they never replace the selected storage root. The Library Folders page
+and its storage/recovery navigation are unchanged. Native coverage checks Notes and Doc view
+identity and selection on Cancel, plus exact rich-content fingerprint and folder after save.
+One additional synthetic folder-context capture raises bounded scene cap to78.
+
+Source2 evidence bot67f49e32 imported. Opened dark200% editor-keyboard and keyboard Find,
+API36 contextual checklist menu and selected-text ribbon. Whole labels and retained writer now
+look coherent;131/131 dark200% checks passed. Exact remaining failures: normal portrait API26
+and API36 addMenuExplainsVisualContentCaptureAndScheduleCategories Reminder visible-height
+156px vs4px/56px; landscape canonicalReverseSelectionSurvivesColourAndControllerRecreation
+and nativeCaretSurvivesColourPageAndControllerRecreation palette Blue312px target exceeds293px
+scroll viewport. These are actual reachability defects, not stale-label assertions. Preserve the
+full Reminder height assertion and actual-tap unclipped assertions. Fix palette to72dp minimum
+cells/32dp swatches/unchanged13sp text and4dp padding; regroup conversion and Reminder together
+under Lists & reminders instead of adding a tall descriptive List section. All existing actions
+remain. Native folder case also exercises Create-without-moving, Cancel, explicit Move and Undo
+with exact rich-content fingerprints. Creating a draft label then Cancel must not persist it.
+Source3 inventory266 full/132 focused;241 JVM. No physical/novice or180-minute acceptance claim.

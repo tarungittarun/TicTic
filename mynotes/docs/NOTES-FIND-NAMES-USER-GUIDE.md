@@ -1,5 +1,8 @@
 # Find and content names — Notes and Doc
 
+For the redesigned editor navigation, see `EDITOR-COHERENCE-USER-GUIDE.md`.
+The data-safety and content-name rules below still apply.
+
 ## Find inside a created note
 
 Open a note → **More actions (⋮) → Find in note**.
@@ -7,7 +10,7 @@ Type the words you want. Matching is literal and case-insensitive, not a regular
 Results include title, writing, checklist items and displayed content captions. Doc also
 searches its editable table cells through **Document (⋯) → Find in document**.
 
-Tap a result to jump to it. Writing matches are selected in the editor; caption matches
+Use the previous/next arrows and tap the current match preview to jump to it. Writing matches are selected in the editor; caption matches
 scroll to their caption and are announced for accessibility. Find does not replace text or
 add permanent highlight formatting. Close Find with **×** or Android Back.
 

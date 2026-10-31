@@ -31,7 +31,7 @@ class EditorCoherence(unittest.TestCase):
 
  def test_conversion_is_in_insert_not_note_management(self):
   s=(JAVA/'NotesController.java').read_text();editor=s.split('private void renderEditor()',1)[1].split('private void buildFormatting',1)[0]
-  self.assertIn('captureAction(capture,"Convert to checklist"',editor)
+  self.assertIn('captureGrid(capture,new String[]{"Convert to checklist","Reminder"}',editor)
   management=editor.split('LinearLayout actions=menu("Note actions"',1)[1]
   self.assertNotIn('new String[]{"Convert to checklist"}',management)
  def test_find_compacts_without_shrinking_touch_controls(self):
@@ -75,3 +75,20 @@ class EditorCoherence(unittest.TestCase):
   design=(JAVA/'NotesDesign.java').read_text().split('public Button editorTool',1)[1].split('public Button actionRow',1)[0]
   self.assertIn('b.setMaxLines(1)',design)
   self.assertNotIn('setTextScaleX',design)
+
+ def test_folder_move_is_anchored_and_late_disk_results_cannot_reopen_it(self):
+  s=(JAVA/'NotesController.java').read_text()
+  part=s.split('private void renderMoveFolderSheet()',1)[1].split('private void renderFolders(boolean moving,Runnable parent)',1)[0]
+  self.assertNotIn('clearPage()',part)
+  self.assertNotIn('title=null',part)
+  self.assertIn('sheets.footer(panel,button("Cancel",()->sheets.close()))',part)
+  self.assertIn('token!=folderPageSequence || !panel.isShown()',part)
+  self.assertIn('loadMoveFolders(panel,content,chosen)',part)
+
+ def test_colour_targets_fit_the_short_landscape_scroll_view_without_smaller_text(self):
+  s=(JAVA/'NotesController.java').read_text().split('private void renderColours()',1)[1].split('private java.io.File drawingDraft',1)[0]
+  self.assertIn('pick.setMinHeight(dp(72))',s)
+  self.assertIn('pick.setPadding(dp(4),dp(4),dp(4),dp(4))',s)
+  self.assertIn('pick.setTextSize(13)',s)
+  native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('assertEquals(text("Reminder").getHeight(),visible.height())',native)

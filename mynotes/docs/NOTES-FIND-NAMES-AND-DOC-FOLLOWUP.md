@@ -11,9 +11,10 @@ and later10 (4 used,6 unspent). Reserve before launch, not a target. No tests.ym
 
 | Reservation | Jobs | New total | Run/source | Outcome |
 |---|---:|---:|---|---|
-|1: Find/conversion/names + Doc continuation|4|4/30|pending launch|pending|
+|1: Find/conversion/names + Doc continuation|4|4/30|41185836938 / b2f9a866|240 JVM and257/257 API26 PASS; dark123/124 and landscape123/124 FAIL reminder state-description mismatch; all3 PDFs PASS|
+|2: name presentation, adaptive Find and lifecycle/accessibility|4|8/30|pending launch|pending|
 
-**26 new jobs unreserved.** Older unspent6 not automatically added to this cap.
+**22 new jobs unreserved.** Older unspent6 not automatically added to this cap.
 
 ## Implemented for qualification
 - Notes → More actions → Find in note. Literal case-insensitive matching with original
@@ -44,3 +45,18 @@ Review the approved Doc acceptance against final screenshots/journeys, not just 
 Physical novice/Motorola Android16, reminder delivery, native selection/reflow, OEM lifecycle,
 provider behavior and low-storage/power-loss remain real acceptance work, not emulator claims.
 Prior Doc handoff is historical for this source. No public Release is authorized by this run.
+
+## Checkpoint2
+First evidence retained under `design-2026-10-29/native/41185836938/`; no missing profiles.
+The full assertion remains: visible reminder text must equal its accessible state description.
+Now both include the name and date. This is a real accessibility repair, not a waived failure.
+
+Further review: Find now has a compact query/Close row, weighted results area, IME Search
+keyboard-dismiss action, and detach-driven cancellation/dismissal. No fixed-height result list
+that can consume a small viewport. Add actual Find-sheet fixture (bounded scene limit74).
+Doc captions, including read-only captions, are searchable; reminder name/date is visible
+and editable in Doc. Reminder notifications use the custom reminder name (private visibility
+retained). Legacy PDF renders custom image/diagram captions; image kind/bytes remain unchanged.
+A native journey names image/diagram/reminder, verifies durable data/bytes/time/shape and Undo.
+The Doc reverse-conversion journey uses Document → Undo, the supported compact-viewport route.
+240 JVM /258 full /125 focused expected; local575/Notes185 and Java syntax gates before push.

@@ -42,7 +42,7 @@ public final class LocalReminders {
         SharedPreferences delivered=context.getSharedPreferences("mynotes-delivered-v1",Context.MODE_PRIVATE);if(delivered.getLong(note.id,0)==expected)return false;
         NotificationManager manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);manager.createNotificationChannel(new NotificationChannel(CHANNEL,"Note reminders",NotificationManager.IMPORTANCE_DEFAULT));if(!manager.areNotificationsEnabled() || manager.getNotificationChannel(CHANNEL).getImportance()==NotificationManager.IMPORTANCE_NONE){Diagnostics.record("reminder.blocked","notifications or reminder channel disabled");return false;}
         android.os.Bundle extras=new android.os.Bundle();extras.putLong("mynotes.reminder_at",expected);
-        Notification notification=new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_popup_reminder).setContentTitle(note.title.isEmpty()?"MyNotes reminder":note.title).setContentText("Tap to open your local note").setContentIntent(open(context,note.id)).setAutoCancel(true).setVisibility(Notification.VISIBILITY_PRIVATE).setExtras(extras).build();
+        Notification notification=new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_popup_reminder).setContentTitle(note.contentName("reminder",note.title.isEmpty()?"MyNotes reminder":note.title)).setContentText("Tap to open your local note").setContentIntent(open(context,note.id)).setAutoCancel(true).setVisibility(Notification.VISIBILITY_PRIVATE).setExtras(extras).build();
         manager.notify(note.id,1,notification);Diagnostics.record("reminder.delivery","notification posted");delivered.edit().putLong(note.id,expected).commit();return true;
     }
 }

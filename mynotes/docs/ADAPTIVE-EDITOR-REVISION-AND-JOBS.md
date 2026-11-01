@@ -30,8 +30,9 @@ Full-resolution display cannot reconstruct pixels discarded by older imports.
 | Candidate2 | 9 | 16/40 | a8e5fc8b / 41287670974 | failure |
 | Candidate3 | 9 | 25/40 | abfa0ba8 / 41288909525 | failure |
 | Candidate4 | 9 | 34/40 | 7fd06c8e / 41290068899 | failure |
+| Candidate5 | 6 | 40/40 | 0fbf43f6 / 41291286599 | success |
 
-40 allocated; 34 expanded at final reservation; 0 unallocated. Prior allowances are not added.
+**Closed: 40 allocated/executed, 0 unallocated.** Prior allowances are not added.
 No public release or billing approval inferred. Historical reservation-time counts below are retained.
 
 ## Candidate 1 — reservation before launch
@@ -135,3 +136,18 @@ fits the six remaining authorized slots. Coordinator requires all five native ar
 Full-profile instrumentation has a bounded1500s deadline rather than split-profile1200s.
 Root/Notes/diff gates required before push. No extra job or public release authorization.
 Visual review144 scenes recorded in ADAPTIVE-EDITOR-VISUAL-REVIEW.md.
+
+
+## Final qualification / allowance closed
+Candidate5 source0fbf43f6fe41671e987024c01abfc1b6d5232347, run41291286599:
+all6 jobs SUCCESS, finished2026-11-01 09:21 UTC. API26 151+141=292/292,
+API36 292/292, dark200%156/156, landscape156/156:896/896 total, no skipped,
+missing, duplicate or unexpected outcomes. JVM260/lint passed. Four independent PDF
+fixtures passed on each of four profiles. Evidence13560101 preserved336 JPEGs and
+all five native reports with source-pinned provenance, no missing profile.
+Local root635 / Notes245 / diff-check passed before source push.
+Final48 control captures reviewed in addition to144 broader candidate3 captures;
+production UI code is identical across those review sources. Physical/novice acceptance
+remains pending, not claimed. See ADAPTIVE-EDITOR-DEVELOPMENT-HANDOFF.md.
+Fresh40 allowance CLOSED40/40 executed; no more jobs authorized. Documentation closure
+uses [skip ci], not another Android run. Earlier failures remain recorded above.

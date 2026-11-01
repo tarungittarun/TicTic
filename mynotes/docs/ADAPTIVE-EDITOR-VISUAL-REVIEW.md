@@ -73,3 +73,16 @@ inventories/profiles and source. Actual attachment fidelity also depends on stor
 pixels: the full stored-resolution zoom avoids using the small inline thumbnail,
 but cannot restore detail discarded during earlier import. Historical private
 uploads were reviewed locally and are not included in synthetic public fixtures.
+
+## Final candidate follow-up
+
+Run **41291286599**, source **0fbf43f6fe41671e987024c01abfc1b6d5232347**,
+evidence commit **13560101** completed SUCCESS. Inspected another **48 final-source
+control captures** (the twelve Controls scenes above × four profiles) as four local
+contact sheets. Rails, Format/numbering, Insert, Hyperlink, pen, table and Find remained
+consistent with the broader review; no new visual blocker identified. Production
+runtime/domain/resources are unchanged from the candidate3 review source (verified by
+Git diff); candidate4/5 corrections were test preparation and CI/docs only.
+All896 native outcomes passed with no missing profiles, and336 native JPEGs are preserved
+in `design-2026-10-29/native/41291286599/`. The physical/OEM/novice and combined-profile
+limits above still apply. No public release approval is implied.

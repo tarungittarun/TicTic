@@ -8,16 +8,17 @@ class WordFlowRevision(unittest.TestCase):
   part=(JAVA/'DocumentEditorView.java').read_text().split('private void insertMenu(boolean',1)[1].split('private static DocumentContent.Block',1)[0]
   self.assertNotIn('"Text"',part)
   self.assertIn('"Paste table"',part)
- def test_table_handle_only_has_four_scoped_actions_and_cut_is_deferred(self):
+ def test_table_pen_has_scoped_actions_and_cut_is_deferred(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
-  self.assertIn('new String[]{"Rename","Copy","Cut","Delete"}',s)
+
+  for action in ['Rename','Copy','Cut','Delete']:self.assertIn('actions.add("'+action+'")',s)
   cut=s.split('private void tableHandleMenu',1)[1].split('private void pasteTable',1)[0]
-  self.assertIn('cutTable=choice==2?id:null',cut)
+  self.assertIn('cutTable=cut?id:null',cut)
   self.assertNotIn('all.remove(cutTable)',cut)
   self.assertIn('DocumentContent next=all.insertAtText',s)
  def test_table_structure_and_width_are_in_overflow(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
-  for token in ['"Table options","more"','"Edit table","edit"','"Rows and columns"','"Fit to content"','"Fixed column width"','cell.setBackground(null)']:
+  for token in ['"Table options"','"Edit "+kind,"edit"','"Rows and columns"','"Fit to content"','"Fixed column width"','cell.setBackground(null)']:
    self.assertIn(token,s)
   self.assertNotIn('"Table rows and columns"',s)
  def test_table_sizing_is_lossless_and_versioned(self):

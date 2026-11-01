@@ -1094,7 +1094,8 @@ public final class AppFolder {
           "Referenced recovery object is missing"
         );
         long expectedBytes = entry.getLong("bytes"),
-          written = 0;
+          written = 0,
+          nextSpaceCheck = 0;
         try (
           InputStream in = fs.resolver.openInputStream(object);
           FileOutputStream out = new FileOutputStream(target)

@@ -181,3 +181,48 @@ previously timed-out landscape shard passed75/75 with the watchdog. Other failur
 Fourth exhaustive round reserves9 jobs: prospective follow-up total40 (36 build/native,
 1 speech research,3 OCR research). Local gates657 root /267 Notes PASS before push.
 No recognition model replacement, long training claim, or public release.
+
+## Completed follow-up batch — 0.26.0 / code29
+Final run **41335226486**, source **29c64d0807773d7be3a460defc96e39515490d17**:
+all9 jobs SUCCESS, 279 executed JVM methods, debug/release build and lint PASS.
+**938/938 native outcomes PASS**, exact inventories, no skips/missing/duplicates:
+API26 160+149; API36 160+149; API34 large-font/dark85+75; landscape85+75.
+Native evidence **d08df26d**, 352 JPEGs plus raw instrumentation and bounded diagnostics.
+Inspected final large-font home and API36 capture sheet; controls remain visible.
+
+All four quantitative reports are present, independently re-scored both in CI and
+locally: API26 and API36 OCR CER0 on three controlled common-text variants each;
+relative speech WER0 on both perturbations in this run. This is NOT ground-truth
+speech accuracy; the raw clean Vosk number transcription itself has recognition errors.
+Prior recorded relative WER1/15 demonstrates why this tiny synthetic probe is only a
+bounded-regression check, not proof of real-world robustness or perfectly stable decoding.
+
+Final local checks: **657 root /267 Notes PASS**. Calculator and tests.yml unchanged.
+One-off old-run diagnostic recovery is removed in the closure (otherwise its expiring
+artifact would break future qualification); ongoing per-run diagnostics, watchdogs,
+wake/focus preconditions and strict report gates remain. No APK/runtime changes in closure.
+
+**Actual follow-up jobs:40**, all terminal: four qualification rounds ×9, one ASR CPU
+pilot, three OCR CPU pilots. Earlier failed/partial runs and report transport problems
+remain recorded above, not reclassified as successes. Prior device/capture18 and old
+adaptive40 remain separate historical allowances. User removed follow-up job cap;
+unused capacity is not a spending target, and no public release or paid model service ran.
+
+Optional newer raw development APK, for after the user's existing0.25 test:
+https://github.com/tarungittarun/TicTic/actions/runs/41335226486/artifacts/13094322909
+`MyNotes-v0.26.0-29-development.apk`,66,740,712bytes; GitHub-reported SHA256
+`5f92fe82004112fc4a6fc47c42781c2b7e08a4a4df51963bfb60f4609bf44072`.
+Expiry2026-11-08T18:12:41Z. Hash comes from GitHub metadata, not a local re-download.
+Unchanged signer verified in build. Install-over only; don't uninstall/clear data.
+Original audio still requires separate export/backup. No public Release was created.
+
+### Exact done / still pending
+Done: dark-frame OCR preprocessing correction; strict Unicode/symbol scoring and real
+inference probes; safe DOCX compressed/aggregate budget correction; source immutability
+checks; pinned offline-model CPU comparisons; reproducible receipts and native evidence;
+stronger CI preconditions, score validation and bounded diagnostics.
+Still pending: representative licensed training/held-out corpora, actual fine-tuning,
+physical noisy/accented speech assessment, universal emoji/handwriting OCR, semantic
+punctuation/topics/diarization, full editable Word-layout/media fidelity, and measured
+Android integration of any replacement recognizer. No new model weights were trained
+or shipped. Small pilots do not justify silently replacing the default models.

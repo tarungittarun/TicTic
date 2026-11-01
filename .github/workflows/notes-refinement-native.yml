@@ -91,18 +91,6 @@ jobs:
         with:
           name: refinement-foundation-test-apks
           path: refinement-apks
-      - name: Recover bounded previous timeout diagnostics
-        if: matrix.id == 'min-api26'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download 41330808145 --name refinement-native-landscape-api34-b --dir /tmp/previous-landscape
-          python3 - <<'PYDIAG'
-          from pathlib import Path
-          text=Path('/tmp/previous-landscape/refinement-native.txt').read_text(errors='replace')
-          lines=text.splitlines()
-          print('::notice title=Previous landscape timeout tail::'+repr('\n'.join(lines[-35:]))[:3500])
-          PYDIAG
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

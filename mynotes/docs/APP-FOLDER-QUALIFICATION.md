@@ -8,11 +8,13 @@ count actual executed jobs, not skipped jobs or hypothetical matrix slots.
 |---|---|---|---:|---|
 | 1 | dc024ab1 | 41344031614 | 1 build | Failed runtime compilation: lambda parameter shadowed a local name. 279 JVM tests passed; 8 native jobs skipped. No qualified APK. |
 | 2 | 86975fbc | 41345739995 | 1 build | Failed runtime compilation: staging space-check cursor declaration missing after formatting. 279 JVM tests passed; 8 native jobs skipped. No qualified APK. |
-| 3 | next source | pending | 9 planned | Build + 8 native shards; 279 expected JVM tests and 1082 expected native method outcomes. Not evidence until complete. |
+| 3 | 168ff446 | 41345956856 | 9 executed | Build/lint and 279 JVM passed; all 8 native jobs failed, 1074/1082 passed. Two new test defects (four profiles each): wrong Find label and reading preview before merge completion. Source-pinned reports preserved by 533bb11c. No qualified APK. |
+| 4 | next source | pending | 9 planned | Fixed category dialog with native UI regression; corrected Find label and explicit merge-completion barrier. Expected 279 JVM and 1086 native outcomes. Not evidence until complete. |
 
-Executed so far: **2 failed build jobs**, all terminal; 16 native jobs skipped, not counted
-as executed. Planned round 3 is not yet a result. Root source/compatibility checks 666 and
-MyNotes checks 276 passed before the second push; all gates rerun before the next push.
+Executed so far: **11 actual jobs** (3 builds: 1 passed, 2 failed; 8 native failed).
+No cancelled jobs; 16 native jobs skipped in rounds 1/2, not counted as executed.
+Round 4 adds 9 planned jobs, not yet results. Root source/compatibility checks 666 and
+MyNotes checks 276 pass before push. No APK is qualified until every required check passes.
 
 Acceptance covers new local-provider intake, structured DOCX round-trip, editable/searchable
 TXT intake without source mutation, real-provider empty-root refusal, full checkpoint recovery
@@ -24,3 +26,10 @@ cases also prevent external rollback/foreign writers silently replacing private 
 Fresh-context emulator recovery is **not** a claim of physical uninstall/reinstall, removable
 SD-card reliability, vendor Files by Google UI acceptance, large-library scalability or
 universal Word fidelity. Original sources/checkpoints remain local and untouched by imports.
+
+The category dialog now uses one custom ScrollView containing its privacy/pending disclosure
+and four native CheckBoxes (48dp minimum), instead of conflicting AlertDialog message/list
+APIs. The native journey requires visibly reachable checkboxes, toggles all four, saves,
+checks persisted preferences, reopens and cancels a change, and verifies diagnostic-copy
+selection does not enable log collection. All four profiles include this regression.
+App-local diagnostic deletion explicitly excludes older App-folder checkpoints and exports.

@@ -78,3 +78,50 @@ WhisperX README limitations explicitly identify imperfect diarization/overlappin
 and dictionary-dependent alignment. No whisper/whisper.cpp/WhisperX dependency, model,
 network service or accuracy claim has been added; a measured Android replacement remains
 separate work, not a silent backend change. Current Vosk remains pinned and offline.
+
+## Qualification complete — delivered candidate 0.25.0 / code 28
+Round 2 run **41303449656**, source **880fe1076371c16f8bc1926622cacf1c1bdb15af**:
+**all 9 jobs SUCCESS**, build/debug+release lint and exact 270 JVM-method gate PASS.
+**928/928 native outcomes PASS**, no missing/unexpected/duplicate outcomes across
+API26, API36, API34 large-font/dark and API34 landscape. Native evidence and 352 JPEG
+previews preserved by **6b10bff3**, under `design-2026-10-29/native/41303449656`.
+Inspected folder navigation, landscape Doc capture chooser and large-font mixed Notes
+screenshots. Real-provider independent copies/TXT opening, arithmetic-symbol OCR,
+source-preserving reviewed transcript append, selection conversion/Undo and workspace
+swipes are included in the passing native inventory. API36 microphone is granted;
+emulator capture/meter evidence is not physical microphone clarity evidence.
+
+New allowance usage: **18 individual jobs actually executed / 60 authorized**;
+**42 unused**. No pending jobs, no public release, no billing authorization. Previous
+adaptive 40/40 remains closed and separate. Calculator and tests.yml unchanged.
+
+Raw installable development APK (not ZIP):
+https://github.com/tarungittarun/TicTic/actions/runs/41303449656/artifacts/13081708721
+`MyNotes-v0.25.0-28-development.apk`, 66,739,424 bytes.
+GitHub-reported SHA256: `c3a64d94b5e07b12ca5a68c1154f30f54c3d2215f83d5e2e512b190a18797807`.
+Expiry: 2026-11-08T11:49:50Z. This hash is GitHub's artifact metadata, not a local
+redownload verification; sandbox artifact download follows a blocked Azure host.
+The build verifies the unchanged signing certificate. Install over the current app;
+do not uninstall or clear data. Keep an independent backup; original WAV audio needs
+separate export and is not included in note backups.
+
+### Finding the new functions
+- Home: swipe the note board left for Doc and right for Notes (leading-edge Library
+  gesture remains separate). Search and Filters are below the creation controls.
+- Filters → Folders: browse/create/manage folders or choose the device main folder.
+  Main-folder selection is the library-wide verified storage operation, not a one-note move.
+- Open a Note/Doc → its actions → Save copy to device folder for an independent complete
+  portable MyNotes copy in a chosen existing folder, without changing the main folder.
+- Library → Open file: TXT/DOCX offer reviewed text copies; DOCX rich layout/media are
+  not imported. PDF/legacy DOC require consent and an installed external reader.
+- Select only the desired Notes text, then convert to checklist; surrounding text/styles
+  stay intact and Undo restores the original note.
+- Doc → Insert → Read image / Record voice. In the recording inbox, choose Review and
+  insert transcript, correct text/paragraphs/speaker labels, then explicitly insert.
+
+### Deliberate limitations / remaining acceptance
+No universal emoji/decorative OCR guarantee; review recognized symbols manually.
+Pause-based punctuation and paragraph breaks are heuristics, not semantic topic detection
+or speaker diarization. No unbenchmarked Whisper replacement was shipped. Real noisy
+speech, accents, handwriting/photos, physical phone/SD-card behavior and novice usability
+still require user/device evaluation. Automation does not establish those guarantees.

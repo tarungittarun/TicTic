@@ -1,0 +1,37 @@
+name: MyNotes OCR weight research (CPU only, nonshipping)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-ocr-research.yml']
+permissions:
+  contents: read
+concurrency:
+  group: notes-ocr-research-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  public-font-corpus:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OMP_THREAD_LIMIT: '2'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install desktop experiment tools (not Android dependencies)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr fonts-noto-core
+          python -m pip install 'Pillow==11.3.0'
+      - name: Measure exact fast and best weights without training or product changes
+        run: python -m mynotes.tools.ci.ocr_weight_research
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: ocr-weight-research-report
+          path: ocr-weight-research.json
+          retention-days: 7
+          if-no-files-found: warn

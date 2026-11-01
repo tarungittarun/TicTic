@@ -33,3 +33,14 @@ class RecognitionResearchTests(unittest.TestCase):
         line=next(line.strip() for line in workflow.splitlines() if 'for report in ocr-common-text-report' in line)
         checked=subprocess.run(['sh','-n'],input=line,text=True,capture_output=True)
         self.assertEqual(0,checked.returncode,checked.stderr)
+
+    def test_ocr_research_preserves_symbols_and_unicode_errors(self):
+        from mynotes.tools.ci.ocr_weight_research import cer
+        self.assertEqual(1,cer('25 + 5','25 - 5')['character_edits'])
+        self.assertEqual(1,cer('😀','🙂')['character_edits'])
+        self.assertEqual(1,cer('😀','🙂')['reference_codepoints'])
+
+    def test_ocr_research_normalizes_only_canonical_forms_and_whitespace(self):
+        from mynotes.tools.ci.ocr_weight_research import cer
+        self.assertEqual(0,cer('é  NEXT','e\u0301\nNEXT')['character_edits'])
+        self.assertEqual(1,cer('A','a')['character_edits'])

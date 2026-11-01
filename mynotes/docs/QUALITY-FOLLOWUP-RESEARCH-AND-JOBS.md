@@ -84,3 +84,14 @@ This single 22-word sample cannot justify a model replacement or general accurac
 Follow-up actual jobs so far: **10** (9 qualification +1 research), all terminal.
 Second qualification round reservation +9, prospective total19, no arbitrary cap target.
 Local checks before second push: 649 root /259 Notes, all passing.
+
+## OCR weight experiment reservation
+Second Android qualification is running as 41330808145, source 0a9d1071. In parallel,
+reserve one CPU-only job comparing the app's exact fast language weights with official
+Tesseract best 4.1.0 weights for English/Hindi/Kannada. Six phrases × clean/low-contrast
+× two weight families =24 actual inferences, with pinned Git blob verification, font/image
+hashes, Unicode CER and process timings. Require complex-script shaping support; do not
+mistake missing glyphs for recognition failures. Desktop fonts/PSM7 are a controlled pilot,
+not handwriting/emoji/photo accuracy or Android performance; no APK model changes.
+Prospective total follow-up jobs: **20** (18 native/build +1 speech research +1 OCR research).
+No new model training is claimed; fast integer weights are not fine-tunable float models.

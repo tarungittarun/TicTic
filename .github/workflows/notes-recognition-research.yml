@@ -1,0 +1,50 @@
+name: MyNotes recognition research (CPU only, nonshipping)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-recognition-research.yml']
+permissions:
+  contents: read
+concurrency:
+  group: notes-recognition-research-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  public-fixture:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pinned CPU-only research dependencies (not Android dependencies)
+        run: python -m pip install 'numpy==2.2.6' 'sherpa-onnx==2.0.1' 'vosk==0.3.45'
+      - name: Compare public speech and silence; never train or ship these weights
+        run: python -m mynotes.tools.ci.recognition_research
+      - name: Expose every measured row without requiring artifact downloads
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('recognition-research.json').read_text())
+          for row in report['results']:
+              print('::notice title=Public fixture CPU research::'+json.dumps(row))
+          print('::notice title=Research model receipt::'+json.dumps(report['receipt']))
+          with open('recognition-research-summary.md','w') as out:
+              out.write('# Public-fixture research only\n\n'+report['scope']+'\n\n```json\n'+json.dumps(report,indent=2)+'\n```\n')
+          PY
+          cat recognition-research-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: recognition-research-report
+          path: |
+            recognition-research.json
+            recognition-research-summary.md
+          retention-days: 7
+          if-no-files-found: warn

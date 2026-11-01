@@ -45,3 +45,21 @@ root/Notes checks before every push. Android build/inference remains Actions-onl
 No model weight changes or training runs claimed. Representative licensed held-out
 noisy/accent/emoji corpora and physically measured Android alternatives remain needed
 before promising a recognition model replacement or broad accuracy improvement.
+
+## Parallel nonshipping model research
+Android qualification run 41329486926 launched all 9 jobs, source 394bc049;
+279 JVM methods / 309 Android methods (160 focused); planned 938 native outcomes.
+While it runs, one separate CPU research job is authorized/reserved, without Android
+source or dependency changes. Compare pinned small Vosk and sherpa-onnx Whisper tiny.en
+on the public whisper.cpp JFK fixture (git blob identity checked), its attenuation/noise
+variants, and silence. Emit lexical WER against a manually stated public-speech reference,
+load/inference elapsed time, process peak RSS, exact transcripts and model receipts.
+This single-fixture desktop experiment is neither training nor Android/held-out accuracy.
+Whisper release asset has no publisher digest: observed hashes are research receipts,
+not independent authenticity verification, and are insufficient for product adoption.
+
+Also read https://github.com/alphacep/vosk-space/blob/master/adaptation.md : diagnose
+mismatch first; runtime vocabulary restriction, language-model adaptation and acoustic
+fine-tuning are distinct, and training from scratch is rarely the best first solution.
+https://github.com/k2-fsa/sherpa-onnx provides Android support and a Whisper tiny.en
+example; that establishes an integration candidate, not that it should replace Vosk.

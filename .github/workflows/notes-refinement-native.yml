@@ -149,7 +149,11 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
-            timeout 1500s adb shell am instrument -w -r -e timeout_msec 180000 -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 1800000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES"
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
@@ -183,6 +187,7 @@ jobs:
           overwrite: true
           path: |
             refinement-native.*
+            refinement-native-diagnostics.txt
             refinement-expected.json
             refinement-environment-*
             refinement-captures.tar
@@ -237,7 +242,7 @@ jobs:
               for environment in artifact.glob('refinement-environment-*.json'):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(environment,output/environment.name)
-              for extra in list(artifact.glob('refinement-pdf-*'))+list(artifact.glob('refinement-quality-*'))+list(artifact.glob('refinement-native.txt')):
+              for extra in list(artifact.glob('refinement-pdf-*'))+list(artifact.glob('refinement-quality-*'))+list(artifact.glob('refinement-native*.txt')):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(extra,output/extra.name)
               capture=artifact/'refinement-captures.tar'

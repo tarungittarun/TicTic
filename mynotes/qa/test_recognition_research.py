@@ -74,3 +74,26 @@ class RecognitionResearchTests(unittest.TestCase):
         workflow=(root/'.github/workflows/notes-refinement-native.yml').read_text()
         self.assertNotIn('run-as app.space.notes.debug test -f',workflow)
         self.assertIn('run-as app.space.notes.debug ls "files/$report"',workflow)
+
+    def test_instrumentation_wrapper_preserves_exit_status_with_diagnostics(self):
+        import os,subprocess,tempfile
+        root=Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            work=Path(directory)
+            (work/'timeout').write_text('#!/bin/sh\nshift\nexec "$@"\n')
+            (work/'adb').write_text('#!/bin/sh\nif [ "$1 $2" = "shell am" ]; then exit 42; fi\necho diagnostic\nexit 0\n')
+            for name in ['timeout','adb']:(work/name).chmod(0o755)
+            env=dict(os.environ,PATH=str(work)+':'+os.environ['PATH'])
+            result=subprocess.run(['bash',str(root/'tools/ci/run_refinement_instrumentation.sh')],cwd=work,env=env,capture_output=True,text=True)
+            self.assertEqual(42,result.returncode,result.stderr)
+            self.assertIn('Instrumentation exit 42',(work/'refinement-native-diagnostics.txt').read_text())
+            self.assertTrue((work/'refinement-native.txt').is_file())
+
+    def test_device_wake_is_explicit_without_bypassing_focus_assertions(self):
+        root=Path(__file__).resolve().parents[2]
+        workflow=(root/'.github/workflows/notes-refinement-native.yml').read_text()
+        self.assertIn('KEYCODE_WAKEUP',workflow)
+        self.assertIn('svc power stayon true',workflow)
+        source=(root/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        self.assertIn('FLAG_KEEP_SCREEN_ON',source)
+        self.assertIn('controller.view().hasWindowFocus()',source)

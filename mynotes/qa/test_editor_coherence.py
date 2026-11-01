@@ -92,7 +92,8 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('pick.setPadding(dp(4),dp(4),dp(4),dp(4))',s)
   self.assertIn('pick.setTextSize(13)',s)
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
-  self.assertIn('assertEquals(text("Reminder").getHeight(),visible.height())',native)
+  self.assertIn('visible.height()>=text("Reminder").getHeight()',native)
+  self.assertIn('visible.width()>=text("Reminder").getWidth()',native)
 
  def test_one_shot_panels_release_hidden_inputs_and_fixed_footers(self):
   s=(JAVA/'NotesSheets.java').read_text()

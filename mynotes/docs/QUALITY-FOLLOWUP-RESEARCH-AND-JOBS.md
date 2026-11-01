@@ -159,3 +159,25 @@ OCR-WEIGHT-PILOT-41331604142.json. Fast/best: English 0/66 vs8/66 codepoint erro
 (best removed arithmetic spaces); Hindi both2/60 (digit1 lost twice); Kannada both0/62.
 These six system-font phrases show no measured benefit from a blind best-weight swap.
 No broad language accuracy, handwriting or emoji coverage is established by this pilot.
+
+## Third qualification inspected; fourth round reserved
+Run 41333491242 source a6685417: all9 jobs ran, but full qualification FAIL.
+API26/API36 quantitative reports are now collected and independently verified. The
+previously timed-out landscape shard passed75/75 with the watchdog. Other failures:
+- API36-b: 1 geometry assertion expected local height192, got enclosing translated
+  global rectangle193. This is outward pixel rounding, not clipping. Correct test now
+  requires full visible height AND width (>=local dimensions); still forbids clipping.
+- Large-font-b: captured black frame and attached-but-unfocused activity from the first
+  UI fixture onward; assertions correctly refused interactions instead of false passes.
+  Add explicit device wake/keyguard dismissal/stay-awake setup and test-only keep-screen-on;
+  retain every real window-focus assertion. This is fixture/device precondition handling,
+  not an app claim to override normal user screen timeout. Root cause beyond these
+  observed symptoms remains unproven; capture bounded window/power/input/logcat diagnostics
+  on every future run and preserve the original instrumentation exit code.
+- Old landscape timeout tail identified selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes
+  as unfinished. It subsequently passed on the same app source, so do not invent a
+  production-model cause or claim a proven deadlock fix. Keep watchdog and diagnostics.
+
+Fourth exhaustive round reserves9 jobs: prospective follow-up total40 (36 build/native,
+1 speech research,3 OCR research). Local gates657 root /267 Notes PASS before push.
+No recognition model replacement, long training claim, or public release.

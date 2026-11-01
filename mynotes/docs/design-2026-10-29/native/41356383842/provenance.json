@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "source_sha": "703c9dc50a333a5afafd2b6f13ac901cc53a99cf",
+  "capture_run": "41356383842",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 175,
+      "passed": 173,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames: status -2 java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.Object.toString()' on a null object reference\n\tat app.space.notes.CoreJourneysTest.lambda$iconDockAndEditorDisclosuresHaveAccessibleNames$95$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:181)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda355.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError: Control not visible: Cancel ime=false root_height=1776 window_focus=true attached=true finishing=false destroyed=false formatting_panel=LinearLayout[top=0 h=0 measured=0 scroll=0 visibility=8]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=0 h=1848 measured=1848 scroll=0 visibility=0]DecorView[top=0 h=1920 measured=1920 scroll=0 visibility=0] shown=false\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:229)\n\tat app.space.notes.CoreJourneysTest.ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal(CoreJourneysTest.java:435)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\t... 11 more\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 165,
+      "passed": 164,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$bottomSearchFieldAndFiltersUseFullWidthBelowCreation$593$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:613)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda555.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 118,
+      "passed": 114,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes",
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal",
+        "app.space.notes.CoreJourneysTest#renderedSyntheticReviewCapturesMainSurfacesInTheRealDeviceTheme"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames: status -2 java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.Object.toString()' on a null object reference\n\tat app.space.notes.CoreJourneysTest.lambda$iconDockAndEditorDisclosuresHaveAccessibleNames$95$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:181)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda355.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\tat app.space.notes.CoreJourneysTest.bulkPropertiesPinAndArchivePreserveBothNotes(CoreJourneysTest.java:205)\n",
+        "app.space.notes.CoreJourneysTest#renderedSyntheticReviewCapturesMainSurfacesInTheRealDeviceTheme: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\tat app.space.notes.CoreJourneysTest.renderedSyntheticReviewCapturesMainSurfacesInTheRealDeviceTheme(CoreJourneysTest.java:330)\n",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError: Control not visible: Cancel ime=false root_height=936 window_focus=true attached=true finishing=false destroyed=false formatting_panel=LinearLayout[top=0 h=0 measured=0 scroll=0 visibility=8]LinearLayout[top=0 h=936 measured=936 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=936 measured=936 scroll=0 visibility=0]FrameLayout[top=72 h=936 measured=936 scroll=0 visibility=0]FrameLayout[top=0 h=1008 measured=1008 scroll=0 visibility=0]DecorView[top=0 h=1080 measured=1080 scroll=0 visibility=0] shown=false\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:229)\n\tat app.space.notes.CoreJourneysTest.ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal(CoreJourneysTest.java:435)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\t... 11 more\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 107,
+      "passed": 106,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard: status -2 java.lang.AssertionError: The result title must fit above the keyboard\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.lambda$nativeSearchRetainsReadableResultsAboveTheKeyboard$168$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:306)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda596.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 118,
+      "passed": 116,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames: status -2 java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.Object.toString()' on a null object reference\n\tat app.space.notes.CoreJourneysTest.lambda$iconDockAndEditorDisclosuresHaveAccessibleNames$95$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:181)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda355.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError: Control not visible: Cancel ime=false root_height=1776 window_focus=true attached=true finishing=false destroyed=false formatting_panel=LinearLayout[top=0 h=0 measured=0 scroll=0 visibility=8]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=0 h=1848 measured=1848 scroll=0 visibility=0]DecorView[top=0 h=1920 measured=1920 scroll=0 visibility=0] shown=false\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:229)\n\tat app.space.notes.CoreJourneysTest.ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal(CoreJourneysTest.java:435)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\t... 11 more\n"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 107,
+      "passed": 106,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$bottomSearchFieldAndFiltersUseFullWidthBelowCreation$593$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:613)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda555.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 175,
+      "passed": 173,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#iconDockAndEditorDisclosuresHaveAccessibleNames: status -2 java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.Object.toString()' on a null object reference\n\tat app.space.notes.CoreJourneysTest.lambda$iconDockAndEditorDisclosuresHaveAccessibleNames$95$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:181)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda355.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal: status -2 java.lang.AssertionError: Control not visible: Cancel ime=false root_height=1704 window_focus=true attached=true finishing=false destroyed=false formatting_panel=LinearLayout[top=0 h=0 measured=0 scroll=0 visibility=8]LinearLayout[top=0 h=1704 measured=1704 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1704 measured=1704 scroll=0 visibility=0]FrameLayout[top=72 h=1704 measured=1704 scroll=0 visibility=0]FrameLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]DecorView[top=0 h=1920 measured=1920 scroll=0 visibility=0] shown=false\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:229)\n\tat app.space.notes.CoreJourneysTest.ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal(CoreJourneysTest.java:435)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\t... 11 more\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 165,
+      "passed": 164,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$bottomSearchFieldAndFiltersUseFullWidthBelowCreation$593$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:613)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda555.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

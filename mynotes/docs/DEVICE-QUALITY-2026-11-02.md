@@ -3,7 +3,13 @@
 Started 2026-11-01 21:49 UTC (2026-11-02 local). Requested window: 360 minutes;
 this ledger records actual work/results, never an invented elapsed-time/training claim.
 Previous App-folder qualification (30 jobs) and speech/OCR research (40 jobs) are closed,
-separate scopes. Current follow-up: 0 Actions jobs started.
+separate scopes. Current follow-up: public corpus audit run41354950288 SUCCESS (1 job). Qualification
+round1 run41354950129 superseded while its build was running: an over-broad RTF-fixture
+edit accidentally removed pre-existing methods, caught by inventory comparison before
+native qualification. All methods restored and a pinned baseline-preservation gate added.
+Manual cancellation returned insufficient integration permission; workflow concurrency
+will supersede the old run. Count its final actual job outcomes, not planned slots.
+Round2 expects 282 JVM and 1116 native outcomes; final results pending.
 
 Priorities: startup/Undo failure and independent diagnostics, home layout, simpler storage,
 automatic OCR, common-file previews, speech quality and useful local intelligence.

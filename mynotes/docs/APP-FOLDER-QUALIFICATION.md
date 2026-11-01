@@ -9,11 +9,12 @@ count actual executed jobs, not skipped jobs or hypothetical matrix slots.
 | 1 | dc024ab1 | 41344031614 | 1 build | Failed runtime compilation: lambda parameter shadowed a local name. 279 JVM tests passed; 8 native jobs skipped. No qualified APK. |
 | 2 | 86975fbc | 41345739995 | 1 build | Failed runtime compilation: staging space-check cursor declaration missing after formatting. 279 JVM tests passed; 8 native jobs skipped. No qualified APK. |
 | 3 | 168ff446 | 41345956856 | 9 executed | Build/lint and 279 JVM passed; all 8 native jobs failed, 1074/1082 passed. Two new test defects (four profiles each): wrong Find label and reading preview before merge completion. Source-pinned reports preserved by 533bb11c. No qualified APK. |
-| 4 | next source | pending | 9 planned | Fixed category dialog with native UI regression; corrected Find label and explicit merge-completion barrier. Expected 279 JVM and 1086 native outcomes. Not evidence until complete. |
+| 4 | a8dd1d8d | 41347397975 | 9 executed | Build/lint and 279 JVM passed; 7 native jobs passed, 1 failed. 1085/1086 methods passed. New category journey passed API26/API36/2x-font; landscape asserted 48dp on an accessibility rectangle clipped by scrolling before revealing the full row. Evidence 3b16150b. |
+| 5 | next source | pending | 9 planned | Product app source unchanged from round 4. Test first requests native ACTION_SHOW_ON_SCREEN and requires the full 48dp row before interacting, rather than asserting on a partially visible clipped accessibility rectangle. Expected 279 JVM and 1086 native outcomes. |
 
-Executed so far: **11 actual jobs** (3 builds: 1 passed, 2 failed; 8 native failed).
+Executed so far: **20 actual jobs** (4 builds: 2 passed, 2 failed; native: 7 passed, 9 failed).
 No cancelled jobs; 16 native jobs skipped in rounds 1/2, not counted as executed.
-Round 4 adds 9 planned jobs, not yet results. Root source/compatibility checks 666 and
+Round 5 adds 9 planned jobs, not yet results. Root source/compatibility checks 666 and
 MyNotes checks 276 pass before push. No APK is qualified until every required check passes.
 
 Acceptance covers new local-provider intake, structured DOCX round-trip, editable/searchable

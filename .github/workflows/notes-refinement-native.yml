@@ -70,7 +70,7 @@ jobs:
       contents: write
       actions: read
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: ${{ matrix.id == 'min-api26' && 45 || 30 }}
     strategy:
       fail-fast: false
       matrix:
@@ -91,6 +91,18 @@ jobs:
         with:
           name: refinement-foundation-test-apks
           path: refinement-apks
+      - name: Recover bounded previous timeout diagnostics
+        if: matrix.id == 'min-api26'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 41330808145 --name refinement-native-landscape-api34-b --dir /tmp/previous-landscape
+          python3 - <<'PYDIAG'
+          from pathlib import Path
+          text=Path('/tmp/previous-landscape/refinement-native.txt').read_text(errors='replace')
+          lines=text.splitlines()
+          print('::notice title=Previous landscape timeout tail::'+repr('\n'.join(lines[-35:]))[:3500])
+          PYDIAG
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -137,11 +149,14 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
-            timeout 1500s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            timeout 1500s adb shell am instrument -w -r -e timeout_msec 180000 -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
-            for report in ocr-common-text-report.json speech-degradation-report.json; do if adb shell run-as app.space.notes.debug test -f "files/$report"; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
+            for report in ocr-common-text-report.json speech-degradation-report.json; do if adb shell run-as app.space.notes.debug ls "files/$report" >/dev/null 2>&1; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
+      - name: Verify selected quantitative reports are complete and independently scored
+        if: always()
+        run: python3 -m mynotes.tools.ci.quality_reports --expected refinement-expected.json
       - name: Independently validate actual exported PDF URI annotations and page geometry
         if: always() && matrix.shard != 1
         run: |
@@ -183,7 +198,7 @@ jobs:
           python3 - <<'PYWAIT'
           import json,os,subprocess,time
           url='repos/'+os.environ['GITHUB_REPOSITORY']+'/commits/'+os.environ['GITHUB_SHA']+'/check-runs'
-          for attempt in range(60):
+          for attempt in range(120):
               try:jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['check_runs']
               except (subprocess.CalledProcessError,json.JSONDecodeError):
                   time.sleep(15);continue
@@ -222,7 +237,7 @@ jobs:
               for environment in artifact.glob('refinement-environment-*.json'):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(environment,output/environment.name)
-              for extra in list(artifact.glob('refinement-pdf-*'))+list(artifact.glob('refinement-quality-*')):
+              for extra in list(artifact.glob('refinement-pdf-*'))+list(artifact.glob('refinement-quality-*'))+list(artifact.glob('refinement-native.txt')):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(extra,output/extra.name)
               capture=artifact/'refinement-captures.tar'

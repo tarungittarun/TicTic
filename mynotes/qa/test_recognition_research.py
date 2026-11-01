@@ -55,3 +55,22 @@ class RecognitionResearchTests(unittest.TestCase):
                 messages.append(json.dumps(dict(family=family,language=language,cases=rows),ensure_ascii=False))
         self.assertEqual(6,len(messages))
         self.assertTrue(all(len(message.encode())<=3500 for message in messages))
+
+    def test_quality_report_recomputed_score_cannot_be_forged(self):
+        from mynotes.tools.ci.quality_reports import validate
+        report={'source_sha256':'a'*64,'cases':[dict(variant=v,baseline='one two',recognized='one two',relative_wer=0,elapsed_ms=1) for v in ['one-third-amplitude','seeded-plus-minus-200-pcm16']]}
+        self.assertTrue(validate(report,'speech'))
+        report['cases'][0]['recognized']='three four'
+        with self.assertRaises(ValueError):validate(report,'speech')
+
+    def test_quantitative_report_requires_all_variants_and_hash(self):
+        from mynotes.tools.ci.quality_reports import validate
+        with self.assertRaises(ValueError):validate({'cases':[]},'speech')
+        report={'cases':[dict(variant=v,baseline='one',recognized='one',relative_wer=0,elapsed_ms=1) for v in ['one-third-amplitude','seeded-plus-minus-200-pcm16']]}
+        with self.assertRaises(ValueError):validate(report,'speech')
+
+    def test_api26_collection_does_not_require_external_test_binary(self):
+        root=Path(__file__).resolve().parents[2]
+        workflow=(root/'.github/workflows/notes-refinement-native.yml').read_text()
+        self.assertNotIn('run-as app.space.notes.debug test -f',workflow)
+        self.assertIn('run-as app.space.notes.debug ls "files/$report"',workflow)

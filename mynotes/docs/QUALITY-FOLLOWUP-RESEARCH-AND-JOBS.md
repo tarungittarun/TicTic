@@ -108,3 +108,54 @@ language/family groups under3500 bytes each, below both per-message and per-step
 added deterministic local regression for payload sizes. One further one-job pilot
 is reserved so all 24 outputs are actually inspectable; prospective follow-up total22.
 These evidence transport corrections do not change APK recognition models.
+
+## Training/adoption protocol (not an executed training claim)
+Longer running is not a stopping criterion or quality guarantee. Do not fine-tune on
+these six OCR phrases / one speech sample and then use them as the accuracy test.
+1. Establish licensed, representative paired data: phone photos/screenshots (three
+   supported scripts, fonts, symbols, blur/skew/lighting) and transcribed speech
+   (speakers/accents, microphone distance, noise, conversation and silence). No private
+   notes/recordings may be uploaded or used for training without separate consent.
+2. Freeze manifest/hashes and source/speaker/font-separated train, validation and final
+   held-out splits before adaptation. Synthetic variants of one source stay in one split.
+3. Prefer the least intrusive adaptation that solves a measured mismatch. Generic
+   notes must not be constrained to a tiny Vosk vocabulary to inflate benchmark scores.
+   OCR fine-tuning needs compatible float checkpoints; integer fast weights are not
+   silently treated as trainable networks. Emoji needs appropriate character coverage
+   and data, not an invented replacement character or text-generation guess.
+4. Select checkpoints on validation, retain incumbent and all raw inputs/recognition,
+   and use early stopping rather than idle-duration padding. Report dataset size,
+   actual training steps/time, losses and held-out CER/WER, digit/symbol errors, silence
+   false insertions, punctuation/paragraph errors separately. Diarization needs its
+   own annotated speakers and overlap evaluation; pause gaps are not speaker labels.
+5. Compare on Android min26/current/large-font/landscape and a physical phone: cold/warm
+   latency, peak memory, battery/thermal effects and privacy/data-preservation controls.
+   Desktop RSS/timing and printed font fixtures cannot substitute for those measurements.
+6. Adopt only with reproducible held-out gains and no unacceptable common-case or
+   data-loss regression. Record model/runtime licenses, verified immutable hashes,
+   artifact provenance and rollback/format compatibility before changing default weights.
+
+Currently no representative training/held-out corpus or new trained checkpoint exists.
+The actual completed work is hardening, strict evaluation and upstream-model pilots;
+no claim of general speech/emoji accuracy or full Word-format fidelity is justified.
+
+## Second qualification inspected; third round reserved
+Run 41330808145 finished FAIL: seven profile method inventories passed; landscape-api34-b
+hit the 1500s instrumentation timeout with 50/75 outcomes and no completion marker.
+Do not discard or call that a pass. First-finisher's 15-minute peer wait also expired,
+so evidence 071d7dd6 is explicitly missing that profile. Native APK source unchanged.
+Quantitative reports were collected on API36 (OCR 0 CER on all three controlled variants;
+relative speech WER 0 / 1-of-15), but API26 `run-as ... test -f` was not portable.
+
+Third round fixes evidence infrastructure, not model accuracy claims: use portable ls,
+require selected reports and independently recompute their scores on the host, preserve
+raw instrumentation text, recover the prior timeout tail, add 180s per-test watchdog
+while retaining 1500s whole-instrumentation bound. Give first-finisher aggregation a
+longer bounded window than the slowest peer; only that aggregator job has 45min limit.
+Reserve 9 further jobs: prospective follow-up total31 (27 build/native +1 ASR +3 OCR pilots).
+
+OCR final complete pilot is 41331604142: all24 outputs inspected and saved in
+OCR-WEIGHT-PILOT-41331604142.json. Fast/best: English 0/66 vs8/66 codepoint errors
+(best removed arithmetic spaces); Hindi both2/60 (digit1 lost twice); Kannada both0/62.
+These six system-font phrases show no measured benefit from a blind best-weight swap.
+No broad language accuracy, handwriting or emoji coverage is established by this pilot.

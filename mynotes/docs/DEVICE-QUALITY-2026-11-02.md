@@ -88,3 +88,10 @@ moved panel, rather than moving just the panel. Inventory remains 282 JVM / 1130
 Round-4 push initially encountered an automated evidence commit. Fetched and merged it
 on the session branch (no force push), reran the root gate, and pushed `5dcaee4c`, run
 41356235141. Round 5 supersedes that source with the observed category-navigation fixes.
+
+Round-3 preserved reports (`823bbcd8`) additionally exposed an API26 test-setup issue:
+Android had already revoked the deleted folder's grant, so unconditionally releasing it
+threw before the test could reach Undo. Release only grants actually still present;
+keep the removal/Undo/private durability/reopen assertions. This is not a reproduced app
+crash. Round-3 partial totals: 150 passing, seven failing test outcomes, eight incomplete
+completion errors; final job conclusions were cancellation, not native success.

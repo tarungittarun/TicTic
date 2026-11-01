@@ -10,8 +10,8 @@ class AppFolderArchitecture(unittest.TestCase):
     def test_initialization_refuses_nonempty_before_creating_any_namespace(self):
         source = (JAVA / 'AppFolder.java').read_text()
         method = source.split('public void initialize()', 1)[1].split('Uri library()', 1)[0]
-        self.assertLess(method.index('fs.list(fs.root).isEmpty()'), method.index('fs.path(path,true)'))
-        self.assertLess(method.index('fs.path(path,true)'), method.index('fs.immutable(fs.root,MARKER,ID)'))
+        self.assertLess(method.index('fs.list(fs.root).isEmpty()'), method.index('fs.path(path, true)'))
+        self.assertLess(method.index('fs.path(path, true)'), method.index('fs.immutable(fs.root, MARKER, ID)'))
 
     def test_layout_and_registry_exclude_models_cache_and_grant_preferences(self):
         source = (JAVA / 'AppFolder.java').read_text()
@@ -20,7 +20,7 @@ class AppFolderArchitecture(unittest.TestCase):
         registry = source.split('static boolean owned(', 1)[1].split('private File local(', 1)[0]
         self.assertNotIn('offline-speech', registry)
         self.assertNotIn('offline-ocr', registry)
-        prefs = source.split('String[] PREFS=', 1)[1].split(';', 1)[0]
+        prefs = source.split('String[] PREFS =', 1)[1].split(';', 1)[0]
         self.assertNotIn('mynotes-storage-v1', prefs)
         self.assertNotIn('notes-diagnostics', prefs)  # Restore must not enable diagnostic consent.
 
@@ -31,7 +31,7 @@ class AppFolderArchitecture(unittest.TestCase):
             self.assertIn(guard, method)
         self.assertLess(method.index('hash(target)'), method.index('"ready.json"'))
         self.assertLess(method.index('DocumentCodec.decode'), method.index('"ready.json"'))
-        self.assertLess(method.index('ready=true'), method.index('finishRecovery(context)'))
+        self.assertLess(method.index('ready = true'), method.index('finishRecovery(context)'))
 
     def test_internal_copy_is_not_disabled_by_selected_folder(self):
         source = (JAVA / 'NotesRepository.java').read_text()
@@ -41,7 +41,7 @@ class AppFolderArchitecture(unittest.TestCase):
 
     def test_worker_coalesces_and_observes_non_note_state_without_ui_provider_io(self):
         source = (JAVA / 'AppFolderTasks.java').read_text()
-        for guard in ['newSingleThreadScheduledExecutor', 'pending.cancel(false)', 'FileObserver', 'state.revision==revision', 'registerOnSharedPreferenceChangeListener']:
+        for guard in ['newSingleThreadScheduledExecutor', 'pending.cancel(false)', 'FileObserver', 'state.revision == revision', 'registerOnSharedPreferenceChangeListener']:
             self.assertIn(guard, source)
         controller = (JAVA / 'NotesController.java').read_text()
         self.assertIn('AppFolder.finishRecovery', controller)
@@ -67,3 +67,16 @@ class AppFolderArchitecture(unittest.TestCase):
             self.assertIn(token, word)
         self.assertNotIn('openConnection', word)
         self.assertNotIn('FileOutputStream', word)
+
+    def test_recovery_controller_updates_memory_before_host_recreation_flush(self):
+        source = (JAVA / 'NotesController.java').read_text()
+        method = source.split('public void recoverAppFolder(', 1)[1].split('private LinearLayout scrollContent(', 1)[0]
+        self.assertLess(method.index('notes.addAll(recoveredNotes)'), method.index('host.appearanceChanged()'))
+        self.assertLess(method.index('savedHistories.putAll(recoveredHistories)'), method.index('host.appearanceChanged()'))
+        self.assertIn('Nothing imported yet: finish the current storage/recovery operation', source)
+
+    def test_note_only_import_cannot_replace_a_complete_source_app_folder(self):
+        source = (JAVA / 'NotesController.java').read_text()
+        self.assertIn('plan.notesOnlyCopy=new AppFolder(context,source).recognized()', source)
+        self.assertIn('if(plan.folder!=null && !plan.notesOnlyCopy)repository.openExisting', source)
+        self.assertIn('Complete App folders are recovery sources', (JAVA / 'NotesRepository.java').read_text())

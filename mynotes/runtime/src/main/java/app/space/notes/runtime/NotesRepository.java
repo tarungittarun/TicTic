@@ -13,11 +13,17 @@ import app.space.notes.domain.Note;
 /** Serial-worker only. Private recovery journal survives a failed selected-folder save. */
 public final class NotesRepository {
     private static final Object SNAPSHOT_LOCK=new Object();
+    private static final Map<String,Integer> PENDING_SNAPSHOTS=new HashMap<>();
+    static Runnable retainSnapshot(Context context,boolean hasContent){if(!hasContent)return ()->{};String key=context.getFilesDir().getAbsolutePath();synchronized(SNAPSHOT_LOCK){PENDING_SNAPSHOTS.put(key,PENDING_SNAPSHOTS.getOrDefault(key,0)+1);}java.util.concurrent.atomic.AtomicBoolean done=new java.util.concurrent.atomic.AtomicBoolean();return ()->{if(done.compareAndSet(false,true))synchronized(SNAPSHOT_LOCK){int count=PENDING_SNAPSHOTS.getOrDefault(key,1)-1;if(count==0)PENDING_SNAPSHOTS.remove(key);else PENDING_SNAPSHOTS.put(key,count);}};}
+    static boolean pendingSnapshots(Context context){synchronized(SNAPSHOT_LOCK){return PENDING_SNAPSHOTS.getOrDefault(context.getFilesDir().getAbsolutePath(),0)>0;}}
+    static void invalidateWriters(Context context)throws IOException{synchronized(SNAPSHOT_LOCK){SharedPreferences prefs=context.getSharedPreferences("mynotes-storage-v1",0);long epoch=prefs.getLong("epoch",0);if(epoch==Long.MAX_VALUE || !prefs.edit().putLong("epoch",epoch+1).commit())throw new IOException("Cannot establish safe recovery write fence");}}
+
     public interface FolderAccess { GenerationProtocol open(String uri) throws Exception; }
     private final FolderAccess folderAccess;
     private final AtomicFile file;
     private final Context context;
     private final SharedPreferences settings;
+    private final long epoch;
     private volatile String selected;
     private String head;
     private volatile String status="Device storage";
@@ -26,7 +32,7 @@ public final class NotesRepository {
     public NotesRepository(Context context,FolderAccess folderAccess) {
         this.context=context;this.folderAccess=folderAccess;
         settings=context.getSharedPreferences("mynotes-storage-v1",Context.MODE_PRIVATE);
-        selected=settings.getString("tree",null);
+        selected=settings.getString("tree",null);epoch=settings.getLong("epoch",0);
         File dir=new File(context.getFilesDir(),"notes-library");
         if(!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory())throw new IllegalStateException("Cannot create Notes directory");
         file=new AtomicFile(new File(dir,"library-v1.json"));
@@ -74,27 +80,29 @@ public final class NotesRepository {
     private List<Note> loadVerified() throws Exception {
         JSONObject local=exists()?new JSONObject(app.space.notes.domain.JsonLimits.text(atomicRead(file))):null;
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
-        if(cached!=null)DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
-        if(selected==null) {status="Device storage";List<Note> notes=cached==null?new ArrayList<>():DocumentCodec.decode(cached);updateSurfaces(notes);return notes;}
+        List<Note> privateNotes=cached==null?null:DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
+        if(selected==null) {status="Device storage";List<Note> notes=privateNotes==null?new ArrayList<>():privateNotes;updateSurfaces(notes);return notes;}
         head=local==null?null:local.optString("folderHead",null);
         boolean pending=local!=null && local.optBoolean("pending",false);
         try {
             GenerationProtocol.Snapshot external=protocol(selected).read();
             if(external.payload==null)throw new IOException("Selected library is empty or missing");
-            if(pending && !Arrays.equals(DocumentCodec.encode(DocumentCodec.decode(cached)),external.payload)) {
-                status="Recovered locally · folder save pending";
-                return DocumentCodec.decode(cached); // Preserve expected old head; retry cannot clobber a foreign writer.
+            List<Note> folderNotes=DocumentCodec.decode(external.payload);
+            if(privateNotes!=null && !sameLibrary(privateNotes,folderNotes)) {
+                status=pending?"Recovered locally · folder save pending":"Private copy retained · folder differs; choose a new empty App folder or use app-only storage before merging";
+                return privateNotes; // Preserve private content and expected head; never adopt an external rollback or writer silently.
             }
             head=external.head; if(pending)materializeFolders(DocumentCodec.decode(external.payload));writeLocal(external.payload,false,head);
-            status="Selected local folder"; return DocumentCodec.decode(external.payload);
+            status="Selected local folder"; return folderNotes;
         } catch(Exception e) {
             if(cached==null)throw e;
             status="Folder unavailable · using private recovery copy";
-            return DocumentCodec.decode(cached);
+            return privateNotes;
         }
     }
+    static boolean sameLibrary(List<Note> a,List<Note> b){if(a.size()!=b.size())return false;for(int i=0;i<a.size();i++)if(!a.get(i).id.equals(b.get(i).id) || !app.space.notes.domain.NoteMerge.same(a.get(i),b.get(i)))return false;return true;}
     /** Private atomic snapshot only: receivers/widgets never block on external providers. */
-    public List<Note> localSnapshot() throws Exception {return exists()?DocumentCodec.decode(atomicRead(file)):new ArrayList<>();}
+    public List<Note> localSnapshot() throws Exception {if(new File(context.getFilesDir(),"app-folder-recovery-v1/ready.json").exists())throw new IOException("App recovery is finishing; private snapshot not published yet");return exists()?DocumentCodec.decode(atomicRead(file)):new ArrayList<>();}
     private void updateSurfaces(List<Note> notes){try{LocalSystemSurfaces.refresh(context);}catch(Exception unavailable){android.util.Log.w("MyNotes","OS surfaces unavailable; saved notes retained",unavailable);}}
     public void save(List<Note> notes) throws Exception {
         byte[] payload=DocumentCodec.encode(notes);
@@ -167,7 +175,7 @@ public final class NotesRepository {
     }
     /** Preview/confirmation is required by the controller. Older target generations remain. */
     public void openExisting(Uri uri,String expected,List<Note> current,List<Note> merged) throws Exception {
-        String target=uri.toString();byte[] payload=DocumentCodec.encode(merged);
+        String target=uri.toString();if(folderAccess==null && !target.equals(selected) && new AppFolder(context,uri).recognized())throw new IOException("Complete App folders are recovery sources, not note-only replacement destinations. Recover into an empty installation or import notes without changing the source folder.");byte[] payload=DocumentCodec.encode(merged);
         atomicWrite(beforeRestore(),DocumentCodec.encode(current));
         GenerationProtocol.Snapshot committed=protocol(target).commit(payload,expected);
         if(!settings.edit().putString("tree",target).commit())
@@ -193,6 +201,7 @@ public final class NotesRepository {
     private byte[] atomicRead(AtomicFile target) throws IOException {synchronized(SNAPSHOT_LOCK){return target.readFully();}}
     private void atomicWrite(AtomicFile target,byte[] bytes) throws Exception {
       synchronized(SNAPSHOT_LOCK){
+        if(epoch!=settings.getLong("epoch",0) || !Objects.equals(selected,settings.getString("tree",null)))throw new IOException("Storage/recovery changed; stale writer refused before changing private data");
         FileOutputStream stream=null;
         try {
             stream=target.startWrite();stream.write(bytes);target.finishWrite(stream);stream=null;

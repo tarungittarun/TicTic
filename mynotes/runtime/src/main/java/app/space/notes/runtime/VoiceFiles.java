@@ -24,7 +24,7 @@ public final class VoiceFiles {
         files=directory.listFiles();if(files==null)throw new IOException("Cannot reopen voice inbox");for(File f:files)if(f.getName().endsWith(".wav")){String id=f.getName().substring(0,f.getName().length()-4);try{checked(id);ids.add(id);}catch(IllegalArgumentException invalid){/* Only owned UUID names are recordings. */}}
         ids.sort((a,b)->Long.compare(audio(b).lastModified(),audio(a).lastModified()));return ids;
     }
-    public boolean noteWasCreated(String id){return new File(directory,checked(id)+".note-created").isFile();}
+    public boolean noteWasCreated(String id)throws IOException{synchronized(TRANSCRIPT_LOCK){AtomicFile marker=new AtomicFile(new File(directory,checked(id)+".note-created"));if(!marker.getBaseFile().exists() && !new File(marker.getBaseFile()+".bak").exists())return false;byte[] bytes;try(InputStream in=marker.openRead()){bytes=LocalOpenFile.bounded(in,1);}if(bytes.length!=1 || bytes[0]!=1)throw new IOException("Voice creation marker cannot be verified; audio retained");return true;}}
     public synchronized void noteCreated(String id) throws IOException {synchronized(TRANSCRIPT_LOCK){if(!audio(id).isFile() || noteWasCreated(id))return;AtomicFile marker=new AtomicFile(new File(directory,checked(id)+".note-created"));FileOutputStream out=null;try{out=marker.startWrite();out.write(1);marker.finishWrite(out);out=null;}finally{if(out!=null)marker.failWrite(out);}}}
     public synchronized void result(String id,String text,String state)throws Exception{result(id,text,state,text,"");}
     public synchronized void result(String id,String text,String state,String rawText,String formatting) throws Exception {synchronized(TRANSCRIPT_LOCK){
@@ -36,7 +36,7 @@ public final class VoiceFiles {
         catch(Exception e){if(stream!=null)target.failWrite(stream);throw e;}
     }}
     public synchronized JSONObject result(String id) throws Exception {synchronized(TRANSCRIPT_LOCK){
-        AtomicFile file=new AtomicFile(transcript(id));if(!file.getBaseFile().exists() && !new File(file.getBaseFile()+".bak").exists())return new JSONObject().put("state","Audio retained; no transcript yet").put("text","");JSONObject result=new JSONObject(new String(file.readFully(),java.nio.charset.StandardCharsets.UTF_8));if(result.getInt("version")!=1 || !result.getString("id").equals(id))throw new IOException("Unknown or mismatched transcript metadata; audio retained");return result;
+        AtomicFile file=new AtomicFile(transcript(id));if(!file.getBaseFile().exists() && !new File(file.getBaseFile()+".bak").exists())return new JSONObject().put("state","Audio retained; no transcript yet").put("text","");try(InputStream in=file.openRead()){return ArchiveJson.metadata(LocalOpenFile.bounded(in,app.space.notes.domain.ArchiveManifest.MAX_METADATA_BYTES),id);}
     }}
     /** Bounded atomic snapshot for a user-requested archive; never reads a live partial transcript. */
     public byte[] archiveMetadata(String id)throws IOException{synchronized(TRANSCRIPT_LOCK){

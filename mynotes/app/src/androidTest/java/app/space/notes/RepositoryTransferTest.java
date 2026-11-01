@@ -96,4 +96,11 @@ public class RepositoryTransferTest {
         NotesRepository stale=repo();stale.load();repo().selectFolder(uri,merged);org.junit.Assert.assertThrows(IOException.class,()->stale.applyRestoreIfCurrent(merged,base));org.junit.Assert.assertArrayEquals(DocumentCodec.encode(merged),DocumentCodec.encode(repo().localSnapshot()));
     }
 
+
+    @Test public void removingLatestExternalGenerationNeverRollsBackVerifiedPrivateContent()throws Exception {
+        NotesRepository repository=repo();List<Note> before=Arrays.asList(n("mine","before")),after=Arrays.asList(n("mine","latest private"));repository.save(before);repository.selectFolder(uri,before);repository.save(after);String latest=new GenerationProtocol(backend).read().head;backend.files.remove("mynotes-gen-"+latest+".json");NotesRepository restarted=repo();assertEquals("latest private",restarted.load().get(0).body);assertEquals("before",DocumentCodec.decode(new GenerationProtocol(backend).read().payload).get(0).body);assertEquals("latest private",repo().localSnapshot().get(0).body);try{restarted.save(after);fail("Cannot overwrite a rolled-back external chain automatically");}catch(IOException expected){}assertEquals("latest private",repo().localSnapshot().get(0).body);
+    }
+    @Test public void aDifferentExternalWriterCannotSilentlyReplaceAnAlwaysKeptPrivateLibrary()throws Exception {
+        NotesRepository repository=repo();List<Note> mine=Arrays.asList(n("mine","keep mine"));repository.save(mine);repository.selectFolder(uri,mine);GenerationProtocol store=new GenerationProtocol(backend);store.commit(DocumentCodec.encode(Arrays.asList(n("other","other writer"))),store.read().head);NotesRepository restarted=repo();assertEquals("keep mine",restarted.load().get(0).body);assertEquals("other writer",DocumentCodec.decode(store.read().payload).get(0).body);assertTrue(restarted.status().contains("Private copy retained"));assertEquals("keep mine",repo().localSnapshot().get(0).body);
+    }
 }

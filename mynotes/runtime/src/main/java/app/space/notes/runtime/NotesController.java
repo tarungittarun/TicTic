@@ -133,7 +133,7 @@ public final class NotesController {
         final List<Note> base;
         final NoteMerge.Plan merge;
         final android.net.Uri folder;
-        final String head;String openAfter;
+        final String head;String openAfter;boolean notesOnlyCopy;
         PreparedImport(List<Note> base,NoteMerge.Plan merge,android.net.Uri folder,String head) {
             this.base=Collections.unmodifiableList(new ArrayList<>(base));this.merge=merge;this.folder=folder;this.head=head;
         }
@@ -796,6 +796,7 @@ public final class NotesController {
         catch(IllegalArgumentException e){host.showMessage(e.getMessage());return false;}
     }
     public void receiveText(IncomingText incoming){whenReady(()->{
+        if(busy || prepared!=null){host.showMessage("Nothing imported yet: finish the current storage/recovery operation, then share again. Existing content is unchanged.");return;}
         if(capture!=null)capture.stop();persistDraft();Note note=Note.create(System.currentTimeMillis()).edit(incoming.title,incoming.body,System.currentTimeMillis());notes.add(note);selectedIds.clear();editing=note.id;queueSave();renderEditor();host.showMessage("Shared text saved locally. Source is unchanged.");log("share-in","text accepted");
     });}
     private void renderColours(){
@@ -940,7 +941,7 @@ public final class NotesController {
         content.addView(text("Use local device or SD storage. Export a backup and important recordings before uninstalling or clearing app data. Previous library snapshots are kept for recovery.",13));
     }
     public void selectFolder(android.net.Uri uri) {
-        whenReady(()->{persistDraft();moveStorage(uri);});
+        whenReady(()->{if(busy){host.showMessage("Finish the current storage operation first; storage unchanged.");return;}persistDraft();moveStorage(uri);});
     }
     private void moveStorage(android.net.Uri uri) {
         busy=true;final List<Note> snapshot=new ArrayList<>(notes);
@@ -963,7 +964,7 @@ public final class NotesController {
     }
     public void recoverAppFolder(android.net.Uri uri){whenReady(()->{
         persistDraft();if(busy || capture!=null){host.showMessage("Finish the current operation before recovery.");return;}busy=true;
-        disk.execute(()->{try{AppFolder folder=new AppFolder(context,uri);AppFolder.Checkpoint checkpoint=folder.prepareRecovery();main.post(()->{busy=false;if(closed)return;design.show(new android.app.AlertDialog.Builder(context).setTitle("Recover complete App folder?").setMessage("Verified checkpoint: "+checkpoint.id+"\nSaved: "+new java.util.Date(checkpoint.createdAt())+"\nIncluded categories: "+checkpoint.categories()+"\nFiles/folders: "+checkpoint.fileCount()+"\n\nRecovery validates every object before installing. Existing settings may be replaced; current notes, recordings, styles and private folders must be empty. Original folder files stay untouched. Android notification/widget consent is not restored. Excluded categories are unavailable from this checkpoint.").setPositiveButton("Recover",(dialog,which)->{busy=true;disk.execute(()->{try{folder.recover(checkpoint.id);main.post(()->{busy=false;if(!closed){host.showMessage("App data recovered. Reopening MyNotes to load settings and history.");host.appearanceChanged();}});}catch(Exception failure){main.post(()->{busy=false;if(!closed)host.showMessage("Recovery not complete: "+failure.getMessage()+". Source folder retained. Do not clear app data.");});}});}).setNegativeButton("Cancel",null).create());});}catch(Exception failure){main.post(()->{busy=false;if(!closed)host.showMessage("Nothing recovered: "+failure.getMessage());});}});
+        disk.execute(()->{try{AppFolder folder=new AppFolder(context,uri);AppFolder.Checkpoint checkpoint=folder.prepareRecovery();main.post(()->{busy=false;if(closed)return;design.show(new android.app.AlertDialog.Builder(context).setTitle("Recover complete App folder?").setMessage("Verified checkpoint: "+checkpoint.id+"\nSaved: "+new java.util.Date(checkpoint.createdAt())+"\n"+checkpoint.notice+"\nIncluded categories: "+checkpoint.categories()+"\nFiles/folders: "+checkpoint.fileCount()+"\n\nRecovery validates every object before installing. Existing settings may be replaced; current notes, recordings, styles and private folders must be empty. Original folder files stay untouched. Android notification/widget consent is not restored. Excluded categories are unavailable from this checkpoint.").setPositiveButton("Recover",(dialog,which)->{busy=true;disk.execute(()->{try{folder.recover(checkpoint.id);NotesRepository recoveredRepository=new NotesRepository(context);List<Note> recoveredNotes=recoveredRepository.load();PersistentHistoryStore recoveredHistory=new PersistentHistoryStore(context);Map<String,app.space.notes.domain.DocumentHistory> recoveredHistories=recoveredHistory.load(recoveredNotes);main.post(()->{if(closed)return;repository=recoveredRepository;historyStore=recoveredHistory;notes.clear();notes.addAll(recoveredNotes);savedHistories.clear();savedHistories.putAll(recoveredHistories);undo=null;undoBatch.clear();undoCreatedId=null;noteUndoIsLatest=false;canonicalHistory=null;canonicalHistoryNote=null;busy=false;host.showMessage("App data recovered. Reopening MyNotes to load settings and history.");host.appearanceChanged();});}catch(Exception failure){main.post(()->{busy=false;if(!closed)host.showMessage("Recovery not complete: "+failure.getMessage()+". Source folder retained. Do not clear app data.");});}});}).setNegativeButton("Cancel",null).create());});}catch(Exception failure){main.post(()->{busy=false;if(!closed)host.showMessage("Nothing recovered: "+failure.getMessage());});}});
     });}
     private LinearLayout scrollContent(String heading) {
         editing=null;title=null;body=null;search=null;storagePage=true;querySequence++;main.removeCallbacks(filter);
@@ -999,8 +1000,8 @@ public final class NotesController {
     public void exportFolderCopy(android.net.Uri tree){whenReady(()->{persistDraft();List<Note> selected=new ArrayList<>(propertyTargets());if(selected.isEmpty() || busy){host.showMessage("Open a note or Doc before saving a copy.");return;}busy=true;disk.execute(()->{try{LocalNotebookFolders folder=new LocalNotebookFolders(context.getContentResolver(),tree);for(Note note:selected)folder.exportCopy(note);main.post(()->{busy=false;if(!closed)host.showMessage("Portable copy verified in the selected device folder. The original and automatic save location are unchanged.");});}catch(Exception failure){Diagnostics.failure("device-copy.failure",failure);main.post(()->{busy=false;if(!closed)host.showMessage("Copy could not be verified. Original notes are unchanged; a partial new file may remain in the selected folder.");});}});});}
     public void openFile(android.net.Uri uri){whenReady(()->{persistDraft();if(busy || prepared!=null || drawingPad!=null || imageEditor!=null || diagramOpen || ocrPanel || capture!=null){host.showMessage("Finish the current operation first. Original edits were kept.");return;}busy=true;disk.execute(()->{try{String name=LocalOpenFile.name(context,uri),lower=name.toLowerCase(java.util.Locale.ROOT);if(lower.endsWith(".json")){main.post(()->{busy=false;if(!closed)openNoteDocument(uri,()->{});});return;}if(lower.endsWith(".pdf") || lower.endsWith(".doc")){main.post(()->{busy=false;if(closed)return;design.show(new android.app.AlertDialog.Builder(context).setTitle("Open file").setMessage("Open this local document in an installed reader? MyNotes will not change it. The reader has its own privacy policy.").setPositiveButton("Open reader",(d,w)->{try{android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_VIEW,uri).setType(lower.endsWith(".pdf")?"application/pdf":"application/msword").setDataAndType(uri,lower.endsWith(".pdf")?"application/pdf":"application/msword").addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);context.startActivity(intent);}catch(android.content.ActivityNotFoundException noReader){host.showMessage("No compatible reader is installed. Original file is unchanged.");}catch(SecurityException denied){host.showMessage("Reader access was denied. Original file is unchanged.");}}).setNegativeButton("Cancel",null).create());});return;}LocalOpenFile.Text result=LocalOpenFile.read(context,uri,name);main.post(()->{busy=false;if(closed)return;design.show(new android.app.AlertDialog.Builder(context).setTitle("Open editable copy").setMessage(result.word?StructuredWord.LIMITS:"Create a local editable note from this TXT file? The editor supports Find, selecting, formatting and saving. Your original file stays unchanged; edits are saved as a MyNotes copy, not back into the TXT source.").setPositiveButton("Open editable copy",(d,w)->{long now=System.currentTimeMillis();Note imported=Note.create(now).edit(result.name,result.body,now).folder(activeFolder==null?"":activeFolder,now);if(result.word)imported=imported.withContent(result.content,now);notes.add(imported);editing=imported.id;queueSave();renderEditor();}).setNegativeButton("Cancel",null).create());});}catch(Exception failure){Diagnostics.failure("open-file.failure",failure);main.post(()->{busy=false;if(!closed)host.showMessage("File not opened: "+failure.getMessage()+". Original file and notes are unchanged.");});}});});}
     public void openNoteDocument(android.net.Uri uri,Runnable release){DocumentGrant grant=new DocumentGrant(release);documentGrants.add(grant);if(closed || (!ready && deferredResults.size()>=8)){grant.run();if(!closed)host.showMessage("Library is opening. Retry Open file in a moment.");return;}whenReady(()->{if(busy || prepared!=null || drawingPad!=null || imageEditor!=null || diagramOpen || ocrPanel || capture!=null){grant.run();host.showMessage("Save or leave the current visual, recording or file review before opening another document. Your current edits were kept.");return;}prepareImport(uri,false,false,grant);});}
-    public void importBackup(android.net.Uri uri) {whenReady(()->prepareImport(uri,false,false));}
-    public void openExistingFolder(android.net.Uri uri) {whenReady(()->prepareImport(uri,true,false));}
+    public void importBackup(android.net.Uri uri) {whenReady(()->{if(busy){host.showMessage("Finish the current storage operation first; nothing imported.");return;}prepareImport(uri,false,false);});}
+    public void openExistingFolder(android.net.Uri uri) {whenReady(()->{if(busy){host.showMessage("Finish the current storage operation first; library unchanged.");return;}prepareImport(uri,true,false);});}
     private void prepareImport(android.net.Uri source,boolean folder,boolean previous) {prepareImport(source,folder,previous,()->{});}
     private void prepareImport(android.net.Uri source,boolean folder,boolean previous,Runnable release) {
         persistDraft();busy=true;final List<Note> base=new ArrayList<>(notes);
@@ -1013,6 +1014,7 @@ public final class NotesController {
                 NoteMerge.Plan merge=NoteMerge.preview(base,incoming);
                 log("restore-preview","validated incoming="+incoming.size()+" added="+merge.added+" conflicts="+merge.conflicts);
                 PreparedImport plan=new PreparedImport(base,merge,folder?source:null,library==null?null:library.head);
+                if(folder)plan.notesOnlyCopy=new AppFolder(context,source).recognized();
                 if(release instanceof DocumentGrant && incoming.size()==1 && merge.conflicts==0 && incoming.get(0).deletedAt==0)plan.openAfter=incoming.get(0).id;
                 main.post(()->{busy=false;if(!closed){prepared=plan;renderPreview();}});
             } catch(Exception e) {log("restore-preview","failed "+e.getClass().getSimpleName());Diagnostics.failure("restore-preview.failure",e);
@@ -1024,10 +1026,11 @@ public final class NotesController {
     private void renderPreview() {
         PreparedImport plan=prepared;if(plan==null){renderBackups();return;}
         LinearLayout content=scrollContent("Review restore");
-        content.addView(text(plan.folder==null?"Merge into current library":"Open this folder and merge both libraries",18));
+        content.addView(text(plan.folder==null || plan.notesOnlyCopy?"Merge into current library":"Open this folder and merge both libraries",18));
+        if(plan.notesOnlyCopy)content.addView(text("This imports NOTES ONLY without changing the source App folder or your current storage location. Original recordings, settings and history are not imported here. Complete recovery uses Recover App folder into an empty installation. The source app-data checkpoints remain untouched.",15));
         content.addView(text("Add "+plan.merge.added+" notes · skip "+plan.merge.unchanged+" identical notes · preserve "+plan.merge.conflicts+" changed-ID conflicts as copies.",16));
         content.addView(text("Result: "+plan.merge.notes.size()+" notes. Nothing has been imported yet. Confirm keeps existing notes and writes a previous-state checkpoint first.",15));
-        if(plan.folder!=null)content.addView(text("Folder: "+android.provider.DocumentsContract.getTreeDocumentId(plan.folder),14));
+        if(plan.folder!=null)content.addView(text("Source folder: "+android.provider.DocumentsContract.getTreeDocumentId(plan.folder),14));
         content.addView(text("First result titles (including archive and Trash):",14));
         for(int i=0;i<Math.min(8,plan.merge.notes.size());i++) {
             Note n=plan.merge.notes.get(i);String label=n.title.isEmpty()?"Untitled":n.title;
@@ -1043,7 +1046,7 @@ public final class NotesController {
         disk.execute(()->{
             try {
                 boolean complete=true;
-                if(plan.folder!=null)repository.openExisting(plan.folder,plan.head,plan.base,plan.merge.notes);
+                if(plan.folder!=null && !plan.notesOnlyCopy)repository.openExisting(plan.folder,plan.head,plan.base,plan.merge.notes);
                 else complete=repository.applyRestore(plan.base,plan.merge.notes);
                 final boolean saved=complete;
                 log("restore","applied count="+plan.merge.notes.size()+" destinationComplete="+saved);
@@ -1100,7 +1103,8 @@ public final class NotesController {
         if(historyStepping)return;
         savedHistories.keySet().removeIf(id->find(id)==null);final List<Note> snapshot=new ArrayList<>(notes);final List<PersistentHistoryStore.Entry> historySnapshot=new ArrayList<>();for(Map.Entry<String,app.space.notes.domain.DocumentHistory> entry:savedHistories.entrySet()){Note n=find(entry.getKey());if(n!=null)historySnapshot.add(new PersistentHistoryStore.Entry(n,entry.getValue().snapshot()));} final long ticket=++revision;
         if(status!=null){status.setText("Saving locally…");if(canonicalEditor!=null)status.setVisibility(View.VISIBLE);}
-        disk.execute(()->{
+        final Runnable releaseSnapshot=NotesRepository.retainSnapshot(context,!snapshot.isEmpty());
+        disk.execute(()->{try{
             // Newer immutable snapshots include earlier edits. Avoid a backlog of full media saves.
             if(ticket!=revision){log("save.coalesced","revision="+ticket);return;}
             try { repository.save(snapshot);if(historyStore!=null)try{historyStore.save(historySnapshot);}catch(Exception | OutOfMemoryError historyFailure){main.post(()->{if(!closed && !historyNoticeShown){historyNoticeShown=true;host.showMessage("Notes saved. Edit history could not be saved or verified; use Storage & recovery to review/reset history. Do not clear app data.");}});}markVoiceNotesCreated(snapshot);AppFolderTasks.request(context);persisted.run(); log("save","ok revision="+ticket+" count="+snapshot.size());
@@ -1109,7 +1113,7 @@ public final class NotesController {
                 main.post(()->{if(!closed){if(status!=null){status.setText(repository.status()+" · retry needed");status.setVisibility(View.VISIBLE);}
                     host.showMessage("Save incomplete. "+repository.status()+". Check storage access, then use Retry save.");}});
             }
-        });
+        }finally{releaseSnapshot.run();}});
     }
     private void markVoiceNotesCreated(List<Note> snapshot){try{VoiceFiles files=new VoiceFiles(context);Set<String> ids=new HashSet<>();for(Note note:snapshot)ids.add(note.id);for(String source:knownRecordings)if(ids.contains(app.space.notes.domain.VoiceTranscripts.noteId(source)))files.noteCreated(source);}catch(Exception pendingMarker){log("voice-source-marker","pending; original audio retained");}}
     private void log(String action,String outcome) { Log.i("MyNotes",action+" outcome="+outcome); Diagnostics.record(action,outcome); }

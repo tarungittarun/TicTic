@@ -17,7 +17,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
         creation = dock.split('if(!page.equals("Trash")){', 1)[1]
         for token in ['"+ Checklist"', '"Record voice"', '"New text note"', 'dock.addView(create);']:
             self.assertIn(token, creation)
-        self.assertTrue(creation.rstrip().endswith('}'))
+        self.assertTrue(creation.split('root.addView(searchBar',1)[0].rstrip().endswith('}'))
 
     def test_confirmation_primary_matches_its_scope(self):
         confirm = self.source.split('private void confirmSheet(', 1)[1].split('private void drawingHelp()', 1)[0]

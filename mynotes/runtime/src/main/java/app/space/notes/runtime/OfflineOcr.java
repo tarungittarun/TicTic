@@ -57,16 +57,24 @@ public final class OfflineOcr {
         }
         if(!matrix.isIdentity()){Bitmap rotated=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);if(rotated!=bitmap)bitmap.recycle();bitmap=rotated;}return bitmap;
     }
+    /** Composite transparency, normalize dark screenshots, upscale small text; never alter the source. */
+    public static Bitmap prepareBitmap(Bitmap source){
+        float scale=Math.max(source.getWidth(),source.getHeight())<1000?Math.min(2f,1000f/Math.max(source.getWidth(),source.getHeight())):1f;
+        Bitmap out=Bitmap.createBitmap(Math.max(1,Math.round(source.getWidth()*scale)),Math.max(1,Math.round(source.getHeight()*scale)),Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(out);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(source,null,new Rect(0,0,out.getWidth(),out.getHeight()),paint);
+        long border=0;int samples=0;for(int i=0;i<16;i++){int x=i*(out.getWidth()-1)/15;for(int y:new int[]{0,out.getHeight()-1}){int c=out.getPixel(x,y);border+=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;samples++;}}
+        if(border/samples<80){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
+        return out;
+    }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");
         if(!LANGUAGES.contains(language))throw new IOException("Choose English, Hindi or Kannada");
         if(bitmap==null || bitmap.isRecycled() || (long)bitmap.getWidth()*bitmap.getHeight()>4000000L)throw new IOException("Unsupported OCR bitmap");
-        cancellation.check();File root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();
+        cancellation.check();File root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();Bitmap prepared=prepareBitmap(bitmap);
         try{
             if(!engine.init(root.getAbsolutePath(),language))throw new IOException("Bundled OCR model could not initialize");
-            synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setImage(bitmap);
-            engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();return new Result(text==null?"":text,language,engine.meanConfidence(),bitmap.getWidth(),bitmap.getHeight());
-        }finally{synchronized(cancellation){cancellation.active=null;engine.recycle();}}
+            synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setVariable("preserve_interword_spaces","1");engine.setImage(prepared);
+            engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";if(text.trim().isEmpty() || confidence<65){engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(sparse!=null && !sparse.trim().isEmpty() && (text.trim().isEmpty() || score>confidence && sparse.length()>=text.length()*.75)){text=sparse;confidence=score;}}return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight());
+        }finally{synchronized(cancellation){cancellation.active=null;engine.recycle();prepared.recycle();}}
     }
     private static synchronized File installModel(Context context,String language) throws Exception {
         File root=new File(context.getFilesDir(),"offline-ocr-v1"),directory=new File(root,"tessdata");if(!directory.isDirectory() && !directory.mkdirs())throw new IOException("Cannot create private OCR model directory");

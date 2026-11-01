@@ -10,4 +10,7 @@ public class TranscriptReadabilityTest {
  @Test public void emptyStaysEmpty(){assertEquals("",TranscriptReadability.format(Collections.emptyList()));assertEquals("",TranscriptReadability.sentence("  "));}
  @Test public void overlappingTimesDoNotInventBreaks(){assertEquals("One two.",TranscriptReadability.format(Arrays.asList(w("one",0,1),w("two",.5,1.5))));}
  @Test(expected=IllegalArgumentException.class) public void badTimingRefused(){w("bad",Double.NaN,1);}
+
+ @Test public void longPausesCreateParagraphsWithoutSpeakerOrTopicGuesses(){assertEquals("Hello.\n\nNext section.",TranscriptReadability.format(Arrays.asList(w("hello",0,.2),w("next",3,3.2),w("section",3.3,3.5))));}
+ @Test public void sentencePauseDoesNotInventAParagraph(){assertEquals("Hello. Again.",TranscriptReadability.format(Arrays.asList(w("hello",0,.2),w("again",1.3,1.5))));}
 }

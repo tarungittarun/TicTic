@@ -42,18 +42,15 @@ class AdaptiveEditorRevision(unittest.TestCase):
   self.assertIn('shell.getHeight()<dp(240) && !title.hasFocus()',source)
   find=(JAVA/'NoteFindDialog.java').read_text();self.assertIn('"editor-landscape-rails".equals(owner.getTag())',find);self.assertIn('field.setVisibility(View.VISIBLE);field.requestFocus()',find)
 
- def test_final_six_job_matrix_keeps_every_profile_inventory(self):
+ def test_current_sharded_matrix_keeps_every_profile_inventory(self):
   import re
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
-  matrix=[dict((key.strip(),value.strip().strip("'")) for key,value in (field.split(':',1) for field in line.split(','))) for line in re.findall(r'^          - \{(id: .*)\}$',workflow,re.M)];self.assertEqual(5,len(matrix))
+  matrix=[dict((key.strip(),value.strip().strip("'")) for key,value in (field.split(':',1) for field in line.split(','))) for line in re.findall(r'^          - \{(id: .*)\}$',workflow,re.M)];self.assertEqual(8,len(matrix))
   plan=build_plan()
-  for api,group in [(26,'all'),(36,'all'),(34,'focused')]:
-   lanes=[lane for lane in matrix if int(lane['api'])==api]
-   if api==34:
-    for lane in lanes:self.assertEqual(set(selected_cases(plan,group)),set(selected_cases(plan,group,int(lane['shard']))))
-   else:
-    selected=[case for lane in lanes for case in selected_cases(plan,group,int(lane['shard']))]
-    self.assertEqual(len(selected),len(set(selected)));self.assertEqual(set(selected_cases(plan,group)),set(selected))
+  for api,orientation,group in [(26,'portrait','all'),(36,'portrait','all'),(34,'portrait','focused'),(34,'landscape','focused')]:
+   lanes=[lane for lane in matrix if int(lane['api'])==api and lane['orientation']==orientation]
+   selected=[case for lane in lanes for case in selected_cases(plan,group,int(lane['shard']))]
+   self.assertEqual(2,len(lanes));self.assertEqual(len(selected),len(set(selected)));self.assertEqual(set(selected_cases(plan,group)),set(selected))
   source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text().split('@Test public void nativeCaretAndReverseSelectionStyleWholeParagraphOnly()',1)[1].split('@Test public void nativeHeadingTyping',1)[0]
   self.assertLess(source.index('closeKeyboard()'),source.index('b.setText('))
   for token in ['tap("Text formatting")','tap("Heading 1")','tap("Heading 2")','assertEquals(16,b.getSelectionStart())','assertGlyphsStayInsideTheirNativeLineBoxes()']:self.assertIn(token,source)

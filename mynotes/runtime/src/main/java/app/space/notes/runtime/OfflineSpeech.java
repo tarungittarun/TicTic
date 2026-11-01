@@ -16,19 +16,19 @@ public final class OfflineSpeech {
     public static String transcribe(Context context,File wave,AtomicBoolean cancelled)throws Exception{return transcribeResult(context,wave,cancelled).raw;}
     public static Result transcribeResult(Context context,File wave,AtomicBoolean cancelled) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
-        if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");File model=install(context,cancelled);StringBuilder transcript=new StringBuilder(),readable=new StringBuilder();
+        if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");File model=install(context,cancelled);StringBuilder transcript=new StringBuilder(),readable=new StringBuilder();List<app.space.notes.domain.TranscriptReadability.Word> timeline=new ArrayList<>();boolean[] timed={true};
         LibVosk.vosk_set_log_level(-1);
         try(Model nativeModel=new Model(model.getPath());Recognizer recognizer=new Recognizer(nativeModel,PcmWave.RATE);RandomAccessFile input=new RandomAccessFile(wave,"r")){
             recognizer.setWords(true);
             PcmWave.Data data=PcmWave.inspect(input);input.seek(data.offset);long remaining=data.bytes;byte[] buffer=new byte[8000];
-            while(remaining>0){if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");int count=input.read(buffer,0,(int)Math.min(buffer.length,remaining));if(count<0)throw new IOException("Audio was truncated");remaining-=count;if(recognizer.acceptWaveForm(buffer,count))append(transcript,readable,recognizer.getResult());}
-            append(transcript,readable,recognizer.getFinalResult());return new Result(transcript.toString(),readable.toString());
+            while(remaining>0){if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");int count=input.read(buffer,0,(int)Math.min(buffer.length,remaining));if(count<0)throw new IOException("Audio was truncated");remaining-=count;if(recognizer.acceptWaveForm(buffer,count))append(transcript,readable,timeline,timed,recognizer.getResult());}
+            append(transcript,readable,timeline,timed,recognizer.getFinalResult());return new Result(transcript.toString(),timed[0] && !timeline.isEmpty()?app.space.notes.domain.TranscriptReadability.format(timeline):readable.toString());
         }
     }
-    private static void append(StringBuilder raw,StringBuilder readable,String json)throws JSONException{
+    private static void append(StringBuilder raw,StringBuilder readable,List<app.space.notes.domain.TranscriptReadability.Word> timeline,boolean[] timed,String json)throws JSONException{
         JSONObject value=new JSONObject(json);String text=value.optString("text","").trim();if(text.isEmpty())return;if(raw.length()>0)raw.append(' ');raw.append(text);List<app.space.notes.domain.TranscriptReadability.Word> words=new ArrayList<>();JSONArray timings=value.optJSONArray("result");
         if(timings!=null)for(int i=0;i<timings.length();i++){JSONObject word=timings.getJSONObject(i);try{words.add(new app.space.notes.domain.TranscriptReadability.Word(word.getString("word"),word.getDouble("start"),word.getDouble("end")));}catch(IllegalArgumentException invalid){words.clear();break;}}
-        String formatted=words.isEmpty()?app.space.notes.domain.TranscriptReadability.sentence(text):app.space.notes.domain.TranscriptReadability.format(words);if(readable.length()>0)readable.append(' ');readable.append(formatted);
+        if(words.isEmpty())timed[0]=false;else timeline.addAll(words);String formatted=words.isEmpty()?app.space.notes.domain.TranscriptReadability.sentence(text):app.space.notes.domain.TranscriptReadability.format(words);if(readable.length()>0)readable.append(' ');readable.append(formatted);
     }
     private static synchronized File install(Context context,AtomicBoolean cancelled) throws Exception {
         JSONObject manifest;try(InputStream in=context.getAssets().open("voice/model.json")){manifest=new JSONObject(readSmall(in));}

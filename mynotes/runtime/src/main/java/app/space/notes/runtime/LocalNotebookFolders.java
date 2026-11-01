@@ -74,6 +74,13 @@ public final class LocalNotebookFolders {
   if(previous!=null && !DocumentsContract.deleteDocument(resolver,previous))throw new IOException("New note verified; an old recovery file remains in this folder");
 
  }
+ /** Independent portable copy: never changes the main save root or deletes/moves app notes. */
+ public void exportCopy(Note note)throws Exception{
+  List<Entry> before=children(root);String name="Copy-"+UUID.randomUUID()+".mynote.json";byte[] payload=DocumentCodec.encode(Collections.singletonList(note));
+  Uri target=DocumentsContract.createDocument(resolver,root,"application/json",name);if(target==null)throw new IOException("Cannot create the portable copy");for(Entry old:before)if(old.uri.equals(target))throw new IOException("Provider reused an existing file; nothing was written");
+  try(OutputStream output=resolver.openOutputStream(target,"w")){if(output==null)throw new IOException("Cannot write the portable copy");output.write(payload);output.flush();}
+  if(!Arrays.equals(payload,read(target)))throw new IOException("Copy readback mismatch; original note retained");
+ }
  /** Materialize current placements, then remove verified same-ID copies from previous folders.
   * Root generation snapshots remain authoritative and are deliberately never removed here. */
  public void reconcile(List<Note> notes)throws Exception{

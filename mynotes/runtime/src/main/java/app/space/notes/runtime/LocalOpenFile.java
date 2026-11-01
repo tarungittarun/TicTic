@@ -1,0 +1,24 @@
+package app.space.notes.runtime;
+import android.content.Context;
+import android.net.Uri;
+import android.provider.OpenableColumns;
+import android.database.Cursor;
+import android.util.Xml;
+import org.xmlpull.v1.XmlPullParser;
+import java.io.*;
+import java.nio.*;
+import java.nio.charset.*;
+import java.util.*;
+import java.util.zip.*;
+/** Local, bounded, non-executing text extraction. Never overwrites the selected file. */
+public final class LocalOpenFile {
+ private LocalOpenFile(){}
+ public static final class Text {public final String name,body;public final boolean word;Text(String n,String b,boolean w){name=n;body=b;word=w;}}
+ public static String name(Context context,Uri uri)throws Exception{OfflineOcr.requireLocal(uri);try(Cursor c=context.getContentResolver().query(uri,new String[]{OpenableColumns.DISPLAY_NAME},null,null,null)){if(c!=null && c.moveToFirst())return c.getString(0);}throw new IOException("File name is unavailable; source unchanged");}
+ public static byte[] bounded(InputStream in,int maximum)throws IOException{if(in==null)throw new IOException("Cannot read this local file");ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[8192];for(int n;(n=in.read(b))!=-1;){if(out.size()+n>maximum)throw new IOException("File exceeds the safe import size; source unchanged");out.write(b,0,n);}return out.toByteArray();}
+ public static Text read(Context context,Uri uri,String name)throws Exception{OfflineOcr.requireLocal(uri);boolean word=name.toLowerCase(Locale.ROOT).endsWith(".docx");if(!word && !name.toLowerCase(Locale.ROOT).endsWith(".txt"))throw new IOException("Choose TXT or DOCX for editable text import");byte[] bytes;try(InputStream in=context.getContentResolver().openInputStream(uri)){bytes=bounded(in,word?8*1024*1024:512*1024);}String text=word?docx(bytes):plain(bytes);if(text.length()>100000)throw new IOException("Extracted text exceeds 100,000 characters; source unchanged");app.space.notes.domain.RichText.requireText(text);return new Text(name,text,word);}
+ public static String plain(byte[] bytes)throws Exception{Charset charset=StandardCharsets.UTF_8;int start=0;if(bytes.length>=3 && (bytes[0]&255)==239 && (bytes[1]&255)==187 && (bytes[2]&255)==191)start=3;else if(bytes.length>=2 && (bytes[0]&255)==255 && (bytes[1]&255)==254){charset=StandardCharsets.UTF_16LE;start=2;}else if(bytes.length>=2 && (bytes[0]&255)==254 && (bytes[1]&255)==255){charset=StandardCharsets.UTF_16BE;start=2;}String value=charset.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes,start,bytes.length-start)).toString();if(value.indexOf(0)>=0)throw new IOException("Binary content is not a text document");return value.replace("\r\n","\n").replace('\r','\n');}
+ public static String docx(byte[] archive)throws Exception{byte[] document=null;Set<String> names=new HashSet<>();int count=0,total=0;try(ZipInputStream zip=new ZipInputStream(new ByteArrayInputStream(archive))){for(ZipEntry entry;(entry=zip.getNextEntry())!=null;){if(++count>1024 || !names.add(entry.getName()) || entry.getName().startsWith("/") || Arrays.asList(entry.getName().split("/")).contains(".."))throw new IOException("Unsafe Word archive");if(entry.getName().equals("word/document.xml"))document=bounded(zip,2*1024*1024);else{ // Bound decompression even for ignored media/entries; never extract paths.
+ byte[] buffer=new byte[8192];int size=0;for(int n;(n=zip.read(buffer))!=-1;){size+=n;total+=n;if(size>8*1024*1024 || total>16*1024*1024)throw new IOException("Word archive member is too large");}}
+ }}if(document==null)throw new IOException("Word document body is missing");String xml=plain(document);if(xml.toUpperCase(Locale.ROOT).contains("<!DOCTYPE") || xml.toUpperCase(Locale.ROOT).contains("<!ENTITY"))throw new IOException("Word XML declarations are not permitted");XmlPullParser parser=Xml.newPullParser();parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,true);parser.setInput(new StringReader(xml));StringBuilder text=new StringBuilder();int depth=0,deleted=0;for(int event=parser.getEventType();event!=XmlPullParser.END_DOCUMENT;event=parser.next()){String local=parser.getName(),ns=parser.getNamespace();boolean w="http://schemas.openxmlformats.org/wordprocessingml/2006/main".equals(ns)||"http://purl.oclc.org/ooxml/wordprocessingml/main".equals(ns);if(event==XmlPullParser.START_TAG){if(++depth>128)throw new IOException("Word XML nesting is too deep");if(w && "del".equals(local))deleted++;if(deleted==0 && w){if("t".equals(local)){text.append(parser.nextText());depth--;}else if("tab".equals(local))text.append('\t');else if("br".equals(local))text.append('\n');}}else if(event==XmlPullParser.END_TAG){if(w && "del".equals(local))deleted--;if(deleted==0 && w && "p".equals(local))text.append('\n');depth--;}if(text.length()>100000)throw new IOException("Extracted Word text exceeds safe size");}return text.toString();}
+}

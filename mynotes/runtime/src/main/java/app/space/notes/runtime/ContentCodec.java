@@ -28,10 +28,10 @@ final class ContentCodec {
                     JSONArray table=new JSONArray();for(List<RichText> row:block.table.cells){JSONArray cells=new JSONArray();for(RichText cell:row){JSONArray cellMarks=new JSONArray();for(Note.Mark mark:cell.marks)cellMarks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end).put("value",mark.value));cells.put(new JSONObject().put("text",cell.text).put("marks",cellMarks));}table.put(cells);}out.put("rows",table);break;
                 default:throw new IOException("Unsupported content kind");
             }array.put(out);
-        }return new JSONObject().put("writingLines",content.writingLines).put("blocks",array);
+        }JSONObject result=new JSONObject().put("writingLines",content.writingLines).put("blocks",array);if(content.notesWorkspace)result.put("notesWorkspace",true);return result;
     }
     static DocumentContent decode(JSONObject content)throws Exception{
-        keys(content,"writingLines","blocks");JSONArray array=content.getJSONArray("blocks");
+        if(content.has("notesWorkspace")){keys(content,"writingLines","blocks","notesWorkspace");if(!bool(content,"notesWorkspace"))throw new IOException("Invalid Notes workspace marker");}else keys(content,"writingLines","blocks");JSONArray array=content.getJSONArray("blocks");
         if(array.length()>DocumentContent.MAX_BLOCKS)throw new IOException("Too many content sections");
         List<DocumentContent.Block> blocks=new ArrayList<>();
         for(int i=0;i<array.length();i++){
@@ -51,7 +51,7 @@ final class ContentCodec {
                     for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);keys(cell,"text","marks");values.add(new RichText(string(cell,"text"),marks(cell.getJSONArray("marks"))));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows,in.has("header") && bool(in,"header")).withColumnWidth(in.has("columnWidth")?integer(in,"columnWidth"):160)));break;
                 default:throw new IOException("Unsupported content kind");
             }
-        }return new DocumentContent(blocks,bool(content,"writingLines"));
+        }return new DocumentContent(blocks,bool(content,"writingLines"),content.has("notesWorkspace"));
     }
     private static void diagram(JSONObject diagram)throws Exception{
         keys(diagram,"nodes","edges");JSONArray nodes=diagram.getJSONArray("nodes"),edges=diagram.getJSONArray("edges");if(nodes.length()>DocumentContent.MAX_DIAGRAM_NODES || edges.length()>DocumentContent.MAX_DIAGRAM_EDGES)throw new IOException("Diagram safety limit exceeded");

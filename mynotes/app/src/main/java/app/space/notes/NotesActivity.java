@@ -63,7 +63,8 @@ public final class NotesActivity extends Activity implements NotesHost {
         picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-backup-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".json");
         openPicker(picker,96);
     }
-    @Override public void chooseNoteDocument(){Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,103);}
+    @Override public void chooseCopyFolder(){chooseTree(104);}
+    @Override public void chooseNoteDocument(){Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*");picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"text/plain","application/pdf","application/json","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/msword"});picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,103);}
     @Override public void chooseNoteImage(String noteId){imageNoteId=noteId;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,102);}
     @Override public void chooseOcrImage(String language){ocrLanguage=language;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,99);}
     @Override public void requestVoiceCapture(){
@@ -102,7 +103,8 @@ public final class NotesActivity extends Activity implements NotesHost {
         }
         app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
-        if(request==103){controller.openNoteDocument(uri,()->{});return;}
+        if(request==103){controller.openFile(uri);return;}
+        if(request==104){controller.exportFolderCopy(uri);return;}
         if(request==102){if(imageNoteId!=null)controller.attachImage(imageNoteId,uri);return;}
         if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
         if(request==99){controller.recognizeImage(uri,ocrLanguage);return;}

@@ -28,7 +28,7 @@ public final class NoteOperations {
                 case TABLE:blocks.add(DocumentContent.Block.table(id,block.name,block.table));break;
             }}
         }
-        Note result=Note.create(now).edit("Merged notes","",now).properties(sources.get(0).color,Note.normalizeLabels(labels),now).folder(sources.get(0).folder,now).background(sources.get(0).background,now).withContent(new DocumentContent(blocks,DocumentContent.fromLegacy(sources.get(0)).writingLines),now);
+        Note result=Note.create(now).edit("Merged notes","",now).properties(sources.get(0).color,Note.normalizeLabels(labels),now).folder(sources.get(0).folder,now).background(sources.get(0).background,now).withContent(new DocumentContent(blocks,DocumentContent.fromLegacy(sources.get(0)).writingLines,sources.stream().noneMatch(Workspace::isDocument)),now);
         for(String voice:voices)result=result.voiceSource(voice,now);return result;
     }
 }

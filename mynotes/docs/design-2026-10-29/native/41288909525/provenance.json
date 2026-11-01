@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "source_sha": "abfa0ba8c29b740cf848b0571c568b3df70ff591",
+  "capture_run": "41288909525",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 151,
+      "passed": 151,
+      "missing": [],
+      "failures": []
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 141,
+      "passed": 140,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment: status -2 java.lang.AssertionError: Control not visible: Drawing ime=false root_height=1776 window_focus=true attached=true finishing=false destroyed=false formatting_panel=LinearLayout[top=0 h=0 measured=0 scroll=0 visibility=8]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=0 h=1848 measured=1848 scroll=0 visibility=0]DecorView[top=0 h=1920 measured=1920 scroll=0 visibility=0] shown=false\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:209)\n\tat app.space.notes.CoreJourneysTest.savedDrawingCanBeEditedWithoutAddingAnotherAttachment(CoreJourneysTest.java:149)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:95)\n\t... 37 more\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 83,
+      "passed": 83,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": true,
+      "expected": 73,
+      "passed": 73,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 83,
+      "passed": 83,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 73,
+      "passed": 73,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 151,
+      "passed": 151,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 141,
+      "passed": 141,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

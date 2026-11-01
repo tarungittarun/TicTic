@@ -70,3 +70,24 @@ API26's one caret/format visibility failure remains under requalification, not s
 Candidate2 reserves9 further individual jobs BEFORE launch: build + two disjoint shards of each
 of the four profiles. Total16/40 reserved,7 executed at reservation;24 unallocated remain.
 Inventories292 exhaustive and156 focused; each pair's union is exact and disjoint. Root632 PASS.
+
+## Candidate 2 result / candidate 3 reservation
+Source a8e5fc8b; run41287670974 completed FAILURE. All9 further jobs executed; cumulative16.
+Build/JVM260/lint passed. API26 a150/151 b139/141; API36 a150/151 b140/141;
+dark a83/83 b72/73; landscape a83/83 b71/73. PDF verification passed on all four a shards.
+Rail geometry, image controls and long-press regressions from candidate1 now passed.
+Remaining failures: old Pin-icon description assertion after the action became a menu row;
+API26 fixture's Back-based keyboard preparation dismissed Format/finished an activity during stale
+insets; short landscape Find left its title ahead of the writing line; an immediate API36 accessibility
+percentage assertion. Keep all original visible-line, formatting, pixel/zoom bounds and persistence
+assertions. Prep now hides only the IME through Android's input service; Pin is tested by opening
+its overflow and reading its real visible name; short rails hide the nonfocused title (Find can still
+reveal/focus a matching title); zoom assertions await bounded accessibility event propagation.
+
+Fixture commit's root632 + Notes242 gates PASSED, then the SHA-pinned checkout had no named local
+branch to push. Candidate3 binds only the approved session branch before the gated fixture commit;
+all native checkouts remain pinned to the tested source SHA. No other branch is created or pushed.
+
+Candidate3 reserves9 more jobs BEFORE launch: cumulative25/40 reserved,16 executed at reservation;
+15 remain unallocated. Inventories unchanged292 exhaustive /156 focused /260 JVM. Root634 PASS.
+This is not a claim that the pending candidate passed, nor authorization for a public release.

@@ -1,4 +1,4 @@
-# Adaptive-editor request 2026-11-01: fresh40, reservation2:16/40 (7 + 9).
+# Adaptive-editor request 2026-11-01: fresh40, reservation3:25/40 (7 + 9 + 9).
 # Build + eight parallel native jobs; all four profile inventories split by method.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
@@ -236,6 +236,7 @@ jobs:
         run: |
           set -euo pipefail
           trap 'code=$?; if [ "$code" -ne 0 ]; then python3 -m mynotes.tools.ci.results build --path /tmp/refinement-doc-gate.log; fi; exit "$code"' EXIT
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3; do

@@ -32,3 +32,11 @@ class AdaptiveEditorRevision(unittest.TestCase):
  def test_overflow_is_top_right_and_no_doc_writing_prompt(self):
   source=(JAVA/'NotesController.java').read_text().split('private void renderEditor()',1)[1].split('private void reflowEditorDock',1)[0];self.assertIn('top.addView(more,',source);self.assertNotIn('dock.addView(more,',source)
   self.assertNotIn('Write text…',(JAVA/'DocumentEditorView.java').read_text())
+
+ def test_keyboard_preparation_hides_ime_without_back_navigation(self):
+  source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text().split('private void closeKeyboard(){',1)[1].split('private String debugMarks',1)[0]
+  self.assertIn('hideSoftInputFromWindow',source);self.assertNotIn('KEYCODE_BACK',source)
+ def test_find_can_reveal_title_but_short_rail_viewport_prioritizes_writing(self):
+  source=(JAVA/'NotesController.java').read_text().split('private void adaptEditorViewport()',1)[1].split('private boolean viewportVisibility',1)[0]
+  self.assertIn('shell.getHeight()<dp(240) && !title.hasFocus()',source)
+  find=(JAVA/'NoteFindDialog.java').read_text();self.assertIn('"editor-landscape-rails".equals(owner.getTag())',find);self.assertIn('field.setVisibility(View.VISIBLE);field.requestFocus()',find)

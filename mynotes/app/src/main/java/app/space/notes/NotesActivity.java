@@ -33,7 +33,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(event.getAction()!=android.view.DragEvent.ACTION_DROP)return true;
         android.content.ClipData data=event.getClipData();if(data==null || data.getItemCount()!=1 || data.getItemAt(0).getUri()==null){showMessage("Drop one local MyNotes document at a time. Your notes are unchanged.");return true;}
         Uri uri=data.getItemAt(0).getUri();try{app.space.notes.runtime.LocalBackupFiles.requireLocal(uri);}catch(java.io.IOException invalid){showMessage("Choose a local MyNotes document, not a cloud or web link.");return true;}
-        android.view.DragAndDropPermissions permissions=requestDragAndDropPermissions(event);if(permissions==null){showMessage("The file manager did not grant read access. Use Open note file instead.");return true;}
+        android.view.DragAndDropPermissions permissions=requestDragAndDropPermissions(event);if(permissions==null){showMessage("The file manager did not grant read access. Use Open file instead.");return true;}
         controller.openNoteDocument(uri,permissions::release);return true;
     });}
     @Override public void requestHomeWidget(){android.appwidget.AppWidgetManager manager=android.appwidget.AppWidgetManager.getInstance(this);if(manager.isRequestPinAppWidgetSupported())manager.requestPinAppWidget(new android.content.ComponentName(this,app.space.notes.runtime.NotesWidget.class),null,null);else NotesHost.super.requestHomeWidget();}
@@ -97,7 +97,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>103)return;
+        if(request<94 || request>104)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }

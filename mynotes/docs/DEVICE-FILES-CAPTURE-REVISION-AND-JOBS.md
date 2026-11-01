@@ -58,3 +58,23 @@ API26 all 157+147, API36 all 157+147 (granted microphone), API34 large font
 85+75, API34 landscape 85+75 = 928 native outcomes. Compilation, lint and all
 native outcomes pending. No new APK handoff until results inspected.
 
+
+## Round 1 inspected; round 2 reserved
+Run 41302182697, source 0cc03e0f: all 9 jobs executed. Build/JVM/lint succeeded;
+908/928 native outcomes passed, 20 failed. Six distinct failure methods: missing accessible
+search name, filter-tab test's obsolete hierarchy, blank RecyclerView swipe routing,
+Doc Insert incorrectly requiring a selection before capture, and two future-schema test
+fixtures still using now-supported version 10. All six addressed; picker result 104 guard
+also corrected, with new source-contract regression. No skipped/duplicate outcomes.
+Evidence auto-preserved in e0e54035. Round 2 reserves another 9 jobs: 18/60 total
+reserved, 9/60 already executed. Local gates 644 root + 254 Notes PASS.
+
+### Additional upstream research actually inspected
+Whisper README model table distinguishes A100-based relative speed from device performance;
+its VRAM figures are not Android RAM benchmarks. whisper.cpp lists tiny 75 MiB/~273 MB
+and base 142 MiB/~388 MB as approximate disk/memory; its Android example recommends tiny
+or base (https://github.com/ggml-org/whisper.cpp/tree/master/examples/whisper.android).
+WhisperX README limitations explicitly identify imperfect diarization/overlapping speech
+and dictionary-dependent alignment. No whisper/whisper.cpp/WhisperX dependency, model,
+network service or accuracy claim has been added; a measured Android replacement remains
+separate work, not a silent backend change. Current Vosk remains pinned and offline.

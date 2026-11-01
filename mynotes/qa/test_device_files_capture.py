@@ -28,3 +28,11 @@ class DeviceFilesCapture(unittest.TestCase):
  def test_recording_meter_and_optional_effect_do_not_drop_permission_safety(self):
   s=(JAVA/'VoiceCapture.java').read_text()
   for token in ['NoiseSuppressor.isAvailable()','listener.level(peak)','checkSelfPermission','suppression.release()','recorder.release()','output.getFD().sync()']:self.assertIn(token,s)
+
+ def test_copy_picker_result_is_not_discarded_by_host_request_guard(self):
+  s=(ROOT/'app/src/main/java/app/space/notes/NotesActivity.java').read_text()
+  import re
+  highest=int(re.search(r'if\(request<94 \|\| request>(\d+)\)',s).group(1))
+  self.assertGreaterEqual(highest,104)
+  self.assertIn('if(request==104){controller.exportFolderCopy(uri);return;}',s)
+  self.assertNotIn('Open note file',s)

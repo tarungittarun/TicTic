@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "source_sha": "d5f323b869a5e11a633b5b7179aa572031b2e652",
+  "capture_run": "41358196950",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 175,
+      "passed": 174,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: New note IME readiness: ime=false body=WritingField[top=153 h=121 measured=121 scroll=0 visibility=0][top=0 h=1344 measured=1344 scroll=0 visibility=0]ScrollView[top=192 h=1344 measured=1344 scroll=0 visibility=0]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0] focus=true attached=true focused_view=app.space.notes.runtime.NotesController$WritingField window_focus=true\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:216)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:538)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:115)\n\t... 11 more\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 165,
+      "passed": 165,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 118,
+      "passed": 118,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 107,
+      "passed": 106,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen: status -2 java.lang.IllegalStateException: Failed to delete /storage/emulated/0/Documents/MyNotes-folder-test-af4f72f2-bd76-4f10-83f7-57a7d3748eb4\n\tat android.os.Parcel.createExceptionOrNull(Parcel.java:3065)\n\tat android.os.Parcel.createException(Parcel.java:3041)\n\tat android.os.Parcel.readException(Parcel.java:3024)\n\tat android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:190)\n\tat android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:142)\n\tat android.content.ContentProviderProxy.call(ContentProviderNative.java:764)\n\tat android.content.ContentResolver.call(ContentResolver.java:2466)\n\tat android.provider.DocumentsContract.deleteDocument(DocumentsContract.java:1469)\n\tat app.space.notes.RealFolderStorageTest.homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen(RealFolderStorageTest.java:156)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 118,
+      "passed": 118,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 107,
+      "passed": 107,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 175,
+      "passed": 175,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 165,
+      "passed": 165,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

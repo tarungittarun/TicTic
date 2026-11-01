@@ -46,5 +46,5 @@ def main():
     report={'schema':1,'scope':'24 desktop single-line synthetic system-font inferences, six phrases, clean/low-contrast. NOT training, real photos, handwriting/emoji support or Android performance. CER uses NFC and whitespace only; Hindi/Kannada counts Unicode codepoints, not grapheme clusters. This shared training-like font corpus cannot establish generalization.','tesseract_version':subprocess.check_output(['tesseract','--version'],text=True).splitlines()[0],'raqm_shaping_available':features.check_feature('raqm'),'models':receipts,'results':rows}
     Path('ocr-weight-research.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print('::notice title=OCR research receipt::'+json.dumps({k:v for k,v in report.items() if k!='results'},ensure_ascii=False))
-    for row in rows:print('::notice title=OCR weight research::'+json.dumps(row,ensure_ascii=False))
+    print('::notice title=OCR weight research grouped::'+json.dumps(rows,ensure_ascii=False))
 if __name__=='__main__':main()

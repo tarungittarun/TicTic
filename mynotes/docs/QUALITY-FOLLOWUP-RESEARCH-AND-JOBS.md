@@ -95,3 +95,10 @@ mistake missing glyphs for recognition failures. Desktop fonts/PSM7 are a contro
 not handwriting/emoji/photo accuracy or Android performance; no APK model changes.
 Prospective total follow-up jobs: **20** (18 native/build +1 speech research +1 OCR research).
 No new model training is claimed; fast integer weights are not fine-tunable float models.
+
+OCR pilot run 41330941921 completed successfully with 24 inferences, but GitHub capped
+individual step notices: only 9/24 per-case annotations were exposed to this workspace
+(the complete artifact is behind the sandbox's blocked Azure download host). Do not
+summarize incomplete rows as a complete comparison. Group all rows in one bounded
+annotation and repeat the one-job pilot for complete inspectable evidence. Follow-up
+prospective count becomes21 jobs; this is a report-preservation correction, not training.

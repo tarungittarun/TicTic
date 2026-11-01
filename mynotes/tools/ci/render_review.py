@@ -13,7 +13,7 @@ import re
 import tarfile
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
-MAX_IMAGES = 88  # Three new content-controls regression scenes; still a hard bounded archive.
+MAX_IMAGES = 96  # Includes adaptive Notes/Doc rail and shared Format scenes; hard archive bound.
 
 
 def fixtures(archive):

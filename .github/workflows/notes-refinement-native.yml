@@ -1,5 +1,5 @@
-# Fresh request 2026-11-01: content controls, List crash, unified Format and typing.
-# New40 reservation4:20/40; build plus four retained native profiles; prior35/40 closed.
+# Adaptive-editor request 2026-11-01: fresh40, reservation1:7/40.
+# Build + six parallel native jobs; full API26/API36 inventories split by method.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
@@ -42,14 +42,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.23.0-26-development.apk
-          sha256sum MyNotes-v0.23.0-26-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.23.0-26-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.24.0-27-development.apk
+          sha256sum MyNotes-v0.24.0-27-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.24.0-27-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.23.0-26-development.apk
+          path: MyNotes-v0.24.0-27-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -75,14 +75,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, group: all}
-          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, group: focused}
-          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, group: focused}
-          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, group: all}
+          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 0, group: all}
+          - {id: min-api26-b, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 1, group: all}
+          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: -1, group: focused}
+          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, shard: -1, group: focused}
+          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: 0, group: all}
+          - {id: current-api36-b, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: 1, group: all}
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: arena/3caca636-tictic
+          ref: ${{ github.sha }}
       - uses: actions/download-artifact@v8.0.2
         with:
           name: refinement-foundation-test-apks
@@ -95,14 +97,16 @@ jobs:
       - name: Prepare exact selected execution inventory
         env:
           REVIEW_GROUP: ${{ matrix.group }}
+          REVIEW_SHARD: ${{ matrix.shard }}
         run: |
           python3 - <<'PYPLAN'
           import json,os
           from pathlib import Path
-          from mynotes.tools.ci.test_plan import build_plan,cases
+          from mynotes.tools.ci.test_plan import build_plan
+          from mynotes.tools.ci.refinement_plan import selected_cases
           plan=build_plan()
-          selected=plan['android'] if os.environ['REVIEW_GROUP']=='all' else {k:plan['android'][k] for k in ['app.space.notes.runtime.NotesMotionTest','app.space.notes.runtime.DrawingToolsTest','app.space.notes.runtime.DiagramResizeViewTest','app.space.notes.DiagramJourneysTest','app.space.notes.CoreJourneysTest','app.space.notes.EnvironmentQualificationTest','app.space.notes.PdfExportTest','app.space.notes.StylePresetStoreTest','app.space.notes.HistoryRecoveryTest']}
-          Path('refinement-expected.json').write_text(json.dumps(cases(selected)))
+          selected=selected_cases(plan,os.environ['REVIEW_GROUP'],int(os.environ['REVIEW_SHARD']))
+          Path('refinement-expected.json').write_text(json.dumps(selected))
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
           PYPLAN
       - uses: ReactiveCircus/android-emulator-runner@v2
@@ -133,9 +137,9 @@ jobs:
             timeout 1200s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
-            adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar
+            if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
       - name: Independently validate actual exported PDF URI annotations and page geometry
-        if: always()
+        if: always() && matrix.shard != 1
         run: |
           python3 -m pip install 'pypdf==6.1.1'
           python3 -m mynotes.tools.ci.verify_pdf_features --archive refinement-pdf-captures.tar --output refinement-pdf-results.json
@@ -177,12 +181,12 @@ jobs:
               try:jobs=json.loads(subprocess.check_output(['gh','api',url],text=True))['check_runs']
               except (subprocess.CalledProcessError,json.JSONDecodeError):
                   time.sleep(15);continue
-              peers=[job for job in jobs if job['name'].startswith('native (') and 'min-api26' not in job['name']]
-              if len(peers)==3 and all(job['status']=='completed' for job in peers):
+              peers=[job for job in jobs if job['name'].startswith('native (') and not job['name'].startswith('native (min-api26,')]
+              if len(peers)==5 and all(job['status']=='completed' for job in peers):
                   try:artifacts=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/artifacts'],text=True))['artifacts']
                   except (subprocess.CalledProcessError,json.JSONDecodeError):
                       time.sleep(15);continue
-                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34','refinement-native-current-api36'}
+                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34','refinement-native-current-api36','refinement-native-min-api26-b','refinement-native-current-api36-b'}
                   if required <= {item['name'] for item in artifacts if item['size_in_bytes']>0}:break
               time.sleep(15)
           else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
@@ -219,7 +223,7 @@ jobs:
               if capture.exists() and capture.stat().st_size:
                   subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)
           if not results:raise SystemExit('No native execution reports to preserve')
-          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34','current-api36'}-set(results))
+          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34','current-api36','min-api26-b','current-api36-b'}-set(results))
           root.mkdir(parents=True,exist_ok=True)
           (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'missing_profiles':missing_profiles,'release_approval':False},indent=2)+'\n')
           (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')

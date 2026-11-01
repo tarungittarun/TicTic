@@ -10,7 +10,7 @@ import app.space.notes.domain.*;
 /** View-only magnification: never alters pixels, drawing coordinates or document history. */
 final class VisualZoomDialog {
  private VisualZoomDialog(){}
- static void image(Context context,NotesDesign design,NoteImage image,boolean drawing){show(context,design,new NoteImageView(context,image),drawing?5:3,drawing?"Drawing":"Image");}
+ static void image(Context context,NotesDesign design,NoteImage image,boolean drawing){show(context,design,new NoteImageView(context,image,Math.max(image.width,image.height)),drawing?5:3,drawing?"Drawing":"Image");}
  static void diagram(Context context,NotesDesign design,Diagram diagram){show(context,design,new DiagramPreview(context,diagram,design),5,"Diagram");}
  private static void show(Context context,NotesDesign design,View content,int maximum,String name){
   android.app.Dialog dialog=new android.app.Dialog(context);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -28,7 +28,8 @@ final class VisualZoomDialog {
   ZoomPane(Context context,int max){super(context);maximum=max;setClipChildren(true);setContentDescription("Visual zoom preview");setMinimumHeight(0);detector=new ScaleGestureDetector(context,new ScaleGestureDetector.SimpleOnScaleGestureListener(){@Override public boolean onScale(ScaleGestureDetector event){float next=Math.max(1,Math.min(maximum,zoom*event.getScaleFactor()));x=event.getFocusX()-getWidth()/2f-(event.getFocusX()-getWidth()/2f-x)*next/zoom;y=event.getFocusY()-getHeight()/2f-(event.getFocusY()-getHeight()/2f-y)*next/zoom;scale(next);return true;}});}
   void scale(float value){zoom=Math.max(1,Math.min(maximum,value));clamp();invalidate();if(changed!=null)changed.run();}
   private void clamp(){float dx=getWidth()*(zoom-1)/2,dy=getHeight()*(zoom-1)/2;x=Math.max(-dx,Math.min(dx,x));y=Math.max(-dy,Math.min(dy,y));}
-  @Override protected void dispatchDraw(Canvas canvas){int saved=canvas.save();canvas.clipRect(0,0,getWidth(),getHeight());canvas.translate(x,y);canvas.scale(zoom,zoom,getWidth()/2f,getHeight()/2f);super.dispatchDraw(canvas);canvas.restoreToCount(saved);}
+  @Override protected void dispatchDraw(Canvas canvas){int saved=canvas.save();canvas.clipRect(0,0,getWidth(),getHeight());canvas.translate(x,y);canvas.scale(zoom,zoom,getWidth()/2f,getHeight()/2f);// Draw fresh vector/image commands under the zoom transform, never a scaled cached child layer.
+   if(getChildCount()>0)getChildAt(0).draw(canvas);canvas.restoreToCount(saved);}
   @Override public boolean onInterceptTouchEvent(android.view.MotionEvent event){return true;}
   @Override public boolean onTouchEvent(android.view.MotionEvent event){detector.onTouchEvent(event);if(event.getActionMasked()==MotionEvent.ACTION_DOWN){lastX=event.getX();lastY=event.getY();return true;}if(event.getActionMasked()==MotionEvent.ACTION_MOVE && !detector.isInProgress() && event.getPointerCount()==1){x+=event.getX()-lastX;y+=event.getY()-lastY;clamp();invalidate();}int pointer=event.getActionMasked()==MotionEvent.ACTION_POINTER_UP && event.getActionIndex()==0 && event.getPointerCount()>1?1:0;lastX=event.getX(pointer);lastY=event.getY(pointer);if(event.getActionMasked()==MotionEvent.ACTION_UP)performClick();return true;}
   @Override public boolean performClick(){super.performClick();return true;}

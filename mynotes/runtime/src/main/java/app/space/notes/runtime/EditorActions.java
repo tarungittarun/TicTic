@@ -25,7 +25,7 @@ final class EditorActions {
    case "Appearance":case "Background":case "Colour":return "palette";case "Labels":return "label";
    case "Pin":case "Unpin":return "pin";case "Archive":case "Unarchive":return "archive";
    case "Indent":return "indent";case "Outdent":return "outdent";
-   case "Hyperlink":case "Open link":return "link";
+   case "Hyperlink":case "Open hyperlink":return "link";
    default:return "next";
   }
  }

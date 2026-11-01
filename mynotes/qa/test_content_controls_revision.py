@@ -36,7 +36,8 @@ class ContentControlsRevision(unittest.TestCase):
   self.assertIn('"drag-item"',self.editor())
   self.assertIn('"drag-item"',(JAVA/'NotesController.java').read_text())
  def test_single_raised_format_panel_and_fifth_clear(self):
-  source=self.editor().split('private void formatMenu()',1)[1].split('private String fontLabel',1)[0]
+  source=(JAVA/'FormatControls.java').read_text()
+  for editor in ['DocumentEditorView.java','NotesController.java']:self.assertIn('new FormatControls(', (JAVA/editor).read_text())
   self.assertIn('"bold","italic","underline","strike","clear"',source)
   self.assertNotIn('More text options',source)
   self.assertNotIn('"Style"',source)
@@ -44,8 +45,8 @@ class ContentControlsRevision(unittest.TestCase):
   self.assertIn('tray.setElevation(dp(12))',self.editor())
   self.assertIn('raised.setStroke(dp(1),design.outline)',self.editor())
  def test_size_dropdown_and_both_steppers_share_row(self):
-  source=self.editor().split('panel.addView(design.label("Size"',1)[1].split('ScrollView viewport=',1)[0]
-  for token in ['sizes.addView(dialog.sizeChoice','sizes.addView(smaller','sizes.addView(bigger']:
+  source=(JAVA/'FormatControls.java').read_text().split('panel.addView(design.label("Size"',1)[1].split('panel.addView(design.divider())',1)[0]
+  for token in ['sizes.addView(sizeChoice','sizes.addView(smaller','sizes.addView(bigger']:
    self.assertIn(token,source)
  def test_clipboard_copy_reidentifies_and_cut_is_deferred(self):
   source=self.editor().split('private void contentActions',1)[1].split('private void blockMenu',1)[0]
@@ -78,10 +79,10 @@ class ContentControlsRevision(unittest.TestCase):
 
  def test_motion_and_input_protocol_are_qualified_not_only_static_screenshots(self):
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
-  self.assertIn('motion: 1, group: all}',workflow)
+  self.assertIn('motion: 1, shard: 0, group: all}',workflow)
   self.assertIn('animator_duration_scale ${{ matrix.motion }}',workflow)
   self.assertIn('-e expectedMotion ${{ matrix.motion }}',workflow)
-  self.assertIn('app.space.notes.runtime.NotesMotionTest',workflow)
+  self.assertIn('app.space.notes.runtime.NotesMotionTest',(ROOT/'tools/ci/refinement_plan.py').read_text())
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   self.assertIn('connection.deleteSurroundingText(1,0)',native)
   self.assertIn('Caret follows generated prefix',native)

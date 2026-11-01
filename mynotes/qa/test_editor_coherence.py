@@ -31,7 +31,7 @@ class EditorCoherence(unittest.TestCase):
 
  def test_conversion_is_in_insert_not_note_management(self):
   s=(JAVA/'NotesController.java').read_text();editor=s.split('private void renderEditor()',1)[1].split('private void buildFormatting',1)[0]
-  self.assertIn('captureGrid(capture,new String[]{"Convert to checklist","Reminder"}',editor)
+  self.assertIn('captureGrid(capture,new String[]{"Convert to checklist","Hyperlink","Reminder"}',editor)
   management=editor.split('LinearLayout actions=menu("Note actions"',1)[1]
   self.assertNotIn('new String[]{"Convert to checklist"}',management)
  def test_find_compacts_without_shrinking_touch_controls(self):
@@ -63,9 +63,9 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('footers.clear()',sheets)
  def test_basic_styles_can_be_combined_in_one_open_ribbon(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
-  part=s.split('String[] types={"bold"',1)[1].split('panel.addView(design.label("Paragraph"',1)[0]
+  part=(JAVA/'FormatControls.java').read_text().split('String[] types={"bold"',1)[1].split('panel.addView(design.label("Paragraph"',1)[0]
   self.assertNotIn('dialog.dismiss()',part)
-  self.assertIn('dialog.toggles.put(type,control)',part)
+  self.assertIn('toggles.put(type,control)',part)
   self.assertIn('refreshFormatRibbon()',s)
 
  def test_footer_reflows_by_measured_scaled_words_not_smaller_font(self):

@@ -95,3 +95,27 @@ threw before the test could reach Undo. Release only grants actually still prese
 keep the removal/Undo/private durability/reopen assertions. This is not a reproduced app
 crash. Round-3 partial totals: 150 passing, seven failing test outcomes, eight incomplete
 completion errors; final job conclusions were cancellation, not native success.
+
+## Round 5 completed, not qualified; round 6 correction
+Run41356383842: **1 successful build +8 failed native jobs**; all1130 native methods ran,
+**1116 PASS /14 FAIL**, no skips/duplicates. Preserved evidence `049b803e`. This is not the
+same as the round-2 planned1116 count and is not a passing candidate.
+
+Failures: missing New-note tooltip (4 profiles), old OCR-language-dialog Cancel expectation
+(4 profiles), old greater-than-half-screen Search width expectation (3 profiles), landscape
+pinned-card visibility (2 journeys), landscape IME title clipping (1 journey).
+
+Round 6 fixes the actual accessibility and landscape space defects: New Note/Doc has a
+matching tooltip, redundant Notes/Doc brand chrome is hidden in landscape while workspace
+tabs remain, and compact Home/IME padding is reduced without shrinking48dp controls.
+The OCR journey now verifies `auto` directly and still checks blank gating, review Back
+cancellation and explicit append against unchanged source bytes. The old width assertion
+is replaced with full visibility and48dp targets for Search/Filters in the **remaining**
+dock space after the microphone, matching the requested placement. All method identities
+remain. New automatic-OCR, file, removed-folder Undo/private reopening, memory-pressure,
+confidence-review, summary and failed-start/diagnostic cases passed in this failed round.
+
+Added actual auto-flow screenshot collection (`read-image-auto`) alongside legacy whitelist
+entries. Inspected the preserved portrait Home and landscape keyboard image; the latter
+confirmed a genuinely clipped result title, not merely an incorrect expected string.
+Round 6 expected inventory stays282JVM /1130native,9jobs. No training/physical acceptance.

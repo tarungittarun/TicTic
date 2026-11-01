@@ -18,6 +18,7 @@ final class NoteFindDialog {
   if(content==null || !content.isAttachedToWindow())return;
   Session old=sessions.get(content);if(old!=null){old.query.requestFocus();return;}
   LinearLayout owner=content instanceof DocumentEditorView?(LinearLayout)content:content.getParent() instanceof LinearLayout?(LinearLayout)content.getParent():null;
+  if(owner!=null && "editor-landscape-rails".equals(owner.getTag()) && owner.getParent() instanceof LinearLayout)owner=(LinearLayout)owner.getParent();
   if(owner==null)return;
   Session session=new Session(design,content,owner,worker);sessions.put(content,session);session.attach();
  }

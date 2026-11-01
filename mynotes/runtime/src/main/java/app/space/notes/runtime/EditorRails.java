@@ -27,7 +27,7 @@ final class EditorRails {
         for(Button action:actions)if(action.getParent() instanceof ViewGroup)((ViewGroup)action.getParent()).removeView(action);
         controls.removeAllViews();controls.setOrientation(LinearLayout.VERTICAL);controls.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);controls.setPadding(0,dp(4),0,dp(4));
         if(reverse)Collections.reverse(actions);
-        for(Button action:actions){LinearLayout.LayoutParams cell=new LinearLayout.LayoutParams(-1,-2);cell.bottomMargin=dp(4);controls.addView(action,cell);}
+        for(Button action:actions){action.setMaxLines(2);action.setEllipsize(null);LinearLayout.LayoutParams cell=new LinearLayout.LayoutParams(-1,-2);cell.bottomMargin=dp(4);controls.addView(action,cell);}
         ScrollView viewport=new ScrollView(root.getContext());viewport.setFillViewport(true);viewport.setClipToPadding(false);viewport.addView(controls,new ScrollView.LayoutParams(-1,-2));viewport.post(()->viewport.fullScroll(View.FOCUS_DOWN));return viewport;
     }
     void showPanel(View next){if(panel!=null)hidePanel();if(next.getParent() instanceof ViewGroup)((ViewGroup)next.getParent()).removeView(next);panel=next;right.setVisibility(View.GONE);stage.addView(next,new LinearLayout.LayoutParams(Math.min(dp(360),Math.max(dp(220),(int)(root.getResources().getDisplayMetrics().widthPixels*.44f))),-1));}

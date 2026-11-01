@@ -11,6 +11,8 @@ class AdaptiveEditorRevision(unittest.TestCase):
   self.assertFalse(a&b);self.assertEqual(set(cases(plan['android'])),a|b)
   for shard in [a,b]:self.assertTrue(any(x.startswith('app.space.notes.CoreJourneysTest#') for x in shard))
   self.assertLess(abs(len(a)-len(b)),15)
+ def test_focused_profile_shards_are_also_disjoint_and_exhaustive(self):
+  plan=build_plan();a=set(selected_cases(plan,'focused',0));b=set(selected_cases(plan,'focused',1));self.assertFalse(a&b);self.assertEqual(set(selected_cases(plan,'focused')),a|b)
  def test_shared_format_and_grouped_insert_used_by_both_editors(self):
   for file in ['DocumentEditorView.java','NotesController.java']:
    source=(JAVA/file).read_text();self.assertIn('new FormatControls(',source);self.assertIn('EditorRails.install(',source)

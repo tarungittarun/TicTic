@@ -45,3 +45,28 @@ scrollable actual left/right controls in landscape with a side Format panel; rai
 full-stored-resolution zoom decode and uncached vector redraw; no Doc Write text hints.
 Native authored checks cover shared Notes size/number persistence, multiline hyperlink/mixed styles in
 both editors, actual rail geometry, and1600px stored preview decoding. Qualification still pending.
+
+Private attachment review (metadata/stack categories only): six A4 PDF pages; embedded images
+937x1600 and244x455. Vector/text pages remain vector/text; smaller old raster sources cannot be
+made original-resolution by zoom. Both historical uncaught stacks point to selectionToChecklist;
+retain the shipped collapsed-caret List regression and exact content/Undo tests. Attachments stay private.
+
+## Candidate 1 result / candidate 2 reservation
+Source ba42bd08; run41286387638 completed FAILURE. All7 jobs executed; build succeeded
+(260 JVM tests and lint), native API26 a150/151 b138/140; API36 a149/151 b139/140;
+dark153/155; landscape143/155. Four PDF verification steps succeeded. Not qualified;
+do not distribute that APK as the finished revision. Fixture documentation commit failed;
+new gate diagnostics will annotate failures rather than leaving only inaccessible runner logs.
+
+Corrections prepared from source review/results: Notes writing column now measures against the
+actual centre viewport (including a side Format panel), not the full display width; Find attaches
+to the vertical owner above rails. Keep Notes top actions reachable when Format makes portrait
+compact. Pin journey opens its new overflow location; native soak uses Normal paragraph, not the
+obsolete Text label. Pending inline spans coalesce, candidate link/format changes validate before
+changing the native field, explicit accessible blue hyperlinks, multiline rail labels and outlined
+shared dialogs. One additional native pending-typing test preserves earlier words and Clear scope.
+API26's one caret/format visibility failure remains under requalification, not silently called fixed.
+
+Candidate2 reserves9 further individual jobs BEFORE launch: build + two disjoint shards of each
+of the four profiles. Total16/40 reserved,7 executed at reservation;24 unallocated remain.
+Inventories292 exhaustive and156 focused; each pair's union is exact and disjoint. Root632 PASS.

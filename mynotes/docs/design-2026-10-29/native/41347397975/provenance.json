@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "source_sha": "a8dd1d8dd433cb7a24554e7d2e1980f67c64f080",
+  "capture_run": "41347397975",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 169,
+      "passed": 169,
+      "missing": [],
+      "failures": []
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 158,
+      "passed": 158,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 113,
+      "passed": 113,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 103,
+      "passed": 102,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection: status -2 java.lang.AssertionError: Copy category has a native 48dp target\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.visibleCopyChoice(CoreJourneysTest.java:632)\n\tat app.space.notes.CoreJourneysTest.appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection(CoreJourneysTest.java:634)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 113,
+      "passed": 113,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 103,
+      "passed": 103,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 169,
+      "passed": 169,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 158,
+      "passed": 158,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

@@ -942,7 +942,7 @@ public final class NotesController {
         settingRow(files,"Open library","Open notes from a MyNotes library folder. Review the merge before changing your storage location.",host::openExistingFolder);
         settingRow(advanced,"Retry save","Reconnect your local folder first. Saves notes and retries the full App-folder checkpoint; internal data is retained.",()->{flush();AppFolderTasks.request(context);});
         settingRow(advanced,"Use device storage","App-only storage: private to MyNotes, not visible in Files.",()->design.show(new android.app.AlertDialog.Builder(context).setTitle("Use app-only storage?").setMessage("This disconnects the visible main folder. Existing files stay where they are. Your notes and folder organisation remain available privately on this device.").setPositiveButton("Use app-only storage",(dialog,index)->moveStorage(null)).setNegativeButton("Cancel",null).create()));
-        content.removeView(advanced);content.addView(advanced); // Repair is last, not ahead of ordinary storage tasks.
+        View repairToggle=(View)advanced.getTag();content.removeView(repairToggle);content.removeView(advanced);content.addView(repairToggle);content.addView(advanced); // Keep disclosure and repair content together, after ordinary tasks.
 
 
         content.addView(text("Use local device or SD storage. Export a backup and important recordings before uninstalling or clearing app data. Previous library snapshots are kept for recovery.",13));

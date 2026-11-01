@@ -45,15 +45,19 @@ public class StorageLayoutTest {
             instrumentation.runOnMainSync(()->{TextView settings=find(activity.getWindow().getDecorView(),"Settings");UiActions.reveal(settings);settings.performClick();});
             instrumentation.waitForIdleSync();
             instrumentation.runOnMainSync(()->find(activity.getWindow().getDecorView(),"Storage & recovery").performClick());instrumentation.waitForIdleSync();
-            instrumentation.runOnMainSync(()->{
-                View decor=activity.getWindow().getDecorView();
-                for(String label:new String[]{"Choose folder","Open library","Backups","Use device storage","Back"}) {
-                    TextView action=find(decor,label);assertNotNull(action);UiActions.reveal(action);
+            for(String label:new String[]{"Choose folder","Open library","Backups","Use device storage","Back"}) {
+                instrumentation.runOnMainSync(()->{TextView action=find(activity.getWindow().getDecorView(),label);assertNotNull(action);UiActions.reveal(action);});
+                // Opening an actual collapsed category requires a layout pass before geometry exists.
+                // Never force visibility, drop the target-size checks or assert during that same pass.
+                instrumentation.waitForIdleSync();
+                instrumentation.runOnMainSync(()->{
+                    View decor=activity.getWindow().getDecorView();TextView action=find(decor,label);assertNotNull(action);UiActions.reveal(action);
                     Rect bounds=new Rect();assertTrue(label+" visible",action.getGlobalVisibleRect(bounds));
                     assertTrue(label+" fully visible after scrolling",bounds.height()>=action.getHeight() && bounds.width()>=action.getWidth());
                     assertTrue(label+" inside window",bounds.bottom<=decor.getHeight());
-                }
-            });
+                });
+            }
+
         } finally { instrumentation.runOnMainSync(activity::finish); }
     }
 }

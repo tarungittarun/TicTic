@@ -69,3 +69,22 @@ training, but does not make unavailable data/models accessible or establish thei
   All 327 previously qualified native identities remain. Nine jobs planned, not yet a result.
 - No new trained model, Indian WER measurement or physical-phone audio/crash acceptance.
   Guide: `DEVICE-QUALITY-028-GUIDE.md`. Requested 360-minute window has not elapsed.
+
+## Preserved partial results and category-navigation correction
+The workflow preserved round-2 partial native reports in evidence commit `490752e1`, even
+though its jobs concluded cancelled. They show **135 passing and 6 failing test outcomes**,
+plus eight incomplete-instrumentation completion errors. The six failures were two
+StorageLayout target checks, three private-folder journeys and one settings-parent journey.
+Do not turn cancelled jobs into passing qualification or hide these earlier test failures.
+
+The new category disclosure was real: old journeys attempted to tap Folders/copy controls
+without first opening their category, and the geometry test asserted inside the same UI
+pass that expanded a previously unlaid-out panel. Round 5 explicitly opens the real
+Organise notes / More options & repair controls and lets Android lay out the category
+before checking it. The complete target-size/window assertions remain unchanged; tests
+never force hidden controls visible. Also keep the repair disclosure button beside its
+moved panel, rather than moving just the panel. Inventory remains 282 JVM / 1130 native.
+
+Round-4 push initially encountered an automated evidence commit. Fetched and merged it
+on the session branch (no force push), reran the root gate, and pushed `5dcaee4c`, run
+41356235141. Round 5 supersedes that source with the observed category-navigation fixes.

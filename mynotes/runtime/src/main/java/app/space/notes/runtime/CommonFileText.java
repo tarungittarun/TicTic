@@ -48,7 +48,7 @@ public final class CommonFileText {
         for(int event=p.getEventType();event!=XmlPullParser.END_DOCUMENT;event=p.next()){
             if(event==XmlPullParser.START_TAG){
                 if(++depth>64)throw new IOException("XML nesting limit");String tag=p.getName();
-                if(tag.equals("row")){if(inRow)throw new IOException("Nested spreadsheet row");String ref=p.getAttributeValue(null,"r");row=ref==null?previousRow+1:positive(ref,1048576);if(row<=previousRow)throw new IOException("Unordered spreadsheet rows");inRow=true;nextColumn=1;add(out,"Row "+row+"\t");}
+                if(tag.equals("row")){if(inRow)throw new IOException("Nested spreadsheet row");String ref=p.getAttributeValue(null,"r");row=ref==null?previousRow+1:positive(ref,1048576);if(row<=previousRow || row>1048576)throw new IOException("Unordered or oversized spreadsheet rows");inRow=true;nextColumn=1;add(out,"Row "+row+"\t");}
                 else if(tag.equals("c")){if(!inRow || inCell)throw new IOException("Invalid spreadsheet cell");String ref=p.getAttributeValue(null,"r");column=ref==null?nextColumn:column(ref,row);if(column<nextColumn || column>16384)throw new IOException("Unordered or oversized spreadsheet columns");inCell=true;type=p.getAttributeValue(null,"t");value="";}
                 else if(inCell && (tag.equals("v") || tag.equals("t"))){String part=p.nextText();depth--;if(value.length()+part.length()>100000)throw new IOException("Cell text limit");value+=part;}
             }else if(event==XmlPullParser.END_TAG){

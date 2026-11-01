@@ -50,3 +50,22 @@ training, but does not make unavailable data/models accessible or establish thei
   started all eight native jobs; its final outcomes must be tallied after supersession.
 - Local pre-push gates: 667 root checks, 277 Notes checks passed; all Java parsed. Actual
   Java symbol compilation and Android execution remain Actions-only and pending for round 3.
+
+## Final qualification candidate (round 4)
+- Round 1: one runner-executed cancelled build; the cancelled native placeholder had no
+  runner and is **not** counted as an executed job.
+- Round 2 (41355053789): one successful build and eight runner-executed cancelled native
+  jobs; no successful native qualification. Concurrency cancellation completed.
+- Round 3 (41355595977): build SUCCESS (Java app/test compilation, 282 JVM tests, lint and
+  release assembly). Native work is superseded by round 4, not reported as passing.
+- Round 4 adds an actual failed-library/diagnostic-button test and scrollable standalone
+  safe-start checks. Existing real-SAF TXT coverage now exercises View only and Find before
+  creating an editable copy, proving no note is created merely by viewing.
+- Ordinary storage tasks appear before repair; file descriptions include the ten formats.
+  Home Undo adds an accessible last-note-action/not-storage explanation. Pending permission
+  callbacks cannot invoke a missing controller while the host is in recovery mode.
+- Inventory: **282 JVM**, **340 unique native**; exhaustive 175/165, focused 118/107;
+  **1130 expected native outcomes** across API26/API36 and API34 large-font-dark/landscape.
+  All 327 previously qualified native identities remain. Nine jobs planned, not yet a result.
+- No new trained model, Indian WER measurement or physical-phone audio/crash acceptance.
+  Guide: `DEVICE-QUALITY-028-GUIDE.md`. Requested 360-minute window has not elapsed.

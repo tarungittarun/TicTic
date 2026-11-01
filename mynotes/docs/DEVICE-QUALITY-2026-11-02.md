@@ -119,3 +119,20 @@ Added actual auto-flow screenshot collection (`read-image-auto`) alongside legac
 entries. Inspected the preserved portrait Home and landscape keyboard image; the latter
 confirmed a genuinely clipped result title, not merely an incorrect expected string.
 Round 6 expected inventory stays282JVM /1130native,9jobs. No training/physical acceptance.
+
+## Round 6 completed: 1128 PASS /2 FAIL, no qualified APK yet
+Run41358196950/source d5f323b8: build and six native jobs SUCCESS, two native jobs FAIL;
+all1130 outcomes present, no skips/duplicates. Evidence d3298043. All14 round-5 failures
+were resolved, including landscape pinned cards, readable IME results, accessibility and
+automatic OCR review. Remaining failures:
+- API36 existing Doc→Home→New Note journey: focused/attached body but keyboard hidden.
+  A previous Doc keyboard-hide transition can race a single early show request. Round7
+  uses a bounded initial readiness handoff (at most1s), respects focus/page changes and
+  stops once IME visibility is observed; no persistent keyboard-forcing loop.
+- Landscape removed-folder test: the real DocumentsProvider could not delete a directory
+  while the synthetic App-folder mirror was adding children. Round7 waits for that mirror
+  to finish, then deletes externally and retains all Undo/private reopen assertions. It
+  does not catch/ignore failed deletion or turn an incomplete test into a pass.
+
+Round7 inventory remains282JVM /1130native,9jobs planned. Local gates and Java grammar
+must pass before pushing; no local Android builds, new trained weights or physical claims.

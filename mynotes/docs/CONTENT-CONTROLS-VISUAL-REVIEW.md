@@ -64,8 +64,21 @@ attachment/editor model; its checklist hold feedback, shared sheet transitions, 
 typed numbering were reviewed/updated without converting existing Notes to Docs or flattening data.
 Calculator, unrelated Archive work and Wall were not redesigned.
 
-## Final qualification
+## Final qualification and recapture review
 
-Pending the final source-pinned native run. This document is not a release approval or a claim of
-zero remaining bugs. Final run IDs, counts, inspected revision captures and APK are recorded in the
-revision ledger and development handoff only after the jobs actually complete.
+Final source `90319c2a406afd28b8c243f8d69383582ad8977a`, run `41280119585`, evidence `252b1a74`:
+all five jobs completed SUCCESS. API26/API36 each286/286; dark/200% and landscape each150/150;
+JVM260 and all four PDF checks passed. Every profile has81 synthetic scenes.
+
+Inspected the final API36 `content-item-drag` and `stage-aa-selection`, landscape `content-pen`,
+and dark/200% `stage-aa-selection` recaptures. The enabled-motion API36 scene shows a lifted/dimmed
+source row and a separate drag shadow, with an unambiguous insertion boundary. Format retains its
+raised outlined surface, ordered controls and large-font reflow. The landscape pen menu scrolls;
+its remaining actions are not removed just because the short viewport initially shows Rename/Copy.
+
+The final exact native inventories include the actual-system-scale motion assertion and real
+InputConnection Enter/Backspace/caret assertions in all profiles. No failing method was dropped.
+Native OS window transitions remain disabled; API36 app-owned animator motion is enabled and tested.
+
+This is not a public-release approval or a claim of zero bugs. APK details, allowance closure and
+physical-device boundaries are recorded in the development handoff.

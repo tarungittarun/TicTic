@@ -25,3 +25,11 @@ class RecognitionResearchTests(unittest.TestCase):
         self.assertIn('fixture_git_blob',code)
         self.assertNotIn('extractall(',code)
         self.assertNotIn('sherpa-onnx',(root/'app/build.gradle').read_text())
+
+    def test_emulator_report_collection_is_a_complete_single_shell_command(self):
+        import subprocess
+        root=Path(__file__).resolve().parents[2]
+        workflow=(root/'.github/workflows/notes-refinement-native.yml').read_text()
+        line=next(line.strip() for line in workflow.splitlines() if 'for report in ocr-common-text-report' in line)
+        checked=subprocess.run(['sh','-n'],input=line,text=True,capture_output=True)
+        self.assertEqual(0,checked.returncode,checked.stderr)

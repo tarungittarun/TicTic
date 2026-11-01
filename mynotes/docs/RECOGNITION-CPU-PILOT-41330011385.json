@@ -1,0 +1,117 @@
+{
+  "run": 41330011385,
+  "source_sha": "0c2b7705",
+  "origin": "GitHub check annotations from completed successful CPU research job 124917929183",
+  "scope": "One public JFK sample and deterministic variants on desktop CPU only; not model training, held-out general accuracy, Android latency or punctuation evaluation.",
+  "silence_interpretation": "Whisper literal [BLANK_AUDIO] is a non-speech control marker, not an invented spoken sentence. Raw lexical scorer counts it; any future app adapter must suppress such markers before note insertion.",
+  "receipt": {
+    "fixture_git_blob": "3184d372cd2f8b804d3a540c70ec50d927b335d2",
+    "fixture_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+    "whisper_asset_id": 179374011,
+    "whisper_archive_sha256_observed": "2bd6cf965c8bb3e068ef9fa2191387ee63a9dfa2a4e37582a8109641c20005dd",
+    "whisper_member_sha256": {
+      "tiny.en-tokens.txt": "306cd27f03c1a714eca7108e03d66b7dc042abe8c258b44c199a7ed9838dd930",
+      "tiny.en-decoder.int8.onnx": "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527",
+      "tiny.en-encoder.int8.onnx": "0ce578b827c94a961aacb8fa14b02f096504b337e5c94be37c36238cbe3e8bc6"
+    },
+    "provenance_limit": "Whisper GitHub asset has no publisher digest; observed hashes are research receipts, not prior independent authenticity verification."
+  },
+  "results": [
+    {
+      "engine": "vosk-small-en-us",
+      "variant": "attenuated",
+      "text": "and so my fellow americans as not what your country can do for you ask what you can do for your country",
+      "load_seconds": 0.4446036319999962,
+      "inference_seconds": 1.1934788199999957,
+      "process_peak_rss_kib": 230144,
+      "input_sha256": "3b63ac3ebc8a0ed5a37ec7b06b31c9832f59533e8a93ba580ca29682d9189942",
+      "edits": 1,
+      "reference_words": 22,
+      "lexical_wer": 0.045454545454545456
+    },
+    {
+      "engine": "vosk-small-en-us",
+      "variant": "clean",
+      "text": "and so my fellow americans as not what your country can do for you ask what you can do for your country",
+      "load_seconds": 0.458096170999994,
+      "inference_seconds": 1.1922702010000137,
+      "process_peak_rss_kib": 230144,
+      "input_sha256": "d7d4e74b8a333ed02186008bc109a1b1a19d16da668bd56e785d80d69a16a72f",
+      "edits": 1,
+      "reference_words": 22,
+      "lexical_wer": 0.045454545454545456
+    },
+    {
+      "engine": "vosk-small-en-us",
+      "variant": "seeded-noise",
+      "text": "and so my fellow americans as not what your country can do for you at what you can do for your country",
+      "load_seconds": 0.44380479100000514,
+      "inference_seconds": 1.2469769749999955,
+      "process_peak_rss_kib": 230144,
+      "input_sha256": "76bbb77141c5f10040d682079ce42709bb99315e2ca6a15678d3c54578273b42",
+      "edits": 2,
+      "reference_words": 22,
+      "lexical_wer": 0.09090909090909091
+    },
+    {
+      "engine": "vosk-small-en-us",
+      "variant": "silence",
+      "text": "",
+      "load_seconds": 0.4463125340000005,
+      "inference_seconds": 0.4443626099999989,
+      "process_peak_rss_kib": 230144,
+      "input_sha256": "1a092b23d9dfe64d53943d18262c0a49eaf32c5ab5f2b016cd8edd16ec9440dd",
+      "edits": 0,
+      "reference_words": 0,
+      "lexical_wer": 0.0
+    },
+    {
+      "engine": "whisper-tiny-en",
+      "variant": "attenuated",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country.",
+      "load_seconds": 0.46716208499999823,
+      "inference_seconds": 0.6393569890000066,
+      "process_peak_rss_kib": 315384,
+      "input_sha256": "3b63ac3ebc8a0ed5a37ec7b06b31c9832f59533e8a93ba580ca29682d9189942",
+      "edits": 0,
+      "reference_words": 22,
+      "lexical_wer": 0.0
+    },
+    {
+      "engine": "whisper-tiny-en",
+      "variant": "clean",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country.",
+      "load_seconds": 0.46021923600000036,
+      "inference_seconds": 0.6272465950000026,
+      "process_peak_rss_kib": 316136,
+      "input_sha256": "d7d4e74b8a333ed02186008bc109a1b1a19d16da668bd56e785d80d69a16a72f",
+      "edits": 0,
+      "reference_words": 22,
+      "lexical_wer": 0.0
+    },
+    {
+      "engine": "whisper-tiny-en",
+      "variant": "seeded-noise",
+      "text": "And so my fellow American asked not what your country can do for you, ask what you can do for your country.",
+      "load_seconds": 0.4573016010000117,
+      "inference_seconds": 0.6474541739999893,
+      "process_peak_rss_kib": 317148,
+      "input_sha256": "76bbb77141c5f10040d682079ce42709bb99315e2ca6a15678d3c54578273b42",
+      "edits": 2,
+      "reference_words": 22,
+      "lexical_wer": 0.09090909090909091
+    },
+    {
+      "engine": "whisper-tiny-en",
+      "variant": "silence",
+      "text": "[BLANK_AUDIO]",
+      "load_seconds": 0.4582706879999989,
+      "inference_seconds": 0.46104441100000315,
+      "process_peak_rss_kib": 315280,
+      "input_sha256": "1a092b23d9dfe64d53943d18262c0a49eaf32c5ab5f2b016cd8edd16ec9440dd",
+      "edits": 1,
+      "reference_words": 0,
+      "lexical_wer": 1.0
+    }
+  ]
+}

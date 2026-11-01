@@ -141,9 +141,7 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
-            for report in ocr-common-text-report.json speech-degradation-report.json; do
-              if adb shell run-as app.space.notes.debug test -f "files/$report"; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi
-            done
+            for report in ocr-common-text-report.json speech-degradation-report.json; do if adb shell run-as app.space.notes.debug test -f "files/$report"; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
       - name: Independently validate actual exported PDF URI annotations and page geometry
         if: always() && matrix.shard != 1
         run: |

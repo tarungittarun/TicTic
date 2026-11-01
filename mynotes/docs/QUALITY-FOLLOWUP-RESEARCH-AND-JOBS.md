@@ -63,3 +63,24 @@ mismatch first; runtime vocabulary restriction, language-model adaptation and ac
 fine-tuning are distinct, and training from scratch is rarely the best first solution.
 https://github.com/k2-fsa/sherpa-onnx provides Android support and a Whisper tiny.en
 example; that establishes an integration candidate, not that it should replace Vosk.
+
+## First execution results and collection fix
+Run 41329486926: 9 jobs executed. Exact 279 JVM and **938/938 native outcomes passed**,
+but eight native jobs failed after testing because the emulator action executes script
+lines separately: the multi-line shell `for` used for report collection was incomplete.
+Evidence e2814c22 preserves the passing method inventories, not missing quantitative
+reports. Changed collection to one complete command and added a local shell-syntax
+regression check. Do not call that run fully qualified. A second exhaustive 9-job round
+is reserved to verify collection and preserve actual quantitative outputs.
+
+CPU research run 41330011385: 1 job SUCCESS, eight fresh-process inference measurements;
+full rows/receipts saved in RECOGNITION-CPU-PILOT-41330011385.json from check annotations.
+Clean/attenuated JFK lexical WER: Vosk 1/22, Whisper tiny.en 0/22; seeded noise both 2/22.
+Measured process peaks roughly 225 MiB Vosk vs 308–310 MiB Whisper, including runtime
+imports. Desktop inference timings do not establish phone performance. Whisper emits
+[BLANK_AUDIO] on silence, a control marker that must not be inserted as spoken text.
+This single 22-word sample cannot justify a model replacement or general accuracy claim.
+
+Follow-up actual jobs so far: **10** (9 qualification +1 research), all terminal.
+Second qualification round reservation +9, prospective total19, no arbitrary cap target.
+Local checks before second push: 649 root /259 Notes, all passing.

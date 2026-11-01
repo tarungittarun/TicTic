@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "source_sha": "0cc03e0fb8ee0ae0a600b61eb696cae25b5a3a6b",
+  "capture_run": "41302182697",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 157,
+      "passed": 154,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection",
+        "app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError: Control not visible: Search notes and labels ime=false root_height=1776 window_focus=true attached=true finishing=false destroyed=false formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:224)\n\tat app.space.notes.CoreJourneysTest.bottomSearchFieldAndFiltersUseFullWidthBelowCreation(CoreJourneysTest.java:608)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:137)\n",
+        "app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected: status -2 org.json.JSONException: Value lost cell at 0 of type java.lang.String cannot be converted to JSONObject\n\tat org.json.JSON.typeMismatch(JSON.java:101)\n\tat org.json.JSONArray.getJSONObject(JSONArray.java:527)\n\tat app.space.notes.runtime.ContentCodec.decode(ContentCodec.java:51)\n\tat app.space.notes.runtime.DocumentCodec.decode(DocumentCodec.java:62)\n\tat app.space.notes.StructuredCodecTest.schema7MalformedTableAndUnknownFutureFormatAreRejected(StructuredCodecTest.java:107)\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 147,
+      "passed": 144,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting",
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes",
+        "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes(CoreJourneysTest.java:68)\n",
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting: status -2 java.lang.AssertionError: Dialog action Read image\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:145)\n\tat app.space.notes.CoreJourneysTest.docInsertRoutesImageReadingAndVoiceWithoutChangingWriting(CoreJourneysTest.java:62)\n",
+        "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected: status -2 java.lang.AssertionError: Reject future schema\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat app.space.notes.StructuredCodecTest.malformedNamesAndFutureSchemaAreRejected(StructuredCodecTest.java:28)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 85,
+      "passed": 83,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError: Control not visible: Search notes and labels ime=false root_height=936 window_focus=true attached=true finishing=false destroyed=false formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:224)\n\tat app.space.notes.CoreJourneysTest.bottomSearchFieldAndFiltersUseFullWidthBelowCreation(CoreJourneysTest.java:608)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:137)\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 75,
+      "passed": 73,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting",
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes(CoreJourneysTest.java:68)\n",
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting: status -2 java.lang.AssertionError: Dialog action Read image\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:145)\n\tat app.space.notes.CoreJourneysTest.docInsertRoutesImageReadingAndVoiceWithoutChangingWriting(CoreJourneysTest.java:62)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 85,
+      "passed": 83,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError: Control not visible: Search notes and labels ime=false root_height=1776 window_focus=true attached=true finishing=false destroyed=false formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:224)\n\tat app.space.notes.CoreJourneysTest.bottomSearchFieldAndFiltersUseFullWidthBelowCreation(CoreJourneysTest.java:608)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:137)\n"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 75,
+      "passed": 73,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting",
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes(CoreJourneysTest.java:68)\n",
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting: status -2 java.lang.AssertionError: Dialog action Read image\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:145)\n\tat app.space.notes.CoreJourneysTest.docInsertRoutesImageReadingAndVoiceWithoutChangingWriting(CoreJourneysTest.java:62)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 157,
+      "passed": 154,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection",
+        "app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError: Control not visible: Search notes and labels ime=false root_height=1704 window_focus=true attached=true finishing=false destroyed=false formatting_panel=absent\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:224)\n\tat app.space.notes.CoreJourneysTest.bottomSearchFieldAndFiltersUseFullWidthBelowCreation(CoreJourneysTest.java:608)\n\t... 34 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\t... 37 more\n",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:137)\n",
+        "app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected: status -2 org.json.JSONException: Value lost cell at 0 of type java.lang.String cannot be converted to JSONObject\n\tat org.json.JSON.typeMismatch(JSON.java:100)\n\tat org.json.JSONArray.getJSONObject(JSONArray.java:525)\n\tat app.space.notes.runtime.ContentCodec.decode(ContentCodec.java:51)\n\tat app.space.notes.runtime.DocumentCodec.decode(DocumentCodec.java:62)\n\tat app.space.notes.StructuredCodecTest.schema7MalformedTableAndUnknownFutureFormatAreRejected(StructuredCodecTest.java:107)\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 147,
+      "passed": 144,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting",
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes",
+        "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:110)\n\tat app.space.notes.CoreJourneysTest.homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes(CoreJourneysTest.java:68)\n",
+        "app.space.notes.CoreJourneysTest#docInsertRoutesImageReadingAndVoiceWithoutChangingWriting: status -2 java.lang.AssertionError: Dialog action Read image\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.dialogTap(CoreJourneysTest.java:145)\n\tat app.space.notes.CoreJourneysTest.docInsertRoutesImageReadingAndVoiceWithoutChangingWriting(CoreJourneysTest.java:62)\n",
+        "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected: status -2 java.lang.AssertionError: Reject future schema\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat app.space.notes.StructuredCodecTest.malformedNamesAndFutureSchemaAreRejected(StructuredCodecTest.java:28)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

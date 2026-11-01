@@ -62,7 +62,8 @@ public final class OfflineOcr {
         float scale=Math.max(source.getWidth(),source.getHeight())<1000?Math.min(2f,1000f/Math.max(source.getWidth(),source.getHeight())):1f;
         Bitmap out=Bitmap.createBitmap(Math.max(1,Math.round(source.getWidth()*scale)),Math.max(1,Math.round(source.getHeight()*scale)),Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(out);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(source,null,new Rect(0,0,out.getWidth(),out.getHeight()),paint);
         long border=0;int samples=0;for(int i=0;i<16;i++){int x=i*(out.getWidth()-1)/15;for(int y:new int[]{0,out.getHeight()-1}){int c=out.getPixel(x,y);border+=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;samples++;}}
-        if(border/samples<80){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
+        int dark=0;for(int gy=0;gy<8;gy++)for(int gx=0;gx<8;gx++){int c=out.getPixel((2*gx+1)*out.getWidth()/16,(2*gy+1)*out.getHeight()/16);if((Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000<80)dark++;}
+        if(border/samples<80 && dark>=45){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
         return out;
     }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {

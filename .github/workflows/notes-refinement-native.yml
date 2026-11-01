@@ -1,4 +1,4 @@
-# Adaptive-editor request 2026-11-01: fresh40, NEW device-files/capture60: reservation2:18/60 (round1 executed9); previous adaptive40 CLOSED40/40.
+# Follow-up quality work: user removed job cap 2026-11-01; 9 jobs planned, count actual usage; prior device/capture18 and adaptive40 remain separate.
 # Build + eight parallel native shards; all four profile inventories remain exhaustive.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
@@ -42,14 +42,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.25.0-28-development.apk
-          sha256sum MyNotes-v0.25.0-28-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.25.0-28-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.26.0-29-development.apk
+          sha256sum MyNotes-v0.26.0-29-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.26.0-29-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.25.0-28-development.apk
+          path: MyNotes-v0.26.0-29-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -141,6 +141,9 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
+            for report in ocr-common-text-report.json speech-degradation-report.json; do
+              if adb shell run-as app.space.notes.debug test -f "files/$report"; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi
+            done
       - name: Independently validate actual exported PDF URI annotations and page geometry
         if: always() && matrix.shard != 1
         run: |
@@ -171,6 +174,7 @@ jobs:
             refinement-environment-*
             refinement-captures.tar
             refinement-pdf-*
+            refinement-quality-*
           retention-days: 7
           if-no-files-found: warn
       - name: Await peer profile uploads without another runner job
@@ -220,7 +224,7 @@ jobs:
               for environment in artifact.glob('refinement-environment-*.json'):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(environment,output/environment.name)
-              for extra in artifact.glob('refinement-pdf-*'):
+              for extra in list(artifact.glob('refinement-pdf-*'))+list(artifact.glob('refinement-quality-*')):
                   output.mkdir(parents=True,exist_ok=True)
                   shutil.copyfile(extra,output/extra.name)
               capture=artifact/'refinement-captures.tar'

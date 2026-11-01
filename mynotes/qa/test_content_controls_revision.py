@@ -75,3 +75,13 @@ class ContentControlsRevision(unittest.TestCase):
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
   names=set(re.findall(r'MyNotes-v[0-9.]+-\d+-development\.apk',workflow))
   self.assertEqual({f'MyNotes-v{version}-{code}-development.apk'},names)
+
+ def test_motion_and_input_protocol_are_qualified_not_only_static_screenshots(self):
+  workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
+  self.assertIn('motion: 1, group: all}',workflow)
+  self.assertIn('animator_duration_scale ${{ matrix.motion }}',workflow)
+  self.assertIn('-e expectedMotion ${{ matrix.motion }}',workflow)
+  self.assertIn('app.space.notes.runtime.NotesMotionTest',workflow)
+  native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('connection.deleteSurroundingText(1,0)',native)
+  self.assertIn('Caret follows generated prefix',native)

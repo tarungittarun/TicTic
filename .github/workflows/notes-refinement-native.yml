@@ -1,5 +1,5 @@
 # Fresh request 2026-11-01: content controls, List crash, unified Format and typing.
-# New40 reservation3:15/40; build plus four retained native profiles; prior35/40 closed.
+# New40 reservation4:20/40; build plus four retained native profiles; prior35/40 closed.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
@@ -75,10 +75,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
-          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', group: focused}
-          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', group: focused}
-          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', group: all}
+          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, group: all}
+          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, group: focused}
+          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, group: focused}
+          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, group: all}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -101,7 +101,7 @@ jobs:
           from pathlib import Path
           from mynotes.tools.ci.test_plan import build_plan,cases
           plan=build_plan()
-          selected=plan['android'] if os.environ['REVIEW_GROUP']=='all' else {k:plan['android'][k] for k in ['app.space.notes.runtime.DrawingToolsTest','app.space.notes.runtime.DiagramResizeViewTest','app.space.notes.DiagramJourneysTest','app.space.notes.CoreJourneysTest','app.space.notes.EnvironmentQualificationTest','app.space.notes.PdfExportTest','app.space.notes.StylePresetStoreTest','app.space.notes.HistoryRecoveryTest']}
+          selected=plan['android'] if os.environ['REVIEW_GROUP']=='all' else {k:plan['android'][k] for k in ['app.space.notes.runtime.NotesMotionTest','app.space.notes.runtime.DrawingToolsTest','app.space.notes.runtime.DiagramResizeViewTest','app.space.notes.DiagramJourneysTest','app.space.notes.CoreJourneysTest','app.space.notes.EnvironmentQualificationTest','app.space.notes.PdfExportTest','app.space.notes.StylePresetStoreTest','app.space.notes.HistoryRecoveryTest']}
           Path('refinement-expected.json').write_text(json.dumps(cases(selected)))
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
           PYPLAN
@@ -123,12 +123,14 @@ jobs:
             adb install -r refinement-apks/debug/notes-debug.apk
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale ${{ matrix.font }}
+            # Enable app-owned motion on API36; retain OS window-transition determinism.
+            adb shell settings put global animator_duration_scale ${{ matrix.motion }}
             adb shell cmd uimode night ${{ matrix.night }}
             python3 -m mynotes.tools.ci.native_environment --snapshot before
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
-            timeout 1200s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            timeout 1200s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar

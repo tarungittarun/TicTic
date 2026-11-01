@@ -26,9 +26,10 @@ new crash/gesture/typing regressions. Automated qualification is not physical OE
 
 | 1 | 5 | 5/40 | `7e30daf0`; run41277605164 | Build failed: new visual-copy test used a non-UUID image fixture. 259/260 JVM passed; native matrix never expanded. |
 | 2 | 5 | 10/40 | `732fcf73`; run41277795897; evidence `c76df1f8` | JVM260 PASS; API26/36 284/285, dark148/149, landscape146/149. Old + selector failed all; two additional landscape interaction failures. |
-| 3 | 5 | 15/40 | Candidate3; run assigned after gated push | Reserved |
+| 3 | 5 | 15/40 | `2de620f6`; run41278884292 | All5 jobs SUCCESS: JVM260; API26/36 285/285; dark/landscape149/149; four PDF checks. |
+| 4 | 5 | 20/40 | Candidate4; run assigned after gated push | Reserved: same production app as candidate3; stronger motion/input checks |
 
-15/40 slots conservatively reserved/consumed; candidate1 executed1 build, four native slots unexecuted after build failure (not recycled). Candidate2 executed all5. Candidate3 reserves5 (prior actually executed6). Failed/cancelled individual jobs count; unused earlier allowances are not added.
+20/40 slots conservatively reserved/consumed; candidate1 executed1 build, four native slots unexecuted after build failure (not recycled). Candidate2 executed all5. Candidate3 executed all5. Candidate4 reserves5 (prior actually executed11). Failed/cancelled individual jobs count; unused earlier allowances are not added.
 
 ## Candidate1 implementation and test scope
 Collapsed List inserts at caret with surrounding rich slices intact. Pen owns Rename/Copy/Cut/Delete
@@ -59,3 +60,11 @@ All row/text/style/Undo assertions stay exact. APK filename is corrected to0.23.
 manifest was already26 in candidate2); a new root guard rejects future filename/manifest mismatch.
 Edit content/Paste content receive proper pen/clipboard icons. Four new scenes give allowlist87
 within the unchanged88 hard cap. Candidate2 PDF exports passed all four profiles.
+
+Candidate3 is independently green in all four source-pinned native reports. No new production
+code is introduced in candidate4. It strengthens the two numbering tests with real InputConnection
+commitText/deleteSurroundingText and exact post-prefix caret assertions. An attached-view native
+motion test exercises actual entry/lift/settlement: system animator scale1 on API36,0 on the other
+three profiles. Window/transition animations remain off for harness determinism. The new class is
+explicitly assigned to the UI test partition and included in focused profiles; no tests are excluded.
+Actual phone haptic feel and OEM input behavior remain unclaimed.

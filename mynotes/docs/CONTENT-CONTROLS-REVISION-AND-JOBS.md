@@ -24,9 +24,10 @@ new crash/gesture/typing regressions. Automated qualification is not physical OE
 | Reservation | Jobs | Cumulative | Source/run | Result |
 |---|---:|---:|---|---|
 
-| 1 | 5 | 5/40 | Source candidate1; run assigned after gated push | Reserved; not executed yet |
+| 1 | 5 | 5/40 | `7e30daf0`; run41277605164 | Build failed: new visual-copy test used a non-UUID image fixture. 259/260 JVM passed; native matrix never expanded. |
+| 2 | 5 | 10/40 | Candidate2; run assigned after gated push | Reserved |
 
-5 jobs reserved, 0 executed at reservation. Failed/cancelled individual jobs count; unused earlier allowances are not added.
+10/40 slots conservatively reserved/consumed; candidate1 executed1 build, four native slots unexecuted after build failure (not recycled). Candidate2 reserves5. Failed/cancelled individual jobs count; unused earlier allowances are not added.
 
 ## Candidate1 implementation and test scope
 Collapsed List inserts at caret with surrounding rich slices intact. Pen owns Rename/Copy/Cut/Delete
@@ -43,3 +44,8 @@ cover the reported caret crash, pen/cell scope, whole-checklist copy/deferred Cu
 editors. Existing typing/persistence/Undo assertions are retained after the explicitly removed Styles
 UI was replaced with direct Bold. Three new synthetic scenes expand the hard archive cap84→88
 (the allowlist is86), not an unbounded collection or a data-assertion waiver.
+
+Candidate2 fixes the invalid test UUID without relaxing model validation or rich assertions.
+New pen tests inspect the actual dialog accessibility tree, rather than the underlying editor.
+Native item drag also exercises its accessible Move item later action and Undo. Shared Notes/Doc
+control rows disable text-baseline alignment so icon/caption and Size/steppers are truly centered.

@@ -239,9 +239,15 @@ public class CoreJourneysTest {
     }
     private boolean keyboardVisibleForTest(){View decor=activity.getWindow().getDecorView();if(android.os.Build.VERSION.SDK_INT>=30 && decor.getRootWindowInsets()!=null)return decor.getRootWindowInsets().isVisible(android.view.WindowInsets.Type.ime());android.graphics.Rect frame=new android.graphics.Rect();decor.getWindowVisibleDisplayFrame(frame);return decor.getHeight()-frame.bottom>100*context.getResources().getDisplayMetrics().density;}
     private void closeKeyboard(){
-        // Preparation must hide the IME, never navigate Back through a stale inset frame.
-        // The latter can dismiss Format or finish a newly opened API26 fixture activity.
-        main(()->((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(controller.view().getWindowToken(),0));instrumentation.waitForIdleSync();
+        // Insets can say hidden while the IME's input surface still animates over bottom tools.
+        // Observe animation completion AND stable layout; never navigate Back or retry a missed tap.
+        AtomicBoolean imeAnimation=new AtomicBoolean();final View root=controller.view();
+        main(()->{if(android.os.Build.VERSION.SDK_INT>=30)root.setWindowInsetsAnimationCallback(new android.view.WindowInsetsAnimation.Callback(android.view.WindowInsetsAnimation.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE){
+            @Override public void onPrepare(android.view.WindowInsetsAnimation animation){if((animation.getTypeMask()&android.view.WindowInsets.Type.ime())!=0)imeAnimation.set(true);}
+            @Override public android.view.WindowInsets onProgress(android.view.WindowInsets insets,List<android.view.WindowInsetsAnimation> running){for(android.view.WindowInsetsAnimation animation:running)if((animation.getTypeMask()&android.view.WindowInsets.Type.ime())!=0)imeAnimation.set(true);return insets;}
+            @Override public void onEnd(android.view.WindowInsetsAnimation animation){if((animation.getTypeMask()&android.view.WindowInsets.Type.ime())!=0)imeAnimation.set(false);}
+        });((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(root.getWindowToken(),0);});
+        final int[] previous={-1},stable={0};try{await(()->{int height=root.getHeight();if(keyboardVisibleForTest() || imeAnimation.get() || root.isLayoutRequested()){stable[0]=0;previous[0]=height;return false;}if(height==previous[0])stable[0]++;else stable[0]=0;previous[0]=height;return stable[0]>=12;});}catch(Exception failure){throw new AssertionError("IME must finish hiding before native input targets are measured",failure);}finally{if(android.os.Build.VERSION.SDK_INT>=30)main(()->root.setWindowInsetsAnimationCallback(null));}instrumentation.waitForIdleSync();
     }
     private String debugMarks(EditText b){StringBuilder out=new StringBuilder();for(Note.Mark m:TextStyles.read(b.getText()))out.append(m.type).append(":").append(m.start).append("-").append(m.end).append("; ");return out.toString();}
     private void laidOut() throws Exception{await(()->input("Write your note…")!=null && input("Write your note…").getLayout()!=null && !input("Write your note…").isLayoutRequested());instrumentation.waitForIdleSync();}

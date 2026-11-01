@@ -1,4 +1,4 @@
-# Adaptive-editor request 2026-11-01: fresh40, reservation3:25/40 (7 + 9 + 9).
+# Adaptive-editor request 2026-11-01: fresh40, reservation4:34/40 (7 + 9 + 9 + 9).
 # Build + eight parallel native jobs; all four profile inventories split by method.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
@@ -163,6 +163,7 @@ jobs:
         if: always()
         with:
           name: refinement-native-${{ matrix.id }}
+          overwrite: true
           path: |
             refinement-native.*
             refinement-expected.json

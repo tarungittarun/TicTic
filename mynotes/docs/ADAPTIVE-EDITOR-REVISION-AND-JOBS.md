@@ -91,3 +91,22 @@ all native checkouts remain pinned to the tested source SHA. No other branch is 
 Candidate3 reserves9 more jobs BEFORE launch: cumulative25/40 reserved,16 executed at reservation;
 15 remain unallocated. Inventories unchanged292 exhaustive /156 focused /260 JVM. Root634 PASS.
 This is not a claim that the pending candidate passed, nor authorization for a public release.
+
+## Candidate 3 result / candidate 4 reservation
+Source abfa0ba8; run41288909525 completed FAILURE with8/9 green jobs. API26 292/292,
+API36 291/292 (a151/151,b140/141), dark156/156, landscape156/156; JVM260/lint passed.
+PDF checks passed on four a shards. Fixture commit997f8514 successfully preserved337 synthetic
+JPEGs, original PNG hashes, native reports and provenance; no missing profile. Corrected layout,
+Find visible-line, multiline link, size/numbering/pending-style tests passed. Only failure was an
+API36 motion-enabled native tap: Drawing remained hidden after Insert was tapped during IME
+hide. It is not called a pass. Production code stays unchanged for candidate4.
+
+Test preparation now observes Android WindowInsetsAnimation completion and twelve stable layout
+observations after hiding IME, not only the requested invisible inset; no Back navigation and no
+retry of a missed tap. Native touch dispatch, drawing edit/pixel/identity assertions stay intact.
+Existing native-report uploads explicitly overwrite their same-named artifact on a deliberate job
+rerun, rather than leaving stale reports; no rerun has yet been invoked.
+
+Candidate4 reserves9 further slots BEFORE launch: cumulative34/40,25 executed at reservation;
+6 unallocated remain. Same292/156/260 inventories; root634 PASS. Review of candidate3 previews
+has started; final candidate results and final visual review remain pending.

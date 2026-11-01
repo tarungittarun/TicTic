@@ -30,3 +30,23 @@ Never clear user notes or silently reinitialize an unavailable selected folder.
 
 No new Indian-accent training or model adoption has occurred. User authorization permits
 training, but does not make unavailable data/models accessible or establish their licensing.
+
+## Follow-up safety and review changes (round 3)
+- Private-first persistence converts memory pressure to a reported incomplete save, rather
+  than losing the writer thread. Synthetic backend-pressure coverage checks private content.
+- Text import offers **View only**, with Find, without creating a note or touching the source.
+- XLSX cached-value text preserves sparse column gaps and explicit row numbers; invalid,
+  duplicate/out-of-order or out-of-range coordinates are rejected rather than shifted.
+- Speech retains uncertain candidates in Voice inbox with an explicit **Review transcript**
+  action, instead of automatically inserting low/unknown native word-confidence results.
+  The threshold is a conservative review heuristic, **not a calibrated accuracy estimate**;
+  confidently wrong recognitions remain possible. This does not replace Indian evaluation.
+- Native PDF preview closes descriptors on allocation failure and skips stale queued pages.
+- Inspection found a Java-escaped RTF fixture error (\r/Unicode preprocessing rather than
+  literal RTF control words); corrected to literal backslashes before round 3.
+- Current inventory: 282 JVM; 339 unique native methods (all 327 previous qualified methods
+  preserved), exhaustive shards 175/164 and focused 117/107: **1126** expected native outcomes.
+  These are planned counts, not executed/passing results. Round 2 built successfully and
+  started all eight native jobs; its final outcomes must be tallied after supersession.
+- Local pre-push gates: 667 root checks, 277 Notes checks passed; all Java parsed. Actual
+  Java symbol compilation and Android execution remain Actions-only and pending for round 3.

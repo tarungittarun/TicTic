@@ -105,7 +105,8 @@ public final class NotesRepository {
     /** Private atomic snapshot only: receivers/widgets never block on external providers. */
     public List<Note> localSnapshot() throws Exception {if(new File(context.getFilesDir(),"app-folder-recovery-v1/ready.json").exists())throw new IOException("App recovery is finishing; private snapshot not published yet");return exists()?DocumentCodec.decode(atomicRead(file)):new ArrayList<>();}
     private void updateSurfaces(List<Note> notes){try{LocalSystemSurfaces.refresh(context);}catch(Exception unavailable){android.util.Log.w("MyNotes","OS surfaces unavailable; saved notes retained",unavailable);}}
-    public void save(List<Note> notes) throws Exception {
+    public void save(List<Note> notes) throws Exception {try{saveVerified(notes);}catch(OutOfMemoryError pressure){status="Internal copy retained · not enough memory; folder copy may be pending";throw new IOException("Not enough memory to finish verification safely; do not clear app data",pressure);}}
+    private void saveVerified(List<Note> notes) throws Exception {
         byte[] payload=DocumentCodec.encode(notes);
         if(selected==null) {writeLocal(payload,false,null);status="Device storage";return;}
         writeLocal(payload,true,head); // Durable local recovery BEFORE trying the external destination.
@@ -207,7 +208,7 @@ public final class NotesRepository {
         try {
             stream=target.startWrite();stream.write(bytes);target.finishWrite(stream);stream=null;
             if(!Arrays.equals(bytes,target.readFully()))throw new IOException("Save readback failed");
-        } catch(Exception e) {if(stream!=null)target.failWrite(stream);throw e;}
+        } catch(Exception | OutOfMemoryError e) {if(stream!=null)target.failWrite(stream);throw e;}
       }
     }
 }

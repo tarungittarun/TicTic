@@ -34,7 +34,7 @@ public final class CommonFileText {
         Map<String,byte[]> files=archive(bytes);StringBuilder out=new StringBuilder();
         if(name.endsWith(".xlsx")){
             List<String> shared=strings(files.get("xl/sharedStrings.xml"));List<String> sheets=new ArrayList<>();for(String path:files.keySet())if(path.startsWith("xl/worksheets/"))sheets.add(path);sortParts(sheets);if(sheets.isEmpty())throw new IOException("Spreadsheet worksheets are missing");int index=0;
-            for(String path:sheets){add(out,"\nSheet "+(++index)+" — cached values only\n");XmlPullParser p=parser(files.get(path));String type=null,value="";int depth=0;boolean first=true;for(int event=p.getEventType();event!=XmlPullParser.END_DOCUMENT;event=p.next()){if(event==XmlPullParser.START_TAG){if(++depth>64)throw new IOException("XML nesting limit");String tag=p.getName();if(tag.equals("row"))first=true;else if(tag.equals("c")){type=p.getAttributeValue(null,"t");value="";}else if(tag.equals("v") || tag.equals("t")){String part=p.nextText();depth--;value+=part;if(value.length()>100000)throw new IOException("Cell text limit");}}else if(event==XmlPullParser.END_TAG){if(p.getName().equals("c")){if("s".equals(type)){int at;try{at=Integer.parseInt(value);}catch(NumberFormatException bad){throw new IOException("Invalid shared string reference");}if(at<0 || at>=shared.size())throw new IOException("Missing shared string");value=shared.get(at);}else if("b".equals(type))value="1".equals(value)?"true":"false";add(out,(first?"":"\t")+value);first=false;}else if(p.getName().equals("row"))add(out,"\n");depth--;}}}
+            for(String path:sheets){add(out,"\nSheet "+(++index)+" — cached values only\n");spreadsheet(out,files.get(path),shared);}
         }else if(name.endsWith(".pptx")){
             List<String> slides=new ArrayList<>();for(String path:files.keySet())if(path.startsWith("ppt/slides/"))slides.add(path);sortParts(slides);if(slides.isEmpty())throw new IOException("Presentation slides are missing");int index=0;for(String path:slides){add(out,"\nSlide "+(++index)+"\n");XmlPullParser p=parser(files.get(path));int depth=0;for(int event=p.getEventType();event!=XmlPullParser.END_DOCUMENT;event=p.next()){if(event==XmlPullParser.START_TAG){if(++depth>64)throw new IOException("XML nesting limit");if(p.getName().equals("t")){add(out,p.nextText());depth--;}}else if(event==XmlPullParser.END_TAG){if(p.getName().equals("p"))add(out,"\n");depth--;}}}
         }else{
@@ -42,6 +42,23 @@ public final class CommonFileText {
         }
         return checked(out.toString());
     }
+    /** Explicit row numbers and blank columns avoid shifting sparse cached values left. */
+    private static void spreadsheet(StringBuilder out,byte[] bytes,List<String> shared)throws Exception{
+        XmlPullParser p=parser(bytes);int depth=0,row=0,previousRow=0,column=0,nextColumn=1;boolean inRow=false,inCell=false;String type=null,value="";
+        for(int event=p.getEventType();event!=XmlPullParser.END_DOCUMENT;event=p.next()){
+            if(event==XmlPullParser.START_TAG){
+                if(++depth>64)throw new IOException("XML nesting limit");String tag=p.getName();
+                if(tag.equals("row")){if(inRow)throw new IOException("Nested spreadsheet row");String ref=p.getAttributeValue(null,"r");row=ref==null?previousRow+1:positive(ref,1048576);if(row<=previousRow)throw new IOException("Unordered spreadsheet rows");inRow=true;nextColumn=1;add(out,"Row "+row+"\t");}
+                else if(tag.equals("c")){if(!inRow || inCell)throw new IOException("Invalid spreadsheet cell");String ref=p.getAttributeValue(null,"r");column=ref==null?nextColumn:column(ref,row);if(column<nextColumn || column>16384)throw new IOException("Unordered or oversized spreadsheet columns");inCell=true;type=p.getAttributeValue(null,"t");value="";}
+                else if(inCell && (tag.equals("v") || tag.equals("t"))){String part=p.nextText();depth--;if(value.length()+part.length()>100000)throw new IOException("Cell text limit");value+=part;}
+            }else if(event==XmlPullParser.END_TAG){
+                if(p.getName().equals("c")){if(!inCell)throw new IOException("Invalid spreadsheet cell end");if("s".equals(type)){int at;try{at=Integer.parseInt(value);}catch(NumberFormatException bad){throw new IOException("Invalid shared string reference");}if(at<0 || at>=shared.size())throw new IOException("Missing shared string");value=shared.get(at);}else if("b".equals(type) && !value.isEmpty()){if(!value.equals("0") && !value.equals("1"))throw new IOException("Invalid boolean cached value");value=value.equals("1")?"true":"false";}while(nextColumn<column){add(out,"\t");nextColumn++;}add(out,value);add(out,"\t");nextColumn++;inCell=false;}
+                else if(p.getName().equals("row")){if(!inRow || inCell)throw new IOException("Invalid spreadsheet row end");add(out,"\n");previousRow=row;inRow=false;}depth--;
+            }
+        }
+    }
+    private static int positive(String value,int max)throws IOException{try{if(!value.matches("[1-9][0-9]{0,6}"))throw new NumberFormatException();int number=Integer.parseInt(value);if(number>max)throw new NumberFormatException();return number;}catch(NumberFormatException bad){throw new IOException("Invalid spreadsheet row");}}
+    private static int column(String reference,int row)throws IOException{if(!reference.matches("[A-Z]{1,3}[1-9][0-9]{0,6}"))throw new IOException("Invalid cell reference");int at=0,column=0;while(at<reference.length() && reference.charAt(at)>='A' && reference.charAt(at)<='Z')column=column*26+reference.charAt(at++)-'A'+1;if(column>16384 || positive(reference.substring(at),1048576)!=row)throw new IOException("Cell reference outside row or column limits");return column;}
     private static void sortParts(List<String> paths){paths.sort(Comparator.comparingInt(p->{try{return Integer.parseInt(p.replaceAll("[^0-9]",""));}catch(NumberFormatException bad){return Integer.MAX_VALUE;}}));}
     static String rtf(String source)throws IOException{
         if(!source.startsWith("{\\rtf"))throw new IOException("Not an RTF document");StringBuilder out=new StringBuilder();Deque<Boolean> stack=new ArrayDeque<>();boolean skip=false;int fallback=1,pending=0;

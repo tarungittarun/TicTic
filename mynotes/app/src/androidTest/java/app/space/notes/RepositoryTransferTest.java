@@ -29,9 +29,9 @@ public class RepositoryTransferTest {
     private File fixture;private Context context;
     private final Uri uri=Uri.parse("content://com.android.externalstorage.documents/tree/primary%3ARestore");
     private static final class Memory implements GenerationProtocol.Backend {
-        final Map<String,byte[]> files=new HashMap<>();boolean unavailable;
+        final Map<String,byte[]> files=new HashMap<>();boolean unavailable,memoryFailure;
         public Map<String,byte[]> readAll() throws Exception {
-            if(unavailable)throw new IOException("revoked");return new HashMap<>(files);
+            if(memoryFailure)throw new OutOfMemoryError("synthetic backend pressure");if(unavailable)throw new IOException("revoked");return new HashMap<>(files);
         }
         public void create(String name,byte[] bytes) {files.put(name,bytes);}
     }
@@ -103,4 +103,6 @@ public class RepositoryTransferTest {
     @Test public void aDifferentExternalWriterCannotSilentlyReplaceAnAlwaysKeptPrivateLibrary()throws Exception {
         NotesRepository repository=repo();List<Note> mine=Arrays.asList(n("mine","keep mine"));repository.save(mine);repository.selectFolder(uri,mine);GenerationProtocol store=new GenerationProtocol(backend);store.commit(DocumentCodec.encode(Arrays.asList(n("other","other writer"))),store.read().head);NotesRepository restarted=repo();assertEquals("keep mine",restarted.load().get(0).body);assertEquals("other writer",DocumentCodec.decode(store.read().payload).get(0).body);assertTrue(restarted.status().contains("Private copy retained"));assertEquals("keep mine",repo().localSnapshot().get(0).body);
     }
+
+    @Test public void destinationMemoryPressureDoesNotKillWriterOrLosePrivateUndoResult()throws Exception{NotesRepository repository=repo();Note before=n("memory","Before");repository.save(Arrays.asList(before));repository.selectFolder(uri,Arrays.asList(before));backend.memoryFailure=true;Note after=before.edit("title","Undo result stays private",3);try{repository.save(Arrays.asList(after));fail("Report memory pressure, never acknowledge the folder copy");}catch(IOException expected){assertTrue(expected.getCause() instanceof OutOfMemoryError);}assertEquals("Undo result stays private",repo().localSnapshot().get(0).body);backend.memoryFailure=false;}
 }

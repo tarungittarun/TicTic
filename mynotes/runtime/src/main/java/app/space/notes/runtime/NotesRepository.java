@@ -33,17 +33,18 @@ public final class NotesRepository {
     }
     public boolean appOnlyStorage(){return selected==null;}
     public List<String> listFolders(List<Note> notes)throws IOException{
-        if(!appOnlyStorage())return folders().list();
+
         File root=new File(context.getFilesDir(),"note-folders");TreeSet<String> names=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         File[] children=root.listFiles();if(children!=null)for(File f:children)if(f.isDirectory() && f.getCanonicalFile().getParentFile().equals(root.getCanonicalFile()))try{names.add(app.space.notes.domain.FolderNames.require(f.getName()));}catch(IllegalArgumentException invalid){}
-        for(Note n:notes)if(!n.folder.isEmpty())names.add(n.folder);return new ArrayList<>(names);
+        for(Note n:notes)if(!n.folder.isEmpty())names.add(n.folder);if(!appOnlyStorage())try{names.addAll(folders().list());}catch(IOException unavailable){status="Folder unavailable · private folder organisation retained";}return new ArrayList<>(names);
     }
     public void createFolder(String name,List<Note> notes)throws IOException{
-        if(!appOnlyStorage()){folders().create(name);return;}
+
         String safe=app.space.notes.domain.FolderNames.require(name);List<String> existing=listFolders(notes);for(String f:existing)if(f.equalsIgnoreCase(safe))throw new IOException("That folder already exists");if(existing.size()>=128)throw new IOException("Keep at most 128 private folders");
         File root=new File(context.getFilesDir(),"note-folders");if(!root.isDirectory() && !root.mkdirs())throw new IOException("Could not create private folders");File folder=new File(root,safe);if(!folder.getCanonicalFile().getParentFile().equals(root.getCanonicalFile()) || !folder.mkdir())throw new IOException("Could not create this folder");
+        if(!appOnlyStorage())folders().create(safe);AppFolderTasks.request(context);
     }
-    public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected));}
+    public LocalNotebookFolders folders()throws IOException{if(selected==null)throw new IOException("Choose the main local storage folder in Settings → Storage & recovery first.");try{AppFolder appFolder=new AppFolder(context,Uri.parse(selected));return new LocalNotebookFolders(context.getContentResolver(),Uri.parse(selected),appFolder.content());}catch(IOException failure){throw failure;}catch(Exception failure){throw new IOException("Cannot open App folder content",failure);}}
     /** Persist deletion intent before removing notes so provider failures can be retried after restart. */
     public void schedulePortableDeletion(Set<String> ids)throws IOException{
         if(selected==null || folderAccess!=null)return;String key="portable-delete:"+selected;Set<String> pending=new HashSet<>(settings.getStringSet(key,Collections.emptySet()));pending.addAll(ids);if(!settings.edit().putStringSet(key,pending).commit())throw new IOException("Could not journal file cleanup; nothing deleted");
@@ -67,7 +68,7 @@ public final class NotesRepository {
         return file.getBaseFile().exists() || new File(file.getBaseFile()+".bak").exists();
     }
     private GenerationProtocol protocol(String uri) throws Exception {
-        return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri))):folderAccess.open(uri);
+        return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri),new AppFolder(context,Uri.parse(uri)).library())):folderAccess.open(uri);
     }
     public List<Note> load() throws Exception {try{return loadVerified();}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to open this library safely; existing files were not replaced",pressure);}}
     private List<Note> loadVerified() throws Exception {
@@ -107,11 +108,12 @@ public final class NotesRepository {
     public void selectFolder(Uri uri,List<Note> notes) throws Exception {
         String target=uri.toString();
         if(target.equals(selected)) {save(notes);return;}
+        if(folderAccess==null)new AppFolder(context,uri).initialize();
         GenerationProtocol destination=protocol(target);
         if(destination.read().head!=null)throw new IOException("This folder contains a library. Choose a new empty folder; existing data was not overwritten.");
         byte[] payload=DocumentCodec.encode(notes);
         GenerationProtocol.Snapshot saved=destination.commit(payload,null);
-        if(folderAccess==null)new LocalNotebookFolders(context.getContentResolver(),uri).reconcile(notes);
+        if(folderAccess==null){AppFolder appFolder=new AppFolder(context,uri);LocalNotebookFolders portable=new LocalNotebookFolders(context.getContentResolver(),uri,appFolder.content());for(String name:listFolders(notes))if(!portable.list().contains(name))portable.create(name);portable.reconcile(notes);}
         // Destination verified first. Source generations are never deleted automatically.
         if(!settings.edit().putString("tree",target).commit())throw new IOException("Could not store folder selection; previous destination retained");
         selected=target;head=saved.head;

@@ -18,7 +18,10 @@ public final class LocalNotebookFolders {
  private final ContentResolver resolver;private final Uri tree,root;
  private static final class Entry {final String name,mime;final Uri uri;Entry(String name,String mime,Uri uri){this.name=name;this.mime=mime;this.uri=uri;}}
  public LocalNotebookFolders(ContentResolver resolver,Uri tree)throws IOException{
-  new LocalTreeBackend(resolver,tree);this.resolver=resolver;this.tree=tree;root=DocumentsContract.buildDocumentUriUsingTree(tree,DocumentsContract.getTreeDocumentId(tree));
+  this(resolver,tree,null);
+ }
+ LocalNotebookFolders(ContentResolver resolver,Uri tree,Uri directory)throws IOException{
+  new LocalTreeBackend(resolver,tree);this.resolver=resolver;this.tree=tree;root=directory==null?DocumentsContract.buildDocumentUriUsingTree(tree,DocumentsContract.getTreeDocumentId(tree)):directory;
  }
  private List<Entry> children(Uri parent)throws IOException{
   List<Entry> result=new ArrayList<>();Uri uri=DocumentsContract.buildChildDocumentsUriUsingTree(tree,DocumentsContract.getDocumentId(parent));
@@ -59,7 +62,7 @@ public final class LocalNotebookFolders {
   Uri parent=directory(note.folder);java.text.SimpleDateFormat format=new java.text.SimpleDateFormat("yyyyMMdd-HHmmss-SSS'Z'",Locale.ROOT);format.setTimeZone(TimeZone.getTimeZone("UTC"));String prefix="note-"+format.format(new Date(note.createdAt));String legacy=fileName(note.id);Entry found=null;Note saved=null;
   for(Entry entry:children(parent)){if(!entry.name.endsWith(".mynote.json") || !(entry.name.startsWith(prefix) || entry.name.equals(legacy)))continue;Note decoded;try{decoded=owned(entry,note.id);}catch(Exception foreign){continue;}if(found!=null)throw new IOException("More than one saved copy is present; reconnect storage and retry save before relying on a path.");found=entry;saved=decoded;}
   if(found==null)throw new IOException("No verified individual note file found here yet. Current edits remain in the private library; retry save before relying on a folder copy.");
-  return "Android document-provider location (not a filesystem path):\n"+DocumentsContract.getTreeDocumentId(tree)+(note.folder.isEmpty()?"":"/"+note.folder)+"/"+found.name+"\n\nDocument URI:\n"+found.uri+"\n\n"+(app.space.notes.domain.NoteMerge.same(note,saved)?"This saved copy matches the current note.":"This folder copy differs from the current note. Current edits are retained privately; retry save.");
+  return "Android document-provider location (not a filesystem path):\n"+DocumentsContract.getDocumentId(root)+(note.folder.isEmpty()?"":"/"+note.folder)+"/"+found.name+"\n\nDocument URI:\n"+found.uri+"\n\n"+(app.space.notes.domain.NoteMerge.same(note,saved)?"This saved copy matches the current note.":"This folder copy differs from the current note. Current edits are retained privately; retry save.");
  }
  /** Call only after journalling the current library privately. Readback must match before removal. */
  public void write(String folder,Note note)throws Exception{

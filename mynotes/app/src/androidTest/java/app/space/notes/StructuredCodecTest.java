@@ -13,6 +13,7 @@ import app.space.notes.runtime.DocumentCodec;
 import app.space.notes.runtime.BackupCodec;
 import app.space.notes.runtime.TextStyles;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -137,5 +138,26 @@ public class StructuredCodecTest {
     }
     @Test public void docxTextExtractionPreservesTabsBreaksUnicodeAndRejectsUnsupportedInputWithoutMutation()throws Exception{
         String xml="<w:document xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'><w:body><w:p><w:r><w:t>A 😀</w:t><w:tab/><w:t>ಕನ್ನಡ + =</w:t><w:br/><w:t>Next</w:t></w:r></w:p></w:body></w:document>";byte[] archive=wordArchive(xml),before=archive.clone();assertEquals("A 😀\tಕನ್ನಡ + =\nNext\n",app.space.notes.runtime.LocalOpenFile.docx(archive));assertTrue(Arrays.equals(before,archive));try{app.space.notes.runtime.LocalOpenFile.docx(new byte[8*1024*1024+1]);fail("Compressed input cap");}catch(java.io.IOException expected){}
+    }
+
+    @Test public void localDocumentIntakeAcceptsKnownDeviceProvidersButNotCloudOrWeb()throws Exception {
+        for(String authority:new String[]{"com.android.externalstorage.documents","com.android.providers.downloads.documents","com.android.providers.media.documents","media","com.google.android.apps.nbu.files.provider"})app.space.notes.runtime.LocalDeviceDocuments.requireReadable(android.net.Uri.parse("content://"+authority+"/local/1"));
+        for(String uri:new String[]{"https://example.com/note.json","file:///sdcard/note.json","content://com.google.android.apps.docs.storage/document/1","content://media/picker/0/cloud.provider/1","content://unknown.local/document/1"})try{app.space.notes.runtime.LocalDeviceDocuments.requireReadable(android.net.Uri.parse(uri));fail("Not a known local document provider: "+uri);}catch(java.io.IOException expected){}
+        // Broad read intake never grants new write authorities.
+        try{app.space.notes.runtime.LocalBackupFiles.requireLocal(android.net.Uri.parse("content://com.google.android.apps.nbu.files.provider/local/1"));fail("Backup writes retain stricter SAF policy");}catch(java.io.IOException expected){}
+    }
+    @Test public void generationFileOpeningGivesRecoveryInstructionsNotWrongBackupParsing()throws Exception {
+        byte[] bytes=new org.json.JSONObject().put("format",2).put("payload","{}").put("sha256","bad").toString().getBytes(StandardCharsets.UTF_8);
+        try{app.space.notes.runtime.LocalBackupFiles.decodeImport(bytes);fail("A generation is not a portable file");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("library recovery generation"));}
+    }
+    @Test public void wordStructuredCopyPreservesEditableStylesParagraphOrderAndTableCells()throws Exception {
+        String xml="<w:document xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'><w:body><w:p><w:pPr><w:pStyle w:val='Heading1'/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val='32'/></w:rPr><w:t>Hello 😀</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>ಕನ್ನಡ</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:rPr><w:i/></w:rPr><w:t>Second</w:t></w:r></w:p></w:tc></w:tr></w:tbl><w:p><w:r><w:t>After</w:t></w:r></w:p></w:body></w:document>";
+        byte[] archive=wordArchive(xml),before=archive.clone();app.space.notes.domain.DocumentContent content=app.space.notes.runtime.StructuredWord.read(archive);assertArrayEquals(before,archive);assertEquals(3,content.blocks.size());assertEquals("Hello 😀",content.blocks.get(0).text.text);assertEquals(3,content.blocks.get(0).text.marks.size());assertEquals("bold",content.blocks.get(0).text.marks.get(0).type);assertEquals(app.space.notes.domain.DocumentContent.Kind.TABLE,content.blocks.get(1).kind);assertEquals("ಕನ್ನಡ",content.blocks.get(1).table.cells.get(0).get(0).text);assertEquals("italic",content.blocks.get(1).table.cells.get(0).get(1).marks.get(0).type);assertEquals("After",content.blocks.get(2).text.text);
+        Note note=Note.create(1).withContent(content,2);assertEquals(content.fingerprint(),DocumentCodec.decode(DocumentCodec.encode(Collections.singletonList(note))).get(0).content.fingerprint());
+    }
+    @Test public void wordStructuredCopyRejectsMergedCellsAndKeepsDeletedTextOut()throws Exception {
+        String ns="http://schemas.openxmlformats.org/wordprocessingml/2006/main";String prefix="<w:document xmlns:w='"+ns+"'><w:body>",suffix="</w:body></w:document>";
+        try{app.space.notes.runtime.StructuredWord.read(wordArchive(prefix+"<w:tbl><w:tr><w:tc><w:tcPr><w:gridSpan w:val='2'/></w:tcPr><w:p><w:r><w:t>Merged</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"+suffix));fail("Merged cells must not silently flatten");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("Merged"));}
+        app.space.notes.domain.DocumentContent content=app.space.notes.runtime.StructuredWord.read(wordArchive(prefix+"<w:p><w:del><w:r><w:delText>Deleted</w:delText></w:r></w:del><w:r><w:rPr><w:b w:val='0'/></w:rPr><w:t>Kept</w:t></w:r></w:p>"+suffix));assertEquals("Kept",content.blocks.get(0).text.text);assertTrue(content.blocks.get(0).text.marks.isEmpty());
     }
 }

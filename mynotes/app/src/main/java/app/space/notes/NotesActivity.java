@@ -26,13 +26,13 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public boolean managesAppearance(){return false;}
     @Override public void appearanceChanged(){recreate();}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
-    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openNoteDocument(intent.getData(),()->{});return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
+    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openFile(intent.getData());return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
     /** External drops are read-only intake. The validated merge always requires confirmation. */
     private void installDocumentDrop(){controller.view().setOnDragListener((view,event)->{
         if(event.getLocalState()!=null)return false;android.content.ClipDescription description=event.getClipDescription();if(description==null || !(description.hasMimeType("application/json") || description.hasMimeType("application/octet-stream") || description.hasMimeType("application/vnd.mynotes.document")))return false;
         if(event.getAction()!=android.view.DragEvent.ACTION_DROP)return true;
         android.content.ClipData data=event.getClipData();if(data==null || data.getItemCount()!=1 || data.getItemAt(0).getUri()==null){showMessage("Drop one local MyNotes document at a time. Your notes are unchanged.");return true;}
-        Uri uri=data.getItemAt(0).getUri();try{app.space.notes.runtime.LocalBackupFiles.requireLocal(uri);}catch(java.io.IOException invalid){showMessage("Choose a local MyNotes document, not a cloud or web link.");return true;}
+        Uri uri=data.getItemAt(0).getUri();try{app.space.notes.runtime.LocalDeviceDocuments.requireReadable(uri);}catch(java.io.IOException invalid){showMessage("Choose a local MyNotes document, not a cloud or web link.");return true;}
         android.view.DragAndDropPermissions permissions=requestDragAndDropPermissions(event);if(permissions==null){showMessage("The file manager did not grant read access. Use Open file instead.");return true;}
         controller.openNoteDocument(uri,permissions::release);return true;
     });}
@@ -46,7 +46,7 @@ public final class NotesActivity extends Activity implements NotesHost {
             controller.receiveText(new app.space.notes.domain.IncomingText(subject,body==null?null:body.toString()));
         }catch(RuntimeException invalid){showMessage("Nothing imported: "+invalid.getMessage());}
     }
-    @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");}
+    @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");app.space.notes.runtime.AppFolderTasks.request(this);}
     @Override protected void onPause() { controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putBoolean("pdfPrintGuides",pdfPrintGuides);state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
@@ -56,6 +56,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void onBackPressed() { if(!controller.back()) super.onBackPressed(); }
     @Override public void chooseLocalFolder() { chooseTree(94); }
     @Override public void openExistingFolder() { chooseTree(95); }
+    @Override public void recoverAppFolder() { chooseTree(105); }
     @Override public void exportDiagnostics(){Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-diagnostics.txt");openPicker(picker,101);}
     @Override public void exportBackup() {
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
@@ -97,7 +98,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>104)return;
+        if(request<94 || request>105)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }
@@ -118,7 +119,7 @@ public final class NotesActivity extends Activity implements NotesHost {
                 showMessage("Folder needs read and write access. Storage has not changed.");return;
             }
             getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            if(request==94)controller.selectFolder(uri);else controller.openExistingFolder(uri);
+            if(request==105)controller.recoverAppFolder(uri);else if(request==94)controller.selectFolder(uri);else controller.openExistingFolder(uri);
         } catch(SecurityException e) { showMessage("Folder permission could not be retained. Storage has not changed."); }
     }
     @Override public void shareText(String title,String text) {

@@ -40,7 +40,7 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
 
  def test_open_with_and_drop_are_local_read_only_reviewed_intake(self):
   activity=(ROOT/'app/src/main/java/app/space/notes/NotesActivity.java').read_text()
-  for token in ['Intent.ACTION_VIEW','intent.getData()!=null','installDocumentDrop','getItemCount()!=1','LocalBackupFiles.requireLocal(uri)','requestDragAndDropPermissions(event)','permissions::release','Intent.EXTRA_LOCAL_ONLY,true']:
+  for token in ['Intent.ACTION_VIEW','intent.getData()!=null','installDocumentDrop','getItemCount()!=1','LocalDeviceDocuments.requireReadable(uri)','requestDragAndDropPermissions(event)','permissions::release','Intent.EXTRA_LOCAL_ONLY,true']:
    self.assertIn(token,activity)
   grant=self.controller.split('public void openNoteDocument(',1)[1].split('public void importBackup(',1)[0]
   self.assertIn('busy || prepared!=null',grant)

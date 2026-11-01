@@ -5,6 +5,7 @@ public interface NotesHost {
     void shareText(String title,String text);
     void chooseLocalFolder();
     void openExistingFolder();
+    default void recoverAppFolder(){openExistingFolder();}
     void exportBackup();
     void importBackup();
     default void chooseCopyFolder(){showMessage("Folder copy is unavailable in this host.");}

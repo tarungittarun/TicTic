@@ -14,7 +14,7 @@ class DeviceFilesCapture(unittest.TestCase):
   for token in ['"Read image"','"Record voice"']:self.assertIn(token,(JAVA/'InsertPalette.java').read_text());self.assertIn('host.action('+token+')',(JAVA/'DocumentEditorView.java').read_text())
  def test_word_archive_is_bounded_and_does_not_execute_external_xml(self):
   s=(JAVA/'LocalOpenFile.java').read_text()
-  for token in ['DOCTYPE','ENTITY','total>16*1024*1024','++count>1024','depth>128','CodingErrorAction.REPORT','OfflineOcr.requireLocal']:self.assertIn(token,s)
+  for token in ['DOCTYPE','ENTITY','total>16*1024*1024','++count>1024','depth>128','CodingErrorAction.REPORT','LocalDeviceDocuments.requireReadable']:self.assertIn(token,s)
   self.assertNotIn('URL(',s);self.assertNotIn('FileOutputStream',s)
  def test_mixed_notes_are_not_silently_moved_into_doc_workspace(self):
   self.assertIn('!note.content.notesWorkspace',(ROOT/'domain/src/main/java/app/space/notes/domain/Workspace.java').read_text())

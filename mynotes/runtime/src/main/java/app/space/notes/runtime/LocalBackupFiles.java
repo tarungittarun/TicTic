@@ -13,12 +13,12 @@ public final class LocalBackupFiles {
             throw new IOException("Use Internal storage or SD card through the local Android storage provider, not a cloud provider");
     }
     public static List<Note> read(ContentResolver resolver,Uri uri) throws Exception {
-        requireLocal(uri);
+        LocalDeviceDocuments.requireReadable(uri);
         try(InputStream in=resolver.openInputStream(uri)) {return decodeImport(BackupCodec.read(in));}
     }
     /** Visible per-note files are schema-validated imports; backup envelopes additionally verify SHA-256. */
     public static List<Note> decodeImport(byte[] bytes)throws Exception{
-        try{if(bytes.length>BackupCodec.MAX_BYTES)throw new IOException("Import exceeds 8 MiB");app.space.notes.domain.JsonLimits.require(bytes);org.json.JSONObject root=new org.json.JSONObject(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));if(root.has("format"))return BackupCodec.decode(bytes);return DocumentCodec.decode(bytes);}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to open this document safely; current notes are unchanged",pressure);}
+        try{if(bytes.length>BackupCodec.MAX_BYTES)throw new IOException("Import exceeds 8 MiB");app.space.notes.domain.JsonLimits.require(bytes);org.json.JSONObject root=new org.json.JSONObject(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));if(root.has("format")){if(root.opt("format") instanceof Number)throw new IOException("This is a library recovery generation, not a portable note. Open its library folder in Storage & recovery, or open a .mynote.json file from the content folder.");return BackupCodec.decode(bytes);}return DocumentCodec.decode(bytes);}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to open this document safely; current notes are unchanged",pressure);}
     }
     public static void write(ContentResolver resolver,Uri uri,List<Note> notes) throws Exception {
         requireLocal(uri);byte[] bytes=BackupCodec.encode(notes);

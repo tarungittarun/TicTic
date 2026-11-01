@@ -12,10 +12,13 @@ public final class LocalTreeBackend implements GenerationProtocol.BlobBackend {
     private final ContentResolver resolver;
     private final Uri tree, directory;
     public LocalTreeBackend(ContentResolver resolver,Uri tree) throws IOException {
+        this(resolver,tree,null);
+    }
+    LocalTreeBackend(ContentResolver resolver,Uri tree,Uri directory) throws IOException {
         if(!"content".equals(tree.getScheme()) || !"com.android.externalstorage.documents".equals(tree.getAuthority()))
             throw new IOException("Choose Internal storage or SD card using the local Android storage provider. Cloud folders are not supported.");
         this.resolver=resolver; this.tree=tree;
-        try { directory=DocumentsContract.buildDocumentUriUsingTree(tree,DocumentsContract.getTreeDocumentId(tree)); }
+        try { this.directory=directory==null?DocumentsContract.buildDocumentUriUsingTree(tree,DocumentsContract.getTreeDocumentId(tree)):directory; }
         catch(IllegalArgumentException e) { throw new IOException("Invalid local folder",e); }
     }
     @Override public Map<String,byte[]> readAll() throws Exception {
@@ -56,7 +59,7 @@ public final class LocalTreeBackend implements GenerationProtocol.BlobBackend {
     }
     static byte[] readBytes(InputStream in) throws IOException {
         ByteArrayOutputStream buffer=new ByteArrayOutputStream(); byte[] chunk=new byte[8192]; int read;
-        while((read=in.read(chunk))!=-1)buffer.write(chunk,0,read);
+        while((read=in.read(chunk))!=-1){if(buffer.size()+read>32*1024*1024)throw new IOException("Folder generation exceeds safe input size");buffer.write(chunk,0,read);}
         return buffer.toByteArray();
     }
     @Override public void create(String name,byte[] bytes) throws Exception {

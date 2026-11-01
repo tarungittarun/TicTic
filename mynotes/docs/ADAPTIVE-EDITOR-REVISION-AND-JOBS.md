@@ -26,8 +26,13 @@ Full-resolution display cannot reconstruct pixels discarded by older imports.
 ## Jobs
 | Reservation | Jobs | Allocated | Source/run | Result |
 |---|---:|---:|---|---|
+| Candidate1 | 7 | 7/40 | ba42bd08 / 41286387638 | failure |
+| Candidate2 | 9 | 16/40 | a8e5fc8b / 41287670974 | failure |
+| Candidate3 | 9 | 25/40 | abfa0ba8 / 41288909525 | failure |
+| Candidate4 | 9 | 34/40 | 7fd06c8e / 41290068899 | failure |
 
-0 reserved/executed. Prior allowances are not added. No public release or billing approval inferred.
+40 allocated; 34 expanded at final reservation; 0 unallocated. Prior allowances are not added.
+No public release or billing approval inferred. Historical reservation-time counts below are retained.
 
 ## Candidate 1 — reservation before launch
 7/40 slots reserved (build + API26 a/b + API36 a/b + dark200% + landscape).
@@ -110,3 +115,23 @@ rerun, rather than leaving stale reports; no rerun has yet been invoked.
 Candidate4 reserves9 further slots BEFORE launch: cumulative34/40,25 executed at reservation;
 6 unallocated remain. Same292/156/260 inventories; root634 PASS. Review of candidate3 previews
 has started; final candidate results and final visual review remain pending.
+
+
+## Candidate 4 result / final candidate 5 reservation
+Source7fd06c8e/run41290068899 FAILURE; evidence8654e028 published all eight profiles.
+API26 291/292 (a150/151,b141/141), API36 292/292, dark156/156, landscape156/156;
+JVM260/lint and four PDF verification steps passed. API36 drawing test now passed.
+Only API26 nativeCaretAndReverseSelectionStyleWholeParagraphOnly did not open Format.
+That paragraph-metrics fixture still edited text while IME was visible: it never called
+closeKeyboard, so the prior helper improvement did not apply there. Explicitly settle IME
+BEFORE setting that fixture's text/caret. Native Format/Heading taps, reverse-selection,
+mark-boundary and glyph pixel assertions all remain; dedicated keyboard journeys stay intact.
+Production code unchanged. This is preparation, not a claim of a resolved production bug.
+
+Reserve final6 jobs BEFORE launch: cumulative40/40,34 executed; zero unallocated.
+Build plus API26a151/API26b141/API36all292/darkall156/landscapeall156. This retains
+all896 native outcomes and260 JVM tests without duplication/omission; reduced parallelism
+fits the six remaining authorized slots. Coordinator requires all five native artifacts.
+Full-profile instrumentation has a bounded1500s deadline rather than split-profile1200s.
+Root/Notes/diff gates required before push. No extra job or public release authorization.
+Visual review144 scenes recorded in ADAPTIVE-EDITOR-VISUAL-REVIEW.md.

@@ -45,9 +45,9 @@ class FindAndNames(unittest.TestCase):
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
   self.assertIn("id: current-api36, api: 36",workflow)
   self.assertIn("group: all}",workflow.split('id: current-api36',1)[1])
-  self.assertIn('if len(peers)==7',workflow)
+  self.assertIn('if len(peers)==4',workflow)
   self.assertIn("'refinement-native-current-api36'",workflow)
-  self.assertIn("'landscape-api34','current-api36','min-api26-b','current-api36-b','large-font-api34-b','landscape-api34-b'}-set(results)",workflow)
+  self.assertIn("'landscape-api34','current-api36','min-api26-b'}-set(results)",workflow)
   self.assertNotIn("if: always() && matrix.group == 'all'",workflow)
 
  def test_recording_restore_copies_names_instead_of_using_legacy_constructor(self):

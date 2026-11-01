@@ -1,5 +1,5 @@
-# Adaptive-editor request 2026-11-01: fresh40, reservation4:34/40 (7 + 9 + 9 + 9).
-# Build + eight parallel native jobs; all four profile inventories split by method.
+# Adaptive-editor request 2026-11-01: fresh40, reservation5:40/40 (7 + 9 + 9 + 9 + 6).
+# Final bounded round: build + five native jobs; API26 split, other profiles exhaustive.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
 name: MyNotes user refinement qualification (nonpublishing)
@@ -77,12 +77,9 @@ jobs:
         include:
           - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 0, group: all}
           - {id: min-api26-b, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 1, group: all}
-          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 0, group: focused}
-          - {id: large-font-api34-b, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 1, group: focused}
-          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, shard: 0, group: focused}
-          - {id: landscape-api34-b, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, shard: 1, group: focused}
-          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: 0, group: all}
-          - {id: current-api36-b, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: 1, group: all}
+          - {id: large-font-api34, api: 34, font: 2.0, night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: -1, group: focused}
+          - {id: landscape-api34, api: 34, font: 1.0, night: 'no', orientation: landscape, profile: 'Nexus 5', motion: 0, shard: -1, group: focused}
+          - {id: current-api36, api: 36, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: -1, group: all}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -136,7 +133,7 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
-            timeout 1200s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
+            timeout 1500s adb shell am instrument -w -r -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e class "$REVIEW_CLASSES" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > refinement-native.txt
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
@@ -185,11 +182,11 @@ jobs:
               except (subprocess.CalledProcessError,json.JSONDecodeError):
                   time.sleep(15);continue
               peers=[job for job in jobs if job['name'].startswith('native (') and not job['name'].startswith('native (min-api26,')]
-              if len(peers)==7 and all(job['status']=='completed' for job in peers):
+              if len(peers)==4 and all(job['status']=='completed' for job in peers):
                   try:artifacts=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'/artifacts'],text=True))['artifacts']
                   except (subprocess.CalledProcessError,json.JSONDecodeError):
                       time.sleep(15);continue
-                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34','refinement-native-current-api36','refinement-native-min-api26-b','refinement-native-current-api36-b','refinement-native-large-font-api34-b','refinement-native-landscape-api34-b'}
+                  required={'refinement-native-min-api26','refinement-native-large-font-api34','refinement-native-landscape-api34','refinement-native-current-api36','refinement-native-min-api26-b'}
                   if required <= {item['name'] for item in artifacts if item['size_in_bytes']>0}:break
               time.sleep(15)
           else:raise SystemExit('Peer native jobs did not complete; do not claim full qualification')
@@ -226,7 +223,7 @@ jobs:
               if capture.exists() and capture.stat().st_size:
                   subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(capture),'--output',str(output)],check=True)
           if not results:raise SystemExit('No native execution reports to preserve')
-          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34','current-api36','min-api26-b','current-api36-b','large-font-api34-b','landscape-api34-b'}-set(results))
+          missing_profiles=sorted({'min-api26','large-font-api34','landscape-api34','current-api36','min-api26-b'}-set(results))
           root.mkdir(parents=True,exist_ok=True)
           (root/'provenance.json').write_text(json.dumps({'schema':1,'source_sha':os.environ['GITHUB_SHA'],'capture_run':os.environ['GITHUB_RUN_ID'],'scope':'synthetic debug-host fixtures only; not user screenshots','results':results,'missing_profiles':missing_profiles,'release_approval':False},indent=2)+'\n')
           (root/'README.md').write_text('# Native refinement review fixtures\n\nSource: `'+os.environ['GITHUB_SHA']+'`. Run: '+os.environ['GITHUB_RUN_ID']+'. These are synthetic notes rendered by Android. JPEG previews support inspection; original PNG hashes are recorded in each manifest.\n\n**Not a release approval.** Inspect provenance and each native-results.json for exact successes/failures. Passing automation and preserved screenshots do not constitute Motorola physical-device acceptance.\n')

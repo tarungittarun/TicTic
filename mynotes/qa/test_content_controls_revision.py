@@ -79,7 +79,7 @@ class ContentControlsRevision(unittest.TestCase):
 
  def test_motion_and_input_protocol_are_qualified_not_only_static_screenshots(self):
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
-  self.assertIn('motion: 1, shard: 0, group: all}',workflow)
+  self.assertIn('motion: 1, shard: -1, group: all}',workflow)
   self.assertIn('animator_duration_scale ${{ matrix.motion }}',workflow)
   self.assertIn('-e expectedMotion ${{ matrix.motion }}',workflow)
   self.assertIn('app.space.notes.runtime.NotesMotionTest',(ROOT/'tools/ci/refinement_plan.py').read_text())

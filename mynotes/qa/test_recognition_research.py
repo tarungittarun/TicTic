@@ -44,3 +44,14 @@ class RecognitionResearchTests(unittest.TestCase):
         from mynotes.tools.ci.ocr_weight_research import cer
         self.assertEqual(0,cer('é  NEXT','e\u0301\nNEXT')['character_edits'])
         self.assertEqual(1,cer('A','a')['character_edits'])
+
+    def test_ocr_annotation_groups_fit_observed_github_limits(self):
+        import json
+        from mynotes.tools.ci.ocr_weight_research import TEXT
+        messages=[]
+        for family in ['fast','best']:
+            for language,phrases in TEXT.items():
+                rows=[dict(family=family,language=language,case=i,variant=v,reference=t,recognized=t,process_seconds=1.234567890123,image_sha256='a'*64,font_sha256='b'*64,cer=0.0,character_edits=0,reference_codepoints=len(t)) for i,t in enumerate(phrases) for v in ['clean','low-contrast']]
+                messages.append(json.dumps(dict(family=family,language=language,cases=rows),ensure_ascii=False))
+        self.assertEqual(6,len(messages))
+        self.assertTrue(all(len(message.encode())<=3500 for message in messages))

@@ -102,3 +102,9 @@ individual step notices: only 9/24 per-case annotations were exposed to this wor
 summarize incomplete rows as a complete comparison. Group all rows in one bounded
 annotation and repeat the one-job pilot for complete inspectable evidence. Follow-up
 prospective count becomes21 jobs; this is a report-preservation correction, not training.
+OCR repeat 41331260229 completed, but a single grouped notice hit GitHub's observed
+4096-byte annotation-message truncation (JSON became incomplete). Corrected to six
+language/family groups under3500 bytes each, below both per-message and per-step caps;
+added deterministic local regression for payload sizes. One further one-job pilot
+is reserved so all 24 outputs are actually inspectable; prospective follow-up total22.
+These evidence transport corrections do not change APK recognition models.

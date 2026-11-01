@@ -66,3 +66,12 @@ class ContentControlsRevision(unittest.TestCase):
   source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   for name in ['listToolbarAtCollapsedCaretInsertsWithoutCrash','wholeChecklistCopyAndDeferredCut','contentPenHasManagement','typedNumberingContinuesAndSingleBackspace','typedNumberingAndEmptyEntryEscape']:
    self.assertIn(name,source)
+
+ def test_apk_name_matches_incremented_manifest_versions(self):
+  import re
+  gradle=(ROOT/'app/build.gradle').read_text()
+  version=re.search(r"versionName '([^']+)'",gradle).group(1)
+  code=re.search(r'versionCode (\d+)',gradle).group(1)
+  workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
+  names=set(re.findall(r'MyNotes-v[0-9.]+-\d+-development\.apk',workflow))
+  self.assertEqual({f'MyNotes-v{version}-{code}-development.apk'},names)

@@ -5,7 +5,7 @@ final class EditorActions {
  private EditorActions() { }
  static String symbol(String label){
   if(label.startsWith("Find"))return "search";
-  if(label.startsWith("Rename") || label.equals("Edit"))return "edit";
+  if(label.startsWith("Rename") || label.equals("Edit") || label.equals("Edit content"))return "edit";
   if(label.startsWith("Remove") || label.startsWith("Delete"))return "trash";
   if(label.startsWith("Insert") || label.equals("Text before"))return "add";
   if(label.startsWith("Move"))return label.contains("folder")?"folder":"drag";
@@ -16,7 +16,7 @@ final class EditorActions {
    case "Sans serif":case "Serif":case "Monospace":case "Cursive":return "format";
    case "Text":case "Convert to text":case "Writing lines":return "text";
    case "Image":return "image";case "Drawing":return "pencil";case "Diagram":return "diagram";
-   case "Cut":return "cut";case "Paste table":return "paste";
+   case "Cut":return "cut";case "Paste table":case "Paste content":return "paste";
    case "Fit to content":return "fit";case "Rows and columns":case "Fixed column width":case "Table":case "Cell actions":return "grid";
    case "Reminder":case "Rename reminder":return "bell";
    case "Undo":case "Restore":return "undo";case "Redo":return "redo";

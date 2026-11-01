@@ -25,9 +25,10 @@ new crash/gesture/typing regressions. Automated qualification is not physical OE
 |---|---:|---:|---|---|
 
 | 1 | 5 | 5/40 | `7e30daf0`; run41277605164 | Build failed: new visual-copy test used a non-UUID image fixture. 259/260 JVM passed; native matrix never expanded. |
-| 2 | 5 | 10/40 | Candidate2; run assigned after gated push | Reserved |
+| 2 | 5 | 10/40 | `732fcf73`; run41277795897; evidence `c76df1f8` | JVM260 PASS; API26/36 284/285, dark148/149, landscape146/149. Old + selector failed all; two additional landscape interaction failures. |
+| 3 | 5 | 15/40 | Candidate3; run assigned after gated push | Reserved |
 
-10/40 slots conservatively reserved/consumed; candidate1 executed1 build, four native slots unexecuted after build failure (not recycled). Candidate2 reserves5. Failed/cancelled individual jobs count; unused earlier allowances are not added.
+15/40 slots conservatively reserved/consumed; candidate1 executed1 build, four native slots unexecuted after build failure (not recycled). Candidate2 executed all5. Candidate3 reserves5 (prior actually executed6). Failed/cancelled individual jobs count; unused earlier allowances are not added.
 
 ## Candidate1 implementation and test scope
 Collapsed List inserts at caret with surrounding rich slices intact. Pen owns Rename/Copy/Cut/Delete
@@ -49,3 +50,12 @@ Candidate2 fixes the invalid test UUID without relaxing model validation or rich
 New pen tests inspect the actual dialog accessibility tree, rather than the underlying editor.
 Native item drag also exercises its accessible Move item later action and Undo. Shared Notes/Doc
 control rows disable text-baseline alignment so icon/caption and Size/steppers are truly centered.
+
+Candidate3 uses the accessible Increase text size label while retaining the exact19sp typing
+assertion. List Undo explicitly closes the IME first, as compact landscape intentionally hides top
+chrome. Native row-drag release remeasures its real moving target after edge scrolling, and now
+preserves a drag-marker scene plus phase-specific failures rather than one opaque order timeout.
+All row/text/style/Undo assertions stay exact. APK filename is corrected to0.23.0/code26 (the app
+manifest was already26 in candidate2); a new root guard rejects future filename/manifest mismatch.
+Edit content/Paste content receive proper pen/clipboard icons. Four new scenes give allowlist87
+within the unchanged88 hard cap. Candidate2 PDF exports passed all four profiles.

@@ -1,0 +1,23 @@
+name: MyNotes Indian speech corpus audit (nontraining)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-indian-speech-audit.yml']
+permissions:
+  contents: read
+jobs:
+  dataset-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect public dataset metadata without downloading private or gated data
+        run: python -m mynotes.tools.ci.indian_speech_audit
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: indian-speech-audit
+          path: indian-speech-audit.json
+          retention-days: 7

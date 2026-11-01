@@ -1,4 +1,4 @@
-# App-folder/open-file qualification CLOSED 2026-11-02: 30 actual jobs (6 builds, 24 native), 24 skips, no cancellations. Final run41349116962 SUCCESS9/9, 279 JVM +1086 native. Prior follow-up40 separate.
+# Device-quality follow-up round 1: 9 qualification jobs + 1 independent public corpus-audit job planned; previous closed scopes remain separate.
 # Build + eight parallel native shards; all four profile inventories remain exhaustive.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
@@ -42,14 +42,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.27.0-30-development.apk
-          sha256sum MyNotes-v0.27.0-30-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.27.0-30-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.28.0-31-development.apk
+          sha256sum MyNotes-v0.28.0-31-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.28.0-31-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.27.0-30-development.apk
+          path: MyNotes-v0.28.0-31-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

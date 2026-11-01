@@ -6,7 +6,7 @@ JAVA=ROOT/'runtime/src/main/java/app/space/notes/runtime'
 class DeviceFilesCapture(unittest.TestCase):
  def test_search_bar_is_below_creation_and_icon_removed(self):
   home=(JAVA/'NotesController.java').read_text().split('private void renderHome(){',1)[1].split('private void saveViewPreferences()',1)[0]
-  self.assertNotIn('icon("Search"',home);self.assertGreater(home.index('root.addView(searchBar'),home.index('dock.addView(create)'))
+  self.assertNotIn('icon("Search"',home);self.assertLess(home.index('createRow.addView(create)'),home.index('LinearLayout dock=tools(root)'));self.assertGreater(home.index('dock.addView(searchBar'),home.index('tool(dock,"Record voice"'))
  def test_folders_tab_preserves_apply_and_access_to_real_device_picker(self):
   s=(JAVA/'LibraryFilterView.java').read_text()
   for token in ['"Folders"','"Browse folders"','"Choose device folder"','"Apply filters"','fontScale>1.3f']:self.assertIn(token,s)

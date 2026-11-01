@@ -18,15 +18,17 @@ public final class NotesActivity extends Activity implements NotesHost {
         int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
         if(state!=null){pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
-        controller=new NotesController(this,this,state);
+        try {controller=new NotesController(this,this,state);
         setContentView(controller.view());
         installDocumentDrop();
-        if(state==null)acceptIncoming(getIntent());
+        if(state==null)acceptIncoming(getIntent());}catch(RuntimeException failure){if(controller!=null){controller.close();controller=null;}showSafeStart(failure);}
     }
+    @Override public void libraryUnavailable(Throwable failure){if(controller!=null){controller.close();controller=null;}showSafeStart(failure);}
+    private void showSafeStart(Throwable failure){app.space.notes.runtime.Diagnostics.failure("startup.ui.failure",failure);android.widget.LinearLayout content=new android.widget.LinearLayout(this);content.setOrientation(android.widget.LinearLayout.VERTICAL);int pad=Math.round(20*getResources().getDisplayMetrics().density);content.setPadding(pad,pad,pad,pad);android.widget.TextView message=new android.widget.TextView(this);message.setText("MyNotes could not open. Saved data has not been cleared. Export a diagnostic report or reopen the verified internal copy. Do not uninstall or clear app data.");message.setTextSize(18);content.addView(message);android.widget.Button report=new android.widget.Button(this);report.setText("Export diagnostic report");report.setOnClickListener(v->exportDiagnostics());content.addView(report);android.widget.Button retry=new android.widget.Button(this);retry.setText("Enable issue logs and retry");retry.setOnClickListener(v->{app.space.notes.runtime.Diagnostics.setEnabled(true);recreate();});content.addView(retry);android.widget.Button internal=new android.widget.Button(this);internal.setText("Use internal copy");internal.setOnClickListener(v->new android.app.AlertDialog.Builder(this).setTitle("Disconnect folder and use internal copy?").setMessage("First verify the private saved notes, then disconnect the unavailable folder. Folder files are not deleted. Unfinished full-app recovery will not be bypassed.").setPositiveButton("Use internal copy",(d,w)->{internal.setEnabled(false);new Thread(()->{try{app.space.notes.runtime.NotesRepository repo=new app.space.notes.runtime.NotesRepository(this);java.io.File saved=new java.io.File(getFilesDir(),"notes-library/library-v1.json");if(!saved.isFile() && !new java.io.File(saved+".bak").isFile())throw new java.io.IOException("No verified internal library");java.util.List<app.space.notes.domain.Note> notes=repo.localSnapshot();repo.usePrivate(notes);runOnUiThread(this::recreate);}catch(Exception error){app.space.notes.runtime.Diagnostics.failure("startup.private.failure",error);runOnUiThread(()->{internal.setEnabled(true);showMessage("Internal copy could not be verified. No saved files were replaced.");});}},"notes-safe-start").start();}).setNegativeButton("Cancel",null).show());content.addView(internal);setContentView(content);}
     @Override public boolean managesAppearance(){return false;}
     @Override public void appearanceChanged(){recreate();}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
-    private void acceptIncoming(Intent intent){if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openFile(intent.getData());return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
+    private void acceptIncoming(Intent intent){if(controller==null || intent==null)return;if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openFile(intent.getData());return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
     /** External drops are read-only intake. The validated merge always requires confirmation. */
     private void installDocumentDrop(){controller.view().setOnDragListener((view,event)->{
         if(event.getLocalState()!=null)return false;android.content.ClipDescription description=event.getClipDescription();if(description==null || !(description.hasMimeType("application/json") || description.hasMimeType("application/octet-stream") || description.hasMimeType("application/vnd.mynotes.document")))return false;
@@ -47,13 +49,13 @@ public final class NotesActivity extends Activity implements NotesHost {
         }catch(RuntimeException invalid){showMessage("Nothing imported: "+invalid.getMessage());}
     }
     @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");app.space.notes.runtime.AppFolderTasks.request(this);}
-    @Override protected void onPause() { controller.pause(); super.onPause(); }
+    @Override protected void onPause() { if(controller!=null)controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putBoolean("pdfPrintGuides",pdfPrintGuides);state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
-        controller.saveState(state); super.onSaveInstanceState(state);
+        if(controller!=null)controller.saveState(state); super.onSaveInstanceState(state);
     }
-    @Override protected void onDestroy() { controller.close(); super.onDestroy(); }
-    @Override public void onBackPressed() { if(!controller.back()) super.onBackPressed(); }
+    @Override protected void onDestroy() { if(controller!=null)controller.close(); super.onDestroy(); }
+    @Override public void onBackPressed() { if(controller==null || !controller.back()) super.onBackPressed(); }
     @Override public void chooseLocalFolder() { chooseTree(94); }
     @Override public void openExistingFolder() { chooseTree(95); }
     @Override public void recoverAppFolder() { chooseTree(105); }
@@ -65,7 +67,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         openPicker(picker,96);
     }
     @Override public void chooseCopyFolder(){chooseTree(104);}
-    @Override public void chooseNoteDocument(){Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*");picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"text/plain","application/pdf","application/json","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/msword"});picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,103);}
+    @Override public void chooseNoteDocument(){Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*");picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"text/plain","application/pdf","application/json","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/msword","text/csv","text/markdown","text/html","application/rtf","text/rtf","application/vnd.oasis.opendocument.text","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.ms-excel","application/vnd.ms-powerpoint"});picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,103);}
     @Override public void chooseNoteImage(String noteId){imageNoteId=noteId;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,102);}
     @Override public void chooseOcrImage(String language){ocrLanguage=language;Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);openPicker(picker,99);}
     @Override public void requestVoiceCapture(){
@@ -104,10 +106,12 @@ public final class NotesActivity extends Activity implements NotesHost {
         }
         app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
+        if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
+        if(controller==null){showMessage("Open MyNotes successfully before importing files. Your data is unchanged.");return;}
         if(request==103){controller.openFile(uri);return;}
         if(request==104){controller.exportFolderCopy(uri);return;}
         if(request==102){if(imageNoteId!=null)controller.attachImage(imageNoteId,uri);return;}
-        if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
+
         if(request==99){controller.recognizeImage(uri,ocrLanguage);return;}
         if(request==100){if(voiceExportId!=null)controller.exportVoice(voiceExportId,uri);return;}
         if(request==98){controller.exportPdf(uri,pdfPrintGuides);return;}

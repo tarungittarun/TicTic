@@ -68,11 +68,11 @@ public final class OfflineOcr {
     }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");
-        if(!LANGUAGES.contains(language))throw new IOException("Choose English, Hindi or Kannada");
+        if(!"auto".equals(language) && !LANGUAGES.contains(language))throw new IOException("Choose English, Hindi or Kannada");
         if(bitmap==null || bitmap.isRecycled() || (long)bitmap.getWidth()*bitmap.getHeight()>4000000L)throw new IOException("Unsupported OCR bitmap");
-        cancellation.check();File root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();Bitmap prepared=prepareBitmap(bitmap);
+        cancellation.check();File root;if("auto".equals(language)){root=null;for(String code:LANGUAGES){cancellation.check();root=installModel(context,code);}}else root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();Bitmap prepared=prepareBitmap(bitmap);
         try{
-            if(!engine.init(root.getAbsolutePath(),language))throw new IOException("Bundled OCR model could not initialize");
+            if(!engine.init(root.getAbsolutePath(),"auto".equals(language)?"eng+hin+kan":language))throw new IOException("Bundled OCR model could not initialize");
             synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setVariable("preserve_interword_spaces","1");engine.setImage(prepared);
             engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";if(text.trim().isEmpty() || confidence<65){engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(sparse!=null && !sparse.trim().isEmpty() && (text.trim().isEmpty() || score>confidence && sparse.length()>=text.length()*.75)){text=sparse;confidence=score;}}return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight());
         }finally{synchronized(cancellation){cancellation.active=null;engine.recycle();prepared.recycle();}}

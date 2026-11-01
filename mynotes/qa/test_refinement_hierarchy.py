@@ -15,9 +15,13 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertNotIn('top.addView(library', home)
         self.assertLess(dock.index('dock.addView(library'), dock.index('if(!page.equals("Trash"))'))
         creation = dock.split('if(!page.equals("Trash")){', 1)[1]
-        for token in ['"+ Checklist"', '"Record voice"', '"New text note"', 'dock.addView(create);']:
+        for token in ['"+ Checklist"', '"Record voice"']:
             self.assertIn(token, creation)
-        self.assertTrue(creation.split('root.addView(searchBar',1)[0].rstrip().endswith('}'))
+        new_row=home.split('LinearLayout createRow=tools(root);',1)[1].split('LinearLayout dock=tools(root);',1)[0]
+        self.assertIn('if(!page.equals("Trash")){Button create=',new_row)
+        self.assertIn('"New text note"',new_row)
+        self.assertIn('createRow.addView(create);',new_row)
+        self.assertIn('dock.addView(searchBar',creation)
 
     def test_confirmation_primary_matches_its_scope(self):
         confirm = self.source.split('private void confirmSheet(', 1)[1].split('private void drawingHelp()', 1)[0]

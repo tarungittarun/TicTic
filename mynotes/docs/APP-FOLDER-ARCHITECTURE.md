@@ -1,6 +1,8 @@
 # Complete on-device App folder — design and acceptance
 
-Baseline 0.26/code29, closure50f27a1c. This revision is not qualified yet.
+Baseline 0.26/code29, closure50f27a1c. Version 0.27/code30 qualified on 2026-11-02:
+run41349116962, source17febd34, 279 JVM + 1086 native checks passed. See
+APP-FOLDER-QUALIFICATION.md for failures, exact counts, APK and physical-device limits.
 User priority: no loss of authored content; internal storage always remains active.
 No folder selected means app-private storage only (uninstall removes that private copy).
 New root must be empty; recognized existing roots enter explicit recovery, never initialization.
@@ -52,13 +54,14 @@ open the App folder. TXT should offer an editable imported note, not a dead-end 
 DOCX needs bounded structured import (supported styles/tables), with an explicit warning
 for unsupported layout/media; retain originals, never imply Word layout fidelity.
 
-## Required qualification (not yet evidence)
+## Qualification scope (final results in the ledger)
 Native real-provider initialize/nonempty refusal; revoke/write/readback failures; choices;
 fresh-context/reinstall-style full recovery including WAV/settings/history/empty folders;
 corruption/future version/path traversal; interrupted restore/rollback; concurrent change;
 no source deletion; native note re-open + TXT editing/find + structured DOCX. Run existing
 migration/backup/history/rich-document suites. Android builds Actions-only; monitor to final
-results. Old passing0.26 outcomes do not qualify this new architecture.
+results. Old passing0.26 outcomes alone do not qualify this new architecture; this revision
+has its own completed qualification.
 
 ## Implementation safeguards and current bounds
 The first candidate `dc024ab1` failed compilation (lambda local-name collision), not native

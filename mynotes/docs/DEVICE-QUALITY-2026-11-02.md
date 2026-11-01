@@ -1,4 +1,47 @@
-# Device-quality follow-up — active work ledger
+# Device-quality follow-up — qualified development build and open acceptance
+
+## Current result — 2026-11-01 23:19 UTC / 2026-11-02 local
+**0.28.0/code31 development build qualified in automation, not physical acceptance.**
+Source `5d075f1c2bfb95203e4b00b76871fd298b0d6355`; evidence `168e482d`;
+run https://github.com/tarungittarun/TicTic/actions/runs/41359785324 **SUCCESS9/9**.
+282 JVM tests and1130 native outcomes passed, zero missing/skipped/duplicate outcomes.
+All327 previous native identities remain among340 current methods. API26/API36 each
+175+165; API34 large-font-dark and landscape each118+107.356 synthetic JPEGs preserved;
+inspected final landscape Home and keyboard results. Root667 / Notes277 local checks pass.
+
+Raw APK (workflow `archive:false`, not a public Release):
+https://github.com/tarungittarun/TicTic/actions/runs/41359785324/artifacts/13105145216
+- `MyNotes-v0.28.0-31-development.apk`,66,778,392 bytes.
+- GitHub metadata digest: `sha256:a077f3280e1b7e83ab9b1bd8afee42e8cdebc0020d09a7ca25183b04622d3519`.
+- Metadata expiry2026-11-08T23:01:22Z. Not downloaded/locally hash-verified in this sandbox;
+  build verifies the retained signing certificate `08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca`.
+- Install over the previous app. Never uninstall/clear app data to test this upgrade.
+
+**Still open:** actual Motorola startup/root-cause confirmation, real microphone/noise and
+Indian-English accuracy, representative real-file/OCR acceptance including emoji. No new
+speech weights, Indian training or Indian WER improvement claimed. Dataset gates remain.
+Actual window21:49→23:19UTC: about90minutes; the requested360minutes were **not** completed.
+
+### Closed job accounting for this follow-up
+From actual assigned runners (not planned slots): **48 jobs =20success +10failure +18cancelled**.
+Seven builds (5success/2cancelled),40native (14success/10failure/16cancelled), one successful
+metadata-only corpus audit. Two cancelled native placeholders had no runner and are excluded.
+No job remains running. Prior closed30-job App-folder and40-job research scopes stay separate.
+
+| Run | Runner-executed outcome |
+|---|---|
+|41354950129 round1|1 cancelled build; unexecuted native placeholder excluded|
+|41354950288 corpus audit|1 successful metadata job; no audio/training|
+|41355053789 round2|1 successful build +8 cancelled native jobs; partial failures preserved|
+|41355595977 round3|1 successful build +8 cancelled native jobs; partial failures preserved|
+|41356235141 round4|1 cancelled build; unexecuted native placeholder excluded|
+|41356383842 round5|1 successful build +8 failed native jobs;1116pass/14fail|
+|41358196950 round6|1 successful build +6 successful/2 failed native jobs;1128pass/2fail|
+|41359785324 round7|1 successful build +8 successful native jobs;1130pass/0fail|
+
+The following entries are the historical work log, including planned counts and earlier
+failures; they are not the current qualification result.
+
 
 Started 2026-11-01 21:49 UTC (2026-11-02 local). Requested window: 360 minutes;
 this ledger records actual work/results, never an invented elapsed-time/training claim.

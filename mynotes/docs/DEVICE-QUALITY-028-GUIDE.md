@@ -1,7 +1,8 @@
 # MyNotes 0.28 device-quality changes — verification guide
 
-Development candidate only. Use the qualification ledger for the actual build/test status;
-this guide is not a claim that a candidate passed on your phone.
+Development candidate, not a public Release. Final run41359785324 passed9/9 jobs,282JVM
+and1130Android test outcomes. See the qualification ledger for source/APK identity and the
+full history; this is not a claim that it passed on your phone.
 
 ## First: preserve your existing notes
 

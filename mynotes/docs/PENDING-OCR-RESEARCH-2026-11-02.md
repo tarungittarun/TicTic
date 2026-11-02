@@ -168,3 +168,25 @@ sanity check, not a held-out accuracy claim, full3941-class fitting, a single-fa
 causal ablation or universal OCR. No OpenMoji pixels are read or tuned against in
 this diagnosis. Results, including failures, must be inspected before drawing a
 conclusion about feature collapse. No new weights are saved, no runtime changes.
+
+### Measured diagnosis — run41462223764, source22ae6806
+
+The diagnosis actually executed successfully. Exact measured check-annotation JSON
+and its run/check provenance are retained in `emoji-pilot/41462223764/`; these are
+explicitly not the full diagnosis artifact. No new weights were saved.
+
+On64 deterministic distinct canonical Twemoji inputs, the archived classifier made
+one distinct top1 prediction and got0/64 correct. Its last hidden ReLU had min0,
+max0, zero_fraction1 and zero inter-input standard deviation; final logits also
+had zero inter-input standard deviation. This **measures a dead final hidden
+representation on this sample**, rather than merely guessing from unchanged loss.
+It does not isolate the optimizer, class count, augmentation or initialization as
+its cause and is not another held-out test.
+
+Both fresh16-class,300-step tiny-*training*-set checks memorized16/16: original
+architecture final training loss0.0000020712578, centered/LeakyReLU/LayerNorm/lower-LR
+variant0.0062860902. CPU training2.04956493s and2.16353910s respectively. Therefore
+basic fitting works at tiny scale; **the stabilized variant is not established as
+better**, and neither result is useful generalization evidence. Full3941-class
+learning, independent family/detection/photo tests and calibrated unknowns remain
+unresolved. This diagnosis makes no runtime adoption or universal accuracy claim.

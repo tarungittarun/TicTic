@@ -32,6 +32,19 @@ def require_identity(pilot):
     return weights, labels
 
 
+
+def archive_members(source):
+    """Keep the real archive path; a normalized Unicode key is not reversible."""
+    members = {}
+    for member in source.infolist():
+        if not member.filename.startswith('twemoji-'+COMMIT+'/assets/72x72/') or not member.filename.endswith('.png'):
+            continue
+        key = normalized(int(part,16) for part in Path(member.filename).stem.split('-'))
+        if key in members:
+            raise ValueError('Ambiguous normalized archive filename')
+        members[key] = member
+    return members
+
 def model_for(nn, count, stabilized=False):
     def activation():
         return nn.LeakyReLU(.1) if stabilized else nn.ReLU()
@@ -60,14 +73,7 @@ def run(pilot, output):
     indices = sorted(range(len(labels)), key=lambda i: hashlib.sha256(labels[i][0].encode()).digest())[:64]
     inputs, tensor_identities = [], []
     with zipfile.ZipFile(io.BytesIO(archive)) as source:
-        members = {}
-        for member in source.infolist():
-            if not member.filename.startswith('twemoji-'+COMMIT+'/assets/72x72/') or not member.filename.endswith('.png'):
-                continue
-            key = normalized(int(part,16) for part in Path(member.filename).stem.split('-'))
-            if key in members:
-                raise ValueError('Ambiguous normalized archive filename')
-            members[key] = member
+        members = archive_members(source)
         for index in indices:
             # Normalization is a lookup key, NOT a reversible asset filename.
             # ZWJ assets may retain FE0F in their actual pinned archive path.

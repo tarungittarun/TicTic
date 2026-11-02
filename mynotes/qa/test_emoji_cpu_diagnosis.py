@@ -3,7 +3,7 @@ import ast
 from pathlib import Path
 import tempfile
 import unittest
-from mynotes.tools.ci.emoji_cpu_diagnosis import require_identity, WEIGHT_SHA
+from mynotes.tools.ci.emoji_cpu_diagnosis import require_identity, WEIGHT_SHA, archive_members, COMMIT
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT/'mynotes/docs/emoji-pilot/41457619334'
@@ -39,3 +39,26 @@ class EmojiCpuDiagnosisSafetyTest(unittest.TestCase):
         self.assertIn("'openmoji_pixels_read':False",source)
         self.assertNotIn('torch.save(',source)
         self.assertNotIn('app/src/',source)
+
+
+class EmojiArchiveLookupTest(unittest.TestCase):
+    def members(self,names):
+        import io,zipfile
+        memory=io.BytesIO()
+        with zipfile.ZipFile(memory,'w') as archive:
+            for name in names:
+                archive.writestr(name,b'not read by the filename-only helper')
+        with zipfile.ZipFile(io.BytesIO(memory.getvalue())) as archive:
+            return archive_members(archive)
+
+    def test_retained_fe0f_is_resolved_without_inventing_archive_path(self):
+        name='twemoji-'+COMMIT+'/assets/72x72/1f3f3-fe0f-200d-1f308.png'
+        self.assertEqual(name,self.members([name])[(0x1f3f3,0x200d,0x1f308)].filename)
+
+    def test_duplicate_normalized_names_fail_closed(self):
+        prefix='twemoji-'+COMMIT+'/assets/72x72/'
+        with self.assertRaisesRegex(ValueError,'Ambiguous'):
+            self.members([prefix+'2764.png',prefix+'2764-fe0f.png'])
+
+    def test_unrelated_paths_are_not_asset_candidates(self):
+        self.assertEqual({},self.members(['other/assets/72x72/2764.png','twemoji-'+COMMIT+'/assets/svg/2764.svg']))

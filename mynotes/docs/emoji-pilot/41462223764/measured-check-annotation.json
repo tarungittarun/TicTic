@@ -1,0 +1,173 @@
+{
+  "archived_seen_style_sample_not_held_out": {
+    "examples": 64,
+    "distinct_top1_predictions": 1,
+    "correct": 0
+  },
+  "archived_layer_statistics": [
+    {
+      "layer": 0,
+      "type": "Conv2d",
+      "min": -1.3761917352676392,
+      "max": 0.9192885756492615,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.1454012095928192
+    },
+    {
+      "layer": 1,
+      "type": "ReLU",
+      "min": 0.0,
+      "max": 0.9192885756492615,
+      "zero_fraction": 0.6701040267944336,
+      "mean_feature_std_across_inputs": 0.04358260706067085
+    },
+    {
+      "layer": 2,
+      "type": "Conv2d",
+      "min": -0.4908691644668579,
+      "max": 0.4475541412830353,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.05400247126817703
+    },
+    {
+      "layer": 3,
+      "type": "ReLU",
+      "min": 0.0,
+      "max": 0.4475541412830353,
+      "zero_fraction": 0.9483470916748047,
+      "mean_feature_std_across_inputs": 0.0033830502070486546
+    },
+    {
+      "layer": 4,
+      "type": "Conv2d",
+      "min": -0.1929851621389389,
+      "max": 0.11050489544868469,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.008707528933882713
+    },
+    {
+      "layer": 5,
+      "type": "ReLU",
+      "min": 0.0,
+      "max": 0.11050489544868469,
+      "zero_fraction": 0.8208262324333191,
+      "mean_feature_std_across_inputs": 0.0014130776980891824
+    },
+    {
+      "layer": 6,
+      "type": "Conv2d",
+      "min": -0.08592690527439117,
+      "max": 0.04345114901661873,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.001980811357498169
+    },
+    {
+      "layer": 7,
+      "type": "ReLU",
+      "min": 0.0,
+      "max": 0.04345114901661873,
+      "zero_fraction": 0.9788360595703125,
+      "mean_feature_std_across_inputs": 4.3080857722088695e-05
+    },
+    {
+      "layer": 8,
+      "type": "Flatten",
+      "min": 0.0,
+      "max": 0.04345114901661873,
+      "zero_fraction": 0.9788360595703125,
+      "mean_feature_std_across_inputs": 4.3080857722088695e-05
+    },
+    {
+      "layer": 9,
+      "type": "Linear",
+      "min": -0.05616935342550278,
+      "max": -0.0034020040184259415,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.0003374646767042577
+    },
+    {
+      "layer": 10,
+      "type": "ReLU",
+      "min": 0.0,
+      "max": 0.0,
+      "zero_fraction": 1.0,
+      "mean_feature_std_across_inputs": 0.0
+    },
+    {
+      "layer": 11,
+      "type": "Linear",
+      "min": -0.39957138895988464,
+      "max": 0.04393170773983002,
+      "zero_fraction": 0.0,
+      "mean_feature_std_across_inputs": 0.0
+    }
+  ],
+  "small_training_set_memorization_sanity_only": [
+    {
+      "variant": "original-architecture-lr0.002",
+      "scope": "16 clean repeated TRAINING examples; NOT held-out accuracy or universal OCR",
+      "steps": 300,
+      "sampled_training_instances": 4800,
+      "examples": 16,
+      "training_top1_correct": 16,
+      "final_training_loss": 2.071257767966017e-06,
+      "changed_parameters": 179936,
+      "training_cpu_seconds": 2.0495649300000025,
+      "loss_observations": [
+        {
+          "step": 1,
+          "loss_before_update": 2.7727386951446533
+        },
+        {
+          "step": 50,
+          "loss_before_update": 0.00011178811837453395
+        },
+        {
+          "step": 100,
+          "loss_before_update": 6.6309548856224865e-06
+        },
+        {
+          "step": 200,
+          "loss_before_update": 2.9057180199743016e-06
+        },
+        {
+          "step": 300,
+          "loss_before_update": 2.071257767966017e-06
+        }
+      ]
+    },
+    {
+      "variant": "centered-input-leaky-relu-layernorm-lr0.0005",
+      "scope": "16 clean repeated TRAINING examples; NOT held-out accuracy or universal OCR",
+      "steps": 300,
+      "sampled_training_instances": 4800,
+      "examples": 16,
+      "training_top1_correct": 16,
+      "final_training_loss": 0.006286090239882469,
+      "changed_parameters": 180192,
+      "training_cpu_seconds": 2.1635390969999975,
+      "loss_observations": [
+        {
+          "step": 1,
+          "loss_before_update": 2.841179609298706
+        },
+        {
+          "step": 50,
+          "loss_before_update": 0.08554133027791977
+        },
+        {
+          "step": 100,
+          "loss_before_update": 0.03360076993703842
+        },
+        {
+          "step": 200,
+          "loss_before_update": 0.012051324360072613
+        },
+        {
+          "step": 300,
+          "loss_before_update": 0.006320246495306492
+        }
+      ]
+    }
+  ]
+}

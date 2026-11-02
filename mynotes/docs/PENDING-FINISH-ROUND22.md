@@ -17,7 +17,7 @@ and its peers/evidence; Round22 uses a separate concurrency group, not cancellat
 - Same bounded lazy raster remains: **not vector-quality redraw while zoomed**.
   No direct glyph handles, Office fidelity or actual process-kill claim is added.
 - Two actual native View-state cases cover reconstruction/resize/copy isolation and
-  invalid/extreme floats. The existing real-PDF two-controller reconstruction case
+  invalid/extreme floats. The existing real-PDF two-view reconstruction case
   additionally asserts current page, quarter-page offset and all five zoom floats,
   retained query, no OCR restart and cache cleanup.
 - SDK-only retry (max3 attempts,180s each,5s between) addresses the evidenced

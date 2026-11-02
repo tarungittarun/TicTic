@@ -4,14 +4,14 @@
 # Pin final candidate38 bytes; parse actual ActivityRecord whitespace and retain stopped-state observations without relaxing PID/query/page/source-byte checks.
 # Navigate the real scrollable Library menu to Open file; keep actual PID, state and source-byte assertions.
 # Probe retry: use the real local SAF picker, explicitly choose MyNotes Word pages, retain failure phase before interpreting recovery.
-# Exact already-built release38 bytes; public disposable-emulator process recovery only.
-name: MyNotes release38 actual reader process recovery (nonpublishing)
+# Exact already-built release39 bytes; public disposable-emulator process recovery only.
+name: MyNotes release39 actual reader process recovery (nonpublishing)
 on:
   push:
     branches: ['arena/3caca636-tictic']
     paths: ['.github/workflows/notes-reader-process-recovery.yml']
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   public-recovery-probe:
@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -31,16 +33,16 @@ jobs:
           python3 -m unittest discover -s qa
           python3 - <<'PY'
           import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41469717511']))
-          assert run['head_sha']=='62c3c22b827c46dcc1a3c4af56c907f6f27015b2'
-          jobs=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41469717511/jobs?per_page=100']))['jobs']
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41478009279']))
+          assert run['head_sha']=='986ebe50b2b0fb0da41fc5bd253d8d731527bd1c'
+          jobs=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41478009279/jobs?per_page=100']))['jobs']
           assert next(job for job in jobs if job['name']=='build')['conclusion']=='success'
           PY
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41469717511
-          name: MyNotes-v0.35.0-38-development.apk
+          run-id: 41478009279
+          name: MyNotes-v0.36.0-39-development.apk
           path: candidate-apk
       - name: Verify exact bytes signer package version minimum API and no Internet
         env:
@@ -53,17 +55,17 @@ jobs:
           from pathlib import Path
           files=list(Path('candidate-apk').rglob('*.apk'));assert len(files)==1
           file=files[0];sha=hashlib.sha256(file.read_bytes()).hexdigest()
-          meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13155455677']))
-          assert meta['workflow_run']['id']==41469717511 and meta['workflow_run']['head_sha']=='62c3c22b827c46dcc1a3c4af56c907f6f27015b2'
-          assert sha=='d0285d28318211854cb175bfb983f3f3c1f8180bc8d4106349ee2dd35c2ff3c7'==meta['digest'].removeprefix('sha256:')
-          assert file.stat().st_size==155142244==meta['size_in_bytes']
+          meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13160085024']))
+          assert meta['workflow_run']['id']==41478009279 and meta['workflow_run']['head_sha']=='986ebe50b2b0fb0da41fc5bd253d8d731527bd1c'
+          assert sha=='cab8b452dad05953b8265eee7b90fee8ec8f002ea69b31287bf4ed9970de0557'==meta['digest'].removeprefix('sha256:')
+          assert file.stat().st_size==155142488==meta['size_in_bytes']
           tools=Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
           cert=subprocess.check_output([str(tools/'apksigner'),'verify','--print-certs',str(file)],text=True)
           assert '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' in cert
           manifest=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(file)],text=True)
-          assert "package: name='app.space.notes' versionCode='38' versionName='0.35.0'" in manifest
+          assert "package: name='app.space.notes' versionCode='39' versionName='0.36.0'" in manifest
           assert "sdkVersion:'26'" in manifest and 'android.permission.INTERNET' not in manifest
-          Path('reader-apk-identity.json').write_text(json.dumps({'artifact_id':13155455677,'source_run':41469717511,'source_sha':meta['workflow_run']['head_sha'],'sha256':sha,'bytes':file.stat().st_size,'release_approval':False},indent=2)+'\n')
+          Path('reader-apk-identity.json').write_text(json.dumps({'artifact_id':13160085024,'source_run':41478009279,'source_sha':meta['workflow_run']['head_sha'],'sha256':sha,'bytes':file.stat().st_size,'release_approval':False},indent=2)+'\n')
           PY
       - name: Prepare emulator host dependencies and KVM
         run: |
@@ -93,13 +95,13 @@ jobs:
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable
             adb shell svc data disable
-            adb install candidate-apk/MyNotes-v0.35.0-38-development.apk
-            python3 -m mynotes.tools.ci.reader_process_recovery_smoke --expected-code 38 --output evidence/reader-process-recovery
+            adb install candidate-apk/MyNotes-v0.36.0-39-development.apk
+            python3 -m mynotes.tools.ci.reader_process_recovery_smoke --expected-code 39 --output evidence/reader-process-recovery
       - name: Retain only public fixture evidence, not a release
         if: always()
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: public-reader-process-recovery-release38
+          name: public-reader-process-recovery-release39
           path: |
             reader-apk-identity.json
             reader-sdk-bootstrap.txt
@@ -115,3 +117,39 @@ jobs:
           assert report['ok'] is True and len(report['records'])==3
           print('::notice title=Actual emulator process recovery public fixtures only::'+json.dumps(report))
           PY
+      - name: Preserve successful actual-process public reports only
+        run: |
+          python3 - <<'PYRETAIN'
+          import json,os,shutil
+          from pathlib import Path
+          source=Path('evidence/reader-process-recovery/reader-process-recovery.json')
+          report=json.loads(source.read_text())
+          assert report['ok'] is True and report['package_code']==39 and report['api']==34
+          assert report['force_stop_uninstall_clear_data'] is False and report['release_approval'] is False
+          assert {record['name'] for record in report['records']}=={'ReaderRecovery.pdf','ReaderRecovery.docx','ReaderRecovery.csv'} and len(report['records'])==3
+          for record in report['records']:
+              assert record['before_pid']!=record['after_pid'] and record['before_pid']>0 and record['after_pid']>0
+              assert record['stopped_before_kill'] is True and record['query_restored'] is True and record['original_unchanged'] is True
+              assert record['visible_row_restored']==41 if record['name'].endswith('.csv') else record['page_2_restored'] is True
+          root=Path('mynotes/docs/design-2026-10-29/process-recovery')/os.environ['GITHUB_RUN_ID'];root.mkdir(parents=True,exist_ok=True)
+          for file in (source,Path('reader-apk-identity.json')):
+              assert 0<file.stat().st_size<20000;shutil.copyfile(file,root/file.name)
+          (root/'provenance.json').write_text(json.dumps({'run_id':os.environ['GITHUB_RUN_ID'],'workflow_sha':os.environ['GITHUB_SHA'],'release_approval':False,'scope':report['scope']},indent=2)+'\n')
+          PYRETAIN
+      - name: Gate and commit only successful public evidence to session branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add "mynotes/docs/design-2026-10-29/process-recovery/${{ github.run_id }}"
+          git commit -m 'Preserve successful exact-byte39 synthetic verification evidence, limited scope [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+            git diff --check
+          done

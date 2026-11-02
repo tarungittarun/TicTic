@@ -47,3 +47,18 @@ PDF glyph overlays, exact Office rendering, universal emoji OCR (separate-style
 pilot only3/64), broad licensed Indian-speech validation, physical startup/playback
 and user-device acceptance. No physical/public-release/360-minute claim. No
 uninstall/clear-data; original files and internal user content remain prioritized.
+
+## Exact39 bytes available; qualification still running
+
+Build41478009279 succeeded, source986ebe50b2b0fb0da41fc5bd253d8d731527bd1c.
+Raw39 artifact13160085024,155142488bytes, SHA256
+`cab8b452dad05953b8265eee7b90fee8ec8f002ea69b31287bf4ed9970de0557`.
+Host777PASS8.227s; native1318 planned outcomes/392 distinct methods, NOT yet passed.
+
+The actual-process and dual33/35 install-over workflows are now pinned to these
+exact39 bytes/source/version. They verify bytes/package/minSDK/no-INTERNET/common
+signer before exercising the app. Successful small synthetic reports will be
+validated and committed automatically to separate run-scoped evidence directories;
+failed or partial probes cannot enter that success-only evidence step. Each bot
+commit is host-gated and stays on the session branch. No raw APK/user data is
+committed. This removes reliance on a later sandbox blob download/relay.

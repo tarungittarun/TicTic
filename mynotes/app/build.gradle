@@ -38,4 +38,7 @@ dependencies {
     implementation project(':notes-runtime')
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:runner:1.5.2'
+    // Implementation-only runtime UI/parser dependencies needed by owned viewer tests.
+    androidTestImplementation 'androidx.recyclerview:recyclerview:1.3.2'
+    androidTestImplementation 'com.tom-roush:pdfbox-android:2.0.27.0'
 }

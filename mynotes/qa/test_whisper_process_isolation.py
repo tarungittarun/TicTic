@@ -28,3 +28,12 @@ class WhisperProcessIsolationTests(unittest.TestCase):
   self.assertIn('FLAG_DEBUGGABLE',client)
   engine=(ROOT/'runtime/src/main/java/app/space/notes/runtime/TrainedWhisper.java').read_text()
   for phase in ('model-verification','model-load','model-ready','decode-window','decode-complete'):self.assertIn('progress.accept("'+phase+'")',engine)
+
+ def test_cancellation_is_scoped_to_request_and_late_binding_is_ignored(self):
+  client=(ROOT/'runtime/src/main/java/app/space/notes/runtime/WhisperProcessClient.java').read_text()
+  worker=(ROOT/'runtime/src/main/java/app/space/notes/runtime/WhisperWorkerService.java').read_text()
+  self.assertEqual(2,client.count('data.putString("request",requestId)'))
+  self.assertIn('if(finished.get())return',client)
+  self.assertIn('request.equals(activeRequest)',worker)
+  self.assertIn('PROCESS_ACTIVE.compareAndSet(false,true)',worker)
+  self.assertIn('if(destroyed ||',worker)

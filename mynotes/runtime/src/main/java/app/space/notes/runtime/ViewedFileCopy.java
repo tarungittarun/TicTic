@@ -24,6 +24,7 @@ public final class ViewedFileCopy {
             StructStat from=Os.fstat(source.getFileDescriptor()),to=Os.fstat(target.getFileDescriptor());
             if(!OsConstants.S_ISREG(from.st_mode) || !OsConstants.S_ISREG(to.st_mode))throw new IOException("Choose physical local files for a verifiable original-preserving copy");
             if(from.st_dev==to.st_dev && from.st_ino==to.st_ino)throw new IOException("Destination aliases the original file; original was not opened for writing");
+            if(to.st_size!=0)throw new IOException("Choose a new empty destination; no existing file was overwritten");
             if(from.st_size>64L*1024*1024)throw new IOException("Original exceeds 64 MiB copy safety limit; no copy started");
             try(InputStream input=new ParcelFileDescriptor.AutoCloseInputStream(source);OutputStream output=context.getContentResolver().openOutputStream(destination,"wt")){
                 if(output==null)throw new IOException("Destination is unavailable");long bytes=0;byte[] buffer=new byte[65536];for(int n;(n=input.read(buffer))!=-1;){bytes+=n;if(bytes>64L*1024*1024)throw new IOException("Copy exceeds 64 MiB safety limit; partial destination may remain");output.write(buffer,0,n);}

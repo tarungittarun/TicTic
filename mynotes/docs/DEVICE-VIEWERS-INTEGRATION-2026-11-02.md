@@ -157,3 +157,19 @@ Next-source changes, pending Actions compilation/native qualification:
 
 No replacement APK, physical startup/playback/emoji/Indian-speaker acceptance or
 public release has been delivered/approved. Last delivered APK remains0.29/code32.
+
+### Round 11 compile gate and follow-up
+
+Run41413721256/source13edccb4 stopped at owned instrumentation compilation;
+no emulator shards executed. Runtime Debug sources compiled, but test code used
+PdfDocument as AutoCloseable (it is not), and directly referenced implementation-only
+RecyclerView/PDFBox classes absent from the app test compile classpath. Fixed with
+explicit PdfDocument try/finally and pinned androidTest-only dependencies matching
+runtime versions. No assertions removed; full qualification is still required.
+
+Additional correctness review fixes: cancellation has a unique request ID so a late
+cancel cannot stop a later request; late binding after caller exit is ignored;
+process-wide gate prevents overlap with a service instance still stopping. Copy now
+also rejects every nonempty destination before opening for writing. Filtered diagnostic
+export reports success only after stream close. These are source-reviewed/root-tested,
+not qualified Android results. Local gate722 PASS; native inventory372 methods.

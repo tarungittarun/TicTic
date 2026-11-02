@@ -46,3 +46,17 @@ kill/task relaunch, distinct from fresh-controller tests. Its host parser/fixtur
 checks pass; it has NOT yet run on Android and is not recovery acceptance. It does
 not force-stop/uninstall/clear data and checks new PID, PDF/Word page+query and CSV
 query+anchor row plus unchanged source bytes. Image OCR recovery remains separate.
+
+## Actual-process probe dispatched independently of approval
+
+The exact built release37 APK from41465255273 is pinned as artifact13151287079,
+155142120bytes, SHA256
+`6fe241380a01601348e3935dc3a1cfca56b9ab865304ccf6b9cbe3244d78af6c`.
+Its build succeeded; the native matrix remains pending, so it is NOT delivered.
+A separate nonpublishing process probe verifies those bytes, common signer,
+package/version/min26/noINTERNET, then runs the public3-format ADB harness on a
+fresh API34 emulator with no clearing/uninstall/force-stop. Its source guard
+requires GitHub Actions plus emulator hardware identity, exact installedcode37 and
+a new collision-free fixture directory. Host gates are not Android success; the
+actual run/outcome still needs inspection. Do not treat a successful build or this
+queued probe as release approval or image-OCR recovery.

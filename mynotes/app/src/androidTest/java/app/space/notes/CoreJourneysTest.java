@@ -109,7 +109,7 @@ public class CoreJourneysTest {
     private void storeFocusFailure()throws Exception{
         File file=new File(instrumentation.getTargetContext().getFilesDir(),"core-focus-failure.txt");if(file.exists())return;
         try(java.io.FileOutputStream out=new java.io.FileOutputStream(file,false)){
-            for(String command:new String[]{"dumpsys window windows","dumpsys activity activities","dumpsys activity lastanr"}){
+            for(String command:new String[]{"dumpsys window","dumpsys activity activities","dumpsys activity lastanr"}){
                 out.write(("\nFAILURE-TIME "+command+"\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 try(android.os.ParcelFileDescriptor descriptor=instrumentation.getUiAutomation().executeShellCommand(command);java.io.InputStream input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor)){
                     byte[] buffer=new byte[4096];int count,total=0;while(total<160000 && (count=input.read(buffer,0,Math.min(buffer.length,160000-total)))!=-1){out.write(buffer,0,count);total+=count;}

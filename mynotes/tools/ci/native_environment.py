@@ -59,7 +59,7 @@ def settle_home() -> None:
     adb("am", "start", "-W", "-n", "com.google.android.apps.nexuslauncher/.NexusLauncherActivity")
     stable = 0
     for attempt in range(60):
-        windows = adb("dumpsys", "window", "windows")
+        windows = adb("dumpsys", "window")
         focused = [line for line in windows.splitlines() if "mCurrentFocus=Window{" in line]
         ready = any("com.google.android.apps.nexuslauncher/" in line and "NexusLauncherActivity" in line for line in focused)
         stable = stable + 1 if ready else 0

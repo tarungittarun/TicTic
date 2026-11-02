@@ -1,4 +1,4 @@
-# Offline image-selection and playback qualification, round 5: primary landscape actions above secondary controls
+# Offline image-selection and playback qualification, round 6: query the full window-service dump for authoritative focus fields
 # plus stable external HOME preflight and failure-time window diagnostics; no assertion removed.
 # 9 jobs planned; 294 JVM, 357 unique native methods / 1192 profile outcomes expected.
 # Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
@@ -14,7 +14,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: notes-refinement-native-layout-${{ github.ref }}
+  group: notes-refinement-native-settled-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:

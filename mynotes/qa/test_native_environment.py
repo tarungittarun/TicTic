@@ -32,6 +32,7 @@ class NativeEnvironmentTests(unittest.TestCase):
         with patch('mynotes.tools.ci.native_environment.adb',return_value=focused) as adb, patch('mynotes.tools.ci.native_environment.time.sleep'):
             settle_home()
         self.assertEqual(4,adb.call_count)
+        self.assertEqual(('dumpsys','window'),adb.call_args_list[1].args)
         self.assertIn('com.google.android.apps.nexuslauncher/.NexusLauncherActivity',adb.call_args_list[0].args)
         self.assertFalse(any('app.space.notes' in str(call) for call in adb.call_args_list))
 

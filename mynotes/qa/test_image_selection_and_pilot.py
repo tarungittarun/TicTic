@@ -13,7 +13,7 @@ class ImageSelectionAndPilot(unittest.TestCase):
   self.assertEqual(2,pilot.distance(['one'],['one','two','three']))
   self.assertEqual(2,pilot.distance(['one','two'],[]))
  def test_data_hashes_are_pinned_and_complete(self):
-  self.assertEqual({'ksp','aup','slt'},set(pilot.ARCHIVES));self.assertTrue(all(len(value)==64 for value in pilot.ARCHIVES.values()))
+  self.assertEqual({'ksp','slt'},set(pilot.ARCHIVES));self.assertTrue(all(len(value)==64 for value in pilot.ARCHIVES.values()))
  def test_no_extraction_of_untrusted_archive_paths(self):
   source=(ROOT/'tools/ci/indian_speech_pilot.py').read_text();self.assertNotIn('.extractall(',source);self.assertNotIn('shell=True',source)
   self.assertIn('Corpus archive checksum mismatch',source);self.assertIn('Corpus archive',source)
@@ -25,3 +25,6 @@ class ImageSelectionAndPilot(unittest.TestCase):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('pendingOcrScans.remove(scan)',source);self.assertIn('closeOcrPreview();for(OfflineOcr.Scan',source)
  def test_playback_boost_is_optional_and_does_not_rewrite_audio(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/VoicePlaybackCard.java').read_text();self.assertIn('setTargetGain(600)',source);self.assertIn('releaseBoost()',source);self.assertNotIn('FileOutputStream',source);self.assertNotIn('RECORD_AUDIO',source)
+
+ def test_crop_does_not_render_views_from_persisted_worker_callback(self):
+  source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('else addImage(target,image);',source);self.assertNotIn('addImage(target,image,0,()->{ocrPanel=false;',source)

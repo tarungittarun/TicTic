@@ -7,7 +7,7 @@ from pathlib import Path
 
 # SHA256 values independently published by pytorch/audio at this exact revision.
 HASH_SOURCE='https://github.com/pytorch/audio/blob/9b19155e6fce04a83704eadc85d3dfe99e520c0c/src/torchaudio/datasets/cmuarctic.py'
-ARCHIVES={'ksp':'8029cafce8296f9bed3022c44ef1e7953332b6bf6943c14b929f468122532717','aup':'2c55bc3050caa996758869126ad10cf42e1441212111db034b3a45189c18b6fc','slt':'7c173297916acf3cc7fcab2713be4c60b27312316765a90934651d367226b4ea'}
+ARCHIVES={'ksp':'8029cafce8296f9bed3022c44ef1e7953332b6bf6943c14b929f468122532717','slt':'7c173297916acf3cc7fcab2713be4c60b27312316765a90934651d367226b4ea'}
 SEED=1729
 
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -22,7 +22,7 @@ def distance(a,b):
     return row[-1]
 def splits():
     # Different speakers AND different utterance IDs/text across train and evaluation.
-    return {'train':[('ksp',f'arctic_a{i:04d}') for i in range(1,33)],'evaluation':[(speaker,f'arctic_b{i:04d}') for speaker in ('aup','slt') for i in range(1,9)]}
+    return {'train':[('ksp',f'arctic_a{i:04d}') for i in range(1,33)],'evaluation':[(speaker,f'arctic_b{i:04d}') for speaker in ('slt',) for i in range(1,17)]}
 
 def download(url,path,limit):
     request=urllib.request.Request(url,headers={'User-Agent':'MyNotes-licensed-public-research/1'})
@@ -76,13 +76,17 @@ def prepare(output):
             if len(members)>50000:raise ValueError('Archive inventory exceeds bound')
             by_suffix={}
             for member in members:
-                if member.isfile():by_suffix[member.name.split('/',1)[-1]]=member
+                if member.isfile():
+                    name=member.name
+                    while name.startswith('./'):name=name[2:]
+                    by_suffix[name.split('/',1)[-1]]=member
             copyright_member=by_suffix.get('COPYING')
-            if copyright_member is None or copyright_member.size>50000:raise ValueError('Pinned archive lacks bounded primary COPYING for '+speaker)
-            archive_grant=bundle.extractfile(copyright_member).read().decode('utf-8')
+            if copyright_member is not None and copyright_member.size>50000:raise ValueError('Archive COPYING exceeds bound')
+            if copyright_member is None and grant is None:raise ValueError('Neither source archive nor primary web page provides a license for '+speaker)
+            archive_grant=grant if copyright_member is None else bundle.extractfile(copyright_member).read().decode('utf-8')
             if not all(term in archive_grant.lower() for term in ('free for use for any purpose','commercial or otherwise','modifications must be clearly marked','original authors')):raise ValueError('Archive source grant is absent or changed; no training permitted')
             (licenses/f'{speaker}-COPYING.txt').write_text(archive_grant)
-            report['archives'][speaker]={'sha256':expected,'primary_web_license_url':url,'web_license_retrieved':grant is not None,'license_source':'COPYING inside checksum-pinned CMU source archive','license_sha256':sha(archive_grant.encode())}
+            report['archives'][speaker]={'sha256':expected,'primary_web_license_url':url,'web_license_retrieved':grant is not None,'license_source':'original primary web COPYING' if copyright_member is None else 'COPYING inside checksum-pinned CMU source archive','license_sha256':sha(archive_grant.encode())}
             metadata_member=by_suffix.get('README')
             if metadata_member is not None and metadata_member.size<100000:
                 metadata=bundle.extractfile(metadata_member).read().decode('utf-8',errors='replace');(licenses/f'{speaker}-README.txt').write_text(metadata)
@@ -104,7 +108,7 @@ def prepare(output):
                     report['records'].append({'split':split,'speaker':speaker,'id':identity,'text':prompts[identity],'audio_sha256':sha(raw),'seconds':seconds,'file':str(path.relative_to(output))})
     train_text={' '.join(normalize(row['text'])) for row in report['records'] if row['split']=='train'}
     if any(' '.join(normalize(row['text'])) in train_text for row in report['records'] if row['split']=='evaluation'):raise ValueError('Transcript leakage across splits')
-    report['speaker_disjoint']=True;report['transcript_disjoint']=True;report['evaluation_accent_limit']='AUP is a separate speaker; do not label its accent Indian without verified primary metadata. SLT is an out-of-training-speaker regression control. This tiny corpus is not spontaneous phone dictation.'
+    report['speaker_disjoint']=True;report['transcript_disjoint']=True;report['evaluation_accent_limit']='SLT is a US-English out-of-training-speaker regression control. No unseen Indian speaker is evaluated: do not claim Indian-accent WER or qualification. This tiny corpus is not spontaneous phone dictation.'
     license_metadata=json.loads(urllib.request.urlopen('https://api.github.com/repos/openai/whisper/contents/LICENSE?ref=31243bad24cc746f07d4c8bfdd2d974872cb1803',timeout=30).read())
     model_license=base64.b64decode(license_metadata['content']);(licenses/'Whisper-MIT-LICENSE.txt').write_bytes(model_license)
     if b'MIT License' not in model_license:raise ValueError('Whisper model/code license not verified')
@@ -147,7 +151,7 @@ def train(output):
         optimizer.zero_grad(set_to_none=True);loss.backward();torch.nn.utils.clip_grad_norm_(list(parameters.values()),1);optimizer.step();losses.append(float(loss.detach()));print(json.dumps({'optimizer_step':step,'speaker':record['speaker'],'id':record['id'],'loss':losses[-1]}),flush=True)
     changed=sum(int(torch.count_nonzero(parameters[name].detach()!=value)) for name,value in before.items());assert changed>0
     final=evaluate();checkpoint=output/'experimental-decoder-last-block.pt';torch.save({name:p.detach().cpu() for name,p in parameters.items()},checkpoint)
-    report={'schema':1,'source_revision':os.environ.get('GITHUB_SHA'),'scope':'actual limited speech-conditioned decoder optimization on one licensed Indian-English read-speech speaker; quarantined, NOT app adoption','seed':SEED,'base_model':'OpenAI Whisper tiny.en','base_url':base_url,'base_sha256':base_sha,'checkpoint_sha256':sha(checkpoint.read_bytes()),'checkpoint_bytes':checkpoint.stat().st_size,'modified_parameters':changed,'trainable_parameter_count':sum(p.numel() for p in parameters.values()),'trainable_names':list(parameters),'optimizer':'AdamW','learning_rate':0.00003,'weight_decay':0.01,'gradient_norm_cap':1,'optimizer_steps':len(losses),'losses':losses,'training_speakers':['ksp'],'evaluation_speakers':['aup','slt'],'training_clips':len(training),'training_seconds':sum(row['seconds'] for row in training),'data_report_sha256':sha((output/'data-report.json').read_bytes()),'baseline':baseline,'adapted':final,'normalization':'lowercase; retain ASCII alphanumerics/apostrophes; collapse all other characters to word boundaries; report original hypotheses too','decoder':'greedy; English; no timestamps; maximum 80 tokens; identical baseline/adapted','hardware':{'platform':platform.platform(),'cpu_count':os.cpu_count(),'torch_threads':2,'torch':torch.__version__,'whisper':importlib.metadata.version('openai-whisper')},'elapsed_seconds':time.time()-started,'started_unix':started,'finished_unix':time.time(),'adopted':False,'adoption_blockers':['Only 32 read-speech training clips from one Indian-English speaker','AUP accent not verified by this script; no general Indian-accent WER claim','Only 16 evaluation utterances; no spontaneous dictation, Hindi/Kannada code-switch, noise, or silence coverage','Experimental Whisper decoder is not compatible with the existing Vosk app engine','No Android runtime, battery, memory, latency, packaging or physical phone qualification']}
+    report={'schema':1,'source_revision':os.environ.get('GITHUB_SHA'),'scope':'actual limited speech-conditioned decoder optimization on one licensed Indian-English read-speech speaker; quarantined, NOT app adoption','seed':SEED,'base_model':'OpenAI Whisper tiny.en','base_url':base_url,'base_sha256':base_sha,'checkpoint_sha256':sha(checkpoint.read_bytes()),'checkpoint_bytes':checkpoint.stat().st_size,'modified_parameters':changed,'trainable_parameter_count':sum(p.numel() for p in parameters.values()),'trainable_names':list(parameters),'optimizer':'AdamW','learning_rate':0.00003,'weight_decay':0.01,'gradient_norm_cap':1,'optimizer_steps':len(losses),'losses':losses,'training_speakers':['ksp'],'evaluation_speakers':['slt'],'training_clips':len(training),'training_seconds':sum(row['seconds'] for row in training),'data_report_sha256':sha((output/'data-report.json').read_bytes()),'baseline':baseline,'adapted':final,'normalization':'lowercase; retain ASCII alphanumerics/apostrophes; collapse all other characters to word boundaries; report original hypotheses too','decoder':'greedy; English; no timestamps; maximum 80 tokens; identical baseline/adapted','hardware':{'platform':platform.platform(),'cpu_count':os.cpu_count(),'torch_threads':2,'torch':torch.__version__,'whisper':importlib.metadata.version('openai-whisper')},'elapsed_seconds':time.time()-started,'started_unix':started,'finished_unix':time.time(),'adopted':False,'adoption_blockers':['Only 32 read-speech training clips from one Indian-English speaker','No unseen Indian speaker evaluated; SLT is a US regression control, not an Indian-accent benchmark','Only 16 evaluation utterances; no spontaneous dictation, Hindi/Kannada code-switch, noise, or silence coverage','Experimental Whisper decoder is not compatible with the existing Vosk app engine','No Android runtime, battery, memory, latency, packaging or physical phone qualification']}
     for result in (report['baseline'],report['adapted']):result['wer']=result['word_edits']/result['reference_words']
     write(output/'training-report.json',report);(output/'MODIFICATIONS.txt').write_text('Research-only modification: 32 AdamW updates to Whisper tiny.en final decoder block, trained on CMU ARCTIC KSP public recordings. Original authors and licenses are retained in licenses/. Frozen base model is required; its SHA256 is in training-report.json. This checkpoint is NOT shipped in MyNotes or accepted as an accuracy improvement.\n')
     print(json.dumps({key:report[key] for key in ('optimizer_steps','modified_parameters','training_seconds','elapsed_seconds','adopted')}),flush=True)

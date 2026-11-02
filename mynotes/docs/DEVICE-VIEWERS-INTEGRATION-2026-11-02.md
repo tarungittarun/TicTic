@@ -238,3 +238,18 @@ file or a saved Note/Doc. Original external files and this regenerable view/sear
 cache are not part of JSON note backups or current complete App-folder payloads.
 Save important originals explicitly using Save original copy. Existing created notes,
 Doc content, recordings and prior backup-category semantics are unchanged.
+
+Round13/sourcec00bb5a6 progressed through passing API26 source methods, both
+large-font shards, landscape A, and API36 A194/194. API36 A observed actual trained
+public-fixture end-to-end9482ms (verification/load/decode/result checks included;
+not a physical-device timing or WER claim). Phase evidence: verification09:31:36.458,
+load09:31:37.202, ready09:31:37.298, decode09:31:37.321→09:31:45.732 UTC.
+Landscape B120/121 failed the PDF fixture's one-scroll expectation: a landscape-fit
+paper page is taller than one viewport. Next fixture performs bounded real accessible
+vertical scrolls, waiting for each to settle, until page2 is actually most visible;
+page count, original bytes and no-import assertions are unchanged. No artificial
+inference timeout extension, test deletion or production scroll bypass.
+
+Next source:378 owned methods, intended all194+184 and focused132+121 per profile
+(1262 selected native outcomes across8 shards). Root726 PASS. Final Android results
+and physical acceptance remain pending; no replacement APK is handed off yet.

@@ -597,11 +597,11 @@ public class CoreJourneysTest {
         Note simple=note("Simple seed"),rich=note("Rich seed");rich=rich.withContent(app.space.notes.domain.DocumentContent.fromLegacy(rich),3);start(Arrays.asList(simple,rich));
         await(()->text("Simple seed")!=null);assertNull(text("Rich seed"));
         main(()->context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("canonical-default",true).commit());
-        click("Doc");await(()->text("Rich seed")!=null);assertNull(text("Simple seed"));screenshot("doc-workspace");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();tap("Back");click("Notes");await(()->text("Simple seed")!=null);screenshot("notes-workspace");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
+        swipeWorkspace(true);await(()->text("Rich seed")!=null);assertNull(text("Simple seed"));screenshot("doc-workspace");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();tap("Back");swipeWorkspace(false);await(()->text("Simple seed")!=null);screenshot("notes-workspace");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
         // Repeat the real Doc -> Notes transition, retaining every original IME/content assertion.
         for(int cycle=0;cycle<3;cycle++){
-            tap("Back");click("Doc");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();
-            tap("Back");click("Notes");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
+            tap("Back");swipeWorkspace(true);click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();
+            tap("Back");swipeWorkspace(false);click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
         }
         editorImeReady();tap("Back");click("Library");click("+ Checklist");await(()->text("+ List item")!=null);main(()->{assertNull(liveCanonical().content);assertTrue(liveCanonical().checklist);});
     }

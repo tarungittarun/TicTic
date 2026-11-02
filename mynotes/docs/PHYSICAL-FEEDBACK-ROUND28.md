@@ -88,3 +88,22 @@ Qualification plan:404 distinct native methods/1366 exact outcomes across8 profi
 304 JVM methods. Root checks passed786 before push (see host log); native results
 pending. No new APK is recommended until the exact candidate passes. Guide bytes
 remain the delivered immutable a70c1f2a… working edition; candidate44 will test them.
+
+## Follow-up45 (round30)
+
+43 native initial results failed the handbook pending-viewport assertion and the
+API26 actual Home drag.44 min26-b now passes196/197, including that same actual
+Home drag and all116 handbook pages/viewport checks; retain44's implementation,
+not the unqualified platform-drag alternative explored locally and discarded.
+The remaining44 failure is the repeated Notes/Doc creation journey trying to
+click a hidden workspace tab while editor IME remains visible. Library Notes/Doc
+entries are deliberately removed per user request.45 dismisses editor IME on
+returning Home, and migrates that journey to real injected Home workspace swipes.
+Every original legacy-opt-in/content/IME/creation/checklist assertion is retained.
+The source changes and45 Android/native execution remain unqualified.
+
+44 exact-byte install-over33/35/40 all passed, and PDF/DOCX/CSV actual stopped-process
+recovery passed. These use public synthetic fixtures, do not uninstall/clear data,
+and do not qualify45 or exhaustive rich libraries/physical behavior. Successful
+small reports are preserved by Actions on this branch.45 additionally discloses
+inline-image scaling at the actual scale<1 point, independent of page fallback.

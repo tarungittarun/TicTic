@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "source_sha": "1276d71f160b67e54ebcd2ab047b9bbeabc16c96",
+  "capture_run": "41514209847",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 207,
+      "passed": 204,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 197,
+      "passed": 196,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: New note IME readiness: ime=false body=WritingField[top=153 h=121 measured=121 scroll=0 visibility=0][top=0 h=1344 measured=1344 scroll=0 visibility=0]ScrollView[top=192 h=1344 measured=1344 scroll=0 visibility=0]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0] focus=true attached=true focused_view=app.space.notes.runtime.NotesController$WritingField window_focus=true ime_active_for_body=true\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:278)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:604)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 134,
+      "passed": 133,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 134,
+      "passed": 133,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 207,
+      "passed": 204,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 197,
+      "passed": 197,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

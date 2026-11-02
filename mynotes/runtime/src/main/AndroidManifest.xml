@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <service android:name="app.space.notes.runtime.WhisperWorkerService" android:exported="false" android:process=":offline_whisper" />
         <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.notes.images" android:exported="false" android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/notes_clipboard_paths" />
         </provider>

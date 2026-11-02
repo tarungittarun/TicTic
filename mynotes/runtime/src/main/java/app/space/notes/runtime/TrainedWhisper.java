@@ -20,6 +20,11 @@ public final class TrainedWhisper {
     public static void select(Context context,boolean selected){context.getSharedPreferences("mynotes-ui",0).edit().putBoolean("trained-whisper",selected).apply();}
     public static OfflineSpeech.Result transcribe(Context context,File wave,AtomicBoolean cancelled)throws Exception{
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
+        if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");
+        return WhisperProcessClient.transcribe(context,wave,cancelled);
+    }
+    static OfflineSpeech.Result transcribeInWorker(Context context,File wave,AtomicBoolean cancelled)throws Exception{
+        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
         if(cancelled.get())throw new InterruptedException("Cancelled; audio retained");
         android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();((android.app.ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(memory);
         if(memory.lowMemory || memory.availMem<384L*1024*1024)throw new IOException("Not enough free memory for experimental speech. Choose standard offline English; original audio retained.");

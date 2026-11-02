@@ -15,8 +15,10 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertNotIn('top.addView(library', home)
         self.assertLess(dock.index('dock.addView(library'), dock.index('if(!page.equals("Trash"))'))
         creation = dock.split('if(!page.equals("Trash")){', 1)[1]
-        for token in ['"+ Checklist"', '"Record voice"']:
+        for token in ['"Record voice"']:
             self.assertIn(token, creation)
+        self.assertNotIn('tool(dock,"+ Checklist"',dock)
+        self.assertIn('if(!documentsWorkspace && !page.equals("Trash"))menuRows(navigation',home)
         new_row=home.split('LinearLayout createRow=tools(root);',1)[1].split('LinearLayout dock=tools(root);',1)[0]
         self.assertIn('if(!page.equals("Trash")){Button create=',new_row)
         self.assertIn('"New text note"',new_row)
@@ -26,7 +28,10 @@ class RefinementHierarchyContracts(unittest.TestCase):
     def test_confirmation_primary_matches_its_scope(self):
         confirm = self.source.split('private void confirmSheet(', 1)[1].split('private void drawingHelp()', 1)[0]
         self.assertEqual(1, confirm.count('design.primary(action)'))
-        self.assertIn('positive.equals("Clear canvas")?"eraser":"trash"', confirm)
+        self.assertIn('positive.equals("Clear canvas")?"eraser"', confirm)
+        self.assertIn('positive.startsWith("Delete")',confirm)
+        self.assertIn('new NotesIcon(symbol,design.primaryInk)',confirm)
+        self.assertIn('"Use experimental engine","mic"',self.source)
         self.assertIn('design.primaryInk', confirm)
         self.assertIn('button("Cancel",()->sheets.close())', confirm)
 

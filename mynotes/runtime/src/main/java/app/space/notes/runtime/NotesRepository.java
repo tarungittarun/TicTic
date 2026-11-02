@@ -40,11 +40,14 @@ public final class NotesRepository {
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
     public boolean appOnlyStorage(){return selected==null;}
-    public List<String> listFolders(List<Note> notes)throws IOException{
+    public List<String> listPrivateFolders(List<Note> notes)throws IOException{
 
         File root=new File(context.getFilesDir(),"note-folders");TreeSet<String> names=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         File[] children=root.listFiles();if(children!=null)for(File f:children)if(f.isDirectory() && f.getCanonicalFile().getParentFile().equals(root.getCanonicalFile()))try{names.add(app.space.notes.domain.FolderNames.require(f.getName()));}catch(IllegalArgumentException invalid){}
-        for(Note n:notes)if(!n.folder.isEmpty())names.add(n.folder);if(!appOnlyStorage())try{names.addAll(folders().list());}catch(IOException unavailable){status="Folder unavailable · private folder organisation retained";}return new ArrayList<>(names);
+        for(Note n:notes)if(!n.folder.isEmpty())names.add(n.folder);return new ArrayList<>(names);
+    }
+    public List<String> listFolders(List<Note> notes)throws IOException{
+        TreeSet<String> names=new TreeSet<>(String.CASE_INSENSITIVE_ORDER);names.addAll(listPrivateFolders(notes));if(!appOnlyStorage())try{names.addAll(folders().list());}catch(IOException unavailable){status="Folder unavailable · private folder organisation retained";}return new ArrayList<>(names);
     }
     public void createFolder(String name,List<Note> notes)throws IOException{
 

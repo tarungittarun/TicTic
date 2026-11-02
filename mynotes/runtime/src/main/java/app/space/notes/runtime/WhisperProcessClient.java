@@ -11,9 +11,9 @@ final class WhisperProcessClient {
     private WhisperProcessClient(){}
     static OfflineSpeech.Result transcribe(Context supplied,File audio,AtomicBoolean cancelled)throws Exception{
         Context context=supplied.getApplicationContext();CountDownLatch done=new CountDownLatch(1);
-        AtomicReference<Messenger> remote=new AtomicReference<>();AtomicReference<String> result=new AtomicReference<>(),failure=new AtomicReference<>();
+        AtomicReference<Messenger> remote=new AtomicReference<>();AtomicReference<String> result=new AtomicReference<>(),failure=new AtomicReference<>(),phase=new AtomicReference<>("connecting");
         Messenger reply=new Messenger(new Handler(Looper.getMainLooper()){
-            @Override public void handleMessage(Message message){String value=message.getData().getString("text","");if(message.what==WhisperWorkerService.OK)result.set(value);else failure.set(value);done.countDown();}
+            @Override public void handleMessage(Message message){String value=message.getData().getString("text","");if(message.what==WhisperWorkerService.PROGRESS){phase.set(value);Diagnostics.record("speech.experimental.phase",value);if((context.getApplicationInfo().flags&android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0)android.util.Log.i("NotesCpuPhase",value);return;}if(done.getCount()==0)return;if(message.what==WhisperWorkerService.OK)result.set(value);else failure.set(value);done.countDown();}
         });
         ServiceConnection connection=new ServiceConnection(){
             @Override public void onServiceConnected(ComponentName name,IBinder binder){try{Messenger endpoint=new Messenger(binder);remote.set(endpoint);Message request=Message.obtain(null,WhisperWorkerService.RUN);Bundle data=new Bundle();data.putString("path",audio.getAbsolutePath());request.setData(data);request.replyTo=reply;endpoint.send(request);}catch(RemoteException error){failure.set("Experimental CPU engine disconnected; original audio retained");done.countDown();}}
@@ -27,7 +27,7 @@ final class WhisperProcessClient {
             if(!bound)throw new IOException("Experimental CPU service unavailable; original audio retained");
             while(!done.await(100,TimeUnit.MILLISECONDS)){
                 if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");
-                if(SystemClock.elapsedRealtime()-began>30*60*1000L)throw new IOException("Experimental speech time limit reached; original audio retained");
+                if(SystemClock.elapsedRealtime()-began>30*60*1000L)throw new IOException("Experimental speech time limit reached during "+phase.get()+"; original audio retained");
             }
             if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");
             if(failure.get()!=null)throw new IOException(failure.get());

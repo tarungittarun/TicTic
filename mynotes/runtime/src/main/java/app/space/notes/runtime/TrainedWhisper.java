@@ -23,14 +23,14 @@ public final class TrainedWhisper {
         if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");
         return WhisperProcessClient.transcribe(context,wave,cancelled);
     }
-    static OfflineSpeech.Result transcribeInWorker(Context context,File wave,AtomicBoolean cancelled)throws Exception{
+    static OfflineSpeech.Result transcribeInWorker(Context context,File wave,AtomicBoolean cancelled,java.util.function.Consumer<String> progress)throws Exception{
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
         if(cancelled.get())throw new InterruptedException("Cancelled; audio retained");
         android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();((android.app.ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(memory);
         if(memory.lowMemory || memory.availMem<384L*1024*1024)throw new IOException("Not enough free memory for experimental speech. Choose standard offline English; original audio retained.");
-        File model=install(context,cancelled);
+        progress.accept("model-verification");File model=install(context,cancelled);progress.accept("model-load");
         try{System.loadLibrary("notes_whisper");}catch(LinkageError unavailable){throw new IOException("Experimental CPU engine is unavailable on this device. Choose the standard engine; audio retained.",unavailable);}
-        final Object lock=new Object();final long[] session={create(model.getPath())};if(session[0]==0)throw new IOException("Experimental model unavailable; original audio retained");
+        final Object lock=new Object();final long[] session={create(model.getPath())};if(session[0]==0)throw new IOException("Experimental model unavailable; original audio retained");progress.accept("model-ready");
         ScheduledExecutorService observer=Executors.newSingleThreadScheduledExecutor(r->{Thread t=new Thread(r,"notes-whisper-cancellation");t.setDaemon(true);return t;});
         observer.scheduleWithFixedDelay(()->{if(cancelled.get())synchronized(lock){if(session[0]!=0)cancel(session[0]);}},0,100,TimeUnit.MILLISECONDS);
         StringBuilder text=new StringBuilder();
@@ -41,7 +41,7 @@ public final class TrainedWhisper {
                 if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");
                 int size=(int)Math.min(bytes.length,remaining);input.readFully(bytes,0,size);remaining-=size;boolean nonzero=false;
                 for(int i=0;i<size/2;i++){short value=(short)((bytes[i*2]&255)|(bytes[i*2+1]<<8));pcm[i]=value/32768f;nonzero|=value!=0;}
-                if(nonzero){byte[] output;try{output=decode(session[0],pcm,size/2);}catch(IOException failure){if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");throw failure;}if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");String segment=new String(output,StandardCharsets.UTF_8).trim();if(!segment.isEmpty()){if(text.length()>0)text.append(' ');text.append(segment);}}
+                if(nonzero){byte[] output;try{progress.accept("decode-window");output=decode(session[0],pcm,size/2);progress.accept("decode-complete");}catch(IOException failure){if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");throw failure;}if(cancelled.get())throw new InterruptedException("Cancelled; original audio retained");String segment=new String(output,StandardCharsets.UTF_8).trim();if(!segment.isEmpty()){if(text.length()>0)text.append(' ');text.append(segment);}}
                 if(text.length()>100000)throw new IOException("Transcript exceeds safe editing size; original audio retained");
             }
             // No fabricated word confidence: experimental results always require user review.

@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.22.1)
 project(notes_whisper LANGUAGES C CXX)
 include(FetchContent)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Instrumentation must exercise optimized CPU kernels, not O0 multi-billion-op loops.
+# Keep debug assertions/symbols: this changes optimization, not correctness checks.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
 set(GGML_CPU_KLEIDIAI OFF CACHE BOOL "" FORCE)
 if(ANDROID_ABI STREQUAL "arm64-v8a")
  set(GGML_CPU_ARM_ARCH "armv8-a" CACHE STRING "" FORCE)

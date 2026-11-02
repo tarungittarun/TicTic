@@ -9,6 +9,7 @@ import app.space.notes.runtime.NotesHost;
 /** Thin standalone host. Business/UI code is reusable by a future MySpace adapter. */
 public final class NotesActivity extends Activity implements NotesHost {
     private NotesController controller;private boolean pdfPrintGuides;
+    private Uri viewedCopySource;private long diagnosticFrom,diagnosticTo;private String[] diagnosticLevels;
     private String ocrLanguage="eng",voiceExportId,imageNoteId;
     @Override public void onCreate(Bundle state) {
         boolean dark=app.space.notes.runtime.NotesAppearance.dark(this,this);setTheme(dark?R.style.NotesThemeDark:R.style.NotesThemeLight);
@@ -17,7 +18,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         boolean light=!dark;
         int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
-        if(state!=null){pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
+        if(state!=null){diagnosticFrom=state.getLong("diagnosticFrom");diagnosticTo=state.getLong("diagnosticTo");diagnosticLevels=state.getStringArray("diagnosticLevels");String copy=state.getString("viewedCopySource");if(copy!=null)viewedCopySource=Uri.parse(copy);pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
         try {controller=new NotesController(this,this,state);
         setContentView(controller.view());
         installDocumentDrop();
@@ -51,6 +52,8 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override protected void onResume(){super.onResume();app.space.notes.runtime.Diagnostics.environment("activity.resume");app.space.notes.runtime.AppFolderTasks.request(this);}
     @Override protected void onPause() { if(controller!=null)controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
+        state.putLong("diagnosticFrom",diagnosticFrom);state.putLong("diagnosticTo",diagnosticTo);state.putStringArray("diagnosticLevels",diagnosticLevels);
+        if(viewedCopySource!=null)state.putString("viewedCopySource",viewedCopySource.toString());
         state.putBoolean("pdfPrintGuides",pdfPrintGuides);state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
         if(controller!=null)controller.saveState(state); super.onSaveInstanceState(state);
     }
@@ -59,7 +62,15 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void chooseLocalFolder() { chooseTree(94); }
     @Override public void openExistingFolder() { chooseTree(95); }
     @Override public void recoverAppFolder() { chooseTree(105); }
-    @Override public void exportDiagnostics(){Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-diagnostics.txt");openPicker(picker,101);}
+    @Override public void saveViewedCopy(Uri source,String name,String mime){
+        viewedCopySource=source;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType(mime);picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.putExtra(Intent.EXTRA_TITLE,name);openPicker(picker,106);
+    }
+    @Override public void openOriginal(Uri source,String mime){
+        new android.app.AlertDialog.Builder(this).setTitle("Open original in another reader?").setMessage("The original is not changed by MyNotes. Another app controls its own layout, privacy and network use. Choose an offline reader if needed.").setPositiveButton("Choose reader",(d,w)->{try{Intent view=new Intent(Intent.ACTION_VIEW).setDataAndType(source,mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(view,"Open original"));}catch(android.content.ActivityNotFoundException | SecurityException error){showMessage("No accessible compatible reader. Original file is unchanged.");}}).setNegativeButton("Cancel",null).show();
+    }
+    @Override public void exportDiagnostics(){diagnosticLevels=null;createDiagnosticPicker();}
+    @Override public void exportDiagnosticRange(long from,long to,java.util.Set<String> levels){diagnosticFrom=from;diagnosticTo=to;diagnosticLevels=levels.toArray(new String[0]);createDiagnosticPicker();}
+    private void createDiagnosticPicker(){Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-diagnostics.txt");openPicker(picker,101);}
     @Override public void exportBackup() {
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         picker.addCategory(Intent.CATEGORY_OPENABLE);
@@ -100,15 +111,17 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>105)return;
+        if(request<94 || request>106)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
+            if(request==106)viewedCopySource=null;if(request==101)diagnosticLevels=null;
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }
         app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
-        if(request==101){app.space.notes.runtime.Diagnostics.export(this,uri,()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing.")),e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal.")));return;}
+        if(request==106){final Uri source=viewedCopySource;viewedCopySource=null;if(source==null){showMessage("Choose the original file again; nothing copied.");return;}new Thread(()->{try{app.space.notes.runtime.ViewedFileCopy.write(this,source,uri);runOnUiThread(()->showMessage("Original file copied. Saved notes and the source are unchanged."));}catch(Exception error){app.space.notes.runtime.Diagnostics.failure("viewed.copy.failure",error);runOnUiThread(()->showMessage("Copy could not be completed. Original unchanged; a partial destination may remain."));}},"notes-viewed-file-copy").start();return;}
+        if(request==101){Runnable success=()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing."));java.util.function.Consumer<Exception> failure=e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal."));String[] selected=diagnosticLevels;diagnosticLevels=null;if(selected==null)app.space.notes.runtime.Diagnostics.export(this,uri,success,failure);else app.space.notes.runtime.Diagnostics.exportFiltered(this,uri,diagnosticFrom,diagnosticTo,new java.util.HashSet<>(java.util.Arrays.asList(selected)),success,failure);return;}
         if(controller==null){showMessage("Open MyNotes successfully before importing files. Your data is unchanged.");return;}
-        if(request==103){controller.openFile(uri);return;}
+        if(request==103){try{if((data.getFlags()&Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)!=0)getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(SecurityException unavailable){/* Reopen may require choosing the file again; no source copy is made. */}controller.openFile(uri);return;}
         if(request==104){controller.exportFolderCopy(uri);return;}
         if(request==102){if(imageNoteId!=null)controller.attachImage(imageNoteId,uri);return;}
 

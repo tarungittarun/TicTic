@@ -16,3 +16,15 @@ class WhisperProcessIsolationTests(unittest.TestCase):
   self.assertIn('getCanonicalFile()',worker);self.assertIn('getFilesDir().getCanonicalPath()',worker)
   self.assertIn('active.compareAndSet(false,true)',worker)
   self.assertIn('cancelled.set(true);worker.shutdown()',worker)
+
+ def test_cpu_debug_is_optimized_without_disabling_assertions(self):
+  cmake=(ROOT/'runtime/src/main/cpp/CMakeLists.txt').read_text()
+  self.assertIn('CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O3"',cmake)
+  self.assertIn('CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3"',cmake)
+  self.assertNotIn('-DNDEBUG',cmake)
+ def test_content_free_phase_progress_does_not_complete_transcription(self):
+  client=(ROOT/'runtime/src/main/java/app/space/notes/runtime/WhisperProcessClient.java').read_text()
+  self.assertIn('WhisperWorkerService.PROGRESS',client)
+  self.assertIn('FLAG_DEBUGGABLE',client)
+  engine=(ROOT/'runtime/src/main/java/app/space/notes/runtime/TrainedWhisper.java').read_text()
+  for phase in ('model-verification','model-load','model-ready','decode-window','decode-complete'):self.assertIn('progress.accept("'+phase+'")',engine)

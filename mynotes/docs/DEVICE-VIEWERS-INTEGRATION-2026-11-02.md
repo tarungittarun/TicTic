@@ -100,3 +100,60 @@ initial implementations but remain uncommitted and Android-uncompiled. They are 
 round10 integration qualification. Excel spreadsheet view, Word layout fidelity, and
 rotating/filterable in-app diagnostics are still pending. Physical startup, playback,
 emoji OCR and Indian-speaker accuracy are not accepted by emulator evidence.
+
+## Round 10 findings; next-source implementation (not qualified delivery)
+
+Run **41409690954/source5c3fb6ad** FAILED: build passed; four focused shards
+passed (125/125,115/115 for both landscape and 200% font). API26 A186/187:
+far-edge radio test did not select. Both full B shards176/177: actual trained
+inference timed out180s. Intentional worker death/cancellation passed on both;
+there was no recurrence of the malformed-model loader SIGSEGV. API36 A had zero
+outcomes/incomplete instrumentation, so it provides no runtime acceptance.
+Exact immutable reports are retained under that run's native evidence directory.
+
+Next-source changes, pending Actions compilation/native qualification:
+- CPU Debug C/C++ gets `-O3` while retaining debug assertions/symbols. O0 kernels
+  are an identified CPU issue, not yet proof that the entire timeout is resolved.
+  Content-free model-verification/load/ready/decode phase messages go through IPC;
+  app-private diagnostics remain opt-in and extra logcat markers are debug-only.
+- Far-edge test now uses actual screen coordinates and SOURCE_TOUCHSCREEN on both
+  injected events; all width/selection/Apply/reopen assertions remain intact.
+- XLSX/CSV open directly in a sparse, virtualized vertical/horizontal cell grid,
+  bypassing the100k editable-note import. Workbook relationships preserve tab order
+  and cell references preserve gaps. Fixed column headings, cell read/copy,
+  go-to-cell, current-sheet value/formula search, counts, original-byte copy/reader.
+  **Not Excel fidelity:** raw cached values only; no number/date formatting,
+  merges, charts/images, recalculation or macro execution.32MiB input,250k populated
+  cells,8m characters, bounded archive expansion. Legacy XLS still needs a reader.
+- PDF is continuous RecyclerView pages, bounded rasterization and offline embedded
+  text extraction/search/count/navigation/copy, automatic bounded viewed indexing,
+  original-byte copy and optional external reader. Separate renderer/text ownership
+  retains temporary files until both close; PDFBox scratch capped64MiB. No scanned
+  PDF OCR, visual match rectangles, pinch zoom or configuration-state restoration yet.
+- Saved Notes/Docs (including archived, not deleted) precede viewed files and then
+  settings in global search. Empty-query workspace/filter behavior remains separate.
+  Viewed index is private, last32files/up to2Mi characters each, explicitly partial
+  when interrupted/capped. Unicode61 keeps Indic combining marks; real FTS4 prefix
+  syntax corrected. Emoji/punctuation uses escaped literal LIKE, not wildcards.
+  Clearing the index never deletes original files or saved content.
+- Byte copy rejects same URI/document and matching physical inode/device before
+  any writable descriptor;64MiB cap and explicit partial-destination failure. Cannot
+  verify pipe providers: reject safely rather than risk source alias overwrite.
+- Diagnostics now rotates at1MiB per file (current+previous, at most2MiB), stores
+  inferred DEBUG/INFO/WARN/ERROR, and offers a native parsed on-device list, presets,
+  custom local date/time range, levels, record selection and filtered local export.
+  View/export newest5,000 matching records; all-log export remains separate. No note
+  content, exception messages or automatic upload added. Existing Java/OS kill gaps
+  and bounded queue omissions remain; this is not system-wide logcat capture.
+- DOCX now offers the unchanged original-layout reader BEFORE limited text import,
+  so the import cap no longer blocks that option. External reader privacy/network
+  control is disclosed. **Internal high-fidelity paginated Word rendering remains
+  unimplemented**, including imported logos/headers/images/inherited style fidelity.
+- Added native PDF resource/text/vertical-container, large spreadsheet/sparse/order,
+  quoted CSV, hostile archive, English/Indic/emoji FTS, copy rejection, universal
+  saved-before-viewed-before-settings and diagnostic parsed-range/level tests.
+  These are authored coverage, not passing results. Local gate721 PASS; all changed
+  Java parses with a syntax-only analyzer, which is NOT Android compilation.
+
+No replacement APK, physical startup/playback/emoji/Indian-speaker acceptance or
+public release has been delivered/approved. Last delivered APK remains0.29/code32.

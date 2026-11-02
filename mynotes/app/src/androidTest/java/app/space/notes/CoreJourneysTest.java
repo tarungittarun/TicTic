@@ -104,7 +104,18 @@ public class CoreJourneysTest {
     private void start(List<Note> seed) throws Exception {
         new NotesRepository(context).save(seed);
         main(()->{controller=new NotesController(context,host,null);activity.setContentView(controller.view());});
-        try{await(()->text("+ Text")!=null && controller.view().getWidth()>0 && controller.view().getHeight()>0 && controller.view().isAttachedToWindow() && controller.view().hasWindowFocus() && !activity.isFinishing() && !activity.isDestroyed() && !controller.view().isLayoutRequested());instrumentation.waitForIdleSync();}catch(AssertionError failure){try{storeScreenshot("control-failure",instrumentation.getUiAutomation().takeScreenshot());}catch(Exception | AssertionError capture){failure.addSuppressed(capture);}final String[] state={""};main(()->state[0]=" attached="+controller.view().isAttachedToWindow()+" focused="+controller.view().hasWindowFocus()+" finishing="+activity.isFinishing()+" destroyed="+activity.isDestroyed());throw new AssertionError("Fixture must own an attached focused activity window before interactions:"+state[0],failure);}
+        try{await(()->text("+ Text")!=null && controller.view().getWidth()>0 && controller.view().getHeight()>0 && controller.view().isAttachedToWindow() && controller.view().hasWindowFocus() && !activity.isFinishing() && !activity.isDestroyed() && !controller.view().isLayoutRequested());instrumentation.waitForIdleSync();}catch(AssertionError failure){try{storeFocusFailure();storeScreenshot("control-failure",instrumentation.getUiAutomation().takeScreenshot());}catch(Exception | AssertionError capture){failure.addSuppressed(capture);}final String[] state={""};main(()->state[0]=" attached="+controller.view().isAttachedToWindow()+" focused="+controller.view().hasWindowFocus()+" finishing="+activity.isFinishing()+" destroyed="+activity.isDestroyed());throw new AssertionError("Fixture must own an attached focused activity window before interactions:"+state[0],failure);}
+    }
+    private void storeFocusFailure()throws Exception{
+        File file=new File(instrumentation.getTargetContext().getFilesDir(),"core-focus-failure.txt");if(file.exists())return;
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(file,false)){
+            for(String command:new String[]{"dumpsys window windows","dumpsys activity activities","dumpsys activity lastanr"}){
+                out.write(("\nFAILURE-TIME "+command+"\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                try(android.os.ParcelFileDescriptor descriptor=instrumentation.getUiAutomation().executeShellCommand(command);java.io.InputStream input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor)){
+                    byte[] buffer=new byte[4096];int count,total=0;while(total<160000 && (count=input.read(buffer,0,Math.min(buffer.length,160000-total)))!=-1){out.write(buffer,0,count);total+=count;}
+                }
+            }
+        }
     }
     private void assertGestureState(View view,String field){try{java.lang.reflect.Field value=view.getClass().getDeclaredField(field);value.setAccessible(true);java.lang.reflect.Field decision=view.getClass().getDeclaredField("lastDecision");decision.setAccessible(true);assertTrue("Leading-edge "+field+" at measured "+view.getWidth()+"x"+view.getHeight()+" "+decision.get(view),value.getBoolean(view));}catch(ReflectiveOperationException e){throw new AssertionError(e);}}
     private void main(Runnable action){instrumentation.runOnMainSync(action);}

@@ -24,3 +24,21 @@ class NativeEnvironmentTests(unittest.TestCase):
     def test_orientation_is_not_silently_assumed(self):
         with self.assertRaises(ValueError):
             rotation_for((1080, 1920), 'any')
+
+    def test_home_preflight_requires_three_stable_focus_samples_without_touching_app(self):
+        from unittest.mock import patch
+        from mynotes.tools.ci.native_environment import settle_home
+        focused='mCurrentFocus=Window{abc u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity}'
+        with patch('mynotes.tools.ci.native_environment.adb',return_value=focused) as adb, patch('mynotes.tools.ci.native_environment.time.sleep'):
+            settle_home()
+        self.assertEqual(4,adb.call_count)
+        self.assertIn('com.google.android.apps.nexuslauncher/.NexusLauncherActivity',adb.call_args_list[0].args)
+        self.assertFalse(any('app.space.notes' in str(call) for call in adb.call_args_list))
+
+    def test_unfocused_home_is_a_hard_failure_not_a_suppressed_app_failure(self):
+        from unittest.mock import patch
+        from mynotes.tools.ci.native_environment import settle_home
+        with patch('mynotes.tools.ci.native_environment.adb',return_value='mCurrentFocus=null'),patch('mynotes.tools.ci.native_environment.time.sleep'),patch('mynotes.tools.ci.native_environment.snapshot') as snapshot:
+            with self.assertRaisesRegex(RuntimeError,'never obtained a stable focused window'):
+                settle_home()
+            snapshot.assert_called_once_with('home-failed')

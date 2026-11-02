@@ -8,6 +8,7 @@ import argparse
 import json
 import re
 import subprocess
+import time
 from pathlib import Path
 
 
@@ -49,10 +50,31 @@ def snapshot(stage: str) -> None:
     Path("refinement-environment-" + stage + ".json").write_text(json.dumps(summary, indent=2))
 
 
+def settle_home() -> None:
+    """Resolve the external launcher's stopped/transitioning window before app tests.
+
+    Do not launch/force-stop the app, dismiss application errors or ignore failed focus.
+    Starting HOME is normal emulator preparation; source fixtures still require app focus.
+    """
+    adb("am", "start", "-W", "-n", "com.google.android.apps.nexuslauncher/.NexusLauncherActivity")
+    stable = 0
+    for attempt in range(60):
+        windows = adb("dumpsys", "window", "windows")
+        focused = [line for line in windows.splitlines() if "mCurrentFocus=Window{" in line]
+        ready = any("com.google.android.apps.nexuslauncher/" in line and "NexusLauncherActivity" in line for line in focused)
+        stable = stable + 1 if ready else 0
+        if stable >= 3:
+            return
+        time.sleep(.25)
+    snapshot("home-failed")
+    raise RuntimeError("External emulator HOME never obtained a stable focused window; do not run app fixtures against a black transitioning launcher")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--orientation", choices=("portrait", "landscape"))
     parser.add_argument("--stop-pixel-launcher", action="store_true")
+    parser.add_argument("--settle-home", action="store_true")
     parser.add_argument("--snapshot", choices=("before", "configured", "after"))
     args = parser.parse_args()
     if args.snapshot:
@@ -71,6 +93,8 @@ def main() -> None:
     if args.stop_pixel_launcher:
         print("Stopping external Pixel Launcher after retaining preflight ANR/window diagnostics; app ANRs remain visible.")
         adb("am", "force-stop", "com.google.android.apps.nexuslauncher")
+    if args.settle_home:
+        settle_home()
 
 
 if __name__ == "__main__":

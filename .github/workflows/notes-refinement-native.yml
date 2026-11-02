@@ -1,5 +1,5 @@
-# Offline image-selection and playback qualification, round 4: landscape image/side controls
-# and bounded, scrollable review in reduced viewports; all baseline assertions retained.
+# Offline image-selection and playback qualification, round 5: primary landscape actions above secondary controls
+# plus stable external HOME preflight and failure-time window diagnostics; no assertion removed.
 # 9 jobs planned; 294 JVM, 357 unique native methods / 1192 profile outcomes expected.
 # Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
 # all 327 baseline methods, and untouched stored audio. No speech training/physical accuracy claim.
@@ -139,7 +139,7 @@ jobs:
             adb shell cmd uimode night ${{ matrix.night }}
             python3 -m mynotes.tools.ci.native_environment --snapshot before
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
-            if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher; fi
+            if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 1800000
@@ -149,7 +149,7 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --snapshot after
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
-            for report in ocr-common-text-report.json speech-degradation-report.json; do if adb shell run-as app.space.notes.debug ls "files/$report" >/dev/null 2>&1; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
+            for report in ocr-common-text-report.json speech-degradation-report.json core-focus-failure.txt; do if adb shell run-as app.space.notes.debug ls "files/$report" >/dev/null 2>&1; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
       - name: Verify selected quantitative reports are complete and independently scored
         if: always()
         run: python3 -m mynotes.tools.ci.quality_reports --expected refinement-expected.json
@@ -261,4 +261,10 @@ jobs:
             sleep 3
           done
           { python3 -m unittest discover -s qa && python3 -m unittest discover -s mynotes/qa -t . && git diff --check; } 2>&1 | tee /tmp/refinement-doc-gate.log
-          git add mynotes/docs/design-2026-10-29/native/${{ github.run_id }} && git commit -m 'Preserve source-pinned refinement qualification fixtures [skip ci]' && git push origin arena/3caca636-tictic
+          git add mynotes/docs/design-2026-10-29/native/${{ github.run_id }} && git commit -m 'Preserve source-pinned refinement qualification fixtures [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

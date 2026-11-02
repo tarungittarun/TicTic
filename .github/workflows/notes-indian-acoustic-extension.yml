@@ -26,14 +26,33 @@ jobs:
         with:
           python-version: '3.11'
       - name: Verify original grants and hashes; prepare 593 A training clips and two 32-clip B controls
-        run: python -m mynotes.tools.ci.indian_acoustic_extension prepare --output "$EXPERIMENT"
+        run: |
+          set -o pipefail
+          mkdir -p "$EXPERIMENT"
+          python -m mynotes.tools.ci.indian_acoustic_extension prepare --output "$EXPERIMENT" 2>&1 | tee "$EXPERIMENT/prepare.log"
       - name: Install pinned CPU-only experimental dependencies
         run: |
           python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install numpy==1.26.4 numba==0.61.2 tiktoken==0.9.0 more-itertools==10.7.0 tqdm==4.67.1 PyYAML==6.0.3 Pillow==11.3.0
           python -m pip install --no-deps openai-whisper==20250625
       - name: Train final acoustic encoder and decoder blocks; recompute both before/after control groups
-        run: python -m mynotes.tools.ci.indian_acoustic_extension train --output "$EXPERIMENT"
+        run: |
+          set -o pipefail
+          python -m mynotes.tools.ci.indian_acoustic_extension train --output "$EXPERIMENT" 2>&1 | tee "$EXPERIMENT/train.log"
+      - name: Retain bounded failure diagnostics without changing failed status or claiming optimization
+        if: always()
+        run: |
+          python - <<'PYDIAG'
+          import os
+          from pathlib import Path
+          root=Path(os.environ['EXPERIMENT'])
+          for phase in ['prepare','train']:
+              log=root/(phase+'.log')
+              if log.is_file():
+                  excerpt=log.read_text(errors='replace')[-3000:].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+                  print('::notice title=Expanded acoustic '+phase+' diagnostics::'+excerpt)
+          if not (root/'training-report.json').is_file():print('::warning title=No completed acoustic report::Do not claim a completed checkpoint or app adoption; inspect last observed steps, not elapsed preparation time.')
+          PYDIAG
       - name: Preserve complete small reports and grants; never checkpoint or audio in Git
         run: |
           set -euo pipefail
@@ -70,6 +89,8 @@ jobs:
         with:
           name: expanded-indian-acoustic-research-only
           path: |
+            ${{ env.EXPERIMENT }}/prepare.log
+            ${{ env.EXPERIMENT }}/train.log
             ${{ env.EXPERIMENT }}/data-report.json
             ${{ env.EXPERIMENT }}/training-report.json
             ${{ env.EXPERIMENT }}/licenses/

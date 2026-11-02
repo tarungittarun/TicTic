@@ -62,3 +62,23 @@ validated and committed automatically to separate run-scoped evidence directorie
 failed or partial probes cannot enter that success-only evidence step. Each bot
 commit is host-gated and stays on the session branch. No raw APK/user data is
 committed. This removes reliance on a later sandbox blob download/relay.
+
+## Inspected final outcomes — do not deliver39
+
+Actual-process41480207122 SUCCESS: report committed under process-recovery/
+41480207122. PDF3825→5088 and DOCX5088→5850 retained query/page2; CSV5850→6392
+retained query/row41; all three were STOPPED before kill and all original hashes
+unchanged. No force-stop/uninstall/clear-data. This is synthetic API34 evidence,
+not image/OCR review/zoom/horizontal/physical acceptance.
+
+Upgrade41480206676 SUCCESS on both33→39 and35→39, committed under updates/
+41480206676. Each checks the same two synthetic Note/Doc fixtures, retained install
+identity, exact final bytes and common signer. Not exhaustive rich-data migration.
+
+Native41478009279 FAILED:1317/1318 outcomes, seven passing profiles, Android36-A
+200/201. The existing notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn case
+failed New-note IME readiness at CoreJourneysTest:564, with focused/attached body
+and window focus but ime=false. All other planned outcomes passed; this is a real
+assertion failure, NOT a pre-test SDK failure. No assertion retry/reduction allowed.
+Native reports/screenshots are committed in its run directory. Candidate39 is
+withheld from delivery despite the successful other checks.

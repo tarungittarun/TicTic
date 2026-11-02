@@ -49,8 +49,9 @@ class InstrumentationWatchdogTests(unittest.TestCase):
         source=(root/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text()
         method=source.split('private void newNote() {',1)[1].split('private void newDocument()',1)[0]
         self.assertIn('boolean requestedForTarget',method)
-        self.assertIn('if(requestedForTarget && keyboardVisible())return;',method)
-        self.assertLess(method.index('.showSoftInput(target,'),method.index('requestedForTarget=true;'))
+        self.assertIn('if(requestedForTarget && keyboardVisible() && keyboard.isActive(target))return;',method)
+        self.assertIn('requestedForTarget=keyboard.showSoftInput(target,',method)
+        self.assertNotIn('requestedForTarget=true;',method)
         self.assertNotIn('|| keyboardVisible() ||',method)
         journey=(root/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text().split('public void notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn()',1)[1].split('@Test',1)[0]
         self.assertIn('cycle<3',journey)

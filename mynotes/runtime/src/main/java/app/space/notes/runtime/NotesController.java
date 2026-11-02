@@ -347,12 +347,13 @@ public final class NotesController {
         queueSave(); renderEditor(); if(body!=null){EditText target=body;target.requestFocus();target.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){public void onLayoutChange(View view,int l,int t,int r,int b,int ol,int ot,int or,int ob){if(r<=l || b<=t)return;target.removeOnLayoutChangeListener(this);target.postOnAnimation(new Runnable(){int attempts;boolean requestedForTarget;public void run(){
                     if(closed || body!=target || !target.isAttachedToWindow() || !target.hasFocus() || attempts++>=10)return;
                     // Visibility can still belong to the previous Doc while its hide is pending.
-                    // Always request IME for THIS new field before accepting visible insets as success.
-                    if(requestedForTarget && keyboardVisible())return;
+                    // A rejected request is not an acknowledgement. Old Doc insets alone
+                    // cannot finish startup before this new field is actually served.
+                    android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if(requestedForTarget && keyboardVisible() && keyboard.isActive(target))return;
                     if(target.hasWindowFocus()){
                         if(android.os.Build.VERSION.SDK_INT>=30){android.view.WindowInsetsController insets=target.getWindowInsetsController();if(insets!=null)insets.show(android.view.WindowInsets.Type.ime());}
-                        ((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(target,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
-                        requestedForTarget=true;
+                        requestedForTarget=keyboard.showSoftInput(target,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
                     }
                     target.postDelayed(this,100);
                 }});}});}

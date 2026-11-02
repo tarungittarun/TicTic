@@ -1,3 +1,4 @@
+# Round25: reject unacknowledged/old-target IME readiness; preserve all repeated-transition assertions and original bounds. Candidate40, no retroactive qualification from39.
 # Round24: CSV platform MIME aliases and real intercepted picker Intent contract; candidate39, original inventories plus new method. Preinstall API26 SDK/platform/image with bounded SDK-only retries.
 # Round23: drawn-host pre-measure restoration regression and real-width offset listener, increasing candidate38. Prior candidate37 run41465255273 passed1314/391; preserve its evidence unchanged.
 # Round22 retry: preflight must install libpulse0 before invoking emulator -version, not depend on the later runner action. No app/instrumentation assertion changed.
@@ -37,7 +38,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round24-${{ github.ref }}
+  group: notes-refinement-native-round25-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -69,14 +70,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.36.0-39-development.apk
-          sha256sum MyNotes-v0.36.0-39-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.36.0-39-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.37.0-40-development.apk
+          sha256sum MyNotes-v0.37.0-40-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.37.0-40-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.36.0-39-development.apk
+          path: MyNotes-v0.37.0-40-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

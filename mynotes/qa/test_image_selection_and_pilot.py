@@ -28,3 +28,6 @@ class ImageSelectionAndPilot(unittest.TestCase):
 
  def test_crop_does_not_render_views_from_persisted_worker_callback(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('else addImage(target,image);',source);self.assertNotIn('addImage(target,image,0,()->{ocrPanel=false;',source)
+
+ def test_pilot_teacher_forcing_matches_no_timestamp_inference_prefix(self):
+  source=(ROOT/'tools/ci/indian_speech_pilot.py').read_text();self.assertIn('tokenizer.sot_sequence_including_notimestamps',source);self.assertIn('targets[:,:len(prefix)-1]=-100',source);self.assertIn("name.startswith('decoder.blocks.3.')",source)

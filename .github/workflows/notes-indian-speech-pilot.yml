@@ -1,4 +1,4 @@
-# Round 4: normalize ./ archive paths; retain verified primary web COPYING where not packed.
+# Round 5: align no-timestamps training/inference prefixes and expose bounded reproducibility evidence.
 # KSP trains; SLT is a speaker-disjoint US regression control, NOT an Indian held-out benchmark.
 # Research only: public CMU ARCTIC data + Whisper MIT; no user audio, app changes or publication.
 # Primary source license + Indian training-speaker metadata and pinned archive hashes must pass first.
@@ -52,6 +52,13 @@ jobs:
               text={key:data[key] for key in ['optimizer_steps','modified_parameters','training_clips','training_seconds','elapsed_seconds','adopted']}
               text.update(baseline_wer=data['baseline']['wer'],adapted_wer=data['adapted']['wer'])
               print('::notice title=Quarantined training result::'+json.dumps(text))
+              for name in ['training-report.json','data-report.json']:
+                  payload=(output/name).read_text()
+                  if len(payload)<60000:
+                      print('::notice title=Pilot '+name+'::'+payload.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+              bundle={name:(output/'licenses'/name).read_text() for name in ['ksp-COPYING.txt','slt-COPYING.txt','Whisper-MIT-LICENSE.txt']}
+              bundle['MODIFICATIONS.txt']=(output/'MODIFICATIONS.txt').read_text()
+              print('::notice title=Pilot license-bundle.json::'+json.dumps(bundle).replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
           else:
               print('::warning title=No completed training result::No completed optimization report. Do not claim training or app model replacement; inspect failed step.')
               for name in ['prepare','train']:

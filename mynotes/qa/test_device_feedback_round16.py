@@ -57,3 +57,23 @@ class DeviceFeedbackRound16(unittest.TestCase):
         selection=source.split('private void addOcrImageSelection(',1)[1].split('private void keepOcrImage(',1)[0]
         self.assertIn('select.performClick();',selection)
         self.assertNotIn('saveOcrText(',selection)
+
+    def test_retained_image_dialog_reflows_existing_view_not_new_selection(self):
+        source=(JAVA/'ImageTextSelectionDialog.java').read_text()
+        self.assertIn('root.addOnLayoutChangeListener',source)
+        reflow=source.split('root.addOnLayoutChangeListener',1)[1].split('view.onChanged',1)[0]
+        self.assertIn('body.setOrientation',reflow)
+        self.assertIn('side.setLayoutParams',reflow)
+        self.assertNotIn('new ImageTextSelection(',reflow)
+        self.assertNotIn('new ImageTextSelectionView(',reflow)
+        native=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java').read_text()
+        self.assertIn('retainedDialogReflowsBothWaysWithoutLosingSelectionOrBitmap',native)
+        self.assertIn('assertSame(original[0],image)',native)
+
+    def test_spreadsheet_capture_stops_startup_and_requires_attached_fixture(self):
+        source=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ViewedFileJourneysTest.java').read_text()
+        fixture=source.split('spreadsheetControlsLeaveAFullDataRowVisible',1)[1].split('@Test',1)[0]
+        self.assertIn('startup.close()',fixture)
+        self.assertIn('shown.get().isAttachedToWindow()',fixture)
+        self.assertIn('shown.get().isShown()',fixture)
+        self.assertLess(fixture.index('startup.close()'),fixture.index('activity.setContentView(parent)'))

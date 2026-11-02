@@ -11,8 +11,8 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from urllib.parse import quote
 import zipfile
+import xml.etree.ElementTree as ET
 from .release_update_smoke import Device, PACKAGE, named, center
 
 
@@ -80,6 +80,29 @@ def pid():
     return int(value)
 
 
+
+def picker_nodes(xml):
+    allowed={'com.google.android.documentsui','com.android.documentsui','android'}
+    return [node for node in ET.fromstring(xml).iter('node') if node.get('package') in allowed and node.get('enabled')=='true']
+
+
+def pick_local_file(device,folder,name):
+    # Real SAF user flow owns/persists the read grant; root-issued VIEW grants are
+    # not a substitute for DocumentsUI permission semantics.
+    device.click('Library');device.click('Open file')
+    def ui():
+        device.adb('shell','uiautomator','dump','/sdcard/notes-reader-picker.xml')
+        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-reader-picker.xml'))
+    def click(label):
+        items=wait_until(lambda: (items if named(items,label) is not None else None) if (items:=ui()) else None,40)
+        device.adb('shell','input','tap',*center(named(items,label).get('bounds','')))
+    click('Show roots');click('Downloads');click(folder);click(name)
+
+
+def checkpoint(root,phase,name):
+    (root/'probe-progress.json').write_text(json.dumps({'phase':phase,'fixture':name,'acceptance':False})+'\n')
+    print('::notice title=Public reader probe phase::'+phase+' '+name,flush=True)
+
 def verify(output):
     device=Device()
     if os.environ.get('GITHUB_ACTIONS')!='true' or device.adb('shell','getprop','ro.kernel.qemu').strip()!='1':
@@ -89,7 +112,7 @@ def verify(output):
         raise RuntimeError('Missing disposable CI run identity')
     if device.state()['version_code']!=37:raise RuntimeError('Probe requires the exact verified candidate37 installed by its workflow')
     folder='NotesReaderRecoveryPublic-'+run_id+'-'+attempt
-    # Root is confined to a disposable emulator to grant public fixture URIs.
+    # Root is confined to fixture creation on a disposable emulator, NOT URI grants.
     device.adb('root')
     from .adb_state import wait_uid
     wait_uid(0)
@@ -105,11 +128,15 @@ def verify(output):
         source=root/name;source.write_bytes(data)
         path='/sdcard/Download/'+folder+'/'+name
         device.adb('push',str(source),path)
-        uri='content://com.android.externalstorage.documents/document/'+quote('primary:Download/'+folder+'/'+name,safe='')
-        device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.VIEW','-d',uri,'-t',mime,'--grant-read-uri-permission')
+        checkpoint(root,'opening-through-real-local-SAF-picker',name)
+        device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.MAIN')
+        device.home();pick_local_file(device,folder,name)
         spreadsheet=name.endswith('.csv')
         control='Find in current sheet' if spreadsheet else 'Find in pages'
+        items=device.wait(lambda items:named(items,control) is not None or named(items,'MyNotes pages') is not None)
+        if named(items,'MyNotes pages') is not None:device.click('MyNotes pages')
         device.wait(lambda items:named(items,control) is not None)
+        checkpoint(root,'viewer-opened',name)
         if not spreadsheet:
             device.click('Read options');device.click('Go to page')
             items=device.wait(lambda items:sum(x.get('class')=='android.widget.EditText' for x in items)==1)
@@ -126,11 +153,14 @@ def verify(output):
         else:first_row=None
         before=pid()
         if before is None:raise RuntimeError('No reader process before backgrounding')
+        checkpoint(root,'backgrounding-configured-reader',name)
         device.adb('shell','input','keyevent','KEYCODE_HOME')
         wait_until(lambda:stopped_record(device.adb('shell','dumpsys','activity','activities')))
         # am kill preserves task/saved Activity state, unlike force-stop/clear-data.
+        checkpoint(root,'stopped-state-confirmed',name)
         device.adb('shell','am','kill',PACKAGE)
         wait_until(lambda:pid() is None)
+        checkpoint(root,'old-process-gone-relaunching-main',name)
         device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.MAIN')
         items=device.wait(lambda items:any(x.get('class')=='android.widget.EditText' and x.get('text')==expected_query for x in items))
         if spreadsheet:
@@ -141,6 +171,7 @@ def verify(output):
         if after is None or after==before:raise RuntimeError('Main process did not actually change')
         copied=subprocess.check_output(['adb','exec-out','cat',path],timeout=20)
         if copied!=data:raise RuntimeError('Original public fixture bytes changed')
+        checkpoint(root,'reader-restored-after-actual-kill',name)
         records.append({'name':name,'sha256':hashlib.sha256(data).hexdigest(),'before_pid':before,'after_pid':after,'stopped_before_kill':True,'query_restored':True,'page_2_restored':not spreadsheet,'visible_row_restored':first_row,'original_unchanged':True})
         device.home()
     report={'ok':True,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
@@ -153,6 +184,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);args=parser.parse_args()
     try:verify(args.output)
     except Exception as failure:
-        message=type(failure).__name__+': '+str(failure)
+        progress=Path(args.output)/'probe-progress.json'
+        message=type(failure).__name__+': '+str(failure)+(' '+progress.read_text() if progress.is_file() else '')
         print('::error title=Reader process recovery not accepted::'+message.replace('%','%25').replace('\r','%0D').replace('\n','%0A')[:3000],flush=True)
         raise

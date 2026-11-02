@@ -23,6 +23,9 @@ class ReaderViewportRound22Test(unittest.TestCase):
         snapshot=source.split('android.os.Bundle savedViewport()',1)[1].split('void restoreViewport',1)[0]
         self.assertNotIn('putParcelable',snapshot)
         self.assertNotIn('putByteArray',snapshot)
+        self.assertIn('if(pages.getWidth()<1)',source)
+        self.assertIn('pages.addOnLayoutChangeListener',source)
+        self.assertIn('view.removeOnLayoutChangeListener(this)',source)
 
     def test_new_native_cases_remain_in_each_focused_profile_inventory(self):
         plan=build_plan()

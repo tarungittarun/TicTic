@@ -60,3 +60,20 @@ requires GitHub Actions plus emulator hardware identity, exact installedcode37 a
 a new collision-free fixture directory. Host gates are not Android success; the
 actual run/outcome still needs inspection. Do not treat a successful build or this
 queued probe as release approval or image-OCR recovery.
+
+## Attached-window source hardening and probe follow-up
+
+Source review identified a real-width requirement: `View.post` is not a first-layout
+barrier for a newly inserted reader in an already attached Activity. Defer normalized
+page-offset resolution through a removable layout listener when width is zero;
+never derive it from an artificial1px width. The native round-trip fixture now
+first establishes a drawn host Window and explicitly restores the new viewer before
+its first measure. These source changes are NOT covered retroactively by the
+b3553c99 APK/run; they require fresh qualification and final-byte smokes. No saved
+content, version37, model/default or permission change; no assertion removed.
+
+First external probe41466908811 failed a UI wait and established NO recovery
+acceptance. Its terminal Home UI alone does not distinguish initial grant/opening
+from restoration failure. The retry uses the real local SAF picker (not a
+root-issued VIEW grant), explicitly chooses MyNotes Word pages, and retains/annotates
+its last phase. Diagnose actual failure phase before blaming saved-state behavior.

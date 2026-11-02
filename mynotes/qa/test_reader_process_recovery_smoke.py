@@ -3,7 +3,7 @@ import io
 from pathlib import Path
 import unittest
 import zipfile
-from mynotes.tools.ci.reader_process_recovery_smoke import pdf_fixture,word_fixture,stopped_record,visible_rows
+from mynotes.tools.ci.reader_process_recovery_smoke import pdf_fixture,word_fixture,stopped_record,visible_rows,picker_nodes
 
 
 class ReaderProcessRecoverySmokeTest(unittest.TestCase):
@@ -41,3 +41,8 @@ class ReaderProcessRecoverySmokeTest(unittest.TestCase):
         self.assertIn("os.environ.get('GITHUB_ACTIONS')!='true'",source)
         self.assertIn("'ro.kernel.qemu'",source)
         self.assertIn("device.adb('shell','mkdir','/sdcard/Download/'+folder)",source)
+
+
+    def test_picker_nodes_exclude_other_apps_and_disabled_actions(self):
+        xml='<hierarchy><node package="com.google.android.documentsui" enabled="true" text="Downloads"/><node package="private.app" enabled="true" text="Downloads"/><node package="android" enabled="false" text="Denied"/></hierarchy>'
+        self.assertEqual(['Downloads'],[node.get('text') for node in picker_nodes(xml)])

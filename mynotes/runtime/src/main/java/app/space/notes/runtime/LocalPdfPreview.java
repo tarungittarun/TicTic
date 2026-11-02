@@ -86,8 +86,19 @@ final class LocalPdfPreview extends LinearLayout implements AutoCloseable {
         return Math.max(-1,Math.min(1,(child.getTop()-params.topMargin-pages.getPaddingTop())/height));
     }
     private void scrollToPageViewport(int page,float top){
+        if(closed)return;
+        if(pages.getWidth()<1){
+            // View.post is not a layout barrier: attached views may run it before
+            // their first measure. Resolve normalized offsets only at real width.
+            final float requestedTop=top;
+            pages.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
+                @Override public void onLayoutChange(View view,int left,int upper,int right,int bottom,int oldLeft,int oldTop,int oldRight,int oldBottom){
+                    if(closed || right>left){view.removeOnLayoutChangeListener(this);if(!closed)scrollToPageViewport(page,requestedTop);}
+                }
+            });return;
+        }
         if(!Float.isFinite(top))top=0;top=Math.max(-1,Math.min(1,top));
-        int height=Math.max(1,(int)(Math.max(1,pages.getWidth())*document.ratios[page]))+design.dp(8);
+        int height=Math.max(1,(int)(pages.getWidth()*document.ratios[page]))+design.dp(8);
         layout.scrollToPositionWithOffset(page,Math.round(top*height));
     }
     private float[] savedPageZoom(int page){

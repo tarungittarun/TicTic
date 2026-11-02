@@ -212,3 +212,21 @@ Timing clarification: earlier `training_cpu_seconds` fields used perf_counter:
 wall elapsed for fitting on CPU, **not summed core-seconds**. Preserve those raw
 reports unchanged. New schema2 additionally measures process CPU seconds and
 states the legacy field definition; neither timing is a physical-phone benchmark.
+
+### Full-label follow-up actually measured — run41465980814
+
+Source5b48905b, successful execution. Exact measured check JSON/provenance retained
+in `emoji-pilot/41465980814/` (not a full copy of the7-day experimental artifact).
+4940 optimization steps,315280 sampled instances,20 epochs;686517/686517 parameters
+changed. Training wall elapsed416.713585578s; process CPU584.909312414s. Mean loss
+8.3788124085→0.4926452353. Clean seen-style (NOT held-out): top1=3637/3941,
+top5=3919/3941,3640 distinct top1 predictions. This demonstrates useful learning
+of the training art style, unlike the collapsed first pilot; it does not isolate
+which changed setting caused the improvement.
+
+**Separate-style reused development sample remains poor: top1=3/64, top5=7/64.**
+56 distinct predictions does not make them correct. This model is still NOT
+approved/shipped or universal OCR. More same-style epochs alone will not establish
+cross-family/detection/photo/unknown behavior. Diverse cleared training styles and
+fresh untouched evaluations are needed, including bitmap aliases and negatives.
+No private data, app permission, runtime weight or default recognizer changed.

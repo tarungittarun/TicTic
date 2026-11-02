@@ -110,7 +110,13 @@ final class WordPageFile {
             for(Paragraph paragraph:body){StaticLayout text=layout(new SpannedString(paragraph.text),paragraph.align,contentWidth);if(page==null || paragraph.pageBreak){if(page!=null)pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}y+=paragraph.before;int line=0;
                 while(line<text.getLineCount()){
                     int end=line;while(end<text.getLineCount() && text.getLineBottom(end)-text.getLineTop(line)<=bodyBottom-y)end++;
-                    if(end==line){if(y<=bodyTop+1)throw new IOException("Word line/image cannot fit a page safely; use original reader");pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;continue;}
+                    if(end==line){if(y<=bodyTop+Math.max(1,paragraph.before)){
+                        float lineHeight=text.getLineBottom(line)-text.getLineTop(line);
+                        float fit=Math.min(1,(bodyBottom-bodyTop)/Math.max(1,lineHeight));
+                        Canvas canvas=page.getCanvas();canvas.save();canvas.clipRect(left,bodyTop,width-right,bodyBottom);canvas.translate(left,bodyTop);canvas.scale(fit,fit);canvas.translate(0,-text.getLineTop(line));text.draw(canvas);canvas.restore();
+                        pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(line)).append('\n');
+                        warnings.add("Oversized line/image scaled to fit the available paper body.");y=bodyTop+lineHeight*fit;line++;continue;
+                    }pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;continue;}
                     float block=text.getLineBottom(end-1)-text.getLineTop(line);Canvas canvas=page.getCanvas();canvas.save();canvas.clipRect(left,y,width-right,y+block);canvas.translate(left,y-text.getLineTop(line));text.draw(canvas);canvas.restore();pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(end-1)).append('\n');y+=block;line=end;if(line<text.getLineCount()){pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}
                 }y+=paragraph.after;
             }

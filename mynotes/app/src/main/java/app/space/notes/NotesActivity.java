@@ -65,6 +65,13 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void saveViewedCopy(Uri source,String name,String mime){
         viewedCopySource=source;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType(mime);picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.putExtra(Intent.EXTRA_TITLE,name);openPicker(picker,106);
     }
+    @Override public void shareViewedFile(Uri source,String mime){
+        try{app.space.notes.runtime.LocalDeviceDocuments.requireReadable(source);
+            Intent share=new Intent(Intent.ACTION_SEND).setType(mime).putExtra(Intent.EXTRA_STREAM,source).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            share.setClipData(android.content.ClipData.newUri(getContentResolver(),"Original file",source));
+            startActivity(Intent.createChooser(share,"Share original file"));
+        }catch(java.io.IOException | android.content.ActivityNotFoundException | SecurityException error){showMessage("File could not be shared. Original and notes are unchanged.");}
+    }
     @Override public void openOriginal(Uri source,String mime){
         new android.app.AlertDialog.Builder(this).setTitle("Open original in another reader?").setMessage("The original is not changed by MyNotes. Another app controls its own layout, privacy and network use. Choose an offline reader if needed.").setPositiveButton("Choose reader",(d,w)->{try{Intent view=new Intent(Intent.ACTION_VIEW).setDataAndType(source,mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivity(Intent.createChooser(view,"Open original"));}catch(android.content.ActivityNotFoundException | SecurityException error){showMessage("No accessible compatible reader. Original file is unchanged.");}}).setNegativeButton("Cancel",null).show();
     }

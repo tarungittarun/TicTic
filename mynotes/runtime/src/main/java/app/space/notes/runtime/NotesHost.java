@@ -20,6 +20,7 @@ public interface NotesHost {
     default void libraryUnavailable(Throwable failure){showMessage("Notes could not be opened. Do not clear app data; export diagnostics.");}
     default void exportDiagnosticRange(long from,long to,java.util.Set<String> levels){showMessage("Filtered diagnostic export is unavailable in this host.");}
     default void saveViewedCopy(android.net.Uri original,String name,String mime){showMessage("File copy is unavailable in this host.");}
+    default void shareViewedFile(android.net.Uri original,String mime){showMessage("File sharing is unavailable in this host.");}
     default void openOriginal(android.net.Uri original,String mime){showMessage("External readers are unavailable in this host.");}
     default void exportDiagnostics(){showMessage("Diagnostic export is unavailable in this host.");}
     /** Embedded hosts own their native theme and policy; standalone explicitly opts out. */

@@ -15,7 +15,8 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/notes_widget_info" />
         </receiver>
         <activity android:name=".NotesActivity" android:exported="true"
-            android:launchMode="singleTop" android:windowSoftInputMode="adjustResize">
+            android:launchMode="singleTop" android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

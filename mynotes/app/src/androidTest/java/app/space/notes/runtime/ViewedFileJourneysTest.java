@@ -53,6 +53,24 @@ public class ViewedFileJourneysTest {
             assertTrue("Real two-pointer motion must zoom the page",image.zoomFactor()>1);assertTrue(image.zoomFactor()<=5);image.resetZoom();assertEquals(1f,image.zoomFactor(),.001f);
         });
     }
+    @Test public void pageZoomRestoresBeforeLayoutAndRetainsNormalizedPanAcrossResize(){
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+            float[] state={2.5f,.25f,.75f,.2f,-.1f};ZoomablePageImage image=new ZoomablePageImage(context());
+            image.restoreZoom(state);state[0]=1;assertEquals("Snapshot must be copied, not retained by reference",2.5f,image.savedZoom()[0],.001f);
+            image.layout(0,0,400,600);float[] before=image.savedZoom();assertArrayEquals(new float[]{2.5f,.25f,.75f,.2f,-.1f},before,.001f);
+            image.layout(0,0,1200,500);assertArrayEquals("Resize must preserve normalized focus/pan, not old pixel offsets",before,image.savedZoom(),.001f);
+            ZoomablePageImage reconstructed=new ZoomablePageImage(context());reconstructed.restoreZoom(image.savedZoom());reconstructed.layout(0,0,700,900);assertArrayEquals(before,reconstructed.savedZoom(),.001f);
+            reconstructed.resetZoom();reconstructed.layout(0,0,900,700);assertEquals(1f,reconstructed.zoomFactor(),.001f);assertEquals(0f,reconstructed.savedZoom()[3],.001f);assertEquals(0f,reconstructed.savedZoom()[4],.001f);
+        });
+    }
+    @Test public void pageZoomRejectsNonFiniteMalformedStateAndClampsFiniteExtremes(){
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+            ZoomablePageImage image=new ZoomablePageImage(context());image.layout(0,0,400,600);
+            for(float[] invalid:new float[][]{null,new float[]{2},new float[]{2,.5f,.5f,Float.NaN,0},new float[]{Float.POSITIVE_INFINITY,.5f,.5f,0,0}}){image.restoreZoom(invalid);assertEquals(1f,image.zoomFactor(),.001f);assertEquals(0f,image.savedZoom()[3],.001f);}
+            image.restoreZoom(new float[]{100,-8,8,Float.MAX_VALUE,-Float.MAX_VALUE});assertArrayEquals(new float[]{5,0,1,0,0},image.savedZoom(),.001f);
+            image.restoreZoom(new float[]{2,.5f,.5f,0,0});image.resetZoom();image.layout(0,0,800,900);assertEquals(1f,image.zoomFactor(),.001f);
+        });
+    }
     @Test public void wordPagePreviewRejectsEntitiesAndArchiveTraversal()throws Exception{
         Map<String,byte[]> invalid=new LinkedHashMap<>();invalid.put("word/document.xml","<unrelated-xml/>".getBytes(StandardCharsets.UTF_8));try{WordPageFile.Result unexpected=WordPageFile.preview(context(),wordArchive(invalid));unexpected.pdf.closeText();unexpected.pdf.close();fail("Do not present unrelated XML as a successful blank Word preview");}catch(IOException expected){assertTrue(expected.getMessage().contains("Word document body"));}
         for(String name:new String[]{"word/document.xml","../word/document.xml"}){Map<String,byte[]> files=new LinkedHashMap<>();files.put(name,"<!DOCTYPE document [<!ENTITY x SYSTEM 'file:///private'>]><document>&x;</document>".getBytes(StandardCharsets.UTF_8));try{WordPageFile.Result unexpected=WordPageFile.preview(context(),wordArchive(files));unexpected.pdf.closeText();unexpected.pdf.close();fail("Unsafe Word source accepted");}catch(IOException expected){assertNotNull(expected.getMessage());}}

@@ -1,3 +1,4 @@
+# Round22: preserve normalized current-page zoom/pan and page offset across width/reconstruction; bounded SDK-only bootstrap retries, never retry test assertions.
 # Round21 retry: actual AlertDialog Cancel callback fence; previous API26 SDK emulator ZIP bootstrap failed before any instrumentation. Retain all profiles/cases/assertions.
 # Round21: explicit offline scanned-page OCR, bounded viewer reconstruction, request-generation fences and window-specific grid captures.
 # Round20: retained image-selector responsive reflow and attached spreadsheet capture; no training/physical acceptance claim.
@@ -33,7 +34,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-settled-round18-${{ github.ref }}
+  group: notes-refinement-native-round22-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -65,14 +66,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.33.0-36-development.apk
-          sha256sum MyNotes-v0.33.0-36-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.33.0-36-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.34.0-37-development.apk
+          sha256sum MyNotes-v0.34.0-37-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.34.0-37-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.33.0-36-development.apk
+          path: MyNotes-v0.34.0-37-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -136,6 +137,19 @@ jobs:
           Path('refinement-expected.json').write_text(json.dumps(selected))
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
           PYPLAN
+      - name: Bootstrap emulator package with bounded SDK-only retries
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          installed=false
+          for attempt in 1 2 3; do
+            echo "SDK emulator package bootstrap attempt $attempt/3; no app test has started" | tee -a refinement-native-sdk-bootstrap.txt
+            if timeout 180 "$SDK/cmdline-tools/latest/bin/sdkmanager" 'emulator' 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then
+              if "$SDK/emulator/emulator" -version 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then installed=true; break; fi
+            fi
+            if [ "$attempt" != 3 ]; then sleep 5; fi
+          done
+          if [ "$installed" != true ]; then echo '::error::Emulator SDK bootstrap failed after three attempts; no native qualification claimed'; exit 1; fi
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}

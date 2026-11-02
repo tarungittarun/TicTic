@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "source_sha": "c0140302db428589c0bdf6b423c1387144ece01a",
+  "capture_run": "41406961762",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 185,
+      "passed": 184,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: New note IME readiness: ime=false body=WritingField[top=153 h=121 measured=121 scroll=0 visibility=0][top=0 h=1344 measured=1344 scroll=0 visibility=0]ScrollView[top=192 h=1344 measured=1344 scroll=0 visibility=0]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0] focus=true attached=true focused_view=app.space.notes.runtime.NotesController$WritingField window_focus=true\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:227)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:549)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:126)\n\t... 11 more\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 174,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.DiagramCodecTest#backupPreservesFullEditableDiagram",
+        "app.space.notes.DiagramCodecTest#diagramConflictAndRepeatedImportAreLossless",
+        "app.space.notes.DiagramCodecTest#outOfCanvasGeometryRefused",
+        "app.space.notes.DiagramCodecTest#twentyGeometricShapesHaveDistinctRenderedOutlines",
+        "app.space.notes.OfflineOcrTest#blankImageDoesNotInventText",
+        "app.space.notes.OfflineOcrTest#cancelledTaskNeverStartsInference",
+        "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+        "app.space.notes.OfflineOcrTest#darkFrameDoesNotInvertALightDocumentInterior",
+        "app.space.notes.OfflineOcrTest#hindiAndKannadaBundledModelsRunWithoutDownloading",
+        "app.space.notes.OfflineOcrTest#nativeWordBoxesMatchTheChosenRecognitionPassAndSourceCoordinates",
+        "app.space.notes.OfflineOcrTest#preprocessingCompositesTransparencyAndBoundsSmallImageUpscale",
+        "app.space.notes.OfflineOcrTest#upscaledSmallImagesKeepNormalizedWordBoxesInsideTheSource",
+        "app.space.notes.OfflineSpeechTest#attenuatedAndSeededNoiseSpeechHaveBoundedMeasuredRegressionAndPreserveSource",
+        "app.space.notes.OfflineSpeechTest#failedTranscriptMetadataNeverDeletesRecording",
+        "app.space.notes.OfflineSpeechTest#permanentNoteCreationMarkerSurvivesTranscriptRetries",
+        "app.space.notes.OfflineSpeechTest#voiceSourceProvenanceRoundTripsAndDeduplicates",
+        "app.space.notes.TrainedWhisperTest#actualTrainedCpuModelRunsOfflineAndPreservesPublicAudio",
+        "app.space.notes.VoiceCaptureTest#contextualMicrophonePolicyAndDurableCaptureMatchLane",
+        "app.space.notes.VoiceRecoveryJourneysTest#corruptTranscriptDoesNotBlockOtherRecoveredNotes",
+        "app.space.notes.VoiceRecoveryJourneysTest#failedRetryRetainsReadableAndRawTranscript",
+        "app.space.notes.VoiceRecoveryJourneysTest#playbackCardPausesStopsAndRemainsUsableAfterLifecyclePause",
+        "app.space.notes.VoiceRecoveryJourneysTest#purgedVoiceNoteIsNotRecreatedFromRetainedAudio",
+        "app.space.notes.VoiceRecoveryJourneysTest#uncertainTranscriptStaysInInboxWithoutAutomaticLibraryInsertion",
+        "app.space.notes.runtime.DiagramResizeViewTest#cornerDragPreviewsThenCommitsExactlyOnce",
+        "app.space.notes.runtime.DrawingToolsTest#brushWidthAndColourAreCapturedPerStroke",
+        "app.space.notes.runtime.DrawingToolsTest#copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels",
+        "app.space.notes.runtime.DrawingToolsTest#draftChecksumMatchesPngBeforeAttachmentResizing",
+        "app.space.notes.runtime.DrawingToolsTest#gridIsAViewportGuideAndNeverChangesExportOrUndoHistory",
+        "app.space.notes.runtime.DrawingToolsTest#historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving",
+        "app.space.notes.runtime.DrawingToolsTest#portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions",
+        "app.space.notes.runtime.DrawingToolsTest#twoFingerZoomChangesViewportButNotExportOrHistory"
+      ],
+      "failures": [
+        "INSTRUMENTATION_RESULT: shortMsg=Process crashed.",
+        "Missing, duplicate or unsuccessful instrumentation completion: [0]"
+      ]
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 125,
+      "passed": 125,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": true,
+      "expected": 114,
+      "passed": 114,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 125,
+      "passed": 125,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 114,
+      "passed": 114,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 185,
+      "passed": 185,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 174,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.DiagramCodecTest#backupPreservesFullEditableDiagram",
+        "app.space.notes.DiagramCodecTest#diagramConflictAndRepeatedImportAreLossless",
+        "app.space.notes.DiagramCodecTest#outOfCanvasGeometryRefused",
+        "app.space.notes.DiagramCodecTest#twentyGeometricShapesHaveDistinctRenderedOutlines",
+        "app.space.notes.OfflineOcrTest#blankImageDoesNotInventText",
+        "app.space.notes.OfflineOcrTest#cancelledTaskNeverStartsInference",
+        "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+        "app.space.notes.OfflineOcrTest#darkFrameDoesNotInvertALightDocumentInterior",
+        "app.space.notes.OfflineOcrTest#hindiAndKannadaBundledModelsRunWithoutDownloading",
+        "app.space.notes.OfflineOcrTest#nativeWordBoxesMatchTheChosenRecognitionPassAndSourceCoordinates",
+        "app.space.notes.OfflineOcrTest#preprocessingCompositesTransparencyAndBoundsSmallImageUpscale",
+        "app.space.notes.OfflineOcrTest#upscaledSmallImagesKeepNormalizedWordBoxesInsideTheSource",
+        "app.space.notes.OfflineSpeechTest#attenuatedAndSeededNoiseSpeechHaveBoundedMeasuredRegressionAndPreserveSource",
+        "app.space.notes.OfflineSpeechTest#failedTranscriptMetadataNeverDeletesRecording",
+        "app.space.notes.OfflineSpeechTest#permanentNoteCreationMarkerSurvivesTranscriptRetries",
+        "app.space.notes.OfflineSpeechTest#voiceSourceProvenanceRoundTripsAndDeduplicates",
+        "app.space.notes.TrainedWhisperTest#actualTrainedCpuModelRunsOfflineAndPreservesPublicAudio",
+        "app.space.notes.VoiceCaptureTest#contextualMicrophonePolicyAndDurableCaptureMatchLane",
+        "app.space.notes.VoiceRecoveryJourneysTest#corruptTranscriptDoesNotBlockOtherRecoveredNotes",
+        "app.space.notes.VoiceRecoveryJourneysTest#failedRetryRetainsReadableAndRawTranscript",
+        "app.space.notes.VoiceRecoveryJourneysTest#playbackCardPausesStopsAndRemainsUsableAfterLifecyclePause",
+        "app.space.notes.VoiceRecoveryJourneysTest#purgedVoiceNoteIsNotRecreatedFromRetainedAudio",
+        "app.space.notes.VoiceRecoveryJourneysTest#uncertainTranscriptStaysInInboxWithoutAutomaticLibraryInsertion",
+        "app.space.notes.runtime.DiagramResizeViewTest#cornerDragPreviewsThenCommitsExactlyOnce",
+        "app.space.notes.runtime.DrawingToolsTest#brushWidthAndColourAreCapturedPerStroke",
+        "app.space.notes.runtime.DrawingToolsTest#copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels",
+        "app.space.notes.runtime.DrawingToolsTest#draftChecksumMatchesPngBeforeAttachmentResizing",
+        "app.space.notes.runtime.DrawingToolsTest#gridIsAViewportGuideAndNeverChangesExportOrUndoHistory",
+        "app.space.notes.runtime.DrawingToolsTest#historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving",
+        "app.space.notes.runtime.DrawingToolsTest#portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions",
+        "app.space.notes.runtime.DrawingToolsTest#twoFingerZoomChangesViewportButNotExportOrHistory"
+      ],
+      "failures": [
+        "INSTRUMENTATION_RESULT: shortMsg=Process crashed.",
+        "Missing, duplicate or unsuccessful instrumentation completion: [0]"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

@@ -10,14 +10,16 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.JSONObject;
+import app.space.notes.domain.ImageTextSelection;
 
 /** Bundled CPU OCR, no downloader, telemetry or network permission. Never call on UI thread. */
 public final class OfflineOcr {
     private OfflineOcr() { }
     public static final List<String> LANGUAGES=Collections.unmodifiableList(Arrays.asList("eng","hin","kan"));
     public static final class Result {
-        public final String text,language;public final int confidence,width,height;
-        Result(String text,String language,int confidence,int width,int height){this.text=text;this.language=language;this.confidence=confidence;this.width=width;this.height=height;}
+        public final String text,language;public final int confidence,width,height;public final List<ImageTextSelection.Word> words;
+        Result(String text,String language,int confidence,int width,int height){this(text,language,confidence,width,height,Collections.emptyList());}
+        Result(String text,String language,int confidence,int width,int height,List<ImageTextSelection.Word> words){this.text=text;this.language=language;this.confidence=confidence;this.width=width;this.height=height;this.words=Collections.unmodifiableList(new ArrayList<>(words));}
     }
     public static final class Cancellation {
         private final AtomicBoolean cancelled=new AtomicBoolean();private TessBaseAPI active;
@@ -25,14 +27,25 @@ public final class OfflineOcr {
         public boolean cancelled(){return cancelled.get();}
         void check() throws InterruptedException {if(cancelled())throw new InterruptedException("OCR cancelled");}
     }
+    /** Preview pixels are the bounded, EXIF-oriented source, not the OCR-normalized image. */
+    public static final class Scan implements AutoCloseable {
+        public final Result result;public final Bitmap image;private int uses=1;private boolean closed;
+        Scan(Result result,Bitmap image){this.result=result;this.image=image;}
+        synchronized boolean retain(){if(closed)return false;uses++;return true;}
+        synchronized void release(){if(--uses==0)image.recycle();}
+        @Override public synchronized void close(){if(!closed){closed=true;release();}}
+    }
     public static Result recognize(Context context,Uri source,String language,Cancellation cancellation) throws Exception {
+        try(Scan scan=scan(context,source,language,cancellation)){return scan.result;}
+    }
+    public static Scan scan(Context context,Uri source,String language,Cancellation cancellation) throws Exception {
         requireLocal(source);cancellation.check();File image=File.createTempFile("ocr-source-",".image",context.getCacheDir());
         try{
             try(InputStream in=context.getContentResolver().openInputStream(source);OutputStream out=new FileOutputStream(image)){
                 if(in==null)throw new IOException("Cannot open this local image");byte[] buffer=new byte[8192];int count,total=0;
                 while((count=in.read(buffer))!=-1){cancellation.check();total+=count;if(total>32*1024*1024)throw new IOException("OCR input is larger than 32 MiB; choose a smaller image. Source is unchanged.");out.write(buffer,0,count);}
             }
-            Bitmap bitmap=decodeImage(image);try{return recognizeBitmap(context,bitmap,language,cancellation);}finally{bitmap.recycle();}
+            Bitmap bitmap=decodeImage(image);boolean transferred=false;try{Result result=recognizeBitmap(context,bitmap,language,cancellation);Scan scan=new Scan(result,bitmap);transferred=true;return scan;}finally{if(!transferred)bitmap.recycle();}
         }finally{image.delete();}
     }
     public static void requireLocal(Uri uri) throws IOException {
@@ -74,8 +87,23 @@ public final class OfflineOcr {
         try{
             if(!engine.init(root.getAbsolutePath(),"auto".equals(language)?"eng+hin+kan":language))throw new IOException("Bundled OCR model could not initialize");
             synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setVariable("preserve_interword_spaces","1");engine.setImage(prepared);
-            engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";if(text.trim().isEmpty() || confidence<65){engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(sparse!=null && !sparse.trim().isEmpty() && (text.trim().isEmpty() || score>confidence && sparse.length()>=text.length()*.75)){text=sparse;confidence=score;}}return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight());
+            String hocr=engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";if(text.trim().isEmpty() || confidence<65){engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(sparse!=null && !sparse.trim().isEmpty() && (text.trim().isEmpty() || score>confidence && sparse.length()>=text.length()*.75)){text=sparse;confidence=score;hocr=engine.getHOCRText(0);}}cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
         }finally{synchronized(cancellation){cancellation.active=null;engine.recycle();prepared.recycle();}}
+    }
+    /** Bounded native-generated XHTML; no external entities, HTML views, or network fetches. */
+    private static List<ImageTextSelection.Word> regions(String hocr,int width,int height,Cancellation cancel)throws InterruptedException {
+        List<ImageTextSelection.Word> words=new ArrayList<>();if(hocr==null || hocr.length()>2000000)return words;
+        try{
+            org.xmlpull.v1.XmlPullParser parser=android.util.Xml.newPullParser();parser.setInput(new StringReader(hocr.replace("&nbsp;","&#160;")));
+            int event,line=0,wordDepth=-1;float[] box=null;StringBuilder value=new StringBuilder();
+            java.util.regex.Pattern bounds=java.util.regex.Pattern.compile("(?:^|;)\\s*bbox (\\d+) (\\d+) (\\d+) (\\d+)(?:;|$)");
+            while((event=parser.next())!=org.xmlpull.v1.XmlPullParser.END_DOCUMENT){cancel.check();
+                if(event==org.xmlpull.v1.XmlPullParser.START_TAG){String type=parser.getAttributeValue(null,"class");if("ocr_line".equals(type) || "ocr_header".equals(type))line++;
+                    if("ocrx_word".equals(type)){wordDepth=parser.getDepth();value.setLength(0);box=null;String title=parser.getAttributeValue(null,"title");java.util.regex.Matcher match=bounds.matcher(title==null?"":title);if(match.find())box=new float[]{Float.parseFloat(match.group(1))/width,Float.parseFloat(match.group(2))/height,Float.parseFloat(match.group(3))/width,Float.parseFloat(match.group(4))/height};}
+                }else if(event==org.xmlpull.v1.XmlPullParser.TEXT && wordDepth>=0){if(value.length()+parser.getText().length()>2000)return Collections.emptyList();value.append(parser.getText());}
+                else if(event==org.xmlpull.v1.XmlPullParser.END_TAG && parser.getDepth()==wordDepth){if(box!=null && !value.toString().trim().isEmpty()){if(words.size()==4096)return Collections.emptyList();words.add(new ImageTextSelection.Word(value.toString().trim(),box[0],box[1],box[2],box[3],line));}wordDepth=-1;}
+            }
+        }catch(InterruptedException cancelled){throw cancelled;}catch(Exception invalid){Diagnostics.record("ocr.regions","unavailable; full text retained");return Collections.emptyList();}return words;
     }
     private static synchronized File installModel(Context context,String language) throws Exception {
         File root=new File(context.getFilesDir(),"offline-ocr-v1"),directory=new File(root,"tessdata");if(!directory.isDirectory() && !directory.mkdirs())throw new IOException("Cannot create private OCR model directory");

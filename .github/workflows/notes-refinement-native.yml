@@ -1,4 +1,6 @@
-# Device-quality round 7: bounded IME readiness after Doc-to-Note handoff; remove synthetic App folder after its mirror is quiescent. 9 qualification jobs planned, 282 JVM +1130 native expected. Corpus audit is separate.
+# Offline image-selection and optional playback-boost qualification: 9 jobs planned.
+# Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
+# all 327 baseline methods, and untouched stored audio. No speech training/physical accuracy claim.
 # Build + eight parallel native shards; all four profile inventories remain exhaustive.
 # Previous24 exhausted; previous10 used4, unused6 kept separate (not silently added).
 # Documentation pushes use [skip ci]; cap is not a target or monetary guarantee.
@@ -42,14 +44,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.28.0-31-development.apk
-          sha256sum MyNotes-v0.28.0-31-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.28.0-31-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.29.0-32-development.apk
+          sha256sum MyNotes-v0.29.0-32-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.29.0-32-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.28.0-31-development.apk
+          path: MyNotes-v0.29.0-32-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

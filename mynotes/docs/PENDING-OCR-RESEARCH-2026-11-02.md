@@ -155,3 +155,16 @@ seen-style learning, family-disjoint generalization, explicit unknown/hard-negat
 calibration, bounded mobile inference, and photo/detection tests. More steps alone
 are not evidence. Pixel-identical flag aliases still need ambiguity/context handling
 regardless of learning quality. No private data or runtime model changed.
+
+### Follow-up diagnosis planned; results not yet measured
+
+`emoji_cpu_diagnosis.py` will verify the archived checkpoint's exact SHA256 before
+`weights_only` tensor loading. It uses a deterministic64-glyph Twemoji sample to
+measure layer zero fractions/inter-input variation and prediction diversity. Then
+it compares two fixed300-step experiments on the same16 repeated clean *training*
+inputs: original architecture/optimizer settings versus centered input, LeakyReLU,
+LayerNorm and lower learning rate. This is an intentionally tiny memorization
+sanity check, not a held-out accuracy claim, full3941-class fitting, a single-factor
+causal ablation or universal OCR. No OpenMoji pixels are read or tuned against in
+this diagnosis. Results, including failures, must be inspected before drawing a
+conclusion about feature collapse. No new weights are saved, no runtime changes.

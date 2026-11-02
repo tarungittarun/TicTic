@@ -1,0 +1,79 @@
+# Progress beyond the 32-clip frozen-encoder pilot using already-verified licensed speech.
+# One training speaker only: KSP B is prompt-heldout, never called unseen-speaker Indian accuracy.
+# Research checkpoint only; production APK/Vosk unchanged, no private audio or paid model API.
+name: MyNotes expanded Indian acoustic training (quarantined)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-indian-acoustic-extension.yml']
+permissions:
+  contents: read
+jobs:
+  acoustic-and-decoder-training:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    env:
+      EXPERIMENT: /tmp/mynotes-expanded-indian-acoustic
+      OMP_NUM_THREADS: 2
+      MKL_NUM_THREADS: 2
+      PYTHONUNBUFFERED: 1
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original grants and hashes; prepare 593 A training clips and two 32-clip B controls
+        run: python -m mynotes.tools.ci.indian_acoustic_extension prepare --output "$EXPERIMENT"
+      - name: Install pinned CPU-only experimental dependencies
+        run: |
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==1.26.4 numba==0.61.2 tiktoken==0.9.0 more-itertools==10.7.0 tqdm==4.67.1 PyYAML==6.0.3 Pillow==11.3.0
+          python -m pip install --no-deps openai-whisper==20250625
+      - name: Train final acoustic encoder and decoder blocks; recompute both before/after control groups
+        run: python -m mynotes.tools.ci.indian_acoustic_extension train --output "$EXPERIMENT"
+      - name: Preserve complete small reports and grants; never checkpoint or audio in Git
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          root=Path(os.environ['EXPERIMENT']);dest=Path('mynotes/docs/speech-acoustic')/os.environ['GITHUB_RUN_ID'];dest.mkdir(parents=True,exist_ok=True)
+          data=json.loads((root/'training-report.json').read_text())
+          assert data['adopted'] is False and data['optimizer_steps']==593
+          assert all(value>0 for value in data['modified_parameters_by_component'].values())
+          assert data['frozen_weights_sha256_before']==data['frozen_weights_sha256_after']
+          for name in ['data-report.json','training-report.json','MODIFICATIONS.txt']:
+              if (root/name).stat().st_size>1000000:raise ValueError('Report exceeds Git evidence bound')
+              shutil.copyfile(root/name,dest/name)
+          shutil.copytree(root/'licenses',dest/'licenses',dirs_exist_ok=True)
+          (dest/'run.json').write_text(json.dumps({'run':os.environ['GITHUB_RUN_ID'],'source_sha':os.environ['GITHUB_SHA'],'scope':'Real research optimization, no app adoption or physical acceptance; no private audio; KSP evaluation is same-speaker prompt-heldout'},indent=2)+'\n')
+          PY
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python -m unittest discover -s qa
+          git diff --check
+          git add "mynotes/docs/speech-acoustic/${{ github.run_id }}"
+          git commit -m "Preserve expanded single-voice Indian acoustic research ${{ github.run_id }} [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python -m unittest discover -s qa
+          done
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: expanded-indian-acoustic-research-only
+          path: |
+            ${{ env.EXPERIMENT }}/data-report.json
+            ${{ env.EXPERIMENT }}/training-report.json
+            ${{ env.EXPERIMENT }}/licenses/
+            ${{ env.EXPERIMENT }}/MODIFICATIONS.txt
+            ${{ env.EXPERIMENT }}/experimental-acoustic-decoder-blocks.pt
+          retention-days: 14
+          if-no-files-found: warn

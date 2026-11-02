@@ -45,7 +45,7 @@ def primary(relative,path,limit=1000000):
         except Exception as error:errors.append(type(error).__name__+': '+str(error)[:120])
     raise RuntimeError('Primary corpus source unavailable ('+relative+'): '+'; '.join(errors))
 
-def prepare(output):
+def prepare(output, requested=None):
     output.mkdir(parents=True,exist_ok=True);data=output/'data';data.mkdir(exist_ok=True);licenses=output/'licenses';licenses.mkdir(exist_ok=True)
     roster,roster_url=primary('cmu_arctic/',licenses/'corpus-roster.html')
     # Require the primary corpus page to identify the training speaker as Indian English.
@@ -56,7 +56,7 @@ def prepare(output):
         if not re.search(r'Indian(?:[ -]English)?',metadata,re.I):raise ValueError('Cannot verify Indian-English training speaker in primary sources; no optimization permitted')
         ksp_rows=[metadata]
     report={'schema':1,'scope':'small read-speech research pilot; not an app model or general Indian dictation qualification','hash_source':HASH_SOURCE,'roster_url':roster_url,'roster_sha256':sha(roster.encode()),'training_speaker_primary_roster_rows':ksp_rows,'archives':{},'records':[]}
-    requested=splits()
+    requested=splits() if requested is None else requested
     for speaker,expected in ARCHIVES.items():
         print('Preparing licensed speaker '+speaker,flush=True)
         grant=None;url='http://festvox.org/cmu_arctic/cmu_arctic/cmu_us_'+speaker+'_arctic/COPYING'
@@ -108,12 +108,12 @@ def prepare(output):
                     report['records'].append({'split':split,'speaker':speaker,'id':identity,'text':prompts[identity],'audio_sha256':sha(raw),'seconds':seconds,'file':str(path.relative_to(output))})
     train_text={' '.join(normalize(row['text'])) for row in report['records'] if row['split']=='train'}
     if any(' '.join(normalize(row['text'])) in train_text for row in report['records'] if row['split']=='evaluation'):raise ValueError('Transcript leakage across splits')
-    report['speaker_disjoint']=True;report['transcript_disjoint']=True;report['evaluation_accent_limit']='SLT is a US-English out-of-training-speaker regression control. No unseen Indian speaker is evaluated: do not claim Indian-accent WER or qualification. This tiny corpus is not spontaneous phone dictation.'
+    report['speaker_disjoint']=not ({row['speaker'] for row in report['records'] if row['split']=='train'} & {row['speaker'] for row in report['records'] if row['split']=='evaluation'});report['transcript_disjoint']=True;report['evaluation_accent_limit']='SLT is a US-English out-of-training-speaker regression control. Any KSP evaluation is seen-speaker, prompt-heldout only. No unseen Indian speaker is evaluated; no general Indian-accent or spontaneous phone dictation qualification.'
     license_metadata=json.loads(urllib.request.urlopen('https://api.github.com/repos/openai/whisper/contents/LICENSE?ref=31243bad24cc746f07d4c8bfdd2d974872cb1803',timeout=30).read())
     model_license=base64.b64decode(license_metadata['content']);(licenses/'Whisper-MIT-LICENSE.txt').write_bytes(model_license)
     if b'MIT License' not in model_license:raise ValueError('Whisper model/code license not verified')
     report['whisper_license_sha256']=sha(model_license);write(output/'data-report.json',report)
-    print(json.dumps({'prepared_training_clips':32,'heldout_clips':16,'speaker_disjoint':True,'actual_optimization':False}))
+    print(json.dumps({'prepared_training_clips':sum(row['split']=='train' for row in report['records']),'heldout_clips':sum(row['split']=='evaluation' for row in report['records']),'speaker_disjoint':report['speaker_disjoint'],'actual_optimization':False}))
 
 def train(output):
     import importlib.metadata

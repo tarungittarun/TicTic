@@ -43,3 +43,14 @@ class ImageSelectionAndPilot(unittest.TestCase):
  def test_extra_voice_archive_digests_are_pinned(self):
   from mynotes.tools.ci.indian_cmu_candidates import EXPECTED
   self.assertEqual({'aup','axb','gka','slp'},set(EXPECTED));self.assertTrue(all(len(value)==64 for value in EXPECTED.values()))
+
+ def test_expanded_training_is_prompt_heldout_not_claimed_speaker_heldout(self):
+  from mynotes.tools.ci.indian_acoustic_extension import splits
+  split=splits();self.assertEqual(593,len(split['train']));self.assertEqual(64,len(split['evaluation']))
+  self.assertEqual({'ksp'}, {speaker for speaker,_ in split['train']}&{speaker for speaker,_ in split['evaluation']})
+  self.assertFalse({text for _,text in split['train']}&{text for _,text in split['evaluation']})
+
+ def test_extended_trainable_scope_includes_acoustics_but_preserves_other_blocks(self):
+  from mynotes.tools.ci.indian_acoustic_extension import selected_parameter
+  self.assertTrue(selected_parameter('encoder.blocks.3.attn.query.weight'));self.assertTrue(selected_parameter('decoder.blocks.3.attn.query.weight'))
+  for name in ['encoder.blocks.2.attn.query.weight','decoder.blocks.2.attn.query.weight','decoder.token_embedding.weight','encoder.ln_post.weight']:self.assertFalse(selected_parameter(name))

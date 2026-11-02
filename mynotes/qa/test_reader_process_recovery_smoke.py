@@ -48,6 +48,7 @@ class ReaderProcessRecoverySmokeTest(unittest.TestCase):
     def test_picker_nodes_exclude_other_apps_and_disabled_actions(self):
         xml='<hierarchy><node package="com.google.android.documentsui" enabled="true" text="Downloads"/><node package="private.app" enabled="true" text="Downloads"/><node package="android" enabled="false" text="Denied"/></hierarchy>'
         self.assertEqual(['Downloads'],[node.get('text') for node in picker_nodes(xml)])
+        self.assertEqual(['Downloads','Denied'],[node.get('text') for node in picker_nodes(xml,False)])
 
 
     def test_scrollable_app_menu_is_navigated_without_skipping_the_file_action(self):

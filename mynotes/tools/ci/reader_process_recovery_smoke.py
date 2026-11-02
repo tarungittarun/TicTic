@@ -84,9 +84,9 @@ def pid():
 
 
 
-def picker_nodes(xml):
+def picker_nodes(xml,enabled_only=True):
     allowed={'com.google.android.documentsui','com.android.documentsui','android'}
-    return [node for node in ET.fromstring(xml).iter('node') if node.get('package') in allowed and node.get('enabled')=='true']
+    return [node for node in ET.fromstring(xml).iter('node') if node.get('package') in allowed and (not enabled_only or node.get('enabled')=='true')]
 
 
 
@@ -110,16 +110,18 @@ def pick_local_file(device,folder,name):
     # Real SAF user flow owns/persists the read grant; root-issued VIEW grants are
     # not a substitute for DocumentsUI permission semantics.
     device.click('Library');reachable_click(device,'Open file')
-    def ui():
+    def ui(enabled_only=True):
         device.adb('shell','uiautomator','dump','/sdcard/notes-reader-picker.xml')
-        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-reader-picker.xml'))
+        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-reader-picker.xml'),enabled_only)
     def click(label):
         try:items=wait_until(lambda: (items if named(items,label) is not None else None) if (items:=ui()) else None,40)
         except RuntimeError as failure:
-            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds','resource-id')} for node in ui() if node.get('text') or node.get('content-desc')],ensure_ascii=True)[:3500]
+            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds','resource-id','enabled')} for node in ui(False) if node.get('text') or node.get('content-desc')],ensure_ascii=True)[:3500]
             raise RuntimeError('Public SAF picker target missing: '+label+'; '+summary) from failure
         device.adb('shell','input','tap',*center(named(items,label).get('bounds','')))
-    click('Show roots');click('Downloads');click(folder);click(name)
+    click('Show roots');click('Downloads');click(folder)
+    if named(ui(),'List view') is not None:click('List view')
+    click(name)
 
 
 def checkpoint(root,phase,name):

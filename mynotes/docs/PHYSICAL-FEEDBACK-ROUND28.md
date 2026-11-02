@@ -120,3 +120,20 @@ including nonfocused floating popup windows; restores its previous service flags
 and still must click the real accessibility Copy action and assert exact clipboard
 text. No direct selection/copy method invocation substitutes for the actual gesture.
 Android compile and behavioral qualification of46 remain pending.
+
+## Follow-up47 (round32)
+
+44 remaining large-font/landscape primary shards143/145: actual Home drag did not
+commit and blocked-backup Back journey timed out. API36-b196/197: repeated creation
+IME assertion failed. These failures remain release blockers, not waived tests.
+45/46 are still building at this follow-up.47 replaces default ItemTouchHelper
+far-edge drop-target choice with center-inside-target geometry, preserving all
+pin-group checks, cancellation rollback, serial storage and exact real-gesture
+persistence/content assertions. ItemTouchHelper default target choice requires an
+edge overshoot; a drop squarely at another card's center must be sufficient.
+Native failure capture now reports accepted/move/enabled phase and screenshot;
+blocked-backup navigation awaits name each destination separately, without retry,
+longer assertion timeout or removal. That backup timeout remains under diagnosis.
+47 Android/native qualification and exact-byte smokes remain pending. This is
+not full completion, universal emoji/Word fidelity, global smoothness or physical
+acceptance; no360–480minute elapsed-work completion claim.

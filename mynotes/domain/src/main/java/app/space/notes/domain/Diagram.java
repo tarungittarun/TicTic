@@ -60,6 +60,20 @@ public final class Diagram {
         int left=WIDTH,top=HEIGHT,right=0,bottom=0;for(Node n:members){left=Math.min(left,n.x);top=Math.min(top,n.y);right=Math.max(right,n.x+n.width);bottom=Math.max(bottom,n.y+n.height);}int x=Math.max(-left,Math.min(WIDTH-right,dx)),y=Math.max(-top,Math.min(HEIGHT-bottom,dy));
         Set<String> ids=new HashSet<>();for(Node n:members)ids.add(n.id);List<Node> result=new ArrayList<>();for(Node n:nodes)result.add(ids.contains(n.id)?n.move(n.x+x,n.y+y):n);return new Diagram(result,edges);
     }
+    /** A shape or its entire group; duplicates retain internal arrows, never external links. */
+    public Set<String> members(String id){Node node=find(id);Set<String> ids=new LinkedHashSet<>();if(node!=null)for(Node n:nodes)if(n.id.equals(id) || (!node.group.isEmpty() && node.group.equals(n.group)))ids.add(n.id);return ids;}
+    public Diagram removeUnit(String id){Set<String> ids=members(id);List<Node> next=new ArrayList<>();for(Node n:nodes)if(!ids.contains(n.id))next.add(n);List<Edge> links=new ArrayList<>();for(Edge e:edges)if(!ids.contains(e.from) && !ids.contains(e.to))links.add(e);return new Diagram(next,links);}
+    public Diagram duplicateUnit(String id){
+        Set<String> ids=members(id);if(ids.isEmpty())return this;
+        int right=0,bottom=0,left=WIDTH,top=HEIGHT;for(Node n:nodes)if(ids.contains(n.id)){right=Math.max(right,n.x+n.width);bottom=Math.max(bottom,n.y+n.height);left=Math.min(left,n.x);top=Math.min(top,n.y);}
+        int dx=right+24<=WIDTH?24:Math.max(-24,-left),dy=bottom+24<=HEIGHT?24:Math.max(-24,-top);String group=ids.size()>1?UUID.randomUUID().toString():"";
+        Map<String,String> copied=new HashMap<>();List<Node> next=new ArrayList<>(nodes);for(Node n:nodes)if(ids.contains(n.id)){String key=UUID.randomUUID().toString();copied.put(n.id,key);next.add(new Node(key,n.shape,n.text,n.x+dx,n.y+dy,n.width,n.height,n.color,group));}
+        List<Edge> links=new ArrayList<>(edges);for(Edge e:edges)if(ids.contains(e.from) && ids.contains(e.to))links.add(new Edge(UUID.randomUUID().toString(),copied.get(e.from),copied.get(e.to),e.label));return new Diagram(next,links);
+    }
+    /** Split a connector by a small editable junction, then Connect can add branches. */
+    public Diagram splitEdge(String id){
+        for(Edge e:edges)if(e.id.equals(id)){Node a=find(e.from),b=find(e.to);int x=Math.max(0,Math.min(WIDTH-60,(a.x+a.width/2+b.x+b.width/2)/2-30)),y=Math.max(0,Math.min(HEIGHT-40,(a.y+a.height/2+b.y+b.height/2)/2-20));Node junction=new Node(UUID.randomUUID().toString(),"ellipse","",x,y,60,40,a.color);List<Node> next=new ArrayList<>(nodes);next.add(junction);List<Edge> links=new ArrayList<>();for(Edge old:edges)if(!old.id.equals(id))links.add(old);links.add(new Edge(e.id,e.from,junction.id,e.label));links.add(new Edge(UUID.randomUUID().toString(),junction.id,e.to,""));return new Diagram(next,links);}throw new IllegalArgumentException("Arrow no longer exists");
+    }
     public Diagram connect(String from,String to,String label){List<Edge> copy=new ArrayList<>(edges);copy.add(new Edge(UUID.randomUUID().toString(),from,to,label));return new Diagram(nodes,copy);}
     public Diagram removeEdge(String id){List<Edge> copy=new ArrayList<>(edges);copy.removeIf(e->e.id.equals(id));return new Diagram(nodes,copy);}
     public Diagram labelEdge(String id,String label){List<Edge> copy=new ArrayList<>();for(Edge edge:edges)copy.add(edge.id.equals(id)?new Edge(edge.id,edge.from,edge.to,label):edge);return new Diagram(nodes,copy);}

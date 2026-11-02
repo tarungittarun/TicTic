@@ -992,7 +992,7 @@ public final class AppFolder {
         if (name.equals("mynotes-ui")) {
           String expected = Arrays.asList("grid", "sortCreated").contains(key)
             ? "boolean"
-            : Arrays.asList("sort", "appearance").contains(key)
+            : Arrays.asList("sort", "appearance", "manual-order").contains(key)
               ? "string"
               : null;
           if (expected == null || !expected.equals(type)) throw new IOException(
@@ -1004,9 +1004,10 @@ public final class AppFolder {
           ) throw new IOException("Invalid appearance choice");
           if (
             key.equals("sort") &&
-            !Arrays.asList("edited", "created", "title").contains(value)
+            !Arrays.asList("edited", "created", "title", "manual").contains(value)
           ) throw new IOException("Invalid sort choice");
         }
+        if(name.equals("mynotes-ui") && key.equals("manual-order")) LibraryOrderStore.decode((String)value);
         if (
           name.equals("notes-drawing") &&
           (!key.equals("grid") || !type.equals("boolean"))

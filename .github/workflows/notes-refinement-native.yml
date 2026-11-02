@@ -1,3 +1,4 @@
+# Round28: fix final-listener initialization caught by42 compiler; initial on-page embedded PDF glyph selection, authored Word spacing/alignment, and exact116-page handbook asset reader checks. No rotated/scanned selection or full Word fidelity claim.
 # Round27: physical Home drag ordering and portable presentation state, Library deduplication, diagram context duplicate/delete units and split connector junction. Restore private folder explanation/Backups; retain all original native assertions.
 # Round26: physical feedback first patch: non-destructive confirmation icons, Home dock cleanup, independent private library reads, compact inbox, caller Back and styled viewed history. Native checks keep writer blocked to prove read responsiveness.
 # Round25: reject unacknowledged/old-target IME readiness; preserve all repeated-transition assertions and original bounds. Candidate40, no retroactive qualification from39.
@@ -40,7 +41,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round27-${{ github.ref }}
+  group: notes-refinement-native-round28-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -72,14 +73,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.39.0-42-development.apk
-          sha256sum MyNotes-v0.39.0-42-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.39.0-42-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.40.0-43-development.apk
+          sha256sum MyNotes-v0.40.0-43-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.40.0-43-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.39.0-42-development.apk
+          path: MyNotes-v0.40.0-43-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

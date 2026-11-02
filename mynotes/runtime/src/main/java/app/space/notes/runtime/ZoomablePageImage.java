@@ -8,7 +8,7 @@ import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 
 /** Bounded visual zoom; keeps lazy page raster allocation independent of pinch scale. */
-final class ZoomablePageImage extends ImageView {
+class ZoomablePageImage extends ImageView {
     private float zoom=1,panX,panY,focusX,focusY;
     private float[] pendingZoom;
     private final ScaleGestureDetector pinch;
@@ -27,11 +27,13 @@ final class ZoomablePageImage extends ImageView {
         gestures=new GestureDetector(context,new GestureDetector.SimpleOnGestureListener(){
             @Override public boolean onDown(MotionEvent event){return true;}
             @Override public boolean onSingleTapUp(MotionEvent event){performClick();return true;}
-            @Override public void onLongPress(MotionEvent event){if(!pinch.isInProgress())performLongClick();}
+            @Override public void onLongPress(MotionEvent event){if(!pinch.isInProgress() && !onPageLongPress(event.getX(),event.getY()))performLongClick();}
             @Override public boolean onDoubleTap(MotionEvent event){zoom=zoom>1?1:2;focusX=event.getX();focusY=event.getY();panX=panY=0;invalidate();return true;}
             @Override public boolean onScroll(MotionEvent first,MotionEvent current,float dx,float dy){if(zoom<=1 || pinch.isInProgress())return false;panX-=dx;panY-=dy;clamp();invalidate();return true;}
         });
     }
+    protected boolean onPageLongPress(float x,float y){return false;}
+    protected android.graphics.Matrix imageToView(){android.graphics.Matrix matrix=new android.graphics.Matrix(getImageMatrix());matrix.postScale(zoom,zoom,focusX,focusY);matrix.postTranslate(panX,panY);return matrix;}
     private void clamp(){if(zoom<=1){panX=panY=0;return;}panX=Math.max(-(zoom-1)*(getWidth()-focusX),Math.min((zoom-1)*focusX,panX));panY=Math.max(-(zoom-1)*(getHeight()-focusY),Math.min((zoom-1)*focusY,panY));}
     void resetZoom(){pendingZoom=null;zoom=1;panX=panY=0;focusX=getWidth()/2f;focusY=getHeight()/2f;invalidate();}
     /** Five finite normalized numbers only: no raster, source bytes or document text. */

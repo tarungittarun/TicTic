@@ -12,7 +12,8 @@ public final class DiagramView extends View {
     public interface Listener {void selected(String id);void changed(Diagram diagram);default void longPressed(String id){}}
     private Diagram diagram,original;private String selected;private final boolean dark;private final NotesDesign design;private final Listener listener;
     private float downX,downY;private Diagram.Node moving;private boolean dragged;private int resizeCorner=-1;private final Paint handles=new Paint(Paint.ANTI_ALIAS_FLAG);
-    private boolean longPressed;private final Runnable showContext=()->{if(moving!=null && !dragged && resizeCorner<0){longPressed=true;performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);listener.longPressed(moving.id);}};
+    private boolean longPressed;private final Runnable showContext=this::showShapeContext;
+    private void showShapeContext(){if(moving!=null && !dragged && resizeCorner<0){longPressed=true;performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);listener.longPressed(moving.id);}}
     @Override protected void onDetachedFromWindow(){removeCallbacks(showContext);super.onDetachedFromWindow();}
     public DiagramView(Context context,Diagram diagram,boolean dark,Listener listener){this(context,diagram,new NotesDesign(context,dark),listener);}
     public DiagramView(Context context,Diagram diagram,NotesDesign design,Listener listener){super(context);this.diagram=diagram;this.design=design;this.dark=design.dark;this.listener=listener;setBackgroundColor(design.surface);setContentDescription("Flowchart canvas. Tap a shape to select. Drag inside to move. Drag a selected shape corner to resize. Use Edit shape for labels and connectors. Long press a shape or group for Duplicate and Delete. Group shapes and Split arrow are in Diagram options.");setFocusable(true);}

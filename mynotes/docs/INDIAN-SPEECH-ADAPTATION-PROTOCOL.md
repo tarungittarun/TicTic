@@ -1,12 +1,17 @@
 # Indian-English speech: adaptation and acceptance protocol
 
-Status: **a small genuine decoder-training pilot has completed; production adaptation is
-not qualified or adopted**. Corrected run 41389504274 performed 32 AdamW updates on 32 public,
-licensed CMU ARCTIC KSP Indian-English clips (103.6315 seconds of speech). Its separate SLT
-US-English control is not unseen-speaker Indian-ASR evidence. Full details, exact steps and
-limitations: `OFFLINE-IMAGE-SELECTION-2026-11-02.md`. The current app retains its pinned Vosk
-small English-US weights. Microphone processing and confidence-based review are separate
-from acoustic-model adaptation, and must be evaluated separately.
+Status: **genuine expanded acoustic/decoder training completed; production adaptation is
+not qualified or adopted**. Run **41393453222** performed 593 AdamW updates on 593 public,
+licensed CMU ARCTIC KSP A clips (1884.8339375 seconds / 31.4139 minutes of unique speech),
+changing 1,774,076 final-encoder and 2,365,817 final-decoder parameter elements. Other frozen
+state hashes match. Complete reports/original grants: `speech-acoustic/41393453222/`.
+
+The 32 KSP B controls are the **SAME Indian training speaker** with different prompts;
+34→22 edits / 278 words is not unseen-speaker Indian dictation evidence. The paired US SLT
+control changed 13→10 edits / 278 words. No production Vosk comparison or phone qualification is
+implied. Earlier 32-step decoder-only pilots remain historical, separate experiments. Full
+record: `OFFLINE-IMAGE-SELECTION-2026-11-02.md`. The app retains its pinned Vosk small English-US
+weights. Microphone processing/confidence review/playback gain are separate capabilities.
 
 ## Current blockers and permitted next steps
 
@@ -15,7 +20,8 @@ from acoustic-model adaptation, and must be evaluated separately.
 | IndicVoices | Audit revision `c96f9088f138cf89d419da7e8e643e1f05c00a87`; gated access; declared CC-BY-4.0 | No audio downloaded; obtain authorized access and inspect English/code-switching suitability before selecting training data |
 | Svarah | Audit revision `ebbf7777fe771490696a3f7b007097606fa8c924`; gated access; license absent in audited metadata | Do not assume a license; reserve as held-out evaluation if authorized, never train on it |
 | NPTEL2020 Indian-English | Repository describes a large educational-speech corpus and transcript caveats | Inspect actual data/weight licensing and availability; lectures alone are not spontaneous phone dictation |
-| CMU ARCTIC KSP | Primary Indian-English speaker metadata, permissive original CMU grant, checksum-pinned audio; 32 real final-decoder-block optimization steps | Quarantined Whisper research only. Obtain representative unseen Indian speakers/phone dictation before any adoption; a US control does not close that gate |
+| CMU ARCTIC KSP | Primary Indian-English metadata/grant, checksum-pinned audio; 593 real final-encoder/decoder-block steps, 31.4139 minutes unique speech; KSP same-speaker B / SLT US controls | Quarantined Whisper research only. Obtain representative unseen Indian speakers/phone dictation before any adoption; a US control does not close that gate |
+| Additional CMU AUP / AXB / GKA / SLP | Original Indian-English roster metadata and archive hashes verified in audit 41391004242; no explicit per-voice grants verified in checked original paths/archives | Remain unadmitted; public download availability is not permission. Seek the original grant rather than silently extending the KSP license |
 | Existing bundled US Vosk | Existing pinned offline model; previously tested on a small non-Indian fixture | Retain as baseline; that fixture does not establish Indian-accent accuracy |
 | Alternative Indian Vosk / Whisper / sherpa-based runtimes | Research candidates, not newly qualified app models | Separate model license, runtime compatibility, APK size and real accuracy before adopting |
 
@@ -29,6 +35,18 @@ Public repository references inspected during this task:
 Do not request credentials in chat, bypass access controls, treat an unspecified license as
 permission, upload private notes/audio, or count metadata retrieval as training. Authorized,
 accessible, appropriately licensed data and trainable weights are required before starting.
+
+Complete round-6 manifests, original licenses and primary roster now live under
+`speech-pilot/41390127020/`; manifest and license file hashes have been checked against the
+record. The repeated 32-step experiments reuse the same 103.6315 seconds of unique audio,
+not a larger multi-speaker training corpus. Changed weights are real, but the app still uses
+its old model: research checkpoints are not a qualified production adaptation.
+
+Expanded single-voice acoustic experiment **41393453222** completed 593 updates on
+KSP A clips, final encoder/decoder blocks, paired KSP/SLT B controls. KSP is a
+**seen-speaker prompt-heldout diagnostic**, not a new Indian speaker or production acceptance.
+A complete result is preserved, with adopted=false. The original decoder-only pilot and this acoustic experiment
+are different protocols and must not be combined into one checkpoint/step/hour claim.
 
 ## Reproducibility record required for every genuine run
 

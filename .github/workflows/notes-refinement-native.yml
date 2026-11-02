@@ -1,5 +1,5 @@
-# Offline image-selection and playback qualification, round 6: query the full window-service dump for authoritative focus fields
-# plus stable external HOME preflight and failure-time window diagnostics; no assertion removed.
+# Offline image-selection and playback qualification, round 7: diagnose the round-6 API36 hang.
+# Independent debug-only Java stack observer and fail-only progress watchdog; no assertion removed.
 # 9 jobs planned; 294 JVM, 357 unique native methods / 1192 profile outcomes expected.
 # Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
 # all 327 baseline methods, and untouched stored audio. No speech training/physical accuracy claim.
@@ -179,7 +179,7 @@ jobs:
           overwrite: true
           path: |
             refinement-native.*
-            refinement-native-diagnostics.txt
+            refinement-native*.txt
             refinement-expected.json
             refinement-environment-*
             refinement-captures.tar

@@ -1,0 +1,513 @@
+FIRST 8000 CHARACTERS
+﻿2026-11-02T13:59:11.8941273Z Current runner version: '2.338.2'
+2026-11-02T13:59:11.8957795Z ##[group]Runner Image Provisioner
+2026-11-02T13:59:11.8958402Z Hosted Compute Agent
+2026-11-02T13:59:11.8958853Z Version: 20261021.618
+2026-11-02T13:59:11.8959257Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T13:59:11.8959762Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T13:59:11.8960250Z Worker ID: {b42f511f-d7b2-476e-96bd-3442351f95c9}
+2026-11-02T13:59:11.8960725Z Region: westus3
+2026-11-02T13:59:11.8961100Z Cloud: Azure
+2026-11-02T13:59:11.8961459Z ##[endgroup]
+2026-11-02T13:59:11.8962222Z ##[group]Operating System
+2026-11-02T13:59:11.8962648Z Ubuntu
+2026-11-02T13:59:11.8963046Z 24.04.5
+2026-11-02T13:59:11.8963403Z LTS
+2026-11-02T13:59:11.8963749Z ##[endgroup]
+2026-11-02T13:59:11.8964103Z ##[group]Runner Image
+2026-11-02T13:59:11.8964516Z Image: ubuntu-24.04
+2026-11-02T13:59:11.8965053Z Version: 20261025.353.1
+2026-11-02T13:59:11.8965873Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T13:59:11.8966829Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T13:59:11.8967447Z ##[endgroup]
+2026-11-02T13:59:11.8968230Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T13:59:11.8969444Z Actions: read
+2026-11-02T13:59:11.8969810Z Contents: write
+2026-11-02T13:59:11.8970165Z Metadata: read
+2026-11-02T13:59:11.8970591Z ##[endgroup]
+2026-11-02T13:59:11.8971872Z Secret source: Actions
+2026-11-02T13:59:11.8972516Z Cache mode: write
+2026-11-02T13:59:11.8972942Z Prepare workflow directory
+2026-11-02T13:59:11.9173286Z Prepare all required actions
+2026-11-02T13:59:11.9204325Z Getting action download info
+2026-11-02T13:59:12.2172457Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-02T13:59:12.3934529Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+2026-11-02T13:59:12.9860397Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-02T13:59:13.4972672Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-02T13:59:13.6843689Z Complete job name: native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)
+2026-11-02T13:59:13.7456306Z ##[group]Run actions/checkout@v5
+2026-11-02T13:59:13.7456808Z with:
+2026-11-02T13:59:13.7457132Z   ref: f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:13.7457620Z   repository: tarungittarun/TicTic
+2026-11-02T13:59:13.7462302Z   token: ***
+2026-11-02T13:59:13.7462579Z   ssh-strict: true
+2026-11-02T13:59:13.7462871Z   ssh-user: git
+2026-11-02T13:59:13.7463173Z   persist-credentials: true
+2026-11-02T13:59:13.7463516Z   clean: true
+2026-11-02T13:59:13.7463825Z   sparse-checkout-cone-mode: true
+2026-11-02T13:59:13.7464211Z   fetch-depth: 1
+2026-11-02T13:59:13.7464505Z   fetch-tags: false
+2026-11-02T13:59:13.7464812Z   show-progress: true
+2026-11-02T13:59:13.7465363Z   lfs: false
+2026-11-02T13:59:13.7465631Z   submodules: false
+2026-11-02T13:59:13.7465940Z   set-safe-directory: true
+2026-11-02T13:59:13.7466306Z   allow-unsafe-pr-checkout: false
+2026-11-02T13:59:13.7466784Z ##[endgroup]
+2026-11-02T13:59:13.9836207Z Syncing repository: tarungittarun/TicTic
+2026-11-02T13:59:13.9838308Z ##[group]Getting Git version info
+2026-11-02T13:59:13.9839144Z Working directory is '/home/runner/work/TicTic/TicTic'
+2026-11-02T13:59:13.9840335Z [command]/usr/bin/git version
+2026-11-02T13:59:13.9919549Z git version 2.56.0
+2026-11-02T13:59:13.9933018Z ##[endgroup]
+2026-11-02T13:59:13.9945391Z Temporarily overriding HOME='/home/runner/work/_temp/e081f373-8baa-497f-ac16-657a69736893' before making global git config changes
+2026-11-02T13:59:13.9947771Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T13:59:13.9950567Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-02T13:59:13.9999497Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+2026-11-02T13:59:14.0003065Z ##[group]Initializing the repository
+2026-11-02T13:59:14.0006600Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+2026-11-02T13:59:14.0116973Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T13:59:14.0117939Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T13:59:14.0118752Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T13:59:14.0119379Z hint: call:
+2026-11-02T13:59:14.0119639Z hint:
+2026-11-02T13:59:14.0120014Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T13:59:14.0120485Z hint:
+2026-11-02T13:59:14.0120922Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T13:59:14.0121716Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T13:59:14.0122317Z hint:
+2026-11-02T13:59:14.0122588Z hint: 	git branch -m <name>
+2026-11-02T13:59:14.0122933Z hint:
+2026-11-02T13:59:14.0123415Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T13:59:14.0130446Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+2026-11-02T13:59:14.0140719Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+2026-11-02T13:59:14.0184317Z ##[endgroup]
+2026-11-02T13:59:14.0185214Z ##[group]Disabling automatic garbage collection
+2026-11-02T13:59:14.0187558Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T13:59:14.0217709Z ##[endgroup]
+2026-11-02T13:59:14.0218280Z ##[group]Setting up auth
+2026-11-02T13:59:14.0223619Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T13:59:14.0258081Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T13:59:14.0598147Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T13:59:14.0637139Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T13:59:14.0837487Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T13:59:14.0874887Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T13:59:14.1070509Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T13:59:14.1113569Z ##[endgroup]
+2026-11-02T13:59:14.1114263Z ##[group]Fetching the repository
+2026-11-02T13:59:14.1123312Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:38.0581563Z From https://github.com/tarungittarun/TicTic
+2026-11-02T13:59:38.0582055Z  * branch              f2830cc46e3c05b3622e5ea80fbfea137a354787 -> FETCH_HEAD
+2026-11-02T13:59:38.0606399Z ##[endgroup]
+2026-11-02T13:59:38.0606798Z ##[group]Determining the checkout info
+2026-11-02T13:59:38.0607271Z ##[endgroup]
+2026-11-02T13:59:38.0607529Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T13:59:38.0648533Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T13:59:38.0684137Z ##[group]Checking out the ref
+2026-11-02T13:59:38.0687546Z [command]/usr/bin/git checkout --progress --force f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:39.0922130Z Updating files:  31% (8856/27834)
+2026-11-02T13:59:39.1145543Z Updating files:  32%
+MATCHING DIAGNOSTIC LINES (FIRST 24000 CHARACTERS)
+2026-11-02T13:59:40.9356757Z   digest-mismatch: error
+adb shell settings put system screen_off_timeout 1800000
+bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont 1 -e expectedNight no -e expectedOrientation portrait -e expectedMotion 0 -e expectedMic denied -e class "$REVIEW_CLASSES"
+2026-11-02T13:59:46.7060192Z   emulator-boot-timeout: 600
+2026-11-02T13:59:46.7104096Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T13:59:46.7563232Z Emulator boot timeout: 600
+2026-11-02T13:59:46.7569377Z adb shell settings put system screen_off_timeout 1800000
+2026-11-02T13:59:46.7570199Z bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont 1 -e expectedNight no -e expectedOrientation portrait -e expectedMotion 0 -e expectedMic denied -e class "$REVIEW_CLASSES"
+2026-11-02T14:00:01.0921655Z Warning: An error occurred while preparing SDK package Android Emulator: Error on ZipFile unknown archive.
+2026-11-02T14:00:01.2871209Z error: could not connect to TCP port 5554: Connection refused
+2026-11-02T14:00:01.2876047Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-02T14:00:01.2896377Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+2026-11-02T14:00:01.3115289Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:00:01.3876545Z     if not path.is_file() or path.stat().st_size>65536:raise ValueError('Selected quantitative report missing or oversized: '+filename)
+2026-11-02T14:00:01.3877284Z ValueError: Selected quantitative report missing or oversized: refinement-quality-ocr-common-text-report.json
+2026-11-02T14:00:01.3967572Z ##[error]Process completed with exit code 1.
+2026-11-02T14:00:01.4054308Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:00:03.0387569Z FileNotFoundError: [Errno 2] No such file or directory: 'refinement-pdf-captures.tar'
+2026-11-02T14:00:03.0530816Z ##[error]Process completed with exit code 1.
+2026-11-02T14:00:03.0556336Z result=android(path.read_text(errors='replace') if path.exists() else '',expected)
+2026-11-02T14:00:03.0557115Z phases=cpu.read_text(errors='replace') if cpu.exists() else ''
+2026-11-02T14:00:03.0557641Z     for observation in set(re.findall(r'trained_cpu_elapsed_ms=\d+',path.read_text(errors='replace'))):
+2026-11-02T14:00:03.0559716Z     if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))
+2026-11-02T14:00:03.0619846Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:00:03.0942968Z     "app.space.notes.DiagnosticsJourneysTest#failureStacksExcludePrivateExceptionMessage",
+2026-11-02T14:00:03.0947415Z     "app.space.notes.GenerationProtocolTest#failedMediaWriteDoesNotCommitAnUnresolvableGeneration",
+2026-11-02T14:00:03.0954336Z     "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+2026-11-02T14:00:03.0958261Z     "app.space.notes.OfflineSpeechTest#failedTranscriptMetadataNeverDeletesRecording",
+2026-11-02T14:00:03.0980581Z     "app.space.notes.RepositoryTransferTest#aDifferentExternalWriterCannotSilentlyReplaceAnAlwaysKeptPrivateLibrary",
+2026-11-02T14:00:03.0987030Z     "app.space.notes.StructuredCodecTest#invalidTableSizingCannotPartiallyDecode",
+2026-11-02T14:00:03.0993520Z     "app.space.notes.SystemSurfacesTest#parallelPrivateSnapshotReadersCannotRevertAtomicWrites",
+2026-11-02T14:00:03.0995252Z     "app.space.notes.TrainedWhisperTest#privateWorkerDeathReturnsErrorWithoutKillingNotesOrLosingAudio",
+2026-11-02T14:00:03.1005704Z     "app.space.notes.runtime.ImageSelectionTest#unsupportedPlaybackStillReportsAnErrorAndCanBeDisposed",
+2026-11-02T14:00:03.1026047Z ##[error]{
+2026-11-02T14:00:03.1047854Z ##[error]dEditorDisclosuresHaveAccessibleNames",
+    "app.space.notes.DiagnosticsJourneysTest#failureStacksExcludePrivateExceptionMessage",
+2026-11-02T14:00:03.1069482Z ##[error]",
+    "app.space.notes.GenerationProtocolTest#failedMediaWriteDoesNotCommitAnUnresolvableGeneration",
+    "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+    "app.space.notes.OfflineSpeechTest#failedTranscriptMetadataNeverDeletesRecording",
+2026-11-02T14:00:03.1077501Z ##[error]Process completed with exit code 1.
+2026-11-02T14:00:03.1154073Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:00:04.6916944Z     except (subprocess.CalledProcessError,json.JSONDecodeError):
+2026-11-02T14:00:04.6918880Z         except (subprocess.CalledProcessError,json.JSONDecodeError):
+2026-11-02T14:00:04.6982394Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:14:09.8374130Z   digest-mismatch: error
+2026-11-02T14:14:09.8417975Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:14:11.4861974Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+2026-11-02T14:14:15.9073793Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#allTextMetadataRoundTrips,app.space.notes.BackupCodecTest#checksumTamperingRejected,app.space.notes.BackupCodecTest#duplicateIdsRejectedBeforeExport,app.space.notes.BackupCodecTest#noteCountMismatchRejected,app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec,app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#addingLinkToMixedSelectionDoesNotFlattenExistingFormatting,app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes,app.space.notes.CoreJourneysTest#backgroundAndPinStateAreVisibleAndPersistent,app.space.notes.CoreJourneysTest#bulkPropertiesPinAndArchivePreserveBothNotes,app.space.notes.CoreJourneysTest#canonicalFormattingFontSizeAndSafeLinksSurviveNativeFields,app.space.notes.CoreJourneysTest#canonicalNativeBlockHandleDragReordersWithoutFlatteningAndCanUndo,app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged,app.space.notes.CoreJourneysTest#canonicalSelectedChecklistConversionUndoRedoAndRecreationAreLossless,app.space.notes.CoreJourneysTest#canonicalUndoAndRedoSurviveColdControllerRestart,app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords,app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist,app.space.notes.CoreJourneysTest#contentPenHasManagementWhileTableCellsRemainDirectlyEditable,app.space.notes.CoreJourneysTest#docCellActionsRequireExactTableIdentityNotAPrefix
+LAST 48000 CHARACTERS
+b/document-table.jpg
+2026-11-02T14:14:24.5255253Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/document-typing-style.jpg
+2026-11-02T14:14:24.5255910Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/document-visuals.jpg
+2026-11-02T14:14:24.5256540Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/home-doc-swipe.jpg
+2026-11-02T14:14:24.5257131Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/image-text-selection.jpg
+2026-11-02T14:14:24.5257530Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/manifest.json
+2026-11-02T14:14:24.5257917Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/native-results.json
+2026-11-02T14:14:24.5258313Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/numeric-h1.jpg
+2026-11-02T14:14:24.5258686Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/numeric-h2.jpg
+2026-11-02T14:14:24.5259109Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-environment-after.json
+2026-11-02T14:14:24.5259579Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-environment-before.json
+2026-11-02T14:14:24.5260059Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-environment-configured.json
+2026-11-02T14:14:24.5260530Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5260984Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5261594Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5262064Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5262504Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/refinement-native.txt
+2026-11-02T14:14:24.5262907Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/search-keyboard.jpg
+2026-11-02T14:14:24.5263331Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/settings-after-navigation.jpg
+2026-11-02T14:14:24.5263775Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/spreadsheet-grid-viewport.jpg
+2026-11-02T14:14:24.5264222Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/stage-checklist-drop-preview.jpg
+2026-11-02T14:14:24.5264697Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/stage-named-checklist.jpg
+2026-11-02T14:14:24.5265298Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/word-link-form.jpg
+2026-11-02T14:14:24.5265724Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36-b/word-synthetic-paper-page.jpg
+2026-11-02T14:14:24.5266128Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/about.jpg
+2026-11-02T14:14:24.5266609Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/adaptive-doc-rails.jpg
+2026-11-02T14:14:24.5267016Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/adaptive-notes-format.jpg
+2026-11-02T14:14:24.5267430Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/adaptive-notes-rails.jpg
+2026-11-02T14:14:24.5267824Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/add-reminder.jpg
+2026-11-02T14:14:24.5268213Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/background-editor.jpg
+2026-11-02T14:14:24.5268594Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/backgrounds.jpg
+2026-11-02T14:14:24.5268964Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/backups.jpg
+2026-11-02T14:14:24.5269338Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/capture.jpg
+2026-11-02T14:14:24.5269703Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/checklist.jpg
+2026-11-02T14:14:24.5270078Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/content-pen.jpg
+2026-11-02T14:14:24.5270450Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/diagnostics.jpg
+2026-11-02T14:14:24.5270829Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/diagram-group.jpg
+2026-11-02T14:14:24.5271218Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/diagram-options.jpg
+2026-11-02T14:14:24.5271596Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/diagram.jpg
+2026-11-02T14:14:24.5271984Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/doc-capture-language.jpg
+2026-11-02T14:14:24.5272383Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/doc-workspace.jpg
+2026-11-02T14:14:24.5272772Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-dragged.jpg
+2026-11-02T14:14:24.5273170Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-find-inline.jpg
+2026-11-02T14:14:24.5273586Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-folder-sheet.jpg
+2026-11-02T14:14:24.5274085Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-format.jpg
+2026-11-02T14:14:24.5274479Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-mixed.jpg
+2026-11-02T14:14:24.5274877Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/document-pdf-options.jpg
+2026-11-02T14:14:24.5275463Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/drawing-options.jpg
+2026-11-02T14:14:24.5275847Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/drawing-tools.jpg
+2026-11-02T14:14:24.5276244Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/drawing.jpg
+2026-11-02T14:14:24.5276631Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/editor-folder-create.jpg
+2026-11-02T14:14:24.5277029Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/editor-keyboard.jpg
+2026-11-02T14:14:24.5277411Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/editor.jpg
+2026-11-02T14:14:24.5277783Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/filters-labels.jpg
+2026-11-02T14:14:24.5278160Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/filters-sort.jpg
+2026-11-02T14:14:24.5278533Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/filters-view.jpg
+2026-11-02T14:14:24.5279047Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/find-keyboard-inline.jpg
+2026-11-02T14:14:24.5279436Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/folders.jpg
+2026-11-02T14:14:24.5279810Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/format-keyboard.jpg
+2026-11-02T14:14:24.5280184Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/format.jpg
+2026-11-02T14:14:24.5280577Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/group-prerequisites.jpg
+2026-11-02T14:14:24.5280963Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/home.jpg
+2026-11-02T14:14:24.5281342Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/image-crop-preview.jpg
+2026-11-02T14:14:24.5281730Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/image-editor.jpg
+2026-11-02T14:14:24.5282100Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/labels.jpg
+2026-11-02T14:14:24.5282459Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/library.jpg
+2026-11-02T14:14:24.5282823Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/manifest.json
+2026-11-02T14:14:24.5283205Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/mixed-note-header.jpg
+2026-11-02T14:14:24.5283616Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/mixed-notes-selection.jpg
+2026-11-02T14:14:24.5284017Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/native-results.json
+2026-11-02T14:14:24.5284406Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/note-find-result.jpg
+2026-11-02T14:14:24.5284797Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/note-find-sheet.jpg
+2026-11-02T14:14:24.5285426Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/notes-workspace.jpg
+2026-11-02T14:14:24.5286046Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/ocr-review-empty.jpg
+2026-11-02T14:14:24.5286663Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/ocr-review.jpg
+2026-11-02T14:14:24.5287135Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/palette.jpg
+2026-11-02T14:14:24.5287714Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/read-image-auto.jpg
+2026-11-02T14:14:24.5288139Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-environment-after.json
+2026-11-02T14:14:24.5288600Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-environment-before.json
+2026-11-02T14:14:24.5289076Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-environment-configured.json
+2026-11-02T14:14:24.5289540Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5289991Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5290448Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5290915Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5291351Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-native.txt
+2026-11-02T14:14:24.5291762Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-pdf-captures.tar
+2026-11-02T14:14:24.5292280Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-pdf-results.json
+2026-11-02T14:14:24.5292753Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-quality-ocr-common-text-report.json
+2026-11-02T14:14:24.5293279Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/refinement-quality-speech-degradation-report.json
+2026-11-02T14:14:24.5293730Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/reminder-date.jpg
+2026-11-02T14:14:24.5294114Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/reminder-time.jpg
+2026-11-02T14:14:24.5294518Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/remove-image-confirmation.jpg
+2026-11-02T14:14:24.5295063Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/restore-preview.jpg
+2026-11-02T14:14:24.5295461Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/settings.jpg
+2026-11-02T14:14:24.5295829Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/shape-dialog.jpg
+2026-11-02T14:14:24.5296208Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/shape-picker.jpg
+2026-11-02T14:14:24.5296596Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/stage-aa-selection.jpg
+2026-11-02T14:14:24.5296995Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/stage-aa-typing.jpg
+2026-11-02T14:14:24.5297371Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/storage.jpg
+2026-11-02T14:14:24.5297754Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/trash-confirmation.jpg
+2026-11-02T14:14:24.5298129Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/trash.jpg
+2026-11-02T14:14:24.5298496Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/voice-inbox.jpg
+2026-11-02T14:14:24.5298875Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/word-appearance.jpg
+2026-11-02T14:14:24.5299265Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/word-table-options.jpg
+2026-11-02T14:14:24.5299648Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/word-zoom.jpg
+2026-11-02T14:14:24.5300121Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/current-api36/writing-lines.jpg
+2026-11-02T14:14:24.5300540Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/app-folder-copy-choices.jpg
+2026-11-02T14:14:24.5300988Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/checklist-item-actions.jpg
+2026-11-02T14:14:24.5301419Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/content-item-drag.jpg
+2026-11-02T14:14:24.5301841Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/content-list-caret.jpg
+2026-11-02T14:14:24.5302278Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/content-typed-numbering.jpg
+2026-11-02T14:14:24.5302714Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/device-folders-filter.jpg
+2026-11-02T14:14:24.5303140Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/doc-header-table.jpg
+2026-11-02T14:14:24.5303570Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-content-options.jpg
+2026-11-02T14:14:24.5304071Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-keyboard.jpg
+2026-11-02T14:14:24.5304496Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-saved-styles.jpg
+2026-11-02T14:14:24.5305185Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-table.jpg
+2026-11-02T14:14:24.5305695Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-typing-style.jpg
+2026-11-02T14:14:24.5306112Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/document-visuals.jpg
+2026-11-02T14:14:24.5306518Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/home-doc-swipe.jpg
+2026-11-02T14:14:24.5306912Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/manifest.json
+2026-11-02T14:14:24.5307309Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/native-results.json
+2026-11-02T14:14:24.5307711Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/numeric-h1.jpg
+2026-11-02T14:14:24.5308102Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/numeric-h2.jpg
+2026-11-02T14:14:24.5308533Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-environment-after.json
+2026-11-02T14:14:24.5309007Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-environment-before.json
+2026-11-02T14:14:24.5309493Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-environment-configured.json
+2026-11-02T14:14:24.5309979Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5310448Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5310926Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5311409Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5311862Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/refinement-native.txt
+2026-11-02T14:14:24.5312274Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/search-keyboard.jpg
+2026-11-02T14:14:24.5312707Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/settings-after-navigation.jpg
+2026-11-02T14:14:24.5313271Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/stage-checklist-drop-preview.jpg
+2026-11-02T14:14:24.5313726Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/stage-named-checklist.jpg
+2026-11-02T14:14:24.5314141Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34-b/word-link-form.jpg
+2026-11-02T14:14:24.5314535Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/about.jpg
+2026-11-02T14:14:24.5315056Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/adaptive-doc-rails.jpg
+2026-11-02T14:14:24.5315506Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/adaptive-notes-format.jpg
+2026-11-02T14:14:24.5315932Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/adaptive-notes-rails.jpg
+2026-11-02T14:14:24.5316341Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/add-reminder.jpg
+2026-11-02T14:14:24.5316740Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/background-editor.jpg
+2026-11-02T14:14:24.5317129Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/backgrounds.jpg
+2026-11-02T14:14:24.5317505Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/backups.jpg
+2026-11-02T14:14:24.5317973Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/capture.jpg
+2026-11-02T14:14:24.5318350Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/checklist.jpg
+2026-11-02T14:14:24.5318729Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/content-pen.jpg
+2026-11-02T14:14:24.5319107Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/diagnostics.jpg
+2026-11-02T14:14:24.5319496Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/diagram-group.jpg
+2026-11-02T14:14:24.5319889Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/diagram-options.jpg
+2026-11-02T14:14:24.5320271Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/diagram.jpg
+2026-11-02T14:14:24.5320668Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/doc-capture-language.jpg
+2026-11-02T14:14:24.5321078Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/doc-workspace.jpg
+2026-11-02T14:14:24.5321471Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-dragged.jpg
+2026-11-02T14:14:24.5321883Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-find-inline.jpg
+2026-11-02T14:14:24.5322307Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-folder-sheet.jpg
+2026-11-02T14:14:24.5322721Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-format.jpg
+2026-11-02T14:14:24.5323119Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-mixed.jpg
+2026-11-02T14:14:24.5323525Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/document-pdf-options.jpg
+2026-11-02T14:14:24.5323940Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/drawing-options.jpg
+2026-11-02T14:14:24.5324344Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/drawing-tools.jpg
+2026-11-02T14:14:24.5324894Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/drawing.jpg
+2026-11-02T14:14:24.5325597Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/editor-folder-create.jpg
+2026-11-02T14:14:24.5326359Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/editor-keyboard.jpg
+2026-11-02T14:14:24.5326745Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/editor.jpg
+2026-11-02T14:14:24.5327196Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/filters-labels.jpg
+2026-11-02T14:14:24.5327824Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/filters-sort.jpg
+2026-11-02T14:14:24.5328291Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/filters-view.jpg
+2026-11-02T14:14:24.5328698Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/find-keyboard-inline.jpg
+2026-11-02T14:14:24.5329093Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/folders.jpg
+2026-11-02T14:14:24.5329478Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/format-keyboard.jpg
+2026-11-02T14:14:24.5329862Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/format.jpg
+2026-11-02T14:14:24.5330254Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/group-prerequisites.jpg
+2026-11-02T14:14:24.5330643Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/home.jpg
+2026-11-02T14:14:24.5331031Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/image-crop-preview.jpg
+2026-11-02T14:14:24.5331528Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/image-editor.jpg
+2026-11-02T14:14:24.5331930Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/image-text-selection.jpg
+2026-11-02T14:14:24.5332324Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/labels.jpg
+2026-11-02T14:14:24.5332687Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/library.jpg
+2026-11-02T14:14:24.5333061Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/manifest.json
+2026-11-02T14:14:24.5333448Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/mixed-note-header.jpg
+2026-11-02T14:14:24.5333862Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/mixed-notes-selection.jpg
+2026-11-02T14:14:24.5334274Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/native-results.json
+2026-11-02T14:14:24.5334674Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/note-find-result.jpg
+2026-11-02T14:14:24.5335220Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/note-find-sheet.jpg
+2026-11-02T14:14:24.5335612Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/notes-workspace.jpg
+2026-11-02T14:14:24.5336011Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/ocr-review-empty.jpg
+2026-11-02T14:14:24.5336401Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/ocr-review.jpg
+2026-11-02T14:14:24.5336774Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/palette.jpg
+2026-11-02T14:14:24.5337152Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/read-image-auto.jpg
+2026-11-02T14:14:24.5337588Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-environment-after.json
+2026-11-02T14:14:24.5338058Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-environment-before.json
+2026-11-02T14:14:24.5338535Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-environment-configured.json
+2026-11-02T14:14:24.5339012Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5339576Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5340045Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5340514Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5340961Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-native.txt
+2026-11-02T14:14:24.5341386Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-pdf-captures.tar
+2026-11-02T14:14:24.5341821Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/refinement-pdf-results.json
+2026-11-02T14:14:24.5342232Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/reminder-date.jpg
+2026-11-02T14:14:24.5342629Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/reminder-time.jpg
+2026-11-02T14:14:24.5343043Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/remove-image-confirmation.jpg
+2026-11-02T14:14:24.5343470Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/restore-preview.jpg
+2026-11-02T14:14:24.5343941Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/settings.jpg
+2026-11-02T14:14:24.5344322Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/shape-dialog.jpg
+2026-11-02T14:14:24.5344712Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/shape-picker.jpg
+2026-11-02T14:14:24.5345291Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/spreadsheet-grid-viewport.jpg
+2026-11-02T14:14:24.5345756Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/stage-aa-selection.jpg
+2026-11-02T14:14:24.5346230Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/stage-aa-typing.jpg
+2026-11-02T14:14:24.5346748Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/storage.jpg
+2026-11-02T14:14:24.5347292Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/trash-confirmation.jpg
+2026-11-02T14:14:24.5347896Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/trash.jpg
+2026-11-02T14:14:24.5348454Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/voice-inbox.jpg
+2026-11-02T14:14:24.5348844Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/word-appearance.jpg
+2026-11-02T14:14:24.5349271Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/word-synthetic-paper-page.jpg
+2026-11-02T14:14:24.5349707Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/word-table-options.jpg
+2026-11-02T14:14:24.5350102Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/word-zoom.jpg
+2026-11-02T14:14:24.5350486Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/landscape-api34/writing-lines.jpg
+2026-11-02T14:14:24.5350906Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/app-folder-copy-choices.jpg
+2026-11-02T14:14:24.5351361Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/checklist-item-actions.jpg
+2026-11-02T14:14:24.5351796Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/content-item-drag.jpg
+2026-11-02T14:14:24.5352222Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/content-list-caret.jpg
+2026-11-02T14:14:24.5352766Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/content-typed-numbering.jpg
+2026-11-02T14:14:24.5353210Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/device-folders-filter.jpg
+2026-11-02T14:14:24.5353635Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/doc-header-table.jpg
+2026-11-02T14:14:24.5354069Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-content-options.jpg
+2026-11-02T14:14:24.5354505Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-keyboard.jpg
+2026-11-02T14:14:24.5355059Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-saved-styles.jpg
+2026-11-02T14:14:24.5355520Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-table.jpg
+2026-11-02T14:14:24.5355954Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-typing-style.jpg
+2026-11-02T14:14:24.5356378Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/document-visuals.jpg
+2026-11-02T14:14:24.5356788Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/home-doc-swipe.jpg
+2026-11-02T14:14:24.5357183Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/manifest.json
+2026-11-02T14:14:24.5357688Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/native-results.json
+2026-11-02T14:14:24.5358089Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/numeric-h1.jpg
+2026-11-02T14:14:24.5358476Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/numeric-h2.jpg
+2026-11-02T14:14:24.5358910Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-environment-after.json
+2026-11-02T14:14:24.5359430Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-environment-before.json
+2026-11-02T14:14:24.5359926Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-environment-configured.json
+2026-11-02T14:14:24.5360404Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5360879Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5361356Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5361831Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5362282Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/refinement-native.txt
+2026-11-02T14:14:24.5362697Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/search-keyboard.jpg
+2026-11-02T14:14:24.5363129Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/settings-after-navigation.jpg
+2026-11-02T14:14:24.5363591Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/stage-checklist-drop-preview.jpg
+2026-11-02T14:14:24.5364050Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/stage-named-checklist.jpg
+2026-11-02T14:14:24.5364497Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34-b/word-link-form.jpg
+2026-11-02T14:14:24.5364886Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/about.jpg
+2026-11-02T14:14:24.5365445Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/adaptive-doc-rails.jpg
+2026-11-02T14:14:24.5365969Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/adaptive-notes-format.jpg
+2026-11-02T14:14:24.5366396Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/adaptive-notes-rails.jpg
+2026-11-02T14:14:24.5366800Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/add-reminder.jpg
+2026-11-02T14:14:24.5367203Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/background-editor.jpg
+2026-11-02T14:14:24.5367598Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/backgrounds.jpg
+2026-11-02T14:14:24.5367980Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/backups.jpg
+2026-11-02T14:14:24.5368350Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/capture.jpg
+2026-11-02T14:14:24.5368727Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/checklist.jpg
+2026-11-02T14:14:24.5369109Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/content-pen.jpg
+2026-11-02T14:14:24.5369491Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/diagnostics.jpg
+2026-11-02T14:14:24.5369882Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/diagram-group.jpg
+2026-11-02T14:14:24.5370369Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/diagram-options.jpg
+2026-11-02T14:14:24.5370756Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/diagram.jpg
+2026-11-02T14:14:24.5371153Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/doc-capture-language.jpg
+2026-11-02T14:14:24.5371563Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/doc-workspace.jpg
+2026-11-02T14:14:24.5371965Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-dragged.jpg
+2026-11-02T14:14:24.5372381Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-find-inline.jpg
+2026-11-02T14:14:24.5372804Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-folder-sheet.jpg
+2026-11-02T14:14:24.5373223Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-format.jpg
+2026-11-02T14:14:24.5373630Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-mixed.jpg
+2026-11-02T14:14:24.5374046Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/document-pdf-options.jpg
+2026-11-02T14:14:24.5374457Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/drawing-options.jpg
+2026-11-02T14:14:24.5374851Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/drawing-tools.jpg
+2026-11-02T14:14:24.5375413Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/drawing.jpg
+2026-11-02T14:14:24.5375985Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/editor-folder-create.jpg
+2026-11-02T14:14:24.5376484Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/editor-keyboard.jpg
+2026-11-02T14:14:24.5376876Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/editor.jpg
+2026-11-02T14:14:24.5377255Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/filters-labels.jpg
+2026-11-02T14:14:24.5377643Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/filters-sort.jpg
+2026-11-02T14:14:24.5378025Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/filters-view.jpg
+2026-11-02T14:14:24.5378526Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/find-keyboard-inline.jpg
+2026-11-02T14:14:24.5378922Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/folders.jpg
+2026-11-02T14:14:24.5379307Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/format-keyboard.jpg
+2026-11-02T14:14:24.5379684Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/format.jpg
+2026-11-02T14:14:24.5380083Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/group-prerequisites.jpg
+2026-11-02T14:14:24.5380477Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/home.jpg
+2026-11-02T14:14:24.5380869Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/image-crop-preview.jpg
+2026-11-02T14:14:24.5381272Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/image-editor.jpg
+2026-11-02T14:14:24.5381677Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/image-text-selection.jpg
+2026-11-02T14:14:24.5382070Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/labels.jpg
+2026-11-02T14:14:24.5382571Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/library.jpg
+2026-11-02T14:14:24.5383212Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/manifest.json
+2026-11-02T14:14:24.5383814Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/mixed-note-header.jpg
+2026-11-02T14:14:24.5384441Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/mixed-notes-selection.jpg
+2026-11-02T14:14:24.5398282Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/native-results.json
+2026-11-02T14:14:24.5398878Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/note-find-result.jpg
+2026-11-02T14:14:24.5399479Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/note-find-sheet.jpg
+2026-11-02T14:14:24.5400069Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/notes-workspace.jpg
+2026-11-02T14:14:24.5400656Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/ocr-review-empty.jpg
+2026-11-02T14:14:24.5401232Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/ocr-review.jpg
+2026-11-02T14:14:24.5401798Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/palette.jpg
+2026-11-02T14:14:24.5402392Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/read-image-auto.jpg
+2026-11-02T14:14:24.5403061Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-environment-after.json
+2026-11-02T14:14:24.5403784Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-environment-before.json
+2026-11-02T14:14:24.5404461Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-environment-configured.json
+2026-11-02T14:14:24.5405094Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-native-cpu-phases.txt
+2026-11-02T14:14:24.5405599Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-native-diagnostics.txt
+2026-11-02T14:14:24.5406057Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-native-stall-threads.txt
+2026-11-02T14:14:24.5406516Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-native-test-progress.txt
+2026-11-02T14:14:24.5406952Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-native.txt
+2026-11-02T14:14:24.5407519Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-pdf-captures.tar
+2026-11-02T14:14:24.5407950Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/refinement-pdf-results.json
+2026-11-02T14:14:24.5408362Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/reminder-date.jpg
+2026-11-02T14:14:24.5408748Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/reminder-time.jpg
+2026-11-02T14:14:24.5409155Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/remove-image-confirmation.jpg
+2026-11-02T14:14:24.5409571Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/restore-preview.jpg
+2026-11-02T14:14:24.5409956Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/settings.jpg
+2026-11-02T14:14:24.5410342Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/shape-dialog.jpg
+2026-11-02T14:14:24.5410730Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/shape-picker.jpg
+2026-11-02T14:14:24.5411149Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/spreadsheet-grid-viewport.jpg
+2026-11-02T14:14:24.5411589Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/stage-aa-selection.jpg
+2026-11-02T14:14:24.5412091Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/stage-aa-typing.jpg
+2026-11-02T14:14:24.5412475Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/storage.jpg
+2026-11-02T14:14:24.5412873Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/trash-confirmation.jpg
+2026-11-02T14:14:24.5413266Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/trash.jpg
+2026-11-02T14:14:24.5413652Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/voice-inbox.jpg
+2026-11-02T14:14:24.5414046Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/word-appearance.jpg
+2026-11-02T14:14:24.5414472Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/word-synthetic-paper-page.jpg
+2026-11-02T14:14:24.5415039Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/word-table-options.jpg
+2026-11-02T14:14:24.5415476Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/word-zoom.jpg
+2026-11-02T14:14:24.5415864Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/large-font-api34/writing-lines.jpg
+2026-11-02T14:14:24.5416252Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/min-api26-b/native-results.json
+2026-11-02T14:14:24.5416636Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/min-api26/native-results.json
+2026-11-02T14:14:24.5416991Z  create mode 100644 mynotes/docs/design-2026-10-29/native/41456712021/provenance.json
+2026-11-02T14:14:27.3921158Z To https://github.com/tarungittarun/TicTic
+2026-11-02T14:14:27.3922325Z    d0f38431..1c07f1eb  arena/3caca636-tictic -> arena/3caca636-tictic
+2026-11-02T14:14:27.4076228Z Post job cleanup.
+2026-11-02T14:14:27.4686497Z [command]/usr/bin/git version
+2026-11-02T14:14:27.4746674Z git version 2.56.0
+2026-11-02T14:14:27.4770322Z Temporarily overriding HOME='/home/runner/work/_temp/3817ef24-c63d-4dc9-bc62-bc7c0f966101' before making global git config changes
+2026-11-02T14:14:27.4771357Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T14:14:27.4780699Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-02T14:14:27.4845146Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T14:14:27.4846496Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T14:14:27.5088693Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T14:14:27.5117666Z http.https://github.com/.extraheader
+2026-11-02T14:14:27.5140929Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T14:14:27.5184873Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T14:14:27.5441363Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T14:14:27.5479767Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T14:14:27.5841189Z Cleaning up orphan processes

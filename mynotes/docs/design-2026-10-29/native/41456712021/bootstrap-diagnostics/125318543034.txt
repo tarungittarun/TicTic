@@ -1,0 +1,445 @@
+FIRST 8000 CHARACTERS
+﻿2026-11-02T13:59:11.3050292Z Current runner version: '2.338.2'
+2026-11-02T13:59:11.3072993Z ##[group]Runner Image Provisioner
+2026-11-02T13:59:11.3073791Z Hosted Compute Agent
+2026-11-02T13:59:11.3074400Z Version: 20261021.618
+2026-11-02T13:59:11.3075244Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T13:59:11.3075854Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T13:59:11.3076509Z Worker ID: {f941b849-f0d4-42a1-bd6f-7e95b664bd83}
+2026-11-02T13:59:11.3077141Z Region: westus3
+2026-11-02T13:59:11.3077647Z Cloud: Azure
+2026-11-02T13:59:11.3078133Z ##[endgroup]
+2026-11-02T13:59:11.3079320Z ##[group]Operating System
+2026-11-02T13:59:11.3079925Z Ubuntu
+2026-11-02T13:59:11.3080462Z 24.04.5
+2026-11-02T13:59:11.3080930Z LTS
+2026-11-02T13:59:11.3081397Z ##[endgroup]
+2026-11-02T13:59:11.3081882Z ##[group]Runner Image
+2026-11-02T13:59:11.3082426Z Image: ubuntu-24.04
+2026-11-02T13:59:11.3082968Z Version: 20261025.353.1
+2026-11-02T13:59:11.3084094Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T13:59:11.3085682Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T13:59:11.3086546Z ##[endgroup]
+2026-11-02T13:59:11.3087607Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T13:59:11.3089231Z Actions: read
+2026-11-02T13:59:11.3089747Z Contents: write
+2026-11-02T13:59:11.3090228Z Metadata: read
+2026-11-02T13:59:11.3090825Z ##[endgroup]
+2026-11-02T13:59:11.3092566Z Secret source: Actions
+2026-11-02T13:59:11.3093454Z Cache mode: write
+2026-11-02T13:59:11.3094058Z Prepare workflow directory
+2026-11-02T13:59:11.3372562Z Prepare all required actions
+2026-11-02T13:59:11.3414259Z Getting action download info
+2026-11-02T13:59:11.6409548Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-02T13:59:11.7526827Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+2026-11-02T13:59:12.3648180Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-02T13:59:12.8813899Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-02T13:59:13.1668732Z Complete job name: native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)
+2026-11-02T13:59:13.2406509Z ##[group]Run actions/checkout@v5
+2026-11-02T13:59:13.2407004Z with:
+2026-11-02T13:59:13.2407224Z   ref: f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:13.2407501Z   repository: tarungittarun/TicTic
+2026-11-02T13:59:13.2410006Z   token: ***
+2026-11-02T13:59:13.2410195Z   ssh-strict: true
+2026-11-02T13:59:13.2410398Z   ssh-user: git
+2026-11-02T13:59:13.2410587Z   persist-credentials: true
+2026-11-02T13:59:13.2410792Z   clean: true
+2026-11-02T13:59:13.2410989Z   sparse-checkout-cone-mode: true
+2026-11-02T13:59:13.2411225Z   fetch-depth: 1
+2026-11-02T13:59:13.2411416Z   fetch-tags: false
+2026-11-02T13:59:13.2411612Z   show-progress: true
+2026-11-02T13:59:13.2411818Z   lfs: false
+2026-11-02T13:59:13.2411987Z   submodules: false
+2026-11-02T13:59:13.2412169Z   set-safe-directory: true
+2026-11-02T13:59:13.2412383Z   allow-unsafe-pr-checkout: false
+2026-11-02T13:59:13.2412750Z ##[endgroup]
+2026-11-02T13:59:13.7484389Z Syncing repository: tarungittarun/TicTic
+2026-11-02T13:59:13.7485953Z ##[group]Getting Git version info
+2026-11-02T13:59:13.7486417Z Working directory is '/home/runner/work/TicTic/TicTic'
+2026-11-02T13:59:13.7487079Z [command]/usr/bin/git version
+2026-11-02T13:59:13.7576576Z git version 2.56.0
+2026-11-02T13:59:13.7592162Z ##[endgroup]
+2026-11-02T13:59:13.7605488Z Temporarily overriding HOME='/home/runner/work/_temp/8f27e7cd-cb0e-49d3-a800-4dbacfd99ccd' before making global git config changes
+2026-11-02T13:59:13.7606846Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T13:59:13.7609883Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-02T13:59:13.7658589Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+2026-11-02T13:59:13.7675993Z ##[group]Initializing the repository
+2026-11-02T13:59:13.7676998Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+2026-11-02T13:59:13.7782705Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T13:59:13.7783454Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T13:59:13.7783907Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T13:59:13.7784238Z hint: call:
+2026-11-02T13:59:13.7784407Z hint:
+2026-11-02T13:59:13.7784660Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T13:59:13.7785201Z hint:
+2026-11-02T13:59:13.7785464Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T13:59:13.7785874Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T13:59:13.7786185Z hint:
+2026-11-02T13:59:13.7786359Z hint: 	git branch -m <name>
+2026-11-02T13:59:13.7786579Z hint:
+2026-11-02T13:59:13.7786850Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T13:59:13.7797918Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+2026-11-02T13:59:13.7809155Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+2026-11-02T13:59:13.7856623Z ##[endgroup]
+2026-11-02T13:59:13.7857156Z ##[group]Disabling automatic garbage collection
+2026-11-02T13:59:13.7860921Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T13:59:13.7891869Z ##[endgroup]
+2026-11-02T13:59:13.7892342Z ##[group]Setting up auth
+2026-11-02T13:59:13.7898565Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T13:59:13.7930823Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T13:59:13.8323919Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T13:59:13.8363431Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T13:59:13.8573742Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T13:59:13.8615883Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T13:59:13.8825776Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T13:59:13.8870291Z ##[endgroup]
+2026-11-02T13:59:13.8870838Z ##[group]Fetching the repository
+2026-11-02T13:59:13.8880944Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:38.3354592Z From https://github.com/tarungittarun/TicTic
+2026-11-02T13:59:38.3355616Z  * branch              f2830cc46e3c05b3622e5ea80fbfea137a354787 -> FETCH_HEAD
+2026-11-02T13:59:38.3360965Z ##[endgroup]
+2026-11-02T13:59:38.3361603Z ##[group]Determining the checkout info
+2026-11-02T13:59:38.3362708Z ##[endgroup]
+2026-11-02T13:59:38.3369189Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T13:59:38.3430145Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T13:59:38.3465148Z ##[group]Checking out the ref
+2026-11-02T13:59:38.3477102Z [command]/usr/bin/git checkout --progress --force f2830cc46e3c05b3622e5ea80fbfea137a354787
+2026-11-02T13:59:39.3935008Z Updating files:  27% (7531/27834)
+2026-11-02T13:59:39.4180271Z Updating files:  2
+MATCHING DIAGNOSTIC LINES (FIRST 24000 CHARACTERS)
+2026-11-02T13:59:41.5005048Z   digest-mismatch: error
+adb shell settings put system screen_off_timeout 1800000
+bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont 1 -e expectedNight no -e expectedOrientation portrait -e expectedMotion 0 -e expectedMic denied -e class "$REVIEW_CLASSES"
+2026-11-02T13:59:47.5715887Z   emulator-boot-timeout: 600
+2026-11-02T13:59:47.5777019Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#boundedReadRejectsOversize,app.space.notes.BackupCodecTest#cloudBackupIsRefused,app.space.notes.BackupCodecTest#futureFormatRejected,app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException,app.space.notes.BackupCodecTest#truncatedBackupRejected,app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly,app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode,app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles,app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories,app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection,app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation,app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation,app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows,app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides,app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides,app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics,app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation,app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel,app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections,app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering,app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity,app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs,app.space.notes.CoreJourneysTest#docChec
+2026-11-02T13:59:47.6376334Z Emulator boot timeout: 600
+2026-11-02T13:59:47.6385152Z adb shell settings put system screen_off_timeout 1800000
+2026-11-02T13:59:47.6386339Z bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont 1 -e expectedNight no -e expectedOrientation portrait -e expectedMotion 0 -e expectedMic denied -e class "$REVIEW_CLASSES"
+2026-11-02T14:00:06.9167410Z Warning: An error occurred while preparing SDK package Android Emulator: Error on ZipFile unknown archive.
+2026-11-02T14:00:07.2616297Z error: could not connect to TCP port 5554: Connection refused
+2026-11-02T14:00:07.2620961Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-02T14:00:07.2642145Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+2026-11-02T14:00:07.2818375Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#boundedReadRejectsOversize,app.space.notes.BackupCodecTest#cloudBackupIsRefused,app.space.notes.BackupCodecTest#futureFormatRejected,app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException,app.space.notes.BackupCodecTest#truncatedBackupRejected,app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly,app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode,app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles,app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories,app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection,app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation,app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation,app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows,app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides,app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides,app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics,app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation,app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel,app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections,app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering,app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity,app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs,app.space.notes.CoreJourneysTest#docChec
+2026-11-02T14:00:07.3744624Z result=android(path.read_text(errors='replace') if path.exists() else '',expected)
+2026-11-02T14:00:07.3745839Z phases=cpu.read_text(errors='replace') if cpu.exists() else ''
+2026-11-02T14:00:07.3746554Z     for observation in set(re.findall(r'trained_cpu_elapsed_ms=\d+',path.read_text(errors='replace'))):
+2026-11-02T14:00:07.3749337Z     if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))
+2026-11-02T14:00:07.3835216Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#boundedReadRejectsOversize,app.space.notes.BackupCodecTest#cloudBackupIsRefused,app.space.notes.BackupCodecTest#futureFormatRejected,app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException,app.space.notes.BackupCodecTest#truncatedBackupRejected,app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly,app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode,app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles,app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories,app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection,app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation,app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation,app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows,app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides,app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides,app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics,app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation,app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel,app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections,app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering,app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity,app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs,app.space.notes.CoreJourneysTest#docChec
+2026-11-02T14:00:07.4201972Z     "app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException",
+2026-11-02T14:00:07.4221619Z     "app.space.notes.CoreJourneysTest#failedLibraryLoadKeepsSourceAndDiagnosticExportReachableWithoutEditor",
+2026-11-02T14:00:07.4242477Z     "app.space.notes.DiagnosticsJourneysTest#parsedTimeAndLevelFiltersAreLocalAndDoNotExposeExceptionMessages",
+2026-11-02T14:00:07.4270218Z     "app.space.notes.RealFolderStorageTest#staleControllerRepositoryCannotFlushEmptyLibraryAfterCompleteRecovery",
+2026-11-02T14:00:07.4274659Z     "app.space.notes.RepositoryTransferTest#startupPrivateFastPathCannotBypassStagedRecovery",
+2026-11-02T14:00:07.4294284Z     "app.space.notes.VoiceRecoveryJourneysTest#failedRetryRetainsReadableAndRawTranscript",
+2026-11-02T14:00:07.4297599Z     "app.space.notes.runtime.ArchiveSemanticTest#malformedJsonErrorsDoNotEchoTranscriptContent",
+2026-11-02T14:00:07.4338465Z ##[error]{
+    "app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException",
+    "app.space.notes.CoreJourneysTest#failedLibraryLoadKeepsSourceAndDiagnosticExportReachableWithoutEditor",
+2026-11-02T14:00:07.4371556Z ##[error]s.CoreJourneysTest#imageEditRasterMatchesPreviewGeometryWithoutChangingSource",
+    "app.space.notes.DiagnosticsJourneysTest#parsedTimeAndLevelFiltersAreLocalAndDoNotExposeExceptionMessages",
+2026-11-02T14:00:07.4404481Z ##[error]pedCanvasDragAndHistoryPreserveRelativePlacement",
+2026-11-02T14:00:07.4418323Z ##[error]Process completed with exit code 1.
+2026-11-02T14:00:07.4540748Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#boundedReadRejectsOversize,app.space.notes.BackupCodecTest#cloudBackupIsRefused,app.space.notes.BackupCodecTest#futureFormatRejected,app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException,app.space.notes.BackupCodecTest#truncatedBackupRejected,app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly,app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode,app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles,app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories,app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection,app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation,app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation,app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows,app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides,app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides,app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics,app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation,app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel,app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections,app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering,app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity,app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs,app.space.notes.CoreJourneysTest#docChec
+LAST 48000 CHARACTERS
+ontinuesAndSingleBackspaceEscapesInDocument",
+2026-11-02T14:00:07.4240668Z     "app.space.notes.CoreJourneysTest#wholeChecklistCopyAndDeferredCutKeepRichRowsAndIndependentIdentities",
+2026-11-02T14:00:07.4241273Z     "app.space.notes.DiagnosticsJourneysTest#boundedRotationAndExportPreserveValidJsonRecords",
+2026-11-02T14:00:07.4241848Z     "app.space.notes.DiagnosticsJourneysTest#disabledByDefaultEnablePersistsAndDisableStopsCollection",
+2026-11-02T14:00:07.4242477Z     "app.space.notes.DiagnosticsJourneysTest#parsedTimeAndLevelFiltersAreLocalAndDoNotExposeExceptionMessages",
+2026-11-02T14:00:07.4243019Z     "app.space.notes.DiagramCodecTest#allShapesArrowsAndUnicodeRoundTrip",
+2026-11-02T14:00:07.4243413Z     "app.space.notes.DiagramCodecTest#danglingArrowRefusesEntireLibrary",
+2026-11-02T14:00:07.4243797Z     "app.space.notes.DiagramCodecTest#nodeMovementChangesEncodedPayload",
+2026-11-02T14:00:07.4244431Z     "app.space.notes.DiagramCodecTest#schema2GetsEmptyDiagramWithoutLosingRichText",
+2026-11-02T14:00:07.4245303Z     "app.space.notes.DiagramCodecTest#v3MissingDiagramFailsInsteadOfSilentlyDroppingData",
+2026-11-02T14:00:07.4246130Z     "app.space.notes.DiagramJourneysTest#cancelledCanvasDragDoesNotMutateRepository",
+2026-11-02T14:00:07.4246967Z     "app.space.notes.DiagramJourneysTest#groupedCanvasDragAndHistoryPreserveRelativePlacement",
+2026-11-02T14:00:07.4248093Z     "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+2026-11-02T14:00:07.4248772Z     "app.space.notes.GenerationProtocolTest#autosavesShareMediaAndHydrateExactPortablePayload",
+2026-11-02T14:00:07.4249249Z     "app.space.notes.GenerationProtocolTest#corruptOnlyLibraryIsNotEmpty",
+2026-11-02T14:00:07.4249742Z     "app.space.notes.GenerationProtocolTest#earlierInlineCanonicalFormatTwoSnapshotsRemainReadable",
+2026-11-02T14:00:07.4250384Z     "app.space.notes.GenerationProtocolTest#folderMemoryPressureIsReportedAsFailureInsteadOfAnEmptyLibrary",
+2026-11-02T14:00:07.4250942Z     "app.space.notes.GenerationProtocolTest#lostAcknowledgementDoesNotDuplicateCommit",
+2026-11-02T14:00:07.4251404Z     "app.space.notes.GenerationProtocolTest#previousPrivateFormatStillReads",
+2026-11-02T14:00:07.4251789Z     "app.space.notes.GenerationProtocolTest#savesAndReopens",
+2026-11-02T14:00:07.4252156Z     "app.space.notes.GenerationProtocolTest#staleWriterDoesNotOverwrite",
+2026-11-02T14:00:07.4252613Z     "app.space.notes.HistoryRecoveryTest#interruptedAtomicWriteRecoversPriorCompleteHistory",
+2026-11-02T14:00:07.4253178Z     "app.space.notes.HistoryRecoveryTest#oversizedHistoryIsBoundedAndNeverReplacesCurrentLibrary",
+2026-11-02T14:00:07.4253773Z     "app.space.notes.HistoryRecoveryTest#staleAnchorAndDeletedNotesNeverOverwriteOrResurrectCurrentData",
+2026-11-02T14:00:07.4254355Z     "app.space.notes.NativeSoakTest#repeatedNativeInferenceAndDurableDocumentCyclesStayBounded",
+2026-11-02T14:00:07.4255159Z     "app.space.notes.NotesPersistenceTest#emptyCommitIsPersisted",
+2026-11-02T14:00:07.4255652Z     "app.space.notes.NotesPersistenceTest#missingPreviousSnapshotDoesNotEmptyLibrary",
+2026-11-02T14:00:07.4256151Z     "app.space.notes.NotesPersistenceTest#restoreCheckpointsCurrentBeforeWritingMerged",
+2026-11-02T14:00:07.4256697Z     "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols",
+2026-11-02T14:00:07.4257199Z     "app.space.notes.OfflineOcrTest#bundledModelsMatchPinnedHashes",
+2026-11-02T14:00:07.4257586Z     "app.space.notes.OfflineOcrTest#cloudAndFileUrisAreRefusedBeforeReading",
+2026-11-02T14:00:07.4258057Z     "app.space.notes.OfflineOcrTest#controlledHindiKannadaImagesProduceAuditableDiagnostics",
+2026-11-02T14:00:07.4258610Z     "app.space.notes.OfflineOcrTest#darkSparseScreenshotReadsNativePrintedTextWithoutMutatingSource",
+2026-11-02T14:00:07.4259144Z     "app.space.notes.OfflineOcrTest#localGalleryDownloadsAndPickerUrisAreAccepted",
+2026-11-02T14:00:07.4259599Z     "app.space.notes.OfflineOcrTest#offlineEnglishImageRunsRealNativeInference",
+2026-11-02T14:00:07.4260080Z     "app.space.notes.OfflineOcrTest#printedArithmeticSymbolsAreRecognizedWithRealInference",
+2026-11-02T14:00:07.4260578Z     "app.space.notes.OfflineSpeechTest#activeRecordingIsNotRenamedByInboxScanner",
+2026-11-02T14:00:07.4261021Z     "app.space.notes.OfflineSpeechTest#cancelledInferenceKeepsOriginalAudioBytes",
+2026-11-02T14:00:07.4261494Z     "app.space.notes.OfflineSpeechTest#interruptedRecordingIsRecoveredBeforeRecognition",
+2026-11-02T14:00:07.4262008Z     "app.space.notes.OfflineSpeechTest#realBundledModelRecognizesPublicSpeechFixtureOffline",
+2026-11-02T14:00:07.4262611Z     "app.space.notes.RealFolderStorageTest#appFolderCopyChoicesLeaveInternalAudioAndExcludeItFromFreshRecovery",
+2026-11-02T14:00:07.4263261Z     "app.space.notes.RealFolderStorageTest#checksumValidButUnsafeCheckpointPathsAreRejectedBeforeStaging",
+2026-11-02T14:00:07.4264083Z     "app.space.notes.RealFolderStorageTest#completeCheckpointRemainsRecoverableWhenNewerNoteOnlySaveWasInterrupted",
+2026-11-02T14:00:07.4264872Z     "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles",
+2026-11-02T14:00:07.4265500Z     "app.space.notes.RealFolderStorageTest#homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen",
+2026-11-02T14:00:07.4266148Z     "app.space.notes.RealFolderStorageTest#independentCopiesAndTextOpeningUseRealDeviceFolderWithoutChangingSources",
+2026-11-02T14:00:07.4266878Z     "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile",
+2026-11-02T14:00:07.4267499Z     "app.space.notes.RealFolderStorageTest#noteOnlyImportFromCompleteAppFolderPreservesSourceAudioAndAppCheckpoint",
+2026-11-02T14:00:07.4268215Z     "app.space.notes.RealFolderStorageTest#originalByteCopyUsesVerifiedWritableDescriptorAndNeverTruncatesExistingFiles",
+2026-11-02T14:00:07.4268924Z     "app.space.notes.RealFolderStorageTest#reconstructedControllerRestoresRealSafSpreadsheetQueryAndSafeBackOrigin",
+2026-11-02T14:00:07.4269578Z     "app.space.notes.RealFolderStorageTest#rootFilesUseCollisionSafeTimestampsAndPurgeOnlyOwnedCopies",
+2026-11-02T14:00:07.4270218Z     "app.space.notes.RealFolderStorageTest#staleControllerRepositoryCannotFlushEmptyLibraryAfterCompleteRecovery",
+2026-11-02T14:00:07.4270838Z     "app.space.notes.ReminderJourneysTest#widgetNotificationRouteOpensExistingNoteWithoutCopying",
+2026-11-02T14:00:07.4271437Z     "app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage",
+2026-11-02T14:00:07.4272109Z     "app.space.notes.RepositoryTransferTest#destinationMemoryPressureDoesNotKillWriterOrLosePrivateUndoResult",
+2026-11-02T14:00:07.4272780Z     "app.space.notes.RepositoryTransferTest#removingLatestExternalGenerationNeverRollsBackVerifiedPrivateContent",
+2026-11-02T14:00:07.4273427Z     "app.space.notes.RepositoryTransferTest#revokedFolderSaveRecoversAcrossRepositoryRestartAndRetries",
+2026-11-02T14:00:07.4274068Z     "app.space.notes.RepositoryTransferTest#startupDoesNotReplaceCorruptPrivateLibraryWithFolderOrEmptyNotes",
+2026-11-02T14:00:07.4274659Z     "app.space.notes.RepositoryTransferTest#startupPrivateFastPathCannotBypassStagedRecovery",
+2026-11-02T14:00:07.4275397Z     "app.space.notes.ShareAndLabelsJourneysTest#additiveBulkLabelsKeepIndividualLabels",
+2026-11-02T14:00:07.4275986Z     "app.space.notes.ShareAndLabelsJourneysTest#textEditorAndToolsRetainPositiveSizeAtCurrentFontAndOrientation",
+2026-11-02T14:00:07.4276661Z     "app.space.notes.StructuredCodecTest#additionalOfficePreviewsRefuseUnsafePathsEntitiesAndMissingBodies",
+2026-11-02T14:00:07.4277237Z     "app.space.notes.StructuredCodecTest#backupImportStillRejectsDamagedEnvelopeChecksum",
+2026-11-02T14:00:07.4277819Z     "app.space.notes.StructuredCodecTest#canonicalDiagramUnknownFieldsAndFractionalCoordinatesAreNotDiscarded",
+2026-11-02T14:00:07.4278496Z     "app.space.notes.StructuredCodecTest#canonicalUnknownFieldsAndCoercedValuesFailInsteadOfSilentlyLosingData",
+2026-11-02T14:00:07.4279066Z     "app.space.notes.StructuredCodecTest#docxDeclarationsAndExpansionBombsAreRejected",
+2026-11-02T14:00:07.4279708Z     "app.space.notes.StructuredCodecTest#docxTextExtractionPreservesTabsBreaksUnicodeAndRejectsUnsupportedInputWithoutMutation",
+2026-11-02T14:00:07.4280439Z     "app.space.notes.StructuredCodecTest#generationFileOpeningGivesRecoveryInstructionsNotWrongBackupParsing",
+2026-11-02T14:00:07.4281008Z     "app.space.notes.StructuredCodecTest#imagesAreSelfContainedInBackupAndRestore",
+2026-11-02T14:00:07.4281555Z     "app.space.notes.StructuredCodecTest#localDocumentIntakeAcceptsKnownDeviceProvidersButNotCloudOrWeb",
+2026-11-02T14:00:07.4282084Z     "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected",
+2026-11-02T14:00:07.4282625Z     "app.space.notes.StructuredCodecTest#namedChecklistRoundTripsLibraryBackupAndMergeWithoutDroppingName",
+2026-11-02T14:00:07.4283260Z     "app.space.notes.StructuredCodecTest#openDocumentHtmlCsvMarkdownAndRtfAreReadableWithoutScriptExecution",
+2026-11-02T14:00:07.4284028Z     "app.space.notes.StructuredCodecTest#recursiveJsonBombIsRejectedBeforeAndroidParserRuns",
+2026-11-02T14:00:07.4284509Z     "app.space.notes.StructuredCodecTest#schema2RetainsRichTextAndLabels",
+2026-11-02T14:00:07.4285109Z     "app.space.notes.StructuredCodecTest#schema6FolderBackgroundAndGroupsRoundTrip",
+2026-11-02T14:00:07.4285730Z     "app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected",
+2026-11-02T14:00:07.4286254Z     "app.space.notes.StructuredCodecTest#schema8NamesRoundTripLegacyCanonicalAndBackup",
+2026-11-02T14:00:07.4286740Z     "app.space.notes.StructuredCodecTest#spansFollowInsertedTextBeforeSerialization",
+2026-11-02T14:00:07.4287310Z     "app.space.notes.StructuredCodecTest#spreadsheetAndSlidePreviewsExposeCachedTextWithoutEvaluatingCode",
+2026-11-02T14:00:07.4287901Z     "app.space.notes.StructuredCodecTest#visibleNoteJsonImportsWithoutFlatteningItsStructure",
+2026-11-02T14:00:07.4288472Z     "app.space.notes.StructuredCodecTest#wordStructuredCopyRejectsMergedCellsAndKeepsDeletedTextOut",
+2026-11-02T14:00:07.4289046Z     "app.space.notes.StylePresetStoreTest#presetPersistsPrivatelyWithoutNoteTextOrDestinations",
+2026-11-02T14:00:07.4289580Z     "app.space.notes.SystemSurfacesTest#differentNotesHaveDistinctAndStablePendingIntents",
+2026-11-02T14:00:07.4290069Z     "app.space.notes.SystemSurfacesTest#emptyWidgetIsUsefulAndWidgetCanBeReplaced",
+2026-11-02T14:00:07.4290582Z     "app.space.notes.SystemSurfacesTest#ordinarySavesKeepFutureScheduleAndCatchUpOverdueReminder",
+2026-11-02T14:00:07.4291113Z     "app.space.notes.SystemSurfacesTest#privateSnapshotDoesNotContactSelectedProvider",
+2026-11-02T14:00:07.4291603Z     "app.space.notes.SystemSurfacesTest#schemaFiveRoundTripsReminderAndReadsSchemaFour",
+2026-11-02T14:00:07.4292080Z     "app.space.notes.SystemSurfacesTest#widgetRemoteViewsInflateAndHideArchiveTrash",
+2026-11-02T14:00:07.4292638Z     "app.space.notes.TrainedWhisperTest#cancelledExperimentalRecognitionRetainsAudioWithoutInstallingModel",
+2026-11-02T14:00:07.4293220Z     "app.space.notes.VoiceCaptureTest#contextualMicrophonePolicyAndDurableCaptureMatchLane",
+2026-11-02T14:00:07.4293756Z     "app.space.notes.VoiceRecoveryJourneysTest#corruptTranscriptDoesNotBlockOtherRecoveredNotes",
+2026-11-02T14:00:07.4294284Z     "app.space.notes.VoiceRecoveryJourneysTest#failedRetryRetainsReadableAndRawTranscript",
+2026-11-02T14:00:07.4295040Z     "app.space.notes.VoiceRecoveryJourneysTest#playbackCardPausesStopsAndRemainsUsableAfterLifecyclePause",
+2026-11-02T14:00:07.4295630Z     "app.space.notes.VoiceRecoveryJourneysTest#purgedVoiceNoteIsNotRecreatedFromRetainedAudio",
+2026-11-02T14:00:07.4296243Z     "app.space.notes.VoiceRecoveryJourneysTest#uncertainTranscriptStaysInInboxWithoutAutomaticLibraryInsertion",
+2026-11-02T14:00:07.4296943Z     "app.space.notes.runtime.ArchiveSemanticTest#atomicMetadataSnapshotsAreBoundedAndLeaveOriginalRecordingUntouched",
+2026-11-02T14:00:07.4297599Z     "app.space.notes.runtime.ArchiveSemanticTest#malformedJsonErrorsDoNotEchoTranscriptContent",
+2026-11-02T14:00:07.4298208Z     "app.space.notes.runtime.ArchiveSemanticTest#nativeLibraryAndTranscriptFieldsRoundTripWithoutContentChanges",
+2026-11-02T14:00:07.4298944Z     "app.space.notes.runtime.ArchiveSemanticTest#transcriptContentIdentityIgnoresOperationalStateUuidAndKeyOrderButPreservesWords",
+2026-11-02T14:00:07.4299617Z     "app.space.notes.runtime.DiagramResizeViewTest#cornerDragPreviewsThenCommitsExactlyOnce",
+2026-11-02T14:00:07.4300124Z     "app.space.notes.runtime.DrawingToolsTest#brushWidthAndColourAreCapturedPerStroke",
+2026-11-02T14:00:07.4300664Z     "app.space.notes.runtime.DrawingToolsTest#copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels",
+2026-11-02T14:00:07.4301221Z     "app.space.notes.runtime.DrawingToolsTest#draftChecksumMatchesPngBeforeAttachmentResizing",
+2026-11-02T14:00:07.4301802Z     "app.space.notes.runtime.DrawingToolsTest#gridIsAViewportGuideAndNeverChangesExportOrUndoHistory",
+2026-11-02T14:00:07.4302546Z     "app.space.notes.runtime.DrawingToolsTest#historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving",
+2026-11-02T14:00:07.4303193Z     "app.space.notes.runtime.DrawingToolsTest#portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions",
+2026-11-02T14:00:07.4303779Z     "app.space.notes.runtime.DrawingToolsTest#twoFingerZoomChangesViewportButNotExportOrHistory",
+2026-11-02T14:00:07.4304392Z     "app.space.notes.runtime.ImageSelectionTest#closeWaitsForCropLeaseAndIsIdempotent",
+2026-11-02T14:00:07.4305121Z     "app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend",
+2026-11-02T14:00:07.4305701Z     "app.space.notes.runtime.ImageSelectionTest#dismissingPreviewDoesNotExtractOrModifyAnything",
+2026-11-02T14:00:07.4306274Z     "app.space.notes.runtime.ImageSelectionTest#emptyTextStillAllowsVisualSelectionWithoutInventedWords",
+2026-11-02T14:00:07.4306862Z     "app.space.notes.runtime.ImageSelectionTest#reviewFieldsAndSaveStayReachableInReducedViewport",
+2026-11-02T14:00:07.4307442Z     "app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim",
+2026-11-02T14:00:07.4308027Z     "app.space.notes.runtime.ImageSelectionTest#transparentPreviewUsesWhiteWithoutChangingSourcePixels",
+2026-11-02T14:00:07.4308610Z     "app.space.notes.runtime.NotesMotionTest#entryLiftAndSettlementHonorActualSystemAnimationSetting",
+2026-11-02T14:00:07.4309172Z     "app.space.notes.runtime.PdfPageOcrTest#cancellationAndUiThreadGuardLeaveRendererUsable",
+2026-11-02T14:00:07.4309689Z     "app.space.notes.runtime.PdfPageOcrTest#explicitPageActionOpensSelectableRealOcrReview",
+2026-11-02T14:00:07.4310191Z     "app.space.notes.runtime.PdfPageOcrTest#scannedPdfRunsRealOcrAndNeverWritesOriginal",
+2026-11-02T14:00:07.4310819Z     "app.space.notes.runtime.ViewedFileJourneysTest#continuousPdfHasVerticalRecyclerAndOfflineTextWithoutTouchingOriginal",
+2026-11-02T14:00:07.4311506Z     "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText",
+2026-11-02T14:00:07.4312133Z     "app.space.notes.runtime.ViewedFileJourneysTest#quotedCsvRetainsMultilineValuesAndNeverEvaluatesFormula",
+2026-11-02T14:00:07.4312841Z     "app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetControlsLeaveAFullDataRowVisibleWithLongNamesAndCurrentFontScale",
+2026-11-02T14:00:07.4313627Z     "app.space.notes.runtime.ViewedFileJourneysTest#viewedIndexFindsRealEnglishAndIndicPrefixesAndClearingNeverTouchesOriginals",
+2026-11-02T14:00:07.4314349Z     "app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedPagesKeepStoredBreaksHeaderLogoAndOriginalBytes"
+2026-11-02T14:00:07.4314892Z   ],
+2026-11-02T14:00:07.4315064Z   "unexpected": [],
+2026-11-02T14:00:07.4315242Z   "duplicates": [],
+2026-11-02T14:00:07.4315417Z   "failures": [
+2026-11-02T14:00:07.4315671Z     "Missing, duplicate or unsuccessful instrumentation completion: []"
+2026-11-02T14:00:07.4315951Z   ]
+2026-11-02T14:00:07.4316107Z }
+2026-11-02T14:00:07.4338465Z ##[error]{
+  "ok": false,
+  "expected": 189,
+  "passed": 0,
+  "missing": [
+    "app.space.notes.BackupCodecTest#boundedReadRejectsOversize",
+    "app.space.notes.BackupCodecTest#cloudBackupIsRefused",
+    "app.space.notes.BackupCodecTest#futureFormatRejected",
+    "app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException",
+    "app.space.notes.BackupCodecTest#truncatedBackupRejected",
+    "app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly",
+    "app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode",
+    "app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles",
+    "app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories",
+    "app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection",
+    "app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation",
+    "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+    "app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows",
+    "app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides",
+    "app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides",
+    "app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics",
+    "app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation",
+    "app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel",
+    "app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections",
+    "app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering",
+    "app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity",
+    "app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs",
+    "app.space.notes.CoreJourneysTest#docChecklistConvertsWithoutMarkersAndUndoRestoresRows",
+    "app.space.notes.CoreJourneysTest#docHeaderAndSelectedCellActionsAreUndoableAndDurable",
+    "app.space.notes.CoreJourneysTest#docInlineLinkInsertionAndRemovalKeepWordsAndUndo",
+    "app.space.notes.CoreJourneysTest#docObjectsMoveWithoutDraggingAndUndoRetainsData",
+    "app.space.notes.CoreJourneysTest#docWithAllSectionsRemovedCanStartWritingAgain",
+    "app.space.notes.CoreJourneysTest#documentRibbonAppliesTwoStylesWithoutReopeningOrLeavingWriting",
+    "app.space.notes.CoreJourneysTest#drawingBrushAndHistoryControlsExposeActualState",
+    "app.space.notes.CoreJourneysTest#drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection",
+    "app.space.notes.CoreJourneysTest#embeddedHostOwnsPaletteAndOverridesStandaloneAppearance",
+    "app.space.notes.CoreJourneysTest#explicitTypingFormatSurvivesRecreationWithoutStylesOrMoreMenus",
+    "app.space.notes.CoreJourneysTest#failedLibraryLoadKeepsSourceAndDiagnosticExportReachableWithoutEditor",
+    "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+    "app.space.notes.CoreJourneysTest#globalSearchShowsSavedDocumentsBeforeViewedFilesAndSettingsWithoutImportingThem",
+    "app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes",
+    "app.space.notes.CoreJourneysTest#hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal",
+    "app.space.note
+2026-11-02T14:00:07.4371556Z ##[error]s.CoreJourneysTest#imageEditRasterMatchesPreviewGeometryWithoutChangingSource",
+    "app.space.notes.CoreJourneysTest#inlineFindCyclesInPlaceAndBackReturnsToSameNote",
+    "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection",
+    "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting",
+    "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows",
+    "app.space.notes.CoreJourneysTest#nativeCaretAndReverseSelectionStyleWholeParagraphOnly",
+    "app.space.notes.CoreJourneysTest#nativeChecklistBoxDragShowsLineAndDropsInsideRichWriting",
+    "app.space.notes.CoreJourneysTest#nativeHeadingClearUndoAndReopenRetainParagraphMetrics",
+    "app.space.notes.CoreJourneysTest#nativeHeadingTypingExtendsAndEnterReturnsToNormalText",
+    "app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting",
+    "app.space.notes.CoreJourneysTest#nativeNumericFirstLineMatchesReportedOverlapCase",
+    "app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard",
+    "app.space.notes.CoreJourneysTest#nativeSheetsStayPopulatedAfterRepeatedNavigation",
+    "app.space.notes.CoreJourneysTest#nativeWrappedHeadingAndMixedScriptsKeepSeparateLineBoxes",
+    "app.space.notes.CoreJourneysTest#notePropertiesCancelWithoutReplacingTheWritingPage",
+    "app.space.notes.CoreJourneysTest#notesInlineFindTracksWritingChangesAndReleasesItsListenersOnClose",
+    "app.space.notes.CoreJourneysTest#privateDocumentLocationIsHonestAndDoesNotChangeTheNote",
+    "app.space.notes.CoreJourneysTest#renameImageDiagramAndReminderPersistWithoutChangingContents",
+    "app.space.notes.CoreJourneysTest#repeatedDrawingSaveDoesNotAttachDuplicateImages",
+    "app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage",
+    "app.space.notes.CoreJourneysTest#richTextLabelsColourAndDuplicatePersist",
+    "app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment",
+    "app.space.notes.CoreJourneysTest#selectedTrashDeletionLeavesOtherTrashedNotesAndOriginalAudio",
+    "app.space.notes.CoreJourneysTest#shareMergeAndUndoRestoreOriginals",
+    "app.space.notes.CoreJourneysTest#summaryNeedsExplicitSaveAndNeverChangesItsSource",
+    "app.space.notes.CoreJourneysTest#tableFitTracksNewTextAndNeverDrawsWritingGuidesInsideCells",
+    "app.space.notes.CoreJourneysTest#textUndoRedoPreservesFormattingSelectionAndSavesReviewedResult",
+    "app.space.notes.CoreJourneysTest#typedNumberingContinuesAndSingleBackspaceEscapesInDocument",
+    "app.space.notes.CoreJourneysTest#wholeChecklistCopyAndDeferredCutKeepRichRowsAndIndependentIdentities",
+    "app.space.notes.DiagnosticsJourneysTest#boundedRotationAndExportPreserveValidJsonRecords",
+    "app.space.notes.DiagnosticsJourneysTest#disabledByDefaultEnablePersistsAndDisableStopsCollection",
+    "app.space.notes.DiagnosticsJourneysTest#parsedTimeAndLevelFiltersAreLocalAndDoNotExposeExceptionMessages",
+    "app.space.notes.DiagramCodecTest#allShapesArrowsAndUnicodeRoundTrip",
+    "app.space.notes.DiagramCodecTest#danglingArrowRefusesEntireLibrary",
+    "app.space.notes.DiagramCodecTest#nodeMovementChangesEncodedPayload",
+    "app.space.notes.DiagramCodecTest#schema2GetsEmptyDiagramWithoutLosingRichText",
+    "app.space.notes.DiagramCodecTest#v3MissingDiagramFailsInsteadOfSilentlyDroppingData",
+    "app.space.notes.DiagramJourneysTest#cancelledCanvasDragDoesNotMutateRepository",
+    "app.space.notes.DiagramJourneysTest#grou
+2026-11-02T14:00:07.4404481Z ##[error]pedCanvasDragAndHistoryPreserveRelativePlacement",
+    "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+    "app.space.notes.GenerationProtocolTest#autosavesShareMediaAndHydrateExactPortablePayload",
+    "app.space.notes.GenerationProtocolTest#corruptOnlyLibraryIsNotEmpty",
+    "app.space.notes.GenerationProtocolTest#earlierInlineCanonicalFormatTwoSnapshotsRemainReadable",
+    "app.space.notes.GenerationProtocolTest#folderMemoryPressureIsReportedAsFailureInsteadOfAnEmptyLibrary",
+    "app.space.notes.GenerationProtocolTest#lostAcknowledgementDoesNotDuplicateCommit",
+    "app.space.notes.GenerationProtocolTest#previousPrivateFormatStillReads",
+    "app.space.notes.GenerationProtocolTest#savesAndReopens",
+    "app.space.notes.GenerationProtocolTest#staleWriterDoesNotOverwrite",
+    "app.space.notes.HistoryRecoveryTest#interruptedAtomicWriteRecoversPriorCompleteHistory",
+    "app.space.notes.HistoryRecoveryTest#oversizedHistoryIsBoundedAndNeverReplacesCurrentLibrary",
+    "app.space.notes.HistoryRecoveryTest#staleAnchorAndDeletedNotesNeverOverwriteOrResurrectCurrentData",
+    "app.space.notes.NativeSoakTest#repeatedNativeInferenceAndDurableDocumentCyclesStayBounded",
+    "app.space.notes.NotesPersistenceTest#emptyCommitIsPersisted",
+    "app.space.notes.NotesPersistenceTest#missingPreviousSnapshotDoesNotEmptyLibrary",
+    "app.space.notes.NotesPersistenceTest#restoreCheckpointsCurrentBeforeWritingMerged",
+    "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols",
+    "app.space.notes.OfflineOcrTest#bundledModelsMatchPinnedHashes",
+    "app.space.notes.OfflineOcrTest#cloudAndFileUrisAreRefusedBeforeReading",
+    "app.space.notes.OfflineOcrTest#controlledHindiKannadaImagesProduceAuditableDiagnostics",
+    "app.space.notes.OfflineOcrTest#darkSparseScreenshotReadsNativePrintedTextWithoutMutatingSource",
+    "app.space.notes.OfflineOcrTest#localGalleryDownloadsAndPickerUrisAreAccepted",
+    "app.space.notes.OfflineOcrTest#offlineEnglishImageRunsRealNativeInference",
+    "app.space.notes.OfflineOcrTest#printedArithmeticSymbolsAreRecognizedWithRealInference",
+    "app.space.notes.OfflineSpeechTest#activeRecordingIsNotRenamedByInboxScanner",
+    "app.space.notes.OfflineSpeechTest#cancelledInferenceKeepsOriginalAudioBytes",
+    "app.space.notes.OfflineSpeechTest#interruptedRecordingIsRecoveredBeforeRecognition",
+    "app.space.notes.OfflineSpeechTest#realBundledModelRecognizesPublicSpeechFixtureOffline",
+    "app.space.notes.RealFolderStorageTest#appFolderCopyChoicesLeaveInternalAudioAndExcludeItFromFreshRecovery",
+    "app.space.notes.RealFolderStorageTest#checksumValidButUnsafeCheckpointPathsAreRejectedBeforeStaging",
+    "app.space.notes.RealFolderStorageTest#completeCheckpointRemainsRecoverableWhenNewerNoteOnlySaveWasInterrupted",
+    "app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles",
+    "app.space.notes.RealFolderStorageTest#homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen",
+    "app.space.notes.RealFolderStorageTest#independentCopiesAndTextOpeningUseRealDeviceFolderWithoutChangingSources",
+    "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile",
+    "app.space.notes.RealFolderStorageTest#noteOnlyImportFromCompleteAppFolderPreservesSourceAudioAndAppCheckpoint",
+    "app.space.notes.RealFolderStorageTest#originalByteCopyUsesVerifiedWritableDescriptorAndNeverTruncatesExistingFiles",
+    "app.space.notes.RealFolderStorageTest#reconstructedControllerRestoresRealSafSpreadsheetQueryAn
+2026-11-02T14:00:07.4418323Z ##[error]Process completed with exit code 1.
+2026-11-02T14:00:07.4477831Z ##[group]Run actions/upload-artifact@v7.0.2
+2026-11-02T14:00:07.4478091Z with:
+2026-11-02T14:00:07.4478280Z   name: refinement-native-min-api26-b
+2026-11-02T14:00:07.4478507Z   overwrite: true
+2026-11-02T14:00:07.4479048Z   path: refinement-native.*
+refinement-native*.txt
+refinement-expected.json
+refinement-environment-*
+refinement-captures.tar
+refinement-pdf-*
+refinement-quality-*
+
+2026-11-02T14:00:07.4479607Z   retention-days: 7
+2026-11-02T14:00:07.4479797Z   if-no-files-found: warn
+2026-11-02T14:00:07.4480001Z   compression-level: 6
+2026-11-02T14:00:07.4480197Z   include-hidden-files: false
+2026-11-02T14:00:07.4480406Z   archive: true
+2026-11-02T14:00:07.4480572Z env:
+2026-11-02T14:00:07.4540748Z   REVIEW_CLASSES: app.space.notes.BackupCodecTest#boundedReadRejectsOversize,app.space.notes.BackupCodecTest#cloudBackupIsRefused,app.space.notes.BackupCodecTest#futureFormatRejected,app.space.notes.BackupCodecTest#providerMemoryPressureBecomesRecoverableIOException,app.space.notes.BackupCodecTest#truncatedBackupRejected,app.space.notes.CoreJourneysTest#adaptiveDocMultilineHyperlinkIsInsertOnly,app.space.notes.CoreJourneysTest#adaptiveFullStoredPreviewDoesNotUseInlineThumbnailDecode,app.space.notes.CoreJourneysTest#adaptiveNotesMultilineHyperlinkPreservesTextAndMixedStyles,app.space.notes.CoreJourneysTest#addMenuExplainsVisualContentCaptureAndScheduleCategories,app.space.notes.CoreJourneysTest#appFolderCopyChoicesAreVisibleCancelableAndDoNotEnableDiagnosticCollection,app.space.notes.CoreJourneysTest#appearanceSheetIsInAppAndSettingsRouteSurvivesRecreation,app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation,app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows,app.space.notes.CoreJourneysTest#canonicalKeyboardRetainsARealWritingViewportAndIndependentGuides,app.space.notes.CoreJourneysTest#canonicalNativeImageInsertionPreservesEditableTextOnBothSides,app.space.notes.CoreJourneysTest#canonicalNumberedEnterDeletionAndHeadingEnterHaveParagraphSemantics,app.space.notes.CoreJourneysTest#canonicalReverseSelectionSurvivesColourAndControllerRecreation,app.space.notes.CoreJourneysTest#canonicalTableCellsStructuralEditsAndHistoryUseOneModel,app.space.notes.CoreJourneysTest#canonicalVisualRenameAndSeparateDiagramEditingRetainBothSections,app.space.notes.CoreJourneysTest#checklistRowActionsAreScopedAndHandleOffersAccessibleReordering,app.space.notes.CoreJourneysTest#checklistTypingUndoRedoPersistsTheItemWithoutChangingItsIdentity,app.space.notes.CoreJourneysTest#diagnosticDeletionRequiresExplicitConfirmationAndCancelPreservesLogs,app.space.notes.CoreJourneysTest#docChecklistConvertsWithoutMarkersAndUndoRestoresRows,app.space.notes.CoreJourneysTest#docHeaderAndSelectedCellActionsAreUndoableAndDurable,app.space.notes.CoreJourneysTest#docInlineLinkInsertionAndRemovalKeepWordsAndUndo,app.space.notes.CoreJourneysTest#docObjectsMoveWithoutDraggingAndUndoRetainsData,app.space.notes.CoreJourneysTest#docWithAllSectionsRemovedCanStartWritingAgain,app.space.notes.CoreJourneysTest#documentRibbonAppliesTwoStylesWithoutReopeningOrLeavingWriting,app.space.notes.CoreJourneysTest#drawingBrushAndHistoryControlsExposeActualState,app.space.notes.CoreJourneysTest#drawingToolbarUsesTopSaveAndMoreWithVisibleToolSelection,app.space.notes.CoreJourneysTest#embeddedHostOwnsPaletteAndOverridesStandaloneAppearance,app.space.notes.CoreJourneysTest#explicitTypingFormatSurvivesRecreationWithoutStylesOrMoreMenus,app.space.notes.CoreJourneysTest#failedLibraryLoadKeepsSourceAndDiagnosticExportReachableWithoutEditor,app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable,app.space.notes.CoreJourneysTest#globalSearchShowsSavedDocumentsBeforeViewedFilesAndSettingsWithoutImportingThem,app.space.notes.CoreJourneysTest#homeHorizontalSwipesSwitchWorkspacesWithoutMutatingNotes,app.space.notes.CoreJourneysTest#hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal,app.space.notes.CoreJourneysTest#imageEditRasterMatchesPreviewGeometryWithoutChangingSource,app.space.notes.CoreJourneysTest#inlineFindCyclesInPlaceAndBackReturnsToSameNote,app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection,app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting,app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows,app.space.notes.CoreJourneysTest#nativeCaretAndReverseSelectionStyleWholeParagraphOnly,app.space.notes.CoreJourneysTest#nativeChecklistBoxDragShowsLineAndDropsInsideRichWriting,app.space.notes.CoreJourneysTest#nativeHeadingClearUndoAndReopenRetainParagraphMetrics,app.space.notes.CoreJourneysTest#nativeHeadingTypingExtendsAndEnterReturnsToNormalText,app.space.notes.CoreJourneysTest#nativeLongPressLinkOffersCopyAndConfirmedOpenWithoutChangingWriting,app.space.notes.CoreJourneysTest#nativeNumericFirstLineMatchesReportedOverlapCase,app.space.notes.CoreJourneysTest#nativeSearchRetainsReadableResultsAboveTheKeyboard,app.space.notes.CoreJourneysTest#nativeSheetsStayPopulatedAfterRepeatedNavigation,app.space.notes.CoreJourneysTest#nativeWrappedHeadingAndMixedScriptsKeepSeparateLineBoxes,app.space.notes.CoreJourneysTest#notePropertiesCancelWithoutReplacingTheWritingPage,app.space.notes.CoreJourneysTest#notesInlineFindTracksWritingChangesAndReleasesItsListenersOnClose,app.space.notes.CoreJourneysTest#privateDocumentLocationIsHonestAndDoesNotChangeTheNote,app.space.notes.CoreJourneysTest#renameImageDiagramAndReminderPersistWithoutChangingContents,app.space.notes.CoreJourneysTest#repeatedDrawingSaveDoesNotAttachDuplicateImages,app.space.notes.CoreJourneysTest#reverseSelectionSurvivesRecreationOnAPropertyPage,app.space.notes.CoreJourneysTest#richTextLabelsColourAndDuplicatePersist,app.space.notes.CoreJourneysTest#savedDrawingCanBeEditedWithoutAddingAnotherAttachment,app.space.notes.CoreJourneysTest#selectedTrashDeletionLeavesOtherTrashedNotesAndOriginalAudio,app.space.notes.CoreJourneysTest#shareMergeAndUndoRestoreOriginals,app.space.notes.CoreJourneysTest#summaryNeedsExplicitSaveAndNeverChangesItsSource,app.space.notes.CoreJourneysTest#tableFitTracksNewTextAndNeverDrawsWritingGuidesInsideCells,app.space.notes.CoreJourneysTest#textUndoRedoPreservesFormattingSelectionAndSavesReviewedResult,app.space.notes.CoreJourneysTest#typedNumberingContinuesAndSingleBackspaceEscapesInDocument,app.space.notes.CoreJourneysTest#wholeChecklistCopyAndDeferredCutKeepRichRowsAndIndependentIdentities,app.space.notes.DiagnosticsJourneysTest#boundedRotationAndExportPreserveValidJsonRecords,app.space.notes.DiagnosticsJourneysTest#disabledByDefaultEnablePersistsAndDisableStopsCollection,app.space.notes.DiagnosticsJourneysTest#parsedTimeAndLevelFiltersAreLocalAndDoNotExposeExceptionMessages,app.space.notes.DiagramCodecTest#allShapesArrowsAndUnicodeRoundTrip,app.space.notes.DiagramCodecTest#danglingArrowRefusesEntireLibrary,app.space.notes.DiagramCodecTest#nodeMovementChangesEncodedPayload,app.space.notes.DiagramCodecTest#schema2GetsEmptyDiagramWithoutLosingRichText,app.space.notes.DiagramCodecTest#v3MissingDiagramFailsInsteadOfSilentlyDroppingData,app.space.notes.DiagramJourneysTest#cancelledCanvasDragDoesNotMutateRepository,app.space.notes.DiagramJourneysTest#groupedCanvasDragAndHistoryPreserveRelativePlacement,app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane,app.space.notes.GenerationProtocolTest#autosavesShareMediaAndHydrateExactPortablePayload,app.space.notes.GenerationProtocolTest#corruptOnlyLibraryIsNotEmpty,app.space.notes.GenerationProtocolTest#earlierInlineCanonicalFormatTwoSnapshotsRemainReadable,app.space.notes.GenerationProtocolTest#folderMemoryPressureIsReportedAsFailureInsteadOfAnEmptyLibrary,app.space.notes.GenerationProtocolTest#lostAcknowledgementDoesNotDuplicateCommit,app.space.notes.GenerationProtocolTest#previousPrivateFormatStillReads,app.space.notes.GenerationProtocolTest#savesAndReopens,app.space.notes.GenerationProtocolTest#staleWriterDoesNotOverwrite,app.space.notes.HistoryRecoveryTest#interruptedAtomicWriteRecoversPriorCompleteHistory,app.space.notes.HistoryRecoveryTest#oversizedHistoryIsBoundedAndNeverReplacesCurrentLibrary,app.space.notes.HistoryRecoveryTest#staleAnchorAndDeletedNotesNeverOverwriteOrResurrectCurrentData,app.space.notes.NativeSoakTest#repeatedNativeInferenceAndDurableDocumentCyclesStayBounded,app.space.notes.NotesPersistenceTest#emptyCommitIsPersisted,app.space.notes.NotesPersistenceTest#missingPreviousSnapshotDoesNotEmptyLibrary,app.space.notes.NotesPersistenceTest#restoreCheckpointsCurrentBeforeWritingMerged,app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols,app.space.notes.OfflineOcrTest#bundledModelsMatchPinnedHashes,app.space.notes.OfflineOcrTest#cloudAndFileUrisAreRefusedBeforeReading,app.space.notes.OfflineOcrTest#controlledHindiKannadaImagesProduceAuditableDiagnostics,app.space.notes.OfflineOcrTest#darkSparseScreenshotReadsNativePrintedTextWithoutMutatingSource,app.space.notes.OfflineOcrTest#localGalleryDownloadsAndPickerUrisAreAccepted,app.space.notes.OfflineOcrTest#offlineEnglishImageRunsRealNativeInference,app.space.notes.OfflineOcrTest#printedArithmeticSymbolsAreRecognizedWithRealInference,app.space.notes.OfflineSpeechTest#activeRecordingIsNotRenamedByInboxScanner,app.space.notes.OfflineSpeechTest#cancelledInferenceKeepsOriginalAudioBytes,app.space.notes.OfflineSpeechTest#interruptedRecordingIsRecoveredBeforeRecognition,app.space.notes.OfflineSpeechTest#realBundledModelRecognizesPublicSpeechFixtureOffline,app.space.notes.RealFolderStorageTest#appFolderCopyChoicesLeaveInternalAudioAndExcludeItFromFreshRecovery,app.space.notes.RealFolderStorageTest#checksumValidButUnsafeCheckpointPathsAreRejectedBeforeStaging,app.space.notes.RealFolderStorageTest#completeCheckpointRemainsRecoverableWhenNewerNoteOnlySaveWasInterrupted,app.space.notes.RealFolderStorageTest#folderBrowserCreationAndMoveFlowWritesRealVisibleFiles,app.space.notes.RealFolderStorageTest#homeUndoWithRemovedAppFolderKeepsPrivateNoteAndCanReopen,app.space.notes.RealFolderStorageTest#independentCopiesAndTextOpeningUseRealDeviceFolderWithoutChangingSources,app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile,app.space.notes.RealFolderStorageTest#noteOnlyImportFromCompleteAppFolderPreservesSourceAudioAndAppCheckpoint,app.space.notes.RealFolderStorageTest#originalByteCopyUsesVerifiedWritableDescriptorAndNeverTruncatesExistingFiles,app.space.notes.RealFolderStorageTest#reconstructedControllerRestoresRealSafSpreadsheetQueryAndSafeBackOrigin,app.space.notes.RealFolderStorageTest#rootFilesUseCollisionSafeTimestampsAndPurgeOnlyOwnedCopies,app.space.notes.RealFolderStorageTest#staleControllerRepositoryCannotFlushEmptyLibraryAfterCompleteRecovery,app.space.notes.ReminderJourneysTest#widgetNotificationRouteOpensExistingNoteWithoutCopying,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage,app.space.notes.RepositoryTransferTest#destinationMemoryPressureDoesNotKillWriterOrLosePrivateUndoResult,app.space.notes.RepositoryTransferTest#removingLatestExternalGenerationNeverRollsBackVerifiedPrivateContent,app.space.notes.RepositoryTransferTest#revokedFolderSaveRecoversAcrossRepositoryRestartAndRetries,app.space.notes.RepositoryTransferTest#startupDoesNotReplaceCorruptPrivateLibraryWithFolderOrEmptyNotes,app.space.notes.RepositoryTransferTest#startupPrivateFastPathCannotBypassStagedRecovery,app.space.notes.ShareAndLabelsJourneysTest#additiveBulkLabelsKeepIndividualLabels,app.space.notes.ShareAndLabelsJourneysTest#textEditorAndToolsRetainPositiveSizeAtCurrentFontAndOrientation,app.space.notes.StructuredCodecTest#additionalOfficePreviewsRefuseUnsafePathsEntitiesAndMissingBodies,app.space.notes.StructuredCodecTest#backupImportStillRejectsDamagedEnvelopeChecksum,app.space.notes.StructuredCodecTest#canonicalDiagramUnknownFieldsAndFractionalCoordinatesAreNotDiscarded,app.space.notes.StructuredCodecTest#canonicalUnknownFieldsAndCoercedValuesFailInsteadOfSilentlyLosingData,app.space.notes.StructuredCodecTest#docxDeclarationsAndExpansionBombsAreRejected,app.space.notes.StructuredCodecTest#docxTextExtractionPreservesTabsBreaksUnicodeAndRejectsUnsupportedInputWithoutMutation,app.space.notes.StructuredCodecTest#generationFileOpeningGivesRecoveryInstructionsNotWrongBackupParsing,app.space.notes.StructuredCodecTest#imagesAreSelfContainedInBackupAndRestore,app.space.notes.StructuredCodecTest#localDocumentIntakeAcceptsKnownDeviceProvidersButNotCloudOrWeb,app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected,app.space.notes.StructuredCodecTest#namedChecklistRoundTripsLibraryBackupAndMergeWithoutDroppingName,app.space.notes.StructuredCodecTest#openDocumentHtmlCsvMarkdownAndRtfAreReadableWithoutScriptExecution,app.space.notes.StructuredCodecTest#recursiveJsonBombIsRejectedBeforeAndroidParserRuns,app.space.notes.StructuredCodecTest#schema2RetainsRichTextAndLabels,app.space.notes.StructuredCodecTest#schema6FolderBackgroundAndGroupsRoundTrip,app.space.notes.StructuredCodecTest#schema7MalformedTableAndUnknownFutureFormatAreRejected,app.space.notes.StructuredCodecTest#schema8NamesRoundTripLegacyCanonicalAndBackup,app.space.notes.StructuredCodecTest#spansFollowInsertedTextBeforeSerialization,app.space.notes.StructuredCodecTest#spreadsheetAndSlidePreviewsExposeCachedTextWithoutEvaluatingCode,app.space.notes.StructuredCodecTest#visibleNoteJsonImportsWithoutFlatteningItsStructure,app.space.notes.StructuredCodecTest#wordStructuredCopyRejectsMergedCellsAndKeepsDeletedTextOut,app.space.notes.StylePresetStoreTest#presetPersistsPrivatelyWithoutNoteTextOrDestinations,app.space.notes.SystemSurfacesTest#differentNotesHaveDistinctAndStablePendingIntents,app.space.notes.SystemSurfacesTest#emptyWidgetIsUsefulAndWidgetCanBeReplaced,app.space.notes.SystemSurfacesTest#ordinarySavesKeepFutureScheduleAndCatchUpOverdueReminder,app.space.notes.SystemSurfacesTest#privateSnapshotDoesNotContactSelectedProvider,app.space.notes.SystemSurfacesTest#schemaFiveRoundTripsReminderAndReadsSchemaFour,app.space.notes.SystemSurfacesTest#widgetRemoteViewsInflateAndHideArchiveTrash,app.space.notes.TrainedWhisperTest#cancelledExperimentalRecognitionRetainsAudioWithoutInstallingModel,app.space.notes.VoiceCaptureTest#contextualMicrophonePolicyAndDurableCaptureMatchLane,app.space.notes.VoiceRecoveryJourneysTest#corruptTranscriptDoesNotBlockOtherRecoveredNotes,app.space.notes.VoiceRecoveryJourneysTest#failedRetryRetainsReadableAndRawTranscript,app.space.notes.VoiceRecoveryJourneysTest#playbackCardPausesStopsAndRemainsUsableAfterLifecyclePause,app.space.notes.VoiceRecoveryJourneysTest#purgedVoiceNoteIsNotRecreatedFromRetainedAudio,app.space.notes.VoiceRecoveryJourneysTest#uncertainTranscriptStaysInInboxWithoutAutomaticLibraryInsertion,app.space.notes.runtime.ArchiveSemanticTest#atomicMetadataSnapshotsAreBoundedAndLeaveOriginalRecordingUntouched,app.space.notes.runtime.ArchiveSemanticTest#malformedJsonErrorsDoNotEchoTranscriptContent,app.space.notes.runtime.ArchiveSemanticTest#nativeLibraryAndTranscriptFieldsRoundTripWithoutContentChanges,app.space.notes.runtime.ArchiveSemanticTest#transcriptContentIdentityIgnoresOperationalStateUuidAndKeyOrderButPreservesWords,app.space.notes.runtime.DiagramResizeViewTest#cornerDragPreviewsThenCommitsExactlyOnce,app.space.notes.runtime.DrawingToolsTest#brushWidthAndColourAreCapturedPerStroke,app.space.notes.runtime.DrawingToolsTest#copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels,app.space.notes.runtime.DrawingToolsTest#draftChecksumMatchesPngBeforeAttachmentResizing,app.space.notes.runtime.DrawingToolsTest#gridIsAViewportGuideAndNeverChangesExportOrUndoHistory,app.space.notes.runtime.DrawingToolsTest#historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving,app.space.notes.runtime.DrawingToolsTest#portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions,app.space.notes.runtime.DrawingToolsTest#twoFingerZoomChangesViewportButNotExportOrHistory,app.space.notes.runtime.ImageSelectionTest#closeWaitsForCropLeaseAndIsIdempotent,app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend,app.space.notes.runtime.ImageSelectionTest#dismissingPreviewDoesNotExtractOrModifyAnything,app.space.notes.runtime.ImageSelectionTest#emptyTextStillAllowsVisualSelectionWithoutInventedWords,app.space.notes.runtime.ImageSelectionTest#reviewFieldsAndSaveStayReachableInReducedViewport,app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim,app.space.notes.runtime.ImageSelectionTest#transparentPreviewUsesWhiteWithoutChangingSourcePixels,app.space.notes.runtime.NotesMotionTest#entryLiftAndSettlementHonorActualSystemAnimationSetting,app.space.notes.runtime.PdfPageOcrTest#cancellationAndUiThreadGuardLeaveRendererUsable,app.space.notes.runtime.PdfPageOcrTest#explicitPageActionOpensSelectableRealOcrReview,app.space.notes.runtime.PdfPageOcrTest#scannedPdfRunsRealOcrAndNeverWritesOriginal,app.space.notes.runtime.ViewedFileJourneysTest#continuousPdfHasVerticalRecyclerAndOfflineTextWithoutTouchingOriginal,app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText,app.space.notes.runtime.ViewedFileJourneysTest#quotedCsvRetainsMultilineValuesAndNeverEvaluatesFormula,app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetControlsLeaveAFullDataRowVisibleWithLongNamesAndCurrentFontScale,app.space.notes.runtime.ViewedFileJourneysTest#viewedIndexFindsRealEnglishAndIndicPrefixesAndClearingNeverTouchesOriginals,app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedPagesKeepStoredBreaksHeaderLogoAndOriginalBytes
+2026-11-02T14:00:07.4601575Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-02T14:00:07.4601825Z ##[endgroup]
+2026-11-02T14:00:07.5897818Z With the provided path, there will be 2 files uploaded
+2026-11-02T14:00:07.8314672Z Artifact name is valid!
+2026-11-02T14:00:07.8315630Z Root directory input is valid!
+2026-11-02T14:00:08.1770125Z Uploading artifact: refinement-native-min-api26-b.zip
+2026-11-02T14:00:08.1804218Z Beginning upload of artifact content to blob storage
+2026-11-02T14:00:08.4341083Z Uploaded bytes 10824
+2026-11-02T14:00:08.4949641Z Finished uploading artifact content to blob storage!
+2026-11-02T14:00:08.4950399Z SHA256 digest of uploaded artifact is 8ab2919110325278a64ad7832ef99d4e8f814e7c427866abfa67d3384b19c278
+2026-11-02T14:00:08.4950846Z Finalizing artifact upload
+2026-11-02T14:00:09.0751727Z Artifact refinement-native-min-api26-b successfully finalized. Artifact ID 13147771625
+2026-11-02T14:00:09.0752466Z Artifact refinement-native-min-api26-b has been successfully uploaded! Final size is 10824 bytes. Artifact ID is 13147771625
+2026-11-02T14:00:09.0755548Z Artifact download URL: https://github.com/tarungittarun/TicTic/actions/runs/41456712021/artifacts/13147771625
+2026-11-02T14:00:09.1898067Z Post job cleanup.
+2026-11-02T14:00:09.2658025Z [command]/usr/bin/git version
+2026-11-02T14:00:09.2697037Z git version 2.56.0
+2026-11-02T14:00:09.2730156Z Temporarily overriding HOME='/home/runner/work/_temp/c3b80fd4-49f8-4000-a02c-bc6ca3235904' before making global git config changes
+2026-11-02T14:00:09.2735293Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T14:00:09.2736093Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-02T14:00:09.3021866Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T14:00:09.3097708Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T14:00:09.3416335Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T14:00:09.3454872Z http.https://github.com/.extraheader
+2026-11-02T14:00:09.3465471Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T14:00:09.4115937Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T14:00:09.4386378Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T14:00:09.4431997Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T14:00:09.5723696Z Cleaning up orphan processes

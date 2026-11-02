@@ -62,3 +62,19 @@ inspection separately; do not confuse these with the executing fixture failure.
 Public emoji training did actually execute separately: see the measured negative
 result in `PENDING-OCR-RESEARCH-2026-11-02.md` and its exact retained report. It is
 not approved or incorporated into the app; universal emoji recognition is pending.
+
+### Android26 failure cause now evidenced
+
+Bounded, sanitized source-job log excerpts were recovered by run41460830263 in
+`design-2026-10-29/native/41456712021/bootstrap-diagnostics/`. Both jobs show
+`Warning: An error occurred while preparing SDK package Android Emulator: Error
+on ZipFile unknown archive.` followed by unavailable emulator TCP5554. No native
+instrumentation transcript was produced. This is an evidenced SDK bootstrap
+failure, not a measured app/test result. A complete fresh qualification run is
+authorized with the callback-fenced fixture; no minimum API/profile is removed and
+no missing case is accepted. Runtime source/code36 is unchanged by this retry.
+
+First run executing profiles: API36 199/200 plus189/189; landscape137/137 plus
+126/127; large-font137/137 plus126/127. The only reported executing-method failure
+is the callback-timing fixture above. Both API26 shards passed0/200 and0/189, all
+missing; the first run is therefore explicitly FAILED, not partial approval.

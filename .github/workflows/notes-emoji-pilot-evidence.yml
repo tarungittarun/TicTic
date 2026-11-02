@@ -1,0 +1,65 @@
+# Retain small public research evidence; never copy model weights/datasets into Git.
+name: Preserve exact public emoji CPU pilot evidence
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-emoji-pilot-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve-public-report:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - name: Require the exact successful nonpublishing pilot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41457619334']))
+          assert run['head_sha']=='c1da367f982688f22f9bff3e740529847d1b1d14' and run['conclusion']=='success' and run['head_branch']=='arena/3caca636-tictic'
+          Path('pilot-run.json').write_text(json.dumps({key:run[key] for key in ['id','head_sha','head_branch','conclusion','html_url']},indent=2)+'\n')
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41457619334
+          name: EXPERIMENTAL-NOT-RUNTIME-emoji-public-cpu-pilot
+          path: public-pilot
+      - name: Gate and preserve only small public reports and licenses on session branch
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,shutil
+          from pathlib import Path
+          source=Path('public-pilot');report=json.loads((source/'report.json').read_text())
+          assert report['training_steps']>0 and report['changed_parameters']>0
+          assert report['runtime_models_changed'] is False and report['release_approval'] is False
+          assert report['separate_art_style_64_only']['examples']==64
+          dest=Path('mynotes/docs/emoji-pilot/41457619334');dest.mkdir(parents=True,exist_ok=True)
+          for name in ['report.json','class-aliases.json','licenses/ATTRIBUTION.txt','licenses/twemoji-CC-BY-4.0.txt','licenses/openmoji-evaluation-CC-BY-SA-4.0.txt']:
+              file=source/name;assert file.stat().st_size<1024*1024
+              target=dest/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(file,target)
+          shutil.copyfile('pilot-run.json',dest/'run.json')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/emoji-pilot/41457619334
+          git commit -m 'Preserve measured public emoji CPU pilot, not runtime approval [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+            git diff --check
+          done

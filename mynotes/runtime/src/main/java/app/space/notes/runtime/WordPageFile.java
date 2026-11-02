@@ -25,7 +25,7 @@ final class WordPageFile {
     private final LinkedHashSet<String> warnings=new LinkedHashSet<>();private final StringBuilder plain=new StringBuilder();private int pixels,characters,paragraphs,keptImages;
     private float width=595,height=842,left=72,right=72,top=72,bottom=72,defaultSize=11;
     private String headerPart,footerPart;private final List<Paragraph> body=new ArrayList<>();
-    private static final class Paragraph {final SpannableStringBuilder text=new SpannableStringBuilder();Layout.Alignment align=Layout.Alignment.ALIGN_NORMAL;boolean pageBreak;float before=0,after=0,lineMultiple=1,lineExtra=0;}
+    private static final class Paragraph {final SpannableStringBuilder text=new SpannableStringBuilder();Layout.Alignment align=Layout.Alignment.ALIGN_NORMAL;boolean pageBreak;float before=0,after=0,lineMultiple=1,lineExtra=0,lineHeight=0;boolean atLeast;}
     private WordPageFile(Map<String,byte[]> files){this.files=files;warnings.add("Approximate pagination: Android system fonts replace Word fonts; line wrapping may differ.");warnings.add("Floating drawings, merged tables, fields, advanced styles and multiple-section geometry are not faithfully reproduced. Use Open original for full fidelity.");}
     static Result open(Context context,Uri uri)throws Exception{
         LocalDeviceDocuments.requireReadable(uri);byte[] bytes;try(InputStream input=context.getContentResolver().openInputStream(uri)){bytes=LocalOpenFile.bounded(input,32*1024*1024);}
@@ -89,7 +89,7 @@ final class WordPageFile {
                     else if(tag.equals("color")){String value=attr(p,"val");if(value!=null && value.matches("[a-fA-F0-9]{6}"))color=Color.parseColor("#"+value);}
                     else if(tag.equals("rFonts")){String value=attr(p,"ascii");if(value!=null){String font=value.toLowerCase(Locale.ROOT);family=font.contains("times") || font.contains("georgia")?"serif":font.contains("courier") || font.contains("consolas")?"monospace":"sans-serif";}}
                     else if(tag.equals("jc")){String align=attr(p,"val");paragraph.align="center".equals(align)?Layout.Alignment.ALIGN_CENTER:"right".equals(align)?Layout.Alignment.ALIGN_OPPOSITE:Layout.Alignment.ALIGN_NORMAL;}
-                    else if(tag.equals("spacing")){paragraph.before=number(attr(p,"before"),0,0,1440)/20;paragraph.after=number(attr(p,"after"),0,0,1440)/20;String line=attr(p,"line"),rule=attr(p,"lineRule");if(line!=null){float amount=number(line,240,1,7200);if(rule==null || rule.equals("auto"))paragraph.lineMultiple=Math.max(.25f,Math.min(10,amount/240f));else{paragraph.lineExtra=amount/20;warnings.add("Exact/at-least line spacing is approximated against Android font metrics.");}}}
+                    else if(tag.equals("spacing")){paragraph.before=number(attr(p,"before"),0,0,1440)/20;paragraph.after=number(attr(p,"after"),0,0,1440)/20;String line=attr(p,"line"),rule=attr(p,"lineRule");if(line!=null){float amount=number(line,240,1,7200);if(rule==null || rule.equals("auto"))paragraph.lineMultiple=Math.max(.25f,Math.min(10,amount/240f));else{paragraph.lineHeight=amount/20;paragraph.atLeast="atLeast".equals(rule);warnings.add("Authored fixed/minimum line height uses substituted Android font metrics.");}}}
                     else if(tag.equals("sym")){warnings.add("Legacy symbol-font glyph cannot be mapped faithfully; placeholder shown. Unicode text symbols remain as authored.");append(paragraph,"[Symbol]",bold,italic,underline,size,color,family);}
                     else if(tag.equals("t")){String value=p.nextText();depth--;append(paragraph,value,bold,italic,underline,size,color,family);}
                     else if(tag.equals("tab"))append(paragraph,"\t",bold,italic,underline,size,color,family);
@@ -102,6 +102,11 @@ final class WordPageFile {
             }else if(event==XmlPullParser.END_TAG){boolean hidden=deleted>0;if(deleted==depth)deleted=0;if(!hidden && word(p) && p.getName().equals("p") && paragraph!=null){result.add(paragraph);if(collectText)plain.append(paragraph.text.toString()).append('\n');paragraph=parents.isEmpty()?null:parents.pop();}depth--;}
         }return result;
     }
+    private static final class AuthoredLineHeight implements LineHeightSpan {
+        final int height;final boolean atLeast;AuthoredLineHeight(float height,boolean atLeast){this.height=Math.max(1,Math.round(height));this.atLeast=atLeast;}
+        @Override public void chooseHeight(CharSequence text,int start,int end,int spanStart,int v,Paint.FontMetricsInt fm){int natural=fm.descent-fm.ascent;if(natural<1 || (atLeast && natural>=height))return;int descent=Math.round(fm.descent*height/(float)natural);fm.ascent=descent-height;fm.descent=descent;fm.top=fm.ascent;fm.bottom=fm.descent;}
+    }
+    private CharSequence authoredText(Paragraph p){SpannableStringBuilder result=new SpannableStringBuilder(p.text);if(p.lineHeight>0 && result.length()>0)result.setSpan(new AuthoredLineHeight(p.lineHeight,p.atLeast),0,result.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);return result;}
     private StaticLayout layout(CharSequence text,Layout.Alignment alignment,int columns){return layout(text,alignment,columns,1,0);}
     private StaticLayout layout(CharSequence text,Layout.Alignment alignment,int columns,float multiple,float extra){TextPaint paint=new TextPaint(Paint.ANTI_ALIAS_FLAG);paint.setTextSize(defaultSize);paint.setColor(Color.BLACK);return StaticLayout.Builder.obtain(text,0,text.length(),paint,columns).setAlignment(alignment).setIncludePad(false).setLineSpacing(extra,multiple).build();}
     private void render(File target)throws Exception{
@@ -109,7 +114,7 @@ final class WordPageFile {
         float bodyTop=Math.max(top,headerLayout==null?top:headerLayout.getHeight()+20),bodyBottom=Math.min(height-bottom,footerLayout==null?height-bottom:height-footerLayout.getHeight()-20);if(bodyBottom-bodyTop<72)throw new IOException("Word header/footer leaves no safe body area; use original reader");
         PdfDocument pdf=new PdfDocument();PdfDocument.Page page=null;int pageNumber=0;float y=bodyTop;
         try{
-            for(Paragraph paragraph:body){StaticLayout text=layout(new SpannedString(paragraph.text),paragraph.align,contentWidth,paragraph.lineMultiple,paragraph.lineExtra);if(page==null || paragraph.pageBreak){if(page!=null)pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}y+=paragraph.before;int line=0;
+            for(Paragraph paragraph:body){StaticLayout text=layout(authoredText(paragraph),paragraph.align,contentWidth,paragraph.lineMultiple,paragraph.lineExtra);if(page==null || paragraph.pageBreak){if(page!=null)pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}y+=paragraph.before;int line=0;
                 while(line<text.getLineCount()){
                     int end=line;while(end<text.getLineCount() && text.getLineBottom(end)-text.getLineTop(line)<=bodyBottom-y)end++;
                     if(end==line){if(y<=bodyTop+Math.max(1,paragraph.before)){

@@ -1041,7 +1041,7 @@ public final class NotesController {
         TextView current=text(repository==null?"Opening storage":repository.status(),16);current.setTextColor(design.accent);content.addView(current);content.addView(text("Your notes are saved on this phone. You can keep an extra copy in a folder. Nothing is uploaded. Before uninstalling, check the folder copy is ready and keep a separate backup.",16));
         LinearLayout organise=section(content,"Organise notes");
         settingRow(organise,"Folders","Organise notes on this device. Creating a folder does not move your storage location.",()->renderFolders(false,this::renderStorage));
-        settingRow(content,"Backups","Portable note-only exports: original recordings, settings and history are separate. Complete app recovery uses your optional App folder.",this::renderBackups);
+        settingRow(content,"Backups","Portable note-only exports: original recordings, settings and history are separate. Complete app recovery uses your optional App folder.",()->{Runnable parent=pageBack;renderBackups();pageBack=()->{renderStorage();pageBack=parent;};});
         LinearLayout advanced=section(content,"More options & repair");advanced.addView(text("Edit history stays privately on this device: up to50 undo/redo steps per note,64 recently edited notes,16 MiB on disk. Older history may be trimmed; current notes are never trimmed. History is not part of exported backups. After a crash, only history matching the saved note is restored.",14));
         settingRow(advanced,"Reset edit history","Use only if history cannot be verified. Deletes history, never your current notes.",()->confirmSheet("Reset edit history?","Current notes, attachments and backups are kept. Saved Undo/Redo steps will be removed.","Reset history",()->{busy=true;disk.execute(()->{historyStore.reset();main.post(()->{busy=false;savedHistories.clear();canonicalHistory=null;canonicalHistoryNote=null;undoBatch.clear();undo=null;undoCreatedId=null;noteUndoIsLatest=false;historyNoticeShown=false;if(!closed){renderStorage();host.showMessage("Edit history reset. Current notes were kept.");}});});}));
         LinearLayout files=section(content,"Open files & older libraries");
@@ -1051,7 +1051,7 @@ public final class NotesController {
         settingRow(advanced,"App-folder copy choices","Notes/Docs always copied. Choose recordings, settings/profile, edit history/recovery and optional diagnostics.",this::chooseAppFolderCategories);
         settingRow(content,"Recover App folder","After reinstall: select an existing App folder, review included categories, then recover into an empty installation. Older note-only libraries use Open library.",host::recoverAppFolder);
         content.addView(text(AppFolderTasks.status(context).replace("App-folder checkpoint","Folder copy").replace("Internal storage only","Saved on this phone"),14));
-        settingRow(advanced,"Refresh checkpoint status","Read current background save status. A pending checkpoint is NOT safe to rely on before uninstall.",this::renderStorage);
+        settingRow(advanced,"Refresh checkpoint status","Read current background save status. A pending checkpoint is NOT safe to rely on before uninstall.",()->{Runnable parent=pageBack;renderStorage();pageBack=parent;});
         settingRow(files,"Open library","Open notes from a MyNotes library folder. Review the merge before changing your storage location.",host::openExistingFolder);
         settingRow(advanced,"Retry save","Reconnect your local folder first. Saves notes and retries the full App-folder checkpoint; internal data is retained.",()->{flush();AppFolderTasks.request(context);});
         settingRow(advanced,"Use device storage","App-only storage: private to MyNotes, not visible in Files.",()->design.show(new android.app.AlertDialog.Builder(context).setTitle("Use app-only storage?").setMessage("This disconnects the visible main folder. Existing files stay where they are. Your notes and folder organisation remain available privately on this device.").setPositiveButton("Use app-only storage",(dialog,index)->moveStorage(null)).setNegativeButton("Cancel",null).create()));
@@ -1064,18 +1064,18 @@ public final class NotesController {
         whenReady(()->{if(busy){host.showMessage("Finish the current storage operation first; storage unchanged.");return;}persistDraft();moveStorage(uri);});
     }
     private void moveStorage(android.net.Uri uri) {
-        busy=true;final List<Note> snapshot=new ArrayList<>(notes);
+        final int callerGeneration=fileViewGeneration;final Runnable callerBack=pageBack;busy=true;final List<Note> snapshot=new ArrayList<>(notes);
         if(status!=null)status.setText("Copying and verifying library…");
         disk.execute(()->{
             String message;
             try {
-                if(uri!=null && !uri.toString().equals(context.getSharedPreferences("mynotes-storage-v1",0).getString("tree",null)) && new AppFolder(context,uri).recognized()){main.post(()->{busy=false;if(!closed)recoverAppFolder(uri);});return;}
+                if(uri!=null && !uri.toString().equals(context.getSharedPreferences("mynotes-storage-v1",0).getString("tree",null)) && new AppFolder(context,uri).recognized()){main.post(()->{busy=false;if(!closed && callerGeneration==fileViewGeneration)recoverAppFolder(uri);});return;}
                 if(uri==null)repository.usePrivate(snapshot);else repository.selectFolder(uri,snapshot);AppFolderTasks.request(context);
                 log("storage-move","verified count="+snapshot.size());
                 message="Storage changed after verification. Internal data and previous files were retained. Additional app-data checkpoint is saving in the background; check its status before relying on it.";
             } catch(Exception e) {log("storage-move","failed "+e.getClass().getSimpleName());Diagnostics.failure("storage-move.failure",e);message="Storage change incomplete: "+e.getMessage();}
             final String result=message;
-            main.post(()->{busy=false;if(!closed){Runnable next=afterFolderSelection;afterFolderSelection=null;if(next!=null)next.run();else renderStorage();host.showMessage(result);}});
+            main.post(()->{busy=false;if(!closed){if(callerGeneration==fileViewGeneration){Runnable next=afterFolderSelection;afterFolderSelection=null;if(next!=null)next.run();else{renderStorage();pageBack=callerBack;}}host.showMessage(result);}});
         });
     }
     private void chooseAppFolderCategories(){
@@ -1109,13 +1109,13 @@ public final class NotesController {
 
     public void exportBackup(android.net.Uri uri) {
         whenReady(()->{
-            persistDraft();busy=true;final List<Note> snapshot=new ArrayList<>(notes);
+            persistDraft();final int callerGeneration=fileViewGeneration;final Runnable callerBack=pageBack;busy=true;final List<Note> snapshot=new ArrayList<>(notes);
             if(status!=null)status.setText("Writing and verifying backup…");
             disk.execute(()->{
                 String message;
                 try {LocalBackupFiles.write(context.getContentResolver(),uri,snapshot);message="Backup verified: "+snapshot.size()+" text notes.";log("backup-export","verified count="+snapshot.size());}
                 catch(Exception e) {message="Backup not verified: "+e.getMessage();log("backup-export","failed "+e.getClass().getSimpleName());Diagnostics.failure("backup-export.failure",e);}
-                final String result=message;main.post(()->{busy=false;if(!closed){renderBackups();host.showMessage(result);}});
+                final String result=message;main.post(()->{busy=false;if(!closed){if(callerGeneration==fileViewGeneration){renderBackups();pageBack=callerBack;}host.showMessage(result);}});
             });
         });
     }

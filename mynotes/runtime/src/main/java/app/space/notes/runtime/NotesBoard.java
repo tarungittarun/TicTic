@@ -48,19 +48,19 @@ public final class NotesBoard extends RecyclerView {
     @Override public boolean performClick(){super.performClick();return true;}
     public void layout(boolean grid){int width=getResources().getConfiguration().screenWidthDp;float scale=getResources().getConfiguration().fontScale;int columns=scale>1.3f?Math.max(1,Math.min(3,width/320)):Math.max(2,Math.min(4,width/240));setLayoutManager(grid?new StaggeredGridLayoutManager(columns,StaggeredGridLayoutManager.VERTICAL):new LinearLayoutManager(getContext()));}
     public void show(List<Note> notes,Set<String> selected,boolean sections){
-        rows.clear();selection.clear();selection.addAll(selected);
+        List<Object> previous=new ArrayList<>(rows);Set<String> oldSelection=new HashSet<>(selection);rows.clear();selection.clear();selection.addAll(selected);
         boolean pinned=false,others=false;
         for(Note note:notes){
             if(sections && note.pinned && !pinned){rows.add("Pinned");pinned=true;}
             if(sections && !note.pinned && !others){if(pinned)rows.add("Others");others=true;}
             rows.add(note);
         }
-        adapter.notifyDataSetChanged();
+        if(rows.equals(previous)){for(int i=0;i<rows.size();i++)if(rows.get(i) instanceof Note){String id=((Note)rows.get(i)).id;if(oldSelection.contains(id)!=selection.contains(id))adapter.notifyItemChanged(i,"selection");}}else adapter.notifyDataSetChanged();
     }
     private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
     private TextView label(int size){TextView v=new TextView(getContext());v.setTextSize(size);return v;}
     private final class Holder extends ViewHolder {
-        boolean touching;final TextView title,body,tags;final LinearLayout box;final FrameLayout preview;
+        boolean touching;app.space.notes.domain.NoteImage previewImage;final TextView title,body,tags;final LinearLayout box;final FrameLayout preview;
         Holder(LinearLayout box,TextView title,TextView body,TextView tags,FrameLayout preview){super(box);this.box=box;this.title=title;this.body=body;this.tags=tags;this.preview=preview;}
     }
     private final class BoardAdapter extends Adapter<Holder> {
@@ -79,7 +79,7 @@ public final class NotesBoard extends RecyclerView {
             if(h.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams)
                 ((StaggeredGridLayoutManager.LayoutParams)h.itemView.getLayoutParams()).setFullSpan(row instanceof String);
             if(row instanceof String){h.title.setText((String)row);h.title.setTextColor(design.muted);h.box.setBackground(null);h.box.setOnClickListener(null);h.box.setOnLongClickListener(null);return;}
-            Note n=(Note)row;if(h.preview!=null){h.preview.removeAllViews();h.preview.setVisibility(n.images.isEmpty()?GONE:VISIBLE);if(!n.images.isEmpty())h.preview.addView(new NoteImageView(getContext(),n.images.get(0)),new FrameLayout.LayoutParams(-1,-1));}boolean chosen=selection.contains(n.id);int ink=n.color==0?design.ink:Color.parseColor(dark?"#F5F5F5":"#202124");
+            Note n=(Note)row;if(h.preview!=null){app.space.notes.domain.NoteImage image=n.images.isEmpty()?null:n.images.get(0);if(h.previewImage!=image){h.preview.removeAllViews();h.previewImage=image;if(image!=null)h.preview.addView(new NoteImageView(getContext(),image),new FrameLayout.LayoutParams(-1,-1));}h.preview.setVisibility(image==null?GONE:VISIBLE);}boolean chosen=selection.contains(n.id);int ink=n.color==0?design.ink:Color.parseColor(dark?"#F5F5F5":"#202124");
             GradientDrawable bg=new GradientDrawable();bg.setColor(n.color==0?design.surface:colour(n.color,dark));bg.setCornerRadius(dp(16));
             bg.setStroke(dp(chosen?2:1),chosen?design.accent:design.outline);h.box.setBackground(n.background==0?bg:new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{new NoteBackground(n.background,n.color==0?design.surface:colour(n.color,dark),dark,getResources().getDisplayMetrics().density),border(chosen)}));
             h.title.setText((chosen?"✓  ":"")+(n.title.isEmpty()?(n.checklist?"Checklist":"Untitled"):n.title));

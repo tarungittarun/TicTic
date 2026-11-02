@@ -116,7 +116,7 @@ def pick_local_file(device,folder,name):
     def click(label):
         try:items=wait_until(lambda: (items if named(items,label) is not None else None) if (items:=ui()) else None,40)
         except RuntimeError as failure:
-            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds')} for node in ui()],ensure_ascii=True)[:1800]
+            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds','resource-id')} for node in ui() if node.get('text') or node.get('content-desc')],ensure_ascii=True)[:3500]
             raise RuntimeError('Public SAF picker target missing: '+label+'; '+summary) from failure
         device.adb('shell','input','tap',*center(named(items,label).get('bounds','')))
     click('Show roots');click('Downloads');click(folder);click(name)
@@ -152,6 +152,10 @@ def verify(output,expected_code=37):
         source=root/name;source.write_bytes(data)
         path='/sdcard/Download/'+folder+'/'+name
         device.adb('push',str(source),path)
+    # Populate the entire public directory before the first SAF visit so a later
+    # fixture does not depend on DocumentsUI refreshing its cached directory.
+    for name,mime,data in fixtures:
+        path='/sdcard/Download/'+folder+'/'+name
         checkpoint(root,'opening-through-real-local-SAF-picker',name)
         device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.MAIN')
         device.home();pick_local_file(device,folder,name)

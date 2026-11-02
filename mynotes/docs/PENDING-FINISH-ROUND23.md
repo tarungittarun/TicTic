@@ -111,3 +111,25 @@ SDK-only preparation now includes Platform26 and its exact GoogleAPIs x86_64
 system image, not just emulator binary. Preserve supplement reports separately;
 the failed base run remains failed and must never be relabeled all-green. No
 assertion has been retried or removed: the original26-A never started any.
+
+## First actual final38 PDF recovery observation, overall probe still fails
+
+Run41474143922 reached `reader-restored-after-actual-kill ReaderRecovery.pdf`:
+its exact38 PDF path passed STOPPED state, old PID gone, MAIN task resume, changed
+PID, retained query/page2 and unchanged public source bytes. Its observed dumpsys
+header is in fact `* Hist  #0` (two spaces), confirming the parser fix's relevance.
+This is partial synthetic emulator evidence ONLY, not overall three-format or
+image/OCR/zoom/horizontal/physical acceptance.
+
+The same run then failed BEFORE opening DOCX: real SAF could not locate its leaf.
+Previously files were pushed one at a time, after SAF had already visited their
+shared directory. Prepopulate all three fixtures before the first SAF visit to
+avoid reliance on a cached directory refreshing. Missing-target diagnostics now
+retain labeled nodes rather than spending their cap on empty layout containers.
+This is a harness correction; the exact APK and every recovery assertion remain
+unchanged. DOCX and CSV recovery are still unverified, not app failures inferred
+from a file-picker timeout.
+
+The first supplement41474589959 stopped at its shallow-checkout source gate before
+tests. Follow-up41474686572 explicitly fetches only the immutable original source
+commit before comparison; no test assertion was executed in the failed attempt.

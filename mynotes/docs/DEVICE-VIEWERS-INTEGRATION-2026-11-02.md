@@ -9,7 +9,8 @@ data clearing or silent replacement of the working speech engine.
 
 The work ledger below is chronological history, not the current delivery status.
 Latest viewer/rotation/device feedback work is in `DEVICE-FEEDBACK-ROUND16.md`.
-Round19/run41435617835 has compiled0.31/code34; final native outcomes remain pending.
+Round19/run41435617835 passed all9 jobs:0.31/code34,294 JVM tests/lint and
+1274/1274 native outcomes across381 unique methods.
 Exact final release bytes and a real Note + Doc install-over passed independent
 run41436657966; see its source-pinned `apk-update-verification.json` under the round19
 native evidence directory. No physical-device acceptance or public release is implied.

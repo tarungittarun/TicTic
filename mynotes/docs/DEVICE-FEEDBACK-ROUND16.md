@@ -114,3 +114,30 @@ release33→34 install-over with cold-restarted Note + Doc fixtures. Small struc
 provenance is retained in round19 `apk-update-verification.json`; raw generated
 verification reports are artifact13137650410. Full native qualification is still
 running and is not replaced by this passing update smoke.
+
+## Final round19 qualification and development handoff
+
+- Run41435617835 **SUCCESS,9/9 jobs**; source2836660ca9d9ad571b30f253f05b1cc7939ccd7d.
+- Native **1274/1274 outcomes,381 unique methods**, no missing/duplicate/skipped
+  selected outcomes: API26=196+185; API36=196+185; large-font/dark API34=133+123;
+  landscape API34=133+123. Build,294 JVM tests and lint passed.
+- Exact signed APK byte/update verification41436657966 **SUCCESS**, as above.
+- Final development APK: `MyNotes-v0.31.0-34-development.apk`, artifact13136073353,
+  155134192bytes, SHA256 `212b5834a2a4038cc8bb7a6ca6c2ddb2795b56d5e438fb5b7f4e5ecd58f00270`.
+  Link: https://github.com/tarungittarun/TicTic/actions/runs/41435617835/artifacts/13136073353
+  Expires2026-11-09T11:22:38Z. Install over existing MyNotes, never uninstall/clear data.
+- Evidence bot commit3bf3d786 retained source-pinned native reports. Manual inspection
+  confirmed synthetic Word paper/header/red-logo rendering. **Spreadsheet screenshot
+  caveat:** the large-font and landscape files named `spreadsheet-grid-viewport.jpg`
+  show Home, not the grid. Activity startup rendering apparently replaced the manual
+  fixture between geometry checks and UiAutomation capture. These captures are NOT
+  visual grid approval. Theme contrast and row geometry assertions passed, as did
+  the separate real SAF rotation/query/original-byte/Back regression. A follow-up
+  capture harness must wait for Activity hydration and assert the fixture is attached
+  and visibly current before capture; do not infer production appearance from these
+  two mislabelled screenshots or silently discard them.
+- This is development delivery, not public release/physical acceptance. PDF text
+  selection remains a separate page-text panel, not a glyph overlay; scanned-PDF OCR
+  and exact Office fidelity remain incomplete. Image-dialog rotation/process-death
+  restoration, universal emoji OCR, broad Indian accents and physical ML/playback
+  remain unqualified. Models were not retrained or changed this UI round.

@@ -75,3 +75,36 @@ Direct PDF glyph selection is separate work: PDFBox text coordinates, rotated
 pages, bidi, ligatures/surrogates and zoom/pan need verified mappings. Never fake
 an exact glyph overlay by evenly dividing a line's text; retain the truthful
 page-text-panel fallback when geometry cannot be established.
+
+
+## Indian-English speech data follow-up (no training/download)
+
+Inspected90 public `resources/*/info.txt` blobs in the historical OpenSLR web
+source [danpovey/openslr at91932a90](https://github.com/danpovey/openslr/tree/91932a90b4b94d8f8629cda4fd10b405b113ab30).
+This is a limited historical repository snapshot, not a claim about today's whole
+OpenSLR catalog. SLR83 is explicitly UK/Ireland dialect data, NOT Indian English
+(`info.txt` blob25b0a6872b8aedb33fcd1153c04eb59dd349a0aa). SLR37 is Bengali
+TTS, not evidence for broad Indian-English ASR. Neither was silently substituted
+for an Indian-English training corpus. Only small metadata files were read.
+
+Rechecked primary [Svarah README](https://github.com/AI4Bharat/Svarah/blob/2c644dc4f67da2aae63a0bd9ceb2c6f8679ff05c/README.md):
+9.6h/117 speakers/19 states, a useful *evaluation* benchmark; its linked download
+is still Hugging Face. The README itself supplies no dataset license grant. Prior
+gated-access/license audit is not resolved by the code repository or paper.
+Do not bypass gates, use benchmark data as training or claim its published model
+WER numbers belong to MyNotes.
+
+[NPTEL2020 README](https://github.com/AI4Bharat/NPTEL2020-Indian-English-Speech-Dataset/blob/64f8d5ef7c2346563779c0bd7e8487f7739be482/README.md)
+explicitly describes noisy transcripts, education-domain South-Asian English,
+random splits,15,700h/1.1TB. It links a public1000-example manually annotated
+Pure-Set GitHub release asset (`v0.1`, asset37231585,
+`nptel-pure-set.tar.gz`,188815224bytes). **Audio was not downloaded** and individual
+recording rights/speaker metadata are not established here. Generic YouTube
+Creative Commons linking is not a complete per-recording rights manifest. This
+is a possible bounded *evaluation* lead once provenance/license are established,
+not approval to train/redistribute weights. Unknown base-model pretraining overlap
+and random/non-speaker-disjoint splits must be disclosed in any eventual report.
+
+No new speech experiment, training step, broad-accent score or physical playback
+acceptance occurred in this increment. Existing one-speaker KSP pilot remains
+exactly that, not broad Indian-English coverage.

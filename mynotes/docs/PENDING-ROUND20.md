@@ -31,3 +31,9 @@ artifact13144272420,155134848bytes, SHA256
 Independent actual release34→35 update smoke requested; version pair is now an
 explicit harness argument (legacy33→34 mock self-checks retained). No new APK
 handed over until native and actual-byte smoke outcomes are checked.
+
+Actual-byte release34→35 smoke41450689987 **SUCCESS**, source6260495788e38c2461e975dbfd24fe200002c70d,
+job125294854374. Artifact13144098598 (908bytes), digest
+`ed993bcb74f3f79b5980ee412afec7e6fa11f8059c06c505a817c25089bd5582`.
+This validates exact byte identity/manifest/common signer and synthetic Note+Doc
+install-over only. Native qualification and new captures remain pending.

@@ -1,3 +1,4 @@
+# Round21: explicit offline scanned-page OCR, bounded viewer reconstruction, request-generation fences and window-specific grid captures.
 # Round20: retained image-selector responsive reflow and attached spreadsheet capture; no training/physical acceptance claim.
 # Round 19: correct synthetic spreadsheet night-palette/background capture; keep density-aware pinch and all 381 native cases.
 # Round 18: density-correct two-pointer fixture; preserve round17 peer evidence rather than cancelling its final shards.
@@ -63,14 +64,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.32.0-35-development.apk
-          sha256sum MyNotes-v0.32.0-35-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.32.0-35-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.33.0-36-development.apk
+          sha256sum MyNotes-v0.33.0-36-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.33.0-36-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.32.0-35-development.apk
+          path: MyNotes-v0.33.0-36-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

@@ -1,6 +1,6 @@
 # Offline image selection and playback — 0.29 development work
 
-**Latest qualification failed; do not recommend this APK yet.** Version 0.29.0 / code 32
+**Round-8 automation qualified; physical-phone acceptance remains pending.** Version 0.29.0 / code 32
 keeps package `app.space.notes`, the existing sideload signer and the existing Vosk/Tesseract
 model weights. No Internet permission, cloud service, account, downloader or private-data
 upload is introduced into the app. Android builds and device tests run in Actions only.
@@ -124,7 +124,7 @@ speaker-held-out and Android/physical qualification passes. See
 - Do not report automation as physical acceptance or a tiny training pilot as Indian-ASR
   completion. Report exact remaining failures and preserve a diagnostic trace for real crashes.
 
-## Latest native blocker
+## Native qualification history
 
 Run 41394658554 recorded 1092/1192 successful outcomes. Android 36 shard A hung at
 `selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes` after 84 successes; 100 outcomes
@@ -132,3 +132,24 @@ are missing, not passed. The app activity dump timed out too, but the cause is n
 The next diagnostic qualification preserves every assertion and adds a debug-only independent
 thread-stack observer plus a fail-only instrumentation-progress watchdog. No production
 runtime change is claimed as a fix.
+
+The subsequent round 7 completed the formerly hung conversion journey but failed one
+new-note keyboard assertion on API 36, while API-26 shard A failed emulator boot before
+running tests. Round 8 (`41400320679`, source `b508c0be`) fixed a concrete new-note IME
+ownership race and strengthened that original journey with three extra Doc → Notes
+creation cycles. **All 9 jobs succeeded: 1192/1192 native outcomes, 357 unique methods**.
+No assertion was removed; the earlier hang's exact cause remains unknown, not claimed fixed.
+
+After byte/signature verification, use only the round-8 development APK, not earlier 0.29
+builds. Install over the existing app with the same signer; **do not uninstall or clear data**.
+Automation is not a Motorola/physical-device acceptance claim. Speech training remains
+quarantined research, not an update to the phone's working speech engine.
+
+## Verified round-8 download
+
+[Download the raw 0.29.0 / code 32 development APK](https://github.com/tarungittarun/TicTic/actions/runs/41400320679/artifacts/13120928843)
+(66.8 MB; expires November 9, 2026). Byte/signature/manifest verification run 41402353120
+succeeded. SHA-256: `79970a8fb11322d6360958554ba7161b0ee5137834f94b52bfb118da8abedfcd`.
+Exact qualification: 294 JVM tests; 1192 native outcomes across 357 unique journeys;
+all 340 earlier baseline identities retained. Install over the existing app; never uninstall
+or clear data for this test. Physical acceptance and the limitations above still apply.

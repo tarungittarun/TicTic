@@ -1,0 +1,949 @@
+{
+  "as_of_utc": "2026-11-02T06:50:29.297052+00:00",
+  "scope": "Follow-up workflow attempts only, excludes earlier qualified 0.28 and skipped-CI pushes. Jobs counted from API records, not requested caps or training steps.",
+  "run_attempts": 22,
+  "job_records": 78,
+  "job_conclusions": {
+    "failure": 13,
+    "skipped": 1,
+    "success": 62,
+    "cancelled": 2
+  },
+  "runs": [
+    {
+      "run": 41387972692,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "4029f1a3b27c4d919f8d4e63904b1357da3ba231",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 2,
+      "conclusions": {
+        "failure": 1,
+        "skipped": 1
+      },
+      "jobs": [
+        {
+          "id": 125092920158,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T04:21:10Z",
+          "completed_at": "2026-11-02T04:23:10Z"
+        },
+        {
+          "id": 125093505730,
+          "name": "native",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-11-02T04:23:11Z",
+          "completed_at": "2026-11-02T04:23:11Z"
+        }
+      ]
+    },
+    {
+      "run": 41388219515,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "9fcc7ccfe42d0094203d5b4f2c004cff21cc0b9a",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "job_records": 9,
+      "conclusions": {
+        "success": 7,
+        "cancelled": 2
+      },
+      "jobs": [
+        {
+          "id": 125093677722,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:23:49Z",
+          "completed_at": "2026-11-02T04:26:49Z"
+        },
+        {
+          "id": 125094549514,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:34:24Z"
+        },
+        {
+          "id": 125094549515,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:38:11Z"
+        },
+        {
+          "id": 125094549516,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:41:51Z"
+        },
+        {
+          "id": 125094549528,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:41:12Z"
+        },
+        {
+          "id": 125094549588,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:36:12Z"
+        },
+        {
+          "id": 125094549589,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:35:12Z"
+        },
+        {
+          "id": 125094549620,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:51Z",
+          "completed_at": "2026-11-02T04:39:32Z"
+        },
+        {
+          "id": 125094549637,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:26:52Z",
+          "completed_at": "2026-11-02T04:38:49Z"
+        }
+      ]
+    },
+    {
+      "run": 41388436823,
+      "name": ".github/workflows/notes-indian-speech-pilot.yml",
+      "source_sha": "ab6a301f22099ebfdf12b47b8eaa62c5e8d4461d",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 0,
+      "conclusions": {},
+      "jobs": []
+    },
+    {
+      "run": 41388497449,
+      "name": "MyNotes licensed Indian speech training pilot (quarantined)",
+      "source_sha": "3c4623500b58c6c3167f2016ac89ced94c9f2386",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 1,
+      "conclusions": {
+        "failure": 1
+      },
+      "jobs": [
+        {
+          "id": 125094522729,
+          "name": "licensed-training-pilot",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T04:26:45Z",
+          "completed_at": "2026-11-02T04:28:49Z"
+        }
+      ]
+    },
+    {
+      "run": 41388779563,
+      "name": "MyNotes licensed Indian speech training pilot (quarantined)",
+      "source_sha": "32257ba4996715ff815324adff595e978c4da704",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 1,
+      "conclusions": {
+        "failure": 1
+      },
+      "jobs": [
+        {
+          "id": 125095390669,
+          "name": "licensed-training-pilot",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T04:29:50Z",
+          "completed_at": "2026-11-02T04:30:25Z"
+        }
+      ]
+    },
+    {
+      "run": 41388946222,
+      "name": "MyNotes licensed Indian speech training pilot (quarantined)",
+      "source_sha": "96e991b71bcc57f2fefa2b1e92b69d97fbbb63ec",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125095882690,
+          "name": "licensed-training-pilot",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:31:31Z",
+          "completed_at": "2026-11-02T04:35:19Z"
+        }
+      ]
+    },
+    {
+      "run": 41389504274,
+      "name": "MyNotes licensed Indian speech training pilot (quarantined)",
+      "source_sha": "d5900e7880cc31254bd8f25ed1422d9826f9c55d",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125097552097,
+          "name": "licensed-training-pilot",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:37:30Z",
+          "completed_at": "2026-11-02T04:40:29Z"
+        }
+      ]
+    },
+    {
+      "run": 41389829243,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "1012100e50a034cc7dcb2b23847906ec7e34c8fa",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 9,
+      "conclusions": {
+        "success": 9
+      },
+      "jobs": [
+        {
+          "id": 125098756080,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:41:54Z",
+          "completed_at": "2026-11-02T04:44:42Z"
+        },
+        {
+          "id": 125099521735,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:45Z",
+          "completed_at": "2026-11-02T04:54:26Z"
+        },
+        {
+          "id": 125099521778,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:45Z",
+          "completed_at": "2026-11-02T04:58:35Z"
+        },
+        {
+          "id": 125099521802,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:45Z",
+          "completed_at": "2026-11-02T04:52:05Z"
+        },
+        {
+          "id": 125099521816,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:45Z",
+          "completed_at": "2026-11-02T04:54:12Z"
+        },
+        {
+          "id": 125099521822,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:44Z",
+          "completed_at": "2026-11-02T04:56:08Z"
+        },
+        {
+          "id": 125099521829,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:44Z",
+          "completed_at": "2026-11-02T04:59:03Z"
+        },
+        {
+          "id": 125099521841,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:44Z",
+          "completed_at": "2026-11-02T04:53:54Z"
+        },
+        {
+          "id": 125099521904,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:44Z",
+          "completed_at": "2026-11-02T04:55:01Z"
+        }
+      ]
+    },
+    {
+      "run": 41390127020,
+      "name": "MyNotes licensed Indian speech training pilot (quarantined)",
+      "source_sha": "03db68fda36c8f2a4cbff921b893dd68fe380a9b",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125099459918,
+          "name": "licensed-training-pilot",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:44:31Z",
+          "completed_at": "2026-11-02T04:48:45Z"
+        }
+      ]
+    },
+    {
+      "run": 41390921561,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "590c9d10daf52ca6a1bdc15b7b088f6d7259f396",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 9,
+      "conclusions": {
+        "success": 7,
+        "failure": 2
+      },
+      "jobs": [
+        {
+          "id": 125101906088,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:53:35Z",
+          "completed_at": "2026-11-02T04:56:19Z"
+        },
+        {
+          "id": 125102658657,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:06:10Z"
+        },
+        {
+          "id": 125102658660,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:06:17Z"
+        },
+        {
+          "id": 125102658661,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:05:41Z"
+        },
+        {
+          "id": 125102658666,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:12:05Z"
+        },
+        {
+          "id": 125102658702,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:21Z",
+          "completed_at": "2026-11-02T05:03:22Z"
+        },
+        {
+          "id": 125102658711,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:10:14Z"
+        },
+        {
+          "id": 125102658764,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:08:41Z"
+        },
+        {
+          "id": 125102658767,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T04:56:22Z",
+          "completed_at": "2026-11-02T05:12:32Z"
+        }
+      ]
+    },
+    {
+      "run": 41391004242,
+      "name": "MyNotes additional Indian speech license curation (nontraining)",
+      "source_sha": "ce6aa1caac64b00fb650accf799c79e6d1a5a49f",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125102162348,
+          "name": "primary-license-curation",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T04:54:32Z",
+          "completed_at": "2026-11-02T04:55:41Z"
+        }
+      ]
+    },
+    {
+      "run": 41391729004,
+      "name": "MyNotes image selection synthetic preview evidence",
+      "source_sha": "5d6d61700f3e3345e1dc026e47c1056b09fb99fc",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125104395965,
+          "name": "selection-previews",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:02:43Z",
+          "completed_at": "2026-11-02T05:12:22Z"
+        }
+      ]
+    },
+    {
+      "run": 41391856145,
+      "name": "MyNotes source-pinned raw APK verification",
+      "source_sha": "ce5055ba1b79b5527582a77aa2768fe9320ac5b3",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125104781905,
+          "name": "verify-raw-apk",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:04:05Z",
+          "completed_at": "2026-11-02T05:04:43Z"
+        }
+      ]
+    },
+    {
+      "run": 41392814864,
+      "name": "MyNotes image selection synthetic preview evidence",
+      "source_sha": "8fc4ca0ef7b0cc41035f493cf95d8e27ee50a9e7",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125107686863,
+          "name": "selection-previews",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:14:13Z",
+          "completed_at": "2026-11-02T05:14:57Z"
+        }
+      ]
+    },
+    {
+      "run": 41393215902,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "37476912f375b5fe7da17a3b421f619d43090993",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 9,
+      "conclusions": {
+        "success": 4,
+        "failure": 5
+      },
+      "jobs": [
+        {
+          "id": 125108883294,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:18:13Z",
+          "completed_at": "2026-11-02T05:21:49Z"
+        },
+        {
+          "id": 125109990545,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:24:24Z"
+        },
+        {
+          "id": 125109990548,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:35:03Z"
+        },
+        {
+          "id": 125109990561,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:24:49Z"
+        },
+        {
+          "id": 125109990562,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:29:00Z"
+        },
+        {
+          "id": 125109990568,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:22:01Z",
+          "completed_at": "2026-11-02T05:24:26Z"
+        },
+        {
+          "id": 125109990649,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:24:19Z"
+        },
+        {
+          "id": 125109990693,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:21:51Z",
+          "completed_at": "2026-11-02T05:33:49Z"
+        },
+        {
+          "id": 125109990713,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:21:52Z",
+          "completed_at": "2026-11-02T05:34:29Z"
+        }
+      ]
+    },
+    {
+      "run": 41393453222,
+      "name": "MyNotes expanded Indian acoustic training (quarantined)",
+      "source_sha": "10549e851edb62306993cb1ddde6aa8dee7ad605",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125109605931,
+          "name": "acoustic-and-decoder-training",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:20:34Z",
+          "completed_at": "2026-11-02T05:46:46Z"
+        }
+      ]
+    },
+    {
+      "run": 41393634829,
+      "name": "MyNotes source-pinned raw APK verification",
+      "source_sha": "89c16ec1bdeb667792d5385635cd293c129c05e1",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125110161424,
+          "name": "verify-raw-apk",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:22:24Z",
+          "completed_at": "2026-11-02T05:23:05Z"
+        }
+      ]
+    },
+    {
+      "run": 41394658554,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "3239bc7815a90fc568f4be2fc61e4546dbaf8c40",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 9,
+      "conclusions": {
+        "success": 8,
+        "failure": 1
+      },
+      "jobs": [
+        {
+          "id": 125113280269,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:32:55Z",
+          "completed_at": "2026-11-02T05:36:10Z"
+        },
+        {
+          "id": 125114246501,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T06:04:10Z"
+        },
+        {
+          "id": 125114246509,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:43:35Z"
+        },
+        {
+          "id": 125114246523,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:45:07Z"
+        },
+        {
+          "id": 125114246532,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:44:31Z"
+        },
+        {
+          "id": 125114246542,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:49:29Z"
+        },
+        {
+          "id": 125114246565,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T06:03:43Z"
+        },
+        {
+          "id": 125114246605,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:47:12Z"
+        },
+        {
+          "id": 125114246822,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:36:12Z",
+          "completed_at": "2026-11-02T05:45:46Z"
+        }
+      ]
+    },
+    {
+      "run": 41395248563,
+      "name": "MyNotes source-pinned raw APK verification",
+      "source_sha": "3f42f7da4e116c393e885872532207003a3ea8cf",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125115060155,
+          "name": "verify-raw-apk",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T05:39:00Z",
+          "completed_at": "2026-11-02T05:39:48Z"
+        }
+      ]
+    },
+    {
+      "run": 41398212940,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "162a9e981cbfac9863ac1e4078dadbd3ae2ffdef",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_records": 9,
+      "conclusions": {
+        "success": 7,
+        "failure": 2
+      },
+      "jobs": [
+        {
+          "id": 125124088544,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:10:03Z",
+          "completed_at": "2026-11-02T06:13:05Z"
+        },
+        {
+          "id": 125125037075,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:07Z",
+          "completed_at": "2026-11-02T06:20:32Z"
+        },
+        {
+          "id": 125125037091,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:08Z",
+          "completed_at": "2026-11-02T06:21:37Z"
+        },
+        {
+          "id": 125125037097,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T06:13:07Z",
+          "completed_at": "2026-11-02T06:28:22Z"
+        },
+        {
+          "id": 125125037099,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:07Z",
+          "completed_at": "2026-11-02T06:22:32Z"
+        },
+        {
+          "id": 125125037106,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:08Z",
+          "completed_at": "2026-11-02T06:27:48Z"
+        },
+        {
+          "id": 125125037109,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-02T06:13:07Z",
+          "completed_at": "2026-11-02T06:24:55Z"
+        },
+        {
+          "id": 125125037166,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:08Z",
+          "completed_at": "2026-11-02T06:24:09Z"
+        },
+        {
+          "id": 125125037185,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:13:07Z",
+          "completed_at": "2026-11-02T06:24:03Z"
+        }
+      ]
+    },
+    {
+      "run": 41400320679,
+      "name": "MyNotes user refinement qualification (nonpublishing)",
+      "source_sha": "b508c0be88a5018db78ae37c4148d69fd660e627",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 9,
+      "conclusions": {
+        "success": 9
+      },
+      "jobs": [
+        {
+          "id": 125130542091,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:30:24Z",
+          "completed_at": "2026-11-02T06:33:23Z"
+        },
+        {
+          "id": 125131527147,
+          "name": "native (min-api26-b, 26, 1, no, portrait, Nexus 5, 0, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:42:27Z"
+        },
+        {
+          "id": 125131527166,
+          "name": "native (min-api26, 26, 1, no, portrait, Nexus 5, 0, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:48:33Z"
+        },
+        {
+          "id": 125131527212,
+          "name": "native (large-font-api34-b, 34, 2, yes, portrait, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:43:11Z"
+        },
+        {
+          "id": 125131527220,
+          "name": "native (landscape-api34-b, 34, 1, no, landscape, Nexus 5, 0, 1, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:25Z",
+          "completed_at": "2026-11-02T06:43:46Z"
+        },
+        {
+          "id": 125131527221,
+          "name": "native (current-api36, 36, 1, no, portrait, Nexus 5, 1, 0, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:25Z",
+          "completed_at": "2026-11-02T06:43:33Z"
+        },
+        {
+          "id": 125131527224,
+          "name": "native (large-font-api34, 34, 2, yes, portrait, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:41:21Z"
+        },
+        {
+          "id": 125131527241,
+          "name": "native (current-api36-b, 36, 1, no, portrait, Nexus 5, 1, 1, all)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:47:55Z"
+        },
+        {
+          "id": 125131527250,
+          "name": "native (landscape-api34, 34, 1, no, landscape, Nexus 5, 0, 0, focused)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:33:26Z",
+          "completed_at": "2026-11-02T06:41:02Z"
+        }
+      ]
+    },
+    {
+      "run": 41402353120,
+      "name": "MyNotes source-pinned raw APK verification",
+      "source_sha": "7112de8945e2d78225af011d7396e92c915d4f77",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "job_records": 1,
+      "conclusions": {
+        "success": 1
+      },
+      "jobs": [
+        {
+          "id": 125136722756,
+          "name": "verify-raw-apk",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-02T06:49:31Z",
+          "completed_at": "2026-11-02T06:50:14Z"
+        }
+      ]
+    }
+  ]
+}

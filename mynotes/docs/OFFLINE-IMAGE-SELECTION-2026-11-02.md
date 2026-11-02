@@ -1,6 +1,6 @@
 # Follow-up ledger — offline image selection, playback, Indian training
 
-Status: **in progress; no 0.29 APK recommendation yet**. Work is on
+Status: **0.29 round-8 automation and raw APK verification passed; physical acceptance and broader speech/emoji work remain unfinished**. Work is on
 `arena/3caca636-tictic` only; the already delivered 0.28 qualification is unchanged.
 This is a separate scope from its 48-job / approximately 90-minute ledger. No claim of
 360 minutes, physical acceptance, universal image understanding or completed Indian ASR.
@@ -35,6 +35,8 @@ User instructions and physical checklist: `OFFLINE-IMAGE-SELECTION-029.md`.
 | 4 | `590c9d10daf52ca6a1bdc15b7b088f6d7259f396` | 41390921561 | **FAILED, not qualification**: 1131/1192 native outcomes; large-font shard A had 61 Core fixture focus failures. Its other 64 methods passed, and the seven other profile inventories completed. Min-API native methods passed but the documentation-publishing step failed after local gates. Full original reports, diagnostics and frames recovered by 41392814864. |
 | 5 | `37476912f375b5fe7da17a3b421f619d43090993` | 41393215902 | **FAILED, not qualification**: 713/1192 native outcomes. All four API-34 profiles stopped in the new preflight (478 missing); full saved window snapshots prove launcher focus existed, but the queried `dumpsys window windows` subcommand omitted global focus fields. Separately, one API-26 baseline format-size accessibility action failed; its other 183 methods passed. No assertion is removed or relabeled as a pass. |
 | 6 | `3239bc7815a90fc568f4be2fc61e4546dbaf8c40` | 41394658554 | **FAILED, not qualification**: 1092/1192 native outcomes. Seven native shards completed; current-API-36 shard A stopped after 84/184 with exit 124. Case 85, `CoreJourneysTest#selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes`, started but never finished. Activity dump also timed out; exact cause unknown. All API-34 focus preflights and API-26 size actions passed this time; this does not prove a runtime fix for the previous intermittent size failure. |
+| 7 | `162a9e981cbfac9863ac1e4078dadbd3ae2ffdef` | 41398212940 | **FAILED**: 1007/1192 outcomes; API-26 emulator boot timeout before execution, API-36 new-note IME assertion (183/184). Six other native shards passed; no production change in this round. |
+| 8 | `b508c0be88a5018db78ae37c4148d69fd660e627` | 41400320679 | **SUCCESS, 9/9 jobs; 1192/1192 outcomes, 357 unique methods**. Own-field IME request plus three additional Doc → Notes transitions in the original failing journey; all four profiles exhaustive. All 340 v0.28 baseline identities retained. Physical acceptance remains pending. |
 
 Round 7 (`162a9e98`, run 41398212940) **FAILED** with 1007/1192 successful outcomes.
 API-26 shard A failed emulator boot (184 unexecuted), confirmed by its check annotation.
@@ -208,5 +210,34 @@ request for its own focused field before visibility can end setup. Existing life
 focus and bounded-retry guards remain. The failing native journey now repeats the full
 Doc -> Notes creation transition three additional times, retaining all content and IME
 assertions. This addresses a code-level race consistent with the failure, not a proven
-explanation for round 6's separate hang. Round 8 requires a fresh complete qualification;
-round 7 is not a pass. Future build artifacts also retain the exact JVM inventory JSON.
+explanation for round 6's separate hang. Round 8 completed the required fresh complete qualification successfully;
+round 7 remains failed, not retroactively relabeled. Future build artifacts also retain the exact JVM inventory JSON.
+
+### Qualified automation, not physical acceptance
+
+Round 8 evidence is in `design-2026-10-29/native/41400320679/`, provenance `faaf0f94`.
+All eight source-pinned reports were independently aggregated locally: 1192 expected,
+1192 passed, 357 unique identities, no missing/duplicate/skipped/failed methods. The
+working package has no Internet permission and no speech-model change. The original
+round-6 hang was not reproduced in rounds 7 or 8; the separate new-note IME race was
+addressed and its strengthened native regression passed. Do not call the old hang fixed
+without a root-cause trace. Native automation does not prove physical playback clarity,
+universal emoji/object recognition, upgrade acceptance on the user's phone, or general
+Indian-accent accuracy. Those limitations remain explicit, not release approvals.
+
+## Verified handoff and exact workflow census
+
+Raw APK: [MyNotes-v0.29.0-32-development.apk](https://github.com/tarungittarun/TicTic/actions/runs/41400320679/artifacts/13120928843).
+Source `b508c0be88a5018db78ae37c4148d69fd660e627`; 66,790,976 bytes;
+SHA-256 `79970a8fb11322d6360958554ba7161b0ee5137834f94b52bfb118da8abedfcd`.
+Verifier run 41402353120 succeeded; retained evidence includes exact **294/294 JVM**
+identities, stable signer, package `app.space.notes`, version code 32, min API 26,
+target 34, no INTERNET permission, raw APK rather than a ZIP wrapper. Expires
+2026-11-09 06:32:47 UTC. Install over 0.28; do not uninstall or clear data.
+
+Final follow-up census at 2026-11-02 06:50:29 UTC: **22 workflow attempts, 78 job records**:
+62 succeeded, 13 failed, 2 cancelled, 1 skipped (77 executed records). One invalid workflow
+attempt created zero jobs. These include unsuccessful attempts and helpers, not 78 training
+jobs, sequential elapsed hours, physical tests or a paid-training claim. Full source/job IDs
+and terminal states: `FOLLOWUP-WORKFLOW-CENSUS-2026-11-02.json`. Earlier 0.28 work and
+skipped-CI pushes are excluded. Latest local gate: 698 tests passed; diff check passed.

@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "source_sha": "024aa7208dae5af0deca7f489646c31e1aada0f6",
+  "capture_run": "41511264086",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 207,
+      "passed": 203,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText: status -2 java.lang.AssertionError: Prepared-paper preview (approximate), not an original-layout guarantee.\n595.0 \u00d7 842.0 pt; 1 decoded image references.\nApproximate pagination: Android system fonts replace Word fonts; line wrapping may differ.\nFloating drawings, merged tables, fields, advanced styles and multiple-section geometry are not faithfully reproduced. Use Open original for full fidelity.\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.oversizedWordInlineImageFitsPaperAndKeepsFollowingText(ViewedFileJourneysTest.java:46)\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 197,
+      "passed": 196,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: New note IME readiness: ime=false body=WritingField[top=153 h=121 measured=121 scroll=0 visibility=0][top=0 h=1344 measured=1344 scroll=0 visibility=0]ScrollView[top=192 h=1344 measured=1344 scroll=0 visibility=0]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0] focus=true attached=true focused_view=app.space.notes.runtime.NotesController$WritingField window_focus=true ime_active_for_body=true\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:278)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:600)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 134,
+      "passed": 132,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText: status -2 java.lang.AssertionError: Prepared-paper preview (approximate), not an original-layout guarantee.\n595.0 \u00d7 842.0 pt; 1 decoded image references.\nApproximate pagination: Android system fonts replace Word fonts; line wrapping may differ.\nFloating drawings, merged tables, fields, advanced styles and multiple-section geometry are not faithfully reproduced. Use Open original for full fidelity.\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.oversizedWordInlineImageFitsPaperAndKeepsFollowingText(ViewedFileJourneysTest.java:46)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 143,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 134,
+      "passed": 132,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText: status -2 java.lang.AssertionError: Prepared-paper preview (approximate), not an original-layout guarantee.\n595.0 \u00d7 842.0 pt; 1 decoded image references.\nApproximate pagination: Android system fonts replace Word fonts; line wrapping may differ.\nFloating drawings, merged tables, fields, advanced styles and multiple-section geometry are not faithfully reproduced. Use Open original for full fidelity.\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.oversizedWordInlineImageFitsPaperAndKeepsFollowingText(ViewedFileJourneysTest.java:46)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 207,
+      "passed": 203,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings",
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:246)\n",
+        "app.space.notes.CoreJourneysTest#lateBackupCompletionNeverPullsUserBackIntoSettings: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.lateBackupCompletionNeverPullsUserBackIntoSettings(CoreJourneysTest.java:252)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage: status -2 java.lang.AssertionError: Actual floating Copy action must be accessible, not a detached text dialog\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage(ViewedFileJourneysTest.java:98)\n",
+        "app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText: status -2 java.lang.AssertionError: Prepared-paper preview (approximate), not an original-layout guarantee.\n595.0 \u00d7 842.0 pt; 1 decoded image references.\nApproximate pagination: Android system fonts replace Word fonts; line wrapping may differ.\nFloating drawings, merged tables, fields, advanced styles and multiple-section geometry are not faithfully reproduced. Use Open original for full fidelity.\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.oversizedWordInlineImageFitsPaperAndKeepsFollowingText(ViewedFileJourneysTest.java:46)\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 197,
+      "passed": 196,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: Control must be shown after opening its category: null text=Notes\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.UiActions.reveal(UiActions.java:11)\n\tat app.space.notes.CoreJourneysTest.lambda$click$64$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:150)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda615.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

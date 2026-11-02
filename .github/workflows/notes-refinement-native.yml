@@ -1,3 +1,4 @@
+# Round 13: 377 owned methods; native Word/logo, race-free copy, actual scroll and shared-lock deadlock regression.
 # Round 12: fix owned viewer-test compile classpath/PdfDocument cleanup; harden per-request IPC cancellation.
 # Previous round 11: optimized CPU + IPC phases; continuous PDF, spreadsheet grid, viewed search and diagnostic filters.
 # Source inventory:372 native methods; no missing cases accepted; exact selected partitions computed at runtime.
@@ -32,27 +33,6 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
-      - name: Inspect prior zero-outcome API36 initialization (synthetic CI only)
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api repos/tarungittarun/TicTic/actions/jobs/125161667781/logs > "$RUNNER_TEMP/previous-api36.log"
-          python3 - <<'PYLOG'
-          import os,re,json,io,zipfile
-          from pathlib import Path
-          raw=Path(os.environ['RUNNER_TEMP'],'previous-api36.log').read_bytes()
-          if zipfile.is_zipfile(io.BytesIO(raw)):
-              with zipfile.ZipFile(io.BytesIO(raw)) as archive:
-                  names=[name for name in archive.namelist() if name.endswith('.txt')]
-                  raw=b'\n'.join(archive.read(name) for name in names)
-          lines=raw.decode('utf-8',errors='replace').splitlines()
-          selected=set(range(max(0,len(lines)-55),len(lines)))
-          for i,line in enumerate(lines):
-              if re.search('error|failed|Failure|cannot|offline|insufficient|exit code 20',line,re.I):selected.update(range(max(0,i-2),min(len(lines),i+4)))
-          excerpt='\n'.join(lines[i] for i in sorted(selected))[-4000:]
-          print('::notice title=Previous API36 initialization job125161667781::'+json.dumps(excerpt))
-          PYLOG
       - uses: ./.github/actions/setup-mynotes
       - name: Compile debug app/instrumentation and lint without publication
         working-directory: mynotes
@@ -173,6 +153,7 @@ jobs:
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home; fi
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb logcat -G 8M || true # Synthetic CI observer only; retain CPU timings beyond the final 500 lines.
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 1800000
             adb shell input keyevent KEYCODE_WAKEUP
@@ -201,7 +182,13 @@ jobs:
           path=Path('refinement-native.txt')
           result=android(path.read_text(errors='replace') if path.exists() else '',expected)
           write_report(result,'refinement-native.json')
-          if not result['ok']:sys.exit(1)
+          cpu=Path('refinement-native-cpu-phases.txt')
+          if cpu.exists() and cpu.stat().st_size:
+              print('::notice title=Observed native CPU phases and elapsed time::'+json.dumps(cpu.read_text(errors='replace')[-4000:]))
+          if not result['ok']:
+              progress=Path('refinement-native-test-progress.txt')
+              if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))
+              sys.exit(1)
           print('::notice title=Native refinement coverage::'+str(result['passed'])+'/'+str(result['expected'])+' methods passed, exact inventory')
           PYRESULT
       - uses: actions/upload-artifact@v7.0.2

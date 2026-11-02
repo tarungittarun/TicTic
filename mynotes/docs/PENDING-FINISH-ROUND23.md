@@ -73,3 +73,24 @@ and both Note/Doc contents after install-over. Small reports are being relayed
 through a read-only download/validation job because this sandbox cannot reach
 the artifact blob endpoint; local report inspection is still pending. No broad
 migration or genuine process-kill approval is inferred from upgrade success.
+
+## Inspected outcomes, qualification remains blocked
+
+Native41469717511 completed FAILURE: seven profiles passed, Android26-A recorded
+0/201, total1113/1314 outcomes. Source-pinned evidence is committed in its native
+directory. Android36 and Android26-B passed; this does not substitute for the
+missing Android26-A profile. Its available artifact has SDK bootstrap output but
+no instrumentation transcript. Exact failed job125363631433 logs are being relayed
+to establish the cause; no runtime assertion failure or infrastructure diagnosis
+is yet inferred from zero outcomes.
+
+Both upgrade reports from41471791076 were relayed, validated and inspected locally
+under `design-2026-10-29/updates/41471791076/`:33→38 and35→38 each have `ok=true`,
+Notes/Doc retained, unchanged first-install time and no uninstall/clear-data. This
+remains only two synthetic fixtures per path.
+
+Final-byte process run41471654194 failed BEFORE the probe with the explicit check
+annotation `Timeout waiting for emulator to boot.` No recovery assertions ran.
+The rerun API refused the branch-only workflow, so one fresh infrastructure-only
+attempt is triggered with the same exact APK38 and identical recovery assertions.
+Do not reinterpret this boot timeout as app-state failure or accepted recovery.

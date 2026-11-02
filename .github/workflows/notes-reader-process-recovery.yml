@@ -1,3 +1,4 @@
+# Match the qualified native guest RAM after pre-reader UIAutomator collector exit137; no assertion retries or app force-stop.
 # Prepopulate all three public fixture files before SAF opens; retain meaningful picker labels on a navigation failure. No APK or recovery assertion changes.
 # Infrastructure-only fresh attempt:41471654194 timed out booting before any probe assertion; rerun API refused this branch-only workflow. Same raw38 bytes and unchanged assertions.
 # Pin final candidate38 bytes; parse actual ActivityRecord whitespace and retain stopped-state observations without relaxing PID/query/page/source-byte checks.
@@ -87,7 +88,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: true
-          emulator-options: -no-window -noaudio -no-boot-anim -no-snapshot-save -gpu swiftshader_indirect -camera-back none
+          emulator-options: -no-window -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -gpu swiftshader_indirect -camera-back none
           script: |
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable

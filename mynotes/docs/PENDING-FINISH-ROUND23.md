@@ -133,3 +133,21 @@ from a file-picker timeout.
 The first supplement41474589959 stopped at its shallow-checkout source gate before
 tests. Follow-up41474686572 explicitly fetches only the immutable original source
 commit before comparison; no test assertion was executed in the failed attempt.
+
+## Source-pinned native qualification completed across base plus supplement
+
+Supplement41474686572 SUCCESS,201/201, no missing/unexpected/duplicate/failed cases,
+with independently scored OCR/speech and exported-PDF checks. Its original debug
+APK SHA256 is e89b72630cfee725138237ff09622f244d0de4fce3114eb4f597a6a291523f71;
+androidTest SHA256 deb41d6ff9c19d1057ec7122eeeefec0b72e0491a8bcc1ba39fa462ae735ed59.
+Together with base41469717511's1113 passing outcomes this covers1314/1314 planned
+profile outcomes/391 distinct methods on the original compiled source62c3c22b.
+The base run itself is STILL FAILED; it has not been relabeled successful. Separate
+supplement provenance/reports are committed under native-supplements/41474686572.
+
+Probe41475480631 failed BEFORE PDF opening: the external UIAutomator dump process
+returned137. This does not diagnose an app crash or prove memory exhaustion.
+The next fresh probe matches native qualification's3072MiB guest RAM rather than
+the profile default; its same raw38 APK and all PID/page/query/source assertions
+are unchanged. No collector/assertion failure is swallowed or retried in-process.
+The prepopulated-directory correction has not yet been exercised through DOCX.

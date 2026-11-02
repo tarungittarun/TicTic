@@ -46,3 +46,22 @@ class ReaderProcessRecoverySmokeTest(unittest.TestCase):
     def test_picker_nodes_exclude_other_apps_and_disabled_actions(self):
         xml='<hierarchy><node package="com.google.android.documentsui" enabled="true" text="Downloads"/><node package="private.app" enabled="true" text="Downloads"/><node package="android" enabled="false" text="Denied"/></hierarchy>'
         self.assertEqual(['Downloads'],[node.get('text') for node in picker_nodes(xml)])
+
+
+    def test_scrollable_app_menu_is_navigated_without_skipping_the_file_action(self):
+        from unittest.mock import Mock
+        from mynotes.tools.ci.reader_process_recovery_smoke import reachable_click
+        from mynotes.tools.ci.release_update_smoke import nodes
+        device=Mock()
+        device.ui.side_effect=[nodes('<hierarchy><node package="app.space.notes" enabled="true" scrollable="true" bounds="[0,100][500,900]"/></hierarchy>'),nodes('<hierarchy><node package="app.space.notes" enabled="true" text="Open file" clickable="true" bounds="[10,200][490,300]"/></hierarchy>')]
+        reachable_click(device,'Open file')
+        self.assertEqual('swipe',device.adb.call_args_list[0].args[2])
+        self.assertEqual(('shell','input','tap',250,250),device.adb.call_args_list[1].args)
+
+    def test_invalid_version_guard_precedes_any_device_operation(self):
+        from unittest.mock import patch
+        from mynotes.tools.ci.reader_process_recovery_smoke import verify
+        for code in (0,-1,True):
+            with patch('mynotes.tools.ci.reader_process_recovery_smoke.Device') as factory:
+                with self.assertRaises(ValueError):verify('unused',code)
+                factory.assert_not_called()

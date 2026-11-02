@@ -86,15 +86,35 @@ def picker_nodes(xml):
     return [node for node in ET.fromstring(xml).iter('node') if node.get('package') in allowed and node.get('enabled')=='true']
 
 
+
+def reachable_click(device,label):
+    for _ in range(6):
+        items=device.ui();target=named(items,label)
+        if target is not None:
+            try:point=center(target.get('bounds',''))
+            except ValueError:point=None
+            if point is not None:
+                device.adb('shell','input','tap',*point);return
+        scroll=next((node for node in items if node.get('scrollable')=='true'),None)
+        if scroll is None:break
+        bounds=scroll.get('bounds','');center(bounds)
+        left,top,right,bottom=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',bounds).groups())
+        x=(left+right)//2
+        device.adb('shell','input','swipe',x,top+(bottom-top)*85//100,x,top+(bottom-top)*20//100,400)
+    raise RuntimeError('Public app menu target not reachable: '+label)
+
 def pick_local_file(device,folder,name):
     # Real SAF user flow owns/persists the read grant; root-issued VIEW grants are
     # not a substitute for DocumentsUI permission semantics.
-    device.click('Library');device.click('Open file')
+    device.click('Library');reachable_click(device,'Open file')
     def ui():
         device.adb('shell','uiautomator','dump','/sdcard/notes-reader-picker.xml')
         return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-reader-picker.xml'))
     def click(label):
-        items=wait_until(lambda: (items if named(items,label) is not None else None) if (items:=ui()) else None,40)
+        try:items=wait_until(lambda: (items if named(items,label) is not None else None) if (items:=ui()) else None,40)
+        except RuntimeError as failure:
+            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds')} for node in ui()],ensure_ascii=True)[:1800]
+            raise RuntimeError('Public SAF picker target missing: '+label+'; '+summary) from failure
         device.adb('shell','input','tap',*center(named(items,label).get('bounds','')))
     click('Show roots');click('Downloads');click(folder);click(name)
 
@@ -103,14 +123,15 @@ def checkpoint(root,phase,name):
     (root/'probe-progress.json').write_text(json.dumps({'phase':phase,'fixture':name,'acceptance':False})+'\n')
     print('::notice title=Public reader probe phase::'+phase+' '+name,flush=True)
 
-def verify(output):
+def verify(output,expected_code=37):
+    if not isinstance(expected_code,int) or isinstance(expected_code,bool) or expected_code<1:raise ValueError('Require an explicit positive verified APK version')
     device=Device()
     if os.environ.get('GITHUB_ACTIONS')!='true' or device.adb('shell','getprop','ro.kernel.qemu').strip()!='1':
         raise RuntimeError('Recovery probe is restricted to a disposable GitHub Actions emulator')
     run_id=os.environ.get('GITHUB_RUN_ID','');attempt=os.environ.get('GITHUB_RUN_ATTEMPT','')
     if not re.fullmatch(r'[1-9][0-9]*',run_id) or not re.fullmatch(r'[1-9][0-9]*',attempt):
         raise RuntimeError('Missing disposable CI run identity')
-    if device.state()['version_code']!=37:raise RuntimeError('Probe requires the exact verified candidate37 installed by its workflow')
+    if device.state()['version_code']!=expected_code:raise RuntimeError('Probe requires the exact verified candidate installed by its workflow')
     folder='NotesReaderRecoveryPublic-'+run_id+'-'+attempt
     # Root is confined to fixture creation on a disposable emulator, NOT URI grants.
     device.adb('root')
@@ -174,15 +195,15 @@ def verify(output):
         checkpoint(root,'reader-restored-after-actual-kill',name)
         records.append({'name':name,'sha256':hashlib.sha256(data).hexdigest(),'before_pid':before,'after_pid':after,'stopped_before_kill':True,'query_restored':True,'page_2_restored':not spreadsheet,'visible_row_restored':first_row,'original_unchanged':True})
         device.home()
-    report={'ok':True,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
+    report={'ok':True,'package_code':expected_code,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
         'force_stop_uninstall_clear_data':False,'release_approval':False,
         'scope':'Actual emulator background-process kill and retained-task relaunch: PDF/Word page+query and CSV query+visible row, fixed public fixtures. Not image OCR recovery, zoom pixel proof, exact Office fidelity, physical acceptance or exhaustive migration.'}
     (root/'reader-process-recovery.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report),flush=True)
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);args=parser.parse_args()
-    try:verify(args.output)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);parser.add_argument('--expected-code',type=int,default=37);args=parser.parse_args()
+    try:verify(args.output,args.expected_code)
     except Exception as failure:
         progress=Path(args.output)/'probe-progress.json'
         message=type(failure).__name__+': '+str(failure)+(' '+progress.read_text() if progress.is_file() else '')

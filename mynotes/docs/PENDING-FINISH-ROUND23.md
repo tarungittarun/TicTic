@@ -27,3 +27,14 @@ glyph/handle selection, vector-quality zoom redraw, exact Office layout fidelity
 universal emoji detection/recognition/unknown calibration, broad Indian-speaker
 validation, and physical playback/startup/rotation acceptance. Do not mark these
 complete from source, asset coverage, same-style fitting or emulator success.
+
+## Probe harness navigation follow-up, not app recovery approval
+
+Probe41469160310 failed in its initial opening phase: the Library popup was still
+showing its scrollable first rows, before Open file/SAF selection. No process-kill
+acceptance can be inferred. The harness now scrolls the actual Library menu to
+reach Open file, keeps the real SAF path and Word choice, and includes missing
+picker-target diagnostics. PID/state/source-byte assertions are unchanged. It can
+also explicitly pin a future installed version; its currently pinned APK37 is
+still not evidence for finalcode38. Host mocks verify scrolling/version guards,
+not Android success. No production navigation behavior is changed by this fix.

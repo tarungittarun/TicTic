@@ -129,3 +129,26 @@ are retained. No private images/recordings, GPU/paid training service, runtime
 weights change, public release or universal-accuracy claim. Experimental weights
 remain an Actions artifact only. These cropped-glyph results cannot qualify
 detection, cluttered photos, unknown rejection or phone performance.
+
+## Measured pilot outcome — run41457619334 (not approved)
+
+The earlier metadata-only/queued statements describe those earlier audits, not
+this completed experiment. Exact public report, aliases and full graphics notices
+are now retained in `emoji-pilot/41457619334/`, collected by run41458393371.
+Source: `c1da367f982688f22f9bff3e740529847d1b1d14`.
+
+Actual CPU optimization:741 steps,47292 augmented training instances,3 epochs,
+686261/686261 parameters changed,59.739144297 training CPU seconds. Losses:
+8.3026415690,8.2892703345,8.2888207146. **This is a negative learning result, not a
+useful recognizer:** clean *seen-style, not held-out* top1=1/3941, top5=5/3941;
+separate-style OpenMoji top1=0/64, top5=0/64. Successful workflow execution and
+changed parameters do not establish useful learning or improved accuracy. The
+64 examples are only a small separate-style sample, not universal evaluation.
+
+Do not ship/adopt these weights, increase confidence labels, or change the shipped
+OCR based on this run. Before another optimization experiment, establish useful
+baselines and inspect feature/optimization collapse; then require meaningful
+seen-style learning, family-disjoint generalization, explicit unknown/hard-negative
+calibration, bounded mobile inference, and photo/detection tests. More steps alone
+are not evidence. Pixel-identical flag aliases still need ambiguity/context handling
+regardless of learning quality. No private data or runtime model changed.

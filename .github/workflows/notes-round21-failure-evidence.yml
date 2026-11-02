@@ -1,0 +1,62 @@
+# Read only exact failed public CI job logs; no Android build or runtime changes.
+name: Preserve round21 Android26 bootstrap diagnostics
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-round21-failure-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - name: Preserve bounded excerpts from exact failed job logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,re,subprocess
+          from pathlib import Path
+          base='repos/tarungittarun/TicTic/actions/'
+          run=json.loads(subprocess.check_output(['gh','api',base+'runs/41456712021']))
+          assert run['head_sha']=='f2830cc46e3c05b3622e5ea80fbfea137a354787'
+          assert run['status']=='completed' and run['conclusion']=='failure'
+          dest=Path('mynotes/docs/design-2026-10-29/native/41456712021/bootstrap-diagnostics');dest.mkdir(parents=True,exist_ok=True)
+          records=[]
+          for job_id in [125318542951,125318543034]:
+              job=json.loads(subprocess.check_output(['gh','api',base+'jobs/'+str(job_id)]))
+              assert job['run_id']==41456712021 and job['conclusion']=='failure'
+              raw=subprocess.check_output(['gh','api',base+'jobs/'+str(job_id)+'/logs'])
+              assert 0<len(raw)<=32*1024*1024
+              text=raw.decode('utf-8')
+              # Entire logs stay in Actions. Preserve a bounded searchable excerpt,
+              # explicitly not a complete log or a pre-decided infrastructure cause.
+              errors='\n'.join(line[:2000] for line in text.splitlines() if re.search(r'error|failed|exception|timeout|timed out|not found|cannot|could not',line,re.I))
+              excerpt='FIRST 8000 CHARACTERS\n'+text[:8000]+'\nMATCHING DIAGNOSTIC LINES (FIRST 24000 CHARACTERS)\n'+errors[:24000]+'\nLAST 48000 CHARACTERS\n'+text[-48000:]
+              (dest/(str(job_id)+'.txt')).write_text(excerpt)
+              records.append({'job_id':job_id,'job_name':job['name'],'source_log_bytes':len(raw),'source_log_sha256':hashlib.sha256(raw).hexdigest(),'excerpt_only':True})
+          (dest/'provenance.json').write_text(json.dumps({'run_id':41456712021,'source_sha':run['head_sha'],'scope':'bounded public synthetic CI log excerpts, not private content; investigate cause separately','release_approval':False,'jobs':records},indent=2)+'\n')
+          PY
+      - name: Gate and commit diagnostics only to session branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/design-2026-10-29/native/41456712021/bootstrap-diagnostics
+          git commit -m 'Preserve exact failed Android26 job log excerpts without inferring cause [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+            git diff --check
+          done

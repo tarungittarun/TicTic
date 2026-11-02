@@ -62,7 +62,11 @@ public class PdfPageOcrTest {
     @Test public void cancellingQueuedRecognitionAndClosingDoesNotLeakOrCreateReview()throws Exception{
         Activity activity=host();File source=scanned(false);LocalPdfPreview.Document document=new LocalPdfPreview.Document(source);LocalPdfPreview[] preview={null};CountDownLatch release=new CountDownLatch(1);
         try{instrument.runOnMainSync(()->{preview[0]=new LocalPdfPreview(activity,new NotesDesign(activity,false),document);activity.setContentView(preview[0]);});ExecutorService renderer=(ExecutorService)field(preview[0],"worker");renderer.execute(()->{try{release.await(20,TimeUnit.SECONDS);}catch(InterruptedException cancelled){Thread.currentThread().interrupt();}});
-            instrument.runOnMainSync(()->{request(preview[0]);try{AlertDialog progress=(AlertDialog)field(preview[0],"pageOcrDialog");assertTrue(progress.isShowing());progress.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();assertTrue(((OfflineOcr.Cancellation)field(preview[0],"ocrCancellation")).cancelled());preview[0].close();}catch(Exception failure){throw new AssertionError(failure);}});
+            instrument.runOnMainSync(()->{request(preview[0]);try{AlertDialog progress=(AlertDialog)field(preview[0],"pageOcrDialog");assertTrue("Recognition progress must be visible before cancelling",progress.isShowing());assertTrue("Cancel must be a real clickable action",progress.getButton(AlertDialog.BUTTON_NEGATIVE).performClick());}catch(Exception failure){throw new AssertionError(failure);}});
+            // AlertDialog posts its button listener and dismissal through ButtonHandler.
+            // Do not assert inside performClick's stack or use close() to cancel for it.
+            instrument.waitForIdleSync();
+            instrument.runOnMainSync(()->{try{assertTrue("The actual Cancel callback must cancel the still-queued work before close",((OfflineOcr.Cancellation)field(preview[0],"ocrCancellation")).cancelled());assertFalse("Cancel must dismiss progress",((AlertDialog)field(preview[0],"pageOcrDialog")).isShowing());preview[0].close();}catch(Exception failure){throw new AssertionError(failure);}});
             release.countDown();shutdown(preview[0]);assertNull(field(preview[0],"pageTextDialog"));assertFalse(source.exists());
         }finally{release.countDown();if(preview[0]!=null)shutdown(preview[0]);else document.close();instrument.runOnMainSync(activity::finish);}
     }

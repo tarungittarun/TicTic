@@ -46,3 +46,19 @@ training/evaluation and measured unknown/error behavior, not asset-name coverage
 Physical microphone/playback/startup remains unverified without a phone. No new
 training step or physical success is claimed. Source/licensing/geometry research
 continues in `PENDING-OCR-RESEARCH-2026-11-02.md`.
+
+## First qualification follow-up (not approval)
+
+Run41456712021 compiled/linted and ran native profiles. Multiple executing profiles
+reported the same new cancellation fixture failure: its assertion ran in the same
+main-thread stack as AlertDialog.performClick, before Android's ButtonHandler
+could deliver the actual Cancel listener. The fixture now drains the main message
+queue before asserting cancellation, **before close()**; additionally verifies that
+Cancel actually dismisses progress. Cleanup/no-review/source-file assertions stay.
+No runtime workaround and no assertion/inventory deletion. Requalification remains
+required. Android26 profiles that report no executed methods need raw diagnostic
+inspection separately; do not confuse these with the executing fixture failure.
+
+Public emoji training did actually execute separately: see the measured negative
+result in `PENDING-OCR-RESEARCH-2026-11-02.md` and its exact retained report. It is
+not approved or incorporated into the app; universal emoji recognition is pending.

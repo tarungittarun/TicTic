@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "source_sha": "fec11f1985a190643d8e9af4e9f4d960696dcb8c",
+  "capture_run": "41432202683",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 196,
+      "passed": 195,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages: status -2 java.lang.AssertionError: Real two-pointer motion must zoom the page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.lambda$pageDoubleTapZoomIsBoundedAndResetsForRecycledPages$5$app-space-notes-runtime-ViewedFileJourneysTest(ViewedFileJourneysTest.java:53)\n\tat app.space.notes.runtime.ViewedFileJourneysTest$$ExternalSyntheticLambda6.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 185,
+      "passed": 185,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 133,
+      "passed": 133,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 123,
+      "passed": 122,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages: status -2 java.lang.AssertionError: Real two-pointer motion must zoom the page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.lambda$pageDoubleTapZoomIsBoundedAndResetsForRecycledPages$5$app-space-notes-runtime-ViewedFileJourneysTest(ViewedFileJourneysTest.java:53)\n\tat app.space.notes.runtime.ViewedFileJourneysTest$$ExternalSyntheticLambda6.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 133,
+      "passed": 133,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 123,
+      "passed": 122,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages: status -2 java.lang.AssertionError: Real two-pointer motion must zoom the page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.lambda$pageDoubleTapZoomIsBoundedAndResetsForRecycledPages$5$app-space-notes-runtime-ViewedFileJourneysTest(ViewedFileJourneysTest.java:53)\n\tat app.space.notes.runtime.ViewedFileJourneysTest$$ExternalSyntheticLambda6.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 196,
+      "passed": 195,
+      "missing": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages"
+      ],
+      "failures": [
+        "app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages: status -2 java.lang.AssertionError: Real two-pointer motion must zoom the page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ViewedFileJourneysTest.lambda$pageDoubleTapZoomIsBoundedAndResetsForRecycledPages$5$app-space-notes-runtime-ViewedFileJourneysTest(ViewedFileJourneysTest.java:53)\n\tat app.space.notes.runtime.ViewedFileJourneysTest$$ExternalSyntheticLambda6.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 185,
+      "passed": 185,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

@@ -54,3 +54,14 @@ and stopped signal; preserve filtered target-state observations if waiting fails
 This is harness hardening, not a claim that an app-state bug caused the timeout.
 No test/PID/query/page/source-byte assertion is removed and no recovery success is
 claimed until the new actual run is inspected.
+
+## Exact-byte upgrade checks queued separately from native qualification
+
+The update workflow now independently runs33→38 and35→38 on fresh, offline API34
+emulators, using the same final raw38 artifact/hash/source above and the previously
+qualified raw33/raw35 inputs. It verifies package/version/minSDK/no-INTERNET and
+the common signing certificate before install-over. Neither path uninstalls or
+clears data. Checks cover the existing two synthetic Note/Doc fixtures, not rich
+libraries/audio/images/every migration or phone acceptance. libpulse and bounded
+SDK-only preparation are explicit; migration assertions are never retried. Results
+must be inspected before either path is called passed.

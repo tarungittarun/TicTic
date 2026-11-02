@@ -22,3 +22,18 @@ class EmojiCpuPilotPolicy(unittest.TestCase):
             self.assertIn(guard,source)
         self.assertNotIn('.cuda()',source)
         self.assertNotIn('saveOcrText',source)
+
+
+class TrainingVariantSafetyTest(unittest.TestCase):
+    def test_fixed_configuration_and_bounded_epochs(self):
+        from mynotes.tools.ci.emoji_cpu_pilot import training_config
+        self.assertEqual({'stabilized':False,'learning_rate':.002},training_config('baseline',3))
+        self.assertEqual({'stabilized':True,'learning_rate':.0005},training_config('centered-leaky-layernorm',20))
+        for variant,epochs in [('unknown',3),('baseline',0),('baseline',31),('baseline',True)]:
+            with self.assertRaises(ValueError):training_config(variant,epochs)
+
+    def test_reused_art_style_sample_is_not_claimed_as_a_final_untouched_test(self):
+        source=(Path(__file__).resolve().parents[1]/'tools/ci/emoji_cpu_pilot.py').read_text()
+        self.assertIn('separate_art_style_64_reused_development_only',source)
+        self.assertIn('NOT a final untouched test',source)
+        self.assertIn("'release_approval':False",source)

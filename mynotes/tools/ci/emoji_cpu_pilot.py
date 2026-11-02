@@ -55,7 +55,14 @@ def png_entries(tree, prefix):
     return result
 
 
-def run(output, epochs=3):
+def training_config(variant,epochs):
+    if variant not in ('baseline','centered-leaky-layernorm') or not isinstance(epochs,int) or isinstance(epochs,bool) or not 1<=epochs<=30:
+        raise ValueError('Require a known experimental variant and bounded 1–30 epochs')
+    return {'stabilized':variant=='centered-leaky-layernorm','learning_rate':.0005 if variant=='centered-leaky-layernorm' else .002}
+
+
+def run(output, epochs=3, variant='baseline'):
+    config=training_config(variant,epochs)
     import torch
     from torch import nn
     from PIL import Image, ImageDraw, ImageFont
@@ -97,29 +104,32 @@ def run(output, epochs=3):
         rgb=canvas.convert('RGB').resize((64,64),Image.Resampling.BILINEAR)
         data=torch.frombuffer(bytearray(rgb.tobytes()),dtype=torch.uint8).reshape(64,64,3).permute(2,0,1).float()/255
         if augment:data=(data+torch.randn_like(data)*random.uniform(0,.025)).clamp(0,1)
-        return data
+        return data*2-1 if config['stabilized'] else data
     class Data(torch.utils.data.Dataset):
         def __len__(self):return len(images)*4
         def __getitem__(self,index):index%=len(images);return tensor(images[index],True),index
-    model=nn.Sequential(nn.Conv2d(3,16,3,2,1),nn.ReLU(),nn.Conv2d(16,32,3,2,1),nn.ReLU(),nn.Conv2d(32,48,3,2,1),nn.ReLU(),nn.Conv2d(48,64,3,2,1),nn.ReLU(),nn.Flatten(),nn.Linear(1024,128),nn.ReLU(),nn.Linear(128,len(groups)))
+    def activation():return nn.LeakyReLU(.1) if config['stabilized'] else nn.ReLU()
+    layers=[nn.Conv2d(3,16,3,2,1),activation(),nn.Conv2d(16,32,3,2,1),activation(),nn.Conv2d(32,48,3,2,1),activation(),nn.Conv2d(48,64,3,2,1),activation(),nn.Flatten(),nn.Linear(1024,128)]
+    if config['stabilized']:layers.append(nn.LayerNorm(128))
+    layers.extend([activation(),nn.Linear(128,len(groups))]);model=nn.Sequential(*layers)
     initial={key:value.clone() for key,value in model.state_dict().items()}
-    optimizer=torch.optim.AdamW(model.parameters(),lr=.002);criterion=nn.CrossEntropyLoss()
+    optimizer=torch.optim.AdamW(model.parameters(),lr=config['learning_rate']);criterion=nn.CrossEntropyLoss()
     loader=torch.utils.data.DataLoader(Data(),batch_size=64,shuffle=True,num_workers=0,generator=torch.Generator().manual_seed(1337))
-    steps=instances=0;epoch_losses=[];started=time.perf_counter()
+    steps=instances=0;epoch_losses=[];started=time.perf_counter();cpu_started=time.process_time()
     for epoch in range(epochs):
         model.train();loss_sum=0
         for inputs,target in loader:
             optimizer.zero_grad(set_to_none=True);loss=criterion(model(inputs),target);assert torch.isfinite(loss).all();loss.backward();optimizer.step();steps+=1;instances+=len(target);loss_sum+=float(loss.detach())*len(target)
         epoch_losses.append(loss_sum/len(loader.dataset));print(json.dumps({'epoch':epoch+1,'steps':steps,'mean_cross_entropy':epoch_losses[-1]}),flush=True)
-    elapsed=time.perf_counter()-started;model.eval()
+    elapsed=time.perf_counter()-started;cpu_elapsed=time.process_time()-cpu_started;model.eval()
     changed=sum(int((initial[key]!=value).sum()) for key,value in model.state_dict().items());assert changed>0
     def evaluate(values,targets):
-        top1=top5=0
+        top1=top5=0;distinct=set()
         with torch.no_grad():
             for start in range(0,len(values),64):
                 guesses=model(torch.stack([tensor(value) for value in values[start:start+64]])).topk(5,dim=1).indices.tolist()
-                for target,predictions in zip(targets[start:start+64],guesses):top1+=target==predictions[0];top5+=target in predictions
-        return {'examples':len(values),'top1_correct':top1,'top5_correct':top5}
+                for target,predictions in zip(targets[start:start+64],guesses):top1+=target==predictions[0];top5+=target in predictions;distinct.add(predictions[0])
+        return {'examples':len(values),'top1_correct':top1,'top5_correct':top5,'distinct_top1_predictions':len(distinct)}
     seen=evaluate(images,list(range(len(groups))))
     # A different art style is never used for fitting, selecting epochs or thresholds.
     other=api('hfg-gmuend/openmoji/git/trees/'+OPENMOJI_COMMIT+'?recursive=1');assert other['sha']==OPENMOJI_COMMIT
@@ -133,13 +143,13 @@ def run(output, epochs=3):
     held=evaluate(held_images,held_targets)
     model_file=out/'EXPERIMENTAL-NOT-RUNTIME-emoji-cpu.pt';torch.save(model.state_dict(),model_file)
     (out/'class-aliases.json').write_text(json.dumps(labels,ensure_ascii=False)+'\n')
-    report={'schema':1,'scope':'Public-asset cropped-glyph CPU feasibility only. No detection, photos, universal OCR, calibrated confidence, mobile performance or physical acceptance. Model is NOT approved/shipped.',
+    report={'schema':2,'experiment_variant':variant,'learning_rate':config['learning_rate'],'separate_style_status':'64-example reused development sample, NOT a final untouched test or universal accuracy; never used for fitting/epoch selection in this run','scope':'Public-asset cropped-glyph CPU feasibility only. No detection, photos, universal OCR, calibrated confidence, mobile performance or physical acceptance. Model is NOT approved/shipped.',
       'twemoji_commit':COMMIT,'twemoji_tree':TREE,'twemoji_archive_sha256':ARCHIVE_SHA,'training_graphics_license':'CC-BY-4.0; Twemoji contributors, see full attached license',
       'openmoji_evaluation_commit':OPENMOJI_COMMIT,'evaluation_graphics_license':'CC-BY-SA-4.0; OpenMoji, see full attached license; no evaluation pixels used for fitting',
-      'unicode_fully_qualified_sequences':len(sequences),'pixel_alias_classes':len(groups),'training_unique_png_blobs':len(images),'training_steps':steps,'sampled_training_instances':instances,'epochs':epochs,'epoch_losses':epoch_losses,'changed_parameters':changed,'trainable_parameters':sum(p.numel() for p in model.parameters()),'training_cpu_seconds':elapsed,
-      'seen_style_clean_not_held_out':seen,'separate_art_style_64_only':held,'held_out_asset_identities':held_identity,'weight_file_sha256':hashlib.sha256(model_file.read_bytes()).hexdigest(),'seed':1337,'device':'cpu','threads':2,'runtime_models_changed':False,'release_approval':False}
+      'unicode_fully_qualified_sequences':len(sequences),'pixel_alias_classes':len(groups),'training_unique_png_blobs':len(images),'training_steps':steps,'sampled_training_instances':instances,'epochs':epochs,'epoch_losses':epoch_losses,'changed_parameters':changed,'trainable_parameters':sum(p.numel() for p in model.parameters()),'training_cpu_seconds':elapsed,'training_process_seconds':cpu_elapsed,'training_timing_definition':'training_cpu_seconds is legacy wall elapsed for CPU fitting; training_process_seconds is measured aggregate process CPU time',
+      'seen_style_clean_not_held_out':seen,('separate_art_style_64_only' if variant=='baseline' else 'separate_art_style_64_reused_development_only'):held,'held_out_asset_identities':held_identity,'weight_file_sha256':hashlib.sha256(model_file.read_bytes()).hexdigest(),'seed':1337,'device':'cpu','threads':2,'runtime_models_changed':False,'release_approval':False}
     (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps({key:value for key,value in report.items() if key!='held_out_asset_identities'},ensure_ascii=False),flush=True)
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);args=parser.parse_args();run(args.output)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);parser.add_argument('--epochs',type=int,default=3);parser.add_argument('--variant',choices=['baseline','centered-leaky-layernorm'],default='baseline');args=parser.parse_args();run(args.output,args.epochs,args.variant)

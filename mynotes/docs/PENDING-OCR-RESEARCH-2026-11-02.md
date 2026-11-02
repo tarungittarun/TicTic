@@ -190,3 +190,25 @@ basic fitting works at tiny scale; **the stabilized variant is not established a
 better**, and neither result is useful generalization evidence. Full3941-class
 learning, independent family/detection/photo tests and calibrated unknowns remain
 unresolved. This diagnosis makes no runtime adoption or universal accuracy claim.
+
+### Fixed full-label follow-up registered; NOT yet measured
+
+After diagnosing the sampled dead final ReLU (and without using separate-style
+scores to select epochs), a fixed20-epoch3941-class experiment is queued: centered
+inputs, LeakyReLU0.1, LayerNorm128 and AdamW learning rate0.0005, same seed1337,
+two CPU threads and verified Twemoji data/aliases. This changes several settings
+and duration, not a single-factor causal ablation. The original3-epoch baseline
+configuration remains reproducible from its immutable source/report. Changed
+weights, more steps or tiny memorization alone are not learning/generalization.
+
+The repeated64 OpenMoji examples are explicitly a **reused development sample**,
+not a final untouched test; no fitting/epoch selection or threshold calibration
+uses their pixels in this run. Meaningful full-label seen-style learning and
+prediction diversity must first be measured, then fresh family-disjoint photo/
+detection/unknown tests are still necessary before any adoption. Successful Actions
+execution alone never approves a model. Runtime weights/default OCR are unchanged.
+
+Timing clarification: earlier `training_cpu_seconds` fields used perf_counter:
+wall elapsed for fitting on CPU, **not summed core-seconds**. Preserve those raw
+reports unchanged. New schema2 additionally measures process CPU seconds and
+states the legacy field definition; neither timing is a physical-phone benchmark.

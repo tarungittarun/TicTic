@@ -37,3 +37,12 @@ job125294854374. Artifact13144098598 (908bytes), digest
 `ed993bcb74f3f79b5980ee412afec7e6fa11f8059c06c505a817c25089bd5582`.
 This validates exact byte identity/manifest/common signer and synthetic Note+Doc
 install-over only. Native qualification and new captures remain pending.
+
+Final native41449624652 **SUCCESS9/9 jobs**,1278/1278 outcomes,382 unique methods,
+294 JVM/lint. Evidence botb05149e5. Rotation regression passed on all4 profiles.
+Manual screenshots: dark/large-font and API36 portrait grids are now correct;
+landscape grid capture still shows Home and is NOT visual approval. Selector
+portrait/landscape captures show selected25 and reachable controls. See
+`native/41449624652/MANUAL-REVIEW.md` for explicit scope and remaining capture race.
+An additional actual code33→35 smoke is requested because0.30 is the latest
+physically confirmed user version; code34→35 already passed. No source/APK change.

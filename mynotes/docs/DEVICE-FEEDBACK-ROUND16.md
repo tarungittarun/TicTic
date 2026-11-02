@@ -79,3 +79,18 @@ reported only the two-pointer zoom assertion. Corrected fixture uses actual disp
 dimensions, stays inside view bounds and retains zoom/double-tap/reset assertions.
 No production gesture threshold, assertion removal or fabricated passing outcome.
 Next source must be requalified; round17 is not a green candidate handoff.
+
+Visual review caught a separate **synthetic fixture** defect: its spreadsheet capture
+forced a light text palette on a dark Activity background. Production NotesController
+already chooses the actual host/theme palette and paints its root background. The
+fixture now follows that same policy, paints its background and asserts text/background
+contrast before capturing. This is not evidence that the production app had that
+contrast defect. Round18 is superseded before qualification handoff so the final
+captures and gesture checks come from one corrected test source.
+
+Primary gesture-threshold source actually inspected: Android14 ScaleGestureDetector
+uses ViewConfiguration.getScaledMinimumScalingSpan; framework config_minScalingSpan
+is27mm, not350 raw pixels. Source: aosp-mirror/platform_frameworks_base,
+android-14.0.0_r1, core/res/res/values/config.xml and
+core/java/android/view/ScaleGestureDetector.java. This confirms why the earlier
+fixed-pixel fixture failed and why display-relative pointer spans are required.

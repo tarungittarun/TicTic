@@ -41,6 +41,8 @@ class DeviceFeedbackRound16(unittest.TestCase):
         gesture=native.split('@Test public void pageDoubleTapZoom',1)[1].split('@Test',1)[0]
         self.assertIn('getDisplayMetrics().widthPixels',gesture)
         self.assertNotIn('image.layout(0,0,400,600)',gesture)
+        self.assertIn('NotesAppearance.dark(activity,host)',native)
+        self.assertIn('parent.setBackgroundColor(design.background)',native)
         pdf=(JAVA/'LocalPdfPreview.java').read_text()
         for action in ['Select page text','Share original file','new ZoomablePageImage']:
             self.assertIn(action,pdf)

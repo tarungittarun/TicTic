@@ -65,3 +65,11 @@ clears data. Checks cover the existing two synthetic Note/Doc fixtures, not rich
 libraries/audio/images/every migration or phone acceptance. libpulse and bounded
 SDK-only preparation are explicit; migration assertions are never retried. Results
 must be inspected before either path is called passed.
+
+Update run41471791076 (sourcefebbc3445fa7e741aaf2e3170ce5d12af28491e4)
+completed SUCCESS in both independent33→38 and35→38 jobs. Those jobs require the
+old cold-restart content, exact candidate identity, retained first-install time,
+and both Note/Doc contents after install-over. Small reports are being relayed
+through a read-only download/validation job because this sandbox cannot reach
+the artifact blob endpoint; local report inspection is still pending. No broad
+migration or genuine process-kill approval is inferred from upgrade success.

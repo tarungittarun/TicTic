@@ -1,6 +1,10 @@
 # Indian-English speech: adaptation and acceptance protocol
 
-Status: **research plan, not completed training**. The current app retains its pinned Vosk
+Status: **a small genuine decoder-training pilot has completed; production adaptation is
+not qualified or adopted**. Corrected run 41389504274 performed 32 AdamW updates on 32 public,
+licensed CMU ARCTIC KSP Indian-English clips (103.6315 seconds of speech). Its separate SLT
+US-English control is not unseen-speaker Indian-ASR evidence. Full details, exact steps and
+limitations: `OFFLINE-IMAGE-SELECTION-2026-11-02.md`. The current app retains its pinned Vosk
 small English-US weights. Microphone processing and confidence-based review are separate
 from acoustic-model adaptation, and must be evaluated separately.
 
@@ -11,6 +15,7 @@ from acoustic-model adaptation, and must be evaluated separately.
 | IndicVoices | Audit revision `c96f9088f138cf89d419da7e8e643e1f05c00a87`; gated access; declared CC-BY-4.0 | No audio downloaded; obtain authorized access and inspect English/code-switching suitability before selecting training data |
 | Svarah | Audit revision `ebbf7777fe771490696a3f7b007097606fa8c924`; gated access; license absent in audited metadata | Do not assume a license; reserve as held-out evaluation if authorized, never train on it |
 | NPTEL2020 Indian-English | Repository describes a large educational-speech corpus and transcript caveats | Inspect actual data/weight licensing and availability; lectures alone are not spontaneous phone dictation |
+| CMU ARCTIC KSP | Primary Indian-English speaker metadata, permissive original CMU grant, checksum-pinned audio; 32 real final-decoder-block optimization steps | Quarantined Whisper research only. Obtain representative unseen Indian speakers/phone dictation before any adoption; a US control does not close that gate |
 | Existing bundled US Vosk | Existing pinned offline model; previously tested on a small non-Indian fixture | Retain as baseline; that fixture does not establish Indian-accent accuracy |
 | Alternative Indian Vosk / Whisper / sherpa-based runtimes | Research candidates, not newly qualified app models | Separate model license, runtime compatibility, APK size and real accuracy before adopting |
 

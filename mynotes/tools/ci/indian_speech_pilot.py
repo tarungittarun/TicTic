@@ -43,7 +43,7 @@ def primary(relative,path,limit=1000000):
             data=download(host+relative,path,limit)
             return data.decode('utf-8',errors='replace'),host+relative
         except Exception as error:errors.append(type(error).__name__+': '+str(error)[:120])
-    raise RuntimeError('Primary corpus source unavailable: '+'; '.join(errors))
+    raise RuntimeError('Primary corpus source unavailable ('+relative+'): '+'; '.join(errors))
 
 def prepare(output):
     output.mkdir(parents=True,exist_ok=True);data=output/'data';data.mkdir(exist_ok=True);licenses=output/'licenses';licenses.mkdir(exist_ok=True)
@@ -58,8 +58,10 @@ def prepare(output):
     report={'schema':1,'scope':'small read-speech research pilot; not an app model or general Indian dictation qualification','hash_source':HASH_SOURCE,'roster_url':roster_url,'roster_sha256':sha(roster.encode()),'training_speaker_primary_roster_rows':ksp_rows,'archives':{},'records':[]}
     requested=splits()
     for speaker,expected in ARCHIVES.items():
-        grant,url=primary(f'cmu_arctic/cmu_arctic/cmu_us_{speaker}_arctic/COPYING',licenses/f'{speaker}-COPYING.txt')
-        if not all(term in grant.lower() for term in ('free for use for any purpose','commercial or otherwise','modifications must be clearly marked','original authors')):raise ValueError('Source grant is absent or changed; no training permitted')
+        print('Preparing licensed speaker '+speaker,flush=True)
+        grant=None;url='http://festvox.org/cmu_arctic/cmu_arctic/cmu_us_'+speaker+'_arctic/COPYING'
+        try:grant,url=primary(f'cmu_arctic/cmu_arctic/cmu_us_{speaker}_arctic/COPYING',licenses/f'{speaker}-web-COPYING.txt')
+        except RuntimeError as unavailable:print(str(unavailable)+'; inspect checksum-pinned primary archive COPYING instead',flush=True)
         archive=data/f'{speaker}.tar.bz2';errors=[]
         if not archive.is_file() or sha(archive.read_bytes())!=expected:
             for host in ('https://festvox.org/','http://festvox.org/'):
@@ -69,13 +71,22 @@ def prepare(output):
                     break
                 except Exception as error:errors.append(type(error).__name__+': '+str(error)[:150])
             else:raise RuntimeError('Public corpus archive unavailable: '+'; '.join(errors))
-        report['archives'][speaker]={'sha256':expected,'license_url':url,'license_sha256':sha(grant.encode())}
         with tarfile.open(archive,'r:bz2') as bundle:
             members=bundle.getmembers()
             if len(members)>50000:raise ValueError('Archive inventory exceeds bound')
             by_suffix={}
             for member in members:
                 if member.isfile():by_suffix[member.name.split('/',1)[-1]]=member
+            copyright_member=by_suffix.get('COPYING')
+            if copyright_member is None or copyright_member.size>50000:raise ValueError('Pinned archive lacks bounded primary COPYING for '+speaker)
+            archive_grant=bundle.extractfile(copyright_member).read().decode('utf-8')
+            if not all(term in archive_grant.lower() for term in ('free for use for any purpose','commercial or otherwise','modifications must be clearly marked','original authors')):raise ValueError('Archive source grant is absent or changed; no training permitted')
+            (licenses/f'{speaker}-COPYING.txt').write_text(archive_grant)
+            report['archives'][speaker]={'sha256':expected,'primary_web_license_url':url,'web_license_retrieved':grant is not None,'license_source':'COPYING inside checksum-pinned CMU source archive','license_sha256':sha(archive_grant.encode())}
+            metadata_member=by_suffix.get('README')
+            if metadata_member is not None and metadata_member.size<100000:
+                metadata=bundle.extractfile(metadata_member).read().decode('utf-8',errors='replace');(licenses/f'{speaker}-README.txt').write_text(metadata)
+                report['archives'][speaker]['primary_metadata_excerpt']=metadata[:4000]
             text_member=by_suffix['etc/txt.done.data']
             if text_member.size>1000000:raise ValueError('Transcript exceeds bound')
             transcript=bundle.extractfile(text_member).read().decode('utf-8')
@@ -136,7 +147,7 @@ def train(output):
         optimizer.zero_grad(set_to_none=True);loss.backward();torch.nn.utils.clip_grad_norm_(list(parameters.values()),1);optimizer.step();losses.append(float(loss.detach()));print(json.dumps({'optimizer_step':step,'speaker':record['speaker'],'id':record['id'],'loss':losses[-1]}),flush=True)
     changed=sum(int(torch.count_nonzero(parameters[name].detach()!=value)) for name,value in before.items());assert changed>0
     final=evaluate();checkpoint=output/'experimental-decoder-last-block.pt';torch.save({name:p.detach().cpu() for name,p in parameters.items()},checkpoint)
-    report={'schema':1,'source_revision':os.environ.get('GITHUB_SHA'),'scope':'actual limited decoder acoustic optimization on one licensed Indian-English read-speech speaker; quarantined, NOT app adoption','seed':SEED,'base_model':'OpenAI Whisper tiny.en','base_url':base_url,'base_sha256':base_sha,'checkpoint_sha256':sha(checkpoint.read_bytes()),'checkpoint_bytes':checkpoint.stat().st_size,'modified_parameters':changed,'trainable_parameter_count':sum(p.numel() for p in parameters.values()),'trainable_names':list(parameters),'optimizer':'AdamW','learning_rate':0.00003,'weight_decay':0.01,'gradient_norm_cap':1,'optimizer_steps':len(losses),'losses':losses,'training_speakers':['ksp'],'evaluation_speakers':['aup','slt'],'training_clips':len(training),'training_seconds':sum(row['seconds'] for row in training),'data_report_sha256':sha((output/'data-report.json').read_bytes()),'baseline':baseline,'adapted':final,'normalization':'lowercase; retain ASCII alphanumerics/apostrophes; collapse all other characters to word boundaries; report original hypotheses too','decoder':'greedy; English; no timestamps; maximum 80 tokens; identical baseline/adapted','hardware':{'platform':platform.platform(),'cpu_count':os.cpu_count(),'torch_threads':2,'torch':torch.__version__,'whisper':importlib.metadata.version('openai-whisper')},'elapsed_seconds':time.time()-started,'started_unix':started,'finished_unix':time.time(),'adopted':False,'adoption_blockers':['Only 32 read-speech training clips from one Indian-English speaker','AUP accent not verified by this script; no general Indian-accent WER claim','Only 16 evaluation utterances; no spontaneous dictation, Hindi/Kannada code-switch, noise, or silence coverage','Experimental Whisper decoder is not compatible with the existing Vosk app engine','No Android runtime, battery, memory, latency, packaging or physical phone qualification']}
+    report={'schema':1,'source_revision':os.environ.get('GITHUB_SHA'),'scope':'actual limited speech-conditioned decoder optimization on one licensed Indian-English read-speech speaker; quarantined, NOT app adoption','seed':SEED,'base_model':'OpenAI Whisper tiny.en','base_url':base_url,'base_sha256':base_sha,'checkpoint_sha256':sha(checkpoint.read_bytes()),'checkpoint_bytes':checkpoint.stat().st_size,'modified_parameters':changed,'trainable_parameter_count':sum(p.numel() for p in parameters.values()),'trainable_names':list(parameters),'optimizer':'AdamW','learning_rate':0.00003,'weight_decay':0.01,'gradient_norm_cap':1,'optimizer_steps':len(losses),'losses':losses,'training_speakers':['ksp'],'evaluation_speakers':['aup','slt'],'training_clips':len(training),'training_seconds':sum(row['seconds'] for row in training),'data_report_sha256':sha((output/'data-report.json').read_bytes()),'baseline':baseline,'adapted':final,'normalization':'lowercase; retain ASCII alphanumerics/apostrophes; collapse all other characters to word boundaries; report original hypotheses too','decoder':'greedy; English; no timestamps; maximum 80 tokens; identical baseline/adapted','hardware':{'platform':platform.platform(),'cpu_count':os.cpu_count(),'torch_threads':2,'torch':torch.__version__,'whisper':importlib.metadata.version('openai-whisper')},'elapsed_seconds':time.time()-started,'started_unix':started,'finished_unix':time.time(),'adopted':False,'adoption_blockers':['Only 32 read-speech training clips from one Indian-English speaker','AUP accent not verified by this script; no general Indian-accent WER claim','Only 16 evaluation utterances; no spontaneous dictation, Hindi/Kannada code-switch, noise, or silence coverage','Experimental Whisper decoder is not compatible with the existing Vosk app engine','No Android runtime, battery, memory, latency, packaging or physical phone qualification']}
     for result in (report['baseline'],report['adapted']):result['wer']=result['word_edits']/result['reference_words']
     write(output/'training-report.json',report);(output/'MODIFICATIONS.txt').write_text('Research-only modification: 32 AdamW updates to Whisper tiny.en final decoder block, trained on CMU ARCTIC KSP public recordings. Original authors and licenses are retained in licenses/. Frozen base model is required; its SHA256 is in training-report.json. This checkpoint is NOT shipped in MyNotes or accepted as an accuracy improvement.\n')
     print(json.dumps({key:report[key] for key in ('optimizer_steps','modified_parameters','training_seconds','elapsed_seconds','adopted')}),flush=True)

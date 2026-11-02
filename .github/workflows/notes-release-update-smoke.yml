@@ -31,9 +31,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          sdkmanager 'build-tools;35.0.0'
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
           python3 - <<'PY'
-          import hashlib,json,os,subprocess
+          import hashlib,json,os,subprocess,sys,traceback
+          def diagnostic(kind,error,tb):
+              traceback.print_exception(kind,error,tb)
+              print("::error title=Release APK verification::"+kind.__name__+": "+str(error).replace("%","%25").replace("\n","%0A"))
+          sys.excepthook=diagnostic
           from pathlib import Path
           specs=[('old',13129993413,41422422562,'98a8bc3d141c11403c3cf53a9b7ffb6adf0c34dd',33,'0.30.0','45d7472fa7989c4f925bab2ad90d2b7a0b4bce41bbae62d515e2b85d1c8ad120'),('candidate',13135456219,41432202683,'fec11f1985a190643d8e9af4e9f4d960696dcb8c',34,'0.31.0','a3f8cb0168cab69aaa3e40ef32815fde76afde2c8d0672a39c930968b368ad3b')]
           apks={};tools=Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'

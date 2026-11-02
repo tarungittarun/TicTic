@@ -50,6 +50,8 @@ class Device:
             items=self.ui()
             if condition(items):return items
             time.sleep(.3)
+        summary=json.dumps([{k:x.get(k,'') for k in ('text','content-desc','class','clickable')} for x in items],ensure_ascii=True)[:2200]
+        print('::error title=Public release UI fixture not reached::'+summary.replace('%','%25').replace('\n','%0A'))
         raise RuntimeError('Release UI fixture state not reached')
     def click(self,name):
         items=self.wait(lambda items:named(items,name) is not None)

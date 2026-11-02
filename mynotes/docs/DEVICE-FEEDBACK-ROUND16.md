@@ -61,3 +61,8 @@ speech engine, Vosk default and OCR weights are unchanged by this feedback round
   outcome is pending, not a passing migration claim. Its self-tests use mocked
   devices and must never be reported as emulator success.
 - Latest local root gate:738 passing host tests. No new user APK handed off.
+
+Release-smoke run41433217010 stopped before any emulator execution: SDK manager was
+not on PATH (exit127). Switched to the same explicit command-line-tools SDK path
+as the existing build setup. This failed setup is not install-over evidence. Added
+bounded public-fixture UI failure annotations for the next smoke run; no phone data.

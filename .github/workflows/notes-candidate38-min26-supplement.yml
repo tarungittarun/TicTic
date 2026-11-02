@@ -37,6 +37,7 @@ jobs:
           assert meta['workflow_run']['head_sha']=='62c3c22b827c46dcc1a3c4af56c907f6f27015b2'
           assert meta['digest']=='sha256:e2c719b5d9c1880ae68e0bea0c93762ea8273aee1ace40c25c7d53b9f9eb2adc'
           assert meta['size_in_bytes']==161528779 and not meta['expired']
+          subprocess.run(['git','fetch','--depth=1','origin',meta['workflow_run']['head_sha']],check=True)
           subprocess.run(['git','diff','--exit-code',meta['workflow_run']['head_sha'],'HEAD','--','mynotes/app','mynotes/runtime','mynotes/tools/ci/test_plan.py','mynotes/tools/ci/refinement_plan.py','mynotes/tools/ci/native_environment.py','mynotes/tools/ci/run_refinement_instrumentation.sh','mynotes/tools/ci/results.py','mynotes/tools/ci/quality_reports.py','mynotes/tools/ci/verify_pdf_features.py','mynotes/tools/ci/adb_state.py'],check=True)
           Path('original-apk-bundle.json').write_text(json.dumps(meta,indent=2)+'\n')
           PYSOURCE

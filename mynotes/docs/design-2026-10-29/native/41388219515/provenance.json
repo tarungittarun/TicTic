@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "source_sha": "9fcc7ccfe42d0094203d5b4f2c004cff21cc0b9a",
+  "capture_run": "41388219515",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 182,
+      "passed": 182,
+      "missing": [],
+      "failures": []
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 171,
+      "passed": 171,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 123,
+      "passed": 63,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell",
+        "app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist",
+        "app.space.notes.CoreJourneysTest#homeNewIsAboveVoiceAndSearchAndKeyboardKeepsSearchReachable",
+        "app.space.notes.CoreJourneysTest#nativeBoardAdaptsColumnsToLargeFontsAndTabletWidth",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal",
+        "app.space.notes.CoreJourneysTest#renderedSyntheticReviewCapturesMainSurfacesInTheRealDeviceTheme",
+        "app.space.notes.CoreJourneysTest#selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes",
+        "app.space.notes.DiagramJourneysTest#cancelledCanvasDragDoesNotMutateRepository",
+        "app.space.notes.DiagramJourneysTest#groupedCanvasDragAndHistoryPreserveRelativePlacement",
+        "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+        "app.space.notes.HistoryRecoveryTest#corruptHistoryIsRetainedAndBlockedUntilExplicitResetWithoutTouchingNotes",
+        "app.space.notes.HistoryRecoveryTest#onlyMostRecentSixtyFourHistoriesAreKeptWithoutDeletingNotes",
+        "app.space.notes.HistoryRecoveryTest#privateFoldersWorkWithoutStorageMigrationAndRejectDuplicatesAndPaths",
+        "app.space.notes.HistoryRecoveryTest#undoAndRedoSurviveIndependentStoreInstancesWithRichContentAndCursor",
+        "app.space.notes.RealFolderStorageTest#canonicalRichContentAndPixelsSurviveRealFolderMovesAndGenerations",
+        "app.space.notes.RealFolderStorageTest#completeAppFolderRecoversRichNotesAudioSettingsHistoryAndEmptyFoldersIntoFreshPrivateStorage",
+        "app.space.notes.RealFolderStorageTest#damagedAppObjectAndNonemptyInstallationNeverApplyPartialRecovery",
+        "app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox",
+        "app.space.notes.RealFolderStorageTest#imageAutosavesUseOneVerifiedRealMediaFile",
+        "app.space.notes.RealFolderStorageTest#interruptedReadyRecoveryResumesInstalledFilesIdempotentlyBeforeControllerLoad",
+        "app.space.notes.RealFolderStorageTest#newAppFolderRejectsUnrelatedNonemptyRootWithoutChangingInternalNotes",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource",
+        "app.space.notes.RealFolderStorageTest#recoveryControllerReloadsDataBeforeHostPauseCanFlushOldEmptyState",
+        "app.space.notes.RealFolderStorageTest#staleControllerRepositoryCannotFlushEmptyLibraryAfterCompleteRecovery",
+        "app.space.notes.StructuredCodecTest#androidSpanRoundTripRetainsAllStyles",
+        "app.space.notes.StructuredCodecTest#backupRestoresBothStructuredKinds",
+        "app.space.notes.StructuredCodecTest#canonicalUnicodeRichTablesExportAcrossCompleteLinesAndColumnPanels",
+        "app.space.notes.StructuredCodecTest#docxAggregateBudgetIncludesTheDocumentBodyAndLeavesBytesUntouched",
+        "app.space.notes.StructuredCodecTest#docxImportReadsParagraphsWithoutExecutingExternalRelationships",
+        "app.space.notes.StructuredCodecTest#duplicatedRowIdsRejectWholeDocument",
+        "app.space.notes.StructuredCodecTest#headerRoleRoundTripsAndRejectsMalformedInput",
+        "app.space.notes.StructuredCodecTest#invalidTableSizingCannotPartiallyDecode",
+        "app.space.notes.StructuredCodecTest#localTextImportPreservesEmojiUnicodeBomAndLineBreaks",
+        "app.space.notes.StructuredCodecTest#mixedNotesSchema10AndBackupPreserveWorkspaceAndFormatting",
+        "app.space.notes.StructuredCodecTest#oldSchema1MigratesWithoutNewProperties",
+        "app.space.notes.StructuredCodecTest#outOfRangeMarkRejectsWholeDocument",
+        "app.space.notes.StructuredCodecTest#schema2RetainsChecklistIdsChecksAndDepth",
+        "app.space.notes.StructuredCodecTest#schema5DefaultsFolderAndBackground",
+        "app.space.notes.StructuredCodecTest#schema7CanonicalContentRoundTripsWithoutEditableLegacyDuplicates",
+        "app.space.notes.StructuredCodecTest#schema7PreservesVisualKindNamePixelsAndAllInlineStyleValues",
+        "app.space.notes.StructuredCodecTest#schema9TableSizingRoundTripsBackupWithoutDroppingRichCells",
+        "app.space.notes.StructuredCodecTest#sparseSpreadsheetKeepsColumnGapsAndRowNumbersAndRejectsInvalidCoordinates",
+        "app.space.notes.StructuredCodecTest#transientKeyboardCompositionIsNotSavedAsUserFormatting",
+        "app.space.notes.StructuredCodecTest#wordStructuredCopyPreservesEditableStylesParagraphOrderAndTableCells",
+        "app.space.notes.StylePresetStoreTest#duplicatesBoundsAndCorruptionNeverOverwriteExistingPresets",
+        "app.space.notes.runtime.DiagramResizeViewTest#cancelledResizeRestoresOriginalAndNeverCommits",
+        "app.space.notes.runtime.DiagramResizeViewTest#draggingInsideSelectedShapeStillMovesRatherThanResizes",
+        "app.space.notes.runtime.DrawingToolsTest#clearCanBeUndoneAndRedoDoesNotChangeOtherStrokes",
+        "app.space.notes.runtime.DrawingToolsTest#detailedTransparentImagesAreReducedInsteadOfRefused",
+        "app.space.notes.runtime.DrawingToolsTest#extremeLegacyAspectRatioStaysBoundedAndDoesNotStretchPixels",
+        "app.space.notes.runtime.DrawingToolsTest#highlighterAndEraserHaveDifferentPixelSemantics",
+        "app.space.notes.runtime.DrawingToolsTest#mediaStoreImageImportsOwnPixelsAndSurvivesSourceDeletion",
+        "app.space.notes.runtime.DrawingToolsTest#rectangleAndOvalAreOutlinesNotFilledBlocks",
+        "app.space.notes.runtime.ImageSelectionTest#clearDisablesExtractionUntilAccessibleWordSelectionChanges",
+        "app.space.notes.runtime.ImageSelectionTest#controllerBackReleasesPreviewAndKeepsSavedData",
+        "app.space.notes.runtime.ImageSelectionTest#controllerVisualCopySavesAnEmbeddedImageAndKeepsBody",
+        "app.space.notes.runtime.ImageSelectionTest#draggingKeepsOnlyIntersectingWordsAndTheOriginalPixels",
+        "app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim",
+        "app.space.notes.runtime.NotesMotionTest#entryLiftAndSettlementHonorActualSystemAnimationSetting"
+      ],
+      "failures": [
+        "Missing, duplicate or unsuccessful instrumentation completion: []"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": true,
+      "expected": 112,
+      "passed": 112,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 123,
+      "passed": 123,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 112,
+      "passed": 112,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 182,
+      "passed": 182,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 171,
+      "passed": 171,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

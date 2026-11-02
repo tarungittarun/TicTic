@@ -546,7 +546,13 @@ public class CoreJourneysTest {
         Note simple=note("Simple seed"),rich=note("Rich seed");rich=rich.withContent(app.space.notes.domain.DocumentContent.fromLegacy(rich),3);start(Arrays.asList(simple,rich));
         await(()->text("Simple seed")!=null);assertNull(text("Rich seed"));
         main(()->context.getSharedPreferences("mynotes-ui",Context.MODE_PRIVATE).edit().putBoolean("canonical-default",true).commit());
-        click("Doc");await(()->text("Rich seed")!=null);assertNull(text("Simple seed"));screenshot("doc-workspace");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();tap("Back");click("Notes");await(()->text("Simple seed")!=null);screenshot("notes-workspace");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();tap("Back");click("+ Checklist");await(()->text("+ List item")!=null);main(()->{assertNull(liveCanonical().content);assertTrue(liveCanonical().checklist);});
+        click("Doc");await(()->text("Rich seed")!=null);assertNull(text("Simple seed"));screenshot("doc-workspace");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();tap("Back");click("Notes");await(()->text("Simple seed")!=null);screenshot("notes-workspace");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
+        // Repeat the real Doc -> Notes transition, retaining every original IME/content assertion.
+        for(int cycle=0;cycle<3;cycle++){
+            tap("Back");click("Doc");click("New document");await(()->text("Document")!=null);main(()->assertNotNull(liveCanonical().content));documentImeReady();
+            tap("Back");click("Notes");click("New text note");await(()->input("Write your note…")!=null);main(()->assertNull(liveCanonical().content));editorImeReady();
+        }
+        editorImeReady();tap("Back");click("+ Checklist");await(()->text("+ List item")!=null);main(()->{assertNull(liveCanonical().content);assertTrue(liveCanonical().checklist);});
     }
     @Test public void docHeaderAndSelectedCellActionsAreUndoableAndDurable()throws Exception{
         Note old=note("Header table");app.space.notes.domain.DocumentContent document=app.space.notes.domain.DocumentContent.fromLegacy(old).insert(1,app.space.notes.domain.DocumentContent.Block.table("table","Table01",app.space.notes.domain.TextTable.empty(2,2)));Note seed=old.withContent(document,3);start(Arrays.asList(seed));main(()->controller.openNote(seed.id));await(()->canonicalField("cell:table:0:0")!=null);

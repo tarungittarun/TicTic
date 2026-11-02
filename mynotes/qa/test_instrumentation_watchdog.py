@@ -43,3 +43,16 @@ class InstrumentationWatchdogTests(unittest.TestCase):
         workflow=(root/'.github/workflows/notes-refinement-native.yml').read_text()
         self.assertIn('            refinement-native*.txt',workflow)
         self.assertIn("artifact.glob('refinement-native*.txt')",workflow)
+
+    def test_new_note_does_not_trust_previous_editor_ime(self):
+        root=Path(__file__).resolve().parents[1]
+        source=(root/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text()
+        method=source.split('private void newNote() {',1)[1].split('private void newDocument()',1)[0]
+        self.assertIn('boolean requestedForTarget',method)
+        self.assertIn('if(requestedForTarget && keyboardVisible())return;',method)
+        self.assertLess(method.index('.showSoftInput(target,'),method.index('requestedForTarget=true;'))
+        self.assertNotIn('|| keyboardVisible() ||',method)
+        journey=(root/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text().split('public void notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn()',1)[1].split('@Test',1)[0]
+        self.assertIn('cycle<3',journey)
+        self.assertIn('documentImeReady()',journey)
+        self.assertIn('editorImeReady()',journey)

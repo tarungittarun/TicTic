@@ -36,7 +36,14 @@ User instructions and physical checklist: `OFFLINE-IMAGE-SELECTION-029.md`.
 | 5 | `37476912f375b5fe7da17a3b421f619d43090993` | 41393215902 | **FAILED, not qualification**: 713/1192 native outcomes. All four API-34 profiles stopped in the new preflight (478 missing); full saved window snapshots prove launcher focus existed, but the queried `dumpsys window windows` subcommand omitted global focus fields. Separately, one API-26 baseline format-size accessibility action failed; its other 183 methods passed. No assertion is removed or relabeled as a pass. |
 | 6 | `3239bc7815a90fc568f4be2fc61e4546dbaf8c40` | 41394658554 | **FAILED, not qualification**: 1092/1192 native outcomes. Seven native shards completed; current-API-36 shard A stopped after 84/184 with exit 124. Case 85, `CoreJourneysTest#selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes`, started but never finished. Activity dump also timed out; exact cause unknown. All API-34 focus preflights and API-26 size actions passed this time; this does not prove a runtime fix for the previous intermittent size failure. |
 
-Round 7 is being prepared with **no production runtime change and no removed assertion**.
+Round 7 (`162a9e98`, run 41398212940) **FAILED** with 1007/1192 successful outcomes.
+API-26 shard A failed emulator boot (184 unexecuted), confirmed by its check annotation.
+API-36 shard A completed 183/184: `notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn`
+failed IME visibility while the new field was focused, attached and its window focused.
+The earlier selected-range conversion hang did not recur; its cause remains unproven.
+Six other native shards passed. No runtime change was part of round 7.
+
+Round 7 added diagnostics, retaining every assertion:
 A debug-test-only JUnit observer records code-only Java thread stacks after 45 and 120 seconds
 without a test finishing, independently of the app main thread. A host watchdog fails with
 exit 124 after 240 seconds without instrumentation output (the existing per-test timeout is
@@ -191,3 +198,15 @@ confirms the aggregate counts, **but also retains individual regressions**: KSP 
 Aggregate improvement is not a promise of improvement for every sentence. This post-hoc
 arithmetic audit is not another optimization run, model inference, unseen-speaker test,
 statistical significance test, or adoption qualification.
+
+### Round 8 — new-note IME ownership race
+
+The previous new-note callback could accept `keyboardVisible()` before ever issuing a show
+request for the new Notes field. During Doc -> Home -> Notes, that visibility can belong
+to the closing Doc, whose keyboard hide is pending. The new callback must issue a show
+request for its own focused field before visibility can end setup. Existing lifecycle,
+focus and bounded-retry guards remain. The failing native journey now repeats the full
+Doc -> Notes creation transition three additional times, retaining all content and IME
+assertions. This addresses a code-level race consistent with the failure, not a proven
+explanation for round 6's separate hang. Round 8 requires a fresh complete qualification;
+round 7 is not a pass. Future build artifacts also retain the exact JVM inventory JSON.

@@ -1,4 +1,5 @@
-# Offline image-selection and playback qualification, round 7: diagnose the round-6 API36 hang.
+# Offline image-selection and playback qualification, round 8: request IME for the new Notes field,
+# never accept transient previous-Doc visibility before issuing that request. Repeated transition regression.
 # Independent debug-only Java stack observer and fail-only progress watchdog; no assertion removed.
 # 9 jobs planned; 294 JVM, 357 unique native methods / 1192 profile outcomes expected.
 # Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
@@ -62,6 +63,7 @@ jobs:
         with:
           name: refinement-foundation-lint
           path: |
+            evidence/refinement-jvm.json
             mynotes/app/build/reports/lint-results-debug.*
             notes-development-sha256.txt
             notes-development-signature.txt

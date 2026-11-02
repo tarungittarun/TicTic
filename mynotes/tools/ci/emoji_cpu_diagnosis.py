@@ -60,9 +60,18 @@ def run(pilot, output):
     indices = sorted(range(len(labels)), key=lambda i: hashlib.sha256(labels[i][0].encode()).digest())[:64]
     inputs, tensor_identities = [], []
     with zipfile.ZipFile(io.BytesIO(archive)) as source:
+        members = {}
+        for member in source.infolist():
+            if not member.filename.startswith('twemoji-'+COMMIT+'/assets/72x72/') or not member.filename.endswith('.png'):
+                continue
+            key = normalized(int(part,16) for part in Path(member.filename).stem.split('-'))
+            if key in members:
+                raise ValueError('Ambiguous normalized archive filename')
+            members[key] = member
         for index in indices:
-            name = '-'.join(format(cp,'x') for cp in normalized(map(ord,labels[index][0])))+'.png'
-            member = source.getinfo('twemoji-'+COMMIT+'/assets/72x72/'+name)
+            # Normalization is a lookup key, NOT a reversible asset filename.
+            # ZWJ assets may retain FE0F in their actual pinned archive path.
+            member = members[normalized(map(ord,labels[index][0]))]
             if member.file_size > 100000:
                 raise ValueError('Public glyph exceeds budget')
             with Image.open(io.BytesIO(source.read(member))) as image:
@@ -147,4 +156,9 @@ if __name__ == '__main__':
     parser.add_argument('--pilot',required=True)
     parser.add_argument('--output',required=True)
     args=parser.parse_args()
-    run(args.pilot,args.output)
+    try:
+        run(args.pilot,args.output)
+    except Exception as failure:
+        message=(type(failure).__name__+': '+str(failure))[:2000]
+        print('::error title=Public diagnostic experiment failed::'+message.replace('%','%25').replace('\r','%0D').replace('\n','%0A'),flush=True)
+        raise

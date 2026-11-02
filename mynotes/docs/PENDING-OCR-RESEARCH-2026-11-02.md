@@ -1,7 +1,10 @@
 # Offline OCR pending work: inspected source and safety plan
 
-This is research/preparation, NOT a trained or shipped emoji recognizer. No private
-image, document or recording was read/uploaded. Runtime weights are unchanged.
+This records research and a completed **unsuccessful-quality experimental CPU
+training pilot**, NOT an approved or shipped emoji recognizer. The measured pilot
+outcome is recorded at the end; earlier audit/queued statements are historical.
+No private image, document or recording was read/uploaded. Runtime weights are
+unchanged.
 
 ## Public emoji asset candidates (GitHub primary sources)
 

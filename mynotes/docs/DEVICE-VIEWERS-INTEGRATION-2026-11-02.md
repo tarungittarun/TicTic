@@ -5,6 +5,17 @@ universal sectioned search, full filter row targets, 1 MB diagnostic rotation + 
 and saved-versus-opened file separation. No Internet permission, private input upload,
 data clearing or silent replacement of the working speech engine.
 
+## Current-reading guide
+
+The work ledger below is chronological history, not the current delivery status.
+Latest viewer/rotation/device feedback work is in `DEVICE-FEEDBACK-ROUND16.md`.
+Round19/run41435617835 has compiled0.31/code34; final native outcomes remain pending.
+Exact final release bytes and a real Note + Doc install-over passed independent
+run41436657966; see its source-pinned `apk-update-verification.json` under the round19
+native evidence directory. No physical-device acceptance or public release is implied.
+**Never use malformed export artifact13124080289** mentioned in the old ledger;
+the corrected runtime export pin is13124627967. No new training/emoji accuracy claim.
+
 ## Evidence / boundaries
 
 - User supplied a physical-device startup screenshot and private diagnostic report.

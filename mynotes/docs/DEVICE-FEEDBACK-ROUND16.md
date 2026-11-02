@@ -107,3 +107,10 @@ is155134192 bytes, SHA256212b5834a2a4038cc8bb7a6ca6c2ddb2795b56d5e438fb5b7f4e5ec
 These bytes differ from round17 despite unchanged production source, so the release
 install-over workflow is repinned and rerun against the actual final artifact, rather
 than silently carrying the earlier byte/signature/update result forward. No handoff yet.
+
+Final-byte verifier run41436657966 **SUCCESS**, job125247997706, source80b7fbecc1dbd68ad95d8f4074fb183b03e9697a.
+It checked the exact round19 APK, manifest/no-INTERNET/common signer and actual
+release33→34 install-over with cold-restarted Note + Doc fixtures. Small structured
+provenance is retained in round19 `apk-update-verification.json`; raw generated
+verification reports are artifact13137650410. Full native qualification is still
+running and is not replaced by this passing update smoke.

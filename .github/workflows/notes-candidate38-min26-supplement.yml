@@ -1,0 +1,211 @@
+# Infrastructure-only supplement: original26-A failed SDK Platform26 ZIP before instrumentation.
+# Reuse the original compiled app/test APKs; no rebuild, no assertion retry/skip/inventory reduction.
+name: Final38 original-byte Android26-A qualification supplement
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate38-min26-supplement.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  native:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.id == 'min-api26' && 45 || 30 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: min-api26, api: 26, font: 1.0, night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 0, group: all}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - name: Require the original compiled APK bundle and unchanged native source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYSOURCE'
+          import json,subprocess
+          from pathlib import Path
+          meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13155640372']))
+          assert meta['workflow_run']['id']==41469717511
+          assert meta['workflow_run']['head_sha']=='62c3c22b827c46dcc1a3c4af56c907f6f27015b2'
+          assert meta['digest']=='sha256:e2c719b5d9c1880ae68e0bea0c93762ea8273aee1ace40c25c7d53b9f9eb2adc'
+          assert meta['size_in_bytes']==161528779 and not meta['expired']
+          subprocess.run(['git','diff','--exit-code',meta['workflow_run']['head_sha'],'HEAD','--','mynotes/app','mynotes/runtime','mynotes/tools/ci/test_plan.py','mynotes/tools/ci/refinement_plan.py','mynotes/tools/ci/native_environment.py','mynotes/tools/ci/run_refinement_instrumentation.sh','mynotes/tools/ci/results.py','mynotes/tools/ci/quality_reports.py','mynotes/tools/ci/verify_pdf_features.py','mynotes/tools/ci/adb_state.py'],check=True)
+          Path('original-apk-bundle.json').write_text(json.dumps(meta,indent=2)+'\n')
+          PYSOURCE
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41469717511
+          name: refinement-foundation-test-apks
+          path: refinement-apks
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare exact selected execution inventory
+        env:
+          REVIEW_GROUP: ${{ matrix.group }}
+          REVIEW_SHARD: ${{ matrix.shard }}
+        run: |
+          python3 - <<'PYPLAN'
+          import json,os
+          from pathlib import Path
+          from mynotes.tools.ci.test_plan import build_plan
+          from mynotes.tools.ci.refinement_plan import selected_cases
+          plan=build_plan()
+          selected=selected_cases(plan,os.environ['REVIEW_GROUP'],int(os.environ['REVIEW_SHARD']))
+          Path('refinement-expected.json').write_text(json.dumps(selected))
+          with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
+          PYPLAN
+      - name: Install Linux audio loader dependency before emulator version preflight
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+      - name: Bootstrap emulator package with bounded SDK-only retries
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          installed=false
+          for attempt in 1 2 3; do
+            echo "SDK emulator package bootstrap attempt $attempt/3; no app test has started" | tee -a refinement-native-sdk-bootstrap.txt
+            if timeout 180 "$SDK/cmdline-tools/latest/bin/sdkmanager" 'emulator' 'platforms;android-26' 'system-images;android-26;google_apis;x86_64' 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then
+              if "$SDK/emulator/emulator" -version 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then installed=true; break; fi
+            fi
+            if [ "$attempt" != 3 ]; then sleep 5; fi
+          done
+          if [ "$installed" != true ]; then echo '::error::Emulator SDK bootstrap failed after three attempts; no native qualification claimed'; exit 1; fi
+      - name: Validate installed platform archive before any assertion
+        run: |
+          python3 - <<'PYSDK'
+          import os,zipfile
+          from pathlib import Path
+          sdk=Path(os.environ['ANDROID_HOME'])
+          with zipfile.ZipFile(sdk/'platforms/android-26/android.jar') as archive:assert archive.testzip() is None
+          assert (sdk/'system-images/android-26/google_apis/x86_64/system.img').stat().st_size>1024*1024
+          PYSDK
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: true
+          # AVDs are recreated per job; do not spend shutdown time saving unused snapshots.
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: |
+            if test '${{ matrix.api }}' = 26; then adb root; python3 -m mynotes.tools.ci.adb_state --uid 0; fi
+            adb shell settings put global airplane_mode_on 1
+            adb shell svc wifi disable
+            adb shell svc data disable
+            if test '${{ matrix.api }}' = 26; then adb unroot; python3 -m mynotes.tools.ci.adb_state --uid 2000; fi
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            if test '${{ matrix.api }}' = 36; then adb shell pm grant app.space.notes.debug android.permission.RECORD_AUDIO; fi
+            adb shell settings put system font_scale ${{ matrix.font }}
+            # Enable app-owned motion on API36; retain OS window-transition determinism.
+            adb shell settings put global animator_duration_scale ${{ matrix.motion }}
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --snapshot before
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home; fi
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb logcat -G 8M || true # Synthetic CI observer only; retain CPU timings beyond the final 500 lines.
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 1800000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES"
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
+            adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+            if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
+            for report in ocr-common-text-report.json speech-degradation-report.json core-focus-failure.txt; do if adb shell run-as app.space.notes.debug ls "files/$report" >/dev/null 2>&1; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
+      - name: Verify selected quantitative reports are complete and independently scored
+        if: always()
+        run: python3 -m mynotes.tools.ci.quality_reports --expected refinement-expected.json
+      - name: Independently validate actual exported PDF URI annotations and page geometry
+        if: always() && matrix.shard != 1
+        run: |
+          python3 -m pip install 'pypdf==6.1.1'
+          python3 -m mynotes.tools.ci.verify_pdf_features --archive refinement-pdf-captures.tar --output refinement-pdf-results.json
+      - name: Require every selected method once, without skipped or duplicate outcomes
+        if: always()
+        run: |
+          python3 - <<'PYRESULT'
+          from pathlib import Path
+          import json,sys,re
+          from mynotes.tools.ci.results import android,write_report
+          expected=json.loads(Path('refinement-expected.json').read_text())
+          path=Path('refinement-native.txt')
+          result=android(path.read_text(errors='replace') if path.exists() else '',expected)
+          write_report(result,'refinement-native.json')
+          cpu=Path('refinement-native-cpu-phases.txt')
+          phases=cpu.read_text(errors='replace') if cpu.exists() else ''
+          if path.exists():
+              for observation in set(re.findall(r'trained_cpu_elapsed_ms=\d+',path.read_text(errors='replace'))):
+                  if observation not in phases:phases+='\n'+observation+' (public fixture end-to-end, not physical-device timing)'
+          if 'NotesCpuPhase' in phases or 'trained_cpu_elapsed_ms=' in phases:
+              print('::notice title=Observed native CPU phases and elapsed time::'+json.dumps(phases[-4000:]))
+          if not result['ok']:
+              progress=Path('refinement-native-test-progress.txt')
+              if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))
+              sys.exit(1)
+          print('::notice title=Native refinement coverage::'+str(result['passed'])+'/'+str(result['expected'])+' methods passed, exact inventory')
+          PYRESULT
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: refinement-native-${{ matrix.id }}
+          overwrite: true
+          path: |
+            refinement-native.*
+            refinement-native*.txt
+            refinement-expected.json
+            refinement-environment-*
+            refinement-captures.tar
+            refinement-pdf-*
+            refinement-quality-*
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Preserve supplement separately without rewriting original failure
+        if: always()
+        run: |
+          python3 - <<'PYRETAIN'
+          import hashlib,json,os,shutil
+          from pathlib import Path
+          dest=Path('mynotes/docs/design-2026-10-29/native-supplements')/os.environ['GITHUB_RUN_ID'];dest.mkdir(parents=True,exist_ok=True)
+          retained=[]
+          for name in ['original-apk-bundle.json','refinement-expected.json','refinement-native.json','refinement-pdf-results.json']+[p.name for p in Path('.').glob('refinement-native*.txt')]+[p.name for p in Path('.').glob('refinement-environment-*.json')]+[p.name for p in Path('.').glob('refinement-quality-*.json')]:
+              p=Path(name)
+              if p.is_file():
+                  assert p.stat().st_size<16*1024*1024
+                  shutil.copyfile(p,dest/p.name);retained.append(name)
+          hashes={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in Path('refinement-apks').rglob('*.apk')}
+          (dest/'provenance.json').write_text(json.dumps({'original_run':41469717511,'original_source':'62c3c22b827c46dcc1a3c4af56c907f6f27015b2','compiled_bundle_artifact':13155640372,'supplement_run':os.environ['GITHUB_RUN_ID'],'workflow_sha':os.environ['GITHUB_SHA'],'profile':'min-api26','scope':'Original 201-method Android26-A inventory; original APK bundle, not rebuilt. Original failed zero-outcome run remains unchanged. No physical or release approval.','release_approval':False,'apk_sha256':hashes,'retained':retained},indent=2)+'\n')
+          PYRETAIN
+      - name: Gate and commit supplement only to session branch
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add "mynotes/docs/design-2026-10-29/native-supplements/${{ github.run_id }}"
+          git commit -m 'Preserve original-byte final38 Android26-A supplement separately from failed base run [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+            git diff --check
+          done

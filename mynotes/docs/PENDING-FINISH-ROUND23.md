@@ -94,3 +94,20 @@ annotation `Timeout waiting for emulator to boot.` No recovery assertions ran.
 The rerun API refused the branch-only workflow, so one fresh infrastructure-only
 attempt is triggered with the same exact APK38 and identical recovery assertions.
 Do not reinterpret this boot timeout as app-state failure or accepted recovery.
+
+## Android26-A root cause and original-byte supplement
+
+Exact failed job125363631433 logs are now preserved in the base run's
+`bootstrap-diagnostics/`. They explicitly show SDK Platform26 `Error on ZipFile
+unknown archive`, then TCP5554 refused, before instrumentation. This is now a
+proven pre-test SDK preparation failure, not an inferred app failure.
+
+A separate Android26-A supplement reuses the ORIGINAL app/test APK bundle from
+41469717511/artifact13155640372 (archive SHA256
+e2c719b5d9c1880ae68e0bea0c93762ea8273aee1ace40c25c7d53b9f9eb2adc), verifies
+source62c3c22b and unchanged native sources/tools, and runs the ORIGINAL201-method
+inventory. It does not rebuild or change the final raw release38 APK. Bounded
+SDK-only preparation now includes Platform26 and its exact GoogleAPIs x86_64
+system image, not just emulator binary. Preserve supplement reports separately;
+the failed base run remains failed and must never be relabeled all-green. No
+assertion has been retried or removed: the original26-A never started any.

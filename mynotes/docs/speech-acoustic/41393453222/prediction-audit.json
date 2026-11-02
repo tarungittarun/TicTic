@@ -1,0 +1,65 @@
+{
+  "scope": "Independent recomputation of stored public predictions only; no model inference, no general-accuracy or unseen-speaker claim",
+  "adopted": false,
+  "groups": {
+    "ksp": {
+      "cases": 32,
+      "reference_words": 278,
+      "baseline_edits": 34,
+      "adapted_edits": 22,
+      "improved": 9,
+      "unchanged": 18,
+      "regressed": 5,
+      "regressions": [
+        {
+          "id": "arctic_b0004",
+          "baseline_edits": 1,
+          "adapted_edits": 2,
+          "delta": 1
+        },
+        {
+          "id": "arctic_b0009",
+          "baseline_edits": 2,
+          "adapted_edits": 3,
+          "delta": 1
+        },
+        {
+          "id": "arctic_b0012",
+          "baseline_edits": 1,
+          "adapted_edits": 2,
+          "delta": 1
+        },
+        {
+          "id": "arctic_b0022",
+          "baseline_edits": 0,
+          "adapted_edits": 1,
+          "delta": 1
+        },
+        {
+          "id": "arctic_b0027",
+          "baseline_edits": 2,
+          "adapted_edits": 3,
+          "delta": 1
+        }
+      ]
+    },
+    "slt": {
+      "cases": 32,
+      "reference_words": 278,
+      "baseline_edits": 13,
+      "adapted_edits": 10,
+      "improved": 4,
+      "unchanged": 27,
+      "regressed": 1,
+      "regressions": [
+        {
+          "id": "arctic_b0028",
+          "baseline_edits": 2,
+          "adapted_edits": 3,
+          "delta": 1
+        }
+      ]
+    }
+  },
+  "source_report_sha256": "70f926ddcfcfa8b45ef65bff5be9e8402a0679025e7c7757c618969c45fb95a4"
+}

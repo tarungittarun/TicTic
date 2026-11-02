@@ -180,3 +180,14 @@ a product crash root cause. Preserve it rather than blaming or silently ignoring
 The new HOME settlement only relaunches the external emulator launcher and requires three
 stable focused samples; it never force-stops the app or dismisses its ANR/crash dialogs.
 All fixture focus assertions remain hard failures, with first-failure-time system dumps added.
+
+### Independent stored-prediction audit (no additional training)
+
+`python -m mynotes.tools.ci.speech_prediction_audit` recomputes edit distance from every
+preserved reference/hypothesis, rejects duplicate/mismatched pairs and inconsistent totals,
+and pins the input report SHA-256. `speech-acoustic/41393453222/prediction-audit.json`
+confirms the aggregate counts, **but also retains individual regressions**: KSP 9 improved,
+18 unchanged, **5 worse**; SLT 4 improved, 27 unchanged, **1 worse** (32 cases per speaker).
+Aggregate improvement is not a promise of improvement for every sentence. This post-hoc
+arithmetic audit is not another optimization run, model inference, unseen-speaker test,
+statistical significance test, or adoption qualification.

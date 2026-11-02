@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "source_sha": "fcda199aefc45a975545d7615fe4c633ce5c8f01",
+  "capture_run": "41414920566",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 191,
+      "passed": 191,
+      "missing": [],
+      "failures": []
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 181,
+      "passed": 180,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile: status -2 java.lang.AssertionError: Next page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$2$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:47)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda40.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 126,
+      "passed": 126,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 115,
+      "passed": 114,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile: status -2 java.lang.AssertionError: Next page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$2$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:47)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda40.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 126,
+      "passed": 64,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#canonicalNativeInsertMenuPlacesTableAtCaretAndFocusesAnEditableCell",
+        "app.space.notes.CoreJourneysTest#checklistTickIndentMoveHideConvertAndUndoPersist",
+        "app.space.notes.CoreJourneysTest#homeNewIsAboveVoiceAndSearchAndKeyboardKeepsSearchReachable",
+        "app.space.notes.CoreJourneysTest#nativeBoardAdaptsColumnsToLargeFontsAndTabletWidth",
+        "app.space.notes.CoreJourneysTest#nativeCaretSurvivesColourPageAndControllerRecreation",
+        "app.space.notes.CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal",
+        "app.space.notes.CoreJourneysTest#renderedSyntheticReviewCapturesMainSurfacesInTheRealDeviceTheme",
+        "app.space.notes.CoreJourneysTest#selectedNotesTextConvertsOnlySelectedRangeAndStaysInNotes",
+        "app.space.notes.DiagramJourneysTest#cancelledCanvasDragDoesNotMutateRepository",
+        "app.space.notes.DiagramJourneysTest#groupedCanvasDragAndHistoryPreserveRelativePlacement",
+        "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+        "app.space.notes.HistoryRecoveryTest#corruptHistoryIsRetainedAndBlockedUntilExplicitResetWithoutTouchingNotes",
+        "app.space.notes.HistoryRecoveryTest#onlyMostRecentSixtyFourHistoriesAreKeptWithoutDeletingNotes",
+        "app.space.notes.HistoryRecoveryTest#privateFoldersWorkWithoutStorageMigrationAndRejectDuplicatesAndPaths",
+        "app.space.notes.HistoryRecoveryTest#undoAndRedoSurviveIndependentStoreInstancesWithRichContentAndCursor",
+        "app.space.notes.RealFolderStorageTest#canonicalRichContentAndPixelsSurviveRealFolderMovesAndGenerations",
+        "app.space.notes.RealFolderStorageTest#completeAppFolderRecoversRichNotesAudioSettingsHistoryAndEmptyFoldersIntoFreshPrivateStorage",
+        "app.space.notes.RealFolderStorageTest#damagedAppObjectAndNonemptyInstallationNeverApplyPartialRecovery",
+        "app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox",
+        "app.space.notes.RealFolderStorageTest#imageAutosavesUseOneVerifiedRealMediaFile",
+        "app.space.notes.RealFolderStorageTest#interruptedReadyRecoveryResumesInstalledFilesIdempotentlyBeforeControllerLoad",
+        "app.space.notes.RealFolderStorageTest#newAppFolderRejectsUnrelatedNonemptyRootWithoutChangingInternalNotes",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource",
+        "app.space.notes.RealFolderStorageTest#recoveryControllerReloadsDataBeforeHostPauseCanFlushOldEmptyState",
+        "app.space.notes.RealFolderStorageTest#staleControllerRepositoryCannotFlushEmptyLibraryAfterCompleteRecovery",
+        "app.space.notes.StructuredCodecTest#androidSpanRoundTripRetainsAllStyles",
+        "app.space.notes.StructuredCodecTest#backupRestoresBothStructuredKinds",
+        "app.space.notes.StructuredCodecTest#canonicalUnicodeRichTablesExportAcrossCompleteLinesAndColumnPanels",
+        "app.space.notes.StructuredCodecTest#docxAggregateBudgetIncludesTheDocumentBodyAndLeavesBytesUntouched",
+        "app.space.notes.StructuredCodecTest#docxImportReadsParagraphsWithoutExecutingExternalRelationships",
+        "app.space.notes.StructuredCodecTest#duplicatedRowIdsRejectWholeDocument",
+        "app.space.notes.StructuredCodecTest#headerRoleRoundTripsAndRejectsMalformedInput",
+        "app.space.notes.StructuredCodecTest#invalidTableSizingCannotPartiallyDecode",
+        "app.space.notes.StructuredCodecTest#localTextImportPreservesEmojiUnicodeBomAndLineBreaks",
+        "app.space.notes.StructuredCodecTest#mixedNotesSchema10AndBackupPreserveWorkspaceAndFormatting",
+        "app.space.notes.StructuredCodecTest#oldSchema1MigratesWithoutNewProperties",
+        "app.space.notes.StructuredCodecTest#outOfRangeMarkRejectsWholeDocument",
+        "app.space.notes.StructuredCodecTest#schema2RetainsChecklistIdsChecksAndDepth",
+        "app.space.notes.StructuredCodecTest#schema5DefaultsFolderAndBackground",
+        "app.space.notes.StructuredCodecTest#schema7CanonicalContentRoundTripsWithoutEditableLegacyDuplicates",
+        "app.space.notes.StructuredCodecTest#schema7PreservesVisualKindNamePixelsAndAllInlineStyleValues",
+        "app.space.notes.StructuredCodecTest#schema9TableSizingRoundTripsBackupWithoutDroppingRichCells",
+        "app.space.notes.StructuredCodecTest#sparseSpreadsheetKeepsColumnGapsAndRowNumbersAndRejectsInvalidCoordinates",
+        "app.space.notes.StructuredCodecTest#transientKeyboardCompositionIsNotSavedAsUserFormatting",
+        "app.space.notes.StructuredCodecTest#wordStructuredCopyPreservesEditableStylesParagraphOrderAndTableCells",
+        "app.space.notes.StylePresetStoreTest#duplicatesBoundsAndCorruptionNeverOverwriteExistingPresets",
+        "app.space.notes.runtime.DiagramResizeViewTest#cancelledResizeRestoresOriginalAndNeverCommits",
+        "app.space.notes.runtime.DiagramResizeViewTest#draggingInsideSelectedShapeStillMovesRatherThanResizes",
+        "app.space.notes.runtime.DrawingToolsTest#clearCanBeUndoneAndRedoDoesNotChangeOtherStrokes",
+        "app.space.notes.runtime.DrawingToolsTest#detailedTransparentImagesAreReducedInsteadOfRefused",
+        "app.space.notes.runtime.DrawingToolsTest#extremeLegacyAspectRatioStaysBoundedAndDoesNotStretchPixels",
+        "app.space.notes.runtime.DrawingToolsTest#highlighterAndEraserHaveDifferentPixelSemantics",
+        "app.space.notes.runtime.DrawingToolsTest#mediaStoreImageImportsOwnPixelsAndSurvivesSourceDeletion",
+        "app.space.notes.runtime.DrawingToolsTest#rectangleAndOvalAreOutlinesNotFilledBlocks",
+        "app.space.notes.runtime.ImageSelectionTest#clearDisablesExtractionUntilAccessibleWordSelectionChanges",
+        "app.space.notes.runtime.ImageSelectionTest#controllerBackReleasesPreviewAndKeepsSavedData",
+        "app.space.notes.runtime.ImageSelectionTest#controllerVisualCopySavesAnEmbeddedImageAndKeepsBody",
+        "app.space.notes.runtime.ImageSelectionTest#draggingKeepsOnlyIntersectingWordsAndTheOriginalPixels",
+        "app.space.notes.runtime.ImageSelectionTest#reviewFieldsAndSaveStayReachableInReducedViewport",
+        "app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim",
+        "app.space.notes.runtime.ImageSelectionTest#transparentPreviewUsesWhiteWithoutChangingSourcePixels",
+        "app.space.notes.runtime.NotesMotionTest#entryLiftAndSettlementHonorActualSystemAnimationSetting"
+      ],
+      "failures": [
+        "Missing, duplicate or unsuccessful instrumentation completion: []"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 115,
+      "passed": 114,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile: status -2 java.lang.AssertionError: Next page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$2$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:47)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda40.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 191,
+      "passed": 191,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 181,
+      "passed": 180,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile: status -2 java.lang.AssertionError: Next page\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat app.space.notes.RealFolderStorageTest.lambda$tap$2$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:47)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda40.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

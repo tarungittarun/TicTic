@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -81,6 +82,13 @@ def pid():
 
 def verify(output):
     device=Device()
+    if os.environ.get('GITHUB_ACTIONS')!='true' or device.adb('shell','getprop','ro.kernel.qemu').strip()!='1':
+        raise RuntimeError('Recovery probe is restricted to a disposable GitHub Actions emulator')
+    run_id=os.environ.get('GITHUB_RUN_ID','');attempt=os.environ.get('GITHUB_RUN_ATTEMPT','')
+    if not re.fullmatch(r'[1-9][0-9]*',run_id) or not re.fullmatch(r'[1-9][0-9]*',attempt):
+        raise RuntimeError('Missing disposable CI run identity')
+    if device.state()['version_code']!=37:raise RuntimeError('Probe requires the exact verified candidate37 installed by its workflow')
+    folder='NotesReaderRecoveryPublic-'+run_id+'-'+attempt
     # Root is confined to a disposable emulator to grant public fixture URIs.
     device.adb('root')
     from .adb_state import wait_uid
@@ -90,12 +98,14 @@ def verify(output):
     fixtures=[('ReaderRecovery.pdf','application/pdf',pdf_fixture()),
         ('ReaderRecovery.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document',word_fixture()),
         ('ReaderRecovery.csv','text/csv',('A,B,C,D,E,F\n'+''.join(f'Row{i},b,c,d,PublicFind{i},f\n' for i in range(1,81))).encode())]
-    device.adb('shell','mkdir','-p','/sdcard/Download/NotesReaderRecoveryPublic')
+    device.adb('shell','mkdir','-p','/sdcard/Download')
+    # Fail on an existing leaf instead of overwriting any prior files.
+    device.adb('shell','mkdir','/sdcard/Download/'+folder)
     for name,mime,data in fixtures:
         source=root/name;source.write_bytes(data)
-        path='/sdcard/Download/NotesReaderRecoveryPublic/'+name
+        path='/sdcard/Download/'+folder+'/'+name
         device.adb('push',str(source),path)
-        uri='content://com.android.externalstorage.documents/document/'+quote('primary:Download/NotesReaderRecoveryPublic/'+name,safe='')
+        uri='content://com.android.externalstorage.documents/document/'+quote('primary:Download/'+folder+'/'+name,safe='')
         device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.VIEW','-d',uri,'-t',mime,'--grant-read-uri-permission')
         spreadsheet=name.endswith('.csv')
         control='Find in current sheet' if spreadsheet else 'Find in pages'

@@ -38,3 +38,6 @@ class ReaderProcessRecoverySmokeTest(unittest.TestCase):
         self.assertNotIn('device.launch()',source)
         self.assertNotIn("'force-stop'",source)
         self.assertNotIn("'uninstall'",source)
+        self.assertIn("os.environ.get('GITHUB_ACTIONS')!='true'",source)
+        self.assertIn("'ro.kernel.qemu'",source)
+        self.assertIn("device.adb('shell','mkdir','/sdcard/Download/'+folder)",source)

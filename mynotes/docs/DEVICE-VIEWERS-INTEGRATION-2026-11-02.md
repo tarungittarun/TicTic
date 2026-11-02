@@ -173,3 +173,48 @@ process-wide gate prevents overlap with a service instance still stopping. Copy 
 also rejects every nonempty destination before opening for writing. Filtered diagnostic
 export reports success only after stream close. These are source-reviewed/root-tested,
 not qualified Android results. Local gate722 PASS; native inventory372 methods.
+
+### Round 12: actual trained CPU inference passes; full qualification still fails
+
+Run41414920566/sourcefcda199a, immutable evidence6d8e459c:
+- API26 A191/191; API36 A191/191; landscape A126/126.
+- API26 B180/181 and API36 B180/181. Both include PASS for
+  `actualTrainedCpuModelRunsOfflineAndPreservesPublicAudio` and private-worker death.
+  This is actual CPU inference with the bundled trained model, not a structural-only
+  check. No measured native WER, broad accent, ARM physical-device or latency claim.
+- Landscape B114/115, large-font B114/115: each fails the stale PDF Next-page button
+  expectation. Source now uses real accessible vertical RecyclerView scrolling and
+  keeps the original-byte/no-import assertions; no assertion-count reduction.
+- Large-font A64/126, no completion: retained main/worker stacks prove a lock inversion.
+  Main held LocalSystemSurfaces' class monitor and waited for SNAPSHOT_LOCK; schema
+  upgrade writer held SNAPSHOT_LOCK and waited for the surface monitor. Source now
+  uses a single reentrant snapshot monitor for coherent projection and writing.
+  This is a real diagnosed deadlock; whether it explains the user's physical startup
+  screenshot remains unproven. No blind IME retries were added. API36 A completed.
+
+### Next-source implementation awaiting Android qualification
+
+Internal DOCX prepared-paper preview now renders stored paper geometry, explicit/cached
+breaks, inline PNG/JPEG/etc images and default header/footer logos into a private native
+PDF, reused by the continuous viewer. XML page-source text preserves Unicode for
+search/count/copy rather than depending on PDF glyph reverse mapping. Original DOCX
+bytes are never written. It is **explicitly approximate**, not a full Word engine:
+fonts substituted; tables linearized; floating drawings, advanced styles/fields,
+merged cells and multiple-section layouts may differ. Original-reader and separate
+editable-copy options remain. No external conversion service, macros or URL fetching.
+
+Caps:32MiB input/retained parts/rendered PDF,64MiB decompression,4096 entries,
+20,000 paragraphs,50,000 characters per shaped paragraph/1,000,000 total,
+4MP per decoded image/8MP unique total,1000 pages. Unsupported images get visible
+placeholders and warning details. Renderer failure leaves source and notes unchanged.
+
+Viewer actions moved into a 48dp accessible options control; title limited to two
+lines. Current-page detection uses the most visible page, not the first sliver (which
+could otherwise keep page1 indicated even at the end of a short two-page document).
+Copy now opens one nontruncating `rw` descriptor and verifies that exact descriptor's
+inode/device/empty size before writing—no check/reopen pathname race.
+
+Authored native regression coverage includes rendered red header-logo pixels and
+stored page breaks, Unicode page source, hostile Word XML/paths, cancellation before
+late binding, coherent projection/schema upgrade checkpoint retention, and real SAF
+copy success/nonempty rejection. Authored tests are not yet passing Android evidence.

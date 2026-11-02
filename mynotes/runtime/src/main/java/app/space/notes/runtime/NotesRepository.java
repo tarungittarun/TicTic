@@ -12,7 +12,8 @@ import app.space.notes.domain.Note;
 
 /** Serial-worker only. Private recovery journal survives a failed selected-folder save. */
 public final class NotesRepository {
-    private static final Object SNAPSHOT_LOCK=new Object();
+    // Also guards coherent OS projections; never introduce a second projection monitor.
+    static final Object SNAPSHOT_LOCK=new Object();
     private static final Object PENDING_LOCK=new Object();
     private static final Map<String,Integer> PENDING_SNAPSHOTS=new HashMap<>();
     static Runnable retainSnapshot(Context context,boolean hasContent){if(!hasContent)return ()->{};String key=context.getFilesDir().getAbsolutePath();synchronized(PENDING_LOCK){PENDING_SNAPSHOTS.put(key,PENDING_SNAPSHOTS.getOrDefault(key,0)+1);}java.util.concurrent.atomic.AtomicBoolean done=new java.util.concurrent.atomic.AtomicBoolean();return ()->{if(done.compareAndSet(false,true))synchronized(PENDING_LOCK){int count=PENDING_SNAPSHOTS.getOrDefault(key,1)-1;if(count==0)PENDING_SNAPSHOTS.remove(key);else PENDING_SNAPSHOTS.put(key,count);}};}

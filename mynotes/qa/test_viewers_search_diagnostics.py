@@ -8,7 +8,7 @@ class ViewerSearchDiagnosticsContracts(unittest.TestCase):
   grid=source('SpreadsheetPreview.java');self.assertIn('RecyclerView',grid);self.assertIn('horizontal.getScrollX()',grid);self.assertIn('Copy cached value',grid)
   model=source('SpreadsheetFile.java');self.assertIn('MAX_CELLS=250000,MAX_TEXT=8000000',model);self.assertIn('relationships.get(id)',model);self.assertIn('sheet.rows.computeIfAbsent',model)
  def test_original_copy_checks_physical_alias_before_truncation(self):
-  s=source('ViewedFileCopy.java');self.assertLess(s.index('from.st_ino==to.st_ino'),s.index('openOutputStream(destination,"wt")'));self.assertIn('OsConstants.S_ISREG',s);self.assertNotIn('delete(',s)
+  s=source('ViewedFileCopy.java');self.assertLess(s.index('from.st_ino==to.st_ino'),s.index('AutoCloseOutputStream(target)'));self.assertIn('openFileDescriptor(destination,"rw")',s);self.assertNotIn('openOutputStream(destination',s);self.assertIn('OsConstants.S_ISREG',s);self.assertNotIn('delete(',s)
  def test_pdf_owns_both_workers_and_bounded_scratch(self):
   s=source('LocalPdfPreview.java');self.assertIn('LinearLayoutManager(context)',s);self.assertIn('setupTempFileOnly(64L*1024*1024)',s);self.assertIn('rendererClosed && (!textClaimed || textClosed)',s);self.assertIn('volatile int token',s);self.assertIn('indexText(index)',s)
  def test_user_data_precedes_viewed_files_and_settings(self):
@@ -31,3 +31,10 @@ class ViewerSearchDiagnosticsContracts(unittest.TestCase):
    db.execute('create virtual table words using fts4(name,body)');db.executemany('insert into words values(?,?)',[('one','😊 25%'),('two','ordinary')])
    for term in ('😊','%'):
     like='%'+term.replace('^','^^').replace('%','^%').replace('_','^_')+'%';self.assertEqual(1,len(db.execute("select * from words where body like ? escape '^'",(like,)).fetchall()))
+
+ def test_internal_word_preview_is_bounded_native_paper_not_a_web_page(self):
+  s=source('WordPageFile.java');self.assertIn('new PdfDocument()',s);self.assertIn('StaticLayout.Builder',s);self.assertIn('pageBreak=true',s);self.assertIn('headerReference',s);self.assertIn('new ImageSpan(bitmap)',s);self.assertNotIn('WebView',s)
+  self.assertIn('count>4000000 || pixels+count>8000000',s);self.assertIn('total>64*1024*1024',s);self.assertIn('number>1000',s);self.assertIn('Approximate pagination',s);self.assertIn('External XML declarations are not allowed',s)
+  self.assertIn('openWordPages(uri,name)',source('NotesController.java'))
+ def test_pdf_read_actions_have_fixed_accessible_icons_and_original_mime(self):
+  s=source('LocalPdfPreview.java');self.assertIn('design.icon("Read options","more"',s);self.assertIn('host.saveViewedCopy(uri,name,mime)',s);self.assertIn('title.setMaxLines(2)',s);self.assertIn('Page text · count / select / copy',s)

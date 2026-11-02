@@ -28,5 +28,5 @@ class LocalSurfaceContracts(unittest.TestCase):
 
     def test_atomic_snapshots_and_projection_delivery_have_shared_locks(self):
         text=(JAVA/'NotesRepository.java').read_text();self.assertIn('synchronized(SNAPSHOT_LOCK)',text);self.assertIn('atomicRead(file)',text)
-        text=(JAVA/'LocalSystemSurfaces.java').read_text();self.assertIn('static synchronized void refresh',text);self.assertIn('static synchronized void deliver',text);self.assertIn('localSnapshot()',text)
+        text=(JAVA/'LocalSystemSurfaces.java').read_text();self.assertNotIn('static synchronized',text);self.assertEqual(2,text.count('synchronized(NotesRepository.SNAPSHOT_LOCK)'));self.assertIn('void refresh(Context context,boolean force)',text);self.assertIn('void deliver(Context context,String id,long at)',text);self.assertIn('localSnapshot()',text)
         self.assertIn('synchronized(TRANSCRIPT_LOCK)',(JAVA/'VoiceFiles.java').read_text())

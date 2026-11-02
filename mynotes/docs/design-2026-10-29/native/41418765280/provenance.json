@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "source_sha": "c00bb5a6c9316f3a86b103c8e7c2e42a4f67cf6a",
+  "capture_run": "41418765280",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": true,
+      "expected": 194,
+      "passed": 194,
+      "missing": [],
+      "failures": []
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 183,
+      "passed": 183,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": true,
+      "expected": 131,
+      "passed": 131,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 121,
+      "passed": 120,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#nativePdfPreviewPagesWithoutChangingSelectedFile: status -2 java.lang.AssertionError: Folder UI did not reach the expected state\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat app.space.notes.RealFolderStorageTest.awaitUi(RealFolderStorageTest.java:46)\n\tat app.space.notes.RealFolderStorageTest.nativePdfPreviewPagesWithoutChangingSelectedFile(RealFolderStorageTest.java:168)\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 131,
+      "passed": 131,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 121,
+      "passed": 121,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 194,
+      "passed": 194,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 183,
+      "passed": 183,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

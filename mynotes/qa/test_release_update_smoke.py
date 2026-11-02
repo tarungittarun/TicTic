@@ -38,3 +38,13 @@ class ReleaseUpdateSmokeHarness(unittest.TestCase):
                 output=Path(directory)/'report.json'
                 with self.assertRaises(RuntimeError):smoke.verify('old.apk','candidate.apk',output)
                 self.assertFalse(output.exists())
+
+    def test_explicit_next_release_pair_and_invalid_downgrades(self):
+        device=self.device();device.state.side_effect=[{'version_code':34,'first_install_time':'fixed'},{'version_code':35,'first_install_time':'fixed'}]
+        with tempfile.TemporaryDirectory() as directory,patch.object(smoke,'Device',return_value=device),patch('builtins.print'):
+            output=Path(directory)/'report.json';smoke.verify('old.apk','candidate.apk',output,34,35)
+            self.assertIn('release34→35',json.loads(output.read_text())['scope'])
+        for old,new in [(34,34),(35,34),(0,35)]:
+            with patch.object(smoke,'Device') as factory:
+                with self.assertRaises(ValueError):smoke.verify('old.apk','candidate.apk','unused',old,new)
+                factory.assert_not_called()

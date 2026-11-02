@@ -23,3 +23,11 @@ emoji OCR and broad Indian-accent training require suitable licensed diverse dat
 and genuine held-out evaluation; no recognition or physical playback claim.
 
 No private user file/recording uploaded; only synthetic native fixtures.
+
+Build/JVM294/lint passed for sourcefe6a0ded6b727f7b08c179187d671648e51db560,
+native run41449624652 now executing8 shards (not yet a pass). Exact new APK
+artifact13144272420,155134848bytes, SHA256
+`2568af3d33e8856b288a2f76a9d36cde9aa116a25571eac272c0d5cdf0981813`.
+Independent actual release34→35 update smoke requested; version pair is now an
+explicit harness argument (legacy33→34 mock self-checks retained). No new APK
+handed over until native and actual-byte smoke outcomes are checked.

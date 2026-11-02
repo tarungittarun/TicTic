@@ -1,4 +1,4 @@
-"""Fresh-emulator release33→34 update: real UI, Notes + Doc, no data clearing.
+"""Fresh-emulator explicitly version-pinned release update: real UI, Notes + Doc, no data clearing.
 Not a physical-device or exhaustive migration acceptance test. No Android build.
 """
 import argparse
@@ -76,9 +76,10 @@ class Device:
         self.home()
 
 
-def verify(old,candidate,output):
+def verify(old,candidate,output,old_code=33,candidate_code=34):
+    if old_code<1 or candidate_code<=old_code:raise ValueError("Require increasing explicit release version codes")
     device=Device();device.adb('install',old);before=device.state()
-    if before['version_code']!=33:raise RuntimeError('Expected original release code33')
+    if before['version_code']!=old_code:raise RuntimeError('Expected original release code'+str(old_code))
     device.launch();device.click('Notes');device.click('New text note')
     device.fill('Title',NOTE[0]);device.fill('Write your note…',NOTE[1]);device.home()
     device.click('Doc');device.click('New document');device.fill('Title',DOC[0]);device.fill('Text section',DOC[1])
@@ -87,19 +88,20 @@ def verify(old,candidate,output):
     device.wait(lambda items:any(x.get('text','').startswith('Saved · internal') for x in items))
     device.launch();device.check('Notes',NOTE);device.check('Doc',DOC)
     device.adb('shell','am','force-stop',PACKAGE);device.adb('install','-r',candidate);after=device.state()
-    if after['version_code']!=34 or before['first_install_time']!=after['first_install_time']:
+    if after['version_code']!=candidate_code or before['first_install_time']!=after['first_install_time']:
         raise RuntimeError('Not the expected version/retained installation identity')
     device.launch();device.check('Notes',NOTE);device.check('Doc',DOC)
     report={'ok':True,'package':PACKAGE,'from':before,'to':after,
             'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),
             'old_release_cold_restart_checked':True,'notes_and_doc_retained':True,
             'uninstall_or_clear_data':False,'release_approval':False,
-            'scope':'Public ASCII Note and Doc survive actual release33→34 install-over on a fresh emulator. Not physical or exhaustive rich-data acceptance.'}
+            'scope':f'Public ASCII Note and Doc survive actual release{old_code}→{candidate_code} install-over on a fresh emulator. Not physical or exhaustive rich-data acceptance.'}
     Path(output).write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--old',required=True);parser.add_argument('--candidate',required=True)
-    parser.add_argument('--output',required=True);args=parser.parse_args()
-    verify(args.old,args.candidate,args.output)
+    parser.add_argument('--output',required=True)
+    parser.add_argument('--old-code',type=int,default=33);parser.add_argument('--candidate-code',type=int,default=34);args=parser.parse_args()
+    verify(args.old,args.candidate,args.output,args.old_code,args.candidate_code)

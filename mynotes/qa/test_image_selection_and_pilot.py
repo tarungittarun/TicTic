@@ -34,3 +34,12 @@ class ImageSelectionAndPilot(unittest.TestCase):
 
  def test_review_input_has_bounded_height_inside_a_scrollable_column(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('reviewScroll.setFillViewport(true)',source);self.assertIn('content.addView(input,new LinearLayout.LayoutParams(-1,dp(240)))',source)
+
+ def test_extra_voice_curation_never_treats_availability_as_permission(self):
+  from mynotes.tools.ci.indian_cmu_candidates import permitted
+  self.assertFalse(permitted('Publicly available speech. Copyright reserved.'))
+  self.assertTrue(permitted('This voice is free for use for any purpose (commercial or otherwise). Modifications must be clearly marked; original authors retained.'))
+
+ def test_extra_voice_archive_digests_are_pinned(self):
+  from mynotes.tools.ci.indian_cmu_candidates import EXPECTED
+  self.assertEqual({'aup','axb','gka','slp'},set(EXPECTED));self.assertTrue(all(len(value)==64 for value in EXPECTED.values()))

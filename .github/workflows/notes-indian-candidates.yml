@@ -1,0 +1,48 @@
+# A separate four-voice curation audit, NOT training or app adoption. Public data only.
+name: MyNotes additional Indian speech license curation (nontraining)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-indian-candidates.yml']
+permissions:
+  contents: read
+jobs:
+  primary-license-curation:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check primary speaker metadata and original per-voice permissions; never infer permission from availability
+        run: python -m mynotes.tools.ci.indian_cmu_candidates --output /tmp/indian-candidates
+      - name: Preserve only small public research evidence, never audio archives
+        run: |
+          set -euo pipefail
+          python -m pip install PyYAML==6.0.3 Pillow==11.3.0
+          mkdir -p "mynotes/docs/speech-candidates/${{ github.run_id }}"
+          cp -R /tmp/indian-candidates/evidence/. "mynotes/docs/speech-candidates/${{ github.run_id }}/"
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python -m unittest discover -s qa
+          git diff --check
+          git add "mynotes/docs/speech-candidates/${{ github.run_id }}"
+          git commit -m "Preserve additional Indian voice license curation ${{ github.run_id }} [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+          done
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: additional-indian-voice-public-license-evidence
+          path: /tmp/indian-candidates/evidence/
+          retention-days: 14
+          if-no-files-found: warn

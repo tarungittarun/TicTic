@@ -1,7 +1,9 @@
-# Offline image-selection and playback qualification, round 8: request IME for the new Notes field,
+# Offline image-selection and playback qualification, round 9: actual bundled trained Whisper CPU integration, experimental opt-in.
+# Retains Vosk default; no private recordings, new Internet permission, or silent model substitution.
+# Previous round 8: request IME for the new Notes field,
 # never accept transient previous-Doc visibility before issuing that request. Repeated transition regression.
 # Independent debug-only Java stack observer and fail-only progress watchdog; no assertion removed.
-# 9 jobs planned; 294 JVM, 357 unique native methods / 1192 profile outcomes expected.
+# 9 jobs planned; 294 JVM; native inventory is computed exhaustively, including actual trained-model inference/cancellation.
 # Includes real Tesseract word boxes, selectable viewport/crop ownership, controller save/cancel,
 # all 327 baseline methods, and untouched stored audio. No speech training/physical accuracy claim.
 # Build + eight parallel native shards; all four profile inventories remain exhaustive.
@@ -14,6 +16,7 @@ on:
     paths: ['.github/workflows/notes-refinement-native.yml']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: notes-refinement-native-settled-${{ github.ref }}
   cancel-in-progress: true
@@ -21,7 +24,7 @@ jobs:
   build:
     if: github.ref == 'refs/heads/arena/3caca636-tictic'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-mynotes
@@ -47,14 +50,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.29.0-32-development.apk
-          sha256sum MyNotes-v0.29.0-32-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.29.0-32-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.30.0-33-development.apk
+          sha256sum MyNotes-v0.30.0-33-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.30.0-33-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.29.0-32-development.apk
+          path: MyNotes-v0.30.0-33-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -63,6 +66,7 @@ jobs:
         with:
           name: refinement-foundation-lint
           path: |
+            mynotes/runtime/build/generated/trained-whisper-assets/voice/trained-whisper.json
             evidence/refinement-jvm.json
             mynotes/app/build/reports/lint-results-debug.*
             notes-development-sha256.txt

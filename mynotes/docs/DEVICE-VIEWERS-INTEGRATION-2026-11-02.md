@@ -22,7 +22,16 @@ data clearing or silent replacement of the working speech engine.
 
 1. Trained Whisper export: preparing exact base + actual 593-step blocks for CPU inference.
    Checks both pinned SHA-256 values and exact tensor keys/shapes; never substitutes the
-   untrained model if download/export fails. CPU native Android integration still pending.
+   untrained model if download/export fails. Export run 41406351456 SUCCESS, source
+   e9cd60d2; trained-model artifact 13124080289, digest
+   d9d46992f99c0d0bb3d4fcc2e1c46ade00249a199df9c88859cb6f508c51dcf9,
+   retained until 2027-01-31. Android CPU integration source now includes pinned whisper.cpp
+   v1.8.2 / 4979e04f, cancellable JNI, bounded 30-second PCM windows, checksummed private
+   installation, unchanged audio, conservative low-RAM rejection, explicit experimental
+   selection, mandatory transcript review and unchanged Vosk default. Native build/inference
+   qualification is NEXT, not yet passed. Code 33 / 0.30 development build is not delivered.
+   This is not universal Indian accuracy or physical acceptance. Build requires Actions
+   artifact read access; expired exports fail closed rather than substituting base weights.
 2. Startup: investigate shared disk queue and folder/provider I/O; preserve authoritative
    internal content and pending edits. Do not bypass migration/recovery fences.
 3. PDF: continuous, lazy page rendering; page/occurrence counts, search, selectable text,

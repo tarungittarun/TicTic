@@ -32,3 +32,22 @@ tasks.register('prepareOfflineSpeechModel', Exec) {
     commandLine 'python3', recipe.absolutePath, '--manifest', manifest.absolutePath, '--output', archive.absolutePath
 }
 preBuild.dependsOn prepareOfflineSpeechModel
+
+// Actual trained Whisper is bundled at build time; no runtime downloads or default swap.
+android {
+    ndkVersion '27.2.12479018'
+    defaultConfig {
+        ndk { abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64' }
+        externalNativeBuild { cmake { cppFlags '-std=c++17' } }
+    }
+    externalNativeBuild { cmake { path file('src/main/cpp/CMakeLists.txt'); version '3.22.1' } }
+    sourceSets { main.assets.srcDirs += "$buildDir/generated/trained-whisper-assets" }
+}
+tasks.register('requireTrainedWhisperBundle') {
+    doLast {
+        if (!file("$buildDir/generated/trained-whisper-assets/voice/trained-whisper.bin").isFile()) {
+            throw new GradleException('Missing verified trained Whisper bundle. Use the pinned Actions toolchain; never ship an untrained substitute.')
+        }
+    }
+}
+preBuild.dependsOn requireTrainedWhisperBundle

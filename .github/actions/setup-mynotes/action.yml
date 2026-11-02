@@ -26,3 +26,30 @@ runs:
       run: |
         SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
         "$SDK/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0'
+    - name: Verify source-pinned trained model export (build-time only)
+      if: inputs.sdk == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        python3 - <<'PY'
+        import json,subprocess
+        artifact=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13124080289']))
+        assert artifact['workflow_run']['head_sha']=='e9cd60d2ac5d0876d0f627cf77377ddf7c63544d'
+        assert artifact['digest']=='sha256:d9d46992f99c0d0bb3d4fcc2e1c46ade00249a199df9c88859cb6f508c51dcf9'
+        assert not artifact['expired'],'Trained export expired; regenerate from preserved actual blocks, never substitute base weights'
+        PY
+    - uses: actions/download-artifact@v8.0.2
+      if: inputs.sdk == 'true'
+      with:
+        github-token: ${{ github.token }}
+        run-id: 41406351456
+        name: trained-whisper-android-offline
+        path: ${{ runner.temp }}/trained-whisper-export
+    - name: Bundle verified trained CPU model and pinned native toolchain
+      if: inputs.sdk == 'true'
+      shell: bash
+      run: |
+        python3 mynotes/tools/models/bundle_trained_whisper.py --source "$RUNNER_TEMP/trained-whisper-export" --output mynotes/runtime/build/generated/trained-whisper-assets
+        SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+        "$SDK/cmdline-tools/latest/bin/sdkmanager" 'ndk;27.2.12479018' 'cmake;3.22.1'

@@ -1,0 +1,270 @@
+CI observation only: a long test is not automatically a failure.
+app.space.notes.CoreJourneysTest#nativeSheetsStayPopulatedAfterRepeatedNavigation elapsed_ms=129172
+
+InstrumentationConnectionThread id=44 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.os.HandlerThread.run(HandlerThread.java:85)
+
+hwuiTask1 id=55 state=RUNNABLE
+
+Instr: androidx.test.runner.AndroidJUnitRunner id=42 state=TIMED_WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:269)
+  at java.util.concurrent.FutureTask.awaitDone(FutureTask.java:497)
+  at java.util.concurrent.FutureTask.get(FutureTask.java:203)
+  at org.junit.internal.runners.statements.FailOnTimeout.getResult(FailOnTimeout.java:167)
+  at org.junit.internal.runners.statements.FailOnTimeout.evaluate(FailOnTimeout.java:128)
+  at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+  at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+  at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+  at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+  at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+  at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+  at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+  at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+  at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+  at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+  at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+  at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+  at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+  at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+  at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+  at org.junit.runners.Suite.runChild(Suite.java:128)
+  at org.junit.runners.Suite.runChild(Suite.java:27)
+  at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+  at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+  at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+  at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+  at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+  at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+  at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+  at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+  at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+  at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+  at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+  at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+  at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2597)
+
+binder:3196_8 id=110 state=RUNNABLE
+
+AsyncTask #36 id=148 state=TIMED_WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:410)
+  at java.util.concurrent.LinkedTransferQueue$DualNode.await(LinkedTransferQueue.java:452)
+  at java.util.concurrent.SynchronousQueue$Transferer.xferLifo(SynchronousQueue.java:194)
+  at java.util.concurrent.SynchronousQueue.xfer(SynchronousQueue.java:233)
+  at java.util.concurrent.SynchronousQueue.poll(SynchronousQueue.java:336)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1081)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+ReferenceQueueDaemon id=33 state=WAITING
+  at java.lang.Object.wait(Native Method)
+  at java.lang.Object.wait(Object.java:405)
+  at java.lang.Object.wait(Object.java:543)
+  at java.lang.Daemons$ReferenceQueueDaemon.runInternal(Daemons.java:260)
+  at java.lang.Daemons$Daemon.run(Daemons.java:132)
+  at java.lang.Thread.run(Thread.java:1119)
+
+RenderThread id=52 state=RUNNABLE
+
+pool-37-thread-1 id=119 state=WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3805)
+  at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3746)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1707)
+  at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1082)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+FinalizerWatchdogDaemon id=35 state=WAITING
+  at java.lang.Object.wait(Native Method)
+  at java.lang.Object.wait(Object.java:405)
+  at java.lang.Object.wait(Object.java:543)
+  at java.lang.Daemons$FinalizerWatchdogDaemon.sleepUntilNeeded(Daemons.java:481)
+  at java.lang.Daemons$FinalizerWatchdogDaemon.runInternal(Daemons.java:461)
+  at java.lang.Daemons$Daemon.run(Daemons.java:132)
+  at java.lang.Thread.run(Thread.java:1119)
+
+binder:3196_9 id=144 state=RUNNABLE
+
+binder:3196_2 id=38 state=RUNNABLE
+
+Time-limited test id=120 state=RUNNABLE
+  at android.os.BinderProxy.transactNative(Native Method)
+  at android.os.BinderProxy.transact(BinderProxy.java:592)
+  at android.app.IUiAutomationConnection$Stub$Proxy.injectInputEvent(IUiAutomationConnection.java:586)
+  at android.app.UiAutomation.injectInputEvent(UiAutomation.java:997)
+  at android.app.UiAutomation.injectInputEvent(UiAutomation.java:964)
+  at app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:261)
+  at app.space.notes.CoreJourneysTest.nativeSheetsStayPopulatedAfterRepeatedNavigation(CoreJourneysTest.java:277)
+  at java.lang.reflect.Method.invoke(Native Method)
+  at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+  at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+  at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+  at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+  at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:299)
+  at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:293)
+  at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+  at java.lang.Thread.run(Thread.java:1119)
+
+Jit thread pool worker thread 0 id=36 state=RUNNABLE
+
+UiAutomation id=100 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.os.HandlerThread.run(HandlerThread.java:85)
+
+queued-work-looper id=56 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.os.HandlerThread.run(HandlerThread.java:85)
+
+android.bg id=57 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.os.HandlerThread.run(HandlerThread.java:85)
+
+binder:3196_6 id=65 state=RUNNABLE
+
+HeapTaskDaemon id=32 state=WAITING
+
+hwuiTask0 id=54 state=RUNNABLE
+
+pool-38-thread-1 id=121 state=WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3805)
+  at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3746)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1707)
+  at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1082)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+binder:3196_7 id=81 state=RUNNABLE
+
+pool-6-thread-1 id=53 state=WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3805)
+  at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3746)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1707)
+  at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1082)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+main id=2 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.app.ActivityThread.main(ActivityThread.java:9067)
+  at java.lang.reflect.Method.invoke(Native Method)
+  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)
+  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)
+
+binder:3196_3 id=39 state=RUNNABLE
+
+notes-diagnostic-export id=48 state=WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3805)
+  at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3746)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1707)
+  at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1082)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+notes-diagnostics id=47 state=WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3805)
+  at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3746)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1707)
+  at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1082)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+binder:3196_1 id=37 state=RUNNABLE
+
+SurfaceSyncGroupTimer id=58 state=RUNNABLE
+  at android.os.MessageQueue.nativePollOnce(Native Method)
+  at android.os.MessageQueue.nextLegacy(MessageQueue.java:913)
+  at android.os.MessageQueue.next(MessageQueue.java:1025)
+  at android.os.Looper.loopOnce(Looper.java:196)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.os.HandlerThread.run(HandlerThread.java:85)
+
+notes-ci-stack-observer id=45 state=RUNNABLE
+  at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+  at java.lang.Thread.getStackTrace(Thread.java:1960)
+  at java.lang.Thread.getAllStackTraces(Thread.java:2028)
+  at app.space.notes.HangDiagnostics.observe(HangDiagnostics.java:50)
+  at app.space.notes.HangDiagnostics.$r8$lambda$3bAzIorzEGEbBlbIFbwXBB874J0(Unknown Source:0)
+  at app.space.notes.HangDiagnostics$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)
+  at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:358)
+  at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:349)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+FinalizerDaemon id=34 state=WAITING
+  at java.lang.Object.wait(Native Method)
+  at java.lang.Object.wait(Object.java:405)
+  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:207)
+  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:228)
+  at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:348)
+  at java.lang.Daemons$Daemon.run(Daemons.java:132)
+  at java.lang.Thread.run(Thread.java:1119)
+
+binder:3196_4 id=40 state=RUNNABLE
+
+binder:3196_5 id=59 state=RUNNABLE
+
+Profile Saver id=41 state=RUNNABLE
+
+AsyncTask #34 id=146 state=TIMED_WAITING
+  at jdk.internal.misc.Unsafe.park(Native Method)
+  at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:410)
+  at java.util.concurrent.LinkedTransferQueue$DualNode.await(LinkedTransferQueue.java:452)
+  at java.util.concurrent.SynchronousQueue$Transferer.xferLifo(SynchronousQueue.java:194)
+  at java.util.concurrent.SynchronousQueue.xfer(SynchronousQueue.java:233)
+  at java.util.concurrent.SynchronousQueue.poll(SynchronousQueue.java:336)
+  at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1081)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+  at java.lang.Thread.run(Thread.java:1119)
+
+Signal Catcher id=30 state=WAITING

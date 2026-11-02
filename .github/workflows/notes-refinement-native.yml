@@ -1,4 +1,5 @@
-# Round 11: optimized CPU + IPC phases; continuous PDF, spreadsheet grid, viewed search and diagnostic filters.
+# Round 12: fix owned viewer-test compile classpath/PdfDocument cleanup; harden per-request IPC cancellation.
+# Previous round 11: optimized CPU + IPC phases; continuous PDF, spreadsheet grid, viewed search and diagnostic filters.
 # Source inventory:372 native methods; no missing cases accepted; exact selected partitions computed at runtime.
 # Previous round 10: corrected F16 trained payloads, complete GGML validation, private native-fault containment.
 # Includes latest private-first startup/far-edge filter tests and intentional speech-worker death.
@@ -38,13 +39,18 @@ jobs:
         run: |
           gh api repos/tarungittarun/TicTic/actions/jobs/125161667781/logs > "$RUNNER_TEMP/previous-api36.log"
           python3 - <<'PYLOG'
-          import os,re,json
+          import os,re,json,io,zipfile
           from pathlib import Path
-          lines=Path(os.environ['RUNNER_TEMP'],'previous-api36.log').read_text(errors='replace').splitlines()
+          raw=Path(os.environ['RUNNER_TEMP'],'previous-api36.log').read_bytes()
+          if zipfile.is_zipfile(io.BytesIO(raw)):
+              with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                  names=[name for name in archive.namelist() if name.endswith('.txt')]
+                  raw=b'\n'.join(archive.read(name) for name in names)
+          lines=raw.decode('utf-8',errors='replace').splitlines()
           selected=set(range(max(0,len(lines)-55),len(lines)))
           for i,line in enumerate(lines):
               if re.search('error|failed|Failure|cannot|offline|insufficient|exit code 20',line,re.I):selected.update(range(max(0,i-2),min(len(lines),i+4)))
-          excerpt='\n'.join(lines[i] for i in sorted(selected))[-14000:]
+          excerpt='\n'.join(lines[i] for i in sorted(selected))[-4000:]
           print('::notice title=Previous API36 initialization job125161667781::'+json.dumps(excerpt))
           PYLOG
       - uses: ./.github/actions/setup-mynotes

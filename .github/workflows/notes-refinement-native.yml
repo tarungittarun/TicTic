@@ -1,3 +1,4 @@
+# Round 18: density-correct two-pointer fixture; preserve round17 peer evidence rather than cancelling its final shards.
 # Round 17: use a multi-line tall-image paragraph to exercise non-final-line spacing in the Word fit regression.
 # Round 16: physical-feedback rotation retention, caller-aware Back, fitted Word lines, PDF pinch/share/text access and image selection-first.
 # Round 15: correct Word namespace/image-width local scope; qualify all 378 native methods.
@@ -28,7 +29,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-settled-${{ github.ref }}
+  group: notes-refinement-native-settled-round18-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:

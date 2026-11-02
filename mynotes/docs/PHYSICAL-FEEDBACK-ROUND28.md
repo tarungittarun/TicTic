@@ -107,3 +107,16 @@ recovery passed. These use public synthetic fixtures, do not uninstall/clear dat
 and do not qualify45 or exhaustive rich libraries/physical behavior. Successful
 small reports are preserved by Actions on this branch.45 additionally discloses
 inline-image scaling at the actual scale<1 point, independent of page fallback.
+
+## Follow-up46 (round31)
+
+44 landscape-b and large-font-b each132/134: actual floating Copy accessibility
+probe failed, and oversized Word fit warning was missing.45 adds the actual
+image-scaling disclosure (not an assertion relaxation).46 explicitly marks Copy
+as a primary floating action and anchors the floating toolbar to selected glyph
+bounds through Callback2, rather than treating the whole page as its rectangle.
+The native real-gesture probe now requests/inspects actual interactive windows,
+including nonfocused floating popup windows; restores its previous service flags;
+and still must click the real accessibility Copy action and assert exact clipboard
+text. No direct selection/copy method invocation substitutes for the actual gesture.
+Android compile and behavioral qualification of46 remain pending.

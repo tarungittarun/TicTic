@@ -47,7 +47,7 @@ jobs:
         run: |
           python3 -m pip install Pillow==11.3.0 PyYAML==6.0.3
           python3 - <<'PY'
-          import hashlib,io,json,os,tarfile
+          import hashlib,io,json,os,tarfile,shutil,subprocess
           from pathlib import Path,PurePosixPath
           from PIL import Image
           Image.MAX_IMAGE_PIXELS=16000000
@@ -56,6 +56,11 @@ jobs:
               archive=folder/'refinement-captures.tar'
               if not archive.is_file() or not archive.stat().st_size:continue
               lane=folder.name.removeprefix('refinement-native-')
+              lane_output=dest/lane;lane_output.mkdir(parents=True,exist_ok=True)
+              for source_file in folder.iterdir():
+                  if source_file.name=='refinement-native.json':shutil.copyfile(source_file,lane_output/'native-results.json')
+                  elif source_file.is_file() and (source_file.name.endswith('.txt') or source_file.name.startswith(('refinement-environment-','refinement-pdf-','refinement-quality-'))) and source_file.suffix!='.tar':shutil.copyfile(source_file,lane_output/source_file.name)
+              subprocess.run(['python3','-m','mynotes.tools.ci.render_review','--archive',str(archive),'--output',str(lane_output)],check=True)
               with tarfile.open(archive,'r:*') as bundle:
                   for member in bundle:
                       path=PurePosixPath(member.name)
@@ -71,6 +76,8 @@ jobs:
                       target=dest/lane/'image-text-selection.jpg';target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(preview)
                       records.append({'lane':lane,'source_jpeg_sha256':hashlib.sha256(raw).hexdigest(),'preview_sha256':hashlib.sha256(preview).hexdigest(),'bytes':len(preview),'width':image.width,'height':image.height})
           if len(records)!=4:raise ValueError('Expected one source selection screenshot in each of four profiles; got '+str(len(records)))
+          results={lane.name:json.loads((lane/'native-results.json').read_text()) for lane in dest.iterdir() if lane.is_dir() and (lane/'native-results.json').is_file()}
+          (dest/'recovered-native-provenance.json').write_text(json.dumps({'source_sha':os.environ['SOURCE_SHA'],'source_run':os.environ['SOURCE_RUN'],'scope':'Unmodified source native reports and bounded synthetic PNG previews recovered from artifacts; includes failures, NOT qualification','results':{k:{name:v.get(name) for name in ['ok','expected','passed','missing','failures']} for k,v in results.items()}},indent=2)+'\n')
           (dest/'image-selection-provenance.json').write_text(json.dumps({'source_sha':os.environ['SOURCE_SHA'],'source_run':os.environ['SOURCE_RUN'],'scope':'actual synthetic native captures, not user photos; lossy previews, not pixel-exact assertions or physical acceptance','release_approval':False,'records':records},indent=2)+'\n')
           PY
       - name: Gate and append only source-pinned selection preview documentation

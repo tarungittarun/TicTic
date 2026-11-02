@@ -45,7 +45,11 @@ def primary(relative,path,limit=1000000):
         except Exception as error:errors.append(type(error).__name__+': '+str(error)[:120])
     raise RuntimeError('Primary corpus source unavailable ('+relative+'): '+'; '.join(errors))
 
-def prepare(output, requested=None):
+def archive_requests(speaker, requested, by_suffix, archive_order=False):
+    selected=[(split,identity) for split,identities in requested.items() for selected_speaker,identity in identities if selected_speaker==speaker]
+    return sorted(selected,key=lambda row:by_suffix['wav/'+row[1]+'.wav'].offset_data) if archive_order else selected
+
+def prepare(output, requested=None, archive_order=False):
     output.mkdir(parents=True,exist_ok=True);data=output/'data';data.mkdir(exist_ok=True);licenses=output/'licenses';licenses.mkdir(exist_ok=True)
     roster,roster_url=primary('cmu_arctic/',licenses/'corpus-roster.html')
     # Require the primary corpus page to identify the training speaker as Indian English.
@@ -95,17 +99,16 @@ def prepare(output, requested=None):
             if text_member.size>1000000:raise ValueError('Transcript exceeds bound')
             transcript=bundle.extractfile(text_member).read().decode('utf-8')
             prompts=dict(re.findall(r'\(\s*(arctic_[ab]\d+)\s+"(.*?)"\s*\)',transcript))
-            for split,identities in requested.items():
-                for selected_speaker,identity in identities:
-                    if selected_speaker!=speaker:continue
-                    member=by_suffix[f'wav/{identity}.wav']
-                    if member.size>2*1024*1024:raise ValueError('Audio fixture exceeds bound')
-                    raw=bundle.extractfile(member).read();path=data/f'{speaker}-{identity}.wav';path.write_bytes(raw)
-                    with wave.open(str(path)) as wav:
-                        if wav.getframerate()!=16000 or wav.getnchannels()!=1 or wav.getsampwidth()!=2 or wav.getcomptype()!='NONE':raise ValueError('Unsupported PCM source; no implicit resampling')
-                        seconds=wav.getnframes()/16000
-                    if not 0<seconds<=15:raise ValueError('Audio fixture outside bounded duration')
-                    report['records'].append({'split':split,'speaker':speaker,'id':identity,'text':prompts[identity],'audio_sha256':sha(raw),'seconds':seconds,'file':str(path.relative_to(output))})
+            # BZip2 seek-backwards re-decompresses the archive: read large cohorts in source order.
+            for split,identity in archive_requests(speaker,requested,by_suffix,archive_order):
+                member=by_suffix[f'wav/{identity}.wav']
+                if member.size>2*1024*1024:raise ValueError('Audio fixture exceeds bound')
+                raw=bundle.extractfile(member).read();path=data/f'{speaker}-{identity}.wav';path.write_bytes(raw)
+                with wave.open(str(path)) as wav:
+                    if wav.getframerate()!=16000 or wav.getnchannels()!=1 or wav.getsampwidth()!=2 or wav.getcomptype()!='NONE':raise ValueError('Unsupported PCM source; no implicit resampling')
+                    seconds=wav.getnframes()/16000
+                if not 0<seconds<=15:raise ValueError('Audio fixture outside bounded duration')
+                report['records'].append({'split':split,'speaker':speaker,'id':identity,'text':prompts[identity],'audio_sha256':sha(raw),'seconds':seconds,'file':str(path.relative_to(output))})
     train_text={' '.join(normalize(row['text'])) for row in report['records'] if row['split']=='train'}
     if any(' '.join(normalize(row['text'])) in train_text for row in report['records'] if row['split']=='evaluation'):raise ValueError('Transcript leakage across splits')
     report['speaker_disjoint']=not ({row['speaker'] for row in report['records'] if row['split']=='train'} & {row['speaker'] for row in report['records'] if row['split']=='evaluation'});report['transcript_disjoint']=True;report['evaluation_accent_limit']='SLT is a US-English out-of-training-speaker regression control. Any KSP evaluation is seen-speaker, prompt-heldout only. No unseen Indian speaker is evaluated; no general Indian-accent or spontaneous phone dictation qualification.'

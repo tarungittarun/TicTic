@@ -62,5 +62,5 @@ def train(output):
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['prepare','train']);parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
  if args.mode=='prepare':
-  pilot.prepare(args.output,splits());path=args.output/'data-report.json';data=json.loads(path.read_text());data['scope']='Expanded 593-clip single-voice training; paired KSP SAME-speaker and SLT US prompt-heldout controls, not general Indian dictation';pilot.write(path,data)
+  pilot.prepare(args.output,splits(),archive_order=True);path=args.output/'data-report.json';data=json.loads(path.read_text());data['scope']='Expanded 593-clip single-voice training; paired KSP SAME-speaker and SLT US prompt-heldout controls, not general Indian dictation';pilot.write(path,data)
  else:train(args.output)

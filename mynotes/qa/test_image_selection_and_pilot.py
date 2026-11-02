@@ -54,3 +54,12 @@ class ImageSelectionAndPilot(unittest.TestCase):
   from mynotes.tools.ci.indian_acoustic_extension import selected_parameter
   self.assertTrue(selected_parameter('encoder.blocks.3.attn.query.weight'));self.assertTrue(selected_parameter('decoder.blocks.3.attn.query.weight'))
   for name in ['encoder.blocks.2.attn.query.weight','decoder.blocks.2.attn.query.weight','decoder.token_embedding.weight','encoder.ln_post.weight']:self.assertFalse(selected_parameter(name))
+
+ def test_large_curation_reads_compressed_archive_forward_without_changing_split_membership(self):
+  from types import SimpleNamespace
+  requests={'train':[('ksp','one'),('ksp','two')],'evaluation':[('slt','three'),('ksp','four')]}
+  members={'wav/'+name+'.wav':SimpleNamespace(offset_data=offset) for name,offset in [('one',30),('two',10),('four',20)]}
+  old=pilot.archive_requests('ksp',requests,members);stream=pilot.archive_requests('ksp',requests,members,True)
+  self.assertEqual([('train','one'),('train','two'),('evaluation','four')],old)
+  self.assertEqual([('train','two'),('evaluation','four'),('train','one')],stream)
+  self.assertEqual(set(old),set(stream))

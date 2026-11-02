@@ -39,7 +39,7 @@ class TrainedWhisperIntegrationTests(unittest.TestCase):
   self.assertNotIn('whisper_full_get_segment_text',java)
  def test_owned_native_tests_are_in_full_inventory(self):
   from mynotes.tools.ci.test_plan import build_plan
-  self.assertEqual(2,len(build_plan()['android']['app.space.notes.TrainedWhisperTest']))
+  self.assertEqual(3,len(build_plan()['android']['app.space.notes.TrainedWhisperTest']))
  def test_model_export_pins_actual_base_and_trained_tensors(self):
   source=(ROOT/'tools/ci/export_trained_whisper.py').read_text()
   self.assertIn('digest(a.checkpoint)==BLOCK_SHA',source);self.assertIn('set(blocks)==expected',source)

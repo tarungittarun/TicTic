@@ -62,3 +62,41 @@ data clearing or silent replacement of the working speech engine.
 - Three new native repository contracts check provider-free startup, corruption retention,
   and staged-recovery fences. Local gate 706 tests PASS; native qualification of these
   additional changes is pending, not included in the older integration build source.
+
+## Round 9 failure and corrected model export
+
+- Run **41406961762**, source c0140302: FAILED. Native loader SIGSEGV on both
+  API26 and API36 full-inventory B shards. Exact synthetic reports are retained in
+  `design-2026-10-29/native/41406961762/`; never confuse these with passing evidence.
+- Concrete cause: trained optimizer matrices were float32. The upstream F16 exporter
+  labels matrix payloads F16 but assumes input matrices are already half precision.
+  Float32 bytes therefore corrupted subsequent dimension records in the GGML stream.
+  Native backtraces show model-loader `read_safe<int>` overwriting its stack.
+- Export now explicitly casts serialized matrices to F16 and checks the complete
+  bounded GGML stream, including all 167 tensor records. Unit fixtures deliberately
+  reproduce mismatched F32-payload/F16-header and truncation failures. No base-weight
+  substitution or additional optimizer training took place.
+- Corrected export **41409413622 SUCCESS**, source2373ce10c71223f210fd4e1536b6ff1118c99afd,
+  artifact **13124627967**, 85,852,249 ZIP bytes, digest
+  `86899e08eafa46c167c06a88e2d5428b38dff14897d656e6824f2715d5a54d50`;
+  expires2027-01-31T07:55:28Z. This is export validation, not phone/inference acceptance.
+- Experimental inference now uses a private same-UID `:offline_whisper` bound process.
+  No exported component or Internet permission. Binder death returns an explicit error;
+  original recordings remain authoritative and the default Vosk engine is unchanged.
+  A new native test will deliberately kill only that worker, check recoverable error,
+  original bytes, surviving Notes PID, and responsive main looper. NOT YET QUALIFIED.
+- Local root gate **710 PASS**. Startup/filter and this model/process fix still require
+  exhaustive latest-source Android qualification before any replacement APK handoff.
+- Shared-toolchain edits also started standalone run41406961751 (28 jobs rather than the
+  dedicated nine-job refinement). Cancellation was denied by integration permissions
+  (HTTP403). Its publication remains subject to unchanged source-bound UX approval gates;
+  no public release is authorized. Future shared setup edits are pushed with skip-ci.
+
+## Viewer/search working tree, not candidate delivery
+
+Continuous native PDF pages and offline PDFBox text search/count/copy, source-byte copy,
+private bounded viewed-file FTS history, and saved-content-first global search have
+initial implementations but remain uncommitted and Android-uncompiled. They are NOT in
+round10 integration qualification. Excel spreadsheet view, Word layout fidelity, and
+rotating/filterable in-app diagnostics are still pending. Physical startup, playback,
+emoji OCR and Indian-speaker accuracy are not accepted by emulator evidence.

@@ -1,3 +1,4 @@
+# Round 14: 378 owned methods; attached spreadsheet viewport/strict Word checks; viewport-aware PDF scroll fixture.
 # Round 13: 377 owned methods; native Word/logo, race-free copy, actual scroll and shared-lock deadlock regression.
 # Round 12: fix owned viewer-test compile classpath/PdfDocument cleanup; harden per-request IPC cancellation.
 # Previous round 11: optimized CPU + IPC phases; continuous PDF, spreadsheet grid, viewed search and diagnostic filters.
@@ -176,15 +177,19 @@ jobs:
         run: |
           python3 - <<'PYRESULT'
           from pathlib import Path
-          import json,sys
+          import json,sys,re
           from mynotes.tools.ci.results import android,write_report
           expected=json.loads(Path('refinement-expected.json').read_text())
           path=Path('refinement-native.txt')
           result=android(path.read_text(errors='replace') if path.exists() else '',expected)
           write_report(result,'refinement-native.json')
           cpu=Path('refinement-native-cpu-phases.txt')
-          if cpu.exists() and cpu.stat().st_size:
-              print('::notice title=Observed native CPU phases and elapsed time::'+json.dumps(cpu.read_text(errors='replace')[-4000:]))
+          phases=cpu.read_text(errors='replace') if cpu.exists() else ''
+          if path.exists():
+              for observation in set(re.findall(r'trained_cpu_elapsed_ms=\d+',path.read_text(errors='replace'))):
+                  if observation not in phases:phases+='\n'+observation+' (public fixture end-to-end, not physical-device timing)'
+          if 'NotesCpuPhase' in phases or 'trained_cpu_elapsed_ms=' in phases:
+              print('::notice title=Observed native CPU phases and elapsed time::'+json.dumps(phases[-4000:]))
           if not result['ok']:
               progress=Path('refinement-native-test-progress.txt')
               if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))

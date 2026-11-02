@@ -63,3 +63,24 @@ class ImageSelectionAndPilot(unittest.TestCase):
   self.assertEqual([('train','one'),('train','two'),('evaluation','four')],old)
   self.assertEqual([('train','two'),('evaluation','four'),('train','one')],stream)
   self.assertEqual(set(old),set(stream))
+
+ def test_forward_curation_avoids_repeated_bzip2_restarts_with_identical_member_bytes(self):
+  import io,tarfile
+  archive=io.BytesIO()
+  with tarfile.open(fileobj=archive,mode='w:bz2') as bundle:
+   for i in range(6):
+    raw=(str(i)*128).encode();member=tarfile.TarInfo(f'wav/record{i}.wav');member.size=len(raw);bundle.addfile(member,io.BytesIO(raw))
+  class Traced:
+   def __init__(self,stream):self.stream=stream;self.backward=0
+   def __getattr__(self,name):return getattr(self.stream,name)
+   def seek(self,offset,whence=0):
+    if whence==0 and offset<self.stream.tell():self.backward+=1
+    return self.stream.seek(offset,whence)
+  def consume(forward):
+   with tarfile.open(fileobj=io.BytesIO(archive.getvalue()),mode='r:bz2') as bundle:
+    members={member.name:member for member in bundle.getmembers()};traced=Traced(bundle.fileobj);bundle.fileobj=traced
+    requested={'train':[('ksp',f'record{i}') for i in reversed(range(6))]};data={}
+    for _,identity in pilot.archive_requests('ksp',requested,members,forward):data[identity]=bundle.extractfile(members[f'wav/{identity}.wav']).read()
+    return data,traced.backward
+  old,backward=consume(False);stream,optimized=consume(True)
+  self.assertEqual(old,stream);self.assertGreaterEqual(backward,6);self.assertEqual(1,optimized)

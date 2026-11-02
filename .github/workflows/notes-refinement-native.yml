@@ -1,4 +1,6 @@
-# Round 10: corrected F16 trained payloads, complete GGML validation, private native-fault containment.
+# Round 11: optimized CPU + IPC phases; continuous PDF, spreadsheet grid, viewed search and diagnostic filters.
+# Source inventory:372 native methods; no missing cases accepted; exact selected partitions computed at runtime.
+# Previous round 10: corrected F16 trained payloads, complete GGML validation, private native-fault containment.
 # Includes latest private-first startup/far-edge filter tests and intentional speech-worker death.
 # Offline image-selection and playback qualification, previous round 9: actual bundled trained Whisper CPU integration, experimental opt-in.
 # Retains Vosk default; no private recordings, new Internet permission, or silent model substitution.
@@ -29,6 +31,22 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
+      - name: Inspect prior zero-outcome API36 initialization (synthetic CI only)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/tarungittarun/TicTic/actions/jobs/125161667781/logs > "$RUNNER_TEMP/previous-api36.log"
+          python3 - <<'PYLOG'
+          import os,re,json
+          from pathlib import Path
+          lines=Path(os.environ['RUNNER_TEMP'],'previous-api36.log').read_text(errors='replace').splitlines()
+          selected=set(range(max(0,len(lines)-55),len(lines)))
+          for i,line in enumerate(lines):
+              if re.search('error|failed|Failure|cannot|offline|insufficient|exit code 20',line,re.I):selected.update(range(max(0,i-2),min(len(lines),i+4)))
+          excerpt='\n'.join(lines[i] for i in sorted(selected))[-14000:]
+          print('::notice title=Previous API36 initialization job125161667781::'+json.dumps(excerpt))
+          PYLOG
       - uses: ./.github/actions/setup-mynotes
       - name: Compile debug app/instrumentation and lint without publication
         working-directory: mynotes

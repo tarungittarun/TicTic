@@ -42,3 +42,22 @@ Candidate version is0.31/code34 with unchanged package/signing, no Internet perm
 and no data clearing. Actions-only compilation/native qualification is required before
 handoff. No new physical speech/playback/emoji accuracy claim is made. The trained
 speech engine, Vosk default and OCR weights are unchanged by this feedback round.
+
+## Active qualification checkpoint
+
+- Production/source candidate: `fec11f1985a190643d8e9af4e9f4d960696dcb8c`,
+  Actions round17/run41432202683. Compilation,294 JVM cases, release/debug lint and
+  stable-signature APK preparation passed. Eight native shards are still running.
+- Round16/run41432085955 was superseded/cancelled before native qualification, to
+  ensure the tall-image test includes non-final-line paragraph spacing. Not a failure
+  result or additional successful native evidence.
+- Raw0.31/code34 artifact13135456219 exists,155134196 bytes, SHA256
+  `a3f8cb0168cab69aaa3e40ef32815fde76afde2c8d0672a39c930968b368ad3b`.
+  Artifact existence is not delivery approval; final native checks are pending.
+- Independent run41433217010 verifies the actual raw release33/34 APK bytes, manifests
+  and common signing certificate, then attempts a real UI-created Note + Doc cold
+  restart and install-over on a fresh API34 emulator. No debug APK, run-as file
+  injection, uninstall or pm clear. It runs in parallel with native qualification;
+  outcome is pending, not a passing migration claim. Its self-tests use mocked
+  devices and must never be reported as emulator success.
+- Latest local root gate:738 passing host tests. No new user APK handed off.

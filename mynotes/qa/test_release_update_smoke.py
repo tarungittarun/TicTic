@@ -24,7 +24,7 @@ class ReleaseUpdateSmokeHarness(unittest.TestCase):
 
     def test_sequence_cold_checks_both_formats_before_and_after_real_update(self):
         device=self.device()
-        with tempfile.TemporaryDirectory() as directory,patch.object(smoke,'Device',return_value=device):
+        with tempfile.TemporaryDirectory() as directory,patch.object(smoke,'Device',return_value=device),patch('builtins.print'):
             output=Path(directory)/'report.json';smoke.verify('old.apk','candidate.apk',output)
             report=json.loads(output.read_text());self.assertTrue(report['notes_and_doc_retained']);self.assertFalse(report['release_approval'])
         self.assertEqual(3,device.launch.call_count);self.assertEqual(4,device.check.call_count)
@@ -34,7 +34,7 @@ class ReleaseUpdateSmokeHarness(unittest.TestCase):
 
     def test_version_or_install_identity_change_never_produces_passing_report(self):
         for after in [{'version_code':33,'first_install_time':'fixed'},{'version_code':34,'first_install_time':'new'}]:
-            with tempfile.TemporaryDirectory() as directory,patch.object(smoke,'Device',return_value=self.device(after)):
+            with tempfile.TemporaryDirectory() as directory,patch.object(smoke,'Device',return_value=self.device(after)),patch('builtins.print'):
                 output=Path(directory)/'report.json'
                 with self.assertRaises(RuntimeError):smoke.verify('old.apk','candidate.apk',output)
                 self.assertFalse(output.exists())

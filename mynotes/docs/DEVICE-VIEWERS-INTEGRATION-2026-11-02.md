@@ -218,3 +218,23 @@ Authored native regression coverage includes rendered red header-logo pixels and
 stored page breaks, Unicode page source, hostile Word XML/paths, cancellation before
 late binding, coherent projection/schema upgrade checkpoint retention, and real SAF
 copy success/nonempty rejection. Authored tests are not yet passing Android evidence.
+
+### Additional viewport/error-handling review (next source, not yet qualified)
+
+Spreadsheet actions are collapsed into48dp Sheet/Find/Options controls, with the
+search field hidden until requested. Long filenames and status labels are bounded
+to two lines. This avoids letting toolbar text consume the entire landscape or
+large-font grid viewport. New attached-Activity coverage requires column headings
+plus a full real data row; public synthetic grid and Word-paper PNGs are retained
+for visual inspection. Workbook data/parser budgets are unchanged.
+
+Word preview is now the primary explicitly approximate in-app choice, with original
+compatible reader/editable copy still offered. Strict OOXML namespace attributes
+are recognized; unrelated XML cannot masquerade as a successful blank Word preview.
+Foreign XML paragraph/text metadata is not treated as visible Word text.
+
+Privacy/backup scope: viewed-file search is a bounded private cache, not the original
+file or a saved Note/Doc. Original external files and this regenerable view/search
+cache are not part of JSON note backups or current complete App-folder payloads.
+Save important originals explicitly using Save original copy. Existing created notes,
+Doc content, recordings and prior backup-category semantics are unchanged.

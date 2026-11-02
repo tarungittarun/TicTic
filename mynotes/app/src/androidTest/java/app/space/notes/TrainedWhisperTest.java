@@ -24,7 +24,9 @@ public class TrainedWhisperTest {
             assertArrayEquals(before,java.nio.file.Files.readAllBytes(sample.toPath()));
             try(InputStream input=context.getAssets().open("voice/trained-whisper.json")){String manifest=new String(LocalOpenFile.bounded(input,65536),java.nio.charset.StandardCharsets.UTF_8);assertTrue(manifest.contains("41393453222"));assertTrue(manifest.contains("84dcc55f0c1bcdc53e62d90a50c4dbe284669222f13ecbcbf458d62af42bc338"));}
             // Timing is observational, never a physical-device speed or accuracy claim.
-            android.util.Log.i("NotesPublicBenchmark","trained_cpu_elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-start));
+            String observed="trained_cpu_elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-start);
+            android.util.Log.i("NotesPublicBenchmark",observed);
+            android.os.Bundle observation=new android.os.Bundle();observation.putString("stream",observed+" (public fixture; includes install/verification, not physical-device timing)\n");InstrumentationRegistry.getInstrumentation().sendStatus(2,observation);
         }finally{sample.delete();}
     }
     @Test public void privateWorkerDeathReturnsErrorWithoutKillingNotesOrLosingAudio()throws Exception{

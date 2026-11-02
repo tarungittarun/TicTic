@@ -38,3 +38,6 @@ class ViewerSearchDiagnosticsContracts(unittest.TestCase):
   self.assertIn('openWordPages(uri,name)',source('NotesController.java'))
  def test_pdf_read_actions_have_fixed_accessible_icons_and_original_mime(self):
   s=source('LocalPdfPreview.java');self.assertIn('design.icon("Read options","more"',s);self.assertIn('host.saveViewedCopy(uri,name,mime)',s);self.assertIn('title.setMaxLines(2)',s);self.assertIn('Page text · count / select / copy',s)
+
+ def test_spreadsheet_toolbars_leave_space_for_the_actual_grid(self):
+  s=source('SpreadsheetPreview.java');self.assertIn('title.setMaxLines(2)',s);self.assertIn('find.setVisibility(GONE)',s);self.assertIn('design.icon("Spreadsheet options","more"',s);self.assertIn('new LayoutParams(design.dp(48),design.dp(48))',s)

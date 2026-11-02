@@ -160,3 +160,9 @@ class SummaryGate(unittest.TestCase):
     def test_missing_everything_produces_failure_summary_not_exception(self):
         with tempfile.TemporaryDirectory() as d:
             ok,text=evaluate({},d,build_plan());self.assertFalse(ok);self.assertIn('FAIL',text)
+
+class ObservationalProgressResults(unittest.TestCase):
+    def test_nonterminal_benchmark_progress_never_counts_as_an_extra_or_missing_test(self):
+        text="INSTRUMENTATION_STATUS: stream=trained_cpu_elapsed_ms=1234\nINSTRUMENTATION_STATUS_CODE: 2\nINSTRUMENTATION_STATUS: class=Fixture\nINSTRUMENTATION_STATUS: test=recognize\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_CODE: -1\n"
+        result=android(text,['Fixture#recognize'])
+        self.assertTrue(result['ok'],result);self.assertEqual(1,result['passed'])

@@ -80,11 +80,11 @@ final class WordPageFile {
     private List<Paragraph> part(String name,boolean collectText)throws Exception{
         List<Paragraph> result=new ArrayList<>();if(name==null || !files.containsKey(name))return result;Map<String,String> links=relationships(name);XmlPullParser p=parser(files.get(name));Paragraph paragraph=null;Deque<Paragraph> parents=new ArrayDeque<>();int depth=0,deleted=0;boolean bold=false,italic=false,underline=false;float size=defaultSize,imageWidth=0,imageHeight=0;int color=Color.BLACK;String family=null;
         for(int event=p.getEventType();event!=XmlPullParser.END_DOCUMENT;event=p.next()){
-            if(event==XmlPullParser.START_TAG){if(++depth>64)throw new IOException("Word XML nesting limit");String tag=p.getName();boolean w=word(p);if(w && tag.equals("del")){deleted=depth;continue;}if(deleted>0)continue;
-                if(w && tag.equals("p")){if(++paragraphs>20000)throw new IOException("Word paragraph safety limit");if(paragraph!=null)parents.push(paragraph);paragraph=new Paragraph();}
-                else if(w && tag.equals("r")){bold=false;italic=false;underline=false;size=defaultSize;color=Color.BLACK;family=null;imageWidth=imageHeight=0;}
+            if(event==XmlPullParser.START_TAG){if(++depth>64)throw new IOException("Word XML nesting limit");String tag=p.getName();boolean wordTag=word(p);if(wordTag && tag.equals("del")){deleted=depth;continue;}if(deleted>0)continue;
+                if(wordTag && tag.equals("p")){if(++paragraphs>20000)throw new IOException("Word paragraph safety limit");if(paragraph!=null)parents.push(paragraph);paragraph=new Paragraph();}
+                else if(wordTag && tag.equals("r")){bold=false;italic=false;underline=false;size=defaultSize;color=Color.BLACK;family=null;imageWidth=imageHeight=0;}
                 else if(paragraph!=null){
-                    if(!w && !tag.equals("extent") && !tag.equals("blip") && !tag.equals("imagedata"))continue;
+                    if(!wordTag && !tag.equals("extent") && !tag.equals("blip") && !tag.equals("imagedata"))continue;
                     if(tag.equals("b"))bold=!"0".equals(attr(p,"val")) && !"false".equals(attr(p,"val"));else if(tag.equals("i"))italic=!"0".equals(attr(p,"val")) && !"false".equals(attr(p,"val"));else if(tag.equals("u"))underline=!"none".equals(attr(p,"val"));else if(tag.equals("sz"))size=number(attr(p,"val"),defaultSize*2,8,144)/2;
                     else if(tag.equals("color")){String value=attr(p,"val");if(value!=null && value.matches("[a-fA-F0-9]{6}"))color=Color.parseColor("#"+value);}
                     else if(tag.equals("rFonts")){String value=attr(p,"ascii");if(value!=null){String font=value.toLowerCase(Locale.ROOT);family=font.contains("times") || font.contains("georgia")?"serif":font.contains("courier") || font.contains("consolas")?"monospace":"sans-serif";}}

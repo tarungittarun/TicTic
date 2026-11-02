@@ -253,3 +253,15 @@ inference timeout extension, test deletion or production scroll bypass.
 Next source:378 owned methods, intended all194+184 and focused132+121 per profile
 (1262 selected native outcomes across8 shards). Root726 PASS. Final Android results
 and physical acceptance remain pending; no replacement APK is handed off yet.
+
+Round14/run41421832937/source1d040d06 stopped at Java compilation: a newly added
+Word namespace boolean `w` shadowed the existing image-width local `w`. Renamed
+namespace flag `wordTag`; no algorithm/assertion removal. No native jobs executed.
+Source syntax parsing was not treated as Android compilation. The next Actions run
+must validate this source and the attached spreadsheet viewport case.
+
+Also completed a real SHA-pinned shipped-model/Unicode17 output-repertoire audit:
+all three OCR models' union lacks code points needed for every one of3944 fully
+qualified emoji sequences. This explains why universal emoji OCR cannot honestly be
+claimed for the current weights; it is not an inference accuracy/training result.
+See EMOJI-REPERTOIRE-AUDIT-2026-11-02.md and its machine-readable proof.

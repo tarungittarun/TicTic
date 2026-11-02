@@ -49,17 +49,20 @@ def visible_rows(items):
     return sorted(set(rows))
 
 
-def stopped_record(dump):
+def target_activity_record(dump):
     lines=dump.splitlines()
     for index,line in enumerate(lines):
-        if '* Hist #' not in line or PACKAGE+'/' not in line:continue
+        if re.search(r'\*\s+Hist\s+#\d+:',line) is None or PACKAGE+'/' not in line:continue
         indent=len(line)-len(line.lstrip());part=[]
         for value in lines[index+1:]:
-            if len(value)-len(value.lstrip())<=indent and re.match(r'\s*\* (?:Hist #|Task)',value):break
+            if len(value)-len(value.lstrip())<=indent and re.match(r'\s*\*\s+(?:Hist\s+#|Task)',value):break
             part.append(value)
-        text='\n'.join(part)
-        if re.search(r'\b(?:mState|state)=STOPPED\b|\bstopped=true\b',text):return True
-    return False
+        return '\n'.join([line]+part)
+    return ''
+
+
+def stopped_record(dump):
+    return re.search(r'\b(?:mState|state)=STOPPED\b|\bstopped=true\b',target_activity_record(dump)) is not None
 
 
 def wait_until(predicate,seconds=25):
@@ -176,7 +179,14 @@ def verify(output,expected_code=37):
         if before is None:raise RuntimeError('No reader process before backgrounding')
         checkpoint(root,'backgrounding-configured-reader',name)
         device.adb('shell','input','keyevent','KEYCODE_HOME')
-        wait_until(lambda:stopped_record(device.adb('shell','dumpsys','activity','activities')))
+        def background_stopped():
+            dump=device.adb('shell','dumpsys','activity','activities')
+            record=target_activity_record(dump)
+            observation='\n'.join(line for line in record.splitlines() if re.search(r'Hist|State=|state=|stopped=|HaveState|haveState|visible=|VisibleRequested',line))
+            if not record:observation='No parsed target record. Matching headers: '+str([line for line in dump.splitlines() if PACKAGE+'/' in line])
+            (root/'activity-stop-observation.txt').write_text(observation[:3000]+'\n')
+            return stopped_record(dump)
+        wait_until(background_stopped)
         # am kill preserves task/saved Activity state, unlike force-stop/clear-data.
         checkpoint(root,'stopped-state-confirmed',name)
         device.adb('shell','am','kill',PACKAGE)
@@ -206,6 +216,7 @@ if __name__=='__main__':
     try:verify(args.output,args.expected_code)
     except Exception as failure:
         progress=Path(args.output)/'probe-progress.json'
-        message=type(failure).__name__+': '+str(failure)+(' '+progress.read_text() if progress.is_file() else '')
+        observation=Path(args.output)/'activity-stop-observation.txt'
+        message=type(failure).__name__+': '+str(failure)+(' '+progress.read_text() if progress.is_file() else '')+(' '+observation.read_text() if observation.is_file() else '')
         print('::error title=Reader process recovery not accepted::'+message.replace('%','%25').replace('\r','%0D').replace('\n','%0A')[:3000],flush=True)
         raise

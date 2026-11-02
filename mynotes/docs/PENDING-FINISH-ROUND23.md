@@ -38,3 +38,19 @@ picker-target diagnostics. PID/state/source-byte assertions are unchanged. It ca
 also explicitly pin a future installed version; its currently pinned APK37 is
 still not evidence for finalcode38. Host mocks verify scrolling/version guards,
 not Android success. No production navigation behavior is changed by this fix.
+
+## Final-byte process probe pin and stopped-state diagnostics
+
+Code38 build41469717511 succeeded; raw artifact13155455677 is155142244bytes,
+SHA256 `d0285d28318211854cb175bfb983f3f3c1f8180bc8d4106349ee2dd35c2ff3c7`,
+source62c3c22b827c46dcc1a3c4af56c907f6f27015b2. Native qualification still pending.
+The external probe is now pinned to those exact bytes and explicitly expects38.
+
+Probe41470456918 reached the PDF viewer and configured page/query through actual
+SAF, but timed out verifying stopped Activity state, BEFORE any accepted kill or
+recovery. Its parser had required exactly one space in `* Hist #`; dumpsys can pad
+that header. Accept whitespace padding but still require the same target Activity
+and stopped signal; preserve filtered target-state observations if waiting fails.
+This is harness hardening, not a claim that an app-state bug caused the timeout.
+No test/PID/query/page/source-byte assertion is removed and no recovery success is
+claimed until the new actual run is inspected.

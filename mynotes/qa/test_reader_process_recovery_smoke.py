@@ -27,6 +27,8 @@ class ReaderProcessRecoverySmokeTest(unittest.TestCase):
     def test_stopped_state_is_scoped_to_target_activity_not_next_task(self):
         target='      * Hist #0: ActivityRecord{x app.space.notes/.NotesActivity t7}\n'
         self.assertTrue(stopped_record(target+'        mState=STOPPED mHaveState=true\n'))
+        self.assertTrue(stopped_record(target.replace('Hist #','Hist  #')+'        mState=STOPPED mHaveState=true\n'))
+        self.assertTrue(stopped_record(target.replace('Hist #','Hist\t#')+'        mState=STOPPED mHaveState=true\n'))
         self.assertFalse(stopped_record(target+'        mState=RESUMED\n    * Task{x}\n      * Hist #0: ActivityRecord{x other/.Home t9}\n        mState=STOPPED\n'))
         self.assertFalse(stopped_record('* Hist #0: ActivityRecord{x other/.Home t9}\n state=STOPPED'))
 

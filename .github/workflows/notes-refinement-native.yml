@@ -1,3 +1,4 @@
+# Round22 retry: preflight must install libpulse0 before invoking emulator -version, not depend on the later runner action. No app/instrumentation assertion changed.
 # Round22: preserve normalized current-page zoom/pan and page offset across width/reconstruction; bounded SDK-only bootstrap retries, never retry test assertions.
 # Round21 retry: actual AlertDialog Cancel callback fence; previous API26 SDK emulator ZIP bootstrap failed before any instrumentation. Retain all profiles/cases/assertions.
 # Round21: explicit offline scanned-page OCR, bounded viewer reconstruction, request-generation fences and window-specific grid captures.
@@ -137,6 +138,10 @@ jobs:
           Path('refinement-expected.json').write_text(json.dumps(selected))
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
           PYPLAN
+      - name: Install Linux audio loader dependency before emulator version preflight
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
       - name: Bootstrap emulator package with bounded SDK-only retries
         run: |
           set -euo pipefail

@@ -28,3 +28,21 @@ and its peers/evidence; Round22 uses a separate concurrency group, not cancellat
 No data codec, saved Note/Doc, original document, default speech/weights, network
 permission, signature or package change. Increasing version37 preserves install-over
 qualification. Final-byte upgrade smokes and physical acceptance remain required.
+
+## First candidate37 build and bootstrap result (not native approval)
+
+Run41463352662 **build passed**, including294 executed JVM tests/lint and APKs.
+All eight native shards reported0 executed methods. Preserved
+`refinement-native-sdk-bootstrap.txt` establishes the new preflight fault: emulator
+package installation could succeed, but `emulator -version` failed loading
+`libpulse.so.0` before the later emulator-runner setup. This is a CI dependency
+ordering mistake, not measured app behavior. Install Ubuntu `libpulse0` explicitly
+before the preflight; retain the version check, retries and all exact inventories.
+Runtime/app/tests/version37 are unchanged by this retry. No native approval or
+upgrade smoke success is claimed from this failed run.
+
+A new external ADB public-fixture harness is prepared for actual stopped-process
+kill/task relaunch, distinct from fresh-controller tests. Its host parser/fixture
+checks pass; it has NOT yet run on Android and is not recovery acceptance. It does
+not force-stop/uninstall/clear data and checks new PID, PDF/Word page+query and CSV
+query+anchor row plus unchanged source bytes. Image OCR recovery remains separate.

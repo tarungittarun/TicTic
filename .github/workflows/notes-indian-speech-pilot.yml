@@ -1,4 +1,4 @@
-# Round 5: align no-timestamps training/inference prefixes and expose bounded reproducibility evidence.
+# Round 6: retain complete small source-pinned reports/licenses in Git; annotation fields truncate at 4096 characters.
 # KSP trains; SLT is a speaker-disjoint US regression control, NOT an Indian held-out benchmark.
 # Research only: public CMU ARCTIC data + Whisper MIT; no user audio, app changes or publication.
 # Primary source license + Indian training-speaker metadata and pinned archive hashes must pass first.
@@ -17,6 +17,8 @@ jobs:
     if: github.ref == 'refs/heads/arena/3caca636-tictic'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    permissions:
+      contents: write
     env:
       PILOT: /tmp/mynotes-indian-speech-pilot
       OMP_NUM_THREADS: 2
@@ -34,7 +36,7 @@ jobs:
       - name: Install pinned CPU-only experimental training dependencies
         run: |
           python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install numpy==1.26.4 numba==0.61.2 tiktoken==0.9.0 more-itertools==10.7.0 tqdm==4.67.1
+          python -m pip install numpy==1.26.4 numba==0.61.2 tiktoken==0.9.0 more-itertools==10.7.0 tqdm==4.67.1 PyYAML==6.0.3 Pillow==11.3.0
           python -m pip install --no-deps openai-whisper==20250625
       - name: Optimize only final decoder block; score identical held-out clips before and after
         run: |
@@ -67,6 +69,32 @@ jobs:
                       excerpt=log.read_text()[-5000:].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
                       print('::notice title=Pilot '+name+' diagnostics::'+excerpt)
           PY
+      - name: Preserve complete small research reports, licenses and primary speaker metadata on session branch
+        if: success()
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,shutil,json
+          from pathlib import Path
+          output=Path(os.environ['PILOT']);dest=Path('mynotes/docs/speech-pilot')/os.environ['GITHUB_RUN_ID'];dest.mkdir(parents=True,exist_ok=True)
+          for name in ['training-report.json','data-report.json','MODIFICATIONS.txt']:
+              shutil.copyfile(output/name,dest/name)
+          shutil.copytree(output/'licenses',dest/'licenses',dirs_exist_ok=True)
+          (dest/'run.json').write_text(json.dumps({'source_sha':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],'scope':'Public licensed research only; no private audio, APK adoption or physical acceptance','large_audio_and_checkpoint':'CI artifact only; deliberately excluded from Git'},indent=2)+'\n')
+          PY
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python -m unittest discover -s qa
+          git diff --check
+          git add "mynotes/docs/speech-pilot/${{ github.run_id }}"
+          git commit -m "Preserve quarantined Indian speech pilot ${{ github.run_id }} evidence [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+          done
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

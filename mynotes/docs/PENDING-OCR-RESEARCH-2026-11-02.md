@@ -108,3 +108,24 @@ and random/non-speaker-disjoint splits must be disclosed in any eventual report.
 No new speech experiment, training step, broad-accent score or physical playback
 acceptance occurred in this increment. Existing one-speaker KSP pilot remains
 exactly that, not broad Indian-English coverage.
+
+## Actual public PNG-byte audit and queued CPU feasibility experiment
+
+Downloaded only the pinned10,682,087-byte public Twemoji source archive, verified
+SHA256d91bdab1e9ac66f2935425e539f5ac1cd83a491fa27b2021c77630a0ba8e09ff, graphics
+license Git blob and all3944 required PNG Git blobs against the pinned complete
+tree. No private content. PNG-byte identity report is
+`design-2026-10-29/emoji-bitmap-identity-2026-11-02.json`.
+There are3941 distinct PNG blobs for3944 sequences: France/Clipperton/St Martin
+share byte-identical flags, and Norway/Svalbard-Jan Mayen share another. Thus exact
+country-code recovery from these pixels alone is inherently ambiguous; a truthful
+recognizer needs alias choices/context, not an invented single answer.
+
+One separate CPU-only public-graphics feasibility job is requested, not yet a
+success: all3941 alias classes, Twemoji-only fitting, capped three epochs with
+measured steps/changed weights/loss;64 separate-art-style OpenMoji glyphs never
+used for fitting. CC-BY4 training and CC-BY-SA4 evaluation attribution/full licenses
+are retained. No private images/recordings, GPU/paid training service, runtime
+weights change, public release or universal-accuracy claim. Experimental weights
+remain an Actions artifact only. These cropped-glyph results cannot qualify
+detection, cluttered photos, unknown rejection or phone performance.

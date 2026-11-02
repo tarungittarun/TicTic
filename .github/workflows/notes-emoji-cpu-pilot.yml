@@ -1,0 +1,36 @@
+# Public graphics only, CPU only. No app build, default swap or public release.
+name: MyNotes emoji cropped-glyph CPU feasibility (not runtime approval)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-emoji-cpu-pilot.yml']
+permissions:
+  contents: read
+jobs:
+  public-cpu-experiment:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify repository policy and data harness before fitting
+        run: python -m unittest discover -s qa
+      - name: Install pinned CPU-only experiment tools
+        run: |
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install Pillow==11.3.0
+      - name: Fit public Twemoji crops and measure separate OpenMoji style
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u -m mynotes.tools.ci.emoji_cpu_pilot --output evidence/emoji-public-cpu-pilot
+      - name: Retain experimental weights, public provenance and full graphics licenses
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: EXPERIMENTAL-NOT-RUNTIME-emoji-public-cpu-pilot
+          path: evidence/emoji-public-cpu-pilot
+          retention-days: 7
+          if-no-files-found: warn

@@ -70,6 +70,7 @@ public final class NotesController {
     private NotesRepository repository;
     private final int bg, ink, surface, muted;
     private final Bundle restored;
+    private volatile String startupPhase="Waiting for pending local writes";
     private volatile boolean closed;private boolean ready, binding, dirty, busy;
     private final Set<LocalPdfPreview.Document> pendingPdfDocuments=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private String page="Notes", editing;private boolean documentsWorkspace;
@@ -158,14 +159,20 @@ public final class NotesController {
         root.setPadding(dp(18),dp(14),dp(18),dp(10)); root.setBackgroundColor(bg);
         root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(Diagnostics.enabled() && (r-l!=or-ol || b-t!=ob-ot))Diagnostics.record("ui.viewport","width_px="+(r-l)+" height_px="+(b-t)+" font_scale="+context.getResources().getConfiguration().fontScale+" night="+darkTheme);});
         shell=new LibraryGestureLayout(context,this::canSwipeLibrary,()->{View launcher=root.findViewWithTag("library-launcher");if(launcher!=null)launcher.performClick();});shell.setBackgroundColor(bg);shell.addView(root,new FrameLayout.LayoutParams(-1,-1));sheets=new NotesSheets(design,shell);shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->adaptEditorViewport());root.getViewTreeObserver().addOnGlobalLayoutListener(this::adaptEditorViewport);
-        TextView loading=text("Opening your notes…",18); root.addView(loading);root.addView(button("Export diagnostic report",host::exportDiagnostics));
+        TextView loading=text("Opening your notes…",18); root.addView(loading);
+        ProgressBar startupProgress=new ProgressBar(context);root.addView(startupProgress);
+        Button startupReport=button("Export diagnostic report",host::exportDiagnostics);startupReport.setVisibility(View.GONE);root.addView(startupReport);
+        final long startupStarted=android.os.SystemClock.elapsedRealtime();
+        main.postDelayed(new Runnable(){public void run(){if(closed || ready || loading.getParent()==null)return;long seconds=(android.os.SystemClock.elapsedRealtime()-startupStarted)/1000;loading.setText("Opening saved notes · "+seconds+" s\n"+startupPhase+"\nSaved data has not been cleared.");if(seconds>=5)startupReport.setVisibility(View.VISIBLE);main.postDelayed(this,1000);}},1000);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
         disk.execute(()->{
             try {
+                startupPhase="Finishing verified recovery";Diagnostics.record("startup.phase","recovery started elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
                 AppFolder.finishRecovery(context.getApplicationContext());
                 repository=new NotesRepository(context.getApplicationContext());
-                List<Note> loaded=repository.load();
-                try{LocalSystemSurfaces.refresh(context,true);}catch(Exception unavailable){log("reminder.refresh","OS refresh pending; notes retained");}
+                startupPhase="Verifying the internal notes copy";Diagnostics.record("startup.phase","private load started elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
+                List<Note> loaded=repository.loadForStartup();
+                startupPhase="Checking retained recordings and history";Diagnostics.record("startup.phase","private load completed elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
                 boolean recovered=false,catalogReadable=true;Set<String> pendingVoiceDeletionMarkers=new HashSet<>();
                 try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
                     knownRecordings.add(id);String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
@@ -193,8 +200,9 @@ public final class NotesController {
                     }
                     if(restored!=null && restored.getBoolean("voiceInbox",false)){voiceReturn=()->{Note target=voiceInsertTarget==null?null:find(voiceInsertTarget);if(target!=null && target.deletedAt==0){editing=target.id;renderEditor();}else renderHome();};refreshVoiceInbox();deliverDeferred();return;}
                     if(restored!=null){String auxiliary=restored.getString("auxiliaryPage","");if(!auxiliary.isEmpty()){switch(auxiliary){case "Settings":renderSettings();break;case "Storage & recovery":renderStorage();break;case "Backups":renderBackups();break;case "About & offline models":renderModelInfo();break;case "Diagnostics":renderDiagnostics();break;case "Manage labels":manageLabels();break;case "Folders":renderFolders(false);break;default:renderHome();}deliverDeferred();return;}}
-                    renderHome(); log("load","ok count="+notes.size()); deliverDeferred();
+                    renderHome(); log("load","ok count="+notes.size());Diagnostics.record("startup.ready","elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted)); deliverDeferred();
                 }catch(RuntimeException | OutOfMemoryError failure){ready=false;Diagnostics.failure("load.ui.failure",failure);clearPage();root.addView(text("Notes could not be displayed. Saved data was not cleared.",18));root.addView(button("Export diagnostic report",host::exportDiagnostics));root.addView(button("Try opening again",host::appearanceChanged));host.libraryUnavailable(failure);}});
+                try{LocalSystemSurfaces.refresh(context,true);}catch(Exception unavailable){log("reminder.refresh","OS refresh pending; notes retained");}
             } catch(Exception | OutOfMemoryError e) { main.post(()->{
                 if(closed)return; clearPage(); root.addView(text("Library could not be opened. Existing data was not replaced.",18));
                 root.addView(text("Close and retry. Do not clear app data.",14));root.addView(button("Export diagnostic report",host::exportDiagnostics));root.addView(button("Enable issue logs and retry",()->{Diagnostics.setEnabled(true);host.appearanceChanged();}));root.addView(button("Try opening again",host::appearanceChanged));

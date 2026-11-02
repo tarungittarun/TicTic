@@ -46,3 +46,19 @@ data clearing or silent replacement of the working speech engine.
    (presets/custom) and export; no private note/URI/error-message leakage.
 9. Distinguish owned notes/Docs from external read-only file history. Opening alone must
    not silently import it into the saved library or copy private bytes without consent.
+
+## Startup and full-row filter changes prepared during native qualification
+
+- Verified private-journal startup path stays on the existing serial writer queue and
+  preserves recovery/head/pending fences; with an existing valid private copy it does not
+  call a potentially slow/revoked external provider. Full folder protocol still checks its
+  expected head on save. Missing private storage takes the existing full load path; corrupt
+  private data is reported, never replaced with an empty library or external rollback.
+- Loading now has a progress indicator, elapsed time and fixed-name phase breadcrumbs;
+  diagnostic export appears after five seconds rather than looking like the normal home
+  screen. Nonessential OS reminder refresh follows the queued UI-ready update.
+- Radio/checkbox options fill their labeled rows with 48 dp minimum height. A native test
+  injects an actual far-edge tap and checks the selected choice survives Apply/reopen.
+- Three new native repository contracts check provider-free startup, corruption retention,
+  and staged-recovery fences. Local gate 706 tests PASS; native qualification of these
+  additional changes is pending, not included in the older integration build source.

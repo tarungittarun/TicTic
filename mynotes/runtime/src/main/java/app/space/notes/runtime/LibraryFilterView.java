@@ -27,6 +27,6 @@ final class LibraryFilterView extends LinearLayout {
  }
  private void sync(){binding=true;allBox.setChecked(all);emptyBox.setChecked(all||unlabelled);for(Map.Entry<String,CheckBox> item:boxes.entrySet())item.getValue().setChecked(all||selected.contains(item.getKey()));binding=false;}
  private void materialize(){if(all){selected.clear();selected.addAll(labels);unlabelled=true;}}
- private CheckBox check(String name,boolean value){CheckBox box=new CheckBox(getContext());box.setText(name);box.setTextColor(d.ink);box.setMinHeight(d.dp(48));box.setChecked(value);return box;}
- private RadioButton radio(String name,boolean value){RadioButton button=new RadioButton(getContext());button.setId(View.generateViewId());button.setText(name);button.setTextColor(d.ink);button.setMinHeight(d.dp(48));button.setChecked(value);return button;}
+ private CheckBox check(String name,boolean value){CheckBox box=new CheckBox(getContext());box.setText(name);box.setTextColor(d.ink);box.setMinHeight(d.dp(48));box.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));box.setPadding(d.dp(12),d.dp(4),d.dp(12),d.dp(4));box.setClickable(true);box.setFocusable(true);box.setChecked(value);return box;}
+ private RadioButton radio(String name,boolean value){RadioButton button=new RadioButton(getContext());button.setId(View.generateViewId());button.setText(name);button.setTextColor(d.ink);button.setMinHeight(d.dp(48));button.setLayoutParams(new RadioGroup.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));button.setPadding(d.dp(12),d.dp(4),d.dp(12),d.dp(4));button.setClickable(true);button.setFocusable(true);button.setChecked(value);return button;}
 }

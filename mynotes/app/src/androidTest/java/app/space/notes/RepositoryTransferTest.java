@@ -38,6 +38,24 @@ public class RepositoryTransferTest {
     private Memory backend;
     private NotesRepository repo() {return new NotesRepository(context,u->new GenerationProtocol(backend));}
     private Note n(String id,String body) {return new Note(id,"title",body,1,2,0,false,false,0);}
+    @Test public void startupOpensVerifiedPrivateCopyWithoutCallingFolderProvider()throws Exception{
+        Note original=n("startup-private","Keep private content");repo().save(Arrays.asList(original));
+        byte[] before=java.nio.file.Files.readAllBytes(new File(fixture,"notes-library/library-v1.json").toPath());
+        context.getSharedPreferences("mynotes-storage-v1",0).edit().putString("tree",uri.toString()).commit();
+        NotesRepository cold=new NotesRepository(context,u->{throw new AssertionError("Startup must not call slow or revoked provider when private authority exists");});
+        assertEquals(original.body,cold.loadForStartup().get(0).body);assertTrue(cold.status().contains("Private copy"));
+        org.junit.Assert.assertArrayEquals(before,java.nio.file.Files.readAllBytes(new File(fixture,"notes-library/library-v1.json").toPath()));
+    }
+    @Test public void startupDoesNotReplaceCorruptPrivateLibraryWithFolderOrEmptyNotes()throws Exception{
+        File library=new File(fixture,"notes-library/library-v1.json");assertTrue(library.getParentFile().mkdirs());byte[] broken="synthetic invalid journal".getBytes(java.nio.charset.StandardCharsets.UTF_8);java.nio.file.Files.write(library.toPath(),broken);
+        NotesRepository cold=new NotesRepository(context,u->{throw new AssertionError("Never silently replace unreadable private data");});
+        try{cold.loadForStartup();fail("Unreadable private data must be reported");}catch(Exception expected){}
+        org.junit.Assert.assertArrayEquals(broken,java.nio.file.Files.readAllBytes(library.toPath()));
+    }
+    @Test public void startupPrivateFastPathCannotBypassStagedRecovery()throws Exception{
+        repo().save(Arrays.asList(n("recovery-fence","Keep original")));File marker=new File(fixture,"app-folder-recovery-v1/ready.json");assertTrue(marker.getParentFile().mkdirs());java.nio.file.Files.write(marker.toPath(),new byte[]{123,125});
+        try{repo().loadForStartup();fail("Recovery fence must block fast path");}catch(IOException expected){assertTrue(marker.isFile());}
+    }
     @Before public void setup() {
         Context target=InstrumentationRegistry.getInstrumentation().getTargetContext();
         fixture=new File(target.getCacheDir(),"transfer-"+UUID.randomUUID());assertTrue(fixture.mkdirs());backend=new Memory();

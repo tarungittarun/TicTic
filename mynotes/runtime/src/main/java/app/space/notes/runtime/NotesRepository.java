@@ -77,6 +77,21 @@ public final class NotesRepository {
     private GenerationProtocol protocol(String uri) throws Exception {
         return folderAccess==null?new GenerationProtocol(new LocalTreeBackend(context.getContentResolver(),Uri.parse(uri),new AppFolder(context,Uri.parse(uri)).library())):folderAccess.open(uri);
     }
+    /** Cold-start private authority: never wait for a document provider when a verified
+     * private journal already exists. Runs on the SAME serial disk queue as writers.
+     * Does not bypass staged recovery, adopt external changes, or clear pending/head fences.
+     */
+    public List<Note> loadForStartup() throws Exception {
+        File recovery=new File(context.getFilesDir(),"app-folder-recovery-v1/ready.json");
+        if(recovery.exists() || new File(recovery+".bak").exists())throw new IOException("App recovery must finish before opening the private journal");
+        if(!exists())return load();
+        try{
+            byte[] bytes=atomicRead(file);JSONObject local=new JSONObject(app.space.notes.domain.JsonLimits.text(bytes));
+            List<Note> notes=DocumentCodec.decode(bytes);head=local.optString("folderHead",null);
+            status=selected==null?"Device storage":"Private copy opened · folder checked on save";
+            return notes;
+        }catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to verify saved notes safely; existing files were not replaced",pressure);}
+    }
     public List<Note> load() throws Exception {try{return loadVerified();}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to open this library safely; existing files were not replaced",pressure);}}
     private List<Note> loadVerified() throws Exception {
         JSONObject local=exists()?new JSONObject(app.space.notes.domain.JsonLimits.text(atomicRead(file))):null;

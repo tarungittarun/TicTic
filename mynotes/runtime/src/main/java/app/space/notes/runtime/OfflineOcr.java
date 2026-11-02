@@ -58,7 +58,7 @@ public final class OfflineOcr {
         if(options.outWidth<=0 || options.outHeight<=0 || options.outWidth>32768 || options.outHeight>32768)throw new IOException("Unsupported image or dimensions");
         int sample=1;while(options.outWidth/(long)sample*(options.outHeight/(long)sample)>4000000L || Math.max(options.outWidth,options.outHeight)/sample>2400)sample*=2;
         options.inJustDecodeBounds=false;options.inSampleSize=sample;options.inPreferredConfig=Bitmap.Config.ARGB_8888;Bitmap bitmap=BitmapFactory.decodeFile(image.getPath(),options);if(bitmap==null)throw new IOException("Cannot decode this image");
-        int orientation=ExifInterface.ORIENTATION_NORMAL;try{orientation=new ExifInterface(image.getPath()).getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);}catch(IOException unsupportedMetadata){/* Decoder already verified pixels; no EXIF orientation is also valid. */}
+        try{int orientation=ExifInterface.ORIENTATION_NORMAL;try{orientation=new ExifInterface(image.getPath()).getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);}catch(IOException unsupportedMetadata){/* Decoder already verified pixels; no EXIF orientation is also valid. */}
         Matrix matrix=new Matrix();switch(orientation){
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:matrix.setScale(-1,1);break;
             case ExifInterface.ORIENTATION_ROTATE_180:matrix.setRotate(180);break;
@@ -68,27 +68,28 @@ public final class OfflineOcr {
             case ExifInterface.ORIENTATION_TRANSVERSE:matrix.setRotate(270);matrix.postScale(-1,1);break;
             case ExifInterface.ORIENTATION_ROTATE_270:matrix.setRotate(270);break;
         }
-        if(!matrix.isIdentity()){Bitmap rotated=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);if(rotated!=bitmap)bitmap.recycle();bitmap=rotated;}return bitmap;
+        if(!matrix.isIdentity()){Bitmap rotated=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);if(rotated!=bitmap)bitmap.recycle();bitmap=rotated;}return bitmap;}catch(Exception | OutOfMemoryError failure){bitmap.recycle();throw failure;}
     }
     /** Composite transparency, normalize dark screenshots, upscale small text; never alter the source. */
     public static Bitmap prepareBitmap(Bitmap source){
         float scale=Math.max(source.getWidth(),source.getHeight())<1000?Math.min(2f,1000f/Math.max(source.getWidth(),source.getHeight())):1f;
-        Bitmap out=Bitmap.createBitmap(Math.max(1,Math.round(source.getWidth()*scale)),Math.max(1,Math.round(source.getHeight()*scale)),Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(out);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(source,null,new Rect(0,0,out.getWidth(),out.getHeight()),paint);
+        Bitmap out=Bitmap.createBitmap(Math.max(1,Math.round(source.getWidth()*scale)),Math.max(1,Math.round(source.getHeight()*scale)),Bitmap.Config.ARGB_8888);try{Canvas canvas=new Canvas(out);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(source,null,new Rect(0,0,out.getWidth(),out.getHeight()),paint);
         long border=0;int samples=0;for(int i=0;i<16;i++){int x=i*(out.getWidth()-1)/15;for(int y:new int[]{0,out.getHeight()-1}){int c=out.getPixel(x,y);border+=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;samples++;}}
         int dark=0;for(int gy=0;gy<8;gy++)for(int gx=0;gx<8;gx++){int c=out.getPixel((2*gx+1)*out.getWidth()/16,(2*gy+1)*out.getHeight()/16);if((Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000<80)dark++;}
         if(border/samples<80 && dark>=45){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
-        return out;
+        return out;}catch(RuntimeException | OutOfMemoryError failure){out.recycle();throw failure;}
     }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");
         if(!"auto".equals(language) && !LANGUAGES.contains(language))throw new IOException("Choose English, Hindi or Kannada");
         if(bitmap==null || bitmap.isRecycled() || (long)bitmap.getWidth()*bitmap.getHeight()>4000000L)throw new IOException("Unsupported OCR bitmap");
-        cancellation.check();File root;if("auto".equals(language)){root=null;for(String code:LANGUAGES){cancellation.check();root=installModel(context,code);}}else root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();Bitmap prepared=prepareBitmap(bitmap);
+        cancellation.check();File root;if("auto".equals(language)){root=null;for(String code:LANGUAGES){cancellation.check();root=installModel(context,code);}}else root=installModel(context,language);cancellation.check();TessBaseAPI engine=new TessBaseAPI();Bitmap prepared=null;
         try{
+            prepared=prepareBitmap(bitmap);
             if(!engine.init(root.getAbsolutePath(),"auto".equals(language)?"eng+hin+kan":language))throw new IOException("Bundled OCR model could not initialize");
             synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setVariable("preserve_interword_spaces","1");engine.setImage(prepared);
             String hocr=engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";if(text.trim().isEmpty() || confidence<65){engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(sparse!=null && !sparse.trim().isEmpty() && (text.trim().isEmpty() || score>confidence && sparse.length()>=text.length()*.75)){text=sparse;confidence=score;hocr=engine.getHOCRText(0);}}cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
-        }finally{synchronized(cancellation){cancellation.active=null;engine.recycle();prepared.recycle();}}
+        }finally{synchronized(cancellation){cancellation.active=null;try{engine.recycle();}finally{if(prepared!=null)prepared.recycle();}}}
     }
     /** Bounded native-generated XHTML; no external entities, HTML views, or network fetches. */
     private static List<ImageTextSelection.Word> regions(String hocr,int width,int height,Cancellation cancel)throws InterruptedException {

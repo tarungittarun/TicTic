@@ -1,7 +1,21 @@
 # Pending work: round20
 
-Source work, not yet qualified or a new APK handoff. Prior0.31 remains the
-qualified development download. Candidate0.32/code35 preserves signing/package.
+## Final status
+
+Development0.32/code35 qualified: native41449624652 SUCCESS9/9,1278/1278
+outcomes/382 unique methods;294 JVM/lint; latest repository746 tests passed.
+Both exact-byte signed0.31→0.32 and direct0.30→0.32 Note+Doc update smokes passed.
+No public release/physical acceptance, exhaustive rich-library migration or emoji
+recognition claim. Package/signing unchanged. Install over existing app; do not
+uninstall or clear data.
+
+APK: https://github.com/tarungittarun/TicTic/actions/runs/41449624652/artifacts/13144272420
+`MyNotes-v0.32.0-35-development.apk`,155134848bytes, SHA256
+`2568af3d33e8856b288a2f76a9d36cde9aa116a25571eac272c0d5cdf0981813`.
+Expires2026-11-09T13:08:02Z. Sourcefe6a0ded6b727f7b08c179187d671648e51db560.
+
+Chronological work notes follow; earlier pending statuses are superseded by this
+final status. Remaining implementation/research limits remain pending.
 
 ## This increment
 - Retained image selector responds to actual window bounds on rotation/resize;
@@ -46,3 +60,16 @@ portrait/landscape captures show selected25 and reachable controls. See
 `native/41449624652/MANUAL-REVIEW.md` for explicit scope and remaining capture race.
 An additional actual code33→35 smoke is requested because0.30 is the latest
 physically confirmed user version; code34→35 already passed. No source/APK change.
+
+Direct0.30/code33→0.32/code35 smoke41452983989 **SUCCESS**, job125302491905,
+sourceadc4292573bb6adfee5c3f47a38c0b0ab4001083. Evidence artifact13145951242
+(909bytes), digest10d3f654f2571a59db6169881042c07912f802768ce22a1c7d983b9850920277.
+The same final bytes/signature and real UI cold-restarted Note+Doc were checked,
+with firstInstallTime retained, no uninstall/clear or debug-file injection. This
+still is not physical or exhaustive rich-data acceptance.
+
+Exactly11 justified CI jobs this increment:9-job native/build qualification and
+two one-job actual-byte update smokes (from each recent development version).
+No new speech/emoji training. Emoji filename candidate audit and speech corpus
+provenance research are in `PENDING-OCR-RESEARCH-2026-11-02.md`; scanned-PDF OCR is
+a plan, not shipped functionality. Landscape grid screenshot race still pending.

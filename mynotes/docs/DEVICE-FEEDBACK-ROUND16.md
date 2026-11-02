@@ -141,3 +141,8 @@ running and is not replaced by this passing update smoke.
   and exact Office fidelity remain incomplete. Image-dialog rotation/process-death
   restoration, universal emoji OCR, broad Indian accents and physical ML/playback
   remain unqualified. Models were not retrained or changed this UI round.
+
+## Next increment delivered0.32/code35
+See `PENDING-ROUND20.md`: retained image-dialog responsive reflow;1278/1278 native
+outcomes/382 unique methods; exact final APK updates from code33 and34 passed.
+No PDF OCR, new speech training or universal emoji recognizer was shipped.

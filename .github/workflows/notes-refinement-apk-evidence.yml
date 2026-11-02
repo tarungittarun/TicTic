@@ -19,7 +19,7 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41390921561
+          run-id: 41393215902
           name: MyNotes-v0.29.0-32-development.apk
           path: verified-apk
       - name: Validate actual bytes, Android manifest and stable signing certificate
@@ -29,8 +29,8 @@ jobs:
           python3 - <<'PY'
           import hashlib,json,os,re,subprocess,zipfile
           from pathlib import Path
-          artifact=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/artifacts/13117306517'],text=True))
-          source='590c9d10daf52ca6a1bdc15b7b088f6d7259f396'
+          artifact=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/artifacts/13118376864'],text=True))
+          source='37476912f375b5fe7da17a3b421f619d43090993'
           assert artifact['workflow_run']['head_sha']==source
           files=list(Path('verified-apk').rglob('*.apk'));assert len(files)==1,files
           apk=files[0]
@@ -46,8 +46,8 @@ jobs:
           assert "package: name='app.space.notes' versionCode='32' versionName='0.29.0'" in manifest
           assert "sdkVersion:'26'" in manifest and "targetSdkVersion:'34'" in manifest
           assert 'android.permission.INTERNET' not in manifest
-          report={'source_sha':source,'source_run':41390921561,'artifact_id':artifact['id'],'filename':apk.name,'bytes':apk.stat().st_size,'sha256':sha,'signer_sha256':signer,'package':'app.space.notes','version_name':'0.29.0','version_code':32,'min_sdk':26,'target_sdk':34,'internet_permission':False,'raw_apk_not_wrapped_zip':True,'expires_at':artifact['expires_at'],'release_approval':False,'scope':'Already-built development APK byte/signature/manifest verification only; does not replace native qualification or physical install-over acceptance.'}
-          dest=Path('mynotes/docs/design-2026-10-29/native/41390921561');dest.mkdir(parents=True,exist_ok=True)
+          report={'source_sha':source,'source_run':41393215902,'artifact_id':artifact['id'],'filename':apk.name,'bytes':apk.stat().st_size,'sha256':sha,'signer_sha256':signer,'package':'app.space.notes','version_name':'0.29.0','version_code':32,'min_sdk':26,'target_sdk':34,'internet_permission':False,'raw_apk_not_wrapped_zip':True,'expires_at':artifact['expires_at'],'release_approval':False,'scope':'Already-built development APK byte/signature/manifest verification only; does not replace native qualification or physical install-over acceptance.'}
+          dest=Path('mynotes/docs/design-2026-10-29/native/41393215902');dest.mkdir(parents=True,exist_ok=True)
           (dest/'apk-verification.json').write_text(json.dumps(report,indent=2)+'\n')
           print('::notice title=Verified source-pinned raw APK::'+json.dumps(report))
           PY
@@ -61,7 +61,7 @@ jobs:
           git pull --ff-only origin arena/3caca636-tictic
           python3 -m unittest discover -s qa
           git diff --check
-          git add mynotes/docs/design-2026-10-29/native/41390921561/apk-verification.json
+          git add mynotes/docs/design-2026-10-29/native/41393215902/apk-verification.json
           git commit -m "Preserve byte/signature/manifest verification for source-pinned 0.29 APK [skip ci]"
           for attempt in 1 2 3; do
             if git push origin arena/3caca636-tictic; then break; fi

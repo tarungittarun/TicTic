@@ -1,0 +1,51 @@
+# One CPU export job, no training, private input, Android build or public release.
+name: MyNotes trained Whisper Android model export
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-trained-whisper-export.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  export-trained-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41393453222
+          name: expanded-indian-acoustic-research-only
+          path: research
+      - name: Install pinned export dependencies and original pinned MIT CPU source
+        run: |
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install openai-whisper==20250625 numpy==2.2.6
+          git clone https://github.com/ggml-org/whisper.cpp.git /tmp/whisper-cpp
+          git -C /tmp/whisper-cpp checkout --detach 4979e04f5dcaccb36057e059bbaed8a2f5288315
+      - name: Export exact trained blocks, never an untrained substitute
+        run: |
+          set -euo pipefail
+          checkpoint=$(find research -name experimental-acoustic-decoder-blocks.pt -print -quit)
+          test -n "$checkpoint"
+          python -m mynotes.tools.ci.export_trained_whisper --checkpoint "$checkpoint" --cpp /tmp/whisper-cpp --output exported
+          mkdir -p exported/licenses
+          cp mynotes/docs/speech-acoustic/41393453222/licenses/* exported/licenses/
+          cp mynotes/docs/speech-acoustic/41393453222/MODIFICATIONS.txt exported/licenses/
+          cp /tmp/whisper-cpp/LICENSE exported/licenses/whisper-cpp-LICENSE.txt
+          cp "$checkpoint" exported/experimental-acoustic-decoder-blocks.pt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: trained-whisper-android-offline
+          path: |
+            exported/trained-whisper.bin
+            exported/trained-whisper.json
+            exported/licenses/
+            exported/experimental-acoustic-decoder-blocks.pt
+          retention-days: 90
+          if-no-files-found: error

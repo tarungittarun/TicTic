@@ -1,0 +1,70 @@
+# Verify the already-built raw APK. No Android build, public release or app/model changes.
+name: MyNotes source-pinned raw APK verification
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-refinement-apk-evidence.yml']
+permissions:
+  contents: read
+jobs:
+  verify-raw-apk:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41390921561
+          name: MyNotes-v0.29.0-32-development.apk
+          path: verified-apk
+      - name: Validate actual bytes, Android manifest and stable signing certificate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,re,subprocess,zipfile
+          from pathlib import Path
+          artifact=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/artifacts/13117306517'],text=True))
+          source='590c9d10daf52ca6a1bdc15b7b088f6d7259f396'
+          assert artifact['workflow_run']['head_sha']==source
+          files=list(Path('verified-apk').rglob('*.apk'));assert len(files)==1,files
+          apk=files[0]
+          with apk.open('rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
+          assert sha==artifact['digest'].removeprefix('sha256:')
+          assert apk.stat().st_size==artifact['size_in_bytes']
+          with zipfile.ZipFile(apk) as bundle:assert {'AndroidManifest.xml','classes.dex'}<=set(bundle.namelist())
+          tools=Path(os.environ['ANDROID_HOME'])/'build-tools'/'35.0.0'
+          cert=subprocess.check_output([str(tools/'apksigner'),'verify','--print-certs',str(apk)],text=True)
+          signer='08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca'
+          assert signer in cert,cert
+          manifest=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(apk)],text=True)
+          assert "package: name='app.space.notes' versionCode='32' versionName='0.29.0'" in manifest
+          assert "sdkVersion:'26'" in manifest and "targetSdkVersion:'34'" in manifest
+          assert 'android.permission.INTERNET' not in manifest
+          report={'source_sha':source,'source_run':41390921561,'artifact_id':artifact['id'],'filename':apk.name,'bytes':apk.stat().st_size,'sha256':sha,'signer_sha256':signer,'package':'app.space.notes','version_name':'0.29.0','version_code':32,'min_sdk':26,'target_sdk':34,'internet_permission':False,'raw_apk_not_wrapped_zip':True,'expires_at':artifact['expires_at'],'release_approval':False,'scope':'Already-built development APK byte/signature/manifest verification only; does not replace native qualification or physical install-over acceptance.'}
+          dest=Path('mynotes/docs/design-2026-10-29/native/41390921561');dest.mkdir(parents=True,exist_ok=True)
+          (dest/'apk-verification.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('::notice title=Verified source-pinned raw APK::'+json.dumps(report))
+          PY
+      - name: Gate and preserve only small package-verification evidence
+        run: |
+          set -euo pipefail
+          python3 -m pip install Pillow==11.3.0 PyYAML==6.0.3
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/design-2026-10-29/native/41390921561/apk-verification.json
+          git commit -m "Preserve byte/signature/manifest verification for source-pinned 0.29 APK [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+          done

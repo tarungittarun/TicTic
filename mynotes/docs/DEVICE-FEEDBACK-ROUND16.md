@@ -94,3 +94,16 @@ is27mm, not350 raw pixels. Source: aosp-mirror/platform_frameworks_base,
 android-14.0.0_r1, core/res/res/values/config.xml and
 core/java/android/view/ScaleGestureDetector.java. This confirms why the earlier
 fixed-pixel fixture failed and why display-relative pointer spans are required.
+
+Round17 finished **1270/1274** selected outcomes, all eight shards preserved under
+`design-2026-10-29/native/41432202683`. Only the fixed-pixel pinch method failed
+on all four profiles; the other380 owned methods passed. Final scope remains381
+methods,294 JVM cases,738 host checks. Word oversize fit, source preservation,
+rotation/query retention and selection-first tests have actual round17 passes.
+
+Final candidate-source round19/run41435617835 is `2836660ca9d9ad571b30f253f05b1cc7939ccd7d`.
+Compilation/lint/JVM passed; native jobs are running. Its raw APK artifact13136073353
+is155134192 bytes, SHA256212b5834a2a4038cc8bb7a6ca6c2ddb2795b56d5e438fb5b7f4e5ecd58f00270.
+These bytes differ from round17 despite unchanged production source, so the release
+install-over workflow is repinned and rerun against the actual final artifact, rather
+than silently carrying the earlier byte/signature/update result forward. No handoff yet.

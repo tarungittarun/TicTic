@@ -23,7 +23,7 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41432202683
+          run-id: 41435617835
           name: MyNotes-v0.31.0-34-development.apk
           path: candidate-apk
       - name: Verify exact raw bytes, source, manifest and common signing certificate
@@ -39,7 +39,7 @@ jobs:
               print("::error title=Release APK verification::"+kind.__name__+": "+str(error).replace("%","%25").replace("\n","%0A"))
           sys.excepthook=diagnostic
           from pathlib import Path
-          specs=[('old',13129993413,41422422562,'98a8bc3d141c11403c3cf53a9b7ffb6adf0c34dd',33,'0.30.0','45d7472fa7989c4f925bab2ad90d2b7a0b4bce41bbae62d515e2b85d1c8ad120'),('candidate',13135456219,41432202683,'fec11f1985a190643d8e9af4e9f4d960696dcb8c',34,'0.31.0','a3f8cb0168cab69aaa3e40ef32815fde76afde2c8d0672a39c930968b368ad3b')]
+          specs=[('old',13129993413,41422422562,'98a8bc3d141c11403c3cf53a9b7ffb6adf0c34dd',33,'0.30.0','45d7472fa7989c4f925bab2ad90d2b7a0b4bce41bbae62d515e2b85d1c8ad120'),('candidate',13136073353,41435617835,'2836660ca9d9ad571b30f253f05b1cc7939ccd7d',34,'0.31.0','212b5834a2a4038cc8bb7a6ca6c2ddb2795b56d5e438fb5b7f4e5ecd58f00270')]
           apks={};tools=Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
           for label,artifact,run,source,code,version,expected in specs:
               files=list(Path(label+'-apk').rglob('*.apk'));assert len(files)==1,files

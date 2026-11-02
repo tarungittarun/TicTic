@@ -25,12 +25,11 @@ public final class WhisperWorkerService extends Service {
                 if(!(file.startsWith(getFilesDir().getCanonicalPath()+File.separator) || file.startsWith(getCacheDir().getCanonicalPath()+File.separator)) || !audio.isFile())throw new java.io.IOException("Original recording unavailable in private storage");
                 OfflineSpeech.Result result=TrainedWhisper.transcribeInWorker(WhisperWorkerService.this,audio,cancelled);
                 send(reply,OK,result.raw);
-            }catch(Exception | OutOfMemoryError error){Diagnostics.failure("speech.experimental.failure",error);send(reply,FAILED,cancelled.get()?"Experimental recognition cancelled; original audio retained":"Experimental recognition could not finish. Choose standard offline English; original audio retained.");}
+            }catch(Exception | OutOfMemoryError error){send(reply,FAILED,cancelled.get()?"Experimental recognition cancelled; original audio retained":"Experimental recognition could not finish. Choose standard offline English; original audio retained.");}
             finally{active.set(false);}});
         }
     });
     private void send(Messenger reply,int what,String text){try{Message response=Message.obtain(null,what);Bundle data=new Bundle();data.putString("text",text);response.setData(data);reply.send(response);}catch(RemoteException disconnected){/* Caller left; never delete its source audio. */}}
-    @Override public void onCreate(){super.onCreate();Diagnostics.initialize(this);}
     @Override public IBinder onBind(Intent intent){return endpoint.getBinder();}
     @Override public void onDestroy(){cancelled.set(true);worker.shutdown();super.onDestroy();}
 }

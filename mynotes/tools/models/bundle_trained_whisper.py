@@ -9,6 +9,8 @@ def bundle(source,output):
  if data['training_run']!=41393453222 or data['optimizer_steps']!=593 or data['default_engine'] is not False or data['base_sha256']!='d3dd57d32accea0b295c96e26691aa14d8822fac7d9d27d5dc00b4ca2826dd03' or data['checkpoint_sha256']!='84dcc55f0c1bcdc53e62d90a50c4dbe284669222f13ecbcbf458d62af42bc338':raise ValueError('Unexpected training provenance')
  with model.open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
  if model.stat().st_size!=data['bytes'] or digest!=data['sha256']:raise ValueError('Exported trained model checksum mismatch')
+ from mynotes.tools.models.whisper_ggml import validate
+ validate(model)
  voice=output/'voice';voice.mkdir(parents=True,exist_ok=True)
  shutil.copyfile(model,voice/'trained-whisper.bin');shutil.copyfile(manifest,voice/'trained-whisper.json')
  notices=manifest.parent/'licenses'

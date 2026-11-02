@@ -25,10 +25,17 @@ def main():
  assert set(blocks)==expected,'Incomplete/unexpected trained tensors'
  for name,value in blocks.items():
   assert state['model_state_dict'][name].shape==value.shape and torch.isfinite(value).all()
-  state['model_state_dict'][name]=value
+  state['model_state_dict'][name]=value.to(dtype=state['model_state_dict'][name].dtype)
+ # Upstream F16 converter labels matrices as F16 but assumes their input dtype.
+ # Research optimizer tensors are F32: explicitly convert all serialized matrices.
+ for name,value in state['model_state_dict'].items():
+  if value.squeeze().ndim>=2 and name not in ('encoder.positional_embedding','decoder.positional_embedding'):
+   state['model_state_dict'][name]=value.to(dtype=torch.float16)
  merged=a.output/'merged.pt';torch.save(state,merged)
  subprocess.run([sys.executable,str(a.cpp/'models/convert-pt-to-ggml.py'),str(merged),str(Path(whisper.__file__).resolve().parent.parent),str(a.output)],check=True)
  model=a.output/'ggml-model.bin'
+ from mynotes.tools.models.whisper_ggml import validate
+ validate(model)
  report=dict(schema=1,engine='Whisper tiny.en, experimental Indian-English adaptation',training_run=41393453222,optimizer_steps=593,training_speakers=1,checkpoint_sha256=BLOCK_SHA,base_sha256=BASE_SHA,whisper_cpp_revision=CPP_REV,filename='trained-whisper.bin',bytes=model.stat().st_size,sha256=digest(model),offline=True,default_engine=False,physical_acceptance=False,limitations=['English only','One Indian training speaker; no unseen Indian-speaker qualification','Experimental opt-in; existing Vosk remains available','Review recognized text; audio is never replaced'])
  model.rename(a.output/'trained-whisper.bin');(a.output/'trained-whisper.json').write_text(json.dumps(report,indent=2)+'\n')
  print(json.dumps(report,indent=2))

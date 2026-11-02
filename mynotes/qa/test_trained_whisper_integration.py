@@ -8,8 +8,8 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class TrainedWhisperIntegrationTests(unittest.TestCase):
  def fixture(self,root):
-  source=root/'source';source.mkdir();(source/'trained-whisper.bin').write_bytes(b'fixture-not-a-real-model')
-  data=dict(training_run=41393453222,optimizer_steps=593,default_engine=False,base_sha256='d3dd57d32accea0b295c96e26691aa14d8822fac7d9d27d5dc00b4ca2826dd03',checkpoint_sha256='84dcc55f0c1bcdc53e62d90a50c4dbe284669222f13ecbcbf458d62af42bc338',sha256=hashlib.sha256(b'fixture-not-a-real-model').hexdigest(),bytes=24)
+  source=root/'source';source.mkdir();(source/'trained-whisper.bin').write_bytes(__import__('mynotes.qa.test_whisper_ggml',fromlist=['fixture']).fixture())
+  data=dict(training_run=41393453222,optimizer_steps=593,default_engine=False,base_sha256='d3dd57d32accea0b295c96e26691aa14d8822fac7d9d27d5dc00b4ca2826dd03',checkpoint_sha256='84dcc55f0c1bcdc53e62d90a50c4dbe284669222f13ecbcbf458d62af42bc338',sha256=hashlib.sha256((source/'trained-whisper.bin').read_bytes()).hexdigest(),bytes=24)
   data['bytes']=(source/'trained-whisper.bin').stat().st_size
   (source/'trained-whisper.json').write_text(json.dumps(data));(source/'licenses').mkdir();(source/'licenses/COPYING').write_text('test notice');(source/'experimental-acoustic-decoder-blocks.pt').write_text('never bundle training checkpoint')
   return source,data
@@ -18,7 +18,7 @@ class TrainedWhisperIntegrationTests(unittest.TestCase):
    root=Path(directory);source,data=self.fixture(root)
    import contextlib,io
    with contextlib.redirect_stdout(io.StringIO()):bundle(source,root/'out')
-   self.assertEqual(b'fixture-not-a-real-model',(root/'out/voice/trained-whisper.bin').read_bytes())
+   self.assertEqual((source/'trained-whisper.bin').read_bytes(),(root/'out/voice/trained-whisper.bin').read_bytes())
    self.assertFalse(list((root/'out').rglob('*.pt')))
    self.assertTrue((root/'out/licenses/trained-whisper-COPYING').is_file())
  def test_wrong_checkpoint_or_default_or_payload_is_rejected(self):

@@ -66,3 +66,16 @@ Release-smoke run41433217010 stopped before any emulator execution: SDK manager 
 not on PATH (exit127). Switched to the same explicit command-line-tools SDK path
 as the existing build setup. This failed setup is not install-over evidence. Added
 bounded public-fixture UI failure annotations for the next smoke run; no phone data.
+
+Run41433537525 **passed** the real release33→34 Note + Doc update and APK byte,
+manifest/no-INTERNET/common-signer checks. Evidence artifact13134893449,908 bytes,
+SHA2561044234242821614397ea3ae0a5e66935e5559cd888ed65064f8991f117b9d81.
+This is actual emulator execution, separate from mocked harness self-tests.
+
+Round17 native checks found the new pinch fixture used fixed raw pixel distances
+below modern Android's minimum physical scaling span. API26 B185/185 passed;
+completed landscape/font A shards passed, while landscape/font B and API36 A
+reported only the two-pointer zoom assertion. Corrected fixture uses actual display
+dimensions, stays inside view bounds and retains zoom/double-tap/reset assertions.
+No production gesture threshold, assertion removal or fabricated passing outcome.
+Next source must be requalified; round17 is not a green candidate handoff.

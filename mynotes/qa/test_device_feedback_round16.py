@@ -37,6 +37,10 @@ class DeviceFeedbackRound16(unittest.TestCase):
         self.assertIn('Math.min(5,zoom*detector.getScaleFactor())',zoom)
         self.assertIn('requestDisallowInterceptTouchEvent',zoom)
         self.assertNotIn('createBitmap',zoom)
+        native=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ViewedFileJourneysTest.java').read_text()
+        gesture=native.split('@Test public void pageDoubleTapZoom',1)[1].split('@Test',1)[0]
+        self.assertIn('getDisplayMetrics().widthPixels',gesture)
+        self.assertNotIn('image.layout(0,0,400,600)',gesture)
         pdf=(JAVA/'LocalPdfPreview.java').read_text()
         for action in ['Select page text','Share original file','new ZoomablePageImage']:
             self.assertIn(action,pdf)

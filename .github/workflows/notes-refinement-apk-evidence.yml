@@ -19,13 +19,13 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41400320679
-          name: MyNotes-v0.29.0-32-development.apk
+          run-id: 41591079488
+          name: MyNotes-v0.57.0-57-development.apk
           path: verified-apk
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41400320679
+          run-id: 41591079488
           name: refinement-foundation-lint
           path: verified-foundation
       - name: Validate actual bytes, Android manifest and stable signing certificate
@@ -35,36 +35,36 @@ jobs:
           python3 - <<'PY'
           import hashlib,json,os,re,subprocess,zipfile
           from pathlib import Path
-          artifact=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/artifacts/13120928843'],text=True))
-          source='b508c0be88a5018db78ae37c4148d69fd660e627'
+          artifact=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/artifacts/13210751326'],text=True))
+          source='38401d2c6c18334c3dcd20baea845930c6344a6b'
           assert artifact['workflow_run']['head_sha']==source
-          qualified=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/41400320679'],text=True))
+          qualified=json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/41591079488'],text=True))
           assert qualified['head_sha']==source and qualified['conclusion']=='success'
-          evidence=Path('mynotes/docs/design-2026-10-29/native/41400320679')
+          evidence=Path('mynotes/docs/design-2026-10-29/native/41591079488')
           assert json.loads((evidence/'provenance.json').read_text())['source_sha']==source
           native=[json.loads(p.read_text()) for p in evidence.glob('*/native-results.json')]
           assert len(native)==8 and all(r['ok'] for r in native)
-          assert sum(r['passed'] for r in native)==sum(r['expected'] for r in native)==1192
-          assert len({case for r in native for case in r['cases']})==357
+          assert sum(r['passed'] for r in native)==sum(r['expected'] for r in native)==1420
+          assert len({case for r in native for case in r['cases']})==419
           jvm_files=list(Path('verified-foundation').rglob('refinement-jvm.json'));assert len(jvm_files)==1,jvm_files
-          jvm=json.loads(jvm_files[0].read_text());assert jvm['ok'] and jvm['passed']==jvm['expected']==294
+          jvm=json.loads(jvm_files[0].read_text());assert jvm['ok'] and jvm['passed']==jvm['expected']==317
           (evidence/'refinement-jvm.json').write_text(json.dumps(jvm,indent=2)+'\n')
           files=list(Path('verified-apk').rglob('*.apk'));assert len(files)==1,files
           apk=files[0]
           with apk.open('rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
-          assert sha==artifact['digest'].removeprefix('sha256:')
-          assert apk.stat().st_size==artifact['size_in_bytes']
+          assert sha==artifact['digest'].removeprefix('sha256:')=='2bf60ea6029439437b2a6c0af8a24dccb5962543d43fec3b4ab2184affc7f2a1'
+          assert apk.stat().st_size==artifact['size_in_bytes']==155163096
           with zipfile.ZipFile(apk) as bundle:assert {'AndroidManifest.xml','classes.dex'}<=set(bundle.namelist())
           tools=Path(os.environ['ANDROID_HOME'])/'build-tools'/'35.0.0'
           cert=subprocess.check_output([str(tools/'apksigner'),'verify','--print-certs',str(apk)],text=True)
           signer='08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca'
           assert signer in cert,cert
           manifest=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(apk)],text=True)
-          assert "package: name='app.space.notes' versionCode='32' versionName='0.29.0'" in manifest
+          assert "package: name='app.space.notes' versionCode='57' versionName='0.57.0'" in manifest
           assert "sdkVersion:'26'" in manifest and "targetSdkVersion:'34'" in manifest
           assert 'android.permission.INTERNET' not in manifest
-          report={'source_sha':source,'source_run':41400320679,'artifact_id':artifact['id'],'filename':apk.name,'bytes':apk.stat().st_size,'sha256':sha,'signer_sha256':signer,'package':'app.space.notes','version_name':'0.29.0','version_code':32,'min_sdk':26,'target_sdk':34,'internet_permission':False,'raw_apk_not_wrapped_zip':True,'expires_at':artifact['expires_at'],'native_qualification_conclusion':'success','native_outcomes':1192,'unique_native_methods':357,'jvm_tests':294,'release_approval':False,'scope':'Already-built development APK byte/signature/manifest verification only; does not replace native qualification or physical install-over acceptance.'}
-          dest=Path('mynotes/docs/design-2026-10-29/native/41400320679');dest.mkdir(parents=True,exist_ok=True)
+          report={'source_sha':source,'source_run':41591079488,'artifact_id':artifact['id'],'filename':apk.name,'bytes':apk.stat().st_size,'sha256':sha,'signer_sha256':signer,'package':'app.space.notes','version_name':'0.57.0','version_code':57,'min_sdk':26,'target_sdk':34,'internet_permission':False,'raw_apk_not_wrapped_zip':True,'expires_at':artifact['expires_at'],'native_qualification_conclusion':'success','native_outcomes':1420,'unique_native_methods':419,'jvm_tests':317,'release_approval':False,'scope':'Already-built development APK byte/signature/manifest verification only; does not replace native qualification or physical install-over acceptance.'}
+          dest=Path('mynotes/docs/design-2026-10-29/native/41591079488');dest.mkdir(parents=True,exist_ok=True)
           (dest/'apk-verification.json').write_text(json.dumps(report,indent=2)+'\n')
           print('::notice title=Verified source-pinned raw APK::'+json.dumps(report))
           PY
@@ -78,8 +78,8 @@ jobs:
           git pull --ff-only origin arena/3caca636-tictic
           python3 -m unittest discover -s qa
           git diff --check
-          git add mynotes/docs/design-2026-10-29/native/41400320679/apk-verification.json mynotes/docs/design-2026-10-29/native/41400320679/refinement-jvm.json
-          git commit -m "Preserve byte/signature/manifest verification for source-pinned 0.29 APK [skip ci]"
+          git add mynotes/docs/design-2026-10-29/native/41591079488/apk-verification.json mynotes/docs/design-2026-10-29/native/41591079488/refinement-jvm.json
+          git commit -m "Preserve byte/signature/manifest verification for source-pinned 0.57 APK [skip ci]"
           for attempt in 1 2 3; do
             if git push origin arena/3caca636-tictic; then break; fi
             if [ "$attempt" = 3 ]; then exit 1; fi

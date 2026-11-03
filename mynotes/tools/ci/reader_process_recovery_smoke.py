@@ -119,19 +119,26 @@ def capture_public(root,scene):
     manifest.write_text(json.dumps(data,indent=2)+'\n')
 
 
+def picker_target(items,label):
+    # ElementTree leaf nodes are falsey despite being found. Return a nonempty
+    # attribute snapshot, never the element itself, to a truth-based wait helper.
+    return next((dict(node.attrib) for node in items if label.casefold() in (node.get('text','').casefold(),node.get('content-desc','').casefold())),None)
+
+
 def export_public_diagnostics(device,root):
     device.home();capture_public(root,'reader-diagnostics-home');device.click('Library');capture_public(root,'reader-diagnostics-library');reachable_click(device,'Settings');capture_public(root,'reader-diagnostics-settings');reachable_click(device,'Diagnostics');capture_public(root,'reader-diagnostics-save-page');reachable_click(device,'Save diagnostic log as a file')
-    checkpoint(root,'diagnostic-create-document-picker','MyNotes-diagnostics.txt');capture_public(root,'reader-diagnostics-create-picker')
+    checkpoint(root,'diagnostic-create-document-picker','MyNotes-diagnostics.txt')
     def picker(enabled_only=True):
         device.adb('shell','uiautomator','dump','/sdcard/notes-diagnostic-save.xml')
         return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-diagnostic-save.xml'),enabled_only)
     def pick(label):
-        try:node=wait_until(lambda:next((n for n in picker() if label.casefold() in (n.get('text','').casefold(),n.get('content-desc','').casefold())),None),40)
+        try:node=wait_until(lambda:picker_target(picker(),label),40)
         except RuntimeError as failure:
             summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds','resource-id','enabled')} for node in picker(False) if node.get('text') or node.get('content-desc')],ensure_ascii=True)[:3500]
             raise RuntimeError('Public diagnostic create-document target missing: '+label+'; '+summary) from failure
         device.adb('shell','input','tap',*center(node.get('bounds','')))
-    items=picker()
+    wait_until(lambda:picker_target(picker(),'Show roots') or picker_target(picker(),'Hide roots'),40)
+    capture_public(root,'reader-diagnostics-create-picker');items=picker()
     if named(items,'Hide roots') is None:pick('Show roots')
     capture_public(root,'reader-diagnostics-save-roots');pick('Downloads');capture_public(root,'reader-diagnostics-save-picker');pick('Save')
     device.wait(lambda items:named(items,'Collect diagnostic logs') is not None)

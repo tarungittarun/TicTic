@@ -313,7 +313,11 @@ def build_pdf(evidence, output):
     passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
     failures=[f'{lane}: {failure}' for lane,data in evidence['profiles'].items() for failure in data.get('failures',[])]
     missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[]) if not any(str(f).startswith(name+':') for f in data.get('failures',[]))]
-    native_qualified=qualification_gate(evidence,methods_by_name);supplemental_qualified=supplemental_gate(supplements,evidence['screens']);qualified=native_qualified and supplemental_qualified
+    package_file=ROOT/'mynotes/docs/design-2026-10-29/native'/evidence['run']/'apk-verification.json'
+    package=json.loads(package_file.read_text()) if package_file.exists() else {}
+    if package and (package.get('source_sha')!=evidence['source_sha'] or str(package.get('source_run'))!=evidence['run'] or package.get('version_code')!=code):raise ValueError('Independent package verification source mismatch')
+    package_qualified=bool(package) and package.get('raw_apk_not_wrapped_zip') is True and package.get('internet_permission') is False and package.get('native_qualification_conclusion')=='success'
+    native_qualified=qualification_gate(evidence,methods_by_name);supplemental_qualified=supplemental_gate(supplements,evidence['screens']);qualified=native_qualified and supplemental_qualified and package_qualified
     target=output/'MyNotes-Executed-E2E-Report.pdf';c=Canvas(str(target),pagesize=(842,595),pageCompression=1,invariant=1)
     c.setTitle('MyNotes executed end-to-end workflow report');c.setAuthor('MyNotes engineering audit')
     style=ParagraphStyle('body',fontName='Audit',fontSize=10,leading=14,textColor=HexColor('#263347'))
@@ -337,6 +341,13 @@ def build_pdf(evidence, output):
         data=evidence['profiles'].get(lane,{})
         y=text(f"{lane}: {'PASS' if data.get('ok') else 'INCOMPLETE / FAIL'} · {data.get('passed',0)}/{data.get('expected','unknown')} · {len(data.get('failures',[]))} failure records · {len(data.get('missing',[]))} unexecuted/missing methods",38,y)
     text('Profiles are two disjoint method shards each: minimum API26; API34 landscape; API34 font2/night; current API36. Focused subsets are not every method on every profile. No tablet or ordinary portrait API34 execution is implied. Original PNG hashes and bounded JPEG preview hashes are retained in provenance.json.',38,y)
+    y=new('Independent raw APK and JVM verification')
+    if not package:y=text('No source-matching independent package verification available. This report is not fully qualified.',38,y)
+    else:
+        y=text(package['filename']+f"\n{package['bytes']} bytes · app.space.notes · version{package['version_name']}/code{package['version_code']} · minSDK{package['min_sdk']} · targetSDK{package['target_sdk']}",38,y)
+        y=text('Raw APK SHA256 '+package['sha256']+'\nStable signer certificate SHA256 '+package['signer_sha256'],38,y)
+        y=text(f"Exact executed JVM gate: {package['jvm_tests']} passed; native {package['native_outcomes']} outcomes / {package['unique_native_methods']} distinct methods. The verifier independently downloaded the already-built raw artifact and foundation report; no local Android build or APK reconstruction.\nINTERNET permission: absent. Development artifact, not public-release approval. Artifact expiry: {package['expires_at']}.",38,y)
+        y=text('Download: https://github.com/tarungittarun/TicTic/actions/runs/'+evidence['run']+'/artifacts/'+str(package['artifact_id'])+'\n'+package['scope'],38,y,small_text=True)
     y=new('Exact-byte upgrade and actual process recovery')
     if not supplements['updates']:y=text('No source-matching install-over report available. Earlier candidate55 proofs do not qualify this source.',38,y)
     for item in supplements['updates']:
@@ -430,7 +441,7 @@ def build_pdf(evidence, output):
         if y<65:y=new('Literal UI-surface inventory · continued')
         y=text(row['title']+' — '+row['file']+':'+str(row['line']),38,y,small_text=True)
     c.save()
-    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],version_code=code,version_name=version,automation_gate_ok=qualified,native_gate_ok=native_qualified,supplemental_gate_ok=supplemental_qualified,release_approval=False,physical_acceptance=False,
+    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],version_code=code,version_name=version,automation_gate_ok=qualified,native_gate_ok=native_qualified,supplemental_gate_ok=supplemental_qualified,release_approval=False,physical_acceptance=False,raw_apk_verified=package_qualified,jvm_tests=package.get('jvm_tests'),illustrated_images=len(selected),
         passed_outcomes=passed,expected_outcomes=expected,pages=page,distinct_scenes=len(selected),profile_images=len(evidence['screens']),
         native_methods=len(methods_by_name),method_status_counts={s:sum(v['status']==s for v in statuses.values()) for s in ['PASS','FAIL','UNEXECUTED']},
         pdf_sha256=sha(target.read_bytes()),private_user_data_included=False)

@@ -101,3 +101,13 @@ class ExecutedE2EReport(unittest.TestCase):
             evidence=from_preserved(root,root/'out','123','a'*40)
             self.assertEqual(1,len(evidence['screens']))
             self.assertNotIn('proof_kind',evidence['screens'][0])
+
+    def test_leaf_diagnostic_picker_target_remains_truthy(self):
+        import xml.etree.ElementTree as ET
+        from mynotes.tools.ci.reader_process_recovery_smoke import picker_target,wait_until
+        leaf=ET.fromstring('<node text="" content-desc="Show roots" enabled="true" bounds="[0,72][168,216]"/>')
+        self.assertEqual(0,len(leaf))
+        target=wait_until(lambda:picker_target([leaf],'Show roots'),seconds=.02)
+        self.assertEqual('Show roots',target['content-desc'])
+        self.assertIsNone(picker_target([leaf],'Save'))
+        leaf.set('text','SAVE');self.assertTrue(picker_target([leaf],'Save'))

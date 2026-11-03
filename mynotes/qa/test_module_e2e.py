@@ -225,3 +225,20 @@ class SeparateModuleE2E(unittest.TestCase):
         sources=re.findall(r'--source ([a-f0-9]+) ',workflow)
         self.assertEqual(1,len(sources));self.assertEqual(40,len(sources[0]))
         self.assertIn('fetch-depth: 0',workflow)
+    def test_regression_json_evidence_is_parseable_and_writers_use_real_newlines(self):
+        import ast,yaml,re
+        for file in (ROOT/'mynotes/docs/regression').rglob('*.json'):json.loads(file.read_text())
+        workflow=yaml.safe_load((ROOT/'.github/workflows/notes-regression59-comparison-evidence.yml').read_text())
+        for step in workflow['jobs']['retain']['steps']:
+            script=step.get('run','')
+            for code in re.findall(r"python3 - <<'PY'\n(.*?)\nPY",script,re.S):
+                tree=ast.parse(code)
+                for node in ast.walk(tree):
+                    if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and node.func.attr=='write_text' and node.args and isinstance(node.args[0],ast.BinOp):
+                        right=node.args[0].right
+                        if isinstance(right,ast.Constant):self.assertEqual('\n',right.value)
+    def test_frozen_holdout_details_stay_inside_the_read_image_module(self):
+        code=(ROOT/'mynotes/tools/build_module_e2e_report.py').read_text()
+        self.assertIn("if kind=='ocr' and heldout_file.exists():",code)
+        self.assertIn("59 holdout cannot be relabelled onto another APK",code)
+        self.assertIn('Original full strings, including residual mistakes',code)

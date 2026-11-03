@@ -248,7 +248,7 @@ def render(data,observations,inventory,output):
     y=new('Separate module-wise E2E and recognition performance', 'start')
     y=text('Native complete: '+str(data['native_complete'])+' · Corpus execution complete: '+str(data['benchmark_complete'])+' · ALL accuracy targets met: '+str(data['all_accuracy_targets_met']),y)
     if 'native_passed_outcomes' in data:y=text(f"ORDERED NATIVE RESULTS: {data['native_passed_outcomes']} PASS / {data['native_failed_outcomes']} FAIL. All selected methods produced outcomes: {data['native_execution_complete']}. Failed assertions are not waived, retried into green or called app regressions without diagnosis. See the owning module ledger and retained raw statuses.",y)
-    y=text(f"{data['native_methods']} source-discovered native methods; {data['native_outcomes']} actual native outcomes. {data['observed_inferences']}/{data['expected_inferences']} model observations. Four explicitly paired API34 profiles: light/dark × portrait/landscape. No model change or training in this baseline.",y)
+    y=text(f"{data['native_methods']} source-discovered native methods; {data['native_outcomes']} actual native outcomes. {data['observed_inferences']}/{data['expected_inferences']} model observations. Four explicitly paired API34 profiles: light/dark × portrait/landscape. Bundled model weights are unchanged; application/selection code is identified by the exact execution source. No training.",y)
     if data.get('strict_native_run'):y=text('Strict native module schedule run '+data['strict_native_run']+' records all419 selected methods per profile in chapter order, including any failed assertions. Original native run remains separately retained. Native screenshots below identify their actual capture run.',y)
     if data.get('rechecks'):y=text('SETUP CORRECTIONS: original run failed landscape orientation checks. Accepted cohorts below include explicitly source-matched rechecks '+', '.join(sorted({r['run'] for r in data['rechecks']}))+'. Original failed configuration and rejected observations remain retained; no failed run is relabelled successful.',y)
     y=text('Reading order / PDF bookmarks\n'+'\n'.join(f'{i+1:02d}. {m}' for i,m in enumerate(MODULES)),y)
@@ -299,6 +299,38 @@ def render(data,observations,inventory,output):
                         image=output/frame['path'];assert sha(image.read_bytes())==frame['sha256'];c.drawImage(str(image),x,45,380,max(80,y-90),preserveAspectRatio=True,anchor='c')
         if module in [MODULES[3],MODULES[4]]:
             kind='ocr' if module==MODULES[3] else 'voice';rows=[r for r in observations if r['module']==kind]
+            heldout_file=output/'heldout-comparison.json'
+            if kind=='ocr' and heldout_file.exists():
+                from mynotes.tools.build_e2e_report import version_info
+                if version_info(data['source'])[0]!=59:raise ValueError('59 holdout cannot be relabelled onto another APK')
+                heldout=json.loads(heldout_file.read_text());pairs=heldout['pairs']
+                if len(pairs)!=512:raise ValueError('Incomplete supplemental A/B pairs')
+                for pair in pairs:
+                    independent_score(pair['baseline'],'ocr');independent_score(pair['candidate'],'ocr')
+                y=new(module+' · separately frozen A/B validation')
+                y=text(heldout['scope'],y)
+                y=text('Supplemental counts are separate from the original4,752-observation main corpus: baseline58 has512 and candidate59 has512 recognition observations, paired on128 synthetic inputs across4 UI profiles. Target flags are descriptive, not semantic correctness or physical-photo approval.',y)
+                for version,entry in heldout['summary'].items():y=text(f"{version}: {entry['target_passes']}/{entry['observations']} targets; errors={entry['operational_errors']}; mean CER={entry['mean_cer']:.6f}; micro CER={entry['micro_cer']:.6f}; emulator median={entry['median_elapsed_ms']}ms (hosts/load differ; not a causal speed comparison).",y)
+                y=text(f"Per-case improvements={heldout['improved_pairs']}; regressions={heldout['regressed_pairs']}. No per-case CER regressions: {heldout['no_case_regressions']}. All raw pairs are retained alongside this PDF; zero regressions does not mean zero recognition errors or universal accuracy.",y)
+                groups=defaultdict(list)
+                for pair in pairs:groups[pair['id']].append(pair)
+                for id,group in sorted(groups.items()):
+                    y=new(module+' · frozen '+id)
+                    y=text('Frozen generated reference: '+group[0]['reference'],y)
+                    y=text('Condition: '+json.dumps(group[0]['condition'],ensure_ascii=False)+' · input SHA256 '+group[0]['input_sha256'],y,tiny=True)
+                    for pair in sorted(group,key=lambda p:p['profile']):
+                        old,newer=pair['baseline'],pair['candidate']
+                        y=text(pair['profile']+'\n58: '+old['recognized']+'\n59: '+newer['recognized'],y,tiny=True)
+                        y=text(f"CER {old['cer']:.4f} → {newer['cer']:.4f}; Δ={pair['delta_cer']:.4f}; elapsed {old['elapsed_ms']} → {newer['elapsed_ms']}ms; regression={pair['regression']}.",y,tiny=True)
+                development=output/'original-corpus-light-landscape-comparison.json'
+                if development.exists():
+                    comparison=json.loads(development.read_text());y=new(module+' · original failure repair, not holdout tuning')
+                    y=text(comparison['scope'],y)
+                    y=text(f"Development target flags {comparison['baseline_targets']}/384 → {comparison['candidate_targets']}/384; individually improved={comparison['improvements']}; regressed={comparison['regressions']}. A target pass does not guarantee correct operators, amounts or words. Original full strings, including residual mistakes, follow.",y)
+                    for pair in comparison['pairs']:
+                        if not (pair['improvement'] or pair['regression']):continue
+                        y=text(pair['id']+'\nReference: '+pair['reference']+'\n58: '+pair['baseline']['recognized']+'\n59: '+pair['candidate']['recognized'],y)
+                        y=text(f"CER {pair['baseline']['cer']:.4f} → {pair['candidate']['cer']:.4f}; regression={pair['regression']}.",y,tiny=True)
             if kind=='voice':
                 y=new(module+' · speaker-specific descriptive results')
                 y=text('Two speakers only: KSP Indian-English and SLT US-English, reading the same100 prompts. This is not a population, gender or general-accent comparison. Short read utterances, not long spontaneous dictation. All four amplitude/noise/gain conditions are counted; clean-only WER is separate.',y)

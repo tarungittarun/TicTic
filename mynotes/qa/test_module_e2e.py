@@ -24,8 +24,10 @@ class SeparateModuleE2E(unittest.TestCase):
         import yaml
         workflow=yaml.safe_load((ROOT/'.github/workflows/notes-module-e2e.yml').read_text())
         native=workflow['jobs']['native']['strategy']['matrix']['include'];bench=workflow['jobs']['benchmark']['strategy']['matrix']['include']
-        self.assertEqual(8,len(native));self.assertEqual(12,len(bench))
-        self.assertTrue(all(row['api']==34 and row['group']=='all' for row in native))
+        self.assertEqual(4,len(native));self.assertEqual(12,len(bench))
+        self.assertEqual(set(PROFILES),{row['id'] for row in native})
+        self.assertEqual(34,workflow['jobs']['native']['steps'][-2]['with']['api-level'])
+        self.assertIn('run_ordered_modules',workflow['jobs']['native']['steps'][-2]['with']['script'])
         self.assertEqual({(night,orientation) for night in ['no','yes'] for orientation in ['portrait','landscape']},{(row['night'],row['orientation']) for row in native})
         self.assertIn('always()',workflow['jobs']['report']['if'])
         self.assertFalse(workflow['jobs']['native']['strategy']['fail-fast'])

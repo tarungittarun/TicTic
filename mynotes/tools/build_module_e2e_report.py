@@ -9,9 +9,12 @@ from mynotes.tools.ci.quality_reports import distance
 from mynotes.tools.ci.render_review import fixtures
 
 PROFILES=['light-portrait','dark-portrait','light-landscape','dark-landscape']
+METHOD_PLACEMENT=json.loads((ROOT/'mynotes/docs/module-e2e-method-order.json').read_text())
+METHOD_MODULE={name:module for module,names in METHOD_PLACEMENT.items() for name in names}
 MODULES=['Notes and checklists','Rich Doc and tables','Diagrams','Read image / OCR','Voice inbox and transcripts','Images and drawing','File viewers','Home, search and Library','Folders and storage','Backup, history and Trash','Reminders','Settings and diagnostics']
 
 def module_for(name):
+    if name in METHOD_MODULE:return METHOD_MODULE[name]
     text=name.lower()
     for module,pattern in [(3,r'ocr|imageselection|read.image'),(4,r'voice|speech|whisper|recording|transcript'),(2,r'diagram|shape|connector'),(11,r'diagnostic|settings|appearance|about|theme|environment'),(10,r'reminder|notification|alarm'),(9,r'backup|restore|history|trash|archive|generationprotocol'),(8,r'folder|storage|repository|persistence|transfer'),(6,r'viewed|spreadsheet|pdf|wordprepared|filepicker|reader'),(5,r'image|drawing|visualzoom'),(7,r'home|search|filter|library|shareandlabel|workspac|motion'),(1,r'doc|table|content|canonical|stage')]:
         if re.search(pattern,text):return MODULES[module]
@@ -72,7 +75,7 @@ def ingest(artifacts,output,source,run):
                     helper={'content-item-drag':'app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows','image-text-selection':'app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend'}
                     if scene in helper:candidates=[helper[scene]]
                     owner=candidates[0] if len(candidates)==1 else None
-                    screens.append({'scene':scene,'lane':lane,'profile':lane[:-2],'owner':owner,'module':scene_module(scene,owner),**preview(raw,images/(lane+'-'+scene+'.jpg'))})
+                    screens.append({'scene':scene,'lane':lane,'profile':next(p for p in PROFILES if lane.startswith(p+'-')),'owner':owner,'module':scene_module(scene,owner),**preview(raw,images/(lane+'-'+scene+'.jpg'))})
         for file in folder.glob('refinement-environment-*.json'):shutil.copyfile(file,output/(lane+'-'+file.name))
     for folder in sorted(artifacts.glob('module-benchmark-*')):
         lane=folder.name.removeprefix('module-benchmark-');profile=next((p for p in PROFILES if lane.startswith(p+'-')),None)
@@ -103,7 +106,7 @@ def ingest(artifacts,output,source,run):
     for file in foundation.rglob('manifest.json'):shutil.copyfile(file,output/'public-corpus-provenance.json')
     for file in foundation.rglob('*-COPYING.txt'):shutil.copyfile(file,output/file.name)
     expected_lanes={p+'-'+s for p in PROFILES for s in ['a','b']};expected_bench={p+'-'+s for p in PROFILES for s in ['ocr','voice0','voice1']}
-    native_ok=set(lanes)==expected_lanes and all(r.get('ok') for r in lanes.values())
+    native_ok=(set(lanes)==expected_lanes or set(lanes)=={p+'-ordered' for p in PROFILES}) and all(r.get('ok') for r in lanes.values())
     for p in PROFILES:
         actual=[n for lane,r in lanes.items() if lane.startswith(p+'-') for n in r.get('cases',[])]
         native_ok=native_ok and len(actual)==len(set(actual))==len(inventory) and set(actual)==set(inventory)
@@ -250,6 +253,9 @@ def render(data,observations,inventory,output):
                 y=text(f"{profile} / {condition}: n={len(group)}, median={statistics.median(elapsed):.0f}ms, p95={elapsed[max(0,math.ceil(.95*len(elapsed))-1)]}ms, range={min(elapsed)}–{max(elapsed)}ms, mean {score}={statistics.mean(r[score] for r in group):.3f}, target passes={sum(bool(r.get('accuracy_target_met')) for r in group)}/{len(group)}",y,tiny=True)
             by_id=defaultdict(list)
             for row in rows:by_id[row['id']].append(row)
+            for rejected_file in output.glob('*-rejected-original-observations.json'):
+                for rejected in json.loads(rejected_file.read_text())['rows']:
+                    if rejected['module']==kind:by_id[rejected['id']].append({**rejected,'capture_run':data['run'],'configuration_rejected':True})
             specimens={f['scene']:f for f in data['screens'] if f.get('profile')=='synthetic-input-not-UI'}
             y=0
             for identity,samples in sorted(by_id.items()):
@@ -259,7 +265,7 @@ def render(data,observations,inventory,output):
                     frame=specimens[identity];c.drawImage(str(output/frame['path']),30,y-135,782,125,preserveAspectRatio=True,anchor='c');y-=145
                 for row in sorted(samples,key=lambda r:PROFILES.index(r['profile'])):
                     score=row.get('cer') if kind=='ocr' else row.get('normalized_wer');rate=f'{score:.3f}' if isinstance(score,(float,int)) else 'UNAVAILABLE'
-                    y=text(f"{row['profile']} · run {row.get('capture_run',data['run'])} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
+                    y=text(f"{('REJECTED ORIENTATION — requested ' if row.get('configuration_rejected') else '')+row['profile']} · run {row.get('capture_run',data['run'])} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
     write(output/'performance-summary.json',performance_summary(observations))
     import csv
     if observations:

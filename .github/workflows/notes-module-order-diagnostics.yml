@@ -13,8 +13,8 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41654548239
-          pattern: module-ordered-native-light-*
+          run-id: 41658476468
+          pattern: module-ordered-native-*
           path: observed
       - name: Surface bounded actual module results without rerunning any method
         run: |

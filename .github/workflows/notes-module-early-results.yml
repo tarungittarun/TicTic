@@ -1,0 +1,57 @@
+name: MyNotes exact module early measurement audit
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-module-early-results.yml']
+permissions:
+  actions: read
+  contents: write
+jobs:
+  audit-completed-ocr:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41650596888
+          name: module-benchmark-light-portrait-ocr
+          path: observed
+      - name: Independently score completed actual data while peer jobs continue
+        run: |
+          python3 - <<'PY'
+          import json,tarfile,statistics
+          from pathlib import Path
+          from mynotes.tools.build_module_e2e_report import independent_score,performance_summary
+          execution=json.loads(Path('observed/module-execution.json').read_text());assert execution['ok'] and execution['passed']==4
+          with tarfile.open('observed/module-benchmark.tar') as bundle:
+              member=bundle.getmember('module-benchmark/ocr.json');assert member.size<4*1024*1024
+              report=json.loads(bundle.extractfile(member).read())
+          rows=report['cases'];assert len(rows)==len({r['id'] for r in rows})==384
+          for row in rows:independent_score(row,'ocr');row.update(profile='light-portrait',module='ocr',capture_run=41650596888)
+          output=Path('mynotes/docs/module-e2e/early-41650596888');output.mkdir(parents=True,exist_ok=True)
+          (output/'actual-light-portrait-ocr.json').write_text(json.dumps(rows,indent=2,ensure_ascii=False)+'\n')
+          summary={'source_sha':'dcd3e2c3cecded90cd4d990c6850ee4437c02151','run':41650596888,'scope':'Completed384-condition light-portrait OCR audit only. Peers pending; not a whole-run or physical accuracy approval.','unique_input_hashes':len({r['input_sha256'] for r in rows}),'unique_reference_texts':len({r['reference'] for r in rows}),'groups':performance_summary(rows)}
+          (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          for row in summary['groups']:
+              print('::notice title=Actual384 OCR measurements independently checked::'+json.dumps(row))
+          PY
+      - name: Preserve measured public evidence without rerunning inference
+        run: |
+          set -euo pipefail
+          python3 -m pip install Pillow==11.3.0 PyYAML==6.0.3
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/early-41650596888
+          git commit -m 'Preserve actual early384 OCR measurements and independent performance audit [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

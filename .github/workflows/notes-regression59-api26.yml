@@ -1,3 +1,4 @@
+# Restore the already-qualified legacy API26 SDK validation and root-only radio setup, returning to shell UID2000 before any app test. Prior137 attempts emitted no native outcomes.
 # Source41678235867 compiled59 APKs, same direct action and state/Cancel assertions. Previous API26 guest died137 before instrumentation; only guest RAM/Vulkan configuration changes. PDF focus only, not a new OCR qualification.
 name: MyNotes59 low-memory API26 live PDF regression
 on:
@@ -31,6 +32,26 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Bootstrap emulator package with bounded SDK-only retries
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          installed=false
+          packages=(emulator)
+          if [ '${{ matrix.api }}' = 26 ]; then packages+=('platforms;android-26' 'system-images;android-26;google_apis;x86_64'); fi
+          for attempt in 1 2 3; do
+            echo "SDK emulator package bootstrap attempt $attempt/3; no app test has started" | tee -a refinement-native-sdk-bootstrap.txt
+            if timeout 180 "$SDK/cmdline-tools/latest/bin/sdkmanager" "${packages[@]}" 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then
+              if "$SDK/emulator/emulator" -version 2>&1 | tee -a refinement-native-sdk-bootstrap.txt; then
+                if [ '${{ matrix.api }}' = 26 ]; then
+                  if ! python3 -c 'import os,zipfile; from pathlib import Path; p=Path(os.environ["ANDROID_HOME"]); z=zipfile.ZipFile(p/"platforms/android-26/android.jar"); assert z.testzip() is None; assert (p/"system-images/android-26/google_apis/x86_64/system.img").stat().st_size>1048576'; then continue; fi
+                fi
+                installed=true; break
+              fi
+            fi
+            if [ "$attempt" != 3 ]; then sleep 5; fi
+          done
+          if [ "$installed" != true ]; then echo '::error::Emulator SDK bootstrap failed after three attempts; no native qualification claimed'; exit 1; fi
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
@@ -40,9 +61,13 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -memory 1536 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot-save -camera-back none
           script: |
+            adb root
+            python3 -m mynotes.tools.ci.adb_state --uid 0
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable
             adb shell svc data disable
+            adb unroot
+            python3 -m mynotes.tools.ci.adb_state --uid 2000
             adb install -r refinement-apks/debug/notes-debug.apk
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale ${{ matrix.font }}
@@ -61,6 +86,7 @@ jobs:
         with:
           name: regression59-api26-${{ matrix.id }}
           path: |
+            refinement-native-sdk-bootstrap.txt
             pdf-regression.json
             actual-apk-sha256.txt
             refinement-captures.tar

@@ -245,12 +245,12 @@ def render(data,observations,inventory,output):
         if module in [MODULES[3],MODULES[4]]:
             kind='ocr' if module==MODULES[3] else 'voice';rows=[r for r in observations if r['module']==kind]
             y=new(module+' · measured performance summary')
-            groups=defaultdict(list)
-            for row in rows:
-                if row['status']=='OK':groups[(row['profile'],row['kind'])].append(row)
-            for (profile,condition),group in sorted(groups.items()):
-                elapsed=sorted(r['elapsed_ms'] for r in group);score='cer' if kind=='ocr' else 'normalized_wer'
-                y=text(f"{profile} / {condition}: n={len(group)}, median={statistics.median(elapsed):.0f}ms, p95={elapsed[max(0,math.ceil(.95*len(elapsed))-1)]}ms, range={min(elapsed)}–{max(elapsed)}ms, mean {score}={statistics.mean(r[score] for r in group):.3f}, target passes={sum(bool(r.get('accuracy_target_met')) for r in group)}/{len(group)}",y,tiny=True)
+            for item in performance_summary(rows):
+                score='cer' if kind=='ocr' else 'normalized_wer'
+                y=text(f"{item['profile']} / {item['kind']}: n={item['observed']}, errors={item['errors']}, target passes={item['accuracy_target_passes']}/{item['observed']}. Distinct hashed inputs={item['distinct_hashed_inputs']} (unhashed controls={item['unhashed_inputs']}), distinct reference texts={item['distinct_reference_texts']}.",y,tiny=True)
+                if 'median_ms' in item:
+                    amount=(f"pixels={item['input_pixel_counts']}" if kind=='ocr' else f"PCM16 mono16kHz, {item['duration_seconds_min']:.2f}–{item['duration_seconds_max']:.2f}s per input, {item['total_audio_seconds']:.2f}s processed, aggregate RTF={item['aggregate_real_time_factor']:.3f}")
+                    y=text(f"INPUT {item['input_bytes_min']}–{item['input_bytes_max']} bytes; {amount}. TIME median={item['median_ms']:.0f}ms, p95={item['p95_ms']}ms, range={item['minimum_ms']}–{item['maximum_ms']}ms, total={item['total_elapsed_ms']}ms. Mean {score}={item['mean_'+score]:.3f}; micro error excluding empty reference={item['micro_error_rate_excluding_empty_reference']}.",y,tiny=True)
             by_id=defaultdict(list)
             for row in rows:by_id[row['id']].append(row)
             for rejected_file in output.glob('*-rejected-original-observations.json'):

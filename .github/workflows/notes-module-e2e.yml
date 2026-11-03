@@ -165,8 +165,9 @@ jobs:
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale 1.0
             adb shell cmd uimode night ${{ matrix.night }}
-            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
+            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 3600000

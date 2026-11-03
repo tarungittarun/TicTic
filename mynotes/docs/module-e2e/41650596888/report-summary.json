@@ -2,8 +2,8 @@
   "schema": 1,
   "source": "dcd3e2c3cecded90cd4d990c6850ee4437c02151",
   "run": "41650596888",
-  "native_complete": true,
-  "benchmark_complete": false,
+  "native_complete": false,
+  "benchmark_complete": true,
   "all_accuracy_targets_met": false,
   "profiles": [
     "light-portrait",
@@ -18,8 +18,134 @@
   "model_changed": false,
   "training_steps": 0,
   "physical_acceptance": false,
-  "pages": 1485,
-  "pdf_sha256": "cdeeb2d78cd746822bc97ade94507eeb0c77c148cea413b588e981435ef15a8b",
+  "rechecks": [
+    {
+      "run": "41652746046",
+      "artifact_source_run": "41650596888",
+      "artifact_source_sha": "dcd3e2c3cecded90cd4d990c6850ee4437c02151",
+      "profile": "dark-landscape",
+      "execution": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane",
+          "app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime"
+        ]
+      },
+      "setup_correction": "Apply rotation only after HOME settles and the real Notes Activity is foreground; original orientation assertions unchanged."
+    },
+    {
+      "run": "41654076991",
+      "artifact_source_run": "41650596888",
+      "artifact_source_sha": "dcd3e2c3cecded90cd4d990c6850ee4437c02151",
+      "profile": "dark-landscape",
+      "lane": "dark-landscape-voice0",
+      "execution": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane",
+          "app.space.notes.ModuleCorpusBenchmark#publicVoiceCorpusMeasuresTranscriptsDurationsAndPreservation"
+        ]
+      },
+      "setup_correction": "Same post-focus rotation ordering proven by OCR recheck; exact original test APKs, assertions and inputs."
+    },
+    {
+      "run": "41654076991",
+      "artifact_source_run": "41650596888",
+      "artifact_source_sha": "dcd3e2c3cecded90cd4d990c6850ee4437c02151",
+      "profile": "dark-landscape",
+      "lane": "dark-landscape-voice1",
+      "execution": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane",
+          "app.space.notes.ModuleCorpusBenchmark#publicVoiceCorpusMeasuresTranscriptsDurationsAndPreservation"
+        ]
+      },
+      "setup_correction": "Same post-focus rotation ordering proven by OCR recheck; exact original test APKs, assertions and inputs."
+    }
+  ],
+  "total_inferences_including_rejected": 5940,
+  "native_execution_complete": true,
+  "native_all_assertions_passed": false,
+  "native_passed_outcomes": 1672,
+  "native_failed_outcomes": 4,
+  "native_schedule_run_conclusion": "failure",
+  "strict_native_run": "41658476468",
+  "strict_native_module_order": [
+    "Notes and checklists",
+    "Rich Doc and tables",
+    "Diagrams",
+    "Read image / OCR",
+    "Voice inbox and transcripts",
+    "Images and drawing",
+    "File viewers",
+    "Home, search and Library",
+    "Folders and storage",
+    "Backup, history and Trash",
+    "Reminders",
+    "Settings and diagnostics"
+  ],
+  "native_outcomes_including_original": 3352,
+  "production_source_baseline": {
+    "commit": "38401d2c6c18334c3dcd20baea845930c6344a6b",
+    "trees": {
+      "mynotes/app/src/main": {
+        "baseline_tree": "c7c1fb80bfa9906cb1462c3f9e268e625f713e26",
+        "executed_tree": "c7c1fb80bfa9906cb1462c3f9e268e625f713e26",
+        "identical": true
+      },
+      "mynotes/runtime/src/main": {
+        "baseline_tree": "3efafc8a243693d1e1799cbf7173e0d31c478934",
+        "executed_tree": "3efafc8a243693d1e1799cbf7173e0d31c478934",
+        "identical": true
+      },
+      "mynotes/domain/src/main": {
+        "baseline_tree": "be1126d490d34bac5d62ebc1b997560098a62833",
+        "executed_tree": "be1126d490d34bac5d62ebc1b997560098a62833",
+        "identical": true
+      }
+    },
+    "scope": "Production source equality, not binary equivalence to a different build. All rechecks reuse exact original source-run APK artifact."
+  },
+  "excluded_ordered_attempt": {
+    "run": "41654548239",
+    "conclusion": "failure",
+    "validated_outcomes": 0,
+    "reason": "Driver incorrectly read stdout although the existing watchdog writes a file, then overwrote raw statuses. Actual method outcomes are unknown; no model/app regression inferred. Round2 preserves and validates each raw invocation file."
+  },
+  "primary_run_conclusion": "failure: three benchmark landscape orientation checks",
+  "qualification_runs": [
+    "41650596888",
+    "41652746046",
+    "41654076991",
+    "41658476468"
+  ],
+  "pages": 1113,
+  "pdf_sha256": "60e2cb0885621ad9af02177a91f972f0d4b197aa908533bf00c976415fb10e3c",
   "module_order": [
     {
       "module": "Notes and checklists",
@@ -27,47 +153,47 @@
     },
     {
       "module": "Rich Doc and tables",
-      "page": 51
+      "page": 54
     },
     {
       "module": "Diagrams",
-      "page": 92
+      "page": 112
     },
     {
       "module": "Read image / OCR",
-      "page": 104
+      "page": 127
     },
     {
       "module": "Voice inbox and transcripts",
-      "page": 502
+      "page": 547
     },
     {
       "module": "Images and drawing",
-      "page": 1316
+      "page": 964
     },
     {
       "module": "File viewers",
-      "page": 1320
+      "page": 983
     },
     {
       "module": "Home, search and Library",
-      "page": 1339
+      "page": 1009
     },
     {
       "module": "Folders and storage",
-      "page": 1355
+      "page": 1027
     },
     {
       "module": "Backup, history and Trash",
-      "page": 1367
+      "page": 1054
     },
     {
       "module": "Reminders",
-      "page": 1397
+      "page": 1077
     },
     {
       "module": "Settings and diagnostics",
-      "page": 1402
+      "page": 1085
     }
   ]
 }

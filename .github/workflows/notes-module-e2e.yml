@@ -11,7 +11,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression58-${{ github.ref }}
+  group: notes-module-e2e-regression59-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -23,6 +23,7 @@ jobs:
       - uses: ./.github/actions/setup-mynotes
       - name: Prepare public ground-truth evaluation corpus, verify original licenses and hashes
         run: python3 -m mynotes.tools.ci.module_corpus --output mynotes/benchmarks/assets/module-corpus
+          cp mynotes/docs/regression/ocr-heldout-v1.json mynotes/benchmarks/assets/module-corpus/ocr-heldout-v1.json
       - name: Compile debug app/instrumentation and lint without publication
         working-directory: mynotes
         run: |
@@ -45,13 +46,13 @@ jobs:
       - name: Prepare genuinely new signed development APK, not a public release
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.58.0-58-development.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.58.0-58-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.59.0-59-development.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.59.0-59-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
-          sha256sum MyNotes-v0.58.0-58-development.apk > notes-development-sha256.txt
+          sha256sum MyNotes-v0.59.0-59-development.apk > notes-development-sha256.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.58.0-58-development.apk
+          path: MyNotes-v0.59.0-59-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

@@ -93,10 +93,11 @@ final class DocumentEditorView extends LinearLayout {
         compactDocument=design.editorTool("More","Document","more",this::documentMenu);actions.addView(compactDocument,new LayoutParams(0,-2,1));compactDocument.setVisibility(GONE);documentControls=tools;rails=EditorRails.install(this,top,scroll,tools);
         if(focusAfterRender!=null){state.putString("note",note.id);state.putString("field",focusAfterRender);state.putInt("start",0);state.putInt("end",0);state.putBoolean("showKeyboard",true);focusAfterRender=null;}building=false;
         final String restoreNote=state.getString("note"),restoreField=state.getString("field");final int restoreStart=state.getInt("start"),restoreEnd=state.getInt("end");
-        final long restoreGeneration=uiGeneration;post(()->{if(!isAttachedToWindow() || uiGeneration!=restoreGeneration || !note.id.equals(restoreNote))return;EditText focus=fields.get(restoreField);if(focus!=null){restoringSelection=true;try{int start=Math.max(0,Math.min(focus.length(),restoreStart)),end=Math.max(0,Math.min(focus.length(),restoreEnd));focus.setSelection(start,end);focus.requestFocus();focus.setSelection(start,end);selectionLocked=true;postOnAnimation(this::restoreAfterDialog);}finally{restoringSelection=false;}}scroll.scrollTo(0,state.getInt("scroll"));if(state.getBoolean("showKeyboard") && focus!=null){state.putBoolean("showKeyboard",false);startWritingKeyboard(focus);}adaptViewport();});
+        final long restoreGeneration=uiGeneration;post(()->{if(!isAttachedToWindow() || uiGeneration!=restoreGeneration || !note.id.equals(restoreNote))return;EditText focus=fields.get(restoreField);if(focus!=null){restoringSelection=true;try{int start=Math.max(0,Math.min(focus.length(),restoreStart)),end=Math.max(0,Math.min(focus.length(),restoreEnd));focus.setSelection(start,end);focus.requestFocus();focus.setSelection(start,end);selectionLocked=true;postOnAnimation(this::restoreAfterDialog);}finally{restoringSelection=false;}}scroll.scrollTo(0,state.getInt("scroll"));if(state.getBoolean("showKeyboard") && focus!=null){state.putBoolean("showKeyboard",false);boolean handoff=state.getBoolean("keyboardHandoff",false);state.putBoolean("keyboardHandoff",false);startWritingKeyboard(focus,handoff);}adaptViewport();});
     }
     /** A new writing field must be served, not merely inherit the old editor's IME insets. */
-    private void startWritingKeyboard(EditText focus){
+    private void startWritingKeyboard(EditText focus){startWritingKeyboard(focus,false);}
+    private void startWritingKeyboard(EditText focus,boolean handoff){
         stopKeyboardStartup();keyboardDiagnostic="pending";final long generation=uiGeneration;
         keyboardStartup=new Runnable(){int attempts,servedFrames,lastHeight=-1,stableLayouts;boolean acknowledged;
             public void run(){
@@ -104,7 +105,7 @@ final class DocumentEditorView extends LinearLayout {
                 if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || draggingContent || readOnly() || attempts++>=20){keyboardDiagnostic="prior=["+keyboardDiagnostic+"] cancelled: attached="+isAttachedToWindow()+" generation="+(uiGeneration==generation)+" focus="+focus.hasFocus()+" attempts="+attempts;stopKeyboardStartup();return;}
                 if(!focus.hasFocus()){View actual=getRootView().findFocus();if(actual!=null && actual!=focus){keyboardDiagnostic="cancelled: another view owns focus";stopKeyboardStartup();return;}if(focus.hasWindowFocus() && focus.isShown() && focus.getWidth()>0 && focus.getHeight()>0)focus.requestFocus();}
                 int height=getRootView().getHeight();if(imeAnimationRunning || isLayoutRequested() || height!=lastHeight)stableLayouts=0;else stableLayouts++;lastHeight=height;
-                if(!acknowledged && (imeAnimationRunning || stableLayouts<2)){keyboardDiagnostic="waiting-layout: animation="+imeAnimationRunning+" stable="+stableLayouts+" attempt="+attempts;postDelayed(this,100);return;}
+                if(handoff && !acknowledged && (imeAnimationRunning || stableLayouts<2)){keyboardDiagnostic="waiting-layout: animation="+imeAnimationRunning+" stable="+stableLayouts+" attempt="+attempts;postDelayed(this,100);return;}
                 android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if(keyboard==null){stopKeyboardStartup();return;}
                 boolean visible;

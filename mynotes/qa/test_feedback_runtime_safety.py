@@ -53,3 +53,12 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   self.assertIn('imeAnimationRunning || stableLayouts<2',text)
   self.assertIn('isLayoutRequested() || height!=lastHeight',text)
   self.assertIn('if(!acknowledged && focus.hasFocus()',text)
+
+ def test_keyboard_handoff_settling_is_one_time_new_document_only(self):
+  controller=(JAVA/'NotesController.java').read_text()
+  doc=controller.split('private void newDocument()',1)[1].split('private void focusHomeSearch',1)[0]
+  self.assertIn('canonicalState.putBoolean("keyboardHandoff",true)',doc)
+  editor=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('state.putBoolean("keyboardHandoff",false)',editor)
+  self.assertIn('if(handoff && !acknowledged &&',editor)
+  self.assertIn('startWritingKeyboard(focus,false)',editor)

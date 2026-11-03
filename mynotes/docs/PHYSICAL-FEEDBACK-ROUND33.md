@@ -80,3 +80,13 @@ requires stable layout before its first show request; it still never reissues an
 accepted request. Timeout diagnostics preserve the previous observation. Original
 IME visibility/focus/settlement assertions and bounded20 attempts are unchanged.
 51 Android/native and exact-byte qualification remain pending.
+
+## Code52 follow-up, round37
+
+Source audit before51 native conclusions: deferring every inserted-field keyboard
+request would risk scheduling a first show after a user had already hidden it.
+Only a newly created document crosses the Notes→Doc/Home keyboard handoff, so52
+adds a one-time session-only handoff marker there. Ordinary inserted checklist/text
+fields keep immediate acknowledged requests, matching49/50's passing hide behavior.
+The marker is consumed, not stored in note content. All native assertions remain
+unchanged;52 must independently qualify. No51 native failure is claimed here.

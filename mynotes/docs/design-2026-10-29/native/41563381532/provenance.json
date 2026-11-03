@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "source_sha": "1c029ad144d96f6b9ce761a725677b91b67a1710",
+  "capture_run": "41563381532",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 208,
+      "passed": 207,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.documentImeReady(CoreJourneysTest.java:287)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:609)\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": true,
+      "expected": 197,
+      "passed": 197,
+      "missing": [],
+      "failures": []
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 144,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.closeKeyboard(CoreJourneysTest.java:338)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:389)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:387)\n\tat app.space.notes.CoreJourneysTest.listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting(CoreJourneysTest.java:532)\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 135,
+      "passed": 134,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments: status -2 java.lang.AssertionError: Actual Home drag: released: accepted=true moves=2 enabled=true\n\tat app.space.notes.CoreJourneysTest.nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments(CoreJourneysTest.java:247)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 10 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": false,
+      "expected": 145,
+      "passed": 144,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.closeKeyboard(CoreJourneysTest.java:338)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:389)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:387)\n\tat app.space.notes.CoreJourneysTest.listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting(CoreJourneysTest.java:532)\n"
+      ]
+    },
+    "large-font-api34-b": {
+      "ok": true,
+      "expected": 135,
+      "passed": 135,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26": {
+      "ok": false,
+      "expected": 208,
+      "passed": 207,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\tat app.space.notes.CoreJourneysTest.closeKeyboard(CoreJourneysTest.java:338)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:389)\n\tat app.space.notes.CoreJourneysTest.screenshot(CoreJourneysTest.java:387)\n\tat app.space.notes.CoreJourneysTest.listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting(CoreJourneysTest.java:532)\n"
+      ]
+    },
+    "min-api26-b": {
+      "ok": true,
+      "expected": 197,
+      "passed": 197,
+      "missing": [],
+      "failures": []
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

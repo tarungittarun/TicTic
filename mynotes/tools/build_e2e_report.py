@@ -78,6 +78,8 @@ def methods(source=None):
             body = text[start:end]; name = package+'.'+path.stem+'#'+match[1]
             actions = re.findall(r'\b(?:tap|click|dialogTap|previewOption)\("([^"\n]*)"', body)
             scenes = re.findall(r'(?:screenshot|storeScreenshot)\("([a-z0-9-]+)"\s*[,)]', body)+re.findall(r'"([a-z0-9-]+)\.png"', body)
+            for call in re.findall(r'(?:screenshot|storeScreenshot)\(([^;]+?)\);',body):
+                scenes+=re.findall(r'"([a-z0-9-]+)"',call)
             result[name] = dict(name=name, file=str(path.relative_to(ROOT)), line=text[:start].count('\n')+1,
                                 actions=actions, scenes=scenes,
                                 assertions=len(re.findall(r'\bassert\w+\s*\(', body)), body=body)
@@ -188,6 +190,18 @@ def qualification_gate(evidence,names):
 
 def describe(scene, guide):
     if scene in guide:return guide[scene]
+    if scene.startswith('reader-diagnostics-'):
+        phase=scene.removeprefix('reader-diagnostics-').replace('-',' ')
+        return 'Signed release > Diagnostics > '+phase,'Actual app/Android picker state in the optional diagnostic-file saving workflow. It navigates Home, Library, Settings, Diagnostics, Android document roots and Downloads, then saves MyNotes-diagnostics.txt and verifies its bounded bytes by readback.','Fresh synthetic app logs only; the saved log contents are not copied into the report. A completed whole workflow, not the screenshot alone, proves saving.'
+    if scene=='reader-docx-view-choice':return 'Open local Word file > choose a view','The actual Word chooser precedes selecting MyNotes pages in the signed release. Editable copy and original-reader routes remain distinct.','MyNotes paper rendering is approximate; no Office-fidelity claim.'
+    if scene.startswith('reader-'):
+        parts=scene.split('-');kind=parts[1].upper();phase=' '.join(parts[2:])
+        if phase=='local picker':purpose='Navigate the real local Android DocumentsUI provider and select the fixed public '+kind+' fixture. The actual picker, not a root-issued URI grant, owns the persisted read permission.'
+        elif phase=='library':purpose='Open the real Library menu immediately before choosing Open file for the public '+kind+' fixture.'
+        elif phase=='opened':purpose='Show the actual signed-release '+kind+' viewer after opening. The following steps configure a query and PDF/Word page2 or the CSV searched row before a real background-process kill.'
+        elif phase=='before kill':purpose='Capture the configured query/page/row immediately before backgrounding and killing the stopped app process. Original fixture bytes are hashed before and after.'
+        else:purpose='After the old PID disappears, relaunch the retained task. Verify a changed PID, restored query, PDF/Word page2 or exact CSV pre/post visible anchor with searched row41 visible, and unchanged original bytes.'
+        return 'Signed release > '+kind+' > '+phase,purpose,'This source-matching API34 system probe is separate from native-method counts and from physical-device acceptance.'
     if scene.startswith('e2e-library-'):
         destination=scene.removeprefix('e2e-library-').replace('-',' ')
         return 'Home > Library > '+destination,'Capture the actual Library sheet immediately before opening '+destination+'. The following captured page records that destination, and Back returns to Home.','The menu capture proves a visible navigation state, not data mutation or a successful export.'
@@ -221,6 +235,23 @@ def supplemental_evidence(evidence):
     return {'updates':sorted(updates,key=lambda x:x['report']['from']['version_code']),'reader_recovery':recoveries}
 
 
+def append_system_captures(evidence,output,supplements):
+    import os
+    evidence['screens']=[x for x in evidence['screens'] if x.get('proof_kind')!='signed-release-system']
+    for item in supplements['reader_recovery']:
+        folder=ROOT/item['path'];folder=folder.parent
+        manifest=folder/'screenshot-previews.json'
+        if not manifest.exists():continue
+        if item['report'].get('ok') is not True:continue
+        for record in json.loads(manifest.read_text())['captures']:
+            scene=record['name']
+            if not re.fullmatch(r'reader-[a-z0-9-]{1,53}',scene):raise ValueError('Invalid signed-release scene')
+            image=folder/(scene+'.jpg')
+            if sha(image.read_bytes())!=record['sha256']:raise ValueError('Signed-release screenshot hash mismatch')
+            evidence['screens'].append({**record,'scene':scene,'lane':'reader-api34','path':os.path.relpath(image,output),
+                'owner':'SignedReleaseSystemProbe#'+scene,'probe_outcome':'PASS','proof_kind':'signed-release-system'})
+
+
 def build_pdf(evidence, output):
     from reportlab.pdfgen.canvas import Canvas
     from reportlab.pdfbase import pdfmetrics
@@ -232,6 +263,7 @@ def build_pdf(evidence, output):
     for name,file in [('Audit','DejaVuSans.ttf'),('AuditBold','DejaVuSans-Bold.ttf')]:
         pdfmetrics.registerFont(TTFont(name,'/usr/share/fonts/truetype/dejavu/'+file))
     methods_by_name=methods(evidence['source_sha']);code,version=version_info(evidence['source_sha']);guide={}
+    supplements=supplemental_evidence(evidence);append_system_captures(evidence,output,supplements)
     for line in (ROOT/'mynotes/docs/user-guide/screen-guide.tsv').read_text().splitlines():
         if line and not line.startswith('#'):
             key,route,body,boundary=line.split('|');guide[key]=(route,body,boundary)
@@ -243,10 +275,17 @@ def build_pdf(evidence, output):
             candidates=[name for name,method in methods_by_name.items() if screen['scene'] in method['scenes']]
             if screen['scene'].startswith(('e2e-page-','e2e-library-')):candidates=['app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage']
             if screen['scene'].startswith('e2e-large-txt-'):candidates=['app.space.notes.RealFolderStorageTest#largerTxtUsesLosslessPagesAndNeverCreatesAHomeNote']
+            if screen['scene']=='content-item-drag':candidates=['app.space.notes.CoreJourneysTest#canonicalChecklistHandleTapIsContextualAndNativeDragPreservesRichRows']
+            if screen['scene']=='image-text-selection':candidates=['app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend']
+            lane_report=evidence['profiles'].get(screen['lane'],{});ordered=lane_report.get('cases',[])
+            expected_lane=set(ordered)|set(lane_report.get('missing',[]))
+            if expected_lane:candidates=[name for name in candidates if name in expected_lane]
+            if len(candidates)>1 and all(name in ordered for name in candidates) and all('screenshot("'+screen['scene']+'"' in methods_by_name[name]['body'] for name in candidates):
+                candidates=[max(candidates,key=ordered.index)];screen['owner_association']='Last successful direct capture in exact native execution order'
             screen['owner']=candidates[0] if len(candidates)==1 else None
     selected={}
     for screen in evidence['screens']:
-        scene=screen['scene'];rank=(PROFILES.index(screen['lane']),screen['path'])
+        scene=screen['scene'];rank=(PROFILES.index(screen['lane']) if screen['lane'] in PROFILES else len(PROFILES),-int(screen.get('capture_run',evidence['run'])),screen['path'])
         if scene not in selected or rank<selected[scene][0]:selected[scene]=(rank,screen)
     statuses={name:case_status(name,evidence) for name in methods_by_name}
     passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
@@ -276,7 +315,6 @@ def build_pdf(evidence, output):
         data=evidence['profiles'].get(lane,{})
         y=text(f"{lane}: {'PASS' if data.get('ok') else 'INCOMPLETE / FAIL'} · {data.get('passed',0)}/{data.get('expected','unknown')} · {len(data.get('failures',[]))} failure records · {len(data.get('missing',[]))} unexecuted/missing methods",38,y)
     text('Profiles are two disjoint method shards each: minimum API26; API34 landscape; API34 font2/night; current API36. Focused subsets are not every method on every profile. No tablet or ordinary portrait API34 execution is implied. Original PNG hashes and bounded JPEG preview hashes are retained in provenance.json.',38,y)
-    supplements=supplemental_evidence(evidence)
     y=new('Exact-byte upgrade and actual process recovery')
     if not supplements['updates']:y=text('No source-matching install-over report available. Earlier candidate55 proofs do not qualify this source.',38,y)
     for item in supplements['updates']:
@@ -291,6 +329,8 @@ def build_pdf(evidence, output):
         for record in report.get('records',[]):
             y=text(record['name']+f" · PID {record.get('before_pid')} → {record.get('after_pid')} · query restored={record.get('query_restored')} · page2={record.get('page_2_restored')} · visible row={record.get('visible_row_restored')} · original unchanged={record.get('original_unchanged')}",38,y,small_text=True)
         y=text(report.get('scope',''),38,y,small_text=True)
+        diagnostic=report.get('diagnostic_file_save')
+        if diagnostic:y=text('Real diagnostic file save: '+str(diagnostic['ok'])+' · '+str(diagnostic['bytes'])+' bytes · readback SHA256 '+diagnostic['sha256']+' · contents intentionally not included.',38,y,small_text=True)
     y=new('Physical55 feedback · disposition and proof boundary')
     feedback=[
       ('Viewed files search / count / file icons','Search matches bounded indexed text; counts and type badges replace gear rows. See the seeded-index search/count/no-match workflow and fresh screenshots.'),
@@ -325,8 +365,8 @@ def build_pdf(evidence, output):
     text('Use the PDF bookmarks to jump to each captured page. The displayed image is one named profile; all captured variants remain in the evidence manifest. Screens shown before a later method failure remain explicitly labelled with that failure.',38,y)
     # Every distinct captured page is included; variants are enumerated instead of silently omitted.
     for scene,(_,screen) in sorted(selected.items(),key=lambda item:(not item[0].startswith('e2e-'),item[0])):
-        y=new('Captured page · '+scene);c.bookmarkPage('scene-'+scene);c.addOutlineEntry(scene,'scene-'+scene,1)
-        route,purpose,boundary=describe(scene,guide);owner=screen.get('owner');status=statuses.get(owner,{'status':'OWNER UNRESOLVED'})
+        y=new('Captured page · '+scene,('SIGNED-RELEASE SYSTEM PROBE · capture run '+str(screen['capture_run'])) if screen.get('proof_kind') else 'SYNTHETIC NATIVE EMULATOR CAPTURE · source-pinned');c.bookmarkPage('scene-'+scene);c.addOutlineEntry(scene,'scene-'+scene,1)
+        route,purpose,boundary=describe(scene,guide);owner=screen.get('owner');status=statuses.get(owner,{'status':screen.get('probe_outcome','OWNER UNRESOLVED')})
         variants=[x['lane'] for x in evidence['screens'] if x['scene']==scene]
         image=output/screen['path']
         if sha(image.read_bytes())!=screen['sha256']:raise ValueError('Image hash mismatch')
@@ -338,9 +378,9 @@ def build_pdf(evidence, output):
         else:
             c.drawImage(ImageReader(str(image)),38,55,width=292,height=465,preserveAspectRatio=True,anchor='c',mask='auto')
             y=text('Route: '+route,354,510,450);y=text(purpose,354,y,450)
-            y=text('Expected / actual\n'+('Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+'\nOwner method outcome: '+status['status'],354,y,450)
+            y=text('Expected / actual\n'+('Actual signed-release Android workflow; exact-byte source identity, recovery and file-readback assertions passed.' if screen.get('proof_kind') else 'Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+'\nOwner method outcome: '+status['status'],354,y,450)
             y=text('Boundary: '+boundary,354,y,450)
-            y=text('Owner: '+str(owner)+'\nShown: '+screen['lane']+'\nCaptured profiles: '+', '.join(variants),354,y,450,True)
+            y=text('Owner: '+str(owner)+'\nShown: '+screen['lane']+'\nCaptured profiles: '+', '.join(variants)+('\nImage capture run: '+str(screen['capture_run']) if screen.get('capture_run') else ''),354,y,450,True)
             text('JPEG SHA256 '+screen['sha256']+'\nOriginal PNG SHA256 '+screen['original_png_sha256'],354,min(y,100),450,True)
     y=new('Complete native-method execution ledger');c.bookmarkPage('ledger');c.addOutlineEntry('Complete native method ledger','ledger',0)
     y=text('PASS means a successful execution with no reported failure for that method; profile-specific missing outcomes remain listed. UNEXECUTED is not a failed assertion. A parser/storage method need not have a visible UI. Abbreviations:36a/b=current API36;26a/b=minimum API26;L34a/b=landscape;F34a/b=font2/night. All exact source locations refer to the pinned source SHA on every page.',38,y)

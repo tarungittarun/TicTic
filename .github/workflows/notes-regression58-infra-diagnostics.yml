@@ -1,0 +1,42 @@
+name: MyNotes58 retain bounded operational failures, not app guesses
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression58-infra-diagnostics.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Fetch redacted synthetic CI failure tails within Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,os
+          from pathlib import Path
+          root=Path('mynotes/docs/regression/58/operational-failures');root.mkdir(parents=True,exist_ok=True)
+          for run in [41672737294,41673275796,41673589040]:
+              jobs=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{run}/jobs?per_page=100']))['jobs']
+              for job in jobs:
+                  if job['conclusion']!='failure':continue
+                  raw=subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/jobs/{job["id"]}/logs'],text=True)
+                  tail='\n'.join(raw.splitlines()[-80:])[-12000:]
+                  (root/f'{run}-{job["id"]}.json').write_text(json.dumps({'run':run,'job':job,'redacted_log_tail':tail,'scope':'Public synthetic CI only. Operational failure, not a new accuracy or phone outcome.'},indent=2)+'\n')
+                  print('::notice title=Operational failure '+str(run)+' '+job['name']+'::'+tail[-6500:].replace('%','%25').replace('\n','%0A'))
+          PY
+      - name: Gate and retain actual failure causes
+        run: |
+          set -euo pipefail
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/regression/58/operational-failures
+          git commit -m 'Keep bounded real58 operational failure causes and large-font counterexample [skip ci]'
+          git push origin arena/3caca636-tictic

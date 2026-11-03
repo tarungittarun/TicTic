@@ -1,0 +1,74 @@
+name: MyNotes58 complete regression evidence with explicit missing-lane correction
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression58-final.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  assemble:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41670830610
+          pattern: module-native-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41670830610
+          pattern: module-benchmark-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41670830610
+          name: module-foundation-lint
+          path: module-artifacts/foundation
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41674053791
+          name: module-benchmark-light-portrait-voice1
+          path: correction
+      - name: Validate explicit original missing execution; never replace a failed assertion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,shutil,subprocess
+          from pathlib import Path
+          jobs=json.loads(subprocess.check_output(['gh','api','repos/'+__import__('os').environ['GITHUB_REPOSITORY']+'/actions/runs/41670830610/jobs?per_page=100']))['jobs']
+          original=next(j for j in jobs if j['name']=='benchmark (light-portrait-voice1, no, portrait, voice1)');assert original['conclusion']=='failure'
+          path=Path('module-artifacts/module-benchmark-light-portrait-voice1');assert not path.exists(),'Refuse overwrite of an original actual outcome'
+          actual=json.loads(Path('correction/module-execution.json').read_text());assert actual['ok'] is True and actual['expected']==4 and actual['passed']==4
+          shutil.copytree('correction',path)
+          Path('correction-provenance.json').write_text(json.dumps({'original_run':41670830610,'original_job':original,'original_lane':'No execution/measurement/environment artifact emitted; original remains FAILURE, outcomes unknown.','corrective_run':41674053791,'correction':'One independently completed execution of exact original58 APKs, same references/conditions; no assertion retries or app rebuild.','corrective_native_result':actual},indent=2)+'\n')
+          PY
+      - name: Build complete actual module-ordered58 PDF with real native and corpus results
+        run: |
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/41670830610 --source 3fc0ea7b --run 41670830610
+          cp correction-provenance.json mynotes/docs/module-e2e/41670830610/
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression58-complete-module-evidence
+          path: mynotes/docs/module-e2e/41670830610
+          retention-days: 7
+      - name: Root gate and preserve actual complete evidence, not original-workflow greenwashing
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/41670830610
+          git commit -m 'Retain completed58 native regression and explicit exact-APK correction of missing voice execution [skip ci]'
+          git push origin arena/3caca636-tictic

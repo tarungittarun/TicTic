@@ -99,3 +99,11 @@ class SeparateModuleE2E(unittest.TestCase):
         from mynotes.tools.build_module_e2e_report import apply_recheck
         data={'source':'original','run':'1'}
         with self.assertRaises(ValueError):apply_recheck(data,[],{'artifact_source_sha':'changed','artifact_source_run':'1'},ROOT)
+    def test_report_crop_preserves_ink_and_does_not_mutate_source(self):
+        from PIL import Image,ImageDraw
+        from mynotes.tools.build_module_e2e_report import specimen_crop
+        image=Image.new('RGB',(100,80),'white');ImageDraw.Draw(image).rectangle((20,25,40,45),fill='black')
+        before=image.tobytes();crop,changed=specimen_crop(image)
+        self.assertTrue(changed);self.assertLess(crop.width,100)
+        self.assertEqual(before,image.tobytes())
+        self.assertEqual(21*21,sum(p==(0,0,0) for p in crop.getdata()))

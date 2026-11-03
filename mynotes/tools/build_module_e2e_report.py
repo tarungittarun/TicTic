@@ -173,6 +173,17 @@ def apply_recheck(data,observations,proof,output):
     write(output/'provenance.json',data);write(output/'measurements.json',observations)
 
 
+def specimen_crop(image):
+    """Report-only whitespace crop; never changes scored images or their hashes."""
+    from PIL import Image,ImageChops
+    image=image.convert('RGB');background=Image.new('RGB',image.size,image.getpixel((0,0)))
+    bounds=ImageChops.difference(image,background).convert('L').point(lambda p:255 if p>30 else 0).getbbox()
+    if bounds:
+        x0,y0,x1,y1=bounds;bounds=(max(0,x0-8),max(0,y0-8),min(image.width,x1+8),min(image.height,y1+8))
+        return image.crop(bounds),True
+    return image.copy(),False
+
+
 def report_markup(value):
     from xml.sax.saxutils import escape
     # Report-only OFL fonts: preserve shaped Hindi/Kannada, not missing-glyph boxes.
@@ -262,7 +273,12 @@ def render(data,observations,inventory,output):
                 y=new(module+' · '+identity) if kind=='ocr' or y<260 else text('Next measured input · '+identity,y)
                 first=samples[0];y=text('Reference: '+first['reference']+('\nInput: '+first.get('font','')+f" {first.get('font_px')}px, {first.get('width')}×{first.get('height')}, dark={first.get('input_dark')}, rotation={first.get('rotation_degrees')}°" if kind=='ocr' else f"\n{first.get('speaker','silence')} / {first['kind']} · {first.get('duration_seconds')}s PCM16 mono16kHz"),y)
                 if identity in specimens:
-                    frame=specimens[identity];c.drawImage(str(output/frame['path']),30,y-135,782,125,preserveAspectRatio=True,anchor='c');y-=145
+                    frame=specimens[identity]
+                    from PIL import Image
+                    from reportlab.lib.utils import ImageReader
+                    with Image.open(output/frame['path']) as image:crop,cropped=specimen_crop(image)
+                    c.drawImage(ImageReader(crop),30,y-135,782,125,preserveAspectRatio=True,anchor='c');y-=145
+                    y=text('Input preview: whitespace cropped for legibility; scored source dimensions, pixels and hashes unchanged.' if cropped else 'Blank control preview; no foreground ink detected.',y,tiny=True)
                 for row in sorted(samples,key=lambda r:PROFILES.index(r['profile'])):
                     score=row.get('cer') if kind=='ocr' else row.get('normalized_wer');rate=f'{score:.3f}' if isinstance(score,(float,int)) else 'UNAVAILABLE'
                     y=text(f"{('REJECTED ORIENTATION — requested ' if row.get('configuration_rejected') else '')+row['profile']} · run {row.get('capture_run',data['run'])} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)

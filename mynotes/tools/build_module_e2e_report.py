@@ -211,7 +211,7 @@ def render(data,observations,inventory,output):
     def new(title,bookmark=None):
         nonlocal page
         if page:c.showPage()
-        page+=1;c.setFillColorRGB(.07,.15,.25);c.rect(0,536,842,59,fill=1,stroke=0);c.setFillColorRGB(1,1,1);c.setFont('Body',15);c.drawString(30,564,title[:96]);c.setFont('Body',7);c.drawString(30,546,'ACTUAL MODULE E2E · source '+data['source'][:12]+' · no training / no physical acceptance');c.setFillColorRGB(.1,.15,.2);c.setFont('Body',7);c.drawString(30,16,'Run '+data['run']+' · page '+str(page))
+        page+=1;c.setFillColorRGB(.07,.15,.25);c.rect(0,536,842,59,fill=1,stroke=0);c.setFillColorRGB(1,1,1);c.setFont('Body',15);c.drawString(30,564,title[:96]);c.setFont('Body',7);c.drawString(30,546,'ACTUAL MODULE E2E · source '+data['source'][:12]+' · no training / no physical acceptance');c.setFillColorRGB(.1,.15,.2);c.setFont('Body',7);c.drawString(30,16,'Evidence bundle '+data['run']+' · page '+str(page))
         if bookmark:c.bookmarkPage(bookmark);c.addOutlineEntry(title,bookmark,0)
         return 518
     def text(value,y,x=30,width=782,tiny=False):
@@ -222,6 +222,7 @@ def render(data,observations,inventory,output):
     y=new('Separate module-wise E2E and recognition performance', 'start')
     y=text('Native complete: '+str(data['native_complete'])+' · Corpus execution complete: '+str(data['benchmark_complete'])+' · ALL accuracy targets met: '+str(data['all_accuracy_targets_met']),y)
     y=text(f"{data['native_methods']} source-discovered native methods; {data['native_outcomes']} actual native outcomes. {data['observed_inferences']}/{data['expected_inferences']} model observations. Four explicitly paired API34 profiles: light/dark × portrait/landscape. No model change or training in this baseline.",y)
+    if data.get('strict_native_run'):y=text('Strict native module schedule run '+data['strict_native_run']+' validates all419 methods per profile in chapter order. Original native run remains separately retained. Native screenshots below identify their actual capture run.',y)
     if data.get('rechecks'):y=text('SETUP CORRECTIONS: original run failed landscape orientation checks. Accepted cohorts below include explicitly source-matched rechecks '+', '.join(sorted({r['run'] for r in data['rechecks']}))+'. Original failed configuration and rejected observations remain retained; no failed run is relabelled successful.',y)
     y=text('Reading order / PDF bookmarks\n'+'\n'.join(f'{i+1:02d}. {m}' for i,m in enumerate(MODULES)),y)
     y=text('Accuracy targets fixed before execution: OCR CER≤0.20, normalized English speech WER≤0.35, silence must remain empty. These are measurement flags, not an assertion that every difficult input passes. Failures, hallucinations, errors and missing observations remain visible. Execution completion is not an accuracy pass.',y)

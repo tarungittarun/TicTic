@@ -128,3 +128,23 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertIn('observed=android(actual,selected)',script)
         self.assertIn('report=compare(expected,passed,failures)',script)
         self.assertNotIn('android(combined,expected)',script)
+    def test_ordered_driver_real_file_channel_and_multi_invocation_aggregate(self):
+        import os,tempfile,subprocess
+        from unittest.mock import patch
+        from mynotes.tools.ci import run_ordered_modules as driver
+        from mynotes.tools.build_module_e2e_report import MODULES
+        selected={name:['unit.Driver#case'+str(i)] for i,name in enumerate(MODULES)}
+        def fake_run(command,**kwargs):
+            if command[0]=='bash':
+                case=command[-1].split('#')[1]
+                Path(kwargs['env']['NOTES_NATIVE_OUTPUT']).write_text('INSTRUMENTATION_STATUS: class=unit.Driver\nINSTRUMENTATION_STATUS: test='+case+'\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_CODE: -1\n')
+            return subprocess.CompletedProcess(command,0,stdout='')
+        previous=os.getcwd()
+        with tempfile.TemporaryDirectory() as folder:
+            try:
+                os.chdir(folder)
+                with patch.object(driver,'plan',return_value=selected),patch.object(driver.subprocess,'run',side_effect=fake_run),patch('sys.argv',['unit-driver','--night','no','--orientation','portrait']):driver.main()
+                report=json.loads(Path('refinement-native.json').read_text())
+                self.assertTrue(report['ok']);self.assertEqual(12,report['passed']);self.assertEqual(12,report['instrumentation_invocations'])
+                self.assertEqual(12,len(list(Path('.').glob('ordered-module-[0-9][0-9].txt'))))
+            finally:os.chdir(previous)

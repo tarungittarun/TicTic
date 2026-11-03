@@ -28,13 +28,13 @@ def main():
             if not row['ok'] or row['process_exit']!=0 or len(row['cases'])!=len(set(row['cases'])) or set(row['cases'])!=set(ordered[row['module']]):raise ValueError('Incomplete strict native execution')
         timings[profile]=executions
     with tempfile.TemporaryDirectory() as temp:
-        scratch=Path(temp);native,_,inventory=ingest(a.ordered,scratch,data['source'],'41654548239')
+        scratch=Path(temp);native,_,inventory=ingest(a.ordered,scratch,data['source'],'41658476468')
         if not native['native_complete'] or native['native_outcomes']!=1676:raise ValueError('Native schedule audit incomplete')
         for frame in native['screens']:
-            frame['capture_run']='41654548239';source=scratch/frame['path'];shutil.copyfile(source,output/frame['path'])
+            frame['capture_run']='41658476468';source=scratch/frame['path'];shutil.copyfile(source,output/frame['path'])
         for file in scratch.glob('*refinement-environment-*.json'):shutil.copyfile(file,output/file.name)
         # Original screenshots remain on disk, hash-bound in original-provenance.
-        data.update(native=native['native'],native_complete=True,native_outcomes=1676,screens=[r for r in data['screens'] if not r.get('lane')]+native['screens'],strict_native_run='41654548239',strict_native_module_order=MODULES,native_outcomes_including_original=3352)
+        data.update(native=native['native'],native_complete=True,native_outcomes=1676,screens=[r for r in data['screens'] if not r.get('lane')]+native['screens'],strict_native_run='41658476468',strict_native_module_order=MODULES,native_outcomes_including_original=3352)
     write(output/'strict-native-module-executions.json',timings)
     for pattern,name in [('refinement-jvm.json','executed-jvm.json'),('trained-whisper.json','experimental-model-provenance.json'),('manifest.json','public-corpus-provenance.json')]:
         files=list(a.foundation.rglob(pattern))
@@ -46,7 +46,8 @@ def main():
         if before!=after:raise ValueError('Unexpected production source change')
         trees[path]={'baseline_tree':before,'executed_tree':after,'identical':True}
     data['production_source_baseline']={'commit':baseline,'trees':trees,'scope':'Production source equality, not binary equivalence to a different build. All rechecks reuse exact original source-run APK artifact.'}
-    data['primary_run_conclusion']='failure: three benchmark landscape orientation checks';data['qualification_runs']=['41650596888','41652746046','41654076991','41654548239']
+    data['excluded_ordered_attempt']={'run':'41654548239','conclusion':'failure','validated_outcomes':0,'reason':'Driver incorrectly read stdout although the existing watchdog writes a file, then overwrote raw statuses. Actual method outcomes are unknown; no model/app regression inferred. Round2 preserves and validates each raw invocation file.'}
+    data['primary_run_conclusion']='failure: three benchmark landscape orientation checks';data['qualification_runs']=['41650596888','41652746046','41654076991','41658476468']
     write(output/'provenance.json',data);write(output/'measurements.json',observations);summary=render(data,observations,inventory,output)
     print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()

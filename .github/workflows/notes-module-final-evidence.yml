@@ -1,0 +1,67 @@
+name: MyNotes ordered module evidence and final PDF
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-module-final-evidence.yml']
+permissions:
+  actions: read
+  contents: write
+jobs:
+  assemble-observed-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Wait for exact correction and ordered execution runs, never infer their conclusions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run watch 41654076991 --exit-status --interval 60
+          gh run watch 41654548239 --exit-status --interval 60
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41654548239
+          pattern: module-ordered-native-*
+          path: ordered
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41654076991
+          pattern: module-profile-correction-*
+          path: voice
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41650596888
+          name: module-foundation-lint
+          path: foundation
+      - name: Validate source, complete module order, exact inputs and independent scores; render accepted and rejected results
+        run: |
+          python3 -m pip install Pillow==11.3.0 PyYAML==6.0.3 reportlab==4.4.4 uharfbuzz==0.52.0
+          python3 -m mynotes.tools.ci.finalize_module_evidence --ordered ordered --voice voice --foundation foundation
+      - name: Root gate and retain actual source-pinned PDF and detailed data
+        run: |
+          set -euo pipefail
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/41650596888
+          git commit -m 'Retain completed strict-module four-profile E2E with exact-source configuration rechecks and actual accuracy/performance [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: module-ordered-final-evidence
+          path: mynotes/docs/module-e2e/41650596888
+          retention-days: 7

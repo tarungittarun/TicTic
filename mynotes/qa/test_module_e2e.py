@@ -107,3 +107,16 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertTrue(changed);self.assertLess(crop.width,100)
         self.assertEqual(before,image.tobytes())
         self.assertEqual(21*21,sum(p==(0,0,0) for p in crop.getdata()))
+    def test_accepted_setup_correction_keeps_rejected_history_and_cannot_pass_partial_corpus(self):
+        import copy,tempfile
+        from mynotes.tools.build_module_e2e_report import apply_recheck
+        lane='dark-landscape-ocr'
+        row={'id':'ocr-0000','lane':lane,'profile':'dark-landscape','module':'ocr','kind':'unit-layout-not-execution','reference':'abc','recognized':'axc','input_sha256':'unit-sha','input_bytes':1,'status':'OK','cer':1/3,'strict_wer':1.0,'elapsed_ms':1,'accuracy_target_met':False}
+        data={'source':'unit-source','run':'unit-parent','benchmark_executions':{lane:{'ok':False,'failures':['app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane: unit orientation mismatch']}}}
+        proof={'artifact_source_sha':'unit-source','artifact_source_run':'unit-parent','profile':'dark-landscape','run':'unit-correction','execution':{'ok':True,'passed':4,'failures':[]},'measurements':[copy.deepcopy(row)]}
+        with tempfile.TemporaryDirectory() as folder:
+            rows=[copy.deepcopy(row)];output=Path(folder);apply_recheck(data,rows,proof,output)
+            self.assertTrue((output/'original-provenance.json').exists())
+            self.assertEqual('unit-parent',json.loads((output/(lane+'-rejected-original-observations.json')).read_text())['run'])
+            self.assertFalse(data['benchmark_complete']);self.assertFalse(data['all_accuracy_targets_met'])
+            self.assertEqual('unit-correction',rows[0]['capture_run'])

@@ -21,9 +21,11 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
+          for raw in Path('observed').rglob('ordered-module-01.txt'):
+              print('::notice title=Exact first invocation stdout::'+json.dumps(raw.read_text(errors='replace')[:9000]))
           for path in Path('observed').rglob('ordered-module-execution.json'):
               rows=json.loads(path.read_text())
               for row in rows:
                   if not row['ok']:
-                      print('::notice title=Actual ordered module failure::'+json.dumps({'profile':str(path),'module':row['module'],'passed':row['passed'],'expected':row['expected'],'missing':row.get('missing'),'failures':row.get('failures'),'unexpected':row.get('unexpected'),'duplicates':row.get('duplicates')})[:60000])
+                      print('::notice title=Actual ordered module failure::'+json.dumps({'profile':str(path),'module':row['module'],'passed':row['passed'],'expected':row['expected'],'missing_count':len(row.get('missing',[])),'failures':row.get('failures'),'unexpected':row.get('unexpected'),'duplicates':row.get('duplicates')})[:60000])
           PY

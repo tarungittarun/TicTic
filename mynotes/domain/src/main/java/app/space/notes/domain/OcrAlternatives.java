@@ -13,7 +13,7 @@ public final class OcrAlternatives {
   // A tiny confidence gain must not replace clear native-script words with new
   // Latin-looking fragments. Existing genuinely mixed-script baselines stay eligible.
   if(confidence>=80 && OcrLineRecovery.nativeScript(baseline)!=null && hasLatin(candidate) && nativeLetters(candidate)<nativeLetters(baseline))return false;
-  if(score>=confidence && score>=50 && needsBlockCheck(baseline) && !needsBlockCheck(candidate))return true;
+  if(needsBlockCheck(baseline) && !needsBlockCheck(candidate))return score>=confidence && score>=50;
   return score>confidence && candidate.length()>=baseline.length()*.75
       || score>=50 && score>=confidence-5 && candidate.length()>baseline.length()*1.15;
  }

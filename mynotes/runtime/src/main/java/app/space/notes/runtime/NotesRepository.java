@@ -150,7 +150,7 @@ public final class NotesRepository {
             // Verify the latest private recovery copy even if folder materialization failed after commit.
             // Never replace expected head with an unreviewed external head.
             writeLocal(payload,true,head);pendingFolderFailure=e;retryFolderAfter=System.nanoTime()+60_000_000_000L;
-            status="Saved on this phone · folder copy pending · review Storage & recovery";
+            status="Saved on this phone · folder copy pending · review Storage & recovery";Diagnostics.failure("folder.copy.pending",e);
             throw new FolderCopyPendingException(e);
         }
     }

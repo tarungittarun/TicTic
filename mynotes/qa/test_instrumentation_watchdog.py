@@ -49,7 +49,7 @@ class InstrumentationWatchdogTests(unittest.TestCase):
         source=(root/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text()
         method=source.split('private void newNote() {',1)[1].split('private void newDocument()',1)[0]
         self.assertIn('boolean requestedForTarget',method)
-        self.assertIn('if(requestedForTarget && keyboardVisible() && keyboard.isActive(target))return;',method)
+        self.assertIn('if(requestedForTarget && keyboardVisible() && keyboard.isActive(target)){if(++servedFrames>=2)return;}',method)
         self.assertIn('requestedForTarget=keyboard.showSoftInput(target,',method)
         self.assertNotIn('requestedForTarget=true;',method)
         self.assertNotIn('|| keyboardVisible() ||',method)

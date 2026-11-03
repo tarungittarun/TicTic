@@ -71,6 +71,7 @@ public final class NotesController {
     private long imageEditVersion;
     private String pendingParagraphStyle;
 
+    private String newNoteKeyboardDiagnostic="idle";
     private NotesRepository repository;
     private final int bg, ink, surface, muted;
     private final Bundle restored;
@@ -367,14 +368,20 @@ public final class NotesController {
     private void navigate(String name) { activeFolder=null;page=name;selectedIds.clear();activeLabel="";libraryFilter=new app.space.notes.domain.LibraryFilter(true,true,Collections.emptyList(),libraryFilter.sort,grid);renderHome(); }
     private void newNote() {
         page="Notes";documentsWorkspace=false;long now=System.currentTimeMillis();Note n=Note.create(now).folder(activeFolder==null?"":activeFolder,now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();
-        queueSave(); renderEditor(); if(body!=null){EditText target=body;target.requestFocus();target.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){public void onLayoutChange(View view,int l,int t,int r,int b,int ol,int ot,int or,int ob){if(r<=l || b<=t)return;target.removeOnLayoutChangeListener(this);target.postOnAnimation(new Runnable(){int attempts;boolean requestedForTarget;public void run(){
-                    if(closed || body!=target || !target.isAttachedToWindow() || !target.hasFocus() || attempts++>=10)return;
+        queueSave(); renderEditor(); if(body!=null){EditText target=body;target.requestFocus();target.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){public void onLayoutChange(View view,int l,int t,int r,int b,int ol,int ot,int or,int ob){if(r<=l || b<=t)return;target.removeOnLayoutChangeListener(this);target.postOnAnimation(new Runnable(){int attempts,lastHeight=-1,stableLayouts,servedFrames;boolean requestedForTarget;public void run(){
+                    if(closed || body!=target || !target.isAttachedToWindow() || attempts++>=20){newNoteKeyboardDiagnostic="stopped: attempts="+attempts+" prior=["+newNoteKeyboardDiagnostic+"]";return;}
+                    if(!target.hasFocus()){View owner=target.getRootView().findFocus();if(owner!=null && owner!=target){newNoteKeyboardDiagnostic="cancelled: other focus owner";return;}if(target.hasWindowFocus() && target.isShown())target.requestFocus();}
+                    int height=shell.getHeight();if(shell.isLayoutRequested() || target.isLayoutRequested() || height!=lastHeight)stableLayouts=0;else stableLayouts++;lastHeight=height;
+                    // Let the previous Doc hide/resize settle before the first new Notes request.
+                    if(!requestedForTarget && stableLayouts<2){newNoteKeyboardDiagnostic="settling: layouts="+stableLayouts;target.postDelayed(this,100);return;}
                     // Visibility can still belong to the previous Doc while its hide is pending.
                     // A rejected request is not an acknowledgement. Old Doc insets alone
                     // cannot finish startup before this new field is actually served.
                     android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if(requestedForTarget && keyboardVisible() && keyboard.isActive(target))return;
-                    if(target.hasWindowFocus()){
+                    newNoteKeyboardDiagnostic="attempt="+attempts+" accepted="+requestedForTarget+" visible="+keyboardVisible()+" active="+keyboard.isActive(target)+" stable="+stableLayouts;
+                    if(requestedForTarget && keyboardVisible() && keyboard.isActive(target)){if(++servedFrames>=2)return;}else servedFrames=0;
+                    // After acceptance, observe only; never reopen against a later explicit hide.
+                    if(!requestedForTarget && target.hasFocus() && target.hasWindowFocus()){
                         if(android.os.Build.VERSION.SDK_INT>=30){android.view.WindowInsetsController insets=target.getWindowInsetsController();if(insets!=null)insets.show(android.view.WindowInsets.Type.ime());}
                         requestedForTarget=keyboard.showSoftInput(target,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
                     }

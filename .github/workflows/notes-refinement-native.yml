@@ -1,3 +1,4 @@
+# Round40: candidate53 API36 Notes IME failure: settle the prior Doc resize before a Notes request, require served visibility twice, recover only unowned focus, observe rather than re-show after acknowledgement, record fail-only startup phase. Original repeated native transitions and every assertion retained. Preserve candidate54 evidence.
 # Round39: repair real half-height filter clipping by reclaiming decorative vertical padding; retain full native touch targets, caller hierarchy and cap. TXT test follows view-only default while retaining source/no-import/edit/find checks. Save-pending indicator survives navigation. Preserve candidate53 evidence.
 # Round38: code52 physical crash/storage/UI feedback. Defer layout-time drag completion; verify private saves separately from pending folder copies; reviewed selected-folder merge, bounded paged TXT and read-only default, stable half-screen filters, Back/diagram/rename/native-selection fixes. Every prior assertion retained; new regression journeys added.
 # Round37: scope IME resize/animation settling to one-time new-document handoff, not ordinary inserted fields. Keep insertion keyboard requests immediate so a following explicit hide is not overridden by a delayed first show. No native assertion changed.
@@ -52,7 +53,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round39-${{ github.ref }}
+  group: notes-refinement-native-round40-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -84,14 +85,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.51.0-54-development.apk
-          sha256sum MyNotes-v0.51.0-54-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.51.0-54-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.52.0-55-development.apk
+          sha256sum MyNotes-v0.52.0-55-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.52.0-55-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.51.0-54-development.apk
+          path: MyNotes-v0.52.0-55-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

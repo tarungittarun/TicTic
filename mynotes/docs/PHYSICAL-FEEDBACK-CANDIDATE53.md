@@ -45,3 +45,16 @@ https://github.com/tarungittarun/TicTic/actions/runs/41578780795 . No Android re
 is claimed yet. Android compile/lint/JVM/native results must be recorded before
 calling candidate53 qualified. The source workflow uploads a development APK, not a
 public Release. Stable signing/package and install-over upgrade constraints remain.
+
+## Final candidate53 result — failed, not install-qualified
+
+Run41578780795 finished with build SUCCESS and **1,388/1,400 native outcomes**.
+Independent recheck of all eight saved native-results.json files:
+API26 212/212 +200/202; API34 landscape146/148 +134/138;
+API34 font2/night148/148 +136/138; API36 211/212 +201/202.
+The 12 failing outcomes comprise filter clipping/old all-at-once Sort visibility,
+the old TXT modal workflow expectation, and one actual API36 new-Notes IME readiness
+failure during repeated Notes/Doc transitions. They are not waived.
+Evidence: `design-2026-10-29/native/41578780795/`. Candidate54 addresses filter/TXT
+findings; candidate55 addresses the observed Notes IME handoff. Automation still
+cannot prove Motorola smoothness or full arbitrary Word/OCR fidelity.

@@ -1,0 +1,34 @@
+name: MyNotes60 reproduce OCR selection disagreement before repair
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression60-red.yml']
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Require exactly the new disagreement counterexamples to fail on unchanged59
+        working-directory: mynotes
+        run: |
+          set +e
+          sh gradlew :notes-domain:test --tests app.space.notes.domain.OcrLineRecoveryTest --no-daemon --console=plain --max-workers=2 > /tmp/ocr60-red.txt 2>&1
+          code=$?
+          set -e
+          python3 - "$code" <<'PY'
+          import sys,xml.etree.ElementTree as ET,json
+          from pathlib import Path
+          files=list(Path('domain/build/test-results/test').glob('TEST-*.xml'));assert files,'No JVM execution evidence'
+          failed=[c.attrib['name'] for p in files for c in ET.parse(p).getroot().iter('testcase') if c.find('failure') is not None or c.find('error') is not None]
+          assert int(sys.argv[1])!=0 and set(failed)=={'rejectStaleBaselineWordText','rejectStaleCandidateWordText'},failed
+          print('::notice title=Real unchanged59 counterexamples reproduced::'+json.dumps(failed))
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression60-before-fix-jvm
+          path: mynotes/domain/build/test-results/test/
+          retention-days: 7

@@ -211,3 +211,11 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertTrue((ROOT/compile['working-directory']/'gradlew').is_file())
         self.assertIn('sh gradlew',compile['run'])
         self.assertNotIn('mynotes/benchmarks',compile['run'])
+    def test_holdout_comparison_preserves_regressions_and_rejects_changed_pixels(self):
+        from mynotes.tools.ci.compare_ocr_holdout import compare_rows
+        baseline={'id':'unit','status':'OK','reference':'abc','recognized':'abc','cer':0.,'strict_wer':0.,'elapsed_ms':1,'accuracy_target_met':True,'kind':'English','condition':{},'input_sha256':'a'}
+        candidate={**baseline,'recognized':'axc','cer':1/3,'strict_wer':1.,'accuracy_target_met':False}
+        pair=compare_rows(baseline,candidate);self.assertTrue(pair['regression']);self.assertFalse(pair['improvement'])
+        pair=compare_rows(candidate,baseline);self.assertFalse(pair['regression']);self.assertTrue(pair['improvement'])
+        candidate['input_sha256']='b'
+        with self.assertRaisesRegex(ValueError,'fixture mismatch'):compare_rows(baseline,candidate)

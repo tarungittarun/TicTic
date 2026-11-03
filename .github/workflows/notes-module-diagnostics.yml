@@ -1,0 +1,31 @@
+name: MyNotes exact module workflow diagnostics
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-module-diagnostics.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  public-job-trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Inspect exact public preparation failure, no model execution or assertion retry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import subprocess,json
+          prefix='repos/tarungittarun/TicTic/'
+          run=json.loads(subprocess.check_output(['gh','api',prefix+'actions/runs/41649423992']))
+          assert run['head_sha']=='76167031f7db55698b9028c11a7cf5d91300dadd' and run['status']=='completed'
+          raw=subprocess.check_output(['gh','api','--allow-escape-sequences',prefix+'actions/jobs/125963349797/logs'])
+          assert len(raw)<32*1024*1024
+          lines=raw.decode(errors='replace').splitlines();selected=[]
+          for i,line in enumerate(lines):
+              if any(word in line for word in ['Traceback','RuntimeError','KeyError','ValueError','AssertionError','HTTPError','URLError','TimeoutError']):selected+=lines[max(0,i-3):i+6]
+          for i in range(0,len(selected),8):
+              text='\n'.join(selected[i:i+8])[:3500]
+              print('::notice title=Exact public corpus preparation trace::'+text.replace('%','%25').replace('\n','%0A').replace('\r','%0D'))
+          PY

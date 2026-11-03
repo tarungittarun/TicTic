@@ -61,7 +61,7 @@ def methods():
                 depth += (masked[end]=='{')-(masked[end]=='}'); end += 1
             body = text[start:end]; name = package+'.'+path.stem+'#'+match[1]
             actions = re.findall(r'\b(?:tap|click|dialogTap|previewOption)\("([^"\n]*)"', body)
-            scenes = re.findall(r'screenshot\("([a-z0-9-]+)"\s*[,)]', body)+re.findall(r'"([a-z0-9-]+)\.png"', body)
+            scenes = re.findall(r'(?:screenshot|storeScreenshot)\("([a-z0-9-]+)"\s*[,)]', body)+re.findall(r'"([a-z0-9-]+)\.png"', body)
             result[name] = dict(name=name, file=str(path.relative_to(ROOT)), line=text[:start].count('\n')+1,
                                 actions=actions, scenes=scenes,
                                 assertions=len(re.findall(r'\bassert\w+\s*\(', body)), body=body)

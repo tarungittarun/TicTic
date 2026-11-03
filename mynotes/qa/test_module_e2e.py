@@ -148,3 +148,19 @@ class SeparateModuleE2E(unittest.TestCase):
                 self.assertTrue(report['ok']);self.assertEqual(12,report['passed']);self.assertEqual(12,report['instrumentation_invocations'])
                 self.assertEqual(12,len(list(Path('.').glob('ordered-module-[0-9][0-9].txt'))))
             finally:os.chdir(previous)
+    def test_pdf_export_control_is_native_named_and_cancel_is_transactional(self):
+        activity=(ROOT/'mynotes/app/src/main/java/app/space/notes/NotesActivity.java').read_text()
+        block=activity.split('@Override public void exportPdf()',1)[1].split('private void choosePdfDestination',1)[0]
+        self.assertIn('new android.widget.CheckBox(options.getContext())',block)
+        self.assertIn('guides.setMinHeight',block)
+        self.assertNotIn('setMultiChoiceItems',block)
+        self.assertIn('pdfPrintGuides=guides.isChecked();choosePdfDestination()',block)
+        self.assertNotIn('setOnCheckedChangeListener',block)
+        native=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        self.assertIn('Named PDF control must own its click action',native)
+        self.assertIn('Cancel must discard the draft export preference',native)
+    def test_segmentation_probe_is_public_test_only_and_separately_timed(self):
+        harness=(ROOT/'mynotes/app/benchmarks/java/app/space/notes/ModuleCorpusBenchmark.java').read_text()
+        production=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java').read_text()
+        self.assertIn('public_segmentation_probe',harness);self.assertIn('probe_elapsed_ms',harness)
+        self.assertNotIn('public_segmentation_probe',production)

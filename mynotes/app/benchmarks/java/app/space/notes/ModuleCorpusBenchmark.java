@@ -37,6 +37,17 @@ public class ModuleCorpusBenchmark {
         RecognitionMetrics.Score cer=RecognitionMetrics.characters(normalized(reference),normalized(actual));RecognitionMetrics.Score wer=RecognitionMetrics.words(normalized(reference),normalized(actual));
         row.put("reference",reference).put("recognized",actual).put("cer",cer.rate()).put("character_edits",cer.edits).put("reference_characters",cer.referenceUnits).put("strict_wer",wer.rate()).put("word_edits",wer.edits).put("reference_words",wer.referenceUnits);
     }
+    // PUBLIC fixture diagnostics only. Never added to ordinary OCR diagnostics or
+    // production Result, and never used as an oracle to select application output.
+    private void segmentationProbe(JSONObject row,byte[] png)throws Exception{
+        if(!"OK".equals(row.optString("status")) || row.getBoolean("accuracy_target_met"))return;
+        long began=SystemClock.elapsedRealtime();Bitmap source=BitmapFactory.decodeByteArray(png,0,png.length),prepared=null;
+        com.googlecode.tesseract.android.TessBaseAPI engine=new com.googlecode.tesseract.android.TessBaseAPI();
+        try{prepared=OfflineOcr.prepareBitmap(source);if(!engine.init(new File(context().getFilesDir(),"offline-ocr-v1").getAbsolutePath(),"eng+hin+kan"))throw new IOException("Diagnostic engine init");engine.setVariable("preserve_interword_spaces","1");JSONArray alternatives=new JSONArray();
+            for(int mode:new int[]{3,11,6}){engine.setPageSegMode(mode);engine.setImage(prepared);String text=engine.getUTF8Text();JSONObject candidate=new JSONObject().put("page_segmentation_mode",mode).put("confidence",engine.meanConfidence());scores(candidate,row.getString("reference"),text==null?"":text);alternatives.put(candidate);}row.put("public_segmentation_probe",alternatives);
+        }catch(Exception failure){row.put("probe_error",failure.toString());}
+        finally{engine.recycle();if(prepared!=null)prepared.recycle();if(source!=null)source.recycle();row.put("probe_elapsed_ms",SystemClock.elapsedRealtime()-began);}
+    }
     @Test public void variedImageCorpusMeasuresGroundTruthAndElapsedTime()throws Exception{
         String[][] lines={{"MEETING NOTES","Monday at 10 AM"},{"RECEIPT","Rice 250 Sugar 50","TOTAL 300"},{"TOTAL 25 + 5 = 30","Price $50 INR 500"},{"Contact support@example.com","https://example.com/page"},{"भारत नमस्ते","आज बैठक है"},{"ಕನ್ನಡ ಭಾಷೆ","ಭಾರತ ನಮಸ್ಕಾರ"},{"Meeting ಭಾರತ ಕನ್ನಡ","Total 25 + 5 = 30"},{}};
         String[] families={"sans-serif","serif","monospace","sans-serif-condensed"};int[] sizes={28,48,72};JSONArray rows=new JSONArray();int index=0,errors=0;
@@ -47,7 +58,8 @@ public class ModuleCorpusBenchmark {
             try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(context(),image,"auto",new OfflineOcr.Cancellation());row.put("status","OK").put("confidence",result.confidence).put("selected_language",result.language);scores(row,reference,result.text);row.put("accuracy_target_met",row.getDouble("cer")<=.2);}
             catch(Exception failure){errors++;row.put("status","ERROR").put("error",failure.getClass().getSimpleName()+": "+failure.getMessage()).put("reference",reference).put("recognized","");}
             finally{row.put("elapsed_ms",SystemClock.elapsedRealtime()-began).put("calling_thread_cpu_ms",(android.os.Debug.threadCpuTimeNanos()-cpu)/1000000.0);image.recycle();}
-            row.put("heap_used_bytes",Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()).put("native_heap_bytes",android.os.Debug.getNativeHeapAllocatedSize());rows.put(row);persist("ocr",rows,384);
+            // Probe runs after the timed production call; its extra passes have a separate timer.
+            segmentationProbe(row,png.toByteArray());row.put("heap_used_bytes",Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()).put("native_heap_bytes",android.os.Debug.getNativeHeapAllocatedSize());rows.put(row);persist("ocr",rows,384);
         }
         assertEquals(384,rows.length());assertEquals("All operational errors are retained; accuracy is separately scored",0,errors);
     }

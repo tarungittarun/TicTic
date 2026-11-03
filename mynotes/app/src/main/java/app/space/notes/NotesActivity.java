@@ -95,7 +95,17 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){super.onRequestPermissionsResult(request,permissions,grants);app.space.notes.runtime.Diagnostics.record("permission.result","request="+request+" granted="+(grants.length>0 && grants[0]==0));if(controller==null){showMessage("MyNotes is in recovery mode. Export a report or reopen the internal copy first.");return;}if(request==89){if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.chooseReminder();else showMessage("Notifications were not enabled. Notes and all other features still work; choose Reminder again if you change your mind.");return;}if(request!=88)return;if(grants.length>0 && grants[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)controller.startVoiceCapture();else showMessage("Microphone access was not granted. Text, checklists, diagrams, OCR and storage still work.");}
     @Override public void exportVoice(String id){voiceExportId=id;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("audio/wav");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-voice-"+id+".wav");openPicker(picker,100);}
     @Override public void exportPdf() {
-        new android.app.AlertDialog.Builder(this).setTitle("PDF export options").setMultiChoiceItems(new String[]{"Print writing guides where Writing lines is on"},new boolean[]{pdfPrintGuides},(dialog,which,checked)->pdfPrintGuides=checked).setMessage(null).setPositiveButton("Choose PDF file",(dialog,which)->choosePdfDestination()).setNegativeButton("Cancel",null).show();
+        android.app.AlertDialog.Builder options=new android.app.AlertDialog.Builder(this).setTitle("PDF export options");
+        // One labelled, checkable and clickable native control. A list item's text
+        // can be visible without owning ACTION_CLICK in the accessibility tree.
+        android.widget.CheckBox guides=new android.widget.CheckBox(options.getContext());
+        guides.setText("Print writing guides where Writing lines is on");
+        guides.setChecked(pdfPrintGuides);
+        int padding=Math.round(16*getResources().getDisplayMetrics().density);
+        guides.setPadding(padding,padding,padding,padding);
+        guides.setMinHeight(Math.round(48*getResources().getDisplayMetrics().density));
+        // Selection is a draft: Cancel must not change later export settings.
+        options.setView(guides).setPositiveButton("Choose PDF file",(dialog,which)->{pdfPrintGuides=guides.isChecked();choosePdfDestination();}).setNegativeButton("Cancel",null).show();
     }
     private void choosePdfDestination(){
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);

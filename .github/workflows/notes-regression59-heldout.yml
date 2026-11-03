@@ -1,0 +1,150 @@
+name: MyNotes59 frozen holdout A-B and live PDF state recheck
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression59-heldout.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  test-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Compile test-only live-node synchronization plus frozen corpus; production59 unchanged
+        run: |
+          mkdir -p mynotes/benchmarks/assets/module-corpus
+          cp mynotes/docs/regression/ocr-heldout-v1.json mynotes/benchmarks/assets/module-corpus/
+          bash gradlew -p mynotes :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest -PmoduleE2E --no-daemon --console=plain > refinement-build.txt 2>&1
+      - name: Expose compiler failures, never reinterpret them as an app pass
+        if: failure()
+        run: python3 -m mynotes.tools.ci.annotate refinement-build.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: regression59-heldout-test-apks
+          path: mynotes/app/build/outputs/apk/
+          retention-days: 7
+  heldout:
+    needs: test-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [baseline58, candidate59]
+        profile:
+          - {id: light-portrait, night: 'no', orientation: portrait}
+          - {id: dark-portrait, night: 'yes', orientation: portrait}
+          - {id: light-landscape, night: 'no', orientation: landscape}
+          - {id: dark-landscape, night: 'yes', orientation: landscape}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: regression59-heldout-test-apks
+          path: current
+      - uses: actions/download-artifact@v8.0.2
+        if: matrix.version == 'baseline58'
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41670830610
+          name: module-foundation-test-apks
+          path: baseline
+      - name: Verify payload-preserving ephemeral test signatures and enable KVM
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          if [ '${{ matrix.version }}' = baseline58 ]; then
+            python3 -m mynotes.tools.ci.resign_public_benchmark_apks baseline/debug/notes-debug.apk current/androidTest/debug/notes-debug-androidTest.apk --baseline
+          else
+            python3 -m mynotes.tools.ci.resign_public_benchmark_apks current/debug/notes-debug.apk current/androidTest/debug/notes-debug-androidTest.apk
+          fi
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          sudo chmod 666 /dev/kvm
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: |
+            adb shell settings put global airplane_mode_on 1
+            adb shell svc wifi disable
+            adb shell svc data disable
+            adb install -r benchmark-app.apk
+            adb install -r benchmark-test.apk
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night ${{ matrix.profile.night }}
+            python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
+            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.profile.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            bash mynotes/tools/ci/run_module_benchmark.sh holdout ${{ matrix.profile.night }} ${{ matrix.profile.orientation }}
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression59-heldout-${{ matrix.version }}-${{ matrix.profile.id }}
+          path: |
+            module-benchmark.tar
+            module-execution.json
+            refinement-native.txt
+            refinement-environment-*
+            benchmark-signing-proof.json
+          retention-days: 7
+  focused-pdf:
+    needs: test-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: api26-largefont, api: 26, night: 'no', orientation: portrait, font: '2.0'}
+          - {id: api36-largefont-landscape, api: 36, night: 'yes', orientation: landscape, font: '2.0'}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: regression59-heldout-test-apks
+          path: refinement-apks
+      - name: Enable KVM and audio loader
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          sudo chmod 666 /dev/kvm
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: |
+            adb shell settings put global airplane_mode_on 1
+            adb shell svc wifi disable
+            adb shell svc data disable
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            adb shell settings put system font_scale ${{ matrix.font }}
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
+            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            bash mynotes/tools/ci/run_pdf_regression.sh ${{ matrix.night }} ${{ matrix.orientation }} ${{ matrix.font }}
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression59-live-pdf-${{ matrix.id }}
+          path: |
+            pdf-regression.json
+            actual-apk-sha256.txt
+            refinement-native.txt
+            refinement-captures.tar
+            refinement-environment-*
+          retention-days: 7

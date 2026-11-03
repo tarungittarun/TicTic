@@ -711,7 +711,7 @@ public class CoreJourneysTest {
 
 
     private boolean pdfGuidesChecked(android.view.accessibility.AccessibilityNodeInfo node){
-        if(node!=null){if("Print writing guides where Writing lines is on".contentEquals(node.getText()==null?"":node.getText())){assertTrue("Named PDF control must expose native checkable semantics",node.isCheckable());assertTrue("Named PDF control must own its click action",node.isClickable());return node.isChecked();}for(int i=0;i<node.getChildCount();i++){android.view.accessibility.AccessibilityNodeInfo child=node.getChild(i);if(child!=null && dialogHasText(child,"Print writing guides where Writing lines is on"))return pdfGuidesChecked(child);}}
+        if(node!=null){if("Print writing guides where Writing lines is on".contentEquals(node.getText()==null?"":node.getText())){assertTrue("PDF checkbox must still exist in the live accessibility tree",node.refresh());assertTrue("Named PDF control must expose native checkable semantics",node.isCheckable());assertTrue("Named PDF control must own its click action",node.isClickable());return node.isChecked();}for(int i=0;i<node.getChildCount();i++){android.view.accessibility.AccessibilityNodeInfo child=node.getChild(i);if(child!=null && dialogHasText(child,"Print writing guides where Writing lines is on"))return pdfGuidesChecked(child);}}
         throw new AssertionError("Native PDF writing-guides checkbox not found");
     }
     private void restartControllerWithoutBundle()throws Exception{main(()->{controller.close();controller=new NotesController(context,host,null);activity.setContentView(controller.view());});await(()->input("Search all content & settings")!=null);}

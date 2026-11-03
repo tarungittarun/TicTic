@@ -143,6 +143,17 @@ def performance_summary(observations):
     return result
 
 
+def voice_speaker_summary(observations):
+    groups=defaultdict(list)
+    for row in observations:
+        if row['module']=='voice' and row.get('speaker') and row['status']=='OK':groups[(row['profile'],row['speaker'])].append(row)
+    result=[]
+    for (profile,speaker),rows in sorted(groups.items()):
+        clean=[r for r in rows if r['kind']=='clean'];seconds=sum(r['duration_seconds'] for r in rows)
+        result.append({'profile':profile,'speaker':speaker,'observed':len(rows),'distinct_source_clips':len({r['source_sha256'] for r in rows}),'distinct_prompts':len({r['reference'] for r in rows}),'mean_normalized_wer':statistics.mean(r['normalized_wer'] for r in rows),'clean_mean_normalized_wer':statistics.mean(r['normalized_wer'] for r in clean) if clean else None,'accuracy_target_passes':sum(r['accuracy_target_met'] for r in rows),'processed_audio_seconds':seconds,'elapsed_ms':sum(r['elapsed_ms'] for r in rows),'aggregate_real_time_factor':sum(r['elapsed_ms'] for r in rows)/1000/seconds})
+    return result
+
+
 def apply_recheck(data,observations,proof,output):
     """Accept exact-source setup corrections without erasing rejected history."""
     if proof['artifact_source_sha']!=data['source'] or proof['artifact_source_run']!=data['run']:raise ValueError('Recheck must use exact original build')
@@ -227,7 +238,7 @@ def render(data,observations,inventory,output):
     y=text('Reading order / PDF bookmarks\n'+'\n'.join(f'{i+1:02d}. {m}' for i,m in enumerate(MODULES)),y)
     y=text('Accuracy targets fixed before execution: OCR CER≤0.20, normalized English speech WER≤0.35, silence must remain empty. These are measurement flags, not an assertion that every difficult input passes. Failures, hallucinations, errors and missing observations remain visible. Execution completion is not an accuracy pass.',y)
     y=new('Corpus, measurement and visibility boundaries','limits')
-    for value in ['OCR:384 deterministic rendered conditions, 8 content kinds ×4 font families ×3 sizes ×2 polarities ×2 geometry/rotation settings. Two input sizes:1.12M/2.4M pixels. Input polarity is separate from app theme. Synthetic fonts are not physical photos/handwriting, universal scripts or the supplied private image.', 'Speech:200 distinct licensed CMU ARCTIC utterances,100 each KSP/SLT, four conditions plus four silence controls =804 inputs, repeated on four UI profiles. Only2 speakers reading100 distinct prompts, not804 people or804 independent scripts. English read speech; not spontaneous dictation, all accents, multilingual or microphone/noise capture. Default bundled Vosk is measured; large experimental Whisper corpus evaluation remains unqualified.', 'Ground truth is the original public transcript or generated source text, never the recognizer’s own clean output. Strict CER/WER retains errors; additional English normalized WER explicitly removes punctuation and case. Silence uses denominator1 count convention, not ordinary corpus accuracy.', 'Timing is emulator wall clock for recognition plus scoring and transcript codec/dedup/source-preservation checks; fixture synthesis excluded. Initialization is included; Vosk constructs and closes its native model for every transcription, while materialized model files may be warm. Different CI hosts/load make physical-latency or causal theme-speed comparisons invalid. Report actual ms, bytes, pixels/audio seconds, RTF and sampled heaps; sampled heap is not peak process memory.', 'Visibility evidence: Native screenshots are paired by orientation and light/dark profile. Recorded resource assertions check real night/orientation. Screenshots support review, not automatic WCAG certification, vendor keyboard coverage or physical gesture approval.', 'Production runtime/models remain v57 baseline; this opt-in instrumentation source set and public assets never ship in the application. No private logs, supplied screenshots, notes or recordings enter Actions.']:
+    for value in ['OCR:384 deterministic rendered conditions, 8 content kinds ×4 font families ×3 sizes ×2 polarities ×2 geometry/rotation settings. Two input sizes:1.12M/2.4M pixels. Input polarity is separate from app theme. Synthetic fonts are not physical photos/handwriting, universal scripts or the supplied private image. Input font variety does not qualify recovered font/style fidelity.', 'Speech:200 distinct licensed CMU ARCTIC utterances,100 each KSP/SLT, four conditions plus four silence controls =804 inputs, repeated on four UI profiles. Only2 speakers reading100 distinct prompts, not804 people or804 independent scripts. English read speech; not spontaneous dictation, all accents, multilingual or microphone/noise capture. Default bundled Vosk is measured; large experimental Whisper corpus evaluation remains unqualified.', 'Ground truth is the original public transcript or generated source text, never the recognizer’s own clean output. Strict CER/WER retains errors; additional English normalized WER explicitly removes punctuation and case. Silence uses denominator1 count convention, not ordinary corpus accuracy.', 'Timing is emulator wall clock for recognition plus scoring and transcript codec/dedup/source-preservation checks; fixture synthesis excluded. Initialization is included; Vosk constructs and closes its native model for every transcription, while materialized model files may be warm. Different CI hosts/load make physical-latency or causal theme-speed comparisons invalid. Report actual ms, bytes, pixels/audio seconds, RTF and sampled heaps; sampled heap is not peak process memory.', 'Visibility evidence: Native screenshots are paired by orientation and light/dark profile. Recorded resource assertions check real night/orientation. Screenshots support review, not automatic WCAG certification, vendor keyboard coverage or physical gesture approval.', 'Production runtime/models remain v57 baseline; this opt-in instrumentation source set and public assets never ship in the application. No private logs, supplied screenshots, notes or recordings enter Actions.']:
         y=text(value,y)
     for index,module in enumerate(MODULES):
         y=new(f'{index+1:02d}. {module}','module-'+str(index));module_pages.append({'module':module,'page':page})
@@ -251,11 +262,15 @@ def render(data,observations,inventory,output):
                 y=text(route+'\n'+purpose+'\nBoundary: '+boundary,y)
                 for column,polarity in enumerate(['light','dark']):
                     profile=polarity+'-'+orientation;frame=next((f for f in frames if f['profile']==profile),None);x=30+column*401
-                    text(profile+(' · '+str(frame.get('owner')) if frame else ' · NO ACTUAL CAPTURE'),y,x,380,True)
+                    text(profile+(' · capture run '+frame.get('capture_run',data['run'])+' · '+str(frame.get('owner')) if frame else ' · NO ACTUAL CAPTURE'),y,x,380,True)
                     if frame:
                         image=output/frame['path'];assert sha(image.read_bytes())==frame['sha256'];c.drawImage(str(image),x,45,380,max(80,y-90),preserveAspectRatio=True,anchor='c')
         if module in [MODULES[3],MODULES[4]]:
             kind='ocr' if module==MODULES[3] else 'voice';rows=[r for r in observations if r['module']==kind]
+            if kind=='voice':
+                y=new(module+' · speaker-specific descriptive results')
+                y=text('Two speakers only: KSP Indian-English and SLT US-English, reading the same100 prompts. This is not a population, gender or general-accent comparison. Short read utterances, not long spontaneous dictation. All four amplitude/noise/gain conditions are counted; clean-only WER is separate.',y)
+                for item in voice_speaker_summary(rows):y=text(f"{item['profile']} / {item['speaker']}: {item['observed']} observations, {item['distinct_source_clips']} source clips, {item['distinct_prompts']} prompts; targets {item['accuracy_target_passes']}/{item['observed']}; mean normalized WER all conditions={item['mean_normalized_wer']:.3f}, clean={item['clean_mean_normalized_wer']:.3f}; {item['processed_audio_seconds']:.2f}s processed in {item['elapsed_ms']}ms, aggregate RTF={item['aggregate_real_time_factor']:.3f}.",y,tiny=True)
             y=new(module+' · measured performance summary')
             for item in performance_summary(rows):
                 score='cer' if kind=='ocr' else 'normalized_wer'
@@ -283,7 +298,7 @@ def render(data,observations,inventory,output):
                 for row in sorted(samples,key=lambda r:PROFILES.index(r['profile'])):
                     score=row.get('cer') if kind=='ocr' else row.get('normalized_wer');rate=f'{score:.3f}' if isinstance(score,(float,int)) else 'UNAVAILABLE'
                     y=text(f"{('REJECTED ORIENTATION — requested ' if row.get('configuration_rejected') else '')+row['profile']} · run {row.get('capture_run',data['run'])} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
-    write(output/'performance-summary.json',performance_summary(observations))
+    write(output/'performance-summary.json',performance_summary(observations));write(output/'voice-speaker-summary.json',voice_speaker_summary(observations))
     import csv
     if observations:
         keys=sorted(set().union(*(row.keys() for row in observations)))

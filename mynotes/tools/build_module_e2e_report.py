@@ -254,6 +254,16 @@ def render(data,observations,inventory,output):
         for name,method in sorted(members.items(),key=lambda item:(item[1]['file'],item[1]['line'])):
             passed=[lane for lane,r in data['native'].items() if name in r.get('cases',[])];failed=[lane for lane,r in data['native'].items() if any(str(f).startswith(name+':') for f in r.get('failures',[]))]
             y=text(name.split('#')[-1]+f"\nActual passed shards:{', '.join(passed) or 'NONE'}; failed:{', '.join(failed) or 'none reported'}. Source {method['file']}:{method['line']}.\nActions: "+(' → '.join(method['actions']) or 'Direct runtime/storage assertions; no UI route inferred.'),y,tiny=True)
+        diagnostic=output/'pdf-option-diagnostic/provenance.json'
+        if module==MODULES[6] and diagnostic.exists():
+            proof=json.loads(diagnostic.read_text());frame=next(r for r in proof['frames'] if r['frame']=='frame-8');image=diagnostic.parent/'frame-8.jpg'
+            if sha(image.read_bytes())!=frame['preview_sha256']:raise ValueError('Diagnostic image hash mismatch')
+            y=new('File viewers · PDF option interaction — OPEN')
+            text('Actual isolated diagnostic run '+proof['run']+'. Light portrait only; original source-run test APK. This is not a passing interaction or a physical-phone result.',y)
+            c.drawImage(str(image),30,45,290,425,preserveAspectRatio=True,anchor='c')
+            y=text('Observed: the PDF export-options dialog and writing-guides checkbox are visibly present. The original automation could not activate the matching accessible label. This failure is reproduced in isolation and in all four ordered profiles.',470,350,462)
+            y=text('The source helper requires a matching clickable accessibility node. Visibility alone does not prove successful checkbox activation. The checked-state and subsequent cancel-preservation assertions have not been qualified by this failed method. The result remains FAIL; no assertion, target or outcome is waived.',y,350,462)
+            text('Next qualification work: inspect the checkbox accessibility action/label relationship, exercise a native checkbox tap with checked-state verification, then repeat cancel/source-integrity assertions. Do not infer missing UI, data loss or a production regression solely from this automation failure.',y,350,462)
         scene_groups=defaultdict(list)
         for frame in data['screens']:
             if frame.get('lane') and frame['module']==module:scene_groups[frame['scene']].append(frame)

@@ -18,6 +18,12 @@ def audit(folder):
     for frame in data['screens']:
         if hashlib.sha256((folder/frame['path']).read_bytes()).hexdigest()!=frame['sha256']:raise ValueError('Retained image hash mismatch: '+frame['path'])
         hashes+=1
+    diagnostic=folder/'pdf-option-diagnostic/provenance.json'
+    if diagnostic.exists():
+        for frame in json.loads(diagnostic.read_text())['frames']:
+            image=diagnostic.parent/(frame['frame']+'.jpg')
+            if hashlib.sha256(image.read_bytes()).hexdigest()!=frame['preview_sha256']:raise ValueError('Diagnostic image hash mismatch')
+            hashes+=1
     result={'scope':'PDF bounds/bookmarks/retained-image hashes only; not automatic contrast, OCR accuracy or physical approval','pages':len(document),'expected_pages':summary['pages'],'text_blocks_checked':blocks,'images_hash_verified':hashes,'ordered_modules':len(summary['module_order']),'issues':issues}
     (folder/'pdf-layout-audit.json').write_text(json.dumps(result,indent=2)+'\n')
     if issues or len(document)!=summary['pages']:raise ValueError('PDF layout audit failed: '+json.dumps(issues[:6]))

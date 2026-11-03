@@ -12,3 +12,16 @@ class FeedbackRuntimeSafety(unittest.TestCase):
  def test_selection_is_geometric_and_limits_are_explicit(self):
   text=(JAVA/'LocalPdfPreview.java').read_text();self.assertIn('PdfTextLayer selection(int page)',text);self.assertIn('source.getRotation()%360!=0',text);self.assertIn('p.getDir()!=0',text);self.assertIn('glyphs.size()>=20000',text);self.assertIn('token!=current.token',text)
   text=(JAVA/'PdfSelectionImage.java').read_text();self.assertIn('imageToView().mapRect',text);self.assertIn('ActionMode.TYPE_FLOATING',text);self.assertIn('setPrimaryClip',text);self.assertIn('handle==0',text)
+
+ def test_header_back_bypasses_only_mutation_guard_and_keeps_safe_back_dispatch(self):
+  text=(JAVA/'NotesController.java').read_text()
+  header=text.split('private void headerIn(',1)[1].split('private void decorateLibrary(',1)[0]
+  self.assertIn('design.icon("Back","back"',header)
+  self.assertIn('back();',header)
+  self.assertIn('private void act(String label,Runnable action){if(busy)',text)
+  back=text.split('public boolean back()',1)[1]
+  self.assertLess(back.index('if(pageBack!=null)'),back.index('if(busy)'))
+ def test_document_keyboard_request_is_bounded_current_field_and_detach_scoped(self):
+  text=(JAVA/'DocumentEditorView.java').read_text()
+  for fragment in ['attempts++>=20','uiGeneration!=generation','fields.containsValue(focus)','focus.hasWindowFocus()','keyboard.isActive(focus)','acknowledged && visible','servedFrames>=2','controller.show(WindowInsets.Type.ime())','onDetachedFromWindow(){stopKeyboardStartup()','uiGeneration++;stopKeyboardStartup()']:
+   self.assertIn(fragment,text)

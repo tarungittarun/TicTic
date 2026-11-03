@@ -303,7 +303,7 @@ public final class NotesController {
     private void header(String name) {headerIn(root,name);}
     private void headerIn(LinearLayout parent,String name){
         if(parent==root && Arrays.asList("Settings","Storage & recovery","Backups","About & offline models","Diagnostics","Manage labels","Folders","Viewed files").contains(name))auxiliaryPage=name;
-        LinearLayout bar=tools(parent);bar.addView(icon("Back","back",this::back),new LinearLayout.LayoutParams(dp(48),dp(48)));
+        LinearLayout bar=tools(parent);bar.addView(design.icon("Back","back",()->{Diagnostics.record("ui.tap","control=Back screen="+(editing==null?page:"editor"));back();}),new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView heading=design.heading(name);bar.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
         status=text("",12);status.setTextColor(muted);status.setVisibility(View.GONE);parent.addView(status);
     }

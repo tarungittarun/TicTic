@@ -27,8 +27,10 @@ final class DocumentEditorView extends LinearLayout {
     private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight,lastViewportHeight;
     private View liftedContent;private boolean draggingContent;private int dragDirection;private long caretRevealUntil,uiGeneration;
     private final Runnable dragTick=new Runnable(){public void run(){if(dragDirection!=0 && scroll!=null && isAttachedToWindow()){scroll.scrollBy(0,dragDirection*dp(16));postDelayed(this,50);}}};
+    private Runnable keyboardStartup;
+    private void stopKeyboardStartup(){if(keyboardStartup!=null){removeCallbacks(keyboardStartup);keyboardStartup=null;}}
     private void stopDragScroll(){dragDirection=0;removeCallbacks(dragTick);}
-    @Override protected void onDetachedFromWindow(){draggingContent=false;stopDragScroll();super.onDetachedFromWindow();}
+    @Override protected void onDetachedFromWindow(){stopKeyboardStartup();draggingContent=false;stopDragScroll();super.onDetachedFromWindow();}
     private void trackDrag(DragEvent event,View target){
         caretRevealUntil=0;
         if(event.getAction()==DragEvent.ACTION_DRAG_ENDED || event.getAction()==DragEvent.ACTION_DROP){draggingContent=false;stopDragScroll();if(liftedContent!=null){NotesMotion.settle(liftedContent);liftedContent=null;}return;}
@@ -63,7 +65,7 @@ final class DocumentEditorView extends LinearLayout {
 
     private void addButton(LinearLayout row,String label,Runnable action){row.addView(button(label,action),new LayoutParams(-2,-2));}
     private void render(){
-        uiGeneration++;stopDragScroll();closeFormatting();rails=null;saveState();building=true;removeAllViews();fields.clear();selectedCard=null;selected=null;selectedBlock=null;selectedRow=null;
+        uiGeneration++;stopKeyboardStartup();stopDragScroll();closeFormatting();rails=null;saveState();building=true;removeAllViews();fields.clear();selectedCard=null;selected=null;selectedBlock=null;selectedRow=null;
         Note note=host.current();LinearLayout top=row(this);topControls=top;top.setTag("editor-top-chrome");
         top.addView(compactButton("‹","Back",host::back),new LayoutParams(dp(48),dp(48)));
         if(saveStatus.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)saveStatus.getParent()).removeView(saveStatus);
@@ -87,7 +89,28 @@ final class DocumentEditorView extends LinearLayout {
         compactDocument=design.editorTool("More","Document","more",this::documentMenu);actions.addView(compactDocument,new LayoutParams(0,-2,1));compactDocument.setVisibility(GONE);documentControls=tools;rails=EditorRails.install(this,top,scroll,tools);
         if(focusAfterRender!=null){state.putString("note",note.id);state.putString("field",focusAfterRender);state.putInt("start",0);state.putInt("end",0);state.putBoolean("showKeyboard",true);focusAfterRender=null;}building=false;
         final String restoreNote=state.getString("note"),restoreField=state.getString("field");final int restoreStart=state.getInt("start"),restoreEnd=state.getInt("end");
-        post(()->{if(!isAttachedToWindow() || !note.id.equals(restoreNote))return;EditText focus=fields.get(restoreField);if(focus!=null){restoringSelection=true;try{int start=Math.max(0,Math.min(focus.length(),restoreStart)),end=Math.max(0,Math.min(focus.length(),restoreEnd));focus.setSelection(start,end);focus.requestFocus();focus.setSelection(start,end);selectionLocked=true;postOnAnimation(this::restoreAfterDialog);}finally{restoringSelection=false;}}scroll.scrollTo(0,state.getInt("scroll"));if(state.getBoolean("showKeyboard") && focus!=null){state.putBoolean("showKeyboard",false);focus.postOnAnimation(()->((android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(focus,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT));}adaptViewport();});
+        final long restoreGeneration=uiGeneration;post(()->{if(!isAttachedToWindow() || uiGeneration!=restoreGeneration || !note.id.equals(restoreNote))return;EditText focus=fields.get(restoreField);if(focus!=null){restoringSelection=true;try{int start=Math.max(0,Math.min(focus.length(),restoreStart)),end=Math.max(0,Math.min(focus.length(),restoreEnd));focus.setSelection(start,end);focus.requestFocus();focus.setSelection(start,end);selectionLocked=true;postOnAnimation(this::restoreAfterDialog);}finally{restoringSelection=false;}}scroll.scrollTo(0,state.getInt("scroll"));if(state.getBoolean("showKeyboard") && focus!=null){state.putBoolean("showKeyboard",false);startWritingKeyboard(focus);}adaptViewport();});
+    }
+    /** A new writing field must be served, not merely inherit the old editor's IME insets. */
+    private void startWritingKeyboard(EditText focus){
+        stopKeyboardStartup();final long generation=uiGeneration;
+        keyboardStartup=new Runnable(){int attempts,servedFrames;boolean acknowledged;
+            public void run(){
+                if(keyboardStartup!=this)return;
+                if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || !focus.hasFocus() || readOnly() || attempts++>=20){stopKeyboardStartup();return;}
+                android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if(keyboard==null){stopKeyboardStartup();return;}
+                boolean visible;
+                if(android.os.Build.VERSION.SDK_INT>=30){WindowInsets insets=focus.getRootWindowInsets();visible=insets!=null && insets.isVisible(WindowInsets.Type.ime());}
+                else{android.graphics.Rect frame=new android.graphics.Rect();focus.getWindowVisibleDisplayFrame(frame);visible=focus.getRootView().getHeight()-frame.height()>dp(120);}
+                if(acknowledged && visible && keyboard.isActive(focus)){if(++servedFrames>=2){stopKeyboardStartup();return;}}else servedFrames=0;
+                if(focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
+                    if(android.os.Build.VERSION.SDK_INT>=30){WindowInsetsController controller=focus.getWindowInsetsController();if(controller!=null)controller.show(WindowInsets.Type.ime());}
+                    acknowledged=keyboard.showSoftInput(focus,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+                }
+                postDelayed(this,100);
+            }
+        };postOnAnimation(keyboardStartup);
     }
     private int lineOffset(EditText input,float y){
         if(input.getLayout()==null)return 0;

@@ -1,0 +1,99 @@
+# Genuine59 repair evidence. Frozen holdout remains a separate before/after cohort, inside OCR chapter; preserve original boot failure and all residual recognition errors.
+name: MyNotes59 complete regression evidence with explicit missing-lane correction
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression59-final.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  assemble:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235733
+          pattern: module-native-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235733
+          pattern: module-benchmark-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235733
+          name: module-foundation-lint
+          path: module-artifacts/foundation
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41681938692
+          name: module-benchmark-light-landscape-voice1
+          path: correction
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41682997197
+          name: regression59-api26-api26-largefont
+          path: additional-api26
+      - name: Validate explicit original missing execution; never replace a failed assertion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,shutil,subprocess
+          from pathlib import Path
+          jobs=json.loads(subprocess.check_output(['gh','api','repos/'+__import__('os').environ['GITHUB_REPOSITORY']+'/actions/runs/41678235733/jobs?per_page=100']))['jobs']
+          original=next(j for j in jobs if j['name']=='benchmark (light-landscape-voice1, no, landscape, voice1)');assert original['conclusion']=='failure'
+          path=Path('module-artifacts/module-benchmark-light-landscape-voice1');assert not path.exists(),'Refuse overwrite of an original actual outcome'
+          actual=json.loads(Path('correction/module-execution.json').read_text());assert actual['ok'] is True and actual['expected']==4 and actual['passed']==4
+          shutil.copytree('correction',path)
+          Path('correction-provenance.json').write_text(json.dumps({'original_run':41678235733,'original_job':original,'original_lane':'No execution/measurement/environment artifact emitted; original remains FAILURE, outcomes unknown.','corrective_run':41681938692,'correction':'One independently completed execution of exact original59 APKs, same references/conditions; no assertion retries or app rebuild.','corrective_native_result':actual},indent=2)+'\n')
+          PY
+      - name: Retain actual API26 font2 live checkbox result after SDK-only repair
+        run: |
+          python3 - <<'PY'
+          import json,shutil
+          from pathlib import Path
+          result=json.loads(Path('additional-api26/pdf-regression.json').read_text());assert result['ok'] and result['expected']==4 and result['passed']==4
+          root=Path('mynotes/docs/regression/59/api26-qualified');root.mkdir(parents=True,exist_ok=True)
+          for name in ['pdf-regression.json','actual-apk-sha256.txt','refinement-native-sdk-bootstrap.txt']:
+              file=Path('additional-api26')/name
+              if file.exists():shutil.copyfile(file,root/name)
+          (root/'provenance.json').write_text(json.dumps({'run':41682997197,'scope':'API26 light portrait/font2 PDF focus only:3 real environment assertions plus original stronger PDF state/Cancel method. Prior pre-test137 guests remain unknown; SDK validation and radio-only root setup repaired, UID2000 restored before app execution. No assertion or APK changed.'},indent=2)+'\n')
+          print('::notice title=Qualified API26 PDF scope::'+json.dumps(result))
+          PY
+      - name: Build complete actual module-ordered59 PDF with real native and corpus results
+        run: |
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          mkdir -p mynotes/docs/module-e2e/41678235733
+          cp mynotes/docs/regression/59/heldout-comparison.json mynotes/docs/module-e2e/41678235733/
+          cp mynotes/docs/regression/59/original-corpus-light-landscape-comparison.json mynotes/docs/module-e2e/41678235733/
+          python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/41678235733 --source 54a98e50da3996f4600489a292b8d0139e9ef05c --run 41678235733
+          cp correction-provenance.json mynotes/docs/module-e2e/41678235733/
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression59-complete-module-evidence
+          path: mynotes/docs/module-e2e/41678235733
+          retention-days: 7
+      - name: Root gate and preserve actual complete evidence, not original-workflow greenwashing
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/41678235733 mynotes/docs/regression/59/api26-qualified
+          git commit -m 'Retain completed59 native regression and explicit exact-APK correction of missing voice execution [skip ci]'
+          git push origin arena/3caca636-tictic

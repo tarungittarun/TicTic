@@ -39,7 +39,9 @@ uninstall, clear-data, external-generation deletion or private diagnostic upload
 Authored inventory: 310 JVM tests; 414 distinct Android tests. Planned eight native
 profiles/shards: 212/202 (API26), 148/138 (API34 landscape), 148/138 (API34 large-font
 night), 212/202 (API36), totaling **1,400 native outcomes**. These are planned counts,
-not execution results. Root safety gate currently 803 tests; rerun required before
-push. Android compile/lint/JVM/native results must be recorded from Actions before
+not execution results. Root safety gate **803/803 passed** before source push (7.705 seconds). Source
+`ebf4a1d2bbfa8fdcfa9d953fdf1ef9a1681ea9ad`. Actions qualification is running at
+https://github.com/tarungittarun/TicTic/actions/runs/41578780795 . No Android result
+is claimed yet. Android compile/lint/JVM/native results must be recorded before
 calling candidate53 qualified. The source workflow uploads a development APK, not a
 public Release. Stable signing/package and install-over upgrade constraints remain.

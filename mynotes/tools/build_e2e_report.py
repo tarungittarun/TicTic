@@ -167,8 +167,9 @@ def case_status(name, evidence):
     passed=[];failed=[];missing=[]
     for lane,report in evidence['profiles'].items():
         if name in report.get('cases',[]):passed.append(lane)
-        if name in report.get('missing',[]):missing.append(lane)
-        if any(str(x).startswith(name+':') for x in report.get('failures',[])):failed.append(lane)
+        actual_failure=any(str(x).startswith(name+':') for x in report.get('failures',[]))
+        if actual_failure:failed.append(lane)
+        elif name in report.get('missing',[]):missing.append(lane)
     status='FAIL' if failed else 'PASS' if passed else 'UNEXECUTED'
     return dict(status=status,passed=passed,failed=failed,missing=missing)
 
@@ -250,7 +251,7 @@ def build_pdf(evidence, output):
     statuses={name:case_status(name,evidence) for name in methods_by_name}
     passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
     failures=[f'{lane}: {failure}' for lane,data in evidence['profiles'].items() for failure in data.get('failures',[])]
-    missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[])]
+    missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[]) if not any(str(f).startswith(name+':') for f in data.get('failures',[]))]
     qualified=qualification_gate(evidence,methods_by_name)
     target=output/'MyNotes-Executed-E2E-Report.pdf';c=Canvas(str(target),pagesize=(842,595),pageCompression=1,invariant=1)
     c.setTitle('MyNotes executed end-to-end workflow report');c.setAuthor('MyNotes engineering audit')

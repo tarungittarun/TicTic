@@ -44,3 +44,10 @@ class ExecutedE2EReport(unittest.TestCase):
                 from_preserved(root,root/'out','2','a'*40)
             with self.assertRaisesRegex(ValueError,'mismatch'):
                 from_preserved(root,root/'out','1','b'*40)
+
+    def test_an_executed_failure_is_not_relabelled_as_unexecuted(self):
+        evidence={'profiles':{'a':{'cases':[],'missing':['A#m','A#neverran'],'failures':['A#m: status -2 assertion']}}}
+        failed=case_status('A#m',evidence)
+        self.assertEqual('FAIL',failed['status'])
+        self.assertEqual([],failed['missing'])
+        self.assertEqual('UNEXECUTED',case_status('A#neverran',evidence)['status'])

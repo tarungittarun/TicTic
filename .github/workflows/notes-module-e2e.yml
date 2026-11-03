@@ -302,7 +302,7 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
           python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/${RUN_ID} --source ${SOURCE_SHA} --run ${RUN_ID}
       - uses: actions/upload-artifact@v7.0.2
         if: always()

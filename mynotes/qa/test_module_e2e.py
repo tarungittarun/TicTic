@@ -70,3 +70,13 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertEqual(.5,result['micro_error_rate_excluding_empty_reference'])
         self.assertEqual(64044,result['input_bytes_min'])
         self.assertEqual(0,result['accuracy_target_passes'])
+    def test_report_indic_fonts_are_hash_pinned_and_report_only(self):
+        import hashlib
+        folder=ROOT/'mynotes/report-assets/fonts'
+        for entry in json.loads((folder/'provenance.json').read_text()):
+            font=folder/('NotoSans'+entry['script']+'-Regular.ttf')
+            self.assertEqual(entry['static_sha256'],hashlib.sha256(font.read_bytes()).hexdigest())
+            self.assertIn('SIL OPEN FONT LICENSE',(folder/('NotoSans'+entry['script']+'-OFL.txt')).read_text())
+        from mynotes.tools.build_module_e2e_report import report_markup
+        self.assertIn('name="Devanagari"',report_markup('भारत'))
+        self.assertIn('name="Kannada"',report_markup('ಕನ್ನಡ'))

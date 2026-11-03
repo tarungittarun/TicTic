@@ -139,6 +139,18 @@ def performance_summary(observations):
     return result
 
 
+def report_markup(value):
+    from xml.sax.saxutils import escape
+    # Report-only OFL fonts: preserve shaped Hindi/Kannada, not missing-glyph boxes.
+    runs=[];font=None;part=''
+    for character in str(value):
+        code=ord(character);selected='Devanagari' if 0x900<=code<=0x97f else 'Kannada' if 0xc80<=code<=0xcff else 'Body'
+        if selected!=font and part:runs.append((font,part));part=''
+        font=selected;part+=character
+    if part:runs.append((font,part))
+    return ''.join('<font name="'+font+'">'+escape(text).replace('\n','<br/>')+'</font>' for font,text in runs)
+
+
 def render(data,observations,inventory,output):
     from reportlab.pdfgen.canvas import Canvas
     from reportlab.pdfbase import pdfmetrics
@@ -147,7 +159,8 @@ def render(data,observations,inventory,output):
     from reportlab.lib.styles import ParagraphStyle
     from xml.sax.saxutils import escape
     pdfmetrics.registerFont(TTFont('Body','/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
-    style=ParagraphStyle('body',fontName='Body',fontSize=9,leading=12)
+    for script in ['Devanagari','Kannada']:pdfmetrics.registerFont(TTFont(script,str(ROOT/'mynotes/report-assets/fonts'/('NotoSans'+script+'-Regular.ttf')),shapable=True))
+    style=ParagraphStyle('body',fontName='Body',fontSize=9,leading=12,shaping=1)
     small=ParagraphStyle('small',parent=style,fontSize=7,leading=10)
     c=Canvas(str(output/'MyNotes-Module-E2E-Report.pdf'),pagesize=(842,595),invariant=1);page=0;module_pages=[]
     def new(title,bookmark=None):
@@ -157,7 +170,7 @@ def render(data,observations,inventory,output):
         if bookmark:c.bookmarkPage(bookmark);c.addOutlineEntry(title,bookmark,0)
         return 518
     def text(value,y,x=30,width=782,tiny=False):
-        paragraph=Paragraph(escape(str(value)).replace('\n','<br/>'),small if tiny else style);_,height=paragraph.wrap(width,10000)
+        paragraph=Paragraph(report_markup(value),small if tiny else style);_,height=paragraph.wrap(width,10000)
         if height>450:raise ValueError('Paragraph exceeds bounded page')
         if y-height<35:y=new('Module results · continued')
         paragraph.drawOn(c,x,y-height);return y-height-9

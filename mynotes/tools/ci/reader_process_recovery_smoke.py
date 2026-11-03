@@ -179,8 +179,8 @@ def verify(output,expected_code=37):
         if spreadsheet:
             device.click('Find')
             items=device.wait(lambda items:41 in visible_rows(items))
-            first_row=min(visible_rows(items))
-        else:first_row=None
+            rows_before=visible_rows(items);first_row=min(rows_before)
+        else:first_row=None;rows_before=[]
         before=pid()
         if before is None:raise RuntimeError('No reader process before backgrounding')
         checkpoint(root,'backgrounding-configured-reader',name)
@@ -202,14 +202,16 @@ def verify(output,expected_code=37):
         items=device.wait(lambda items:any(x.get('class')=='android.widget.EditText' and x.get('text')==expected_query for x in items))
         if spreadsheet:
             items=device.wait(lambda items:bool(visible_rows(items)))
-            if min(visible_rows(items))!=first_row:raise RuntimeError('Visible spreadsheet anchor row was not restored')
-        else:device.wait(lambda items:named(items,'2 / 2') is not None)
+            rows_after=visible_rows(items)
+            if min(rows_after)!=first_row:raise RuntimeError('Visible spreadsheet anchor row was not restored')
+            if 41 not in rows_after:raise RuntimeError('Searched spreadsheet row41 was not restored into the visible viewport')
+        else:rows_after=[];device.wait(lambda items:named(items,'2 / 2') is not None)
         after=pid()
         if after is None or after==before:raise RuntimeError('Main process did not actually change')
         copied=subprocess.check_output(['adb','exec-out','cat',path],timeout=20)
         if copied!=data:raise RuntimeError('Original public fixture bytes changed')
         checkpoint(root,'reader-restored-after-actual-kill',name)
-        records.append({'name':name,'sha256':hashlib.sha256(data).hexdigest(),'before_pid':before,'after_pid':after,'stopped_before_kill':True,'query_restored':True,'page_2_restored':not spreadsheet,'visible_row_restored':first_row,'original_unchanged':True})
+        records.append({'name':name,'sha256':hashlib.sha256(data).hexdigest(),'before_pid':before,'after_pid':after,'stopped_before_kill':True,'query_restored':True,'page_2_restored':not spreadsheet,'visible_row_restored':first_row,'visible_row_before':first_row,'visible_row_after':min(rows_after) if rows_after else None,'visible_rows_before':rows_before,'visible_rows_after':rows_after,'original_unchanged':True})
         device.home()
     report={'ok':True,'package_code':expected_code,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
         'force_stop_uninstall_clear_data':False,'release_approval':False,

@@ -1,0 +1,59 @@
+# Inspect an already-uploaded public synthetic shard while its peers continue.
+# No Android build, no test retries, no private input and no release approval.
+name: MyNotes exact56 early native evidence
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-e2e-native-triage.yml']
+permissions:
+  actions: read
+  contents: write
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: arena/3caca636-tictic
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41589368536
+          name: refinement-native-min-api26
+          path: public-native-evidence
+      - name: Expose exact bounded failure records without asserting an infrastructure cause
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41589368536']))
+          assert meta['head_sha']=='b043c352497dbb2a72b1682649512bf8799f9804'
+          source=Path('public-native-evidence/refinement-native.json');assert 0<source.stat().st_size<2*1024*1024
+          report=json.loads(source.read_text())
+          target=Path('mynotes/docs/native-triage/41589368536');target.mkdir(parents=True,exist_ok=True)
+          (target/'min-api26.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('::notice title=Exact56 native shard accounting::'+json.dumps({key:report.get(key) for key in ['ok','expected','passed','missing','unexpected','duplicates']}))
+          for index,failure in enumerate(report.get('failures',[])):
+              for start in range(0,min(len(failure),12000),3000):
+                  print('::notice title=Exact56 native failure '+str(index)+' part '+str(start//3000)+'::'+failure[start:start+3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+          PY
+      - name: Gate and preserve only the exact synthetic result
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/native-triage/41589368536
+          git commit -m 'Preserve exact56 early native failures without relabelling them [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

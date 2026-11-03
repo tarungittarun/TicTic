@@ -1,3 +1,4 @@
+# Retention correction: compact sheet chrome changes the first visible row. Keep exact observed pre/post anchor equality AND require searched row41 visible on both sides; do not hardcode the former toolbar geometry. Prior probe41590027021 passed all recovery assertions but its retainer failed.
 # Pin code56 exact already-built bytes; qualification still pending. No public release, private input, uninstall or clear-data; synthetic emulator only.
 # Match the qualified native guest RAM after pre-reader UIAutomator collector exit137; no assertion retries or app force-stop.
 # Prepopulate all three public fixture files before SAF opens; retain meaningful picker labels on a navigation failure. No APK or recovery assertion changes.
@@ -131,7 +132,10 @@ jobs:
           for record in report['records']:
               assert record['before_pid']!=record['after_pid'] and record['before_pid']>0 and record['after_pid']>0
               assert record['stopped_before_kill'] is True and record['query_restored'] is True and record['original_unchanged'] is True
-              assert record['visible_row_restored']==41 if record['name'].endswith('.csv') else record['page_2_restored'] is True
+              if record['name'].endswith('.csv'):
+                  assert record['visible_row_restored']==record['visible_row_before']==record['visible_row_after']
+                  assert 41 in record['visible_rows_before'] and 41 in record['visible_rows_after']
+              else:assert record['page_2_restored'] is True
           root=Path('mynotes/docs/design-2026-10-29/process-recovery')/os.environ['GITHUB_RUN_ID'];root.mkdir(parents=True,exist_ok=True)
           for file in (source,Path('reader-apk-identity.json')):
               assert 0<file.stat().st_size<20000;shutil.copyfile(file,root/file.name)

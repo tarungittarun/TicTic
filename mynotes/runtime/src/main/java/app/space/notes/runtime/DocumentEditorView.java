@@ -104,7 +104,8 @@ final class DocumentEditorView extends LinearLayout {
                 if(android.os.Build.VERSION.SDK_INT>=30){WindowInsets insets=focus.getRootWindowInsets();visible=insets!=null && insets.isVisible(WindowInsets.Type.ime());}
                 else{android.graphics.Rect frame=new android.graphics.Rect();focus.getWindowVisibleDisplayFrame(frame);visible=focus.getRootView().getHeight()-frame.height()>dp(120);}
                 if(acknowledged && visible && keyboard.isActive(focus)){if(++servedFrames>=2){stopKeyboardStartup();return;}}else servedFrames=0;
-                if(focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
+                // Once Android accepts this request, observe only: never fight a later user/system hide.
+                if(!acknowledged && focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
                     if(android.os.Build.VERSION.SDK_INT>=30){WindowInsetsController controller=focus.getWindowInsetsController();if(controller!=null)controller.show(WindowInsets.Type.ime());}
                     acknowledged=keyboard.showSoftInput(focus,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
                 }

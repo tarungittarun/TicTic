@@ -25,3 +25,8 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   text=(JAVA/'DocumentEditorView.java').read_text()
   for fragment in ['attempts++>=20','uiGeneration!=generation','fields.containsValue(focus)','focus.hasWindowFocus()','keyboard.isActive(focus)','acknowledged && visible','servedFrames>=2','controller.show(WindowInsets.Type.ime())','onDetachedFromWindow(){stopKeyboardStartup()','uiGeneration++;stopKeyboardStartup()']:
    self.assertIn(fragment,text)
+
+ def test_accepted_document_keyboard_request_never_reissues_against_a_later_hide(self):
+  text=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('if(!acknowledged && focus.hasWindowFocus()',text)
+  self.assertIn('acknowledged=keyboard.showSoftInput',text)

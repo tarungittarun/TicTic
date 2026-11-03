@@ -37,3 +37,14 @@ at authoring. Successful code44 smokes do not qualify48. Landscape-primary must
 actually execute, not be counted as passing after its47 boot failure.
 No new recommended APK, complete Word equivalence, universal emoji recognition,
 physical acceptance or360–480minute completion claim is made here.
+
+## Code49 follow-up, round34
+
+48 large-font-primary144/145: the existing collapsed-caret List journey could
+not hide the keyboard for its screenshot. Startup visibility polling was still
+issuing show requests after Android had accepted the initial request, and could
+therefore override the subsequent hide.49 keeps bounded readiness polling but
+never reissues either show API after acknowledgement. It retains the original
+native hide/settled-frame/screenshot assertions; no test retry or timeout increase.
+Root source-contract coverage also enforces this no-reissue boundary.48 exact-byte
+upgrade smokes passed; this does not certify49.49 native execution remains pending.

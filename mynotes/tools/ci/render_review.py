@@ -13,7 +13,7 @@ import re
 import tarfile
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
-MAX_IMAGES = 96  # Includes adaptive Notes/Doc rail and shared Format scenes; hard archive bound.
+MAX_IMAGES = 160  # Bounded whole-app traversal plus regression scenes; synthetic fixtures only.
 
 
 def fixtures(archive):

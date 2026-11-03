@@ -106,7 +106,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertTrue({'group-prerequisites', 'shape-picker', 'read-image-language',
                          'ocr-review-empty', 'ocr-review', 'backups', 'restore-preview'} <= SCENES)
         self.assertLessEqual(len(SCENES), MAX_IMAGES)
-        self.assertLessEqual(MAX_IMAGES, 96)
+        self.assertLessEqual(MAX_IMAGES, 160)  # New whole-app traversal adds bounded, registered scenes.
         self.assertTrue({'document-mixed','document-table','document-format','document-saved-styles','document-typing-style','document-pdf-options','document-keyboard','document-visuals','document-dragged'} <= SCENES)
 
     def test_pin_fault_capture_does_not_wait_on_a_lost_fixture_window(self):

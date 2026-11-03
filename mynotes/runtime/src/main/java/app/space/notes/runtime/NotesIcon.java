@@ -9,6 +9,8 @@ final class NotesIcon extends Drawable {
  private void lines(Canvas c,float...xy){Path path=new Path();path.moveTo(xy[0],xy[1]);for(int i=2;i<xy.length;i+=2)path.lineTo(xy[i],xy[i+1]);c.drawPath(path,p);}
  @Override public void draw(Canvas original){Canvas c=original;int save=c.save();c.translate(getBounds().left,getBounds().top);c.scale(getBounds().width()/24f,getBounds().height()/24f);
  switch(name){
+ case "file-pdf":case "file-word":case "file-txt":case "file-csv":case "file-sheet":case "file-json":
+  lines(c,5,2,15,2,20,7,20,22,5,22,5,2);lines(c,15,2,15,7,20,7);p.setStyle(Paint.Style.FILL);p.setTextSize(5.5f);p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.BOLD));String label=name.substring(5).toUpperCase(java.util.Locale.ROOT);if(label.equals("SHEET"))label="XLS";if(label.equals("WORD"))label="DOC";if(label.equals("JSON"))label="{}";c.drawText(label,6,17,p);p.setTypeface(Typeface.DEFAULT);p.setStyle(Paint.Style.STROKE);break;
  case "link":c.drawArc(2,8,14,20,40,280,false,p);c.drawArc(10,2,22,14,220,280,false,p);lines(c,8,16,16,8);break;
  case "drag-item":for(int x=9;x<=15;x+=6)for(int y=9;y<=15;y+=6)c.drawCircle(x,y,1,p);break;
  case "drag":for(int x=9;x<=15;x+=6)for(int y=6;y<=18;y+=6)c.drawCircle(x,y,.8f,p);break;

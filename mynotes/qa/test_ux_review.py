@@ -45,7 +45,7 @@ class RenderedUxPublicationContracts(unittest.TestCase):
         root=Path(__file__).resolve().parents[1]
         script=(root/'tools/ci/android_lane.sh').read_text()
         collected=set(re.search(r'for scene in ([^;]+); do',script).group(1).split())
-        captured=set(re.findall(r'screenshot\("([a-z0-9-]+)"',(root/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()))
+        captured=set(re.findall(r'screenshot\("([a-z0-9-]+)"\s*[,)]',(root/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()))
         self.assertEqual(SCENES,collected)
         self.assertTrue(captured <= collected,captured-collected)
         self.assertTrue({'voice-inbox','drawing','filters-labels','backgrounds'} <= captured)

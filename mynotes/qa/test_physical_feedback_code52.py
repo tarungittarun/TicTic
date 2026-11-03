@@ -48,3 +48,14 @@ class PhysicalFeedback52Contracts(unittest.TestCase):
   self.assertIn('board.isComputingLayout()', (native/'runtime/NotesMotionTest.java').read_text())
   self.assertIn('reviewedSelectedFolderMergePreservesBothVersionsAndCanSaveAgain',(native/'RepositoryTransferTest.java').read_text())
   self.assertIn('largerTxtUsesLosslessPagesAndNeverCreatesAHomeNote',(native/'RealFolderStorageTest.java').read_text())
+
+ def test_half_height_filter_reclaims_decoration_not_native_touch_targets(self):
+  source=(JAVA/'NotesSheets.java').read_text()
+  self.assertIn('filter?0:design.dp(4)',source);self.assertIn('filter?0:design.dp(16)',source)
+  self.assertIn('filter?0:design.dp(12)',source)
+  self.assertIn('button.setMinHeight(d.dp(48))',(JAVA/'LibraryFilterView.java').read_text())
+ def test_pending_folder_state_is_verified_and_remains_visible_after_navigation(self):
+  repository=(JAVA/'NotesRepository.java').read_text();controller=(JAVA/'NotesController.java').read_text()
+  self.assertIn('atomicWrite(file,bytes);folderCopyPending=pending;',repository)
+  self.assertIn('folderCopyPending=local.optBoolean("pending",false)',repository)
+  self.assertGreaterEqual(controller.count('showPendingFolderStatus();'),2)

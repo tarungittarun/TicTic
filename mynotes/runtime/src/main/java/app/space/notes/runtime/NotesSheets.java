@@ -39,6 +39,10 @@ final class NotesSheets {
  private void resize(){
   if(shell.getHeight()<=0)return;FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)surface.getLayoutParams();
   boolean filter=current!=null && current.getChildCount()==1 && current.getChildAt(0) instanceof LibraryFilterView;
+  // Half-height sheets must still fit at least one complete native touch row in landscape.
+  // Keep the existing heading/Close hierarchy; reclaim decorative vertical space, not targets.
+  surface.setPadding(design.dp(16),filter?0:design.dp(4),design.dp(16),filter?0:design.dp(16));
+  caption.setPadding(0,filter?0:design.dp(12),0,filter?0:design.dp(12));
   int cap=filter?Math.max(1,shell.getHeight()/2):Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*.72f)));
   int height=cap;
   if(current!=null){

@@ -28,6 +28,8 @@ public final class NotesRepository {
     private final long epoch;
     private volatile String selected;
     private String head;
+    private volatile boolean folderCopyPending;
+    public boolean folderCopyPending(){return folderCopyPending;}
     private long retryFolderAfter;private Exception pendingFolderFailure;
     /** Indicates a VERIFIED private save, not a complete selected-folder save. */
     public static final class FolderCopyPendingException extends IOException {
@@ -102,7 +104,7 @@ public final class NotesRepository {
         if(!exists())return load();
         try{
             byte[] bytes=atomicRead(file);JSONObject local=new JSONObject(app.space.notes.domain.JsonLimits.text(bytes));
-            List<Note> notes=DocumentCodec.decode(bytes);head=storedHead(local);
+            List<Note> notes=DocumentCodec.decode(bytes);head=storedHead(local);folderCopyPending=local.optBoolean("pending",false);
             status=selected==null?"Device storage":"Private copy opened · folder checked on save";
             return notes;
         }catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to verify saved notes safely; existing files were not replaced",pressure);}
@@ -235,7 +237,7 @@ public final class NotesRepository {
         JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(payload));
         root.put("pending",pending).put("folderHead",folderHead==null?JSONObject.NULL:folderHead);
         byte[] bytes=root.toString().getBytes(StandardCharsets.UTF_8);
-        atomicWrite(file,bytes);updateSurfaces(DocumentCodec.decode(payload));
+        atomicWrite(file,bytes);folderCopyPending=pending;updateSurfaces(DocumentCodec.decode(payload));
     }
     private byte[] atomicRead(AtomicFile target) throws IOException {synchronized(SNAPSHOT_LOCK){return target.readFully();}}
     private void atomicWrite(AtomicFile target,byte[] bytes) throws Exception {

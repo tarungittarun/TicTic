@@ -1,0 +1,43 @@
+name: MyNotes retained PDF option diagnostic visuals
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-module-probe-retain.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve-actual-probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41663113958
+          name: module-pdf-option-probe
+          path: probe
+      - name: Preserve diagnostic-only frames, hashes and failed assertion
+        run: |
+          python3 -m pip install Pillow==11.3.0 PyYAML==6.0.3
+          python3 - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          dest=Path('mynotes/docs/module-e2e/41650596888/pdf-option-diagnostic');dest.mkdir(parents=True,exist_ok=True)
+          files=sorted(Path('probe').rglob('frame-*.png'),key=lambda p:int(p.stem.split('-')[-1]));sheet=Image.new('RGB',(1320,1230),'#dddddd');draw=ImageDraw.Draw(sheet);records=[]
+          for index,file in enumerate(files):
+              image=Image.open(file).convert('RGB');image.thumbnail((720,1280));target=dest/(file.stem+'.jpg');image.save(target,quality=80,optimize=True);records.append({'frame':file.stem,'original_png_sha256':hashlib.sha256(file.read_bytes()).hexdigest(),'preview_sha256':hashlib.sha256(target.read_bytes()).hexdigest()});image.thumbnail((220,380));x=index%6*220;y=index//6*410;sheet.paste(image,(x,y+20));draw.text((x+5,y+3),file.stem,fill='black')
+          sheet.save(dest/'contact-sheet.jpg',quality=85);result=json.loads(next(Path('probe').rglob('result.json')).read_text());(dest/'provenance.json').write_text(json.dumps({'run':'41663113958','scope':'Diagnostic-only original test-APK light-portrait probe, not a passing qualification or user phone. Screenshots do not connect a competing UiAutomation service.','result':result,'frames':records},indent=2)+'\n')
+          PY
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa && git diff --check && git add mynotes/docs/module-e2e/41650596888/pdf-option-diagnostic && git commit -m 'Retain original PDF option failure probe visuals and exact failed assertion [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

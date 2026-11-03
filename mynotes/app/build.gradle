@@ -42,3 +42,9 @@ dependencies {
     androidTestImplementation 'androidx.recyclerview:recyclerview:1.3.2'
     androidTestImplementation 'com.tom-roush:pdfbox-android:2.0.27.0'
 }
+
+// Separate, opt-in evaluation harness. No corpus or harness ships in production.
+if (project.hasProperty('moduleE2E')) {
+    android.sourceSets.androidTest.java.srcDir(rootProject.file('app/benchmarks/java'))
+    android.sourceSets.androidTest.assets.srcDir(rootProject.file('benchmarks/assets'))
+}

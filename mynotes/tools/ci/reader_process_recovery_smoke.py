@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import struct
 import time
 import zipfile
 import xml.etree.ElementTree as ET
@@ -106,10 +107,45 @@ def reachable_click(device,label):
         device.adb('shell','input','swipe',x,top+(bottom-top)*85//100,x,top+(bottom-top)*20//100,400)
     raise RuntimeError('Public app menu target not reachable: '+label)
 
-def pick_local_file(device,folder,name):
+def capture_public(root,scene):
+    if not re.fullmatch(r'[a-z0-9-]{1,60}',scene):raise ValueError('Invalid public scene')
+    raw=subprocess.check_output(['adb','exec-out','screencap','-p'],timeout=20)
+    if not raw.startswith(b'\x89PNG\r\n\x1a\n') or not 24<=len(raw)<=8*1024*1024:raise RuntimeError('Invalid emulator screenshot')
+    width,height=struct.unpack('>II',raw[16:24])
+    if not 0<width*height<=16000000:raise RuntimeError('Unbounded emulator screenshot')
+    shots=root/'screens';shots.mkdir(exist_ok=True);(shots/(scene+'.png')).write_bytes(raw)
+    manifest=root/'screenshot-manifest.json';data=json.loads(manifest.read_text()) if manifest.exists() else {'scope':'Fresh disposable emulator/public fixtures only; no private uploads','captures':[]}
+    data['captures'].append({'name':scene,'width':width,'height':height,'bytes':len(raw),'original_png_sha256':hashlib.sha256(raw).hexdigest(),'capture_run':os.environ.get('GITHUB_RUN_ID')})
+    manifest.write_text(json.dumps(data,indent=2)+'\n')
+
+
+def export_public_diagnostics(device,root):
+    device.home();capture_public(root,'reader-diagnostics-home');device.click('Library');capture_public(root,'reader-diagnostics-library');reachable_click(device,'Settings');capture_public(root,'reader-diagnostics-settings');reachable_click(device,'Diagnostics');capture_public(root,'reader-diagnostics-save-page');reachable_click(device,'Save diagnostic log as a file')
+    def picker():
+        device.adb('shell','uiautomator','dump','/sdcard/notes-diagnostic-save.xml')
+        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-diagnostic-save.xml'))
+    def pick(label):
+        node=wait_until(lambda:next((n for n in picker() if label.casefold() in (n.get('text','').casefold(),n.get('content-desc','').casefold())),None),40)
+        device.adb('shell','input','tap',*center(node.get('bounds','')))
+    pick('Show roots');capture_public(root,'reader-diagnostics-save-roots');pick('Downloads');capture_public(root,'reader-diagnostics-save-picker');pick('Save')
+    device.wait(lambda items:named(items,'Collect diagnostic logs') is not None)
+    def saved():
+        result=subprocess.run(['adb','exec-out','cat','/sdcard/Download/MyNotes-diagnostics.txt'],capture_output=True,timeout=20)
+        return result.stdout if result.returncode==0 and result.stdout else None
+    data=wait_until(saved)
+    if not data.startswith(b'MyNotes diagnostics v1') or len(data)>3*1024*1024:raise RuntimeError('Diagnostic file export did not produce the bounded expected document')
+    capture_public(root,'reader-diagnostics-file-saved')
+    report={'ok':True,'source':'Actual Android create-document picker and completed readback','bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'no_upload':True,'scope':'Fresh synthetic app diagnostics, not a personal export; file contents deliberately not copied into this evidence.'}
+    (root/'diagnostic-save.json').write_text(json.dumps(report,indent=2)+'\n')
+    return report
+
+
+def pick_local_file(device,folder,name,root=None):
     # Real SAF user flow owns/persists the read grant; root-issued VIEW grants are
     # not a substitute for DocumentsUI permission semantics.
-    device.click('Library');reachable_click(device,'Open file')
+    device.click('Library');
+    if root is not None:capture_public(root,'reader-'+name.rsplit('.',1)[-1]+'-library')
+    reachable_click(device,'Open file')
     def ui(enabled_only=True):
         device.adb('shell','uiautomator','dump','/sdcard/notes-reader-picker.xml')
         return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-reader-picker.xml'),enabled_only)
@@ -121,6 +157,7 @@ def pick_local_file(device,folder,name):
         device.adb('shell','input','tap',*center(named(items,label).get('bounds','')))
     click('Show roots');click('Downloads');click(folder)
     if named(ui(),'List view') is not None:click('List view')
+    if root is not None:capture_public(root,'reader-'+name.rsplit('.',1)[-1]+'-local-picker')
     click(name)
 
 
@@ -160,13 +197,14 @@ def verify(output,expected_code=37):
         path='/sdcard/Download/'+folder+'/'+name
         checkpoint(root,'opening-through-real-local-SAF-picker',name)
         device.adb('shell','am','start','-W','-n',PACKAGE+'/.NotesActivity','-a','android.intent.action.MAIN')
-        device.home();pick_local_file(device,folder,name)
+        device.home();pick_local_file(device,folder,name,root)
         spreadsheet=name.endswith('.csv')
         control='Find in current sheet' if spreadsheet else 'Find in pages'
         items=device.wait(lambda items:named(items,control) is not None or named(items,'MyNotes pages') is not None)
-        if named(items,'MyNotes pages') is not None:device.click('MyNotes pages')
+        if named(items,'MyNotes pages') is not None:
+            capture_public(root,'reader-docx-view-choice');device.click('MyNotes pages')
         device.wait(lambda items:named(items,control) is not None)
-        checkpoint(root,'viewer-opened',name)
+        checkpoint(root,'viewer-opened',name);capture_public(root,'reader-'+name.rsplit('.',1)[-1]+'-opened')
         if not spreadsheet:
             device.click('Read options');device.click('Go to page')
             items=device.wait(lambda items:sum(x.get('class')=='android.widget.EditText' for x in items)==1)
@@ -183,6 +221,7 @@ def verify(output,expected_code=37):
         else:first_row=None;rows_before=[]
         before=pid()
         if before is None:raise RuntimeError('No reader process before backgrounding')
+        capture_public(root,'reader-'+name.rsplit('.',1)[-1]+'-before-kill')
         checkpoint(root,'backgrounding-configured-reader',name)
         device.adb('shell','input','keyevent','KEYCODE_HOME')
         def background_stopped():
@@ -210,10 +249,11 @@ def verify(output,expected_code=37):
         if after is None or after==before:raise RuntimeError('Main process did not actually change')
         copied=subprocess.check_output(['adb','exec-out','cat',path],timeout=20)
         if copied!=data:raise RuntimeError('Original public fixture bytes changed')
-        checkpoint(root,'reader-restored-after-actual-kill',name)
+        checkpoint(root,'reader-restored-after-actual-kill',name);capture_public(root,'reader-'+name.rsplit('.',1)[-1]+'-restored')
         records.append({'name':name,'sha256':hashlib.sha256(data).hexdigest(),'before_pid':before,'after_pid':after,'stopped_before_kill':True,'query_restored':True,'page_2_restored':not spreadsheet,'visible_row_restored':first_row,'visible_row_before':first_row,'visible_row_after':min(rows_after) if rows_after else None,'visible_rows_before':rows_before,'visible_rows_after':rows_after,'original_unchanged':True})
         device.home()
-    report={'ok':True,'package_code':expected_code,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
+    diagnostic_save=export_public_diagnostics(device,root)
+    report={'ok':True,'diagnostic_file_save':diagnostic_save,'package_code':expected_code,'api':int(device.adb('shell','getprop','ro.build.version.sdk').strip()),'records':records,
         'force_stop_uninstall_clear_data':False,'release_approval':False,
         'scope':'Actual emulator background-process kill and retained-task relaunch: PDF/Word page+query and CSV query+visible row, fixed public fixtures. Not image OCR recovery, zoom pixel proof, exact Office fidelity, physical acceptance or exhaustive migration.'}
     (root/'reader-process-recovery.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report),flush=True)

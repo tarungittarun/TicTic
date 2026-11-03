@@ -45,6 +45,7 @@ dependencies {
 
 // Separate, opt-in evaluation harness. No corpus or harness ships in production.
 if (project.hasProperty('moduleE2E')) {
+    dependencies { androidTestImplementation 'cz.adaptech.tesseract4android:tesseract4android:4.9.0' }
     android.sourceSets.androidTest.java.srcDir(rootProject.file('app/benchmarks/java'))
     android.sourceSets.androidTest.assets.srcDir(rootProject.file('benchmarks/assets'))
 }

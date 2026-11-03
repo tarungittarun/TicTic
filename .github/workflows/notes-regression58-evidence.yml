@@ -1,0 +1,55 @@
+name: MyNotes58 actual focused outcomes and public OCR diagnosis
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression58-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  actual-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41670830610
+          name: module-benchmark-light-portrait-ocr
+          path: ocr
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41672209817
+          pattern: regression58-pdf-*
+          path: focused
+      - name: Independently score actual diagnostic alternatives and preserve original focused outcomes
+        run: |
+          python3 -m mynotes.tools.ci.summarize_ocr_probes ocr/module-benchmark.tar mynotes/docs/regression/58/public-ocr-probes.json
+          python3 - <<'PY'
+          import json,shutil
+          from pathlib import Path
+          root=Path('mynotes/docs/regression/58');records=[]
+          for folder in sorted(Path('focused').glob('regression58-pdf-*')):
+              target=root/folder.name;target.mkdir(parents=True,exist_ok=True)
+              for name in ['pdf-regression.json','actual-apk-sha256.txt','refinement-native.txt']:
+                  file=folder/name
+                  if file.exists():
+                      assert file.stat().st_size<200000
+                      shutil.copyfile(file,target/name)
+              result=folder/'pdf-regression.json'
+              records.append({'profile':folder.name,'result':json.loads(result.read_text()) if result.exists() else {'ok':False,'failure':'No parsed result; outcome unknown'},'scope':'Original58 focused workflow exited2; preserve actual native results separately, do not infer UI failure from wrapper status.'})
+          (root/'focused-results.json').write_text(json.dumps({'source_run':41670830610,'focused_run':41672209817,'records':records},indent=2)+'\n')
+          for record in records:print('::notice title=Actual58 focused native outcome::'+json.dumps(record))
+          PY
+      - name: Gate and retain actual public-only evidence
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/regression/58
+          git commit -m 'Retain independently scored actual58 public OCR alternatives and focused native results, including wrapper failures [skip ci]'
+          git push origin arena/3caca636-tictic

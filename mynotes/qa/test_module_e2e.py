@@ -89,3 +89,11 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertIn('for index,(module,selected) in enumerate(ordered.items())',script)
         self.assertIn('subprocess.run(command',script)
         self.assertNotIn('Popen',script)
+    def test_strict_java_word_boundary_does_not_split_nbsp(self):
+        from mynotes.tools.build_module_e2e_report import strict_words,normalize
+        self.assertEqual(['a\u00a0b'],strict_words(normalize('a\u00a0b')))
+        self.assertEqual('one',normalize('\x1cone\x1c'))
+    def test_setup_recheck_cannot_swap_build_or_inputs(self):
+        from mynotes.tools.build_module_e2e_report import apply_recheck
+        data={'source':'original','run':'1'}
+        with self.assertRaises(ValueError):apply_recheck(data,[],{'artifact_source_sha':'changed','artifact_source_run':'1'},ROOT)

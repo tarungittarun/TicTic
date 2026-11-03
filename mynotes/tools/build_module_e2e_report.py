@@ -27,12 +27,13 @@ def scene_module(scene,owner):
     if scene.startswith('reminder-'):return MODULES[10]
     return module_for(owner or scene)
 
-def normalize(text):return re.sub(r'[ \t\r\n\f\v]+',' ',unicodedata.normalize('NFC',text).strip(' \t\r\n\f\v'))
+def normalize(text):return re.sub(r'[ \t\r\n\f\v]+',' ',re.sub(r'^[\x00-\x20]+|[\x00-\x20]+$','',unicodedata.normalize('NFC',text)))
+def strict_words(text):return text.lower().split(' ') if text else []
 def fair(text):return re.sub("[^a-z0-9']+",' ',normalize(text).lower()).strip()
 def independent_score(row,module):
     if row['status']!='OK':return
     a,b=normalize(row['reference']),normalize(row['recognized'])
-    for key,reference,hypothesis in [('cer',a,b),('strict_wer',a.lower().split(),b.lower().split())]+([('normalized_wer',fair(a).split(),fair(b).split())] if module=='voice' else []):
+    for key,reference,hypothesis in [('cer',a,b),('strict_wer',strict_words(a),strict_words(b))]+([('normalized_wer',fair(a).split(),fair(b).split())] if module=='voice' else []):
         if max(len(reference),len(hypothesis))>4096:raise ValueError('Score input exceeds evaluation bound')
         measured=distance(reference,hypothesis)
         if not math.isfinite(row[key]) or abs(row[key]-measured)>1e-8:raise ValueError('Independent ground-truth score mismatch: '+row['id']+' '+key)
@@ -122,7 +123,7 @@ def performance_summary(observations):
     result=[]
     for (profile,module,kind),rows in sorted(groups.items()):
         good=[r for r in rows if r['status']=='OK'];times=sorted(r['elapsed_ms'] for r in good)
-        item={'profile':profile,'module':module,'kind':kind,'observed':len(rows),'errors':len(rows)-len(good),'accuracy_target_passes':sum(bool(r.get('accuracy_target_met')) for r in rows)}
+        item={'distinct_hashed_inputs':len({r['input_sha256'] for r in rows if r.get('input_sha256')}),'unhashed_inputs':sum(not r.get('input_sha256') for r in rows),'distinct_reference_texts':len({r['reference'] for r in rows}),'profile':profile,'module':module,'kind':kind,'observed':len(rows),'errors':len(rows)-len(good),'accuracy_target_passes':sum(bool(r.get('accuracy_target_met')) for r in rows)}
         if times:
             item.update(median_ms=statistics.median(times),p95_ms=times[math.ceil(.95*len(times))-1],minimum_ms=min(times),maximum_ms=max(times),total_elapsed_ms=sum(times),input_bytes_min=min(r['input_bytes'] for r in good),input_bytes_max=max(r['input_bytes'] for r in good),sampled_java_heap_max_bytes=max((r.get('heap_used_bytes',0) for r in good),default=0),sampled_native_heap_max_bytes=max((r.get('native_heap_bytes',0) for r in good),default=0))
             key='cer' if module=='ocr' else 'normalized_wer';item['mean_'+key]=statistics.mean(r[key] for r in good)
@@ -137,6 +138,36 @@ def performance_summary(observations):
             else:item['input_pixel_counts']=sorted({r['pixels'] for r in good})
         result.append(item)
     return result
+
+
+def apply_recheck(data,observations,proof,output):
+    """Accept exact-source setup corrections without erasing rejected history."""
+    if proof['artifact_source_sha']!=data['source'] or proof['artifact_source_run']!=data['run']:raise ValueError('Recheck must use exact original build')
+    rows=proof['measurements'];module='ocr' if rows and rows[0]['id'].startswith('ocr-') else 'voice'
+    lane=proof.get('lane','dark-landscape-ocr' if module=='ocr' else None)
+    if lane not in data['benchmark_executions'] or not lane.startswith(proof['profile']+'-'):raise ValueError('Unknown correction lane')
+    old=data['benchmark_executions'][lane];execution=proof['execution']
+    if old['ok'] or not old.get('failures') or any('EnvironmentQualificationTest#orientationMatchesRequestedLane:' not in failure for failure in old['failures']):raise ValueError('Only observed orientation setup failures may be replaced')
+    if not execution['ok'] or execution['passed']!=4 or execution.get('failures'):raise ValueError('Recheck must pass unchanged four-case assertions')
+    originals=[r for r in observations if r['lane']==lane];expected={r['id']:r for r in originals}
+    if len(rows)!=len(originals) or len(rows)!=len({r['id'] for r in rows}) or {r['id'] for r in rows}!=set(expected):raise ValueError('Correction cohort must match exactly')
+    accepted=[]
+    for row in rows:
+        previous=expected[row['id']]
+        if any(row.get(k)!=previous.get(k) for k in ['reference','input_sha256','source_sha256','input_bytes','duration_seconds','kind']):raise ValueError('Correction changed inputs or ground truth')
+        if row['status']!='OK':raise ValueError('Operational correction errors')
+        independent_score(row,module);accepted.append({**row,'module':module,'profile':proof['profile'],'lane':lane,'capture_run':proof['run']})
+    if not (output/'original-provenance.json').exists():write(output/'original-provenance.json',data)
+    write(output/(lane+'-rejected-original-observations.json'),{'reason':'Real Notes Activity orientation was portrait, not requested landscape. These model measurements are retained but excluded from accepted landscape cohort.','run':data['run'],'rows':originals})
+    write(output/(lane+'-accepted-recheck.json'),proof)
+    observations[:]=[r for r in observations if r['lane']!=lane]+accepted
+    for row in observations:row.setdefault('capture_run',data['run'])
+    data.setdefault('rechecks',[]).append({k:v for k,v in proof.items() if k!='measurements'})
+    data['benchmark_executions'][lane]=execution
+    data['benchmark_complete']=all(r['ok'] for r in data['benchmark_executions'].values()) and len(observations)==4752 and all(r['status']=='OK' for r in observations)
+    data['all_accuracy_targets_met']=data['benchmark_complete'] and all(r['accuracy_target_met'] for r in observations)
+    data['total_inferences_including_rejected']=len(observations)+sum(len(json.loads(p.read_text())['rows']) for p in output.glob('*-rejected-original-observations.json'))
+    write(output/'provenance.json',data);write(output/'measurements.json',observations)
 
 
 def report_markup(value):
@@ -177,10 +208,11 @@ def render(data,observations,inventory,output):
     y=new('Separate module-wise E2E and recognition performance', 'start')
     y=text('Native complete: '+str(data['native_complete'])+' · Corpus execution complete: '+str(data['benchmark_complete'])+' · ALL accuracy targets met: '+str(data['all_accuracy_targets_met']),y)
     y=text(f"{data['native_methods']} source-discovered native methods; {data['native_outcomes']} actual native outcomes. {data['observed_inferences']}/{data['expected_inferences']} model observations. Four explicitly paired API34 profiles: light/dark × portrait/landscape. No model change or training in this baseline.",y)
+    if data.get('rechecks'):y=text('SETUP CORRECTIONS: original run failed landscape orientation checks. Accepted cohorts below include explicitly source-matched rechecks '+', '.join(sorted({r['run'] for r in data['rechecks']}))+'. Original failed configuration and rejected observations remain retained; no failed run is relabelled successful.',y)
     y=text('Reading order / PDF bookmarks\n'+'\n'.join(f'{i+1:02d}. {m}' for i,m in enumerate(MODULES)),y)
     y=text('Accuracy targets fixed before execution: OCR CER≤0.20, normalized English speech WER≤0.35, silence must remain empty. These are measurement flags, not an assertion that every difficult input passes. Failures, hallucinations, errors and missing observations remain visible. Execution completion is not an accuracy pass.',y)
     y=new('Corpus, measurement and visibility boundaries','limits')
-    for value in ['OCR:384 deterministic rendered conditions, 8 content kinds ×4 font families ×3 sizes ×2 polarities ×2 geometry/rotation settings. Two input sizes:1.12M/2.4M pixels. Input polarity is separate from app theme. Synthetic fonts are not physical photos/handwriting, universal scripts or the supplied private image.', 'Speech:200 distinct licensed CMU ARCTIC utterances,100 each KSP/SLT, four conditions plus four silence controls =804 inputs, repeated on four UI profiles. Only2 speakers, not804 people. English read speech; not spontaneous dictation, all accents, multilingual or microphone/noise capture. Default bundled Vosk is measured; large experimental Whisper corpus evaluation remains unqualified.', 'Ground truth is the original public transcript or generated source text, never the recognizer’s own clean output. Strict CER/WER retains errors; additional English normalized WER explicitly removes punctuation and case. Silence uses denominator1 count convention, not ordinary corpus accuracy.', 'Timing is emulator wall clock for recognition plus scoring and transcript codec/dedup/source-preservation checks; fixture synthesis excluded. First calls include cold initialization. Different CI hosts/load make physical-latency or causal theme-speed comparisons invalid. Report actual ms, bytes, pixels/audio seconds, RTF and sampled heaps; sampled heap is not peak process memory.', 'Visibility evidence: Native screenshots are paired by orientation and light/dark profile. Recorded resource assertions check real night/orientation. Screenshots support review, not automatic WCAG certification, vendor keyboard coverage or physical gesture approval.', 'Production runtime/models remain v57 baseline; this opt-in instrumentation source set and public assets never ship in the application. No private logs, supplied screenshots, notes or recordings enter Actions.']:
+    for value in ['OCR:384 deterministic rendered conditions, 8 content kinds ×4 font families ×3 sizes ×2 polarities ×2 geometry/rotation settings. Two input sizes:1.12M/2.4M pixels. Input polarity is separate from app theme. Synthetic fonts are not physical photos/handwriting, universal scripts or the supplied private image.', 'Speech:200 distinct licensed CMU ARCTIC utterances,100 each KSP/SLT, four conditions plus four silence controls =804 inputs, repeated on four UI profiles. Only2 speakers reading100 distinct prompts, not804 people or804 independent scripts. English read speech; not spontaneous dictation, all accents, multilingual or microphone/noise capture. Default bundled Vosk is measured; large experimental Whisper corpus evaluation remains unqualified.', 'Ground truth is the original public transcript or generated source text, never the recognizer’s own clean output. Strict CER/WER retains errors; additional English normalized WER explicitly removes punctuation and case. Silence uses denominator1 count convention, not ordinary corpus accuracy.', 'Timing is emulator wall clock for recognition plus scoring and transcript codec/dedup/source-preservation checks; fixture synthesis excluded. Initialization is included; Vosk constructs and closes its native model for every transcription, while materialized model files may be warm. Different CI hosts/load make physical-latency or causal theme-speed comparisons invalid. Report actual ms, bytes, pixels/audio seconds, RTF and sampled heaps; sampled heap is not peak process memory.', 'Visibility evidence: Native screenshots are paired by orientation and light/dark profile. Recorded resource assertions check real night/orientation. Screenshots support review, not automatic WCAG certification, vendor keyboard coverage or physical gesture approval.', 'Production runtime/models remain v57 baseline; this opt-in instrumentation source set and public assets never ship in the application. No private logs, supplied screenshots, notes or recordings enter Actions.']:
         y=text(value,y)
     for index,module in enumerate(MODULES):
         y=new(f'{index+1:02d}. {module}','module-'+str(index));module_pages.append({'module':module,'page':page})
@@ -219,14 +251,15 @@ def render(data,observations,inventory,output):
             by_id=defaultdict(list)
             for row in rows:by_id[row['id']].append(row)
             specimens={f['scene']:f for f in data['screens'] if f.get('profile')=='synthetic-input-not-UI'}
+            y=0
             for identity,samples in sorted(by_id.items()):
-                y=new(module+' · '+identity)
+                y=new(module+' · '+identity) if kind=='ocr' or y<260 else text('Next measured input · '+identity,y)
                 first=samples[0];y=text('Reference: '+first['reference']+('\nInput: '+first.get('font','')+f" {first.get('font_px')}px, {first.get('width')}×{first.get('height')}, dark={first.get('input_dark')}, rotation={first.get('rotation_degrees')}°" if kind=='ocr' else f"\n{first.get('speaker','silence')} / {first['kind']} · {first.get('duration_seconds')}s PCM16 mono16kHz"),y)
                 if identity in specimens:
                     frame=specimens[identity];c.drawImage(str(output/frame['path']),30,y-135,782,125,preserveAspectRatio=True,anchor='c');y-=145
                 for row in sorted(samples,key=lambda r:PROFILES.index(r['profile'])):
                     score=row.get('cer') if kind=='ocr' else row.get('normalized_wer');rate=f'{score:.3f}' if isinstance(score,(float,int)) else 'UNAVAILABLE'
-                    y=text(f"{row['profile']} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
+                    y=text(f"{row['profile']} · run {row.get('capture_run',data['run'])} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
     write(output/'performance-summary.json',performance_summary(observations))
     import csv
     if observations:
@@ -238,7 +271,7 @@ def render(data,observations,inventory,output):
     return summary
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path);p.add_argument('--rebuild',action='store_true');p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path);p.add_argument('--rebuild',action='store_true');p.add_argument('--rechecks',type=Path,nargs='*',default=[]);p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     if a.rebuild:
         data=json.loads((a.output/'provenance.json').read_text());rows=json.loads((a.output/'measurements.json').read_text());inventory=methods(data['source'])
         if data['source']!=a.source or data['run']!=a.run:raise ValueError('Rebuild cannot relabel source/run')
@@ -248,5 +281,8 @@ def main():
     else:
         if a.artifacts is None:raise ValueError('Artifacts required for real ingestion')
         data,rows,inventory=ingest(a.artifacts,a.output,a.source,a.run)
+    for path in a.rechecks:
+        proof=json.loads(path.read_text())
+        for entry in (proof if isinstance(proof,list) else [proof]):apply_recheck(data,rows,entry,a.output)
     summary=render(data,rows,inventory,a.output);print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()

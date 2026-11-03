@@ -42,3 +42,11 @@ Reports retain every actual result, including failures, and provide PDF, JSON, C
 ## Initial failure history
 
 Run41649423992 failed before Android compilation/inference because the original CMU archive omitted COPYING. No model test passed or failed in that attempt; all planned inference remained unexecuted. The failed report is retained as failed history. Preparation was corrected to require the exact retained primary-source grant bound to the same archive hash; no license requirement, app assertion or accuracy criterion was removed.
+
+## Executed orientation finding and strict scheduling
+
+The original full run41650596888 completed1,676/1,676 native outcomes successfully and recorded4,752 model measurements. Its three dark-landscape benchmark guests failed the original orientation assertion (1080×1920 portrait), so that requested profile was **not qualified**. All model methods themselves executed. Recheck41652746046 reused the exact original build artifacts and passed all four checks after applying rotation **after** settled HOME and actual Notes Activity focus. Two speech shards require the same observed setup correction; their conclusions must be recorded separately. Failed original rows stay retained, not relabelled.
+
+`notes-module-ordered-native.yml` additionally executes each complete profile with **strict sequential barriers between12 modules**, rather than relying on mixed parallel native shards. Its419-method explicit placement manifest is also the report ledger placement. The initial full run remains evidence of all-method four-profile execution, not a claim that parallel shards ran in strict chapter order. No new model, app code or APK is produced by this schedule audit.
+
+Actual early OCR has324 distinct image hashes across384 rendering conditions and8 source templates; duplicate fallback glyphs and blank controls are not independent documents. Speech has200 source clip hashes but100 distinct prompts read by2 speakers. The report exports those distinct-count limits. Report-only OFL Noto Devanagari/Kannada static fonts are hash-pinned with original grants; report rendering requires ReportLab4.4.4 and uharfbuzz0.52.0. They are not app fonts or trained weights.

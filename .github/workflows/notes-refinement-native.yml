@@ -1,3 +1,4 @@
+# Round43: preserve real recognized math/currency glyphs when comparing sparse OCR; candidate56 regression dropped equals signs. Keep all original inference assertions and entire-app captures; candidate57 has four new pure selection-rule regressions.
 # Round42: fix the candidate56 missing qualified Gravity symbol caught by Actions compiler. No Android assertions weakened; prior build failure retained.
 # Round41: physical55 feedback: compact readers, searchable counted typed Viewed files, downstream literal renumbering, drag lifecycle/late-query fences, playback discovery, explicit log file saving and source-owned whole-app traversal screenshots. No physical OCR/speech acceptance claim.
 # Round40: candidate53 API36 Notes IME failure: settle the prior Doc resize before a Notes request, require served visibility twice, recover only unowned focus, observe rather than re-show after acknowledgement, record fail-only startup phase. Original repeated native transitions and every assertion retained. Preserve candidate54 evidence.
@@ -55,7 +56,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round42-${{ github.ref }}
+  group: notes-refinement-native-round43-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -87,14 +88,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.56.0-56-development.apk
-          sha256sum MyNotes-v0.56.0-56-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.56.0-56-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.57.0-57-development.apk
+          sha256sum MyNotes-v0.57.0-57-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.57.0-57-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.56.0-56-development.apk
+          path: MyNotes-v0.57.0-57-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

@@ -48,6 +48,23 @@ public class ModuleCorpusBenchmark {
         }catch(Exception failure){row.put("probe_error",failure.toString());}
         finally{engine.recycle();if(prepared!=null)prepared.recycle();if(source!=null)source.recycle();row.put("probe_elapsed_ms",SystemClock.elapsedRealtime()-began);}
     }
+    /** Separately invoked frozen references; never an input to application selection. */
+    @Test public void heldOutOcrReferencesMeasureIndependentRecognition()throws Exception{
+        JSONObject corpus=asset("ocr-heldout-v1.json");JSONArray references=corpus.getJSONArray("records"),conditions=corpus.getJSONArray("conditions"),rows=new JSONArray();int errors=0;
+        assertEquals(32,references.length());assertEquals(4,conditions.length());
+        for(int text=0;text<references.length();text++)for(int variant=0;variant<conditions.length();variant++){
+            JSONObject reference=references.getJSONObject(text),condition=conditions.getJSONObject(variant);JSONArray lines=reference.getJSONArray("lines");
+            Bitmap image=Bitmap.createBitmap(1600,850,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(image);boolean dark=condition.getBoolean("dark");canvas.drawColor(dark?Color.BLACK:Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setColor(dark?Color.WHITE:Color.BLACK);paint.setTextSize(condition.getInt("font_px"));paint.setTypeface(Typeface.create(condition.getString("font"),Typeface.NORMAL));canvas.rotate((float)condition.getDouble("rotation"),800,425);StringBuilder expected=new StringBuilder();
+            for(int line=0;line<lines.length();line++){String value=lines.getString(line);canvas.drawText(value,70,170+line*150,paint);if(line>0)expected.append(' ');expected.append(value);}
+            ByteArrayOutputStream png=new ByteArrayOutputStream();assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,png));JSONObject row=new JSONObject().put("id",reference.getString("id")+"-"+variant).put("kind",reference.getString("kind")).put("condition",condition).put("width",1600).put("height",850).put("pixels",1600*850).put("input_bytes",png.size()).put("input_sha256",digest(png.toByteArray())).put("language_request","auto");
+            long began=SystemClock.elapsedRealtime(),cpu=android.os.Debug.threadCpuTimeNanos();
+            try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(context(),image,"auto",new OfflineOcr.Cancellation());row.put("status","OK").put("confidence",result.confidence).put("selected_language",result.language);scores(row,expected.toString(),result.text);row.put("accuracy_target_met",row.getDouble("cer")<=.2);}
+            catch(Exception failure){errors++;row.put("status","ERROR").put("error",failure.toString()).put("reference",expected.toString()).put("recognized","");}
+            finally{row.put("elapsed_ms",SystemClock.elapsedRealtime()-began).put("calling_thread_cpu_ms",(android.os.Debug.threadCpuTimeNanos()-cpu)/1000000.0);image.recycle();}
+            rows.put(row);persist("ocr-holdout",rows,128);
+        }
+        assertEquals(128,rows.length());assertEquals("Operational errors retained; accuracy separately reported",0,errors);
+    }
     @Test public void variedImageCorpusMeasuresGroundTruthAndElapsedTime()throws Exception{
         String[][] lines={{"MEETING NOTES","Monday at 10 AM"},{"RECEIPT","Rice 250 Sugar 50","TOTAL 300"},{"TOTAL 25 + 5 = 30","Price $50 INR 500"},{"Contact support@example.com","https://example.com/page"},{"भारत नमस्ते","आज बैठक है"},{"ಕನ್ನಡ ಭಾಷೆ","ಭಾರತ ನಮಸ್ಕಾರ"},{"Meeting ಭಾರತ ಕನ್ನಡ","Total 25 + 5 = 30"},{}};
         String[] families={"sans-serif","serif","monospace","sans-serif-condensed"};int[] sizes={28,48,72};JSONArray rows=new JSONArray();int index=0,errors=0;

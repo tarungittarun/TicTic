@@ -19,4 +19,5 @@ public class OcrLineRecoveryTest {
  @Test public void englishBaselineDoesNotActivateNativeRecovery(){assertFalse(OcrLineRecovery.eligible("Correct existing text",96,CANDIDATE,76));}
  @Test public void rejectStaleBaselineWordText(){List<ImageTextSelection.Word> boxes=base();boxes.set(1,w("ಭಾಷೆ",.18f,.28f,.35f,.33f,1));assertNull("Do not expose a recovered display whose selected baseline words differ",OcrLineRecovery.recover(BASE,96,boxes,CANDIDATE,76,extra()));}
  @Test public void rejectStaleCandidateWordText(){assertNull("Sparse UTF8 text and sparse word boxes must describe the same candidate",OcrLineRecovery.recover(BASE,96,base(),"ಬೇರೆ ಭಾಷೆ\nಭಾರತ ನಸಮನಾರ",76,extra()));}
+ @Test public void nullRegionNeverCrashesRecovery(){List<ImageTextSelection.Word> boxes=base();boxes.set(0,null);assertNull(OcrLineRecovery.recover(BASE,96,boxes,CANDIDATE,76,extra()));}
 }

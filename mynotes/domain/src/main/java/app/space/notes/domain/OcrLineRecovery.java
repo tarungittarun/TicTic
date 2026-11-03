@@ -20,6 +20,13 @@ public final class OcrLineRecovery {
  public static boolean eligible(String baseline,int confidence,String candidate,int score){
   return baseline!=null && candidate!=null && baseline.length()<=100000 && candidate.length()<=100000 && confidence>=80 && confidence<=100 && score>=70 && score<=100 && baseline.trim().split("[\\r\\n]+").length==1 && nativeScript(baseline)!=null;
  }
+ // UTF8 and hOCR are separate engine outputs. Geometry alone must not bind
+ // stale words to the displayed text: copying a region would silently differ.
+ private static boolean matchesWords(String text,List<ImageTextSelection.Word> words){
+  try{ImageTextSelection selected=new ImageTextSelection(words);selected.all(true);return normalized(text).equals(normalized(selected.text()));}
+  catch(IllegalArgumentException | NullPointerException invalid){return false;}
+ }
+ private static String normalized(String text){return java.text.Normalizer.normalize(text,java.text.Normalizer.Form.NFC).trim().replaceAll("\\s+"," ");}
  private static final class Line {
   final List<ImageTextSelection.Word> words=new ArrayList<>();float l=1,t=1,r=0,b=0;
   void add(ImageTextSelection.Word w){words.add(w);l=Math.min(l,w.left);t=Math.min(t,w.top);r=Math.max(r,w.right);b=Math.max(b,w.bottom);}
@@ -31,6 +38,7 @@ public final class OcrLineRecovery {
  private static float overlap(float a,float b,float c,float d){return Math.max(0,Math.min(b,d)-Math.max(a,c));}
  public static Recovered recover(String baseline,int confidence,List<ImageTextSelection.Word> original,String candidate,int score,List<ImageTextSelection.Word> alternatives){
   if(!eligible(baseline,confidence,candidate,score) || original==null || alternatives==null || original.isEmpty() || alternatives.isEmpty() || original.size()+alternatives.size()>4096)return null;
+  if(!matchesWords(baseline,original) || !matchesWords(candidate,alternatives))return null;
   List<Line> base=lines(original),other=lines(alternatives);if(base.size()!=1 || other.size()!=2)return null;
   Line kept=base.get(0),matched=null,extra=null;
   for(Line line:other){if(overlap(kept.t,kept.b,line.t,line.b)>=.5f*Math.min(kept.b-kept.t,line.b-line.t) && overlap(kept.l,kept.r,line.l,line.r)>0){if(matched!=null)return null;matched=line;}else{if(extra!=null)return null;extra=line;}}

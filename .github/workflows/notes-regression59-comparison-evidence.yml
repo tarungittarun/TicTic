@@ -1,0 +1,82 @@
+name: MyNotes59 independently scored frozen A-B and live PDF evidence
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression59-comparison-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235867
+          pattern: 'regression59-heldout-{baseline58,candidate59}-*'
+          path: holdout-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235867
+          pattern: regression59-live-pdf-*
+          path: focus
+      - name: Install independent scoring, image and root gate dependencies
+        run: python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+      - name: Compare every frozen pair; reject any per-case CER regression without deleting it
+        run: python3 -m mynotes.tools.ci.compare_ocr_holdout holdout-artifacts mynotes/docs/regression/59/heldout-comparison.json
+      - name: Preserve source provenance, all comparisons and live-state PDF counterexample rechecks
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,os,csv,tarfile,hashlib,subprocess
+          from pathlib import Path
+          from PIL import Image
+          from mynotes.tools.ci.render_review import fixtures
+          root=Path('mynotes/docs/regression/59');root.mkdir(parents=True,exist_ok=True)
+          meta=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/41678235867']))
+          provenance={'run':41678235867,'test_and_candidate_source':meta['head_sha'],'original_baseline58_app_source':'3fc0ea7b49267a9f10427458452aa619fcbb101d','scope':'Public synthetic references only. Same unsigned baseline/candidate debug APK payloads after ephemeral test-only signing. No user release APK re-signing. All pair outcomes retained, including regressions. API36 original cached-state assertion failed; this test queries the live node, retaining the same action and checked-state/Cancel assertions.'}
+          (root/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
+          comparison=root/'heldout-comparison.json'
+          if comparison.exists():
+              data=json.loads(comparison.read_text())
+              with (root/'heldout-reference-recognition.csv').open('w',newline='',encoding='utf-8-sig') as out:
+                  fields=['profile','id','kind','reference','baseline_recognized','candidate_recognized','baseline_cer','candidate_cer','delta_cer','baseline_elapsed_ms','candidate_elapsed_ms','regression','input_sha256'];writer=csv.DictWriter(out,fieldnames=fields);writer.writeheader()
+                  for pair in data['pairs']:writer.writerow({key:pair[key] for key in ['profile','id','kind','reference','delta_cer','regression','input_sha256']}|{version+'_'+field:pair[version][field] for version in ['baseline','candidate'] for field in ['recognized','cer','elapsed_ms']})
+              print('::notice title=Actual frozen128-input A-B outcomes::'+json.dumps({k:v for k,v in data.items() if k not in ['pairs','source_proofs']}))
+          results=[]
+          for folder in Path('focus').glob('regression59-live-pdf-*'):
+              result=folder/'pdf-regression.json';record={'profile':folder.name,'result':json.loads(result.read_text()) if result.exists() else {'ok':False,'outcome':'No native result; unknown'}}
+              archive=folder/'refinement-captures.tar';images=[]
+              if archive.is_file() and archive.stat().st_size:
+                  with tarfile.open(archive) as bundle:
+                      for scene,raw in fixtures(bundle):
+                          if scene!='document-pdf-options':continue
+                          import io
+                          image=Image.open(io.BytesIO(raw)).convert('RGB');image.thumbnail((1280,1280));file=root/(folder.name+'-'+scene+'.jpg');image.save(file,quality=90,optimize=True);images.append({'file':file.name,'original_png_sha256':hashlib.sha256(raw).hexdigest(),'preview_sha256':hashlib.sha256(file.read_bytes()).hexdigest()})
+              record['actual_screens']=images;results.append(record);print('::notice title=Live native PDF result::'+json.dumps(record))
+          if not any('api26-largefont' in r['profile'] for r in results):results.append({'profile':'regression59-live-pdf-api26-largefont','result':{'ok':False,'outcome':'Original guest killed137 before native/environment artifacts; unknown, not an app test result. Separate lower-memory recheck is retained independently.'},'actual_screens':[]})
+          (root/'live-pdf-results.json').write_text(json.dumps(results,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: independently-scored59-heldout-and-live-PDF
+          path: mynotes/docs/regression/59
+          retention-days: 7
+      - name: Root gate and preserve every actual result, not an all-pass prerequisite
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/regression/59
+          git commit -m 'Retain independently scored frozen58-59 OCR comparisons and live native PDF results, including any failure [skip ci]'
+          git push origin arena/3caca636-tictic

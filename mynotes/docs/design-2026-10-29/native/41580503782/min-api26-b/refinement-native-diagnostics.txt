@@ -1,0 +1,1277 @@
+Instrumentation exit 0; synthetic debug host only. Assertions are validated separately.
+TASK null id=5 userId=0
+  ACTIVITY com.google.android.apps.nexuslauncher/.NexusLauncherActivity 296293e pid=2470
+    Local Activity b85f0d State:
+      mResumed=true mStopped=false mFinished=false
+      mChangingConfigurations=false
+      mCurrentConfig={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+      mLoadersStarted=true
+      FragmentManager misc state:
+        mHost=android.app.Activity$HostCallbacks@fa41e21
+        mContainer=android.app.Activity$HostCallbacks@fa41e21
+        mCurState=5 mStateSaved=false mDestroyed=false
+    ViewRoot:
+      mAdded=true mRemoved=false
+      mConsumeBatchedInputScheduled=false
+      mConsumeBatchedInputImmediatelyScheduled=false
+      mPendingInputEventCount=0
+      mProcessInputEventsScheduled=false
+      mTraversalScheduled=false      mIsAmbientMode=false
+      android.view.ViewRootImpl$NativePreImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$ImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$NativePostImeInputStage: mQueueLength=0
+    Choreographer:
+      mFrameScheduled=false
+      mLastFrameTime=400326 (961 ms ago)
+    View Hierarchy:
+      DecorView@726f8ab[NexusLauncherActivity]
+        android.widget.LinearLayout{2afbafa V.E...... ........ 0,0-1080,1920}
+          android.view.ViewStub{8951246 G.E...... ......I. 0,0-0,0 #1020187 android:id/action_mode_bar_stub}
+          android.widget.FrameLayout{719e925 V.E...... ........ 0,0-1080,1920 #1020002 android:id/content}
+            com.android.launcher3.LauncherRootView{472991c V.E...... ........ 0,0-1080,1920 #7f0e0041 app:id/launcher}
+              com.android.launcher3.dragndrop.DragLayer{d76c28f V.E...... ........ 0,0-1080,1920 #7f0e0042 app:id/drag_layer}
+                com.android.launcher3.Workspace{9c8f919 V.ED...L. ........ -2305,-1885-3386,3806 #7f0e0022 app:id/workspace}
+                  com.android.launcher3.CellLayout{2be4110 VFED..CL. ........ 2329,1993-3361,3313}
+                    com.android.launcher3.ClickShadowView{328660e V.ED..... ........ 0,0-294,366}
+                    com.android.launcher3.ShortcutAndWidgetContainer{534c409 V.E...... ........ 0,0-1032,1320}
+                      com.google.android.apps.nexuslauncher.qsb.QsbBlockerView{41fe82f V.E...... ........ 0,0-1032,330 #7f0e0003 app:id/workspace_blocked_row}
+                        com.google.android.apps.nexuslauncher.qsb.DateWidgetView{25c97c5 V.E...... ........ 0,0-1032,330}
+                          com.google.android.apps.nexuslauncher.qsb.DoubleShadowTextClock{f08d51a V.ED..... ........ 478,72-990,197 #7f0e0038 app:id/date_text1}
+                          com.google.android.apps.nexuslauncher.qsb.DoubleShadowTextClock{3ccd84b V.ED..... ........ 746,197-990,258 #7f0e0039 app:id/date_text2}
+                      com.android.launcher3.BubbleTextView{dae5e3c VFED..CL. ........ 0,990-258,1320 #5}
+                android.widget.LinearLayout{6007118 V.E...... ........ 105,1436-975,1920 #7f0e0044 app:id/overview_panel}
+                  android.widget.TextView{455f9ea VFED..CL. ........ 0,0-290,205 #7f0e0053 app:id/wallpaper_button}
+                  android.widget.TextView{fbce4db VFED..CL. ........ 290,0-580,205 #7f0e0054 app:id/widget_button}
+                  android.widget.TextView{d8a5b78 VFED..CL. ........ 580,0-870,205 #7f0e0055 app:id/settings_button}
+                com.android.launcher3.pageindicators.PageIndicatorLineCaret{f42e956 I.ED..... ......ID 0,1428-1080,1512 #7f0e0043 app:id/page_indicator}
+                  android.widget.ImageView{b2e4c07 VFED..CL. ......ID 468,0-612,84 #7f0e0056 app:id/all_apps_handle}
+                com.android.launcher3.DropTargetBar{8cdddde V.E...... ........ 0,96-1080,240 #7f0e0045 app:id/drop_target_bar}
+                  android.widget.FrameLayout{f54bbf V.E...... ........ 0,0-360,144}
+                    com.android.launcher3.DeleteDropTarget{24f28e6 V.ED..... ........ 4,0-355,144 #7f0e003c app:id/delete_target_text}
+                  android.widget.FrameLayout{a3fa28c V.E...... ........ 360,0-720,144}
+                    com.android.launcher3.InfoDropTarget{273eb41 V.ED..... ........ 0,0-359,144 #7f0e003d app:id/info_target_text}
+                  android.widget.FrameLayout{4e70dd5 V.E...... ........ 720,0-1080,144}
+                    com.android.launcher3.UninstallDropTarget{d212228 V.ED..... ........ 0,0-360,144 #7f0e003e app:id/uninstall_target_text}
+                com.google.android.apps.nexuslauncher.qsb.SuperGContainerView{aca6d3b G.E...... ......ID -150,108-1080,438 #7f0e0046 app:id/qsb_container}
+                  com.google.android.apps.nexuslauncher.qsb.QsbConnector{24ab134 V.ED..... ......ID 0,81-258,249}
+                  android.widget.ImageView{e037b5d VFED..C.. ......ID 174,81-432,249 #7f0e0062 app:id/g_icon}
+                com.android.launcher3.widget.WidgetsContainerView{e000cd2 I.E...... ......I. 0,72-1080,1776 #7f0e0047 app:id/widgets_view}
+                  android.view.View{659a1a3 I.ED..... ......I. 0,0-1080,1704 #7f0e0026 app:id/reveal_view}
+                  android.widget.FrameLayout{a7baca0 G.E...... ......I. 0,0-0,0 #7f0e0027 app:id/main_content}
+                    com.android.launcher3.widget.WidgetsRecyclerView{9017059 VFED..... ......I. 0,0-0,0 #7f0e0073 app:id/widgets_list_view}, adapter:com.android.launcher3.widget.WidgetsListAdapter@3ae241e, layout:android.support.v7.widget.N@d5ab4ff, context:android.view.ContextThemeWrapper@efef2cc
+                    android.widget.TextView{64fb915 V.ED..... ......ID 0,0-0,0 #7f0e002a app:id/fast_scroller_popup}
+                com.android.launcher3.allapps.AllAppsContainerView{c42adee I.E...... ......ID 0,0-1080,1920 #7f0e0025 app:id/apps_view}
+                  android.view.View{594642a V.ED..... ......ID 0,0-1080,1920 #7f0e0026 app:id/reveal_view}
+                  com.android.launcher3.allapps.AllAppsRecyclerViewContainerView{d6dbf69 VFE...... ......ID 0,0-1080,1920 #7f0e0027 app:id/main_content}
+                    com.android.launcher3.ClickShadowView{92fa21b V.ED..... ......ID 0,0-210,210}
+                    com.android.launcher3.allapps.AllAppsRecyclerView{85a8df0 VFED..... ......ID 0,252-1080,1920 #7f0e0028 app:id/apps_list_view}, adapter:com.android.launcher3.allapps.AllAppsGridAdapter@88e6fb8, layout:com.android.launcher3.allapps.AllAppsGridAdapter$AppsGridLayoutManager@affd191, context:com.google.android.apps.nexuslauncher.NexusLauncherActivity@b85f0d
+                      android.widget.ImageView{7ec98f6 V.ED..... ......I. 27,0-1053,27}
+                      com.android.launcher3.BubbleTextView{a9c44f7 VFED..CL. ......ID 27,27-283,357 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{f96cf64 VFED..CL. ......ID 283,27-540,357 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{1bef5cd VFED..CL. ......ID 540,27-796,357 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{6c14e82 VFED..CL. ......ID 796,27-1053,357 #7f0e0036 app:id/icon}
+                      android.widget.ImageView{c63993 V.ED..... ......I. 27,357-1053,408}
+                      com.android.launcher3.BubbleTextView{4a37dd0 VFED..CL. ......ID 27,408-283,738 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{8d221c9 VFED..CL. ......ID 283,408-540,738 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{239d0ce VFED..CL. ......ID 540,408-796,738 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d90dbef VFED..CL. ......ID 796,408-1053,738 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{38aa6fc VFED..CL. ......ID 27,738-283,1068 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{3d21185 VFED..CL. ......ID 283,738-540,1068 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{3a62bda VFED..CL. ......ID 540,738-796,1068 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{3b9480b VFED..CL. ......ID 796,738-1053,1068 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d5936e8 VFED..CL. ......ID 27,1068-283,1398 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d274101 VFED..CL. ......ID 283,1068-540,1398 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{74b2ba6 VFED..CL. ......ID 540,1068-796,1398 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{ab259e7 VFED..CL. ......ID 796,1068-1053,1398 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{4fed994 VFED..CL. ......ID 27,1398-283,1728 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{345ec3d VFED..CL. ......ID 283,1398-540,1728 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{6ee5c32 VFED..CL. ......ID 540,1398-796,1728 #7f0e0036 app:id/icon}
+                      com.android.launcher3.BubbleTextView{440ad83 VFED..CL. ......ID 796,1398-1053,1728 #7f0e0036 app:id/icon}
+                    android.widget.TextView{ab9fb00 V.ED..... ......ID 810,252-1026,468 #7f0e002a app:id/fast_scroller_popup}
+                    android.widget.FrameLayout{daa0f39 V.E...... ......ID 0,0-1080,252 #7f0e0029 app:id/search_container}
+                      com.android.launcher3.ExtendedEditText{122097e VFED..CL. ......ID 0,108-1080,252 #7f0e002b app:id/search_box_input}
+                  android.view.View{fd69edf V.ED..... ......ID 0,1776-1080,1920 #7f0e002c app:id/nav_bar_bg}
+                com.android.launcher3.Hotseat{135a771 I.E...... ......ID 0,1512-1080,1920 #7f0e0023 app:id/hotseat}
+                  com.android.launcher3.CellLayout{243c72c V.ED...L. ......ID 0,0-1080,408 #7f0e0040 app:id/layout}
+                    com.android.launcher3.ClickShadowView{59365f5 V.ED..... ......I. 24,24-318,300}
+                    com.android.launcher3.ShortcutAndWidgetContainer{9513f8a V.E...... ......ID 24,24-1056,264}
+                      com.android.launcher3.BubbleTextView{7b049fb VFED..CL. ......ID 0,0-258,240 #1}
+                      com.android.launcher3.BubbleTextView{fbc2a18 VFED..CL. ......ID 258,0-516,240 #2}
+                      com.android.launcher3.BubbleTextView{e816c71 VFED..CL. ......ID 516,0-774,240 #3}
+                      com.android.launcher3.BubbleTextView{c8bca56 VFED..CL. ......ID 774,0-1032,240 #4}
+    Looper (main, tid 2) {3af8ad7}
+      (Total messages: 0, polling=false, quitting=false)
+    Misc:
+    	mWorkspaceLoading=false mPendingRequestArgs=null mPendingActivityResult=null
+    Data Model:
+     ---- workspace screens:  0
+     ---- workspace items 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messages)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=2 cellX=2 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gmail)
+    	ShortcutInfo(id=4 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Chrome)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Maps)
+     ---- appwidget items 
+     ---- folder items 
+     ---- items id map 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messages)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=2 cellX=2 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gmail)
+    	ShortcutInfo(id=4 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Chrome)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Maps)
+
+    WeatherManager
+      views null
+      gsaVersion 300738856
+      gsaUpdateTime 1596718005000
+      publishTime 69351
+      elapsedDuration 331937
+      mSystemDecorRect=[0,0][1080,144] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,144]
+    mLastFreezeDuration=+251ms
+  Window #2 Window{7277b30 u0 StatusBar}:
+    mDisplayId=0 stackId=0 mSession=Session{58d994f 1830:u0a10028} mClient=android.os.BinderProxy@f9bf4e2
+    mOwnerUid=10028 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx72) gr=#30 sim=#10 ty=2000 fl=#81840048 fmt=-3 vsysui=0x600 colorMode=0}
+    Requested w=1080 h=72 mLayoutSeq=3882
+    mBaseLayer=181000 mSubLayer=0 mAnimLayer=181000+0=181000 mLastLayer=181000
+    mToken=WindowToken{f758f4c android.os.BinderProxy@2d05073}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x600
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,72] last=[0,0][1080,72]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1776]
+        content=[0,0][1080,72] visible=[0,0][1080,72]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1776]
+    Cur insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{d87ad52 StatusBar}:
+      mSurface=Surface(name=StatusBar)
+      Surface: shown=true layer=181000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 72.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,72] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,72]
+    mLastFreezeDuration=+308ms
+  Window #3 Window{acc1536 u0 AssistPreviewPanel}:
+    mDisplayId=0 stackId=0 mSession=Session{58d994f 1830:u0a10028} mClient=android.os.BinderProxy@65001f8
+    mOwnerUid=10028 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx750) gr=#800053 sim=#31 ty=2033 fl=#1000118 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=0 h=0 mLayoutSeq=14
+    mBaseLayer=41000 mSubLayer=0 mAnimLayer=41000+0=41000 mLastLayer=0
+    mToken=WindowToken{3125438 android.os.BinderProxy@e7a96d1}
+    mViewVisibility=0x8 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,1920][1080,1920] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,1920][1080,1920] visible=[0,1920][1080,1920]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{b5b4ddd AssistPreviewPanel}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #4 Window{ac75445 u0 DockedStackDivider}:
+    mDisplayId=0 stackId=0 mSession=Session{58d994f 1830:u0a10028} mClient=android.os.BinderProxy@c5030af
+    mOwnerUid=10028 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx144) sim=#20 ty=2034 fl=#21840028 pfl=0x40 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=1080 h=144 mLayoutSeq=3882
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21010+0=21010 mLastLayer=0
+    mToken=WindowToken{77f5b95 android.os.BinderProxy@3543cbc}
+    mViewVisibility=0x4 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mPolicyVisibility=false mPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mForceHideNonSystemOverlayWindow=false
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mTouchableInsets=3 mGivenInsetsPending=false
+    touchable region=SkRegion((-144,0,144,144))
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][0,0] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,0][0,0] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{2ac3db4 DockedStackDivider}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #5 Window{26cd22d u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+    mDisplayId=0 stackId=0 mSession=Session{4e1397b 2551:u0a10030} mClient=android.os.BinderProxy@edae144
+    mOwnerUid=10030 mShowToOwnerOnly=true package=com.google.android.apps.nexuslauncher appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) gr=#3 sim=#20 ty=4 fl=#81850118 pfl=0x20000 fmt=-2 wanim=0x10302f6 alpha=0.0 vsysui=0x700 needsMenuKey=2 colorMode=0}
+    Requested w=1080 h=1920 mLayoutSeq=3882
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21005+0=21005 mLastLayer=21005
+    mToken=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+    mAppToken=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+     isAnimatingWithSavedSurface()=false mAppDied=false
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,1920] last=[0,0][1080,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,72][1080,1776] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{6243a87 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+      mSurface=Surface(name=com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity)
+      Surface: shown=true layer=21005 alpha=0.0 rect=(0.0,0.0) 1080.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,1920] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,1920]
+      mShownAlpha=0.0 mAlpha=0.0 mLastAlpha=0.0
+  Window #6 Window{4121a0f u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+    mDisplayId=0 stackId=0 mSession=Session{285a3b 2470:u0a10022} mClient=android.os.BinderProxy@c5eb36e
+    mOwnerUid=10022 mShowToOwnerOnly=true package=com.google.android.apps.nexuslauncher appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) sim=#120 ty=1 fl=#81910100 pfl=0x20000 fmt=-2 wanim=0x10302f6 vsysui=0x700 needsMenuKey=2 colorMode=0}
+    Requested w=1080 h=1920 mLayoutSeq=3882
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21000+0=21000 mLastLayer=21000
+    mToken=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+    mAppToken=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+     isAnimatingWithSavedSurface()=false mAppDied=false
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,1920] last=[0,0][1080,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,72][1080,1776] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{80baac6 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+      mSurface=Surface(name=com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity)
+      Surface: shown=true layer=21000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,1920] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,1920]
+    mWallpaperX=0.0 mWallpaperY=0.5
+  Window #7 Window{1ab5d6e u0 com.android.systemui.ImageWallpaper}:
+    mDisplayId=0 stackId=0 mSession=Session{58d994f 1830:u0a10028} mClient=android.os.BinderProxy@c557ce9
+    mOwnerUid=10028 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(1243x1920) gr=#800033 ty=2013 fl=#10318 fmt=2 wanim=0x1030306 colorMode=0}
+    Requested w=1243 h=1920 mLayoutSeq=3882
+    mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true mWallpaperVisible=true
+    mBaseLayer=11000 mSubLayer=0 mAnimLayer=11000+0=11000 mLastLayer=11000
+    mToken=WallpaperWindowToken{27a489b token=android.os.Binder@7898162}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x0
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1243,1920] last=[0,0][1243,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[-10000,-10000][10000,10000] overscan=[0,0][1080,1920]
+        content=[0,0][1080,1920] visible=[0,72][1080,1776]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1920]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{bebc8a1 com.android.systemui.ImageWallpaper}:
+      mSurface=Surface(name=com.android.systemui.ImageWallpaper)
+      Surface: shown=true layer=11000 alpha=1.0 rect=(0.0,0.0) 1243.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+    mWallpaperX=0.0 mWallpaperY=0.5
+
+  mGlobalConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+  mHasPermanentDpad=false
+  mCurrentFocus=Window{4121a0f u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}
+  mFocusedApp=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+  mInTouchMode=true mLayoutSeq=3882
+  mLastDisplayFreezeDuration=+543ms due to AppWindowToken{9643d09 token=Token{57b92d3 ActivityRecord{a7b44c2 u0 com.google.android.sdksetup/.DefaultActivity t4}}}
+  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{1ab5d6e u0 com.android.systemui.ImageWallpaper}
+  InputConsumers:
+    name=pip_input_consumer
+  SnapshotCache
+  mSystemDecorLayer=181000 mScreenRect=[0,0][1080,1920]
+  mLastStatusBarVisibility=0x8708
+  mTraversalScheduled=false
+  mHoldScreenWindow=null
+  mObscuringWindow=Window{1ab5d6e u0 com.android.systemui.ImageWallpaper}
+  mWallpaperTarget=Window{4121a0f u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}
+  mLastWallpaperX=0.0 mLastWallpaperY=0.5
+  mSystemBooted=true mDisplayEnabled=true
+  mTransactionSequence=4626
+  mDisplayFrozen=false windows=0 client=false apps=0 waitingForConfig=false
+  mRotation=0 mAltOrientation=false
+  mLastWindowForcedOrientation=-1 mLastOrientation=5
+  mDeferredRotationPauseCount=0
+  Animation settings: disabled=false window=0.0 transition=0.0 animator=0.0
+  mSkipAppTransitionAnimation=false
+  mLayoutToAnim:
+    mNextAppTransition=TRANSIT_UNSET
+    mAppTransitionState=APP_STATE_IDLE
+    mLastUsedAppTransition=TRANSIT_WALLPAPER_OPEN
+    mLastOpeningApp=AppWindowToken{d7e4cec token=Token{e74a39f ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}}}
+    mLastClosingApp=AppWindowToken{b3b591c token=Token{637dd84 ActivityRecord{53e3797 u0 app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t115}}}
+  mDreamsActivateOnDockSetting=true
+  mDozeAfterScreenOffConfig=false
+  mLowPowerModeSetting=false
+  mAutoLowPowerModeConfigured=false
+  mAutoLowPowerModeSnoozing=false
+  mMinimumScreenOffTimeoutConfig=10000
+  mMaximumScreenDimDurationConfig=7000
+  mMaximumScreenDimRatioConfig=0.20000005
+  mScreenOffTimeoutSetting=1800000
+  mSleepTimeoutSetting=-1
+  mMaximumScreenOffTimeoutFromDeviceAdmin=2147483647 (enforced=false)
+  mStayOnWhilePluggedInSetting=7
+  mScreenBrightnessSetting=102
+  mScreenAutoBrightnessAdjustmentSetting=0.0
+  mScreenBrightnessModeSetting=0
+  mScreenBrightnessOverrideFromWindowManager=-1
+  mUserActivityTimeoutOverrideFromWindowManager=-1
+  mUserInactiveOverrideFromWindowManager=false
+  mTemporaryScreenBrightnessSettingOverride=-1
+  mTemporaryScreenAutoBrightnessAdjustmentSettingOverride=NaN
+  mDozeScreenStateOverrideFromDreamManager=0
+  mDozeScreenBrightnessOverrideFromDreamManager=-1
+  mScreenBrightnessSettingMinimum=10
+  mScreenBrightnessSettingMaximum=255
+  mScreenBrightnessSettingDefault=102
+  mScreenBrightnessForVrSettingDefault=86
+  mScreenBrightnessForVrSetting=86
+  mDoubleTapWakeEnabled=false
+  mIsVrModeEnabled=false
+
+Sleep timeout: -1 ms
+Screen off timeout: 1800000 ms
+Screen dim duration: 7000 ms
+
+UID states (changing=false changed=false):
+  UID 1000:   ACTIVE  count=0 state=17
+  UID 1001:   ACTIVE  count=0 state=17
+  UID 1037:   ACTIVE  count=0 state=17
+  UID u0a2:   ACTIVE  count=0 state=17
+  UID u0a3:   ACTIVE  count=0 state=17
+  UID u0a8:   ACTIVE  count=0 state=17
+  UID u0a10:   ACTIVE  count=0 state=17
+  UID u0a12:   ACTIVE  count=0 state=17
+  UID u0a14:   ACTIVE  count=0 state=3
+  UID u0a19: INACTIVE  count=0 state=17
+  UID u0a22:   ACTIVE  count=0 state=2
+  UID u0a28:   ACTIVE  count=0 state=17
+  UID u0a30:   ACTIVE  count=0 state=3
+  UID u0a40:   ACTIVE  count=0 state=17
+  UID u0a50:   ACTIVE  count=0 state=17
+  UID u0a57:   ACTIVE  count=0 state=7
+  UID u0a65:   ACTIVE  count=0 state=17
+  UID u0a66: INACTIVE  count=0 state=17
+  UID u0a69: INACTIVE  count=0 state=17
+  UID u0a70:   ACTIVE  count=0 state=17
+  UID u0a73:   ACTIVE  count=0 state=17
+  UID u0a78:   ACTIVE  count=0 state=17
+
+Looper state:
+  Looper (PowerManagerService, tid 29) {c288267}
+    Message 0: { when=+15s206ms what=4 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    Message 1: { when=+29m32s279ms what=1 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    (Total messages: 2, polling=true, quitting=false)
+
+Wake Locks: size=0
+
+Suspend Blockers: size=4
+  PowerManagerService.WakeLocks: ref count=0
+  PowerManagerService.Display: ref count=1
+  PowerManagerService.Broadcasts: ref count=0
+  PowerManagerService.WirelessChargerDetector: ref count=0
+
+Display Power: state=ON
+
+Battery saver policy
+  Settings battery_saver_constants
+  value: null
+
+  vibration_disabled=true
+  animation_disabled=true
+  fullbackup_deferred=true
+  keyvaluebackup_deferred=true
+  firewall_disabled=false
+  datasaver_disabled=true
+  adjust_brightness_disabled=false
+  adjust_brightness_factor=0.5
+  gps_mode=1
+
+Wireless Charger Detector State:
+  mGravitySensor={Sensor name="Gravity Sensor", vendor="AOSP", version=3, type=9, maxRange=19.6133, resolution=2.480159E-4, power=12.7, minDelay=10000}
+  mPoweredWirelessly=false
+  mAtRest=false
+  mRestX=0.0, mRestY=0.0, mRestZ=0.0
+  mDetectionInProgress=false
+  mDetectionStartTime=0 (never)
+  mMustUpdateRestPosition=false
+  mTotalSamples=0
+  mMovingSamples=0
+  mFirstSampleX=0.0, mFirstSampleY=0.0, mFirstSampleZ=0.0
+  mLastSampleX=0.0, mLastSampleY=0.0, mLastSampleZ=0.0
+    5: name='Window{26cd22d u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x81850118, type=0x00000004, layer=21005, frame=[0,0][1080,1920], scale=1.000000, touchableRegion=[0,0][1080,1920], inputFeatures=0x00000000, ownerPid=2551, ownerUid=10030, dispatchingTimeout=5000.000ms
+    6: name='Window{4121a0f u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}', displayId=0, paused=false, hasFocus=true, hasWallpaper=true, visible=true, canReceiveKeys=true, flags=0x81910120, type=0x00000001, layer=21000, frame=[0,0][1080,1920], scale=1.000000, touchableRegion=[0,0][1080,1920], inputFeatures=0x00000000, ownerPid=2470, ownerUid=10022, dispatchingTimeout=5000.000ms
+    7: name='Window{1ab5d6e u0 com.android.systemui.ImageWallpaper}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x00010318, type=0x000007dd, layer=11000, frame=[0,0][1243,1920], scale=1.000000, touchableRegion=[0,0][1243,1920], inputFeatures=0x00000000, ownerPid=1830, ownerUid=10028, dispatchingTimeout=5000.000ms
+  MonitoringChannels:
+    0: 'WindowManager (server)'
+  RecentQueue: length=10
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (900.0, 897.0)]), policyFlags=0x6b000000, age=60880.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (900.0, 897.0)]), policyFlags=0x6b000000, age=60820.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (212.0, 1464.0)]), policyFlags=0x6b000000, age=59612.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (212.0, 1464.0)]), policyFlags=0x6b000000, age=59552.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (888.5, 1473.0)]), policyFlags=0x6b000000, age=57645.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (888.5, 1473.0)]), policyFlags=0x6b000000, age=57585.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (420.0, 897.0)]), policyFlags=0x6b000000, age=57026.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (420.0, 897.0)]), policyFlags=0x6b000000, age=56966.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (820.0, 915.0)]), policyFlags=0x6b000000, age=55917.8ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (820.0, 915.0)]), policyFlags=0x6b000000, age=55857.8ms
+  PendingEvent: <none>
+  InboundQueue: <empty>
+  ReplacedKeys: <empty>
+  Connections:
+    0: channelName='WindowManager (server)', windowName='monitor', status=NORMAL, monitor=true, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    1: channelName='acc1536 AssistPreviewPanel (server)', windowName='Window{acc1536 u0 AssistPreviewPanel}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    2: channelName='8160c79 NavigationBar (server)', windowName='Window{8160c79 u0 NavigationBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    3: channelName='7277b30 StatusBar (server)', windowName='Window{7277b30 u0 StatusBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    4: channelName='pip_input_consumer (server)', windowName='?', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    5: channelName='1ab5d6e com.android.systemui.ImageWallpaper (server)', windowName='Window{1ab5d6e u0 com.android.systemui.ImageWallpaper}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    6: channelName='8148a02 InputMethod (server)', windowName='Window{8148a02 u0 InputMethod}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    7: channelName='26cd22d com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity (server)', windowName='Window{26cd22d u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    8: channelName='4121a0f com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity (server)', windowName='Window{4121a0f u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    9: channelName='ac75445 DockedStackDivider (server)', windowName='Window{ac75445 u0 DockedStackDivider}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+  AppSwitch: not pending
+  Configuration:
+    KeyRepeatDelay: 50.0ms
+    KeyRepeatTimeout: 500.0ms
+
+
+  Keyboard Layouts:
+    "English (UK) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_uk
+    "English (US) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us
+    "English (US), International style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_intl
+    "English (US), Colemak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_colemak
+    "English (US), Dvorak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_dvorak
+    "English (US), Workman style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_workman
+    "German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_german
+    "French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french
+    "French (Canada) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french_ca
+    "Russian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian
+    "Russian, Mac style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian_mac
+    "Spanish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish
+    "Swiss French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_french
+    "Swiss German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_german
+    "Belgian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_belgian
+    "Bulgarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_bulgarian
+    "Italian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_italian
+    "Danish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_danish
+    "Norwegian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_norwegian
+    "Swedish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swedish
+    "Finnish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_finnish
+    "Croatian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_croatian
+    "Czech - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_czech
+    "Estonian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_estonian
+    "Hungarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hungarian
+    "Icelandic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_icelandic
+    "Brazilian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_brazilian
+    "Portuguese - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_portuguese
+    "Slovak - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovak
+    "Slovenian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovenian
+    "Turkish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_turkish
+    "Ukrainian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_ukrainian
+    "Arabic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_arabic
+    "Greek - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_greek
+    "Hebrew - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hebrew
+    "Lithuanian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_lithuanian
+    "Spanish (Latin) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish_latin
+    "Latvian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_latvian
+
+  PersistentDataStore
+    mLoaded=true
+    mDirty=false
+    InputDeviceStates:
+--------- beginning of main
+11-03 05:06:00.943  1777  6852 I LogUtils: [Places]: ?: Couldn't find platform key file. [CONTEXT service_id=253 ]
+11-03 05:06:00.945  1777  8474 I LogUtils: [Places]: ?: Couldn't find platform key file. [CONTEXT service_id=253 ]
+11-03 05:06:00.946  1777  8181 I LogUtils: [Places]: ?: Couldn't find platform key file. [CONTEXT service_id=253 ]
+11-03 05:06:00.953  1777  8469 W LogUtils: [Places]: ?: getPlaceInfos (SLS) failure
+11-03 05:06:00.953  1777  8469 W LogUtils: 
+11-03 05:06:00.953  1777  8469 W LogUtils: [CONTEXT service_id=253 ]
+11-03 05:06:00.956  1777  6852 I LogUtils: [Places]: ?: Couldn't find platform key file. [CONTEXT service_id=253 ]
+11-03 05:06:00.966  1777  8182 I LogUtils: [Places]: ?: Couldn't find platform key file. [CONTEXT service_id=253 ]
+11-03 05:06:00.979  4351  4381 I MyNotes : voice-source-marker outcome=purge delayed until durable deletion guard is writable
+11-03 05:06:00.996  2551  5761 E PlaceStateUpdater: Received no places
+11-03 05:06:01.005  4351  4351 I MyNotes : load outcome=ok count=1
+11-03 05:06:01.040  2551  4566 I PBSessionCacheImpl: Deleted sessionId[86656300342] from persistence.
+11-03 05:06:01.049  2551  2551 W SearchService: Abort, client detached.
+11-03 05:06:01.123  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:01.187  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@2197a32 in: PAUSED
+11-03 05:06:01.187  4351  4368 I TestRunner: finished: unwritableDeletionGuardRetainsTrashUntilSafePurgeIsPossible(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:01.190  2470  2632 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-03 05:06:01.226  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.229  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.238  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.240  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.242  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:01.243  1400  1400 D SurfaceFlinger: duplicate layer name: changing com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity to com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#1
+11-03 05:06:01.263  2551  2551 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-03 05:06:01.265  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.271  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.276  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:01.276  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:01.276  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:01.277  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:01.277  2551  8169 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:01.278  2551  4566 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@85d0065
+11-03 05:06:01.279  1509  8489 I AudioFlinger: AudioFlinger's thread 0xeac83700 tid=8489 ready to run
+11-03 05:06:01.280  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.280  1509  8458 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:01.280  1509  8458 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:01.280  1509  8458 D MemoryDealer:    
+11-03 05:06:01.280  1509  8458 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:01.280  2551  4566 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:01.281  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.282  2551  4566 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:01.282  2551  4566 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:01.282  2551  4566 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@85d0065
+--------- beginning of system
+11-03 05:06:01.282  2551  4566 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:01.282  2551  8169 W SpeechLevelGenerator: Really low audio levels detected. The audio input may have issues.
+11-03 05:06:01.284  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:01.290  2551  4566 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@85d0065
+11-03 05:06:01.290  2551  8169 I MicroRecognitionRunner: Detection finished
+11-03 05:06:01.290  2551  8169 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:01.290  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:01.290  2551  8169 W ErrorProcessor: 	... 9 more
+11-03 05:06:01.290  2551  8169 I AudioController: internalShutdown
+11-03 05:06:01.293  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:01.294  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:01.294  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:01.294  2551  5761 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:01.317  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:01.331  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.332  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.353  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:01.353  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:01.354  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:01.354  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:01.357  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@2197a32 in: STOPPED
+11-03 05:06:01.358  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@2197a32 in: DESTROYED
+11-03 05:06:01.362  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:01.365  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:01.382  4351  4368 I TestRunner: started: purgedPendingPlaceholderIsNotRecreatedByALaterTranscript(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:01.388  1643  1659 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10077
+11-03 05:06:01.398  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: PRE_ON_CREATE
+11-03 05:06:01.401  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: CREATED
+11-03 05:06:01.401  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: STARTED
+11-03 05:06:01.402  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: RESUMED
+11-03 05:06:01.411  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:01.451  1400  1400 D SurfaceFlinger: duplicate layer name: changing app.space.notes.debug/app.space.notes.NotesActivity to app.space.notes.debug/app.space.notes.NotesActivity#1
+11-03 05:06:01.460  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.477  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:01.499  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.508  2551  2718 E ContentStoreEUAS: Failed to commit the deferred actions
+11-03 05:06:01.511  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:01.517  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.556  1643  1683 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +164ms
+11-03 05:06:01.572  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:01.573  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:01.597  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:01.662  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:01.714  2551  2718 I PBSessionCacheImpl: Deleted sessionId[86656300343] from persistence.
+11-03 05:06:01.755  2551  2551 W SearchService: Abort, client detached.
+11-03 05:06:01.762  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:01.803  4351  4368 I TestRunner: finished: purgedPendingPlaceholderIsNotRecreatedByALaterTranscript(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:01.807  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: PAUSED
+11-03 05:06:01.814  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.822  2470  2632 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-03 05:06:01.829  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.831  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:01.833  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.846  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:01.851  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:01.854  1400  1400 D SurfaceFlinger: duplicate layer name: changing com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity to com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#1
+11-03 05:06:01.864  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.874  2551  2551 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-03 05:06:01.893  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:01.893  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:01.894  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:01.894  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.895  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:01.895  2551  8169 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:01.896  2551  2718 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@16aee1c
+11-03 05:06:01.897  1509  8502 I AudioFlinger: AudioFlinger's thread 0xea683600 tid=8502 ready to run
+11-03 05:06:01.899  1509  8470 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:01.899  1509  8470 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:01.899  1509  8470 D MemoryDealer:    
+11-03 05:06:01.899  1509  8470 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:01.899  2551  2718 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:01.900  2551  2718 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:01.900  2551  2718 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:01.900  2551  2718 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@16aee1c
+11-03 05:06:01.900  2551  2718 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:01.901  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.901  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.909  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:01.910  2551  2718 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@16aee1c
+11-03 05:06:01.912  2551  8169 I MicroRecognitionRunner: Detection finished
+11-03 05:06:01.912  2551  8169 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:01.914  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:01.915  2551  8169 W ErrorProcessor: 	... 9 more
+11-03 05:06:01.915  2551  8169 I AudioController: internalShutdown
+11-03 05:06:01.915  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:01.915  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:01.917  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:01.917  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:01.917  2551  5761 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:01.953  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:01.958  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:01.965  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:01.985  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:01.985  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:01.985  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:01.987  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:01.988  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: STOPPED
+11-03 05:06:01.988  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@8c1ac81 in: DESTROYED
+11-03 05:06:02.005  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:02.017  4351  4368 I TestRunner: started: lowOrUnknownWordConfidenceRequiresReviewNotAnAccuracyClaim(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:02.027  1643  5018 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10077
+11-03 05:06:02.044  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: PRE_ON_CREATE
+11-03 05:06:02.047  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: CREATED
+11-03 05:06:02.047  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: STARTED
+11-03 05:06:02.048  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: RESUMED
+11-03 05:06:02.126  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.127  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.129  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:02.130  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.138  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.155  2551  4566 E ContentStoreEUAS: Failed to commit the deferred actions
+11-03 05:06:02.163  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:02.163  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:02.173  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:02.181  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:02.184  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.218  1643  1683 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +185ms
+11-03 05:06:02.258  1400  1963 E SurfaceFlinger: Failed to find layer (Splash Screen app.space.notes.debug#0) in layer parent (no-parent).
+11-03 05:06:02.261  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.267  4351  4368 I TestRunner: finished: lowOrUnknownWordConfidenceRequiresReviewNotAnAccuracyClaim(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:02.270  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: PAUSED
+11-03 05:06:02.280  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.307  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.308  1643  5018 D         : HostConnection::get() New Host Connection established 0x7fae27f12c40, tid 5018
+11-03 05:06:02.316  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:02.316  1643  3847 I ActivityManager: Activity reported stop, but no longer stopping: ActivityRecord{296293e u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t5}
+11-03 05:06:02.324  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.330  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:02.334  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.337  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-03 05:06:02.337  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.340  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:02.341  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.355  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:02.355  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:02.355  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:02.356  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:02.358  2551  5761 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:02.358  2551  4566 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@5751681
+11-03 05:06:02.375  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:02.377  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:02.390  1509  8470 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:02.390  1509  8470 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:02.390  1509  8470 D MemoryDealer:    
+11-03 05:06:02.390  1509  8470 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:02.390  2551  4566 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:02.394  1509  8509 I AudioFlinger: AudioFlinger's thread 0xea522e80 tid=8509 ready to run
+11-03 05:06:02.399  2551  4566 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:02.399  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.399  2551  4566 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:02.399  2551  4566 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@5751681
+11-03 05:06:02.401  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:02.401  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:02.403  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:02.403  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:02.404  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: STOPPED
+11-03 05:06:02.405  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e4c0d71 in: DESTROYED
+11-03 05:06:02.408  2551  4566 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:02.409  2551  4566 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@5751681
+11-03 05:06:02.410  2551  5761 I MicroRecognitionRunner: Detection finished
+11-03 05:06:02.410  2551  5761 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:02.410  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:02.413  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:02.413  2551  5761 W ErrorProcessor: 	... 9 more
+11-03 05:06:02.413  2551  5761 I AudioController: internalShutdown
+11-03 05:06:02.420  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:02.420  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:02.421  2551  8169 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:02.426  4351  4368 I TestRunner: started: durableTranscriptRecoveredOnceAcrossControllerRecreation(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:02.486  1643  2458 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10077
+11-03 05:06:02.537  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: PRE_ON_CREATE
+11-03 05:06:02.543  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: CREATED
+11-03 05:06:02.543  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: STARTED
+11-03 05:06:02.543  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: RESUMED
+11-03 05:06:02.552  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.564  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:02.565  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.567  2470  2632 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-03 05:06:02.567  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:02.567  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:02.571  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.598  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:02.611  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:02.611  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.622  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.622  2551  2718 E ContentStoreEUAS: Failed to commit the deferred actions
+11-03 05:06:02.645  1643  1683 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +135ms
+11-03 05:06:02.661  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.693  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.693  1400  1400 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-03 05:06:02.693  1400  1400 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-03 05:06:02.712  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:02.774  2551  2718 I PBSessionCacheImpl: Deleted sessionId[86656300344] from persistence.
+11-03 05:06:02.777  4351  4351 I MyNotes : load outcome=ok count=1
+11-03 05:06:02.781  2551  2551 W SearchService: Abort, client detached.
+11-03 05:06:02.845  4351  4351 W StaticLayout: maxLineHeight should not be -1.  maxLines:7 lineCount:7
+11-03 05:06:02.903  4351  4351 I MyNotes : load outcome=ok count=1
+11-03 05:06:02.929  4351  4351 W StaticLayout: maxLineHeight should not be -1.  maxLines:7 lineCount:7
+11-03 05:06:02.954  4351  4368 I TestRunner: finished: durableTranscriptRecoveredOnceAcrossControllerRecreation(app.space.notes.VoiceRecoveryJourneysTest)
+11-03 05:06:02.954  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: PAUSED
+11-03 05:06:02.968  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:02.975  2470  2632 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-03 05:06:02.992  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:02.993  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:02.994  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.009  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:03.019  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:03.027  1400  1400 D SurfaceFlinger: duplicate layer name: changing com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity to com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#1
+11-03 05:06:03.036  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.039  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:03.040  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.044  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:03.046  2551  2551 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-03 05:06:03.070  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:03.081  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:03.081  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:03.082  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:03.083  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:03.085  2551  5761 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:03.085  2551  4566 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@72d4728
+11-03 05:06:03.087  1509  8522 I AudioFlinger: AudioFlinger's thread 0xea522d80 tid=8522 ready to run
+11-03 05:06:03.092  1509  8470 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:03.092  1509  8470 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:03.092  1509  8470 D MemoryDealer:    
+11-03 05:06:03.092  1509  8470 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:03.092  2551  4566 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:03.095  2551  4566 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:03.095  2551  4566 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:03.095  2551  4566 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@72d4728
+11-03 05:06:03.095  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:03.097  2551  4566 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:03.102  2551  4566 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@72d4728
+11-03 05:06:03.103  2551  5761 I MicroRecognitionRunner: Detection finished
+11-03 05:06:03.103  2551  5761 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:03.103  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:03.103  2551  5761 W ErrorProcessor: 	... 9 more
+11-03 05:06:03.103  2551  5761 I AudioController: internalShutdown
+11-03 05:06:03.114  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.120  4351  4368 I MonitoringInstr: Unstopped activity count: 1
+11-03 05:06:03.125  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:03.125  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:03.125  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:03.125  2551  5082 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:03.147  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:03.150  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: STOPPED
+11-03 05:06:03.150  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a61ac43 in: DESTROYED
+11-03 05:06:03.152  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:03.152  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:03.153  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:03.153  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:03.171  4351  4368 I TestRunner: started: draggingInsideSelectedShapeStillMovesRatherThanResizes(app.space.notes.runtime.DiagramResizeViewTest)
+11-03 05:06:03.176  4351  4368 I TestRunner: finished: draggingInsideSelectedShapeStillMovesRatherThanResizes(app.space.notes.runtime.DiagramResizeViewTest)
+11-03 05:06:03.177  4351  4368 I TestRunner: started: cancelledResizeRestoresOriginalAndNeverCommits(app.space.notes.runtime.DiagramResizeViewTest)
+11-03 05:06:03.180  4351  4368 I TestRunner: finished: cancelledResizeRestoresOriginalAndNeverCommits(app.space.notes.runtime.DiagramResizeViewTest)
+11-03 05:06:03.182  4351  4368 I TestRunner: started: brushWidthAndColourAreCapturedPerStroke(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.189  4351  4368 I TestRunner: finished: brushWidthAndColourAreCapturedPerStroke(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.190  4351  4368 I TestRunner: started: gridIsAViewportGuideAndNeverChangesExportOrUndoHistory(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.198  4351  4368 I TestRunner: finished: gridIsAViewportGuideAndNeverChangesExportOrUndoHistory(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.201  4351  4368 I TestRunner: started: historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.204  4351  4368 I TestRunner: finished: historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.207  4351  4368 I TestRunner: started: portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.224  4351  4368 I TestRunner: finished: portraitCanvasUsesFullHeightAndKeepsLegacyBitmapProportions(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.228  4351  4368 I TestRunner: started: copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.233  1643  1659 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10077
+11-03 05:06:03.249  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: PRE_ON_CREATE
+11-03 05:06:03.254  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: CREATED
+11-03 05:06:03.254  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: STARTED
+11-03 05:06:03.259  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: RESUMED
+11-03 05:06:03.290  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:03.325  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.326  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:03.327  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.354  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:03.355  2551  4566 E ContentStoreEUAS: Failed to commit the deferred actions
+11-03 05:06:03.355  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.395  1643  1683 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +144ms
+11-03 05:06:03.397  1643  1659 W ActivityManager: For security reasons, the system cannot issue a Uri permission grant to content://app.space.notes.debug.notes.images/drawing_clipboard/8aedfd8f-3f09-4da7-b4e9-5ff72e70828c.png [user 0]; use startActivityAsCaller() instead
+11-03 05:06:03.407  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: PAUSED
+11-03 05:06:03.412  4351  4368 I TestRunner: finished: copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.417  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:03.418  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:03.424  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:03.444  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.445  1643  1659 D         : HostConnection::get() New Host Connection established 0x7fae37e3f2a0, tid 1659
+11-03 05:06:03.465  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:03.474  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: STOPPED
+11-03 05:06:03.474  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@b7dbc07 in: DESTROYED
+11-03 05:06:03.488  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.490  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-03 05:06:03.493  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.494  4351  4368 I TestRunner: started: draftChecksumMatchesPngBeforeAttachmentResizing(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.495  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.497  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:03.499  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:03.502  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:03.505  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:03.516  1384  1583 W audio_hw_generic: Not supplying enough data to HAL, expected position 15830778 , only wrote 15660000
+11-03 05:06:03.517  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:03.552  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:03.552  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:03.552  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:03.554  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:03.564  2551  5082 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:03.568  2551  4566 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@70ccc5d
+11-03 05:06:03.570  1509  8470 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:03.570  1509  8470 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:03.570  1509  8470 D MemoryDealer:    
+11-03 05:06:03.570  1509  8470 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:03.570  2551  4566 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:03.570  1398  1398 I boot-pipe: done populating /dev/random
+11-03 05:06:03.576  1509  8537 I AudioFlinger: AudioFlinger's thread 0xea522200 tid=8537 ready to run
+11-03 05:06:03.577  2551  4566 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:03.577  2551  4566 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:03.577  2551  4566 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@70ccc5d
+11-03 05:06:03.577  2551  4566 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:03.578  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:03.579  2551  4566 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@70ccc5d
+11-03 05:06:03.580  2551  5082 I MicroRecognitionRunner: Detection finished
+11-03 05:06:03.580  2551  5082 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:03.580  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:03.581  2551  5082 W ErrorProcessor: 	... 9 more
+11-03 05:06:03.581  2551  5082 I AudioController: internalShutdown
+11-03 05:06:03.586  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:03.586  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:03.586  2551  8169 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:03.613  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:03.613  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:03.613  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:03.614  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:03.783  4351  4368 I TestRunner: finished: draftChecksumMatchesPngBeforeAttachmentResizing(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.784  4351  4368 I TestRunner: started: twoFingerZoomChangesViewportButNotExportOrHistory(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.792  4351  4368 I TestRunner: finished: twoFingerZoomChangesViewportButNotExportOrHistory(app.space.notes.runtime.DrawingToolsTest)
+11-03 05:06:03.793  4351  4368 I TestRunner: started: activeRecordingIsNotRenamedByInboxScanner(app.space.notes.OfflineSpeechTest)
+11-03 05:06:03.802  4351  4368 I TestRunner: finished: activeRecordingIsNotRenamedByInboxScanner(app.space.notes.OfflineSpeechTest)
+11-03 05:06:03.803  4351  4368 I TestRunner: started: realBundledModelRecognizesPublicSpeechFixtureOffline(app.space.notes.OfflineSpeechTest)
+11-03 05:06:04.055  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:05.202  4351  4368 I TestRunner: finished: realBundledModelRecognizesPublicSpeechFixtureOffline(app.space.notes.OfflineSpeechTest)
+11-03 05:06:05.204  4351  4368 I TestRunner: started: cancelledInferenceKeepsOriginalAudioBytes(app.space.notes.OfflineSpeechTest)
+11-03 05:06:05.206  4351  4368 I TestRunner: finished: cancelledInferenceKeepsOriginalAudioBytes(app.space.notes.OfflineSpeechTest)
+11-03 05:06:05.207  4351  4368 I TestRunner: started: interruptedRecordingIsRecoveredBeforeRecognition(app.space.notes.OfflineSpeechTest)
+11-03 05:06:05.211  4351  4368 I TestRunner: finished: interruptedRecordingIsRecoveredBeforeRecognition(app.space.notes.OfflineSpeechTest)
+11-03 05:06:05.213  4351  4368 I TestRunner: started: stoppedBeforeWorkerStartsStillCompletesControllerCallback(app.space.notes.VoiceCaptureTest)
+11-03 05:06:05.216  4351  4368 I TestRunner: finished: stoppedBeforeWorkerStartsStillCompletesControllerCallback(app.space.notes.VoiceCaptureTest)
+11-03 05:06:05.217  4351  4368 I TestRunner: started: colourlessDiagramDoesNotPaintOverCanvas(app.space.notes.runtime.NotesMotionTest)
+11-03 05:06:05.220  4351  4368 I TestRunner: finished: colourlessDiagramDoesNotPaintOverCanvas(app.space.notes.runtime.NotesMotionTest)
+11-03 05:06:05.222  4351  4368 I TestRunner: started: entryLiftAndSettlementHonorActualSystemAnimationSetting(app.space.notes.runtime.NotesMotionTest)
+11-03 05:06:05.225  4351  9057 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-03 05:06:05.228  1643  1659 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10077
+11-03 05:06:05.258  1643  1663 E memtrack: Couldn't load memtrack module
+11-03 05:06:05.258  1643  1663 W android.os.Debug: failed to get memory consumption info: -1
+11-03 05:06:05.260  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: PRE_ON_CREATE
+11-03 05:06:05.260  4351  4351 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-03 05:06:05.263  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: CREATED
+11-03 05:06:05.264  4351  4351 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=app.space.notes.NotesActivity@a3e961a
+11-03 05:06:05.264  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: STARTED
+11-03 05:06:05.264  4351  4351 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=app.space.notes.NotesActivity@a3e961a
+11-03 05:06:05.264  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: RESUMED
+11-03 05:06:05.264  4351  4351 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=app.space.notes.NotesActivity@a3e961a
+11-03 05:06:05.269  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:05.285  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-03 05:06:05.287  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:05.303  2470  2632 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-03 05:06:05.310  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:05.310  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:05.322  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:05.329  4351  4351 I MyNotes : load outcome=ok count=0
+11-03 05:06:05.340  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:05.343  2551  4566 E ContentStoreEUAS: Failed to commit the deferred actions
+11-03 05:06:05.374  1643  1683 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +119ms
+11-03 05:06:05.401  1400  1400 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-03 05:06:05.401  1400  1400 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-03 05:06:05.415  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:05.440  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:05.487  2551  4566 I PBSessionCacheImpl: Deleted sessionId[86656300345] from persistence.
+11-03 05:06:05.493  2551  2551 W SearchService: Abort, client detached.
+11-03 05:06:06.239  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:06.282  1643  2583 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10077
+11-03 05:06:06.285  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: PAUSED
+11-03 05:06:06.285  4351  4351 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=app.space.notes.NotesActivity@a3e961a
+11-03 05:06:06.307  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.309  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-03 05:06:06.321  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.322  5730  5747 D EGL_emulation: eglMakeCurrent: 0x7fae41ca6b60: ver 3 0 (tinfo 0x7fae354e6ee0)
+11-03 05:06:06.350  1643  1683 E ViewRootImpl[test]: Attempting to destroy the window while drawing!
+11-03 05:06:06.350  1643  1683 E ViewRootImpl[test]:   window=android.view.ViewRootImpl@71b229b, title=Splash Screen app.space.notes.debug.test
+11-03 05:06:06.365  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.371  1390  1390 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-03 05:06:06.372  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.386  2551  2781 D EGL_emulation: eglMakeCurrent: 0xc5b9c1e0: ver 3 0 (tinfo 0xd637ed40)
+11-03 05:06:06.388  1400  1400 D SurfaceFlinger: duplicate layer name: changing com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity to com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#1
+11-03 05:06:06.396  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.396  2551  2551 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-03 05:06:06.403  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.407  2551  2551 I MicroDetectionWorker: #updateMicroDetector [detectionMode: [mDetectionMode: [1]]]
+11-03 05:06:06.407  2551  2551 I MicroDetectionWorker: #startMicroDetector [speakerMode: 0]
+11-03 05:06:06.407  2551  2551 I AudioController: Using mInputStreamFactoryBuilder
+11-03 05:06:06.410  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:06.410  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.414  2551  5082 I MicroRecognitionRunner: Starting detection.
+11-03 05:06:06.414  2551  2718 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.staticplugins.aa.c@3118b6
+11-03 05:06:06.415  1509  8458 E AudioFlinger: not enough memory for AudioTrack size=131296
+11-03 05:06:06.416  1509  8458 D MemoryDealer:   AudioTrack (0xeea990c0, size=4194304)
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     0: 0xeea990d0 | 0x00000000 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     1: 0xeea990f0 | 0x000200E0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     2: 0xeea992a0 | 0x000401C0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     3: 0xeea99460 | 0x000602A0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     4: 0xeea995e0 | 0x00080380 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     5: 0xeea99b40 | 0x000A0460 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     6: 0xeea99d00 | 0x000C0540 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     7: 0xeea99e80 | 0x000E0620 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     8: 0xeea99d30 | 0x00100700 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:     9: 0xedd7d170 | 0x001207E0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    10: 0xedd7d330 | 0x001408C0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    11: 0xeea7c540 | 0x001609A0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    12: 0xeea7c6d0 | 0x00180A80 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    13: 0xedd7d4d0 | 0x001A0B60 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    14: 0xedd7d690 | 0x001C0C40 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    15: 0xedd7d810 | 0x001E0D20 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    16: 0xedd7d9d0 | 0x00200E00 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    17: 0xedd7db50 | 0x00220EE0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    18: 0xedd7dcd0 | 0x00240FC0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    19: 0xedd7de30 | 0x002610A0 | 0x000200E0 | A 
+11-03 05:06:06.416  1509  8458 D MemoryDealer:    
+11-03 05:06:06.416  1509  8458 E AudioFlinger: createRecordTrack_l() initCheck failed -12; no control block?
+11-03 05:06:06.416  2551  2718 E AudioRecord: AudioFlinger could not create record track, status: -12
+11-03 05:06:06.416  1509  9064 I AudioFlinger: AudioFlinger's thread 0xeac83140 tid=9064 ready to run
+11-03 05:06:06.416  2551  2718 E AudioRecord-JNI: Error creating AudioRecord instance: initialization check failed with status -12.
+11-03 05:06:06.416  2551  2718 E android.media.AudioRecord: Error code -20 when initializing native AudioRecord object.
+11-03 05:06:06.416  2551  2718 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.staticplugins.aa.c@3118b6
+11-03 05:06:06.416  2551  2718 E ActivityThread: Failed to find provider info for com.google.android.apps.gsa.testing.ui.audio.recorded
+11-03 05:06:06.419  2551  2718 I MicrophoneInputStream: mic_close com.google.android.apps.gsa.staticplugins.aa.c@3118b6
+11-03 05:06:06.420  2551  5082 I MicroRecognitionRunner: Detection finished
+11-03 05:06:06.420  2551  5082 W ErrorReporter: reportError [type: 211, code: 524300]: Error reading from input stream
+11-03 05:06:06.421  2551  2954 I MicroRecognitionRunner: Stopping hotword detection.
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: onFatalError, processing error from engine(4)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: com.google.android.apps.gsa.shared.speech.b.g: Error reading from input stream
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.a.a(SourceFile:28)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.staticplugins.recognizer.j.b.run(SourceFile:15)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ax.run(SourceFile:14)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.bl.run(SourceFile:4)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.lang.Thread.run(Thread.java:764)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.shared.util.concurrent.a.ai.run(SourceFile:6)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: Caused by: com.google.android.apps.gsa.shared.exception.GsaIOException: Error code: 393238 | Buffer overflow, no available space.
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.Tee.f(SourceFile:103)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.au.read(SourceFile:2)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at java.io.InputStream.read(InputStream.java:101)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.ao.run(SourceFile:18)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	at com.google.android.apps.gsa.speech.audio.an.run(SourceFile:2)
+11-03 05:06:06.421  2551  5082 W ErrorProcessor: 	... 9 more
+11-03 05:06:06.421  2551  5082 I AudioController: internalShutdown
+11-03 05:06:06.429  2551  2551 I MicroDetectionWorker: onReady
+11-03 05:06:06.429  2551  2551 I MicroDetector: Keeping mic open: false
+11-03 05:06:06.429  2551  2551 I MicroDetectionWorker: #onError(false)
+11-03 05:06:06.430  2551  8169 I DeviceStateChecker: DeviceStateChecker cancelled
+11-03 05:06:06.431  2470  2632 D EGL_emulation: eglMakeCurrent: 0x7fae37e3d8c0: ver 3 0 (tinfo 0x7fae37e0dbe0)
+11-03 05:06:06.450  1643  1711 I WindowManager: Failed to capture screenshot of Token{819a2db ActivityRecord{156efea u0 app.space.notes.debug/app.space.notes.NotesActivity t114 f}} appWin=Window{d6856a7 u0 app.space.notes.debug/app.space.notes.NotesActivity} drawState=4
+11-03 05:06:06.459  4351  4384 D EGL_emulation: eglMakeCurrent: 0x7fae37e556c0: ver 3 0 (tinfo 0x7fae37e0dca0)
+11-03 05:06:06.464  5730  5747 D EGL_emulation: eglMakeCurrent: 0x7fae41ca6b60: ver 3 0 (tinfo 0x7fae354e6ee0)
+11-03 05:06:06.467  1390  1390 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-03 05:06:06.483  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: STOPPED
+11-03 05:06:06.483  4351  4351 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=app.space.notes.NotesActivity@a3e961a
+11-03 05:06:06.484  4351  4351 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@a3e961a in: DESTROYED
+11-03 05:06:06.484  4351  4351 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-03 05:06:06.484  4351  4368 I TestRunner: finished: entryLiftAndSettlementHonorActualSystemAnimationSetting(app.space.notes.runtime.NotesMotionTest)
+11-03 05:06:06.489  4351  4368 I TestRunner: started: backupPreservesFullEditableDiagram(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.495  1830  2125 D EGL_emulation: eglMakeCurrent: 0x7fae355622c0: ver 3 0 (tinfo 0x7fae35538aa0)
+11-03 05:06:06.501  1643  4401 I OpenGLRenderer: Initialized EGL, version 1.4
+11-03 05:06:06.501  1643  4401 D OpenGLRenderer: Swap behavior 1
+11-03 05:06:06.501  1643  4401 D EGL_emulation: eglCreateContext: 0x7fae1c9392c0: maj 3 min 0 rcv 3
+11-03 05:06:06.502  1643  4401 D EGL_emulation: eglMakeCurrent: 0x7fae1c9392c0: ver 3 0 (tinfo 0x7fae1c84c600)
+11-03 05:06:06.523  4351  4368 I TestRunner: finished: backupPreservesFullEditableDiagram(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.524  4351  4368 I TestRunner: started: outOfCanvasGeometryRefused(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.529  4351  4368 I TestRunner: finished: outOfCanvasGeometryRefused(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.531  4351  4368 I TestRunner: started: twentyGeometricShapesHaveDistinctRenderedOutlines(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.553  4351  4368 I TestRunner: finished: twentyGeometricShapesHaveDistinctRenderedOutlines(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.555  4351  4368 I TestRunner: started: diagramConflictAndRepeatedImportAreLossless(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.555  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:06.563  4351  4368 I TestRunner: finished: diagramConflictAndRepeatedImportAreLossless(app.space.notes.DiagramCodecTest)
+11-03 05:06:06.565  4351  4368 I TestRunner: run finished: 202 tests, 0 failed, 0 ignored
+11-03 05:06:06.568  1643  2458 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@32e31b0
+11-03 05:06:06.583  1643  2458 I ActivityManager: Force stopping app.space.notes.debug appid=10077 user=0: finished inst
+11-03 05:06:06.583  1643  2458 I ActivityManager: Killing 4351:app.space.notes.debug/u0a77 (adj 0): stop app.space.notes.debug
+11-03 05:06:06.584  1643  9070 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-03 05:06:06.584  1643  9070 W Binder  : java.lang.Throwable
+11-03 05:06:06.584  1643  9070 W Binder  : 	at android.os.BinderProxy.transact(Binder.java:736)
+11-03 05:06:06.584  1643  9070 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:160)
+11-03 05:06:06.584  1643  9070 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-03 05:06:06.585  4342  4342 D AndroidRuntime: Shutting down VM
+11-03 05:06:06.657  1643  1683 W ActivityManager: setHasOverlayUi called on unknown pid: 4351
+11-03 05:06:06.690  1777  4733 W cklr    : [{0}] Failed to resolve name. status={1}
+11-03 05:06:07.522  1643  2572 I ActivityManager: Killing 3982:com.android.defcontainer/u0a6 (adj 906): empty #17
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:37): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 I chatty  : uid=1036(auditd) identical 1 line
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:39): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:40): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=67 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:41): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=67 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:42): avc: granted { use } for path="socket:[25002]" dev="sockfs" ino=25002 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:43): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 I chatty  : uid=1036(auditd) identical 1 line
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:45): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:46): avc: granted { read } for name="packages.list" dev="dm-0" ino=262351 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:47): avc: granted { read } for path="/data/system/packages.list" dev="dm-0" ino=262351 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:48): avc: granted { getattr } for path="/data/system/packages.list" dev="dm-0" ino=262351 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-03 05:06:07.532  9076  9076 W run-as  : type=1400 audit(0.0:49): avc: granted { getattr } for path="/data/user/0" dev="dm-0" ino=270338 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=lnk_file

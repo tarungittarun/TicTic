@@ -4,7 +4,12 @@ set -uo pipefail
 workload="$1"; night="$2"; orientation="$3"
 method=variedImageCorpusMeasuresGroundTruthAndElapsedTime
 shard=0
-if [[ "$workload" == voice* ]]; then method=publicVoiceCorpusMeasuresTranscriptsDurationsAndPreservation; shard="${workload#voice}"; fi
+case "$workload" in
+  ocr) ;;
+  holdout) method=heldOutOcrReferencesMeasureIndependentRecognition ;;
+  voice0|voice1) method=publicVoiceCorpusMeasuresTranscriptsDurationsAndPreservation; shard="${workload#voice}" ;;
+  *) echo "Unknown benchmark workload: $workload" >&2; exit 64 ;;
+esac
 python3 mynotes/tools/ci/instrumentation_watchdog.py timeout 3300s adb shell am instrument -w -r -e timeout_msec 3200000 -e expectedNight "$night" -e expectedOrientation "$orientation" -e corpusShard "$shard" -e class "app.space.notes.EnvironmentQualificationTest,app.space.notes.ModuleCorpusBenchmark#$method" app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner
 code=$?
 adb exec-out run-as app.space.notes.debug tar -C files -cf - module-benchmark > module-benchmark.tar

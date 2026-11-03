@@ -44,6 +44,18 @@ def independent_score(row,module):
     if row.get('accuracy_target_met') is not target:raise ValueError('False accuracy flag: '+row['id'])
     if row['elapsed_ms']<0:raise ValueError('Negative elapsed time')
 
+def independent_public_probes(row):
+    """Verify public diagnostic scores, never choose an application hypothesis."""
+    probes=row.get('public_segmentation_probe')
+    if probes is None:return
+    if row.get('accuracy_target_met') is not False:raise ValueError('Unexpected successful-case probe')
+    if not isinstance(probes,list) or len(probes)!=3 or {p['page_segmentation_mode'] for p in probes}!={3,6,11}:raise ValueError('Incomplete segmentation probe')
+    if not math.isfinite(row['probe_elapsed_ms']) or row['probe_elapsed_ms']<0:raise ValueError('Invalid separate probe timer')
+    for candidate in probes:
+        if candidate['reference']!=row['reference']:raise ValueError('Probe reference changed')
+        if not 0<=candidate['confidence']<=100:raise ValueError('Invalid diagnostic confidence')
+        independent_score({**candidate,'id':row['id']+'-psm'+str(candidate['page_segmentation_mode']),'status':'OK','elapsed_ms':row['probe_elapsed_ms'],'accuracy_target_met':candidate['cer']<=.2},'ocr')
+
 def sha(data):return hashlib.sha256(data).hexdigest()
 def write(path,data):path.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
 def ingest(artifacts,output,source,run):

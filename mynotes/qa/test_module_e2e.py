@@ -164,3 +164,20 @@ class SeparateModuleE2E(unittest.TestCase):
         production=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java').read_text()
         self.assertIn('public_segmentation_probe',harness);self.assertIn('probe_elapsed_ms',harness)
         self.assertNotIn('public_segmentation_probe',production)
+    def test_public_probe_independent_scores_reject_wrong_reference_and_score(self):
+        from mynotes.tools.build_module_e2e_report import independent_public_probes
+        row={'id':'diagnostic','accuracy_target_met':False,'reference':'abc','probe_elapsed_ms':1,'public_segmentation_probe':[{'page_segmentation_mode':mode,'confidence':90,'reference':'abc','recognized':'axc','cer':1/3,'strict_wer':1.0} for mode in [3,11,6]]}
+        independent_public_probes(row)
+        row['public_segmentation_probe'][1]['cer']=0
+        with self.assertRaisesRegex(ValueError,'score mismatch'):independent_public_probes(row)
+        row['public_segmentation_probe'][1]['cer']=1/3;row['public_segmentation_probe'][1]['reference']='abd'
+        with self.assertRaisesRegex(ValueError,'reference changed'):independent_public_probes(row)
+    def test_holdout_is_frozen_and_separately_invoked(self):
+        import hashlib
+        path=ROOT/'mynotes/docs/regression/ocr-heldout-v1.json'
+        self.assertEqual('c0e2294134b54c57b1587663041b2431fcc2a773e565f4be39f378d54b21f188',hashlib.sha256(path.read_bytes()).hexdigest())
+        data=json.loads(path.read_text());self.assertEqual(32,len(data['records']));self.assertEqual(4,len(data['conditions']))
+        self.assertEqual(32,len({tuple(r['lines']) for r in data['records']}))
+        java=(ROOT/'mynotes/app/benchmarks/java/app/space/notes/ModuleCorpusBenchmark.java').read_text()
+        self.assertIn('heldOutOcrReferencesMeasureIndependentRecognition',java)
+        self.assertIn('assertEquals(128,rows.length())',java)

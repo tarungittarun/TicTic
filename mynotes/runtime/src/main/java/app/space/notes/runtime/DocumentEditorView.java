@@ -27,7 +27,7 @@ final class DocumentEditorView extends LinearLayout {
     private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight,lastViewportHeight;
     private View liftedContent;private boolean draggingContent;private int dragDirection;private long caretRevealUntil,uiGeneration;
     private final Runnable dragTick=new Runnable(){public void run(){if(dragDirection!=0 && scroll!=null && isAttachedToWindow()){scroll.scrollBy(0,dragDirection*dp(16));postDelayed(this,50);}}};
-    private String keyboardDiagnostic="idle";private Runnable keyboardStartup;
+    private boolean imeAnimationRunning;private String keyboardDiagnostic="idle";private Runnable keyboardStartup;
     private void stopKeyboardStartup(){if(keyboardStartup!=null){removeCallbacks(keyboardStartup);keyboardStartup=null;}}
     private void stopDragScroll(){dragDirection=0;removeCallbacks(dragTick);}
     @Override protected void onDetachedFromWindow(){stopKeyboardStartup();draggingContent=false;stopDragScroll();super.onDetachedFromWindow();}
@@ -41,7 +41,11 @@ final class DocumentEditorView extends LinearLayout {
     static final class BlockDrag {final String id;BlockDrag(String id){this.id=id;}}
     static final class RowDrag {final String block,item;RowDrag(String block,String item){this.block=block;this.item=item;}}
     static boolean internalDrag(DragEvent event){return event.getLocalState() instanceof BlockDrag || event.getLocalState() instanceof RowDrag;}
-    DocumentEditorView(Context context,NotesDesign design,Host host,Bundle state){super(context);this.host=host;this.design=design;this.state=state;Bundle typing=host.current().id.equals(state.getString("typingNote"))?state.getBundle("typingStyles"):null;if(typing!=null && typing.size()<=2048)for(String key:typing.keySet())try{pendingTyping.put(key,TypingStyle.decode(typing.getString(key)));}catch(IllegalArgumentException invalid){/* Discard invalid session intent, never note content. */}saveStatus=design.label("Saved · on this device",12,design.muted);setOrientation(VERTICAL);addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->post(this::adaptViewport));render();}
+    DocumentEditorView(Context context,NotesDesign design,Host host,Bundle state){super(context);this.host=host;this.design=design;this.state=state;Bundle typing=host.current().id.equals(state.getString("typingNote"))?state.getBundle("typingStyles"):null;if(typing!=null && typing.size()<=2048)for(String key:typing.keySet())try{pendingTyping.put(key,TypingStyle.decode(typing.getString(key)));}catch(IllegalArgumentException invalid){/* Discard invalid session intent, never note content. */}saveStatus=design.label("Saved · on this device",12,design.muted);setOrientation(VERTICAL);if(android.os.Build.VERSION.SDK_INT>=30)setWindowInsetsAnimationCallback(new WindowInsetsAnimation.Callback(WindowInsetsAnimation.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE){
+        public void onPrepare(WindowInsetsAnimation animation){if((animation.getTypeMask()&WindowInsets.Type.ime())!=0)imeAnimationRunning=true;}
+        public WindowInsets onProgress(WindowInsets insets,List<WindowInsetsAnimation> running){imeAnimationRunning=false;for(WindowInsetsAnimation animation:running)if((animation.getTypeMask()&WindowInsets.Type.ime())!=0)imeAnimationRunning=true;return insets;}
+        public void onEnd(WindowInsetsAnimation animation){if((animation.getTypeMask()&WindowInsets.Type.ime())!=0)imeAnimationRunning=false;}
+    });addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->post(this::adaptViewport));render();}
     private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
     private boolean readOnly(){return host.current().deletedAt>0;}
     void saveState(){Bundle typing=new Bundle();for(Map.Entry<String,TypingStyle> entry:pendingTyping.entrySet())typing.putString(entry.getKey(),entry.getValue().encode());state.putString("typingNote",host.current().id);state.putBundle("typingStyles",typing);if(selectionLocked || restoringSelection || focusTransition)return;for(Map.Entry<String,EditText> entry:fields.entrySet())if(entry.getValue().hasFocus()){state.putString("note",host.current().id);state.putString("field",entry.getKey());state.putInt("start",entry.getValue().getSelectionStart());state.putInt("end",entry.getValue().getSelectionEnd());}if(scroll!=null)state.putInt("scroll",scroll.getScrollY());}
@@ -94,11 +98,13 @@ final class DocumentEditorView extends LinearLayout {
     /** A new writing field must be served, not merely inherit the old editor's IME insets. */
     private void startWritingKeyboard(EditText focus){
         stopKeyboardStartup();keyboardDiagnostic="pending";final long generation=uiGeneration;
-        keyboardStartup=new Runnable(){int attempts,servedFrames;boolean acknowledged;
+        keyboardStartup=new Runnable(){int attempts,servedFrames,lastHeight=-1,stableLayouts;boolean acknowledged;
             public void run(){
                 if(keyboardStartup!=this)return;
-                if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || draggingContent || readOnly() || attempts++>=20){keyboardDiagnostic="cancelled: attached="+isAttachedToWindow()+" generation="+(uiGeneration==generation)+" focus="+focus.hasFocus()+" attempts="+attempts;stopKeyboardStartup();return;}
+                if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || draggingContent || readOnly() || attempts++>=20){keyboardDiagnostic="prior=["+keyboardDiagnostic+"] cancelled: attached="+isAttachedToWindow()+" generation="+(uiGeneration==generation)+" focus="+focus.hasFocus()+" attempts="+attempts;stopKeyboardStartup();return;}
                 if(!focus.hasFocus()){View actual=getRootView().findFocus();if(actual!=null && actual!=focus){keyboardDiagnostic="cancelled: another view owns focus";stopKeyboardStartup();return;}if(focus.hasWindowFocus() && focus.isShown() && focus.getWidth()>0 && focus.getHeight()>0)focus.requestFocus();}
+                int height=getRootView().getHeight();if(imeAnimationRunning || isLayoutRequested() || height!=lastHeight)stableLayouts=0;else stableLayouts++;lastHeight=height;
+                if(!acknowledged && (imeAnimationRunning || stableLayouts<2)){keyboardDiagnostic="waiting-layout: animation="+imeAnimationRunning+" stable="+stableLayouts+" attempt="+attempts;postDelayed(this,100);return;}
                 android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if(keyboard==null){stopKeyboardStartup();return;}
                 boolean visible;

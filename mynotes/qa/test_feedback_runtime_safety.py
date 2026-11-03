@@ -40,3 +40,16 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   self.assertIn('actual!=null && actual!=focus',text)
   self.assertIn('focus.isShown() && focus.getWidth()>0',text)
   self.assertIn('draggingContent || readOnly()',text)
+
+ def test_modern_home_hide_and_document_show_share_window_insets_control(self):
+  controller=(JAVA/'NotesController.java').read_text()
+  home=controller.split('private void hideEditorKeyboard()',1)[1].split('private void openWorkspace',1)[0]
+  self.assertIn('insets.hide(android.view.WindowInsets.Type.ime())',home)
+  self.assertIn('hideSoftInputFromWindow(root.getWindowToken(),0)',home)
+  self.assertIn('if(editing!=null)hideEditorKeyboard()',home)
+ def test_initial_document_ime_waits_for_animation_and_stable_layout(self):
+  text=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('DISPATCH_MODE_CONTINUE_ON_SUBTREE',text)
+  self.assertIn('imeAnimationRunning || stableLayouts<2',text)
+  self.assertIn('isLayoutRequested() || height!=lastHeight',text)
+  self.assertIn('if(!acknowledged && focus.hasFocus()',text)

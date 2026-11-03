@@ -65,3 +65,18 @@ reissues an accepted show request. A failed document readiness assertion now rec
 only generic keyboard/focus/generation/attempt state plus a synthetic screenshot;
 the same visibility/focus and settled-frame conditions remain mandatory. Further
 API36 diagnosis may still be necessary;50 is not yet runtime-qualified.
+
+## Code51 follow-up, round36
+
+50 native:1369/1370 passed; the remaining API36 repeated Notes/Doc creation
+assertion reported IME=false while field focus and window focus remained true;
+startup exhausted its bounded attempts. Home real drag now passes all profiles,
+including previously failing landscape.50 exact-byte upgrade33/35/40 and actual
+PDF/DOCX/CSV process recovery also passed. No APK recommendation is made yet.
+
+51 uses WindowInsetsController to hide on returning Home on API30+, matching the
+show path, with legacy fallback. The document observes actual IME animation and
+requires stable layout before its first show request; it still never reissues an
+accepted request. Timeout diagnostics preserve the previous observation. Original
+IME visibility/focus/settlement assertions and bounded20 attempts are unchanged.
+51 Android/native and exact-byte qualification remain pending.

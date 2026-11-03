@@ -313,8 +313,12 @@ public final class NotesController {
 
     private void captureGrid(LinearLayout panel,String[] names,String[] symbols,Runnable[] actions){Runnable[] dismissing=new Runnable[actions.length];for(int i=0;i<actions.length;i++){Runnable action=actions[i];dismissing[i]=()->{sheets.close();action.run();};}InsertPalette.grid(design,panel,names,symbols,dismissing);}
 
+    private void hideEditorKeyboard(){
+        if(android.os.Build.VERSION.SDK_INT>=30){android.view.WindowInsetsController insets=root.getWindowInsetsController();if(insets!=null){insets.hide(android.view.WindowInsets.Type.ime());return;}}
+        android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);if(keyboard!=null)keyboard.hideSoftInputFromWindow(root.getWindowToken(),0);
+    }
     private void renderHome(){
-        if(editing!=null){android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);if(keyboard!=null)keyboard.hideSoftInputFromWindow(root.getWindowToken(),0);}
+        if(editing!=null)hideEditorKeyboard();
         afterFolderSelection=null;        voicePage=false;ocrPanel=false;storagePage=false;prepared=null;editing=null;title=null;body=null;visible.clear();diagramOpen=false;clearPage();root.setPadding(dp(16),dp(4),dp(16),dp(8));
         LinearLayout top=tools(root);homeTopChrome=top;Button library=icon("Library","menu",()->{});library.setTag("library-launcher");
         TextView brand=design.heading(activeFolder!=null?(activeFolder.isEmpty()?"Main folder":activeFolder):(activeLabel.isEmpty()?(page.equals("Notes") && documentsWorkspace?"Doc":page):activeLabel));brand.setSingleLine(true);brand.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));

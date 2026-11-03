@@ -17,7 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {id: dark-landscape-ocr, night: 'yes', orientation: landscape, workload: ocr}
+          - {id: dark-landscape-voice0, night: 'yes', orientation: landscape, workload: voice0}
+          - {id: dark-landscape-voice1, night: 'yes', orientation: landscape, workload: voice1}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v8.0.2

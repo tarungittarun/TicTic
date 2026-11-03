@@ -302,8 +302,6 @@ def build_pdf(evidence, output):
             lane_report=evidence['profiles'].get(screen['lane'],{});ordered=lane_report.get('cases',[])
             expected_lane=set(ordered)|set(lane_report.get('missing',[]))
             if expected_lane:candidates=[name for name in candidates if name in expected_lane]
-            if len(candidates)>1 and all(name in ordered for name in candidates) and all('screenshot("'+screen['scene']+'"' in methods_by_name[name]['body'] for name in candidates):
-                candidates=[max(candidates,key=ordered.index)];screen['owner_association']='Last successful direct capture in exact native execution order'
             screen['owner']=candidates[0] if len(candidates)==1 else None
     selected={}
     for screen in evidence['screens']:

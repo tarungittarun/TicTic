@@ -61,7 +61,7 @@ def methods():
                 depth += (masked[end]=='{')-(masked[end]=='}'); end += 1
             body = text[start:end]; name = package+'.'+path.stem+'#'+match[1]
             actions = re.findall(r'\b(?:tap|click|dialogTap|previewOption)\("([^"\n]*)"', body)
-            scenes = re.findall(r'screenshot\("([a-z0-9-]+)"\s*[,)]', body)
+            scenes = re.findall(r'screenshot\("([a-z0-9-]+)"\s*[,)]', body)+re.findall(r'"([a-z0-9-]+)\.png"', body)
             result[name] = dict(name=name, file=str(path.relative_to(ROOT)), line=text[:start].count('\n')+1,
                                 actions=actions, scenes=scenes,
                                 assertions=len(re.findall(r'\bassert\w+\s*\(', body)), body=body)
@@ -72,7 +72,7 @@ def source_surfaces():
     result = []
     for path in sorted((ROOT/'mynotes/runtime/src/main/java').rglob('*.java')):
         text = path.read_text()
-        for match in re.finditer(r'\b(?:header|scrollContent|panel|setTitle)\("([^"\n]{1,100})"', text):
+        for match in re.finditer(r'\b(?:header|scrollContent|panel|setTitle|choiceSheet|confirmSheet|menu)\("([^"\n]{1,100})"', text):
             result.append(dict(title=match[1], file=path.name, line=text[:match.start()].count('\n')+1))
     return sorted({(x['title'],x['file'],x['line']):x for x in result}.values(),key=lambda x:(x['file'],x['line']))
 
@@ -123,6 +123,31 @@ def ingest(artifacts, output, run, source):
     return result
 
 
+def from_preserved(root,output,run,source):
+    """Use the workflow's committed JPEG previews when artifact-host access is unavailable.
+    Validate run/source and every preview hash. Never substitute an older candidate's images.
+    """
+    import os
+    metadata=json.loads((root/'provenance.json').read_text())
+    if metadata['source_sha']!=source or str(metadata.get('capture_run',metadata.get('run')))!=run:
+        raise ValueError('Preserved source/run mismatch; old images cannot qualify a new candidate')
+    evidence={'schema':1,'run':run,'source_sha':source,'scope':'source-pinned synthetic CI JPEG previews; no private user inputs','profiles':{},'screens':[]}
+    output.mkdir(parents=True,exist_ok=True)
+    for lane in PROFILES:
+        folder=root/lane;report=folder/'native-results.json'
+        evidence['profiles'][lane]=json.loads(report.read_text()) if report.is_file() else {'ok':False,'unavailable':True}
+        manifest=folder/'manifest.json'
+        if not manifest.exists():continue
+        for record in json.loads(manifest.read_text())['previews']:
+            scene=record['name']
+            if not re.fullmatch(r'[a-z0-9-]{1,60}',scene):raise ValueError('Invalid preserved scene')
+            image=folder/(scene+'.jpg')
+            if sha(image.read_bytes())!=record['sha256']:raise ValueError('Preserved image hash mismatch')
+            evidence['screens'].append(dict(scene=scene,lane=lane,path=os.path.relpath(image,output),owner=None,
+                width=record['width'],height=record['height'],sha256=record['sha256'],original_png_sha256=record['original_png_sha256']))
+    return evidence
+
+
 def case_status(name, evidence):
     passed=[];failed=[];missing=[]
     for lane,report in evidence['profiles'].items():
@@ -133,8 +158,23 @@ def case_status(name, evidence):
     return dict(status=status,passed=passed,failed=failed,missing=missing)
 
 
+def qualification_gate(evidence,names):
+    executed=set()
+    for lane in PROFILES:
+        report=evidence['profiles'].get(lane,{})
+        cases=report.get('cases',[])
+        if not report.get('ok') or report.get('passed')!=report.get('expected') or report.get('passed')!=len(cases) or len(cases)!=len(set(cases)):
+            return False
+        if any(report.get(key) for key in ['missing','unexpected','duplicates','failures']):return False
+        executed.update(cases)
+    return executed==set(names)
+
+
 def describe(scene, guide):
     if scene in guide:return guide[scene]
+    if scene.startswith('e2e-library-'):
+        destination=scene.removeprefix('e2e-library-').replace('-',' ')
+        return 'Home > Library > '+destination,'Capture the actual Library sheet immediately before opening '+destination+'. The following captured page records that destination, and Back returns to Home.','The menu capture proves a visible navigation state, not data mutation or a successful export.'
     descriptions={
       'e2e-viewed-files-count':('Library > Viewed files','Two synthetic index entries are shown with a count, typed file badges and individual open actions. No Home note is imported.','Index-only fixture: the two displayed URI records are not proof of opening two actual originals.'),
       'e2e-viewed-files-search':('Viewed files > Search Alpha','Enter a term from indexed body text. Only First.pdf should remain and the count must be one.','A matching indexed word is not proof that every word in a file was indexed.'),
@@ -164,9 +204,13 @@ def build_pdf(evidence, output):
     for line in (ROOT/'mynotes/docs/user-guide/screen-guide.tsv').read_text().splitlines():
         if line and not line.startswith('#'):
             key,route,body,boundary=line.split('|');guide[key]=(route,body,boundary)
+    for line in (ROOT/'mynotes/docs/e2e-workflow-captions.tsv').read_text().splitlines():
+        if line.strip() and not line.startswith('#'):
+            key,route,body,boundary=line.strip().split('|');guide[key]=(route,body,boundary)
     for screen in evidence['screens']:
         if not screen.get('owner'):
             candidates=[name for name,method in methods_by_name.items() if screen['scene'] in method['scenes']]
+            if screen['scene'].startswith(('e2e-page-','e2e-library-')):candidates=['app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage']
             if screen['scene'].startswith('e2e-large-txt-'):candidates=['app.space.notes.RealFolderStorageTest#largerTxtUsesLosslessPagesAndNeverCreatesAHomeNote']
             screen['owner']=candidates[0] if len(candidates)==1 else None
     selected={}
@@ -177,7 +221,7 @@ def build_pdf(evidence, output):
     passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
     failures=[f'{lane}: {failure}' for lane,data in evidence['profiles'].items() for failure in data.get('failures',[])]
     missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[])]
-    qualified=all(evidence['profiles'].get(lane,{}).get('ok') for lane in PROFILES)
+    qualified=qualification_gate(evidence,methods_by_name)
     target=output/'MyNotes-Executed-E2E-Report.pdf';c=Canvas(str(target),pagesize=(842,595),pageCompression=1,invariant=1)
     c.setTitle('MyNotes executed end-to-end workflow report');c.setAuthor('MyNotes engineering audit')
     style=ParagraphStyle('body',fontName='Audit',fontSize=10,leading=14,textColor=HexColor('#263347'))
@@ -201,13 +245,13 @@ def build_pdf(evidence, output):
         data=evidence['profiles'].get(lane,{})
         y=text(f"{lane}: {'PASS' if data.get('ok') else 'INCOMPLETE / FAIL'} · {data.get('passed',0)}/{data.get('expected','unknown')} · {len(data.get('failures',[]))} failure records · {len(data.get('missing',[]))} unexecuted/missing methods",38,y)
     text('Profiles are two disjoint method shards each: minimum API26; API34 landscape; API34 font2/night; current API36. Focused subsets are not every method on every profile. No tablet or ordinary portrait API34 execution is implied. Original PNG hashes and bounded JPEG preview hashes are retained in provenance.json.',38,y)
-    y=new('End-to-end workflow map · execution, not promises')
+    y=new('End-to-end workflow map · execution, not promises');c.bookmarkPage('workflow');c.addOutlineEntry('Workflow and expected behaviour','workflow',0)
     for index,(title,expected_text,pattern) in enumerate(GROUPS):
         matched=[name for name in statuses if re.search(pattern,name)]
         counts={state:sum(statuses[n]['status']==state for n in matched) for state in ['PASS','FAIL','UNEXECUTED']}
         if y<155:y=new('End-to-end workflow map · continued')
         y=text(title,38,y);y=text(expected_text+f"\nLinked native methods (overlapping groups): {len(matched)}; PASS {counts['PASS']}, FAIL {counts['FAIL']}, UNEXECUTED {counts['UNEXECUTED']}. Exact method/profile ledger follows.",38,y,small_text=True)
-    y=new('Open limitations and physical acceptance')
+    y=new('Open limitations and physical acceptance');c.bookmarkPage('limitations');c.addOutlineEntry('Open limits and physical acceptance','limitations',0)
     for title,detail in GAPS:
         if y<145:y=new('Open limitations and physical acceptance · continued')
         y=text(title+'\n'+detail,38,y)
@@ -216,9 +260,11 @@ def build_pdf(evidence, output):
         for item in failures+missing:
             if y<110:y=new('Failed and unexecuted checks · continued')
             y=text(item[:3000],38,y,small_text=True)
+    y=new('Illustrated traversal · screenshot index');c.bookmarkPage('screens');c.addOutlineEntry('Illustrated traversal','screens',0)
+    text('Use the PDF bookmarks to jump to each captured page. The displayed image is one named profile; all captured variants remain in the evidence manifest. Screens shown before a later method failure remain explicitly labelled with that failure.',38,y)
     # Every distinct captured page is included; variants are enumerated instead of silently omitted.
     for scene,(_,screen) in sorted(selected.items(),key=lambda item:(not item[0].startswith('e2e-'),item[0])):
-        y=new('Captured page · '+scene)
+        y=new('Captured page · '+scene);c.bookmarkPage('scene-'+scene);c.addOutlineEntry(scene,'scene-'+scene,1)
         route,purpose,boundary=describe(scene,guide);owner=screen.get('owner');status=statuses.get(owner,{'status':'OWNER UNRESOLVED'})
         variants=[x['lane'] for x in evidence['screens'] if x['scene']==scene]
         image=output/screen['path']
@@ -233,22 +279,29 @@ def build_pdf(evidence, output):
             y=text('Route: '+route,354,510,450);y=text(purpose,354,y,450)
             y=text('Expected / actual\n'+('Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+'\nOwner method outcome: '+status['status'],354,y,450)
             y=text('Boundary: '+boundary,354,y,450)
-            if owner in methods_by_name and methods_by_name[owner]['actions']:
-                y=text('Recorded source actions: '+' → '.join(methods_by_name[owner]['actions'])[:1100],354,y,450,True)
             y=text('Owner: '+str(owner)+'\nShown: '+screen['lane']+'\nCaptured profiles: '+', '.join(variants),354,y,450,True)
             text('JPEG SHA256 '+screen['sha256']+'\nOriginal PNG SHA256 '+screen['original_png_sha256'],354,min(y,100),450,True)
-    y=new('Complete native-method execution ledger')
-    text('PASS means at least one reported successful execution and no reported failure for that method; profile-specific missing outcomes remain listed. UNEXECUTED is not a failed assertion. Not every isolated parser/storage test has a visible UI page. Counts below cover all discovered methods, not only screenshot owners.',38,y)
+    y=new('Complete native-method execution ledger');c.bookmarkPage('ledger');c.addOutlineEntry('Complete native method ledger','ledger',0)
+    y=text('PASS means a successful execution with no reported failure for that method; profile-specific missing outcomes remain listed. UNEXECUTED is not a failed assertion. A parser/storage method need not have a visible UI. Abbreviations:36a/b=current API36;26a/b=minimum API26;L34a/b=landscape;F34a/b=font2/night. All exact source locations refer to the pinned source SHA on every page.',38,y)
+    aliases=dict(zip(PROFILES,['36a','36b','26a','26b','L34a','L34b','F34a','F34b']))
+    previous_class=None
     for name,method in sorted(methods_by_name.items()):
-        y=new(name.split('#')[0].split('.')[-1]+' · '+statuses[name]['status'])
         result=statuses[name];scene_names=sorted({x['scene'] for x in evidence['screens'] if x.get('owner')==name})
-        y=text(name.split('#')[-1],38,y)
-        y=text('Declared expectation: '+re.sub(r'(?<=[a-z])(?=[A-Z])',' ',name.split('#')[-1])+f". The source contains {method['assertions']} explicit assertion calls; helper assertions can add further checks.",38,y)
-        y=text('Actual: '+result['status']+'\nPassed on: '+(', '.join(result['passed']) or 'none')+'\nFailed on: '+(', '.join(result['failed']) or 'none')+'\nUnexecuted/missing on selected profiles: '+(', '.join(result['missing']) or 'none reported'),38,y)
-        y=text('Workflow actions from literal source calls:\n'+(' → '.join(method['actions']) or 'Direct domain/runtime/Android operations; see source. No ordinary UI-click route is inferred.'),38,y)
-        y=text('Associated captured pages: '+(', '.join(scene_names) or 'NO ASSOCIATED SCREENSHOT — do not infer a visited visual page from this method alone.'),38,y)
-        text('Reproducible source location: '+method['file']+':'+str(method['line'])+'\nhttps://github.com/tarungittarun/TicTic/blob/'+evidence['source_sha']+'/'+method['file']+'#L'+str(method['line']),38,y,small_text=True)
-    y=new('Literal UI-surface inventory · coverage gaps exposed')
+        class_name=name.split('#')[0].split('.')[-1]
+        value=(class_name+' · '+name.split('#')[-1]+' · '+result['status']+'\n'
+            +'Expected: '+re.sub(r'(?<=[a-z])(?=[A-Z])',' ',name.split('#')[-1])+'.\n'
+            +'Actual PASS: '+(', '.join(aliases[x] for x in result['passed']) or 'none')
+            +'; FAIL: '+(', '.join(aliases[x] for x in result['failed']) or 'none')
+            +'; missing selected: '+(', '.join(aliases[x] for x in result['missing']) or 'none reported')+'\n'
+            +'Actions: '+(' → '.join(method['actions']) or 'Direct runtime/domain/Android operations; no UI-click route inferred.')+'\n'
+            +'Captured: '+(', '.join(scene_names) or 'NO ASSOCIATED SCREENSHOT')+'\n'
+            +'Source: '+method['file']+':'+str(method['line'])+f" · {method['assertions']} direct assertion calls (plus helpers).")
+        paragraph=Paragraph(escape(value).replace('\n','<br/>'),small);_,height=paragraph.wrap(766,10000)
+        if y-height<45:y=new('Complete native-method ledger · continued')
+        if class_name!=previous_class:
+            c.bookmarkPage('class-'+class_name);c.addOutlineEntry(class_name,'class-'+class_name,1);previous_class=class_name
+        paragraph.drawOn(c,38,y-height);y-=height+16
+    y=new('Literal UI-surface inventory · coverage gaps exposed');c.bookmarkPage('surfaces');c.addOutlineEntry('Literal UI surfaces / remaining coverage gaps','surfaces',0)
     y=text('Every statically discoverable literal header / panel / dialog title is listed below. Dynamic titles and Android/external pages are outside this literal scan. A title in source is NOT evidence of traversal. Captured-scene associations are descriptive, not automatic approval.',38,y)
     for row in source_surfaces():
         if y<65:y=new('Literal UI-surface inventory · continued')
@@ -265,9 +318,10 @@ def build_pdf(evidence, output):
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--run',required=True);parser.add_argument('--source',required=True);parser.add_argument('--artifacts',type=Path);parser.add_argument('--output',required=True,type=Path);args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--run',required=True);parser.add_argument('--source',required=True);parser.add_argument('--artifacts',type=Path);parser.add_argument('--preserved',type=Path);parser.add_argument('--output',required=True,type=Path);args=parser.parse_args()
     if not args.run.isdigit() or not re.fullmatch(r'[a-f0-9]{40}',args.source):raise ValueError('Exact run/source required')
-    evidence=ingest(args.artifacts,args.output,args.run,args.source) if args.artifacts else json.loads((args.output/'provenance.json').read_text())
+    if args.artifacts and args.preserved:raise ValueError('Choose artifacts OR preserved evidence')
+    evidence=from_preserved(args.preserved,args.output,args.run,args.source) if args.preserved else ingest(args.artifacts,args.output,args.run,args.source) if args.artifacts else json.loads((args.output/'provenance.json').read_text())
     if evidence['run']!=args.run or evidence['source_sha']!=args.source:raise ValueError('Source/run mismatch')
     target,summary=build_pdf(evidence,args.output);print(target);print(json.dumps(summary,indent=2))
 

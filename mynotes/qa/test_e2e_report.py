@@ -25,3 +25,22 @@ class ExecutedE2EReport(unittest.TestCase):
         self.assertIn('e2e-settings',inventory['app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage']['scenes'])
         self.assertTrue(all(row['line']>0 for row in source_surfaces()))
         self.assertIn('Viewed files',{row['title'] for row in source_surfaces()})
+
+    def test_gate_rejects_self_reported_green_with_missing_or_duplicate_methods(self):
+        from mynotes.tools.build_e2e_report import qualification_gate,PROFILES
+        evidence={'profiles':{lane:{'ok':True,'expected':1,'passed':1,'cases':['A#m']} for lane in PROFILES}}
+        self.assertTrue(qualification_gate(evidence,{'A#m'}))
+        self.assertFalse(qualification_gate(evidence,{'A#m','A#notrun'}))
+        evidence['profiles'][PROFILES[0]]['cases']=['A#m','A#m']
+        self.assertFalse(qualification_gate(evidence,{'A#m'}))
+
+    def test_preserved_evidence_cannot_be_relabelled_as_another_source(self):
+        import tempfile,json
+        from pathlib import Path
+        from mynotes.tools.build_e2e_report import from_preserved
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'provenance.json').write_text(json.dumps({'capture_run':'1','source_sha':'a'*40}))
+            with self.assertRaisesRegex(ValueError,'mismatch'):
+                from_preserved(root,root/'out','2','a'*40)
+            with self.assertRaisesRegex(ValueError,'mismatch'):
+                from_preserved(root,root/'out','1','b'*40)

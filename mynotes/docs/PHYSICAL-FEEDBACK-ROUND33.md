@@ -48,3 +48,20 @@ never reissues either show API after acknowledgement. It retains the original
 native hide/settled-frame/screenshot assertions; no test retry or timeout increase.
 Root source-contract coverage also enforces this no-reissue boundary.48 exact-byte
 upgrade smokes passed; this does not certify49.49 native execution remains pending.
+
+## Code50 follow-up, round35
+
+48 final1370 outcomes:1365 passed,5 failed. Backups Back passed all four profiles.
+Failures:3 List screenshot keyboard-hide assertions; API36 repeated document IME;
+landscape actual Home drag.49 addresses keyboard-hide reissue. The Home diagnostic
+showed an accepted release with2 moves and unchanged order: a stationary hover can
+swap the same target back before StaggeredGrid finishes layout.50 latches that
+specific target until the dragged center leaves its original rectangle. This does
+not prohibit dragging back to the original slot or moving through other targets.
+
+50 also allows bounded startup recovery when focus becomes unowned during resize,
+but cancels if any other view owns focus or a content drag is active. It never
+reissues an accepted show request. A failed document readiness assertion now records
+only generic keyboard/focus/generation/attempt state plus a synthetic screenshot;
+the same visibility/focus and settled-frame conditions remain mandatory. Further
+API36 diagnosis may still be necessary;50 is not yet runtime-qualified.

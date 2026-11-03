@@ -28,5 +28,15 @@ class FeedbackRuntimeSafety(unittest.TestCase):
 
  def test_accepted_document_keyboard_request_never_reissues_against_a_later_hide(self):
   text=(JAVA/'DocumentEditorView.java').read_text()
-  self.assertIn('if(!acknowledged && focus.hasWindowFocus()',text)
+  self.assertIn('if(!acknowledged && focus.hasFocus() && focus.hasWindowFocus()',text)
   self.assertIn('acknowledged=keyboard.showSoftInput',text)
+
+ def test_home_hover_latches_target_until_card_center_leaves_the_original_bounds(self):
+  text=(JAVA/'NotesBoard.java').read_text()
+  for fragment in ['dragTargetBounds.contains(Math.round(cx),Math.round(cy))','!repeated && canDropOver','dragLastTarget=((Note)rows.get(to)).id','dragTargetBounds.set(b.itemView.getLeft()','dragLastTarget=null;dragTargetBounds.setEmpty()']:
+   self.assertIn(fragment,text)
+ def test_document_focus_recovery_never_steals_another_views_focus(self):
+  text=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('actual!=null && actual!=focus',text)
+  self.assertIn('focus.isShown() && focus.getWidth()>0',text)
+  self.assertIn('draggingContent || readOnly()',text)

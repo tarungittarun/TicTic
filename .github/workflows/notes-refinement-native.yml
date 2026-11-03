@@ -1,3 +1,4 @@
+# Round35: latch Home target during stationary hover to prevent reordering twice before StaggeredGrid layout settles; recover only unowned document focus during startup, never steal another field, and add fail-only IME phase capture. All prior actual gestures/assertions retained.
 # Round34: after Android accepts the document IME request, observe visibility but never issue another show against a later user/system hide. Original native List insertion/closeKeyboard/screenshot assertions retained.
 # Round33: safe header Back bypasses mutation-only tap guard; queued writes keep running. Document IME startup waits for focused current field/window and actual served visibility, bounded and cancelled on render/detach. Preserve original failing assertions, add stale callback regression.
 # Round32: Home drop targets accept selected-card center inside the target, without default far-edge overshoot; preserve pin/cancel/content/persistence/real-input checks. Fail-only drag phase capture and distinct blocked-backup Back assertion phases.
@@ -47,7 +48,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round34-${{ github.ref }}
+  group: notes-refinement-native-round35-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -79,14 +80,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.46.0-49-development.apk
-          sha256sum MyNotes-v0.46.0-49-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.46.0-49-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.47.0-50-development.apk
+          sha256sum MyNotes-v0.47.0-50-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.47.0-50-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.46.0-49-development.apk
+          path: MyNotes-v0.47.0-50-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

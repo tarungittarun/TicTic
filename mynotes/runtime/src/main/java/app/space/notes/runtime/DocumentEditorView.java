@@ -27,7 +27,7 @@ final class DocumentEditorView extends LinearLayout {
     private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight,lastViewportHeight;
     private View liftedContent;private boolean draggingContent;private int dragDirection;private long caretRevealUntil,uiGeneration;
     private final Runnable dragTick=new Runnable(){public void run(){if(dragDirection!=0 && scroll!=null && isAttachedToWindow()){scroll.scrollBy(0,dragDirection*dp(16));postDelayed(this,50);}}};
-    private Runnable keyboardStartup;
+    private String keyboardDiagnostic="idle";private Runnable keyboardStartup;
     private void stopKeyboardStartup(){if(keyboardStartup!=null){removeCallbacks(keyboardStartup);keyboardStartup=null;}}
     private void stopDragScroll(){dragDirection=0;removeCallbacks(dragTick);}
     @Override protected void onDetachedFromWindow(){stopKeyboardStartup();draggingContent=false;stopDragScroll();super.onDetachedFromWindow();}
@@ -93,19 +93,21 @@ final class DocumentEditorView extends LinearLayout {
     }
     /** A new writing field must be served, not merely inherit the old editor's IME insets. */
     private void startWritingKeyboard(EditText focus){
-        stopKeyboardStartup();final long generation=uiGeneration;
+        stopKeyboardStartup();keyboardDiagnostic="pending";final long generation=uiGeneration;
         keyboardStartup=new Runnable(){int attempts,servedFrames;boolean acknowledged;
             public void run(){
                 if(keyboardStartup!=this)return;
-                if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || !focus.hasFocus() || readOnly() || attempts++>=20){stopKeyboardStartup();return;}
+                if(!isAttachedToWindow() || uiGeneration!=generation || !fields.containsValue(focus) || !focus.isAttachedToWindow() || draggingContent || readOnly() || attempts++>=20){keyboardDiagnostic="cancelled: attached="+isAttachedToWindow()+" generation="+(uiGeneration==generation)+" focus="+focus.hasFocus()+" attempts="+attempts;stopKeyboardStartup();return;}
+                if(!focus.hasFocus()){View actual=getRootView().findFocus();if(actual!=null && actual!=focus){keyboardDiagnostic="cancelled: another view owns focus";stopKeyboardStartup();return;}if(focus.hasWindowFocus() && focus.isShown() && focus.getWidth()>0 && focus.getHeight()>0)focus.requestFocus();}
                 android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if(keyboard==null){stopKeyboardStartup();return;}
                 boolean visible;
                 if(android.os.Build.VERSION.SDK_INT>=30){WindowInsets insets=focus.getRootWindowInsets();visible=insets!=null && insets.isVisible(WindowInsets.Type.ime());}
                 else{android.graphics.Rect frame=new android.graphics.Rect();focus.getWindowVisibleDisplayFrame(frame);visible=focus.getRootView().getHeight()-frame.height()>dp(120);}
+                keyboardDiagnostic="attempt="+attempts+" accepted="+acknowledged+" visible="+visible+" active="+keyboard.isActive(focus)+" focused="+focus.hasFocus()+" window="+focus.hasWindowFocus();
                 if(acknowledged && visible && keyboard.isActive(focus)){if(++servedFrames>=2){stopKeyboardStartup();return;}}else servedFrames=0;
                 // Once Android accepts this request, observe only: never fight a later user/system hide.
-                if(!acknowledged && focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
+                if(!acknowledged && focus.hasFocus() && focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
                     if(android.os.Build.VERSION.SDK_INT>=30){WindowInsetsController controller=focus.getWindowInsetsController();if(controller!=null)controller.show(WindowInsets.Type.ime());}
                     acknowledged=keyboard.showSoftInput(focus,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
                 }

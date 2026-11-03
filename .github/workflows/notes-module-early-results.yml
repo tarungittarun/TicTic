@@ -18,6 +18,12 @@ jobs:
           run-id: 41650596888
           name: module-benchmark-light-portrait-ocr
           path: observed
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41652746046
+          name: module-profile-correction-dark-landscape-ocr
+          path: correction
       - name: Independently score completed actual data while peer jobs continue
         run: |
           python3 - <<'PY'
@@ -34,6 +40,13 @@ jobs:
           (output/'actual-light-portrait-ocr.json').write_text(json.dumps(rows,indent=2,ensure_ascii=False)+'\n')
           summary={'source_sha':'dcd3e2c3cecded90cd4d990c6850ee4437c02151','run':41650596888,'scope':'Completed384-condition light-portrait OCR audit only. Peers pending; not a whole-run or physical accuracy approval.','unique_input_hashes':len({r['input_sha256'] for r in rows}),'unique_reference_texts':len({r['reference'] for r in rows}),'groups':performance_summary(rows)}
           (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          with tarfile.open('correction/module-benchmark.tar') as bundle:
+              corrected=json.loads(bundle.extractfile('module-benchmark/ocr.json').read())['cases']
+          execution=json.loads(Path('correction/module-execution.json').read_text());assert execution['ok'] and execution['passed']==4
+          assert len(corrected)==384 and {r['id']:r['input_sha256'] for r in corrected}=={r['id']:r['input_sha256'] for r in rows}
+          for row in corrected:independent_score(row,'ocr')
+          proof={'run':'41652746046','artifact_source_run':'41650596888','artifact_source_sha':'dcd3e2c3cecded90cd4d990c6850ee4437c02151','profile':'dark-landscape','execution':execution,'measurements':corrected,'setup_correction':'Apply rotation only after HOME settles and the real Notes Activity is foreground; original orientation assertions unchanged.'}
+          (output/'actual-orientation-correction.json').write_text(json.dumps(proof,indent=2,ensure_ascii=False)+'\n')
           for row in summary['groups']:
               print('::notice title=Actual384 OCR measurements independently checked::'+json.dumps(row))
           PY

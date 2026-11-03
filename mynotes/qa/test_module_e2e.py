@@ -52,3 +52,21 @@ class SeparateModuleE2E(unittest.TestCase):
         script=(ROOT/'mynotes/tools/ci/run_module_benchmark.sh').read_text()
         self.assertIn('sys.exit(1)',script)
         self.assertIn('exit "$verification"',script)
+    def test_every_existing_native_scene_has_one_explicit_module_and_workflow_order(self):
+        from mynotes.tools.build_module_e2e_report import SCENE_ORDER,SCENE_MODULE
+        scenes=[scene for values in SCENE_ORDER.values() for scene in values]
+        self.assertEqual(len(scenes),len(set(scenes)))
+        evidence=json.loads((ROOT/'mynotes/docs/e2e/41591079488/provenance.json').read_text())
+        known={row['scene'] for row in evidence['screens'] if not row.get('proof_kind')}
+        self.assertEqual(known,set(scenes))
+        self.assertEqual('Diagrams',SCENE_MODULE['diagram'])
+        self.assertEqual('Voice inbox and transcripts',SCENE_MODULE['voice-inbox'])
+        self.assertEqual('Images and drawing',SCENE_MODULE['drawing'])
+    def test_performance_summary_uses_actual_sizes_and_durations(self):
+        from mynotes.tools.build_module_e2e_report import performance_summary
+        rows=[{'id':'unit','profile':'light-portrait','module':'voice','kind':'clean','status':'OK','reference':'one two','recognized':'one','normalized_wer':.5,'elapsed_ms':2000,'input_bytes':64044,'duration_seconds':2.0,'accuracy_target_met':False}]
+        result=performance_summary(rows)[0]
+        self.assertEqual(1.0,result['aggregate_real_time_factor'])
+        self.assertEqual(.5,result['micro_error_rate_excluding_empty_reference'])
+        self.assertEqual(64044,result['input_bytes_min'])
+        self.assertEqual(0,result['accuracy_target_passes'])

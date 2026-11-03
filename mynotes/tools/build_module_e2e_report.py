@@ -17,7 +17,11 @@ def module_for(name):
         if re.search(pattern,text):return MODULES[module]
     return MODULES[0]
 
+SCENE_ORDER=json.loads((ROOT/'mynotes/docs/module-e2e-scene-order.json').read_text())
+SCENE_MODULE={scene:module for module,scenes in SCENE_ORDER.items() for scene in scenes}
+
 def scene_module(scene,owner):
+    if scene in SCENE_MODULE:return SCENE_MODULE[scene]
     if scene.startswith(('e2e-library-','e2e-page-')):return module_for(scene)
     if scene in ['word-synthetic-paper-page']:return MODULES[6]
     if scene.startswith('reminder-'):return MODULES[10]
@@ -93,6 +97,8 @@ def ingest(artifacts,output,source,run):
                     raw=bundle.extractfile(member).read(8*1024*1024+1)
                     meta=preview(raw,images/(path.stem+'.jpg'));meta.update(scene=path.stem,profile='synthetic-input-not-UI',module=MODULES[3]);screens.append(meta)
     foundation=artifacts/'foundation'
+    for file in foundation.rglob('refinement-jvm.json'):shutil.copyfile(file,output/'executed-jvm.json')
+    for file in foundation.rglob('trained-whisper.json'):shutil.copyfile(file,output/'experimental-model-provenance.json')
     for file in foundation.rglob('manifest.json'):shutil.copyfile(file,output/'public-corpus-provenance.json')
     for file in foundation.rglob('*-COPYING.txt'):shutil.copyfile(file,output/file.name)
     expected_lanes={p+'-'+s for p in PROFILES for s in ['a','b']};expected_bench={p+'-'+s for p in PROFILES for s in ['ocr','voice0','voice1']}
@@ -109,6 +115,29 @@ def ingest(artifacts,output,source,run):
     result={'schema':1,'source':source,'run':run,'native_complete':bool(native_ok),'benchmark_complete':bool(complete),'all_accuracy_targets_met':quality_ok,'profiles':PROFILES,'native_methods':len(inventory),'native_outcomes':sum(r.get('passed',0) for r in lanes.values()),'observed_inferences':len(observations),'expected_inferences':4752,'native':lanes,'benchmark_executions':executions,'screens':screens,'model_changed':False,'training_steps':0,'physical_acceptance':False}
     write(output/'provenance.json',result);write(output/'measurements.json',observations)
     return result,observations,inventory
+
+def performance_summary(observations):
+    groups=defaultdict(list)
+    for row in observations:groups[(row['profile'],row['module'],row['kind'])].append(row)
+    result=[]
+    for (profile,module,kind),rows in sorted(groups.items()):
+        good=[r for r in rows if r['status']=='OK'];times=sorted(r['elapsed_ms'] for r in good)
+        item={'profile':profile,'module':module,'kind':kind,'observed':len(rows),'errors':len(rows)-len(good),'accuracy_target_passes':sum(bool(r.get('accuracy_target_met')) for r in rows)}
+        if times:
+            item.update(median_ms=statistics.median(times),p95_ms=times[math.ceil(.95*len(times))-1],minimum_ms=min(times),maximum_ms=max(times),total_elapsed_ms=sum(times),input_bytes_min=min(r['input_bytes'] for r in good),input_bytes_max=max(r['input_bytes'] for r in good),sampled_java_heap_max_bytes=max((r.get('heap_used_bytes',0) for r in good),default=0),sampled_native_heap_max_bytes=max((r.get('native_heap_bytes',0) for r in good),default=0))
+            key='cer' if module=='ocr' else 'normalized_wer';item['mean_'+key]=statistics.mean(r[key] for r in good)
+            # Silence is reported separately; do not dilute a corpus WER denominator.
+            total_reference=0;total_edits=0
+            for row in good:
+                ref=normalize(row['reference']) if module=='ocr' else fair(row['reference']).split();hyp=normalize(row['recognized']) if module=='ocr' else fair(row['recognized']).split()
+                if ref:total_reference+=len(ref);total_edits+=round(distance(ref,hyp)*len(ref))
+            item['micro_error_rate_excluding_empty_reference']=total_edits/total_reference if total_reference else None
+            if module=='voice':
+                seconds=sum(r['duration_seconds'] for r in good);item.update(total_audio_seconds=seconds,duration_seconds_min=min(r['duration_seconds'] for r in good),duration_seconds_max=max(r['duration_seconds'] for r in good),aggregate_real_time_factor=sum(times)/1000/seconds)
+            else:item['input_pixel_counts']=sorted({r['pixels'] for r in good})
+        result.append(item)
+    return result
+
 
 def render(data,observations,inventory,output):
     from reportlab.pdfgen.canvas import Canvas
@@ -155,7 +184,7 @@ def render(data,observations,inventory,output):
             for line in path.read_text().splitlines():
                 if line and not line.startswith('#'):
                     key,*description=line.split('|');guide[key]=tuple(description)
-        for scene,frames in sorted(scene_groups.items(),key=lambda item:(min((inventory.get(f.get('owner'),{}).get('line',99999) for f in item[1])),item[0])):
+        for scene,frames in sorted(scene_groups.items(),key=lambda item:(SCENE_ORDER.get(module,[]).index(item[0]) if item[0] in SCENE_ORDER.get(module,[]) else 99999,item[0])):
             route,purpose,boundary=describe(scene,guide)
             for orientation in ['portrait','landscape']:
                 y=new(module+' · '+scene+' · '+orientation)
@@ -185,11 +214,26 @@ def render(data,observations,inventory,output):
                 for row in sorted(samples,key=lambda r:PROFILES.index(r['profile'])):
                     score=row.get('cer') if kind=='ocr' else row.get('normalized_wer');rate=f'{score:.3f}' if isinstance(score,(float,int)) else 'UNAVAILABLE'
                     y=text(f"{row['profile']} · {row['status']} · {'CER' if kind=='ocr' else 'normalized WER'} {rate} · {row['elapsed_ms']}ms · {row.get('input_bytes')} bytes · RTF {row.get('real_time_factor','n/a')} · target {row.get('accuracy_target_met',False)}\nActual: "+row.get('recognized','')+(' · ERROR '+row['error'] if 'error' in row else ''),y,tiny=True)
+    write(output/'performance-summary.json',performance_summary(observations))
+    import csv
+    if observations:
+        keys=sorted(set().union(*(row.keys() for row in observations)))
+        with (output/'measurements.csv').open('w',newline='') as stream:
+            writer=csv.DictWriter(stream,fieldnames=keys);writer.writeheader();writer.writerows(observations)
     c.save();pdf=output/'MyNotes-Module-E2E-Report.pdf';summary={k:v for k,v in data.items() if k not in ['screens','native','benchmark_executions']};summary.update(pages=page,pdf_sha256=sha(pdf.read_bytes()),module_order=module_pages)
     write(output/'report-summary.json',summary)
     return summary
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
-    data,rows,inventory=ingest(a.artifacts,a.output,a.source,a.run);summary=render(data,rows,inventory,a.output);print(json.dumps(summary,indent=2))
+    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path);p.add_argument('--rebuild',action='store_true');p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+    if a.rebuild:
+        data=json.loads((a.output/'provenance.json').read_text());rows=json.loads((a.output/'measurements.json').read_text());inventory=methods(data['source'])
+        if data['source']!=a.source or data['run']!=a.run:raise ValueError('Rebuild cannot relabel source/run')
+        for frame in data['screens']:
+            if frame.get('lane'):frame['module']=scene_module(frame['scene'],frame.get('owner'))
+        write(a.output/'provenance.json',data)
+    else:
+        if a.artifacts is None:raise ValueError('Artifacts required for real ingestion')
+        data,rows,inventory=ingest(a.artifacts,a.output,a.source,a.run)
+    summary=render(data,rows,inventory,a.output);print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()

@@ -55,7 +55,7 @@ jobs:
       - name: Build complete actual module-ordered58 PDF with real native and corpus results
         run: |
           python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
-          python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/41670830610 --source 3fc0ea7b --run 41670830610
+          python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/41670830610 --source 3fc0ea7b49267a9f10427458452aa619fcbb101d --run 41670830610
           cp correction-provenance.json mynotes/docs/module-e2e/41670830610/
       - uses: actions/upload-artifact@v7.0.2
         if: always()

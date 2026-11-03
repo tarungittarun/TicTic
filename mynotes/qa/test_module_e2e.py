@@ -219,3 +219,9 @@ class SeparateModuleE2E(unittest.TestCase):
         pair=compare_rows(candidate,baseline);self.assertFalse(pair['regression']);self.assertTrue(pair['improvement'])
         candidate['input_sha256']='b'
         with self.assertRaisesRegex(ValueError,'fixture mismatch'):compare_rows(baseline,candidate)
+    def test_regression_final_assembler_pins_full_source_sha(self):
+        import re
+        workflow=(ROOT/'.github/workflows/notes-regression58-final.yml').read_text()
+        sources=re.findall(r'--source ([a-f0-9]+) ',workflow)
+        self.assertEqual(1,len(sources));self.assertEqual(40,len(sources[0]))
+        self.assertIn('fetch-depth: 0',workflow)

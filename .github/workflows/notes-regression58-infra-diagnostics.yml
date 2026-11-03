@@ -23,8 +23,10 @@ jobs:
               jobs=json.loads(subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{run}/jobs?per_page=100']))['jobs']
               for job in jobs:
                   if job['conclusion']!='failure':continue
-                  raw=subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/jobs/{job["id"]}/logs'],text=True)
-                  tail='\n'.join(raw.splitlines()[-80:])[-12000:]
+                  try:
+                      raw=subprocess.check_output(['gh','api',f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/jobs/{job["id"]}/logs'],text=True,stderr=subprocess.STDOUT)
+                      tail='\n'.join(raw.splitlines()[-80:])[-12000:]
+                  except Exception as error:tail='Log retrieval unavailable; do not infer a cause: '+str(error)
                   (root/f'{run}-{job["id"]}.json').write_text(json.dumps({'run':run,'job':job,'redacted_log_tail':tail,'scope':'Public synthetic CI only. Operational failure, not a new accuracy or phone outcome.'},indent=2)+'\n')
                   print('::notice title=Operational failure '+str(run)+' '+job['name']+'::'+tail[-6500:].replace('%','%25').replace('\n','%0A'))
           PY

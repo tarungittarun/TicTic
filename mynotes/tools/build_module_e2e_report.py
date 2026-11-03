@@ -105,7 +105,7 @@ def ingest(artifacts,output,source,run):
     for (p,m),count in expected_measurements.items():
         rows=[r for r in observations if r['profile']==p and r['module']==m]
         complete=complete and len(rows)==len({r['id'] for r in rows})==count and all(r['status']=='OK' for r in rows)
-    quality_ok=bool(observations) and all(r.get('accuracy_target_met') is True for r in observations)
+    quality_ok=bool(complete) and bool(observations) and all(r.get('accuracy_target_met') is True for r in observations)
     result={'schema':1,'source':source,'run':run,'native_complete':bool(native_ok),'benchmark_complete':bool(complete),'all_accuracy_targets_met':quality_ok,'profiles':PROFILES,'native_methods':len(inventory),'native_outcomes':sum(r.get('passed',0) for r in lanes.values()),'observed_inferences':len(observations),'expected_inferences':4752,'native':lanes,'benchmark_executions':executions,'screens':screens,'model_changed':False,'training_steps':0,'physical_acceptance':False}
     write(output/'provenance.json',result);write(output/'measurements.json',observations)
     return result,observations,inventory
@@ -164,7 +164,7 @@ def render(data,observations,inventory,output):
                     profile=polarity+'-'+orientation;frame=next((f for f in frames if f['profile']==profile),None);x=30+column*401
                     text(profile+(' · '+str(frame.get('owner')) if frame else ' · NO ACTUAL CAPTURE'),y,x,380,True)
                     if frame:
-                        image=output/frame['path'];assert sha(image.read_bytes())==frame['sha256'];c.drawImage(str(image),x,45,380,max(120,y-40),preserveAspectRatio=True,anchor='c')
+                        image=output/frame['path'];assert sha(image.read_bytes())==frame['sha256'];c.drawImage(str(image),x,45,380,max(80,y-90),preserveAspectRatio=True,anchor='c')
         if module in [MODULES[3],MODULES[4]]:
             kind='ocr' if module==MODULES[3] else 'voice';rows=[r for r in observations if r['module']==kind]
             y=new(module+' · measured performance summary')

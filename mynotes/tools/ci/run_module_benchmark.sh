@@ -15,6 +15,9 @@ from mynotes.tools.ci.results import android
 expected=['app.space.notes.EnvironmentQualificationTest#'+m for m in ['fontScaleMatchesRequestedLane','orientationMatchesRequestedLane','nightResourcesMatchRequestedLane']]+['app.space.notes.ModuleCorpusBenchmark#'+sys.argv[1]]
 report=android(Path('refinement-native.txt').read_text(errors='replace'),expected)
 Path('module-execution.json').write_text(json.dumps(report,indent=2)+'\n')
-if not report['ok']:print('::error title=Module corpus execution incomplete::'+json.dumps(report)[:3000])
+if not report['ok']:
+    print('::error title=Module corpus execution incomplete::'+json.dumps(report)[:3000]);sys.exit(1)
 PY
-exit "$code"
+verification=$?
+if [ "$code" -ne 0 ]; then exit "$code"; fi
+exit "$verification"

@@ -1,3 +1,4 @@
+# Round2: original CMU archive omits COPYING; require exact retained primary-source grant bound to the same archive, not an assumed license. No app assertion/model change.
 # Separate baseline evaluation: no model training, production APK publication or user uploads.
 name: MyNotes ordered module E2E and recognition performance
 on:
@@ -8,7 +9,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-round1-${{ github.ref }}
+  group: notes-module-e2e-round2-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:

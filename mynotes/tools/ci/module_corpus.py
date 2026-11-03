@@ -8,9 +8,20 @@ from mynotes.tools.ci.indian_speech_pilot import ARCHIVES,download
 VARIANTS=['clean','quarter-amplitude','snr10-uniform-seed1729','gain3-clipped']
 COUNT_PER_SPEAKER=100
 
+def retained_grant(speaker,digest):
+    # Some original CMU archives omit COPYING. Reuse the exact primary-source
+    # grant already retrieved and hash-bound to this archive in the earlier audit.
+    proof=Path(__file__).resolve().parents[2]/'docs/speech-acoustic/41393453222'
+    metadata=json.loads((proof/'data-report.json').read_text())['archives'][speaker]
+    grant=(proof/'licenses'/(speaker+'-COPYING.txt')).read_text()
+    if metadata['sha256']!=digest or metadata['license_sha256']!=hashlib.sha256(grant.encode()).hexdigest():raise ValueError('Retained primary license provenance mismatch')
+    return grant,metadata['primary_web_license_url']
+
+
 def prepare(output):
     output.mkdir(parents=True,exist_ok=True);records=[];licenses={}
     for speaker,digest in ARCHIVES.items():
+        print('Preparing checksum/license-verified public speaker '+speaker,flush=True)
         archive=output/(speaker+'.tar.bz2')
         errors=[]
         for host in ['https://festvox.org/','http://festvox.org/']:
@@ -36,11 +47,14 @@ def prepare(output):
             members=bundle.getmembers()
             if len(members)>50000:raise ValueError('Unbounded public inventory')
             suffix={m.name.removeprefix('./').split('/',1)[-1]:m for m in members if m.isfile()}
-            license_member=suffix['COPYING'];assert license_member.size<50000
-            grant=bundle.extractfile(license_member).read().decode('utf8')
+            license_member=suffix.get('COPYING')
+            if license_member is not None:
+                assert license_member.size<50000
+                grant=bundle.extractfile(license_member).read().decode('utf8');license_source='COPYING inside pinned source archive'
+            else:grant,license_source=retained_grant(speaker,digest)
             if not all(term in grant.lower() for term in ['free for use for any purpose','commercial or otherwise','modifications must be clearly marked','original authors']):raise ValueError('Explicit source permission missing')
             (output/(speaker+'-COPYING.txt')).write_text(grant)
-            licenses[speaker]={'archive_sha256':digest,'license_sha256':hashlib.sha256(grant.encode()).hexdigest(),'url':host+f'cmu_arctic/packed/cmu_us_{speaker}_arctic.tar.bz2'}
+            licenses[speaker]={'archive_sha256':digest,'license_sha256':hashlib.sha256(grant.encode()).hexdigest(),'url':host+f'cmu_arctic/packed/cmu_us_{speaker}_arctic.tar.bz2','license_source':license_source}
             text=suffix['etc/txt.done.data'];assert text.size<1000000
             prompts=dict(re.findall(r'\(\s*(arctic_[ab]\d+)\s+"(.*?)"\s*\)',bundle.extractfile(text).read().decode()))
             for i in range(21,21+COUNT_PER_SPEAKER):

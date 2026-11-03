@@ -41,3 +41,14 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertIn('audio_unchanged',java)
         self.assertIn('reference',java)
         self.assertNotIn('assumeTrue',java)
+    def test_absent_archive_copying_requires_hash_bound_primary_grant(self):
+        from mynotes.tools.ci.module_corpus import retained_grant,ARCHIVES
+        for speaker,digest in ARCHIVES.items():
+            grant,url=retained_grant(speaker,digest)
+            self.assertIn('free for use for any purpose',grant.lower())
+            self.assertIn(speaker,url)
+            with self.assertRaisesRegex(ValueError,'provenance mismatch'):retained_grant(speaker,'0'*64)
+    def test_benchmark_script_fails_on_instrumentation_outcome_failure(self):
+        script=(ROOT/'mynotes/tools/ci/run_module_benchmark.sh').read_text()
+        self.assertIn('sys.exit(1)',script)
+        self.assertIn('exit "$verification"',script)

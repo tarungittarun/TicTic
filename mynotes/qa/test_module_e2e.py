@@ -199,3 +199,15 @@ class SeparateModuleE2E(unittest.TestCase):
         self.assertIn('PSM_SINGLE_BLOCK',runtime)
         for forbidden in ['ocr-0269','ocr-0275','ocr-0294','holdout','reference_text']:
             self.assertNotIn(forbidden,recovery);self.assertNotIn(forbidden,runtime)
+    def test_regression_build_entrypoints_and_corpus_copy_are_separate_commands(self):
+        import yaml
+        full=yaml.safe_load((ROOT/'.github/workflows/notes-module-e2e.yml').read_text())
+        prepare=next(s for s in full['jobs']['build']['steps'] if s.get('name','').startswith('Prepare public'))['run']
+        self.assertEqual(2,len(prepare.strip().splitlines()))
+        self.assertTrue(prepare.strip().splitlines()[0].endswith('--output mynotes/benchmarks/assets/module-corpus'))
+        holdout=yaml.safe_load((ROOT/'.github/workflows/notes-regression59-heldout.yml').read_text())
+        compile=next(s for s in holdout['jobs']['test-build']['steps'] if s.get('name','').startswith('Compile test-only'))
+        self.assertEqual('mynotes',compile['working-directory'])
+        self.assertTrue((ROOT/compile['working-directory']/'gradlew').is_file())
+        self.assertIn('sh gradlew',compile['run'])
+        self.assertNotIn('mynotes/benchmarks',compile['run'])

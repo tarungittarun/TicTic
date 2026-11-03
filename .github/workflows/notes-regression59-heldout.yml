@@ -14,13 +14,14 @@ jobs:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-mynotes
       - name: Compile test-only live-node synchronization plus frozen corpus; production59 unchanged
+        working-directory: mynotes
         run: |
-          mkdir -p mynotes/benchmarks/assets/module-corpus
-          cp mynotes/docs/regression/ocr-heldout-v1.json mynotes/benchmarks/assets/module-corpus/
-          bash gradlew -p mynotes :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest -PmoduleE2E --no-daemon --console=plain > refinement-build.txt 2>&1
+          mkdir -p benchmarks/assets/module-corpus
+          cp docs/regression/ocr-heldout-v1.json benchmarks/assets/module-corpus/
+          sh gradlew :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest -PmoduleE2E --no-daemon --console=plain --max-workers=2 > /tmp/heldout-build.txt 2>&1
       - name: Expose compiler failures, never reinterpret them as an app pass
         if: failure()
-        run: python3 -m mynotes.tools.ci.annotate refinement-build.txt
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/heldout-build.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: regression59-heldout-test-apks

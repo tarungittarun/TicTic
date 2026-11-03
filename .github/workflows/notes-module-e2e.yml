@@ -22,7 +22,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-mynotes
       - name: Prepare public ground-truth evaluation corpus, verify original licenses and hashes
-        run: python3 -m mynotes.tools.ci.module_corpus --output mynotes/benchmarks/assets/module-corpus
+        run: |
+          python3 -m mynotes.tools.ci.module_corpus --output mynotes/benchmarks/assets/module-corpus
           cp mynotes/docs/regression/ocr-heldout-v1.json mynotes/benchmarks/assets/module-corpus/ocr-heldout-v1.json
       - name: Compile debug app/instrumentation and lint without publication
         working-directory: mynotes

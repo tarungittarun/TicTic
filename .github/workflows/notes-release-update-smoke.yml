@@ -1,6 +1,6 @@
-# Pin code48 exact already-built bytes; qualification still pending. No public release, private input, uninstall or clear-data; synthetic emulator only.
+# Pin code50 exact already-built bytes; qualification still pending. No public release, private input, uninstall or clear-data; synthetic emulator only.
 # Already-built release APKs only. Fresh synthetic emulator; no phone/private input.
-name: MyNotes release33,35 and40 to48 install-over smokes
+name: MyNotes release33,35 and40 to50 install-over smokes
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -48,8 +48,8 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41563381532
-          name: MyNotes-v0.45.0-48-development.apk
+          run-id: 41566304407
+          name: MyNotes-v0.47.0-50-development.apk
           path: candidate-apk
       - name: Verify exact raw bytes, source, manifest and common signing certificate
         env:
@@ -66,7 +66,7 @@ jobs:
           sys.excepthook=diagnostic
           from pathlib import Path
           old=json.loads(os.environ['OLD_SPEC'])
-          specs=[('old',old['artifact'],old['run'],old['source'],old['code'],old['version'],old['sha256']),('candidate',13198317853,41563381532,'1c029ad144d96f6b9ce761a725677b91b67a1710',48,'0.45.0','ce7bffd1f8973d0ea6c4c7c1fc9e55bf7b687eabc94a330fbf2bcd6080ae8dff')]
+          specs=[('old',old['artifact'],old['run'],old['source'],old['code'],old['version'],old['sha256']),('candidate',13199951493,41566304407,'7dec1796e9ea05ade7bada8878b52d9e5e4fe3af',50,'0.47.0','994eef5cdd6fa91c9fc38e7c0c02ff09935735da7ad31c56b98700e92766aa7d')]
           apks={};tools=Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
           for label,artifact,run,source,code,version,expected in specs:
               files=list(Path(label+'-apk').rglob('*.apk'));assert len(files)==1,files
@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: source-pinned-release${{ matrix.code }}-to48-update-smoke
+          name: source-pinned-release${{ matrix.code }}-to50-update-smoke
           path: |
             release-apks.json
             release-update-smoke.json
@@ -130,9 +130,9 @@ jobs:
           report=json.loads(Path('release-update-smoke.json').read_text())
           assert report['ok'] is True and report['notes_and_doc_retained'] is True
           assert report['uninstall_or_clear_data'] is False and report['release_approval'] is False
-          assert report['from']['version_code']==int(os.environ['OLD_CODE']) and report['to']['version_code']==48
+          assert report['from']['version_code']==int(os.environ['OLD_CODE']) and report['to']['version_code']==50
           assert report['from']['first_install_time']==report['to']['first_install_time']
-          root=Path('mynotes/docs/design-2026-10-29/updates')/os.environ['GITHUB_RUN_ID']/(os.environ['OLD_CODE']+'-to48');root.mkdir(parents=True,exist_ok=True)
+          root=Path('mynotes/docs/design-2026-10-29/updates')/os.environ['GITHUB_RUN_ID']/(os.environ['OLD_CODE']+'-to50');root.mkdir(parents=True,exist_ok=True)
           for name in ('release-apks.json','release-update-smoke.json'):
               source=Path(name);assert 0<source.stat().st_size<20000;shutil.copyfile(source,root/name)
           (root/'provenance.json').write_text(json.dumps({'run_id':os.environ['GITHUB_RUN_ID'],'workflow_sha':os.environ['GITHUB_SHA'],'scope':'Two public ASCII Note/Doc fixtures only. Force-stop cold restart is used here, unlike the separate actual-process probe. Not exhaustive rich-library or physical acceptance.','release_approval':False},indent=2)+'\n')
@@ -146,7 +146,7 @@ jobs:
           python3 -m unittest discover -s qa
           git diff --check
           git add "mynotes/docs/design-2026-10-29/updates/${{ github.run_id }}"
-          git commit -m 'Preserve successful exact-byte48 synthetic verification evidence, limited scope [skip ci]'
+          git commit -m 'Preserve successful exact-byte50 synthetic verification evidence, limited scope [skip ci]'
           for attempt in 1 2 3; do
             if git push origin arena/3caca636-tictic; then break; fi
             if [ "$attempt" = 3 ]; then exit 1; fi

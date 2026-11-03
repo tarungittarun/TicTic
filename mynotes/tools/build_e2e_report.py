@@ -271,7 +271,7 @@ def append_system_captures(evidence,output,supplements):
             if not 0<image.stat().st_size<=85000:raise ValueError('Unbounded system capture bytes')
             if sha(image.read_bytes())!=record['sha256']:raise ValueError('Signed-release screenshot hash mismatch')
             evidence['screens'].append({**record,'scene':scene,'lane':'reader-api34','path':os.path.relpath(image,output),
-                'owner':'SignedReleaseSystemProbe#'+scene,'probe_outcome':'PASS','proof_kind':'signed-release-system'})
+                'owner':'mynotes.tools.ci.reader_process_recovery_smoke#'+('export_public_diagnostics' if scene.startswith('reader-diagnostics-') else 'verify'),'probe_outcome':'PASS','proof_kind':'signed-release-system'})
 
 
 def build_pdf(evidence, output):
@@ -409,7 +409,7 @@ def build_pdf(evidence, output):
         else:
             c.drawImage(ImageReader(str(image)),38,55,width=292,height=465,preserveAspectRatio=True,anchor='c',mask='auto')
             y=text('Route: '+route,354,510,450);y=text(purpose,354,y,450)
-            y=text('Expected / actual\n'+('Actual signed-release Android workflow; exact-byte source identity, recovery and file-readback assertions passed.' if screen.get('proof_kind') else 'Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+'\nOwner method outcome: '+status['status'],354,y,450)
+            y=text('Expected / actual\n'+('Actual signed-release Android workflow; exact-byte source identity, recovery and file-readback assertions passed.' if screen.get('proof_kind') else 'Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+('\nSigned-release workflow outcome: ' if screen.get('proof_kind') else '\nOwner method outcome: ')+status['status'],354,y,450)
             y=text('Boundary: '+boundary,354,y,450)
             y=text('Owner: '+str(owner)+'\nShown: '+screen['lane']+'\nCaptured profiles: '+', '.join(variants)+('\nImage capture run: '+str(screen['capture_run']) if screen.get('capture_run') else ''),354,y,450,True)
             text('JPEG SHA256 '+screen['sha256']+'\nOriginal PNG SHA256 '+screen['original_png_sha256'],354,min(y,100),450,True)

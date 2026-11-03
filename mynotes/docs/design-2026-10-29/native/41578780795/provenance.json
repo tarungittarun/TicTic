@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "source_sha": "ebf4a1d2bbfa8fdcfa9d953fdf1ef9a1681ea9ad",
+  "capture_run": "41578780795",
+  "scope": "synthetic debug-host fixtures only; not user screenshots",
+  "results": {
+    "current-api36": {
+      "ok": false,
+      "expected": 212,
+      "passed": 211,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: New note IME readiness: ime=false body=WritingField[top=153 h=121 measured=121 scroll=0 visibility=0][top=0 h=1344 measured=1344 scroll=0 visibility=0]ScrollView[top=192 h=1344 measured=1344 scroll=0 visibility=0]LinearLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]LibraryGestureLayout[top=0 h=1776 measured=1776 scroll=0 visibility=0]FrameLayout[top=72 h=1776 measured=1776 scroll=0 visibility=0] focus=true attached=true focused_view=app.space.notes.runtime.NotesController$WritingField window_focus=true ime_active_for_body=true\n\tat app.space.notes.CoreJourneysTest.editorImeReady(CoreJourneysTest.java:284)\n\tat app.space.notes.CoreJourneysTest.notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn(CoreJourneysTest.java:610)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n"
+      ]
+    },
+    "current-api36-b": {
+      "ok": false,
+      "expected": 202,
+      "passed": 201,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource: status -2 java.lang.AssertionError: Read-only action must be visible\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.RealFolderStorageTest.openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource(RealFolderStorageTest.java:130)\n"
+      ]
+    },
+    "landscape-api34": {
+      "ok": false,
+      "expected": 148,
+      "passed": 146,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#bottomSearchFieldAndFiltersUseFullWidthBelowCreation: status -2 java.lang.AssertionError: Control did not settle unclipped: Browse folders shown=true target=Button[top=57 h=156 measured=156 scroll=0 visibility=0]LinearLayout[top=0 h=369 measured=369 scroll=0 visibility=0]ScrollView[top=0 h=88 measured=88 scroll=57 visibility=0][top=156 h=88 measured=88 scroll=0 visibility=0]LibraryFilterView[top=0 h=244 measured=244 scroll=0 visibility=0]LinearLayout[top=0 h=244 measured=244 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:301)\n\tat app.space.notes.CoreJourneysTest.bottomSearchFieldAndFiltersUseFullWidthBelowCreation(CoreJourneysTest.java:688)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n",
+        "app.space.notes.CoreJourneysTest#leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection: status -2 java.lang.AssertionError: Control did not settle unclipped: Select none shown=true target=Button[top=0 h=156 measured=156 scroll=0 visibility=0]LinearLayout[top=576 h=156 measured=156 scroll=0 visibility=0]LinearLayout[top=0 h=941 measured=941 scroll=0 visibility=0]ScrollView[top=0 h=88 measured=88 scroll=576 visibility=0][top=156 h=88 measured=88 scroll=0 visibility=0]LibraryFilterView[top=0 h=244 measured=244 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:301)\n\tat app.space.notes.CoreJourneysTest.leadingEdgeSwipeAndSwipeableFilterTabsKeepArbitraryLabelSelection(CoreJourneysTest.java:169)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n"
+      ]
+    },
+    "landscape-api34-b": {
+      "ok": false,
+      "expected": 138,
+      "passed": 134,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterChoiceRespondsAtFarEdgeOfWholeLabeledRow",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.CoreJourneysTest#nativeSheetsStayPopulatedAfterRepeatedNavigation",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource: status -2 java.lang.AssertionError: Read-only action must be visible\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.RealFolderStorageTest.openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource(RealFolderStorageTest.java:130)\n",
+        "app.space.notes.CoreJourneysTest#nativeSheetsStayPopulatedAfterRepeatedNavigation: status -2 java.lang.AssertionError: Control did not settle unclipped: All notes shown=true target=CheckBox[top=0 h=144 measured=144 scroll=0 visibility=0]LinearLayout[top=0 h=653 measured=653 scroll=0 visibility=0]ScrollView[top=0 h=88 measured=88 scroll=0 visibility=0][top=156 h=88 measured=88 scroll=0 visibility=0]LibraryFilterView[top=0 h=244 measured=244 scroll=0 visibility=0]LinearLayout[top=0 h=244 measured=244 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:301)\n\tat app.space.notes.CoreJourneysTest.nativeSheetsStayPopulatedAfterRepeatedNavigation(CoreJourneysTest.java:317)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n",
+        "app.space.notes.CoreJourneysTest#filterChoiceRespondsAtFarEdgeOfWholeLabeledRow: status -2 java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat app.space.notes.CoreJourneysTest.lambda$filterChoiceRespondsAtFarEdgeOfWholeLabeledRow$44$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:77)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda162.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Control did not settle unclipped: Title \u2014 A to Z shown=true target=RadioButton[top=288 h=144 measured=144 scroll=0 visibility=0]RadioGroup[top=57 h=576 measured=576 scroll=0 visibility=0]LinearLayout[top=0 h=633 measured=633 scroll=0 visibility=0]ScrollView[top=0 h=88 measured=88 scroll=345 visibility=0][top=156 h=88 measured=88 scroll=0 visibility=0]LibraryFilterView[top=0 h=244 measured=244 scroll=0 visibility=0] root_height=936 window_focus=true target_attached=true activity_finishing=false activity_destroyed=false decor_focus=true visible_frame=Rect(0, 72 - 1920, 1008)\n\tat app.space.notes.CoreJourneysTest.tap(CoreJourneysTest.java:301)\n\tat app.space.notes.CoreJourneysTest.filterSortKeepsItsShortListReadableAndApplyReachable(CoreJourneysTest.java:382)\n\t... 8 trimmed\nCaused by: java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:141)\n\t... 11 more\n"
+      ]
+    },
+    "large-font-api34": {
+      "ok": true,
+      "expected": 148,
+      "passed": 148,
+      "missing": [],
+      "failures": []
+    },
+    "large-font-api34-b": {
+      "ok": false,
+      "expected": 138,
+      "passed": 136,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource"
+      ],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource: status -2 java.lang.AssertionError: Read-only action must be visible\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.RealFolderStorageTest.openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource(RealFolderStorageTest.java:130)\n",
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Last edited \u2014 newest first must fit without a needless inner scroll expected:<220> but was:<197>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$filterSortKeepsItsShortListReadableAndApplyReachable$218$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:382)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda511.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "min-api26": {
+      "ok": true,
+      "expected": 212,
+      "passed": 212,
+      "missing": [],
+      "failures": []
+    },
+    "min-api26-b": {
+      "ok": false,
+      "expected": 202,
+      "passed": 200,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource"
+      ],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#filterSortKeepsItsShortListReadableAndApplyReachable: status -2 java.lang.AssertionError: Title \u2014 A to Z must fit without a needless inner scroll expected:<144> but was:<127>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$filterSortKeepsItsShortListReadableAndApplyReachable$218$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:382)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda511.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n",
+        "app.space.notes.RealFolderStorageTest#openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource: status -2 java.lang.AssertionError: Read-only action must be visible\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.RealFolderStorageTest.openingTxtCreatesSearchableEditableCopyAndNeverChangesSelectedSource(RealFolderStorageTest.java:130)\n"
+      ]
+    }
+  },
+  "missing_profiles": [],
+  "release_approval": false
+}

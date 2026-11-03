@@ -11,6 +11,7 @@ import io
 import json
 import re
 import shutil
+import subprocess
 import tarfile
 from xml.sax.saxutils import escape
 from mynotes.tools.ci.render_review import fixtures
@@ -50,10 +51,25 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def methods():
+def source_files(directory,source=None):
+    if source is None:
+        return [(p,p.read_text()) for p in sorted((ROOT/directory).rglob('*.java'))]
+    if not re.fullmatch(r'[a-f0-9]{40}',source):raise ValueError('Exact source SHA required')
+    names=subprocess.check_output(['git','ls-tree','-r','--name-only',source,'--',directory],cwd=ROOT,text=True).splitlines()
+    return [(ROOT/name,subprocess.check_output(['git','show',source+':'+name],cwd=ROOT,text=True)) for name in names if name.endswith('.java')]
+
+
+def version_info(source):
+    if not re.fullmatch(r'[a-f0-9]{40}',source):raise ValueError('Exact source SHA required')
+    gradle=subprocess.check_output(['git','show',source+':mynotes/app/build.gradle'],cwd=ROOT,text=True)
+    return int(re.search(r'versionCode\s+(\d+)',gradle)[1]),re.search(r"versionName\s+'([^']+)'",gradle)[1]
+
+
+def methods(source=None):
     result = {}
-    for path in sorted((ROOT/'mynotes/app/src/androidTest').rglob('*Test.java')):
-        text = path.read_text(); masked = mask_comments_and_strings(text)
+    for path,text in source_files('mynotes/app/src/androidTest',source):
+        if not path.name.endswith('Test.java'):continue
+        masked = mask_comments_and_strings(text)
         package = re.search(r'package\s+([\w.]+);', text)[1]
         for match in re.finditer(r'@Test\b[^{};]*?\bvoid\s+(\w+)\s*\([^)]*\)[^{]*\{', masked):
             start = match.end()-1; depth = 1; end = start+1
@@ -68,10 +84,9 @@ def methods():
     return result
 
 
-def source_surfaces():
+def source_surfaces(source=None):
     result = []
-    for path in sorted((ROOT/'mynotes/runtime/src/main/java').rglob('*.java')):
-        text = path.read_text()
+    for path,text in source_files('mynotes/runtime/src/main/java',source):
         for match in re.finditer(r'\b(?:header|scrollContent|panel|setTitle|choiceSheet|confirmSheet|menu)\("([^"\n]{1,100})"', text):
             result.append(dict(title=match[1], file=path.name, line=text[:match.start()].count('\n')+1))
     return sorted({(x['title'],x['file'],x['line']):x for x in result}.values(),key=lambda x:(x['file'],x['line']))
@@ -190,6 +205,21 @@ def describe(scene, guide):
     return route,'Actual captured '+plain+' state. Consult the owning workflow and assertions below for the exact route and outcome.','A captured page may precede a later failure in its owner; it is not independently declared passed.'
 
 
+def supplemental_evidence(evidence):
+    base=ROOT/'mynotes/docs/design-2026-10-29';updates=[];recoveries=[]
+    for identity in (base/'updates').glob('*/*/release-apks.json'):
+        apks=json.loads(identity.read_text());candidate=apks.get('candidate',{})
+        if candidate.get('source_sha')!=evidence['source_sha']:continue
+        report=identity.parent/'release-update-smoke.json'
+        if report.exists():updates.append({'identity':apks,'report':json.loads(report.read_text()),'path':str(report.relative_to(ROOT))})
+    for identity in (base/'process-recovery').glob('*/reader-apk-identity.json'):
+        apk=json.loads(identity.read_text())
+        if apk.get('source_sha')!=evidence['source_sha']:continue
+        report=identity.parent/'reader-process-recovery.json'
+        if report.exists():recoveries.append({'identity':apk,'report':json.loads(report.read_text()),'path':str(report.relative_to(ROOT))})
+    return {'updates':sorted(updates,key=lambda x:x['report']['from']['version_code']),'reader_recovery':recoveries}
+
+
 def build_pdf(evidence, output):
     from reportlab.pdfgen.canvas import Canvas
     from reportlab.pdfbase import pdfmetrics
@@ -200,11 +230,11 @@ def build_pdf(evidence, output):
     from reportlab.lib.utils import ImageReader
     for name,file in [('Audit','DejaVuSans.ttf'),('AuditBold','DejaVuSans-Bold.ttf')]:
         pdfmetrics.registerFont(TTFont(name,'/usr/share/fonts/truetype/dejavu/'+file))
-    methods_by_name=methods();guide={}
+    methods_by_name=methods(evidence['source_sha']);code,version=version_info(evidence['source_sha']);guide={}
     for line in (ROOT/'mynotes/docs/user-guide/screen-guide.tsv').read_text().splitlines():
         if line and not line.startswith('#'):
             key,route,body,boundary=line.split('|');guide[key]=(route,body,boundary)
-    for line in (ROOT/'mynotes/docs/e2e-workflow-captions.tsv').read_text().splitlines():
+    for line in ((ROOT/'mynotes/docs/e2e-workflow-captions.tsv').read_text().splitlines() if code>=56 else []):
         if line.strip() and not line.startswith('#'):
             key,route,body,boundary=line.strip().split('|');guide[key]=(route,body,boundary)
     for screen in evidence['screens']:
@@ -235,16 +265,46 @@ def build_pdf(evidence, output):
         if page:c.showPage()
         page+=1;c.setFillColor(HexColor('#152b46'));c.rect(0,533,842,62,fill=1,stroke=0);c.setFillColor(white);c.setFont('AuditBold',16);c.drawString(34,563,title[:88]);c.setFont('Audit',8);c.drawString(34,545,sub[:170]);c.setFillColor(HexColor('#4c596a'));c.setFont('Audit',7);c.drawString(34,18,f"Run {evidence['run']} · source {evidence['source_sha'][:12]} · synthetic emulator fixtures · page {page}");return 510
     y=new('MyNotes · executed entire-app workflow audit')
-    y=text('Candidate56 · version0.56.0 · Android builds and emulator execution in GitHub Actions only.',38,y)
+    y=text(f'Candidate{code} · version{version} · Android builds and emulator execution in GitHub Actions only.',38,y)
     y=text(('AUTOMATION GATE PASSED' if qualified else 'NOT QUALIFIED — failures / unexecuted evidence remain')+f'\n{passed}/{expected} native method outcomes reported across eight shards. {len(selected)} distinct captured scenes; {len(evidence["screens"])} profile-specific images. The appendix includes every discovered native method, including unexecuted ones.',38,y)
     y=text('This is the newly executed report requested after physical candidate55 feedback, not the old116-page usage guide. All illustrated screens are synthetic CI screenshots. No supplied personal log, phone screenshot, note text, recording or private library was uploaded.',38,y)
-    y=text('What this report can and cannot establish\nEach illustrated page includes its route, purpose, owner test result and image hash. A passing assertion is not a physical usability sign-off. The entire known source/test inventory is audited; uncovered branches, unpictured surfaces and physical/OCR/voice limits remain explicit.',38,y)
+    y=text('What this report can and cannot establish\nEach illustrated page includes its route, purpose, owner test result and image hash. A passing assertion is not a physical usability sign-off. All discovered native tests and literal UI-title declarations are audited; uncovered branches, unpictured surfaces and physical/OCR/voice limits remain explicit.',38,y)
     y=text('Source: '+evidence['source_sha']+'\nRun: https://github.com/tarungittarun/TicTic/actions/runs/'+evidence['run']+'\nReader order: result summary → workflow groups → limitations/failures → illustrated traversals → complete method ledger → literal UI-surface inventory.',38,y,small_text=True)
     y=new('Execution environment and result accounting')
     for lane in PROFILES:
         data=evidence['profiles'].get(lane,{})
         y=text(f"{lane}: {'PASS' if data.get('ok') else 'INCOMPLETE / FAIL'} · {data.get('passed',0)}/{data.get('expected','unknown')} · {len(data.get('failures',[]))} failure records · {len(data.get('missing',[]))} unexecuted/missing methods",38,y)
     text('Profiles are two disjoint method shards each: minimum API26; API34 landscape; API34 font2/night; current API36. Focused subsets are not every method on every profile. No tablet or ordinary portrait API34 execution is implied. Original PNG hashes and bounded JPEG preview hashes are retained in provenance.json.',38,y)
+    supplements=supplemental_evidence(evidence)
+    y=new('Exact-byte upgrade and actual process recovery')
+    if not supplements['updates']:y=text('No source-matching install-over report available. Earlier candidate55 proofs do not qualify this source.',38,y)
+    for item in supplements['updates']:
+        report=item['report'];apk=item['identity']['candidate']
+        y=text(f"{report['from']['version_code']} → {report['to']['version_code']}: {'PASS' if report.get('ok') else 'FAIL'} · API{report.get('api')} · Note/Doc retained={report.get('notes_and_doc_retained')} · uninstall/clear={report.get('uninstall_or_clear_data')}\nSource-matching raw APK SHA256 {apk['sha256']}",38,y,small_text=True)
+    y=text('Install-over fixtures are public synthetic Note/Doc content. They do not establish physical user-library acceptance, arbitrary rich-data migration or complete folder-recovery correctness.',38,y)
+    if not supplements['reader_recovery']:y=text('No source-matching actual process-death report available. Ordinary controller recreation is not silently substituted for an OS process kill.',38,y)
+    for item in supplements['reader_recovery']:
+        report=item['report']
+        if y<200:y=new('Actual reader process recovery · continued')
+        y=text(f"Reader process recovery: {'PASS' if report.get('ok') else 'FAIL'} · API{report.get('api')} · code{report.get('package_code')}",38,y)
+        for record in report.get('records',[]):
+            y=text(record['name']+f" · PID {record.get('before_pid')} → {record.get('after_pid')} · query restored={record.get('query_restored')} · page2={record.get('page_2_restored')} · visible row={record.get('visible_row_restored')} · original unchanged={record.get('original_unchanged')}",38,y,small_text=True)
+        y=text(report.get('scope',''),38,y,small_text=True)
+    y=new('Physical55 feedback · disposition and proof boundary')
+    feedback=[
+      ('Viewed files search / count / file icons','Search matches bounded indexed text; counts and type badges replace gear rows. See the seeded-index search/count/no-match workflow and fresh screenshots.'),
+      ('TXT controls / screen space','Permanent secondary buttons were moved to Text file options; navigation and Find stay in one compact viewer row. Real SAF tests retain lossless pages, explicit copy and unchanged originals.'),
+      ('Rearrangement / accidental Doc switch','Gesture lifetime suppresses workspace swipes even after drag cleanup; late board refreshes are deferred and target bounds follow scrolling. The actual native hold/drop test injects a late refresh. Physical top-edge precision remains open.'),
+      ('PDF / Word / sheet presentation','Redundant48dp metadata rows are removed; details remain in overflow. Existing page selection, zoom, Find, counts, sharing and original-byte tests remain selected. Word is still approximate.'),
+      ('Inserted numbered point','New Notes and Doc workflows insert a middle point and assert downstream literal renumbering, caret, formatting and saved text, including9→10 digit-width changes.'),
+      ('Voice inbox click / progress','The card now toggles existing playback and displays Preparing playback while loading; seek/pause/stop remain. Existing transport tests do not independently assert every new whole-card tap target. No physical voice-quality claim.'),
+      ('Read image misses text / false language','Sparse segmentation is always compared for bounded coverage improvement. This is not training or a demonstrated correction of the supplied image. False-script accuracy remains OPEN.'),
+      ('Optional log file saving','Diagnostics now explicitly says Save diagnostic log as a file. It uses the existing user-initiated Android create-document path; filtered saving remains. Screenshots alone are not proof of a completed real destination write.'),
+      ('Entire-app executed report','All source-pinned native outcomes and distinct captured pages are included below, with unresolved owners and unpictured surfaces explicit. Passing automation is not blanket physical sign-off.'),
+    ]
+    for title,detail in feedback:
+        if y<140:y=new('Physical55 feedback · disposition continued')
+        y=text(title+'\n'+detail,38,y)
     y=new('End-to-end workflow map · execution, not promises');c.bookmarkPage('workflow');c.addOutlineEntry('Workflow and expected behaviour','workflow',0)
     for index,(title,expected_text,pattern) in enumerate(GROUPS):
         matched=[name for name in statuses if re.search(pattern,name)]
@@ -303,15 +363,16 @@ def build_pdf(evidence, output):
         paragraph.drawOn(c,38,y-height);y-=height+16
     y=new('Literal UI-surface inventory · coverage gaps exposed');c.bookmarkPage('surfaces');c.addOutlineEntry('Literal UI surfaces / remaining coverage gaps','surfaces',0)
     y=text('Every statically discoverable literal header / panel / dialog title is listed below. Dynamic titles and Android/external pages are outside this literal scan. A title in source is NOT evidence of traversal. Captured-scene associations are descriptive, not automatic approval.',38,y)
-    for row in source_surfaces():
+    for row in source_surfaces(evidence['source_sha']):
         if y<65:y=new('Literal UI-surface inventory · continued')
         y=text(row['title']+' — '+row['file']+':'+str(row['line']),38,y,small_text=True)
     c.save()
-    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],automation_gate_ok=qualified,
+    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],version_code=code,version_name=version,automation_gate_ok=qualified,
         passed_outcomes=passed,expected_outcomes=expected,pages=page,distinct_scenes=len(selected),profile_images=len(evidence['screens']),
         native_methods=len(methods_by_name),method_status_counts={s:sum(v['status']==s for v in statuses.values()) for s in ['PASS','FAIL','UNEXECUTED']},
         pdf_sha256=sha(target.read_bytes()),private_user_data_included=False)
     (output/'report-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+    (output/'supplemental-evidence.json').write_text(json.dumps(supplements,indent=2)+'\n')
     (output/'case-ledger.json').write_text(json.dumps(statuses,indent=2)+'\n')
     (output/'provenance.json').write_text(json.dumps(evidence,indent=2)+'\n')
     return target,summary

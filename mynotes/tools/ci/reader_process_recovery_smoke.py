@@ -121,13 +121,19 @@ def capture_public(root,scene):
 
 def export_public_diagnostics(device,root):
     device.home();capture_public(root,'reader-diagnostics-home');device.click('Library');capture_public(root,'reader-diagnostics-library');reachable_click(device,'Settings');capture_public(root,'reader-diagnostics-settings');reachable_click(device,'Diagnostics');capture_public(root,'reader-diagnostics-save-page');reachable_click(device,'Save diagnostic log as a file')
-    def picker():
+    checkpoint(root,'diagnostic-create-document-picker','MyNotes-diagnostics.txt');capture_public(root,'reader-diagnostics-create-picker')
+    def picker(enabled_only=True):
         device.adb('shell','uiautomator','dump','/sdcard/notes-diagnostic-save.xml')
-        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-diagnostic-save.xml'))
+        return picker_nodes(device.adb('exec-out','cat','/sdcard/notes-diagnostic-save.xml'),enabled_only)
     def pick(label):
-        node=wait_until(lambda:next((n for n in picker() if label.casefold() in (n.get('text','').casefold(),n.get('content-desc','').casefold())),None),40)
+        try:node=wait_until(lambda:next((n for n in picker() if label.casefold() in (n.get('text','').casefold(),n.get('content-desc','').casefold())),None),40)
+        except RuntimeError as failure:
+            summary=json.dumps([{key:node.get(key,'') for key in ('text','content-desc','bounds','resource-id','enabled')} for node in picker(False) if node.get('text') or node.get('content-desc')],ensure_ascii=True)[:3500]
+            raise RuntimeError('Public diagnostic create-document target missing: '+label+'; '+summary) from failure
         device.adb('shell','input','tap',*center(node.get('bounds','')))
-    pick('Show roots');capture_public(root,'reader-diagnostics-save-roots');pick('Downloads');capture_public(root,'reader-diagnostics-save-picker');pick('Save')
+    items=picker()
+    if named(items,'Hide roots') is None:pick('Show roots')
+    capture_public(root,'reader-diagnostics-save-roots');pick('Downloads');capture_public(root,'reader-diagnostics-save-picker');pick('Save')
     device.wait(lambda items:named(items,'Collect diagnostic logs') is not None)
     def saved():
         result=subprocess.run(['adb','exec-out','cat','/sdcard/Download/MyNotes-diagnostics.txt'],capture_output=True,timeout=20)

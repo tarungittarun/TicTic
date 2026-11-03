@@ -36,7 +36,23 @@ final class NotesSheets {
   scroll.post(()->{if(current==panel){scroll.scrollTo(0,0);Diagnostics.record("sheet.layout","rows="+panel.getChildCount()+" measured_height="+panel.getMeasuredHeight()+" viewport_height="+scroll.getHeight());}});
   surface.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
  }
- private void resize(){if(shell.getHeight()<=0)return;FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)surface.getLayoutParams();int height=Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*.72f)));if(current!=null){int width=Math.max(1,Math.min(shell.getWidth(),lp.width)-surface.getPaddingLeft()-surface.getPaddingRight());int w=View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),h=View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);current.measure(w,h);View heading=surface.getChildAt(0);heading.measure(w,h);int footerHeight=0;if(currentFooter!=null){currentFooter.measure(w,h);footerHeight=currentFooter.getMeasuredHeight();}height=Math.max(design.dp(112),Math.min(height,current.getMeasuredHeight()+heading.getMeasuredHeight()+footerHeight+surface.getPaddingTop()+surface.getPaddingBottom()));}if(lp.height!=height){lp.height=height;surface.setLayoutParams(lp);}}
+ private void resize(){
+  if(shell.getHeight()<=0)return;FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)surface.getLayoutParams();
+  boolean filter=current!=null && current.getChildCount()==1 && current.getChildAt(0) instanceof LibraryFilterView;
+  int cap=filter?Math.max(1,shell.getHeight()/2):Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*.72f)));
+  int height=cap;
+  if(current!=null){
+   int width=Math.max(1,Math.min(shell.getWidth(),lp.width)-surface.getPaddingLeft()-surface.getPaddingRight());
+   int w=View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),h=View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
+   View heading=surface.getChildAt(0);heading.measure(w,h);int footerHeight=0;if(currentFooter!=null){currentFooter.measure(w,h);footerHeight=currentFooter.getMeasuredHeight();}
+   int chrome=heading.getMeasuredHeight()+footerHeight+surface.getPaddingTop()+surface.getPaddingBottom();
+   if(filter)((LibraryFilterView)current.getChildAt(0)).fitHeight(Math.max(1,cap-chrome),width);
+   current.measure(w,h);height=Math.min(cap,current.getMeasuredHeight()+chrome);
+   if(!filter)height=Math.max(design.dp(112),height);
+  }
+  if(lp.height!=height){lp.height=height;surface.setLayoutParams(lp);}
+ }
+
  void refresh(){resize();}
  boolean close(){if(overlay.getVisibility()!=View.VISIBLE)return false;surface.animate().cancel();surface.setAlpha(1);surface.setTranslationY(0);overlay.setVisibility(View.GONE);shell.getChildAt(0).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);if(current!=null){if(current.getParent()!=null)((ViewGroup)current.getParent()).removeView(current);current.setVisibility(View.GONE);if(current.getTag()==null){panels.remove(current);footers.remove(current);}else parking.addView(current,new LinearLayout.LayoutParams(-1,-2));}if(currentFooter!=null){surface.removeView(currentFooter);currentFooter=null;}current=null;return true;}
  void reset(){close();scroll.removeAllViews();parking.removeAllViews();panels.clear();footers.clear();current=null;}

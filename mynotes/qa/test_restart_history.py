@@ -18,7 +18,7 @@ class RestartHistoryContracts(unittest.TestCase):
    self.assertNotIn(token,s)
  def test_controller_preserves_notes_before_optional_history_and_bounds_memory(self):
   s=(JAVA/'NotesController.java').read_text()
-  self.assertLess(s.index('repository.save(snapshot);if(historyStore'),s.index('historyStore.save(historySnapshot)'))
+  self.assertLess(s.index('repository.save(snapshot)'),s.index('historyStore.save(historySnapshot)'))
   for token in ['trimSavedHistories()','retainedCharacterCount()','MAX_CHARACTERS','historyStepping','historyFor(before.id).align(before,target,redo)','savedHistories.keySet().removeIf(id->find(id)==null)']:
    self.assertIn(token,s)
  def test_search_has_accessible_fallback_and_cancelled_holds(self):

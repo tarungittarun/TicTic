@@ -717,4 +717,20 @@ public class CoreJourneysTest {
         start(Arrays.asList(note("Visible note")));main(()->{android.graphics.Rect create=new android.graphics.Rect(),voice=new android.graphics.Rect(),find=new android.graphics.Rect();assertTrue(text("New text note").getGlobalVisibleRect(create));assertTrue(text("Record voice").getGlobalVisibleRect(voice));assertTrue(input("Search all content & settings").getGlobalVisibleRect(find));assertTrue("New belongs above the bottom row",create.bottom<=voice.top);assertTrue("Search follows the microphone",find.left>=voice.right);});main(()->{EditText query=input("Search all content & settings");query.requestFocus();query.setText("Visible");((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(query,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});await(this::keyboardVisibleForTest);main(()->{android.graphics.Rect bounds=new android.graphics.Rect();EditText query=input("Search all content & settings");assertTrue(query.isShown());assertTrue(query.getGlobalVisibleRect(bounds));assertTrue(bounds.height()>=query.getLineHeight());assertEquals("Visible",query.getText().toString());});closeKeyboard();
     }
     @Test public void summaryNeedsExplicitSaveAndNeverChangesItsSource()throws Exception{Note source=note("Summary source").edit("Summary source","The budget review is on Monday. Bring the budget figures. Confirm travel arrangements separately.",3);start(Arrays.asList(source));main(()->controller.openNote(source.id));tap("More actions");tap("Quick summary");awaitDialogText("Quick summary · on device");assertTrue(app.space.notes.domain.NoteMerge.same(source,new NotesRepository(context).load().get(0)));dialogTap("Close");assertEquals(1,new NotesRepository(context).load().size());}
+    @Test public void archiveAndTrashEachExposeBackToHomeWithoutLibraryNotesEntry()throws Exception{
+        start(Arrays.asList(note("Keep on Home")));
+        for(String section:new String[]{"Archive","Trash"}){
+            tap("Library");tap(section);await(()->text("Back")!=null && text("Back").isShown());tap("Back");await(()->card(controller.view(),"Keep on Home")!=null);
+        }
+        assertEquals(1,new NotesRepository(context).localSnapshot().size());
+    }
+    @Test public void filterSheetHeightStaysConstantAcrossEveryTabAndWithinBottomHalf()throws Exception{
+        List<String> labels=new ArrayList<>();for(int i=0;i<20;i++)labels.add("Label "+i);
+        start(Arrays.asList(note("Stable filters").properties(0,labels,3)));tap("Filters");final int[] height={0};
+        for(String tab:new String[]{"View","Sort","Labels","Folders","View"}){
+            click(tab);instrumentation.waitForIdleSync();main(()->{View panel=text("Close tools");assertNotNull(panel);View sheet=(View)panel.getParent().getParent();assertTrue(sheet.getHeight()>0);assertTrue("Filter/view never grows beyond the bottom half",sheet.getHeight()<=controller.view().getHeight()/2);if(height[0]==0)height[0]=sheet.getHeight();else assertEquals("Changing tabs must not change the sheet height",height[0],sheet.getHeight());});
+        }
+        tap("Close tools");
+    }
+
 }

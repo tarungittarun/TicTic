@@ -28,6 +28,15 @@ public final class NotesRepository {
     private final long epoch;
     private volatile String selected;
     private String head;
+    private long retryFolderAfter;private Exception pendingFolderFailure;
+    /** Indicates a VERIFIED private save, not a complete selected-folder save. */
+    public static final class FolderCopyPendingException extends IOException {
+        FolderCopyPendingException(Exception cause){super("Saved on this phone; folder copy pending. Review Storage & recovery before uninstalling.",cause.getCause() instanceof OutOfMemoryError?cause.getCause():cause);}
+    }
+    /** Serial-worker only; an explicit retry bypasses provider backoff, never the head fence. */
+    public void retryFolderSave(){retryFolderAfter=0;pendingFolderFailure=null;}
+    private static String storedHead(JSONObject local){return local.isNull("folderHead")?null:local.optString("folderHead",null);}
+
     private volatile String status="Device storage";
     public NotesRepository(Context context) { this(context,null); }
     /** Injected backend makes repository transactions testable without pretending to test SAF. */
@@ -39,6 +48,8 @@ public final class NotesRepository {
         if(!dir.isDirectory() && !dir.mkdirs() && !dir.isDirectory())throw new IllegalStateException("Cannot create Notes directory");
         file=new AtomicFile(new File(dir,"library-v1.json"));
     }
+    /** UI-only repair entry point; never log this URI. */
+    public Uri selectedFolder(){return selected==null?null:Uri.parse(selected);}
     public boolean appOnlyStorage(){return selected==null;}
     public List<String> listPrivateFolders(List<Note> notes)throws IOException{
 
@@ -91,7 +102,7 @@ public final class NotesRepository {
         if(!exists())return load();
         try{
             byte[] bytes=atomicRead(file);JSONObject local=new JSONObject(app.space.notes.domain.JsonLimits.text(bytes));
-            List<Note> notes=DocumentCodec.decode(bytes);head=local.optString("folderHead",null);
+            List<Note> notes=DocumentCodec.decode(bytes);head=storedHead(local);
             status=selected==null?"Device storage":"Private copy opened · folder checked on save";
             return notes;
         }catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to verify saved notes safely; existing files were not replaced",pressure);}
@@ -102,7 +113,7 @@ public final class NotesRepository {
         byte[] cached=local==null?null:local.toString().getBytes(StandardCharsets.UTF_8);
         List<Note> privateNotes=cached==null?null:DocumentCodec.decode(cached); // Never silently initialise over corrupt local data.
         if(selected==null) {status="Device storage";List<Note> notes=privateNotes==null?new ArrayList<>():privateNotes;updateSurfaces(notes);return notes;}
-        head=local==null?null:local.optString("folderHead",null);
+        head=local==null?null:storedHead(local);
         boolean pending=local!=null && local.optBoolean("pending",false);
         try {
             GenerationProtocol.Snapshot external=protocol(selected).read();
@@ -129,10 +140,17 @@ public final class NotesRepository {
         byte[] payload=DocumentCodec.encode(notes);
         if(selected==null) {writeLocal(payload,false,null);status="Device storage";return;}
         writeLocal(payload,true,head); // Durable local recovery BEFORE trying the external destination.
+        if(pendingFolderFailure!=null && System.nanoTime()<retryFolderAfter)throw new FolderCopyPendingException(pendingFolderFailure);
         try {
             GenerationProtocol.Snapshot saved=protocol(selected).commit(payload,head);
-            head=saved.head;materializeFolders(notes);writeLocal(payload,false,head); status="Selected local folder";
-        } catch(Exception e) {writeLocal(payload,true,head);status="Saved to private recovery · folder update pending";throw e;}
+            head=saved.head;materializeFolders(notes);writeLocal(payload,false,head);retryFolderSave();status="Selected local folder";
+        } catch(Exception e) {
+            // Verify the latest private recovery copy even if folder materialization failed after commit.
+            // Never replace expected head with an unreviewed external head.
+            writeLocal(payload,true,head);pendingFolderFailure=e;retryFolderAfter=System.nanoTime()+60_000_000_000L;
+            status="Saved on this phone · folder copy pending · review Storage & recovery";
+            throw new FolderCopyPendingException(e);
+        }
     }
     public void selectFolder(Uri uri,List<Note> notes) throws Exception {
         String target=uri.toString();
@@ -145,7 +163,7 @@ public final class NotesRepository {
         if(folderAccess==null){AppFolder appFolder=new AppFolder(context,uri);LocalNotebookFolders portable=new LocalNotebookFolders(context.getContentResolver(),uri,appFolder.content());for(String name:listFolders(notes))if(!portable.list().contains(name))portable.create(name);portable.reconcile(notes);}
         // Destination verified first. Source generations are never deleted automatically.
         if(!settings.edit().putString("tree",target).commit())throw new IOException("Could not store folder selection; previous destination retained");
-        selected=target;head=saved.head;
+        selected=target;head=saved.head;retryFolderSave();
         writeLocal(payload,false,head);status="Selected local folder";
     }
     public GenerationProtocol.Snapshot inspectFolder(Uri uri) throws Exception {
@@ -201,7 +219,7 @@ public final class NotesRepository {
         GenerationProtocol.Snapshot committed=protocol(target).commit(payload,expected);
         if(!settings.edit().putString("tree",target).commit())
             throw new IOException("Destination verified, but selection could not be stored. Current library retained; target history also retained.");
-        selected=target;head=committed.head;
+        selected=target;head=committed.head;retryFolderSave();
         try {writeLocal(payload,true,head);try{materializeFolders(merged);}catch(Exception pendingFiles){status="Opened folder · note files sync pending";return;}writeLocal(payload,false,head);status="Opened existing local library";}
         catch(Exception localFailure) {
             // Target and selection are already durable. Do not let stale UI state overwrite them.
@@ -211,7 +229,7 @@ public final class NotesRepository {
     public void usePrivate(List<Note> notes) throws Exception {
         writeLocal(DocumentCodec.encode(notes),false,null);
         if(!settings.edit().remove("tree").commit())throw new IOException("Could not change storage setting");
-        selected=null;head=null;status="Device storage · previous folder retained";
+        selected=null;head=null;retryFolderSave();status="Device storage · previous folder retained";
     }
     private void writeLocal(byte[] payload,boolean pending,String folderHead) throws Exception {
         JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(payload));

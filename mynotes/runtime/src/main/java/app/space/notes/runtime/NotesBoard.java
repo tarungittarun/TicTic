@@ -21,6 +21,7 @@ public final class NotesBoard extends RecyclerView {
     public static int colour(int index,boolean dark){return Color.parseColor((dark?DARK:LIGHT)[index]);}
     private final List<Object> rows=new ArrayList<>();private final Set<String> selection=new HashSet<>();
     private final NotesDesign design;private final boolean dark;private final Listener listener;private final BoardAdapter adapter=new BoardAdapter();
+    private long dragEpoch,dataEpoch;
     private String dragLastTarget;private final android.graphics.Rect dragTargetBounds=new android.graphics.Rect();private String dragDiagnostic="idle";private int dragMoves;private ItemTouchHelper dragHelper;private List<Object> dragBefore;private boolean dragging,dropAccepted;private Note dragSource;
     public NotesBoard(Context c,boolean dark,Listener listener,boolean grid){
         this(c,new NotesDesign(c,dark),listener,grid);
@@ -34,10 +35,26 @@ public final class NotesBoard extends RecyclerView {
             @Override public ViewHolder chooseDropTarget(ViewHolder selected,List<ViewHolder> candidates,int x,int y){float cx=x+selected.itemView.getWidth()/2f,cy=y+selected.itemView.getHeight()/2f;if(dragLastTarget!=null && !dragTargetBounds.contains(Math.round(cx),Math.round(cy)))dragLastTarget=null;ViewHolder best=null;double distance=Double.MAX_VALUE;for(ViewHolder candidate:candidates){View v=candidate.itemView;int position=candidate.getBindingAdapterPosition();boolean repeated=position>=0 && position<rows.size() && rows.get(position) instanceof Note && ((Note)rows.get(position)).id.equals(dragLastTarget);if(!repeated && canDropOver(NotesBoard.this,selected,candidate) && cx>=v.getLeft() && cx<=v.getRight() && cy>=v.getTop() && cy<=v.getBottom()){double d=Math.hypot(cx-(v.getLeft()+v.getRight())/2f,cy-(v.getTop()+v.getBottom())/2f);if(d<distance){distance=d;best=candidate;}}}return best;}
             @Override public boolean onMove(RecyclerView r,ViewHolder a,ViewHolder b){if(!canDropOver(r,a,b))return false;int from=a.getBindingAdapterPosition(),to=b.getBindingAdapterPosition();dragLastTarget=((Note)rows.get(to)).id;dragTargetBounds.set(b.itemView.getLeft(),b.itemView.getTop(),b.itemView.getRight(),b.itemView.getBottom());Object item=rows.remove(from);rows.add(to,item);dragMoves++;adapter.notifyItemMoved(from,to);return true;}
             @Override public void onSwiped(ViewHolder h,int direction){}
-            @Override public void onSelectedChanged(ViewHolder h,int state){if(state==ItemTouchHelper.ACTION_STATE_DRAG){dragMoves=0;dragLastTarget=null;dragTargetBounds.setEmpty();dragDiagnostic="dragging";dragBefore=new ArrayList<>(rows);int source=h==null?-1:h.getBindingAdapterPosition();dragSource=source>=0 && rows.get(source) instanceof Note?(Note)rows.get(source):null;dragging=true;dropAccepted=false;}super.onSelectedChanged(h,state);}
-            @Override public void clearView(RecyclerView r,ViewHolder h){super.clearView(r,h);if(dragBefore==null)return;List<Object> before=dragBefore;dragBefore=null;dragging=false;dragLastTarget=null;dragTargetBounds.setEmpty();dragDiagnostic="released: accepted="+dropAccepted+" moves="+dragMoves+" enabled="+listener.canReorder();if(!dropAccepted || !listener.canReorder()){rows.clear();rows.addAll(before);adapter.notifyDataSetChanged();return;}List<String> ids=new ArrayList<>();for(Object row:rows)if(row instanceof Note)ids.add(((Note)row).id);if(!rows.equals(before))listener.reorder(ids);else if(dragSource!=null)listener.select(dragSource);dragSource=null;}
+            @Override public void onSelectedChanged(ViewHolder h,int state){if(state==ItemTouchHelper.ACTION_STATE_DRAG){dragEpoch++;dragMoves=0;dragLastTarget=null;dragTargetBounds.setEmpty();dragDiagnostic="dragging";dragBefore=new ArrayList<>(rows);int source=h==null?-1:h.getBindingAdapterPosition();dragSource=source>=0 && rows.get(source) instanceof Note?(Note)rows.get(source):null;dragging=true;dropAccepted=false;}super.onSelectedChanged(h,state);}
+            @Override public void clearView(RecyclerView r,ViewHolder h){
+                super.clearView(r,h);if(dragBefore==null)return;
+                final List<Object> before=dragBefore;final boolean accepted=dropAccepted;
+                final Note source=dragSource;final long gesture=dragEpoch,data=dataEpoch;
+                dragBefore=null;dragSource=null;dragging=false;dragLastTarget=null;dragTargetBounds.setEmpty();
+                dragDiagnostic="released: accepted="+accepted+" moves="+dragMoves+" enabled="+listener.canReorder();
+                // ItemTouchHelper also calls clearView from child detach DURING layout/autoscroll.
+                // Neither adapter invalidation nor a host reorder/selection may run in that pass.
+                post(new Runnable(){public void run(){
+                    if(gesture!=dragEpoch || data!=dataEpoch)return;
+                    if(isComputingLayout()){postOnAnimation(this);return;}
+                    if(!accepted || !listener.canReorder()){rows.clear();rows.addAll(before);adapter.notifyDataSetChanged();return;}
+                    List<String> ids=new ArrayList<>();for(Object row:rows)if(row instanceof Note)ids.add(((Note)row).id);
+                    if(!rows.equals(before))listener.reorder(ids);else if(source!=null)listener.select(source);
+                }});
+            }
         });dragHelper.attachToRecyclerView(this);
     }
+    @Override protected void onDetachedFromWindow(){dragEpoch++;super.onDetachedFromWindow();dragEpoch++;}
     @Override public boolean dispatchTouchEvent(MotionEvent event){if(dragging && (event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL))dropAccepted=event.getActionMasked()==MotionEvent.ACTION_UP;return super.dispatchTouchEvent(event);}
     private float swipeX,swipeY;private boolean workspaceSwipe;
     @Override public boolean onInterceptTouchEvent(MotionEvent e){
@@ -56,7 +73,7 @@ public final class NotesBoard extends RecyclerView {
             if(sections && !note.pinned && !others){if(pinned)rows.add("Others");others=true;}
             rows.add(note);
         }
-        if(rows.equals(previous)){for(int i=0;i<rows.size();i++)if(rows.get(i) instanceof Note){String id=((Note)rows.get(i)).id;if(oldSelection.contains(id)!=selection.contains(id))adapter.notifyItemChanged(i,"selection");}}else adapter.notifyDataSetChanged();
+        if(rows.equals(previous)){for(int i=0;i<rows.size();i++)if(rows.get(i) instanceof Note){String id=((Note)rows.get(i)).id;if(oldSelection.contains(id)!=selection.contains(id))adapter.notifyItemChanged(i,"selection");}}else {dataEpoch++;adapter.notifyDataSetChanged();}
     }
     private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
     private TextView label(int size){TextView v=new TextView(getContext());v.setTextSize(size);return v;}

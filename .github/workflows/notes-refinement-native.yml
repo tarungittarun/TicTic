@@ -1,3 +1,4 @@
+# Round38: code52 physical crash/storage/UI feedback. Defer layout-time drag completion; verify private saves separately from pending folder copies; reviewed selected-folder merge, bounded paged TXT and read-only default, stable half-screen filters, Back/diagram/rename/native-selection fixes. Every prior assertion retained; new regression journeys added.
 # Round37: scope IME resize/animation settling to one-time new-document handoff, not ordinary inserted fields. Keep insertion keyboard requests immediate so a following explicit hide is not overridden by a delayed first show. No native assertion changed.
 # Round36: API36 Notes/Doc handoff uses the same insets controller to hide/show; defer initial document IME request until resize/IME animation settles. Retain no-reissue, lifecycle bounds and every original visibility assertion.
 # Round35: latch Home target during stationary hover to prevent reordering twice before StaggeredGrid layout settles; recover only unowned document focus during startup, never steal another field, and add fail-only IME phase capture. All prior actual gestures/assertions retained.
@@ -50,7 +51,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round37-${{ github.ref }}
+  group: notes-refinement-native-round38-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -82,14 +83,14 @@ jobs:
       - name: Prepare clearly named installable development APK
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.49.0-52-development.apk
-          sha256sum MyNotes-v0.49.0-52-development.apk | tee notes-development-sha256.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.49.0-52-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.50.0-53-development.apk
+          sha256sum MyNotes-v0.50.0-53-development.apk | tee notes-development-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.50.0-53-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
       - name: Upload APK directly without ZIP wrapping (not a public Release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.49.0-52-development.apk
+          path: MyNotes-v0.50.0-53-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

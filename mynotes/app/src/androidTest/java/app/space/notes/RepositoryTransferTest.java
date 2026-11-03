@@ -29,9 +29,9 @@ public class RepositoryTransferTest {
     private File fixture;private Context context;
     private final Uri uri=Uri.parse("content://com.android.externalstorage.documents/tree/primary%3ARestore");
     private static final class Memory implements GenerationProtocol.Backend {
-        final Map<String,byte[]> files=new HashMap<>();boolean unavailable,memoryFailure;
+        final Map<String,byte[]> files=new HashMap<>();boolean unavailable,memoryFailure;int reads;
         public Map<String,byte[]> readAll() throws Exception {
-            if(memoryFailure)throw new OutOfMemoryError("synthetic backend pressure");if(unavailable)throw new IOException("revoked");return new HashMap<>(files);
+            reads++;if(memoryFailure)throw new OutOfMemoryError("synthetic backend pressure");if(unavailable)throw new IOException("revoked");return new HashMap<>(files);
         }
         public void create(String name,byte[] bytes) {files.put(name,bytes);}
     }
@@ -123,4 +123,26 @@ public class RepositoryTransferTest {
     }
 
     @Test public void destinationMemoryPressureDoesNotKillWriterOrLosePrivateUndoResult()throws Exception{NotesRepository repository=repo();Note before=n("memory","Before");repository.save(Arrays.asList(before));repository.selectFolder(uri,Arrays.asList(before));backend.memoryFailure=true;Note after=before.edit("title","Undo result stays private",3);try{repository.save(Arrays.asList(after));fail("Report memory pressure, never acknowledge the folder copy");}catch(IOException expected){assertTrue(expected.getCause() instanceof OutOfMemoryError);}assertEquals("Undo result stays private",repo().localSnapshot().get(0).body);backend.memoryFailure=false;}
+    @Test public void repeatedPendingFolderSavesVerifyNewestPrivateCopyWithoutHammeringProvider()throws Exception{
+        NotesRepository repository=repo();Note original=n("private-latest","before");repository.save(Arrays.asList(original));repository.selectFolder(uri,Arrays.asList(original));backend.unavailable=true;
+        org.junit.Assert.assertThrows(NotesRepository.FolderCopyPendingException.class,()->repository.save(Arrays.asList(original.edit("title","first private",3))));int calls=backend.reads;
+        Note latest=original.edit("title","latest private ಕನ್ನಡ 😀",4);org.junit.Assert.assertThrows(NotesRepository.FolderCopyPendingException.class,()->repository.save(Arrays.asList(latest)));
+        assertEquals("No provider retry for each keystroke",calls,backend.reads);assertEquals(latest.body,repo().localSnapshot().get(0).body);
+        backend.unavailable=false;repository.retryFolderSave();repository.save(Arrays.asList(latest));assertEquals(latest.body,DocumentCodec.decode(new GenerationProtocol(backend).read().payload).get(0).body);
+    }
+    @Test public void reviewedSelectedFolderMergePreservesBothVersionsAndCanSaveAgain()throws Exception{
+        NotesRepository repository=repo();Note original=n("conflict","original");repository.save(Arrays.asList(original));repository.selectFolder(uri,Arrays.asList(original));GenerationProtocol external=new GenerationProtocol(backend);
+        Note theirs=original.edit("title","external version",4),mine=original.edit("title","my private version",5);external.commit(DocumentCodec.encode(Arrays.asList(theirs)),external.read().head);
+        org.junit.Assert.assertThrows(NotesRepository.FolderCopyPendingException.class,()->repository.save(Arrays.asList(mine)));
+        GenerationProtocol.Snapshot preview=repository.inspectFolder(repository.selectedFolder());List<Note> merged=NoteMerge.preview(Arrays.asList(mine),DocumentCodec.decode(preview.payload)).notes;
+        assertEquals(2,merged.size());assertEquals(mine.body,repository.localSnapshot().get(0).body);assertEquals(theirs.body,DocumentCodec.decode(external.read().payload).get(0).body);
+        repository.openExisting(uri,preview.head,Arrays.asList(mine),merged);assertEquals(mine.body,repository.previousSnapshot().get(0).body);assertEquals(2,repository.localSnapshot().size());repository.save(merged);assertEquals(2,DocumentCodec.decode(external.read().payload).size());
+        assertTrue(merged.stream().anyMatch(note->note.body.equals(mine.body)));assertTrue(merged.stream().anyMatch(note->note.body.equals(theirs.body)));
+    }
+    @Test public void jsonNullStoredHeadNeverBecomesLiteralNullAfterStartup()throws Exception{
+        Note original=n("null-head","keep");repo().save(Arrays.asList(original));context.getSharedPreferences("mynotes-storage-v1",0).edit().putString("tree",uri.toString()).commit();NotesRepository reopened=repo();reopened.loadForStartup();
+        // Empty injected destination accepts only Java null, never the JSON string "null".
+        reopened.save(Arrays.asList(original));assertEquals(original.body,DocumentCodec.decode(new GenerationProtocol(backend).read().payload).get(0).body);
+    }
+
 }

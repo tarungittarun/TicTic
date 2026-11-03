@@ -23,7 +23,7 @@ public final class DiagramRenderer {
         for(Diagram.Node node:diagram.nodes){
             boolean highlighted=node.id.equals(selected) || (selectedNode!=null && !selectedNode.group.isEmpty() && selectedNode.group.equals(node.group));
             RectF r=new RectF(node.x,node.y,node.x+node.width,node.y+node.height);Path path=shape(node,r);
-            if(!node.shape.equals("text")){paint.setStyle(Paint.Style.FILL);paint.setColor(node.color==0 && design!=null?design.surface:NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
+            if(!node.shape.equals("text") && node.color!=0){paint.setStyle(Paint.Style.FILL);paint.setColor(node.color==0 && design!=null?design.surface:NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
             paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?(design==null?Color.parseColor("#B17400"):design.accent):ink);paint.setStrokeWidth(highlighted?6:3);
             if(!node.shape.equals("text") || highlighted)canvas.drawPath(path,paint);
             details(canvas,node,r,paint);

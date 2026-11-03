@@ -181,3 +181,12 @@ class SeparateModuleE2E(unittest.TestCase):
         java=(ROOT/'mynotes/app/benchmarks/java/app/space/notes/ModuleCorpusBenchmark.java').read_text()
         self.assertIn('heldOutOcrReferencesMeasureIndependentRecognition',java)
         self.assertIn('assertEquals(128,rows.length())',java)
+    def test_focused_pdf_driver_uses_actual_environment_font_argument(self):
+        driver=(ROOT/'mynotes/tools/ci/run_pdf_regression.sh').read_text()
+        environment=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/EnvironmentQualificationTest.java').read_text()
+        self.assertIn('getString("expectedFont","1.0")',environment)
+        self.assertIn('-e expectedFont "$font"',driver)
+        self.assertNotIn('expectedFontScale',driver)
+        workflow=(ROOT/'.github/workflows/notes-regression-pdf-recheck.yml').read_text()
+        self.assertIn('bash mynotes/tools/ci/run_pdf_regression.sh',workflow)
+        self.assertNotIn('exit "$verified"',workflow)

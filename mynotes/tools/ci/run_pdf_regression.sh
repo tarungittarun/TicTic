@@ -3,7 +3,7 @@
 set -uo pipefail
 night="$1"; orientation="$2"; font="${3:-1.0}"
 sha256sum refinement-apks/debug/notes-debug.apk refinement-apks/androidTest/debug/notes-debug-androidTest.apk > actual-apk-sha256.txt
-python3 mynotes/tools/ci/instrumentation_watchdog.py timeout 300s adb shell am instrument -w -r -e timeout_msec 240000 -e expectedNight "$night" -e expectedOrientation "$orientation" -e expectedFontScale "$font" -e class 'app.space.notes.EnvironmentQualificationTest,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged' app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner
+python3 mynotes/tools/ci/instrumentation_watchdog.py timeout 300s adb shell am instrument -w -r -e timeout_msec 240000 -e expectedNight "$night" -e expectedOrientation "$orientation" -e expectedFont "$font" -e class 'app.space.notes.EnvironmentQualificationTest,app.space.notes.CoreJourneysTest#canonicalPdfOptionsAreDiscoverableAndCancelLeavesDocumentUnchanged' app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner
 code=$?
 adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
 python3 - <<'PY'

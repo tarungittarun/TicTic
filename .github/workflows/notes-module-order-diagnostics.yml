@@ -1,0 +1,29 @@
+name: MyNotes exact ordered module failure diagnostics
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-module-order-diagnostics.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  exact-retained-failures:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41654548239
+          pattern: module-ordered-native-light-*
+          path: observed
+      - name: Surface bounded actual module results without rerunning any method
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for path in Path('observed').rglob('ordered-module-execution.json'):
+              rows=json.loads(path.read_text())
+              for row in rows:
+                  if not row['ok']:
+                      print('::notice title=Actual ordered module failure::'+json.dumps({'profile':str(path),'module':row['module'],'passed':row['passed'],'expected':row['expected'],'missing':row.get('missing'),'failures':row.get('failures'),'unexpected':row.get('unexpected'),'duplicates':row.get('duplicates')})[:60000])
+          PY

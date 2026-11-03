@@ -21,10 +21,32 @@ jobs:
         with:
           github-token: ${{ github.token }}
           run-id: 41678235867
-          pattern: regression59-live-pdf-*
-          path: focus
+          name: regression59-live-pdf-api36-largefont-landscape
+          path: focus/regression59-live-pdf-api36-largefont-landscape
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41678235733
+          name: module-benchmark-light-landscape-ocr
+          path: original-corpus
       - name: Install independent scoring, image and root gate dependencies
         run: python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+      - name: Independently verify original controlled-corpus repair and preserve all384 before-after rows
+        run: |
+          python3 -m mynotes.tools.ci.summarize_ocr_probes original-corpus/module-benchmark.tar mynotes/docs/regression/59/public-ocr-probes-light-landscape.json
+          python3 - <<'PY'
+          import json,tarfile
+          from pathlib import Path
+          from mynotes.tools.ci.compare_ocr_holdout import compare_rows
+          execution=json.loads(Path('original-corpus/module-execution.json').read_text());assert execution['ok'] and execution['expected']==4 and execution['passed']==4
+          with tarfile.open('original-corpus/module-benchmark.tar') as bundle:after=json.loads(bundle.extractfile('module-benchmark/ocr.json').read())['cases']
+          before=json.loads(Path('mynotes/docs/module-e2e/41670830610/light-landscape-ocr-measurements.json').read_text())['cases'];before={r['id']:r for r in before};pairs=[]
+          for row in after:
+              condition={k:row[k] for k in ['font','font_px','input_dark','rotation_degrees','width','height']};pairs.append(compare_rows({**before[row['id']],'condition':condition},{**row,'condition':condition}))
+          result={'scope':'Original development/reproduction corpus, not the separately frozen holdout. Exact same384 IDs, references and input pixel hashes; one light-landscape profile. All per-case results retained.','baseline_targets':sum(p['baseline']['accuracy_target_met'] for p in pairs),'candidate_targets':sum(p['candidate']['accuracy_target_met'] for p in pairs),'improvements':sum(p['improvement'] for p in pairs),'regressions':sum(p['regression'] for p in pairs),'pairs':pairs}
+          Path('mynotes/docs/regression/59/original-corpus-light-landscape-comparison.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+          print('::notice title=Actual original OCR repair results::'+json.dumps({k:v for k,v in result.items() if k!='pairs'}))
+          PY
       - name: Compare every frozen pair; reject any per-case CER regression without deleting it
         run: python3 -m mynotes.tools.ci.compare_ocr_holdout holdout-artifacts mynotes/docs/regression/59/heldout-comparison.json
       - name: Preserve source provenance, all comparisons and live-state PDF counterexample rechecks

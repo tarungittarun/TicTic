@@ -1,0 +1,39 @@
+name: Diagnose retained v60 failed OCR lane
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-regression60-diagnose.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  retained-log:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Retrieve original failed lane log without rerunning tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/tarungittarun/TicTic/actions/jobs/126162491682/logs > original-failed-lane.log
+          python3 - <<'PY'
+          from pathlib import Path
+          lines = Path('original-failed-lane.log').read_text(errors='replace').splitlines()
+          keywords = ('error', 'failed', 'exception', 'cannot', 'no space', 'not found', 'panic', 'install', 'sdkmanager')
+          selected = set(range(max(0, len(lines)-60), len(lines)))
+          for i, line in enumerate(lines):
+              if any(word in line.lower() for word in keywords):
+                  selected.update(range(max(0, i-2), min(len(lines), i+3)))
+          text = '\n'.join(lines[i] for i in sorted(selected))[-48000:]
+          for start in range(0, len(text), 6000):
+              message = text[start:start+6000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print('::warning title=Original failed OCR lane diagnostic::'+message)
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('Original job 126162491682; no test retry.\n\n```text\n'+text+'\n```\n')
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: regression60-original-failed-ocr-log
+          path: original-failed-lane.log
+          retention-days: 7
+          if-no-files-found: error

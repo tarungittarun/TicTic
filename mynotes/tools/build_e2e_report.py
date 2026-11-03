@@ -158,7 +158,9 @@ def from_preserved(root,output,run,source):
         for record in json.loads(manifest.read_text())['previews']:
             scene=record['name']
             if not re.fullmatch(r'[a-z0-9-]{1,60}',scene):raise ValueError('Invalid preserved scene')
+            if not 0<record['width']<=720 or not 0<record['height']<=1800:raise ValueError('Unbounded system capture dimensions')
             image=folder/(scene+'.jpg')
+            if not 0<image.stat().st_size<=85000:raise ValueError('Unbounded system capture bytes')
             if sha(image.read_bytes())!=record['sha256']:raise ValueError('Preserved image hash mismatch')
             evidence['screens'].append(dict(scene=scene,lane=lane,path=os.path.relpath(image,output),owner=None,
                 width=record['width'],height=record['height'],sha256=record['sha256'],original_png_sha256=record['original_png_sha256']))
@@ -235,6 +237,21 @@ def supplemental_evidence(evidence):
     return {'updates':sorted(updates,key=lambda x:x['report']['from']['version_code']),'reader_recovery':recoveries}
 
 
+SYSTEM_SCENES={f'reader-{kind}-{phase}' for kind in ['pdf','docx','csv'] for phase in ['library','local-picker','opened','before-kill','restored']}|{'reader-docx-view-choice'}|{'reader-diagnostics-'+phase for phase in ['home','library','settings','save-page','create-picker','save-roots','save-picker','file-saved']}
+
+def supplemental_gate(supplements,screens):
+    upgrades={item['report']['from']['version_code'] for item in supplements['updates'] if item['report'].get('ok') is True and item['report'].get('notes_and_doc_retained') is True and item['report'].get('uninstall_or_clear_data') is False}
+    if not {33,35,40,52,55}.issubset(upgrades):return False
+    for item in supplements['reader_recovery']:
+        report=item['report'];records=report.get('records',[]);diagnostic=report.get('diagnostic_file_save',{})
+        if report.get('ok') is not True or diagnostic.get('ok') is not True or len(records)!=3:continue
+        if not all(row.get('original_unchanged') is True and row.get('query_restored') is True and row.get('before_pid')!=row.get('after_pid') for row in records):continue
+        run=Path(item['path']).parent.name
+        captured={row['scene'] for row in screens if row.get('proof_kind')=='signed-release-system' and str(row.get('capture_run'))==run}
+        if SYSTEM_SCENES.issubset(captured):return True
+    return False
+
+
 def append_system_captures(evidence,output,supplements):
     import os
     evidence['screens']=[x for x in evidence['screens'] if x.get('proof_kind')!='signed-release-system']
@@ -243,10 +260,15 @@ def append_system_captures(evidence,output,supplements):
         manifest=folder/'screenshot-previews.json'
         if not manifest.exists():continue
         if item['report'].get('ok') is not True:continue
-        for record in json.loads(manifest.read_text())['captures']:
+        captures=json.loads(manifest.read_text())['captures']
+        if not 1<=len(captures)<=40:raise ValueError('Unbounded system capture manifest')
+        for record in captures:
             scene=record['name']
             if not re.fullmatch(r'reader-[a-z0-9-]{1,53}',scene):raise ValueError('Invalid signed-release scene')
+            if str(record.get('capture_run'))!=folder.name:raise ValueError('System capture run mismatch')
+            if not 0<record['width']<=720 or not 0<record['height']<=1800:raise ValueError('Unbounded system capture dimensions')
             image=folder/(scene+'.jpg')
+            if not 0<image.stat().st_size<=85000:raise ValueError('Unbounded system capture bytes')
             if sha(image.read_bytes())!=record['sha256']:raise ValueError('Signed-release screenshot hash mismatch')
             evidence['screens'].append({**record,'scene':scene,'lane':'reader-api34','path':os.path.relpath(image,output),
                 'owner':'SignedReleaseSystemProbe#'+scene,'probe_outcome':'PASS','proof_kind':'signed-release-system'})
@@ -291,7 +313,7 @@ def build_pdf(evidence, output):
     passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
     failures=[f'{lane}: {failure}' for lane,data in evidence['profiles'].items() for failure in data.get('failures',[])]
     missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[]) if not any(str(f).startswith(name+':') for f in data.get('failures',[]))]
-    qualified=qualification_gate(evidence,methods_by_name)
+    native_qualified=qualification_gate(evidence,methods_by_name);supplemental_qualified=supplemental_gate(supplements,evidence['screens']);qualified=native_qualified and supplemental_qualified
     target=output/'MyNotes-Executed-E2E-Report.pdf';c=Canvas(str(target),pagesize=(842,595),pageCompression=1,invariant=1)
     c.setTitle('MyNotes executed end-to-end workflow report');c.setAuthor('MyNotes engineering audit')
     style=ParagraphStyle('body',fontName='Audit',fontSize=10,leading=14,textColor=HexColor('#263347'))
@@ -340,7 +362,7 @@ def build_pdf(evidence, output):
       ('Inserted numbered point','New Notes and Doc workflows insert a middle point and assert downstream literal renumbering, caret, formatting and saved text, including9→10 digit-width changes.'),
       ('Voice inbox click / progress','The card now toggles existing playback and displays Preparing playback while loading; seek/pause/stop remain. Existing transport tests do not independently assert every new whole-card tap target. No physical voice-quality claim.'),
       ('Read image misses text / false language','Sparse segmentation is always compared for bounded coverage improvement. This is not training or a demonstrated correction of the supplied image. False-script accuracy remains OPEN.'),
-      ('Optional log file saving','Diagnostics now explicitly says Save diagnostic log as a file. It uses the existing user-initiated Android create-document path; filtered saving remains. Screenshots alone are not proof of a completed real destination write.'),
+      ('Optional log file saving','Diagnostics now explicitly says Save diagnostic log as a file. It uses the existing user-initiated Android create-document path; filtered saving remains. Screenshots alone are not proof of a completed real destination write. The separate signed-release diagnostic-save record reports real file readback only when that complete workflow passed.'),
       ('Entire-app executed report','All source-pinned native outcomes and distinct captured pages are included below, with unresolved owners and unpictured surfaces explicit. Passing automation is not blanket physical sign-off.'),
     ]
     for title,detail in feedback:
@@ -408,7 +430,7 @@ def build_pdf(evidence, output):
         if y<65:y=new('Literal UI-surface inventory · continued')
         y=text(row['title']+' — '+row['file']+':'+str(row['line']),38,y,small_text=True)
     c.save()
-    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],version_code=code,version_name=version,automation_gate_ok=qualified,
+    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],version_code=code,version_name=version,automation_gate_ok=qualified,native_gate_ok=native_qualified,supplemental_gate_ok=supplemental_qualified,release_approval=False,physical_acceptance=False,
         passed_outcomes=passed,expected_outcomes=expected,pages=page,distinct_scenes=len(selected),profile_images=len(evidence['screens']),
         native_methods=len(methods_by_name),method_status_counts={s:sum(v['status']==s for v in statuses.values()) for s in ['PASS','FAIL','UNEXECUTED']},
         pdf_sha256=sha(target.read_bytes()),private_user_data_included=False)

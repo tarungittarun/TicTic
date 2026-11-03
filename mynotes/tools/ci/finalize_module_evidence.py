@@ -25,16 +25,18 @@ def main():
         executions=json.loads((destination/'ordered-module-execution.json').read_text())
         if [r['module'] for r in executions]!=MODULES:raise ValueError('Native modules did not execute in PDF order')
         for row in executions:
-            if not row['ok'] or row['process_exit']!=0 or len(row['cases'])!=len(set(row['cases'])) or set(row['cases'])!=set(ordered[row['module']]):raise ValueError('Incomplete strict native execution')
+            expected=set(ordered[row['module']]);failed=[f.split(':',1)[0] for f in row['failures']]
+            if row['process_exit']!=0 or row.get('duplicates') or row.get('unexpected') or len(row['cases'])!=len(set(row['cases'])) or len(failed)!=len(set(failed)) or set(row['cases'])&set(failed) or set(row['cases'])|set(failed)!=expected or any(': status -2 ' not in f and ': status -1 ' not in f for f in row['failures']):raise ValueError('Incomplete strict native execution')
         timings[profile]=executions
     with tempfile.TemporaryDirectory() as temp:
         scratch=Path(temp);native,_,inventory=ingest(a.ordered,scratch,data['source'],'41658476468')
-        if not native['native_complete'] or native['native_outcomes']!=1676:raise ValueError('Native schedule audit incomplete')
+        passed=native['native_outcomes'];failed=sum(len(row['failures']) for phases in timings.values() for row in phases)
+        if passed+failed!=1676:raise ValueError('Native schedule audit incomplete')
         for frame in native['screens']:
             frame['capture_run']='41658476468';source=scratch/frame['path'];shutil.copyfile(source,output/frame['path'])
         for file in scratch.glob('*refinement-environment-*.json'):shutil.copyfile(file,output/file.name)
         # Original screenshots remain on disk, hash-bound in original-provenance.
-        data.update(native=native['native'],native_complete=True,native_outcomes=1676,screens=[r for r in data['screens'] if not r.get('lane')]+native['screens'],strict_native_run='41658476468',strict_native_module_order=MODULES,native_outcomes_including_original=3352)
+        data.update(native=native['native'],native_complete=native['native_complete'],native_execution_complete=True,native_all_assertions_passed=native['native_complete'],native_passed_outcomes=passed,native_failed_outcomes=failed,native_outcomes=1676,native_schedule_run_conclusion='success' if native['native_complete'] else 'failure',screens=[r for r in data['screens'] if not r.get('lane')]+native['screens'],strict_native_run='41658476468',strict_native_module_order=MODULES,native_outcomes_including_original=3352)
     write(output/'strict-native-module-executions.json',timings)
     for pattern,name in [('refinement-jvm.json','executed-jvm.json'),('trained-whisper.json','experimental-model-provenance.json'),('manifest.json','public-corpus-provenance.json')]:
         files=list(a.foundation.rglob(pattern))

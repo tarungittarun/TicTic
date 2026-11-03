@@ -120,3 +120,11 @@ class SeparateModuleE2E(unittest.TestCase):
             self.assertEqual('unit-parent',json.loads((output/(lane+'-rejected-original-observations.json')).read_text())['run'])
             self.assertFalse(data['benchmark_complete']);self.assertFalse(data['all_accuracy_targets_met'])
             self.assertEqual('unit-correction',rows[0]['capture_run'])
+    def test_ordered_driver_reads_watchdog_file_and_keeps_single_invocation_validation(self):
+        script=(ROOT/'mynotes/tools/ci/run_ordered_modules.py').read_text()
+        watchdog=(ROOT/'mynotes/tools/ci/instrumentation_watchdog.py').read_text()
+        self.assertIn("os.environ.get('NOTES_NATIVE_OUTPUT','refinement-native.txt')",watchdog)
+        self.assertIn('actual=raw.read_text',script)
+        self.assertIn('observed=android(actual,selected)',script)
+        self.assertIn('report=compare(expected,passed,failures)',script)
+        self.assertNotIn('android(combined,expected)',script)

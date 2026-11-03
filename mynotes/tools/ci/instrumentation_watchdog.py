@@ -48,4 +48,4 @@ def run(command, output, *, stall_seconds=240, poll_seconds=1):
 
 
 if __name__ == '__main__':
-    sys.exit(run(sys.argv[1:], 'refinement-native.txt'))
+    sys.exit(run(sys.argv[1:], os.environ.get('NOTES_NATIVE_OUTPUT','refinement-native.txt')))

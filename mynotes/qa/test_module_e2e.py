@@ -190,3 +190,12 @@ class SeparateModuleE2E(unittest.TestCase):
         workflow=(ROOT/'.github/workflows/notes-regression-pdf-recheck.yml').read_text()
         self.assertIn('bash mynotes/tools/ci/run_pdf_regression.sh',workflow)
         self.assertNotIn('exit "$verified"',workflow)
+    def test_ocr_recovery_uses_geometry_and_preserves_baseline_not_reference_or_new_weights(self):
+        recovery=(ROOT/'mynotes/domain/src/main/java/app/space/notes/domain/OcrLineRecovery.java').read_text()
+        runtime=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java').read_text()
+        self.assertIn('Math.min(confidence,score)',recovery)
+        self.assertIn('w.text,w.left,w.top,w.right,w.bottom',recovery)
+        self.assertIn('OcrLineRecovery.recover',runtime)
+        self.assertIn('PSM_SINGLE_BLOCK',runtime)
+        for forbidden in ['ocr-0269','ocr-0275','ocr-0294','holdout','reference_text']:
+            self.assertNotIn(forbidden,recovery);self.assertNotIn(forbidden,runtime)

@@ -88,7 +88,17 @@ public final class OfflineOcr {
             prepared=prepareBitmap(bitmap);
             if(!engine.init(root.getAbsolutePath(),"auto".equals(language)?"eng+hin+kan":language))throw new IOException("Bundled OCR model could not initialize");
             synchronized(cancellation){cancellation.active=engine;}cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setVariable("preserve_interword_spaces","1");engine.setImage(prepared);
-            String hocr=engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";{engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,sparse,score)){text=sparse;confidence=score;hocr=engine.getHOCRText(0);}}cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
+            String hocr=engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";{engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
+                if(app.space.notes.domain.OcrLineRecovery.eligible(text,confidence,sparse,score)){
+                    app.space.notes.domain.OcrLineRecovery.Recovered recovered=app.space.notes.domain.OcrLineRecovery.recover(text,confidence,regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation),sparse,score,regions(engine.getHOCRText(0),prepared.getWidth(),prepared.getHeight(),cancellation));
+                    cancellation.check();if(recovered!=null)return new Result(recovered.text,language,recovered.confidence,bitmap.getWidth(),bitmap.getHeight(),recovered.words);
+                }
+                if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,sparse,score)){text=sparse;confidence=score;hocr=engine.getHOCRText(0);}}
+            if(app.space.notes.domain.OcrAlternatives.needsBlockCheck(text)){
+                cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);engine.setImage(prepared);String block=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
+                if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,block,score)){text=block;confidence=score;hocr=engine.getHOCRText(0);}
+            }
+            cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
         }finally{synchronized(cancellation){cancellation.active=null;try{engine.recycle();}finally{if(prepared!=null)prepared.recycle();}}}
     }
     /** Bounded native-generated XHTML; no external entities, HTML views, or network fetches. */

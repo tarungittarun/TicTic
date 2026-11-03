@@ -1,3 +1,4 @@
+# Round42: fix the candidate56 missing qualified Gravity symbol caught by Actions compiler. No Android assertions weakened; prior build failure retained.
 # Round41: physical55 feedback: compact readers, searchable counted typed Viewed files, downstream literal renumbering, drag lifecycle/late-query fences, playback discovery, explicit log file saving and source-owned whole-app traversal screenshots. No physical OCR/speech acceptance claim.
 # Round40: candidate53 API36 Notes IME failure: settle the prior Doc resize before a Notes request, require served visibility twice, recover only unowned focus, observe rather than re-show after acknowledgement, record fail-only startup phase. Original repeated native transitions and every assertion retained. Preserve candidate54 evidence.
 # Round39: repair real half-height filter clipping by reclaiming decorative vertical padding; retain full native touch targets, caller hierarchy and cap. TXT test follows view-only default while retaining source/no-import/edit/find checks. Save-pending indicator survives navigation. Preserve candidate53 evidence.
@@ -54,7 +55,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-refinement-native-round41-${{ github.ref }}
+  group: notes-refinement-native-round42-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:

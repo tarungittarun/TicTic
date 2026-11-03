@@ -1,0 +1,274 @@
+"""Source-pinned executed E2E report. Only consumes synthetic CI evidence, never uploads.
+PDF-only dependencies: reportlab, Pillow. Standard-library ingestion has archive bounds.
+Usage: python -m mynotes.tools.build_e2e_report --run ID --source SHA --artifacts DIR --output DIR
+Download only refinement-native-* artifacts into DIR; no APKs or private attachments.
+A screenshot is not a passing test; owner outcomes and gaps remain separate.
+"""
+from pathlib import Path
+import argparse
+import hashlib
+import io
+import json
+import re
+import shutil
+import tarfile
+from xml.sax.saxutils import escape
+from mynotes.tools.ci.render_review import fixtures
+from mynotes.tools.ci.test_plan import mask_comments_and_strings
+
+ROOT = Path(__file__).resolve().parents[2]
+PROFILES = ['current-api36', 'current-api36-b', 'min-api26', 'min-api26-b',
+            'landscape-api34', 'landscape-api34-b', 'large-font-api34', 'large-font-api34-b']
+GROUPS = [
+ ('Home / Notes / Doc / Library', 'Workspace tabs, native search, selection, pins, filters and user arrangement retain content and return correctly.', r'CoreJourneysTest#.*(Home|Workspace|[Ss]earch|[Ff]ilter|Library|bottom|[Ss]elect|[Pp]in)'),
+ ('Notes writing / formatting', 'Edit text; preserve font, size, colours, paragraph styles, selection, lists and downstream numbering through save/reopen.', r'CoreJourneysTest#.*([Nn]otes|[Nn]umber|[Ff]ormat|[Tt]yping|Heading|Paragraph)'),
+ ('Doc writing / mixed content', 'Insert at the caret; retain independently editable rich text, checklists, media, table and diagram blocks; Undo/Redo retain structure.', r'CoreJourneysTest#.*([Dd]oc|canonical|[Cc]ontent|[Bb]lock)'),
+ ('Checklists / tables / hyperlinks', 'Scoped cell/row editing, insertion, selection conversion, movement and link actions do not flatten neighbouring content.', r'(CoreJourneysTest|StructuredCodecTest)#.*([Cc]hecklist|[Tt]able|[Ll]ink|[Rr]ow|[Cc]ell)'),
+ ('Drawing / image editing / diagrams', 'Drawing tools and shape transforms preserve stored source detail; shape/group operations remain scoped.', r'(DrawingToolsTest|Diagram.*Test|ImageSelectionTest)#|CoreJourneysTest#.*([Dd]rawing|[Dd]iagram|[Ii]mage|[Ss]hape|[Gg]roup|[Vv]isual)'),
+ ('Read image / OCR', 'Local bounded recognition, image-coordinate selection, review and cancellation retain source images. Synthetic correctness is separate from real-image accuracy.', r'(OfflineOcrTest|ImageSelectionTest|PdfPageOcrTest)#|CoreJourneysTest#.*([Oo]cr|[Rr]eadImage)'),
+ ('Voice recording / inbox / playback', 'Optional microphone, interruption, original retention, seek/pause and transcript recovery operate offline.', r'(Voice.*Test|OfflineSpeechTest|TrainedWhisperTest|WhisperConnectionJourneysTest)#|CoreJourneysTest#.*([Vv]oice|[Pp]layback|[Rr]ecording)'),
+ ('TXT / PDF / Word / spreadsheets / Viewed files', 'Read-only originals never silently become Home notes; Find, counts, pages and explicit copy preserve original bytes.', r'(ViewedFileJourneysTest|LocalFilePickerTest|PdfPageOcrTest)#|RealFolderStorageTest#.*([Tt]xt|[Pp]df|[Ww]ord|[Cc]sv|[Vv]iewed|[Ss]preadsheet)|CoreJourneysTest#.*[Vv]iewed'),
+ ('Folders / storage / optional copies', 'Authoritative private content survives absent/broken providers; folder changes and explicitly reviewed recovery preserve conflicts.', r'(RealFolderStorageTest|GenerationProtocolTest|RepositoryTransferTest|RepositoryConcurrencyJourneysTest|StorageLayoutTest|NotesPersistenceTest)#'),
+ ('Backups / portable documents / history', 'Validation precedes replacement, restore/checkpoints preserve data, and unsupported inputs fail without destructive migration.', r'(BackupCodecTest|HistoryRecoveryTest|StructuredCodecTest|ArchiveSemanticTest)#'),
+ ('Archive / Trash / bulk operations', 'Archive differs from Trash; restore, Undo and confirmed permanent operations respect selection and retention.', r'(ShareAndLabelsJourneysTest|RepositoryTransferTest)#|CoreJourneysTest#.*([Tt]rash|[Aa]rchive|[Bb]ulk|[Mm]erge|[Cc]opy|[Dd]elete|[Ll]abel)'),
+ ('Settings / diagnostics / models / styles', 'Local preferences, opt-in bounded diagnostics, saved styles and explicit file export preserve privacy.', r'(DiagnosticsJourneysTest|StylePresetStoreTest)#|CoreJourneysTest#.*([Ss]ettings|[Dd]iagnostic|[Ss]tyle|[Aa]ppearance|[Ss]peech)'),
+ ('Reminders / widget / Android integration', 'PendingIntent identity, permission behaviour and OS surfaces preserve note intent; launcher/vendor behaviour still needs physical checks.', r'(ReminderJourneysTest|SystemSurfacesTest|LocalFilePickerTest)#'),
+ ('Environment / motion / lifecycle / soak', 'Actual configured themes/fonts/orientation/motion and recovery boundaries are verified rather than inferred from profile names.', r'(EnvironmentQualificationTest|NotesMotionTest|NativeSoakTest)#|CoreJourneysTest#.*([Kk]eyboard|[Ll]ifecycle|[Rr]otation|[Nn]avigation|[Bb]ack)'),
+ ('Export PDF / semantic codecs', 'Exported geometry, annotations and structured content are independently validated; successful export does not prove original Word fidelity.', r'(PdfExportTest|DiagramCodecTest|StructuredCodecTest)#'),
+]
+GAPS = [
+ ('Physical drag and selection', 'New native long-hold regression also injects a late board refresh while held. It does not certify exact placement, top-edge control or perceived animation smoothness on your phone.'),
+ ('OCR accuracy — OPEN', 'The supplied image misses text and invents other-script characters. This candidate compares automatic/sparse segmentation for better coverage, but that is not training or proof that your image is fixed. Universal fonts, languages, emoji and arbitrary screenshots remain unqualified.'),
+ ('Voice accuracy / audibility — OPEN', 'You have not physically tested the recent voice changes. Synthetic recognition/playback outcomes do not establish real microphone quality, Indian-accent generalisation, noise removal or physical loudness.'),
+ ('Viewer limitations', 'TXT Find is current-page only; Viewed files uses a bounded, possibly partial index. Word pages remain approximate. Rotated/scanned PDF selection differs from embedded, unrotated text. Spreadsheet rendering is cached values, not Excel fidelity.'),
+ ('Physical user library / migration', 'No private attachment, library or screenshot is uploaded to CI. Synthetic storage fixtures cannot establish acceptance of your actual pending-folder difference. Install-over and process-death proofs must be separately run for the exact candidate; earlier candidate55 proofs do not qualify56.'),
+ ('UI inventory boundaries', 'This report includes every screenshot actually captured and all selected native method outcomes, not a claim that every possible dialog, error, provider, language, permission combination and vendor page was visited. Unpictured source surfaces are explicitly listed.'),
+ ('System pages / external applications', 'Some controller journeys use a test NotesHost to observe a request instead of opening another app. Real SAF provider tests are separately identified. No successful mock host callback is presented as actual Android Save/Share/launcher completion.'),
+]
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def methods():
+    result = {}
+    for path in sorted((ROOT/'mynotes/app/src/androidTest').rglob('*Test.java')):
+        text = path.read_text(); masked = mask_comments_and_strings(text)
+        package = re.search(r'package\s+([\w.]+);', text)[1]
+        for match in re.finditer(r'@Test\b[^{};]*?\bvoid\s+(\w+)\s*\([^)]*\)[^{]*\{', masked):
+            start = match.end()-1; depth = 1; end = start+1
+            while depth and end < len(masked):
+                depth += (masked[end]=='{')-(masked[end]=='}'); end += 1
+            body = text[start:end]; name = package+'.'+path.stem+'#'+match[1]
+            actions = re.findall(r'\b(?:tap|click|dialogTap|previewOption)\("([^"\n]*)"', body)
+            scenes = re.findall(r'screenshot\("([a-z0-9-]+)"\s*[,)]', body)
+            result[name] = dict(name=name, file=str(path.relative_to(ROOT)), line=text[:start].count('\n')+1,
+                                actions=actions, scenes=scenes,
+                                assertions=len(re.findall(r'\bassert\w+\s*\(', body)), body=body)
+    return result
+
+
+def source_surfaces():
+    result = []
+    for path in sorted((ROOT/'mynotes/runtime/src/main/java').rglob('*.java')):
+        text = path.read_text()
+        for match in re.finditer(r'\b(?:header|scrollContent|panel|setTitle)\("([^"\n]{1,100})"', text):
+            result.append(dict(title=match[1], file=path.name, line=text[:match.start()].count('\n')+1))
+    return sorted({(x['title'],x['file'],x['line']):x for x in result}.values(),key=lambda x:(x['file'],x['line']))
+
+
+def ingest(artifacts, output, run, source):
+    """Never extract an arbitrary archive path or ingest logs from outside a native artifact."""
+    from PIL import Image
+    Image.MAX_IMAGE_PIXELS = 16_000_000
+    output.mkdir(parents=True,exist_ok=True)
+    result = {'schema':1,'run':run,'source_sha':source,'scope':'synthetic CI only; no private user uploads','profiles':{},'screens':[]}
+    for lane in PROFILES:
+        folder=artifacts/('refinement-native-'+lane)
+        if not folder.is_dir():
+            result['profiles'][lane]={'ok':False,'unavailable':True};continue
+        target=output/lane;target.mkdir(exist_ok=True)
+        native=folder/'refinement-native.json'; expected=folder/'refinement-expected.json'
+        if native.exists():
+            result['profiles'][lane]=json.loads(native.read_text());shutil.copyfile(native,target/'native-results.json')
+        else:result['profiles'][lane]={'ok':False,'unavailable':True}
+        if expected.exists():shutil.copyfile(expected,target/'expected.json')
+        for name in ['refinement-environment-before.json','refinement-environment-configured.json','refinement-environment-after.json','refinement-quality-ocr-common-text-report.json','refinement-pdf-results.json']:
+            path=folder/name
+            if path.is_file() and path.stat().st_size<=2*1024*1024:shutil.copyfile(path,target/name)
+        archive_path=folder/'refinement-captures.tar'
+        if not archive_path.is_file():continue
+        owners={}
+        with tarfile.open(archive_path) as archive:
+            for member in archive:
+                if member.name=='ux-review/capture-owners.jsonl' and member.isfile() and member.size<=256*1024:
+                    for line in archive.extractfile(member).read().decode().splitlines():
+                        record=json.loads(line)
+                        if record.get('synthetic') is True and re.fullmatch(r'[a-z0-9-]{1,60}',record.get('scene','')):owners[record['scene']]=record['owner']
+        with tarfile.open(archive_path) as archive:
+            for scene,data in fixtures(archive):
+                with Image.open(io.BytesIO(data)) as image:
+                    if image.format!='PNG' or image.width*image.height>Image.MAX_IMAGE_PIXELS:raise ValueError('Invalid synthetic image')
+                    image=image.convert('RGB');image.thumbnail((720,1800),Image.Resampling.LANCZOS)
+                    for quality in (85,75,65,50,35):
+                        buffer=io.BytesIO();image.save(buffer,format='JPEG',quality=quality,optimize=True)
+                        if len(buffer.getvalue())<=85000:break
+                    preview=buffer.getvalue()
+                    if len(preview)>85000:raise ValueError('Oversized preview')
+                    path=target/(scene+'.jpg');path.write_bytes(preview)
+                    result['screens'].append(dict(scene=scene,lane=lane,path=str(path.relative_to(output)),
+                        owner=owners.get(scene),width=image.width,height=image.height,
+                        sha256=sha(preview),original_png_sha256=sha(data)))
+    (output/'provenance.json').write_text(json.dumps(result,indent=2)+'\n')
+    return result
+
+
+def case_status(name, evidence):
+    passed=[];failed=[];missing=[]
+    for lane,report in evidence['profiles'].items():
+        if name in report.get('cases',[]):passed.append(lane)
+        if name in report.get('missing',[]):missing.append(lane)
+        if any(str(x).startswith(name+':') for x in report.get('failures',[])):failed.append(lane)
+    status='FAIL' if failed else 'PASS' if passed else 'UNEXECUTED'
+    return dict(status=status,passed=passed,failed=failed,missing=missing)
+
+
+def describe(scene, guide):
+    if scene in guide:return guide[scene]
+    descriptions={
+      'e2e-viewed-files-count':('Library > Viewed files','Two synthetic index entries are shown with a count, typed file badges and individual open actions. No Home note is imported.','Index-only fixture: the two displayed URI records are not proof of opening two actual originals.'),
+      'e2e-viewed-files-search':('Viewed files > Search Alpha','Enter a term from indexed body text. Only First.pdf should remain and the count must be one.','A matching indexed word is not proof that every word in a file was indexed.'),
+      'e2e-viewed-files-no-match':('Viewed files > Search notpresent','Enter a nonexistent term. Expect zero matching files and an explicit empty state.','History search does not scan arbitrary unviewed files.'),
+      'e2e-large-txt-page-one':('Android local document grant > Larger.txt > page 1','Create a multilingual file over512 KiB and100,000 characters through the real local DocumentsProvider; open read-only and verify exact first-page text.','Text-page Find remains current-page only. The source file is separately read back byte-for-byte.'),
+      'e2e-large-txt-page-two':('TXT preview > Next page','Move to page2; assert exact lossless TextPages content, reject an oversized editable copy through overflow and verify no Home note was created.','The screenshot shows page2; preservation is established by separate assertions, not pixels.'),
+      'e2e-notes-insert-numbered-point':('Notes > numbered list > Enter after First','Insert a newline at the first item. Expect a new2. point, following items3./4., retained formatting, correct caret and saved text.','Only literal numbered paragraphs are renumbered; ordinary paragraphs end the run.'),
+      'e2e-doc-insert-numbered-point':('Doc > numbered writing > Enter after First','Insert before the existing9./10. items. Expect9. blank,10./11. downstream numbers, caret at the new item and exact saved rich-document text.','This is an actual editor mutation, not a screenshot-only numbering demonstration.'),
+    }
+    if scene in descriptions:return descriptions[scene]
+    plain=scene.removeprefix('e2e-').replace('-',' ')
+    route=('Home > Library > '+plain.removeprefix('page ')) if scene.startswith('e2e-page-') else ('Home > Library' if scene.startswith('e2e-library-') else 'Whole-app workflow > '+plain)
+    return route,'Actual captured '+plain+' state. Consult the owning workflow and assertions below for the exact route and outcome.','A captured page may precede a later failure in its owner; it is not independently declared passed.'
+
+
+def build_pdf(evidence, output):
+    from reportlab.pdfgen.canvas import Canvas
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.colors import HexColor,white
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Paragraph
+    from reportlab.lib.utils import ImageReader
+    for name,file in [('Audit','DejaVuSans.ttf'),('AuditBold','DejaVuSans-Bold.ttf')]:
+        pdfmetrics.registerFont(TTFont(name,'/usr/share/fonts/truetype/dejavu/'+file))
+    methods_by_name=methods();guide={}
+    for line in (ROOT/'mynotes/docs/user-guide/screen-guide.tsv').read_text().splitlines():
+        if line and not line.startswith('#'):
+            key,route,body,boundary=line.split('|');guide[key]=(route,body,boundary)
+    for screen in evidence['screens']:
+        if not screen.get('owner'):
+            candidates=[name for name,method in methods_by_name.items() if screen['scene'] in method['scenes']]
+            if screen['scene'].startswith('e2e-large-txt-'):candidates=['app.space.notes.RealFolderStorageTest#largerTxtUsesLosslessPagesAndNeverCreatesAHomeNote']
+            screen['owner']=candidates[0] if len(candidates)==1 else None
+    selected={}
+    for screen in evidence['screens']:
+        scene=screen['scene'];rank=(PROFILES.index(screen['lane']),screen['path'])
+        if scene not in selected or rank<selected[scene][0]:selected[scene]=(rank,screen)
+    statuses={name:case_status(name,evidence) for name in methods_by_name}
+    passed=sum(x.get('passed',0) for x in evidence['profiles'].values());expected=sum(x.get('expected',0) for x in evidence['profiles'].values())
+    failures=[f'{lane}: {failure}' for lane,data in evidence['profiles'].items() for failure in data.get('failures',[])]
+    missing=[f'{lane}: {name}' for lane,data in evidence['profiles'].items() for name in data.get('missing',[])]
+    qualified=all(evidence['profiles'].get(lane,{}).get('ok') for lane in PROFILES)
+    target=output/'MyNotes-Executed-E2E-Report.pdf';c=Canvas(str(target),pagesize=(842,595),pageCompression=1,invariant=1)
+    c.setTitle('MyNotes executed end-to-end workflow report');c.setAuthor('MyNotes engineering audit')
+    style=ParagraphStyle('body',fontName='Audit',fontSize=10,leading=14,textColor=HexColor('#263347'))
+    small=ParagraphStyle('small',parent=style,fontSize=8,leading=11)
+    page=0
+    def text(value,x,y,width=740,small_text=False):
+        p=Paragraph(escape(str(value)).replace('\n','<br/>'),small if small_text else style);w,h=p.wrap(width,10000)
+        p.drawOn(c,x,y-h);return y-h-10
+    def new(title,sub='EXECUTED EVIDENCE · NOT A USER GUIDE'):
+        nonlocal page
+        if page:c.showPage()
+        page+=1;c.setFillColor(HexColor('#152b46'));c.rect(0,533,842,62,fill=1,stroke=0);c.setFillColor(white);c.setFont('AuditBold',16);c.drawString(34,563,title[:88]);c.setFont('Audit',8);c.drawString(34,545,sub[:170]);c.setFillColor(HexColor('#4c596a'));c.setFont('Audit',7);c.drawString(34,18,f"Run {evidence['run']} · source {evidence['source_sha'][:12]} · synthetic emulator fixtures · page {page}");return 510
+    y=new('MyNotes · executed entire-app workflow audit')
+    y=text('Candidate56 · version0.56.0 · Android builds and emulator execution in GitHub Actions only.',38,y)
+    y=text(('AUTOMATION GATE PASSED' if qualified else 'NOT QUALIFIED — failures / unexecuted evidence remain')+f'\n{passed}/{expected} native method outcomes reported across eight shards. {len(selected)} distinct captured scenes; {len(evidence["screens"])} profile-specific images. The appendix includes every discovered native method, including unexecuted ones.',38,y)
+    y=text('This is the newly executed report requested after physical candidate55 feedback, not the old116-page usage guide. All illustrated screens are synthetic CI screenshots. No supplied personal log, phone screenshot, note text, recording or private library was uploaded.',38,y)
+    y=text('What this report can and cannot establish\nEach illustrated page includes its route, purpose, owner test result and image hash. A passing assertion is not a physical usability sign-off. The entire known source/test inventory is audited; uncovered branches, unpictured surfaces and physical/OCR/voice limits remain explicit.',38,y)
+    y=text('Source: '+evidence['source_sha']+'\nRun: https://github.com/tarungittarun/TicTic/actions/runs/'+evidence['run']+'\nReader order: result summary → workflow groups → limitations/failures → illustrated traversals → complete method ledger → literal UI-surface inventory.',38,y,small_text=True)
+    y=new('Execution environment and result accounting')
+    for lane in PROFILES:
+        data=evidence['profiles'].get(lane,{})
+        y=text(f"{lane}: {'PASS' if data.get('ok') else 'INCOMPLETE / FAIL'} · {data.get('passed',0)}/{data.get('expected','unknown')} · {len(data.get('failures',[]))} failure records · {len(data.get('missing',[]))} unexecuted/missing methods",38,y)
+    text('Profiles are two disjoint method shards each: minimum API26; API34 landscape; API34 font2/night; current API36. Focused subsets are not every method on every profile. No tablet or ordinary portrait API34 execution is implied. Original PNG hashes and bounded JPEG preview hashes are retained in provenance.json.',38,y)
+    y=new('End-to-end workflow map · execution, not promises')
+    for index,(title,expected_text,pattern) in enumerate(GROUPS):
+        matched=[name for name in statuses if re.search(pattern,name)]
+        counts={state:sum(statuses[n]['status']==state for n in matched) for state in ['PASS','FAIL','UNEXECUTED']}
+        if y<155:y=new('End-to-end workflow map · continued')
+        y=text(title,38,y);y=text(expected_text+f"\nLinked native methods (overlapping groups): {len(matched)}; PASS {counts['PASS']}, FAIL {counts['FAIL']}, UNEXECUTED {counts['UNEXECUTED']}. Exact method/profile ledger follows.",38,y,small_text=True)
+    y=new('Open limitations and physical acceptance')
+    for title,detail in GAPS:
+        if y<145:y=new('Open limitations and physical acceptance · continued')
+        y=text(title+'\n'+detail,38,y)
+    if failures or missing:
+        y=new('Failed and unexecuted checks — retained, not hidden')
+        for item in failures+missing:
+            if y<110:y=new('Failed and unexecuted checks · continued')
+            y=text(item[:3000],38,y,small_text=True)
+    # Every distinct captured page is included; variants are enumerated instead of silently omitted.
+    for scene,(_,screen) in sorted(selected.items(),key=lambda item:(not item[0].startswith('e2e-'),item[0])):
+        y=new('Captured page · '+scene)
+        route,purpose,boundary=describe(scene,guide);owner=screen.get('owner');status=statuses.get(owner,{'status':'OWNER UNRESOLVED'})
+        variants=[x['lane'] for x in evidence['screens'] if x['scene']==scene]
+        image=output/screen['path']
+        if sha(image.read_bytes())!=screen['sha256']:raise ValueError('Image hash mismatch')
+        landscape=screen['width']>screen['height']
+        if landscape:
+            c.drawImage(ImageReader(str(image)),38,235,width=766,height=285,preserveAspectRatio=True,anchor='c',mask='auto')
+            y=text('Route: '+route,38,222,766);y=text(purpose,38,y,766);y=text('Boundary: '+boundary,38,y,766,True)
+            text('Owner: '+str(owner)+' · '+status['status']+'\nShown: '+screen['lane']+'; captured variants: '+', '.join(variants)+'\nJPEG SHA256 '+screen['sha256'],38,min(y,110),766,True)
+        else:
+            c.drawImage(ImageReader(str(image)),38,55,width=292,height=465,preserveAspectRatio=True,anchor='c',mask='auto')
+            y=text('Route: '+route,354,510,450);y=text(purpose,354,y,450)
+            y=text('Expected / actual\n'+('Assertions in '+owner.split('#')[-1]+'.' if owner else 'No unique owner association; screenshot is visual evidence only.')+'\nOwner method outcome: '+status['status'],354,y,450)
+            y=text('Boundary: '+boundary,354,y,450)
+            if owner in methods_by_name and methods_by_name[owner]['actions']:
+                y=text('Recorded source actions: '+' → '.join(methods_by_name[owner]['actions'])[:1100],354,y,450,True)
+            y=text('Owner: '+str(owner)+'\nShown: '+screen['lane']+'\nCaptured profiles: '+', '.join(variants),354,y,450,True)
+            text('JPEG SHA256 '+screen['sha256']+'\nOriginal PNG SHA256 '+screen['original_png_sha256'],354,min(y,100),450,True)
+    y=new('Complete native-method execution ledger')
+    text('PASS means at least one reported successful execution and no reported failure for that method; profile-specific missing outcomes remain listed. UNEXECUTED is not a failed assertion. Not every isolated parser/storage test has a visible UI page. Counts below cover all discovered methods, not only screenshot owners.',38,y)
+    for name,method in sorted(methods_by_name.items()):
+        y=new(name.split('#')[0].split('.')[-1]+' · '+statuses[name]['status'])
+        result=statuses[name];scene_names=sorted({x['scene'] for x in evidence['screens'] if x.get('owner')==name})
+        y=text(name.split('#')[-1],38,y)
+        y=text('Declared expectation: '+re.sub(r'(?<=[a-z])(?=[A-Z])',' ',name.split('#')[-1])+f". The source contains {method['assertions']} explicit assertion calls; helper assertions can add further checks.",38,y)
+        y=text('Actual: '+result['status']+'\nPassed on: '+(', '.join(result['passed']) or 'none')+'\nFailed on: '+(', '.join(result['failed']) or 'none')+'\nUnexecuted/missing on selected profiles: '+(', '.join(result['missing']) or 'none reported'),38,y)
+        y=text('Workflow actions from literal source calls:\n'+(' → '.join(method['actions']) or 'Direct domain/runtime/Android operations; see source. No ordinary UI-click route is inferred.'),38,y)
+        y=text('Associated captured pages: '+(', '.join(scene_names) or 'NO ASSOCIATED SCREENSHOT — do not infer a visited visual page from this method alone.'),38,y)
+        text('Reproducible source location: '+method['file']+':'+str(method['line'])+'\nhttps://github.com/tarungittarun/TicTic/blob/'+evidence['source_sha']+'/'+method['file']+'#L'+str(method['line']),38,y,small_text=True)
+    y=new('Literal UI-surface inventory · coverage gaps exposed')
+    y=text('Every statically discoverable literal header / panel / dialog title is listed below. Dynamic titles and Android/external pages are outside this literal scan. A title in source is NOT evidence of traversal. Captured-scene associations are descriptive, not automatic approval.',38,y)
+    for row in source_surfaces():
+        if y<65:y=new('Literal UI-surface inventory · continued')
+        y=text(row['title']+' — '+row['file']+':'+str(row['line']),38,y,small_text=True)
+    c.save()
+    summary=dict(run=evidence['run'],source_sha=evidence['source_sha'],automation_gate_ok=qualified,
+        passed_outcomes=passed,expected_outcomes=expected,pages=page,distinct_scenes=len(selected),profile_images=len(evidence['screens']),
+        native_methods=len(methods_by_name),method_status_counts={s:sum(v['status']==s for v in statuses.values()) for s in ['PASS','FAIL','UNEXECUTED']},
+        pdf_sha256=sha(target.read_bytes()),private_user_data_included=False)
+    (output/'report-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+    (output/'case-ledger.json').write_text(json.dumps(statuses,indent=2)+'\n')
+    (output/'provenance.json').write_text(json.dumps(evidence,indent=2)+'\n')
+    return target,summary
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--run',required=True);parser.add_argument('--source',required=True);parser.add_argument('--artifacts',type=Path);parser.add_argument('--output',required=True,type=Path);args=parser.parse_args()
+    if not args.run.isdigit() or not re.fullmatch(r'[a-f0-9]{40}',args.source):raise ValueError('Exact run/source required')
+    evidence=ingest(args.artifacts,args.output,args.run,args.source) if args.artifacts else json.loads((args.output/'provenance.json').read_text())
+    if evidence['run']!=args.run or evidence['source_sha']!=args.source:raise ValueError('Source/run mismatch')
+    target,summary=build_pdf(evidence,args.output);print(target);print(json.dumps(summary,indent=2))
+
+if __name__=='__main__':main()

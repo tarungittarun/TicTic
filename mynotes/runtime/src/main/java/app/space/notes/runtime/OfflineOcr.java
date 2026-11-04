@@ -171,7 +171,7 @@ public final class OfflineOcr {
             if(!probe.setVariable("thresholding_method","2"))return null;
             probe.setImage(input);String adaptive=probe.getUTF8Text();cancellation.check();int adaptiveScore=probe.meanConfidence();
             List<ImageTextSelection.Word> adaptiveWords=regions(probe.getHOCRText(0),source.getWidth(),source.getHeight(),cancellation);
-            if(app.space.notes.domain.OcrScriptConsensus.prefer(baseline,original,ordinary,ordinaryScore,ordinaryWords,adaptive,adaptiveScore,adaptiveWords))return new Result(adaptive,"auto",Math.min(ordinaryScore,adaptiveScore),source.getWidth(),source.getHeight(),adaptiveWords);
+            if(app.space.notes.domain.OcrScriptConsensus.prefer(baseline,original,ordinary,ordinaryScore,ordinaryWords,adaptive,adaptiveScore,adaptiveWords))return new Result(ordinary,"auto",Math.min(ordinaryScore,adaptiveScore),source.getWidth(),source.getHeight(),ordinaryWords);
             return null;
         }finally{synchronized(cancellation){cancellation.active=primary;try{probe.recycle();}finally{if(input!=null)input.recycle();}}}
     }

@@ -22,8 +22,19 @@ public final class OcrScriptConsensus {
    if(intersection<.65f*union)return false;
   }return true;
  }
+ // Adaptive thresholding may pad a line vertically. Corroboration must cover
+ // the tight ordinary word, stay bounded, and never swallow another word centre.
+ private static boolean corroborates(List<ImageTextSelection.Word> tight,List<ImageTextSelection.Word> padded){
+  if(tight.size()!=padded.size())return false;
+  for(int i=0;i<tight.size();i++){ImageTextSelection.Word a=tight.get(i),b=padded.get(i);
+   float area=(a.right-a.left)*(a.bottom-a.top),other=(b.right-b.left)*(b.bottom-b.top);
+   float intersection=Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+   if(intersection<.8f*Math.min(area,other) || Math.max(area,other)>3*Math.min(area,other))return false;
+   for(int j=0;j<tight.size();j++)if(j!=i){ImageTextSelection.Word w=tight.get(j);float x=(w.left+w.right)/2,y=(w.top+w.bottom)/2;if(x>b.left && x<b.right && y>b.top && y<b.bottom)return false;}
+  }return true;
+ }
  public static boolean prefer(String base,List<ImageTextSelection.Word> original,String ordinary,int ordinaryConfidence,List<ImageTextSelection.Word> ordinaryWords,String adaptive,int adaptiveConfidence,List<ImageTextSelection.Word> adaptiveWords){
   if(!eligible(base,original) || !eligible(ordinary,ordinaryWords) || !eligible(adaptive,adaptiveWords) || ordinaryConfidence<70 || ordinaryConfidence>100 || adaptiveConfidence<90 || adaptiveConfidence>100)return false;
-  return !normalized(base).equals(normalized(adaptive)) && normalized(ordinary).equals(normalized(adaptive)) && aligned(original,ordinaryWords) && aligned(original,adaptiveWords) && aligned(ordinaryWords,adaptiveWords);
+  return !normalized(base).equals(normalized(adaptive)) && normalized(ordinary).equals(normalized(adaptive)) && aligned(original,ordinaryWords) && corroborates(ordinaryWords,adaptiveWords);
  }
 }

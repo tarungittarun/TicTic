@@ -71,6 +71,8 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Validate runner emulator and avoid unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -111,6 +113,7 @@ jobs:
             refinement-native.*
             ordered-module-*
             refinement-environment-*
+            emulator-preflight.txt
           retention-days: 7
           if-no-files-found: warn
 

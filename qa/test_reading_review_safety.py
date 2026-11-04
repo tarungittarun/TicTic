@@ -14,3 +14,10 @@ class ReadingReviewSafety(unittest.TestCase):
   self.assertNotIn('useText.accept',action)
   self.assertNotIn('dialog.dismiss()',action)
   self.assertIn('copy.setEnabled(n>0)',source)
+
+ def test_full_cohort_waits_for_current_source_four_profile_pilot(self):
+  import yaml
+  workflow=yaml.safe_load(Path('.github/workflows/notes-module-e2e.yml').read_text())
+  for name in ('native','benchmark'):
+   self.assertEqual(['build','recognition_focus'],workflow['jobs'][name]['needs'])
+  self.assertEqual(4,len(workflow['jobs']['recognition_focus']['strategy']['matrix']['include']))

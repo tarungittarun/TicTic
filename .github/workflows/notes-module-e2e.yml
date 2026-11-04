@@ -1,3 +1,4 @@
+# Candidate66: fix actual rotation clipping; pin primary image actions outside secondary scroll. Gate full corpus/native lanes on all four recognition-focus profiles first.
 # Candidate65: exact-zero silence preflight, explicit image-text copy and image-led accessible tools. Full new-source qualification; no model added or speech attention adoption.
 # Candidate63: bounded same-script consensus; retain tight native boxes, source pixels and exact original API26 assertion. 41782476953 passed both APIs and one-profile historical audit. No weight addition or training.
 # Candidate62: preserve already readable paper ink; repair independently observed Kannada/mixed-script interpolation regressions.
@@ -18,7 +19,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression65-${{ github.ref }}
+  group: notes-module-e2e-regression66-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -64,13 +65,13 @@ jobs:
       - name: Prepare genuinely new signed development APK, not a public release
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.65.0-65-development.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.65.0-65-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.66.0-66-development.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.66.0-66-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
-          sha256sum MyNotes-v0.65.0-65-development.apk > notes-development-sha256.txt
+          sha256sum MyNotes-v0.66.0-66-development.apk > notes-development-sha256.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.65.0-65-development.apk
+          path: MyNotes-v0.66.0-66-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -88,7 +89,7 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
   native:
-    needs: build
+    needs: [build, recognition_focus]
     runs-on: ubuntu-24.04
     timeout-minutes: 65
     strategy:
@@ -156,7 +157,7 @@ jobs:
           if-no-files-found: warn
 
   benchmark:
-    needs: build
+    needs: [build, recognition_focus]
     runs-on: ubuntu-24.04
     timeout-minutes: 65
     strategy:

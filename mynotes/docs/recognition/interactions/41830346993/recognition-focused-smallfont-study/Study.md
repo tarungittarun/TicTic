@@ -4,7 +4,7 @@ Run41830346993; sourcecba7533f. This recovers already completed inference, not a
 
 72 authored font/script/size/polarity inputs, each measured twice; not144 independent scenes. Five public inputs from three original iOS screenshots: two complete photo/dialog screenshots, one selected-row crop, two no-text nature-photo crops. Not positive street-sign OCR or untouched heldout data.
 
-Timings are emulator wall-clock inference, counterbalanced order in font pairs; first call includes cold provisioning. Decode/synthesis/upscale/scoring excluded. CER keeps characters/symbols; empty-reference denominator is one. Whole-image CER does not erase script/status-icon inventions.
+Timings are emulator wall-clock inference, counterbalanced order in font pairs; first call includes cold provisioning. Decode/synthesis/upscale/scoring excluded. CER keeps characters/symbols; empty-reference denominator is one. Whole-image CER does not erase script/status-icon inventions. Public text-input metrics exclude the empty-reference controls; the aggregate public_scenes mean mixes positive CER with empty-reference edit counts and is NOT an accuracy percentage. Non-Latin-letter counts exclude digits; indic-glyph counts also catch invented Kannada/Devanagari digits/marks.
 
 ```json
 {
@@ -31,7 +31,7 @@ Timings are emulator wall-clock inference, counterbalanced order in font pairs; 
   "candidate4x": {
     "count": 72,
     "exact": 63,
-    "mean_cer": 0.021938131313131312,
+    "mean_cer": 0.021938131313131316,
     "median_ms": 273.0,
     "max_ms": 870
   },
@@ -42,9 +42,17 @@ Timings are emulator wall-clock inference, counterbalanced order in font pairs; 
     "median_ms": 1442,
     "max_ms": 3955
   },
-  "public_scene_script_inventions": 2,
+  "public_scene_non_latin_letter_outputs": 2,
   "negative_controls": 2,
-  "negative_false_positives": 2
+  "negative_false_positives": 2,
+  "public_text_inputs": {
+    "count": 3,
+    "exact": 1,
+    "mean_cer": 0.02417550696398932,
+    "median_ms": 1294,
+    "max_ms": 1442
+  },
+  "public_scene_indic_glyph_outputs": 3
 }
 ```
 

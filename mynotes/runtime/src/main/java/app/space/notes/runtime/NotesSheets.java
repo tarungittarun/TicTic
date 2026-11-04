@@ -43,7 +43,11 @@ final class NotesSheets {
   // Keep the existing heading/Close hierarchy; reclaim decorative vertical space, not targets.
   surface.setPadding(design.dp(16),filter?0:design.dp(4),design.dp(16),filter?0:design.dp(16));
   caption.setPadding(0,filter?0:design.dp(12),0,filter?0:design.dp(12));
-  int cap=filter?Math.max(1,shell.getHeight()/2):Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*.72f)));
+  // Library has eight 48dp rows: let Settings remain visible in ordinary portrait
+  // instead of hiding the last destination. Landscape and Filters keep their caps.
+  boolean library=current!=null && "Library".contentEquals(caption.getText()) && shell.getHeight()>shell.getWidth();
+  float fraction=library?.88f:.72f;
+  int cap=filter?Math.max(1,shell.getHeight()/2):Math.min(design.dp(560),Math.max(design.dp(112),(int)(shell.getHeight()*fraction)));
   int height=cap;
   if(current!=null){
    int width=Math.max(1,Math.min(shell.getWidth(),lp.width)-surface.getPaddingLeft()-surface.getPaddingRight());

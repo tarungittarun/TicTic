@@ -49,3 +49,15 @@ class Candidate67Safety(unittest.TestCase):
         measure=source.split('@Override protected void onMeasure',1)[1].split('private static void showChild',1)[0]
         self.assertLess(measure.index('reflow.accept'),measure.index('super.onMeasure'))
         self.assertNotIn('root.addOnLayoutChangeListener',source)
+
+class LibraryPortraitDiscoverability(unittest.TestCase):
+    def test_portrait_library_expands_without_changing_half_height_filters(self):
+        source=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java').read_text()
+        self.assertIn('"Library".contentEquals(caption.getText())',source)
+        self.assertIn('shell.getHeight()>shell.getWidth()',source)
+        self.assertIn('float fraction=library?.88f:.72f',source)
+        self.assertIn('filter?Math.max(1,shell.getHeight()/2)',source)
+    def test_native_traversal_checks_final_settings_row_not_just_child_order(self):
+        source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        self.assertIn('settings.getGlobalVisibleRect(visible)',source)
+        self.assertIn('settings.getHeight(),visible.height()',source)

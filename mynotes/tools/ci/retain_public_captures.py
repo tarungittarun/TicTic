@@ -1,7 +1,7 @@
 """Retain only named public CI fixtures; missing/empty/corrupt capture is evidence, not success."""
 from pathlib import Path, PurePosixPath
 import hashlib, tarfile
-ALLOWED={'image-text-selection.png','word-synthetic-paper-page.png','spreadsheet-grid-viewport.png'}
+ALLOWED={'image-text-selection.png','word-synthetic-paper-page.png','spreadsheet-grid-viewport.png','home-notes-long-distance-drag.png','home-doc-long-distance-drag.png','doc-native-selection-scroll.png','notes-native-selection-scroll.png'}
 # Exact synthetic traversal names, never an arbitrary PNG-prefix/file whitelist.
 ALLOWED.update('e2e-'+name+'.png' for name in [
     'home-notes','home-doc','viewed-options','viewed-help','settings-library','settings',

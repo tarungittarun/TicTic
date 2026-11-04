@@ -298,3 +298,25 @@ agreement, source-copy, word coverage, digit/punctuation and geometry checks sta
 in place. Its native gate now executes the full original 21-method OCR class
 plus 384 varied and 128 frozen-reference inferences on each API, with an API34
 historical same-input regression audit. These remain unqualified until executed.
+
+
+### Full experimental r4: actual native results, not wrapper colour
+
+Run **41779636217**, compiled source e1a7f9b4, passed JVM/build/lint. Its 384-case
+API34 historical comparison measured **1 improved / 0 regressed / 0 operational
+errors**. This is one same-input synthetic profile, not broad real-photo accuracy
+or causal phone speed. Native logs recovered read-only in **41781104001** prove
+**API34 23/23**; its job was incorrectly red because optional absent probe data
+was not JSON. API26 was **22/23**, with the original conjunct assertion still
+failing. Both APIs completed 384 varied + 128 frozen-reference inferences with
+zero operational errors: API34 targets 378/384 and 124/128, API26 373/384 and
+123/128. Failed assertions are retained; no test was rerun to recover these counts.
+
+Diagnostic **41781175749** compiled and reached the same original error. Its
+baseline has confidence 84, complete four-word boxes and two text lines. All
+entry gates are true, including native dimensions 2400×1000, script eligibility,
+and near-uniform background. Thus neither a missing newline nor the paper-entry
+gate explains this remaining rejection. Candidate word geometry is being
+recovered separately from the immutable artifact (GitHub truncates long check
+annotations to 4096 characters). No accuracy/physical acceptance, audio speed gain,
+model training, release, or completed task is claimed.

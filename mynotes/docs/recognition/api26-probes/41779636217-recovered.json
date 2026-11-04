@@ -1,0 +1,124 @@
+{
+  "source_run": 41779636217,
+  "recovery_run": 41781104001,
+  "scope": "Original native outcomes recovered without retries; API26 optional-probe annotation truncated, original/corpora complete.",
+  "adopted": false,
+  "reports": [
+    {
+      "api": 34,
+      "original": {
+        "ok": true,
+        "expected": 23,
+        "passed": 23,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.OfflineOcrTest#mixedStyleDialogScreenshotKeepsTitleAndActions",
+          "app.space.notes.OfflineOcrTest#invalidOrCancelledRegionNeverRecyclesOriginal",
+          "app.space.notes.OfflineOcrTest#localGalleryDownloadsAndPickerUrisAreAccepted",
+          "app.space.notes.OfflineOcrTest#upscaledSmallImagesKeepNormalizedWordBoxesInsideTheSource",
+          "app.space.notes.OfflineOcrTest#selectedRegionRunsFreshInferenceWithoutChangingSource",
+          "app.space.notes.OfflineOcrTest#printedArithmeticSymbolsAreRecognizedWithRealInference",
+          "app.space.notes.OfflineOcrTest#tallScreenshotPreprocessingEnlargesSmallTextWithinBudget",
+          "app.space.notes.OfflineOcrTest#controlledHindiKannadaImagesProduceAuditableDiagnostics",
+          "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+          "app.space.notes.OfflineOcrTest#readableKannadaPaperPreservesNativeInkAndBothLines",
+          "app.space.notes.OfflineOcrTest#nativeWordBoxesMatchTheChosenRecognitionPassAndSourceCoordinates",
+          "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols",
+          "app.space.notes.OfflineOcrTest#cloudAndFileUrisAreRefusedBeforeReading",
+          "app.space.notes.OfflineOcrTest#hindiAndKannadaBundledModelsRunWithoutDownloading",
+          "app.space.notes.OfflineOcrTest#offlineEnglishImageRunsRealNativeInference",
+          "app.space.notes.OfflineOcrTest#preprocessingCompositesTransparencyAndBoundsSmallImageUpscale",
+          "app.space.notes.OfflineOcrTest#cancelledTaskNeverStartsInference",
+          "app.space.notes.OfflineOcrTest#darkSparseScreenshotReadsNativePrintedTextWithoutMutatingSource",
+          "app.space.notes.OfflineOcrTest#darkFrameDoesNotInvertALightDocumentInterior",
+          "app.space.notes.OfflineOcrTest#bundledModelsMatchPinnedHashes",
+          "app.space.notes.OfflineOcrTest#blankImageDoesNotInventText",
+          "app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime",
+          "app.space.notes.ModuleCorpusBenchmark#heldOutOcrReferencesMeasureIndependentRecognition"
+        ]
+      },
+      "corpora": [
+        {
+          "name": "ocr",
+          "observations": 384,
+          "errors": 0,
+          "targets_met": 378
+        },
+        {
+          "name": "ocr-holdout",
+          "observations": 128,
+          "errors": 0,
+          "targets_met": 124
+        }
+      ],
+      "optional_probe_error": "Not JSON; retained verbatim, never substituted for original result",
+      "historical": {
+        "scope": "One API34 historical profile, hash-matched synthetic corpus; not same-guest A/B, causal speed, physical acceptance or broad scene accuracy. Never used for production selection.",
+        "baseline_run": 41771337080,
+        "candidate_compilation_run": "41779636217",
+        "adopted": false,
+        "operational_errors": 0,
+        "improved": 1,
+        "regressed": 0
+      }
+    },
+    {
+      "api": 26,
+      "original": {
+        "ok": false,
+        "expected": 23,
+        "passed": 22,
+        "missing": [
+          "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols"
+        ],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [
+          "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols: status -2 org.junit.ComparisonFailure: expected:<ಕನ್[ನ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ> but was:<ಕನ್[ಹ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.OfflineOcrTest.knownNativeOmissionsKeepExistingTextAndCoordinates(OfflineOcrTest.java:111)\n\tat app.space.notes.OfflineOcrTest.automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols(OfflineOcrTest.java:104)\n"
+        ],
+        "cases": [
+          "app.space.notes.OfflineOcrTest#mixedStyleDialogScreenshotKeepsTitleAndActions",
+          "app.space.notes.OfflineOcrTest#invalidOrCancelledRegionNeverRecyclesOriginal",
+          "app.space.notes.OfflineOcrTest#localGalleryDownloadsAndPickerUrisAreAccepted",
+          "app.space.notes.OfflineOcrTest#upscaledSmallImagesKeepNormalizedWordBoxesInsideTheSource",
+          "app.space.notes.OfflineOcrTest#selectedRegionRunsFreshInferenceWithoutChangingSource",
+          "app.space.notes.OfflineOcrTest#printedArithmeticSymbolsAreRecognizedWithRealInference",
+          "app.space.notes.OfflineOcrTest#tallScreenshotPreprocessingEnlargesSmallTextWithinBudget",
+          "app.space.notes.OfflineOcrTest#controlledHindiKannadaImagesProduceAuditableDiagnostics",
+          "app.space.notes.OfflineOcrTest#controlledCommonTextCorpusReportsStrictCharacterErrorWithoutErasingSymbols",
+          "app.space.notes.OfflineOcrTest#readableKannadaPaperPreservesNativeInkAndBothLines",
+          "app.space.notes.OfflineOcrTest#nativeWordBoxesMatchTheChosenRecognitionPassAndSourceCoordinates",
+          "app.space.notes.OfflineOcrTest#cloudAndFileUrisAreRefusedBeforeReading",
+          "app.space.notes.OfflineOcrTest#hindiAndKannadaBundledModelsRunWithoutDownloading",
+          "app.space.notes.OfflineOcrTest#offlineEnglishImageRunsRealNativeInference",
+          "app.space.notes.OfflineOcrTest#preprocessingCompositesTransparencyAndBoundsSmallImageUpscale",
+          "app.space.notes.OfflineOcrTest#cancelledTaskNeverStartsInference",
+          "app.space.notes.OfflineOcrTest#darkSparseScreenshotReadsNativePrintedTextWithoutMutatingSource",
+          "app.space.notes.OfflineOcrTest#darkFrameDoesNotInvertALightDocumentInterior",
+          "app.space.notes.OfflineOcrTest#bundledModelsMatchPinnedHashes",
+          "app.space.notes.OfflineOcrTest#blankImageDoesNotInventText",
+          "app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime",
+          "app.space.notes.ModuleCorpusBenchmark#heldOutOcrReferencesMeasureIndependentRecognition"
+        ]
+      },
+      "corpora": [
+        {
+          "name": "ocr",
+          "observations": 384,
+          "errors": 0,
+          "targets_met": 373
+        },
+        {
+          "name": "ocr-holdout",
+          "observations": 128,
+          "errors": 0,
+          "targets_met": 123
+        }
+      ],
+      "annotation_truncated": true
+    }
+  ]
+}

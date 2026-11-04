@@ -1,4 +1,4 @@
-name: Recover immutable consensus results without rebuilding or rerunning assertions
+name: Recover public consensus gate inputs without rebuilding or rerunning assertions
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -15,33 +15,22 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41779636217
+          run-id: 41781175749
           pattern: consensus-original-ocr-api*
           path: retained
-      - name: Parse original logs first, never mask them with optional diagnostic JSON
+      - name: Expose bounded gate inputs separately to avoid annotation truncation
         run: |
           python3 - <<'PY'
-          import json,pathlib,re
-          from mynotes.tools.ci.results import android
-          expected=['app.space.notes.OfflineOcrTest#'+m for m in re.findall(r'@Test\s+public\s+void\s+(\w+)\(',pathlib.Path('mynotes/app/src/androidTest/java/app/space/notes/OfflineOcrTest.java').read_text())]+['app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime','app.space.notes.ModuleCorpusBenchmark#heldOutOcrReferencesMeasureIndependentRecognition']
-          reports=[]
-          for api in (26,34):
-              root=pathlib.Path('retained')/('consensus-original-ocr-api'+str(api))
-              r=android((root/'refinement-native.txt').read_text(errors='replace'),expected)
-              report={'api':api,'original':r,'corpora':[]}
-              for name,n in [('ocr',384),('ocr-holdout',128)]:
-                  corpus=json.loads((root/(name+'.json')).read_text())
-                  assert len(corpus['cases'])==corpus['expected']==n
-                  report['corpora'].append({'name':name,'observations':n,'errors':sum(c['status']!='OK' for c in corpus['cases']),'targets_met':sum(c['accuracy_target_met'] for c in corpus['cases'])})
-              probe=root/'public-native-ocr-probe.json'
-              if probe.exists():
-                  try:report['optional_probe']=json.loads(probe.read_text())
-                  except ValueError:report['optional_probe_error']='Not JSON; retained verbatim, never substituted for original result'
-              history=root/'historical-consensus.json'
-              if history.exists():report['historical']={k:v for k,v in json.loads(history.read_text()).items() if k!='pairs'}
-              reports.append(report)
-              print('::notice title=Immutable original native results::'+json.dumps(report).replace('%','%25'))
-          pathlib.Path('recovered-consensus.json').write_text(json.dumps({'source_run':41779636217,'adopted':False,'scope':'Read-only recovery, no test retries, model adoption or training','reports':reports},ensure_ascii=False,indent=2)+'\n')
+          import json,pathlib
+          root=pathlib.Path('retained/consensus-original-ocr-api26')
+          original=json.loads((root/'original-assertion.json').read_text())
+          report=json.loads((root/'public-native-ocr-probe.json').read_text())
+          print('::notice title=Original immutable assertion::'+json.dumps(original))
+          print('::notice title=Public baseline gate inputs::'+json.dumps(report['baseline'],ensure_ascii=False))
+          for row in report['cases']:
+              if row['language']=='kan' and row['psm']==3:
+                  print('::notice title=Public Kannada candidate geometry::'+json.dumps(row,ensure_ascii=False))
+          pathlib.Path('recovered-consensus.json').write_text(json.dumps({'source_run':41781175749,'original':original,'probe':report,'adopted':False},ensure_ascii=False,indent=2)+'\n')
           PY
       - uses: actions/upload-artifact@v7.0.2
         if: always()

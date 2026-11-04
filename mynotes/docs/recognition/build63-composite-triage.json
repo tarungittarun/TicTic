@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "candidate_source": "3aa67629e1f1748531f348308aa53e833b2becc7",
+  "candidate_report_run": 41789450818,
+  "candidate_measurements_sha256": "638542872192108c741401e3fde8d7bdb4fa7939b2d4952478dceae0e6b0c2d4",
+  "baseline_report_run": 41771337080,
+  "baseline_measurements_sha256": "77c05f26f98ebec85bb22b1c5dd9e62afb6c5b5d55bfff9bc63b8eead01d5cc7",
+  "comparison_key": [
+    "profile",
+    "module",
+    "id",
+    "input_sha256"
+  ],
+  "modules": {
+    "ocr": {
+      "observations": 1536,
+      "target_miss_rows": 24,
+      "distinct_hashed_inputs": 324,
+      "unhashed_observations": 0,
+      "distinct_hashed_inputs_with_any_target_miss": 6,
+      "misses_by_kind": {
+        "Kannada": 20,
+        "mixed-script": 4
+      },
+      "matched_comparison": {
+        "equal": 1532,
+        "gain": 4
+      },
+      "score": "cer"
+    },
+    "voice": {
+      "observations": 3216,
+      "target_miss_rows": 685,
+      "distinct_hashed_inputs": 800,
+      "unhashed_observations": 16,
+      "distinct_hashed_inputs_with_any_target_miss": 183,
+      "misses_by_kind": {
+        "clean": 116,
+        "gain3-clipped": 113,
+        "quarter-amplitude": 122,
+        "snr10-uniform-seed1729": 334
+      },
+      "matched_comparison": {
+        "equal": 3033,
+        "regression": 80,
+        "gain": 87,
+        "excluded_unhashed": 16
+      },
+      "score": "normalized_wer"
+    }
+  },
+  "limitations": [
+    "Fixed synthetic OCR cohort, not broad real-scene acceptance.",
+    "Repeated profile observations are not unique inputs.",
+    "Unhashed silence controls are explicitly excluded from matched-hash comparison.",
+    "Speech weights/default attention unchanged; observed transcript variation is not a causal accuracy or speed improvement.",
+    "Exact original failure runs remain failed; composite capture receipts preserve all source runs.",
+    "No training, shipping adoption or physical acceptance."
+  ]
+}

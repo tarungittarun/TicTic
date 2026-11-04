@@ -411,3 +411,20 @@ correction workflow waits for the existing capture; it neither compiles nor runs
 app tests and corrects the same report directory rather than duplicating the full
 bundle. A passing capture/report is not broad scene accuracy, a phone-speed result,
 physical acceptance, model training or shipping qualification.
+
+The corrected report-only run `41789450818` succeeded after explicitly fetching
+the original source tree for the source-pinned inventory (the shallow checkout
+caused the two earlier report attempts to fail with `fatal: not a tree object`).
+The complete composite is under `module-e2e/41788513984`: 1,704 native outcomes,
+4,752/4,752 inferences, 1,097 PDF pages. Both supplemental OCR lanes passed all
+four assertions. The original failed full/supplement/report attempts stay visible.
+
+`build63-composite-triage.json` independently compares identical hashed inputs
+and profile/module/case IDs with full62. OCR: 1,532 equal, four improved, zero
+regressions. Those four rows are repeated profiles, not four independently new
+real-world successes. Current target misses: 24 OCR rows (20 Kannada, four mixed
+script) and 685 voice rows. Voice hash-matched comparison: 3,033 equal, 87 gains, 80 regressions;
+16 unhashed silence controls are excluded rather than claimed identical. The
+unchanged shipping speech weights and emulator variation do not justify a causal
+speech improvement claim. Broad scene-text and phone audio/UI acceptance remain
+unfinished. The separate exact-weight attention study is not shipping adoption.

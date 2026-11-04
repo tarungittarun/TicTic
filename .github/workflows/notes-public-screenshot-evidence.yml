@@ -1,0 +1,69 @@
+name: Retain original successful public screenshot audits, no inference reruns
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-public-screenshot-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require all original public screenshot lanes successful
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/tarungittarun/TicTic/actions/runs/41811062528 --jq .conclusion | grep -x success
+          for job in 126511461408 126511461502 126511462175 126511463840; do
+            gh api repos/tarungittarun/TicTic/actions/jobs/$job --jq .conclusion | grep -x success
+          done
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41811062528
+          pattern: public-screenshot-*-evidence
+          path: public-evidence
+      - name: Independently recheck and preserve actual hypotheses and times
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,shutil,os,subprocess
+          from mynotes.tools.ci.verify_public_screenshots import score,ROOT
+          dest=pathlib.Path('mynotes/docs/recognition/public-screenshots/41811062528');dest.mkdir(parents=True,exist_ok=True)
+          manifest=json.loads((ROOT/'manifest.json').read_text());lines=['# Read image / OCR: real public screenshots','', 'Capture run41811062528. Two original third-party Android screenshots, six labelled inputs and24 profile observations. Not24 independent scenes. No training, new model, production APK publication or physical acceptance.','', 'Original pixels, frozen references and Apache-2.0 license: [source assets](../../../../report-assets/public-ocr-screenshots/README.md).','', '| Profile | Input | CER | Inference ms |','|---|---|---:|---:|']
+          all_rows=[]
+          for profile in ('light-portrait','dark-portrait','light-landscape','dark-landscape'):
+              folder=pathlib.Path('public-evidence')/f'public-screenshot-{profile}-evidence'
+              files={}
+              for name in ('public-screenshot-benchmark.json','public-screenshot-independent.json'):
+                  file=folder/name;assert 0<file.stat().st_size<100000;files[name]=json.loads(file.read_text())
+              native=files['public-screenshot-benchmark.json'];independent=files['public-screenshot-independent.json'];checked=score(native,manifest)
+              assert independent['ok'] is True and independent['execution']['ok'] is True and checked['all_accuracy_targets_met'] is True
+              assert checked['cases']==independent['cases'] and len(checked['cases'])==6
+              for name in files:shutil.copyfile(folder/name,dest/f'{profile}-{name}')
+              for row in checked['cases']:
+                  lines.append(f"| {profile} | {row['id']} | {row['cer']:.5f} | {row['elapsed_ms']} |")
+                  all_rows.append(dict(row,profile=profile))
+          for row in all_rows:
+              lines.extend(['',f"## {row['profile']} / {row['id']}",'','Reference:','',row['reference'],'','Actual production-recognizer output:','',row['recognized']])
+          lines+=['','Times are emulator inference only, first-call cold initialization included. The original/half-size/JPEG inputs are labelled derivatives, not fresh scenes. Passing whole-image CER<=0.15 does not prove every small status-bar token was recovered; inspect the actual hypotheses.','']
+          (dest/'OCR-Output-Audit.md').write_text('\n'.join(lines))
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41811062528'],text=True))
+          (dest/'provenance.json').write_text(json.dumps({'capture_run':41811062528,'capture_source':run['head_sha'],'retention_run':os.environ['GITHUB_RUN_ID'],'original_screenshots':2,'derived_inputs':6,'profile_observations':24,'physical_acceptance':False,'model_changed':False,'training_steps':0,'new_production_apk':False},indent=2)+'\n')
+          print('::notice title=Original public screenshot audit retained::24 observations, six labelled inputs, two actual screenshots; all independent CER targets met; token-level completeness not inferred.')
+          PY
+      - name: Gate before preserving evidence on the session branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m pip install PyYAML==6.0.3 Pillow==11.3.0
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/recognition/public-screenshots/41811062528
+          git commit -m 'Retain actual public screenshot hypotheses and independent four-profile audit [skip ci]'
+          git push origin arena/3caca636-tictic

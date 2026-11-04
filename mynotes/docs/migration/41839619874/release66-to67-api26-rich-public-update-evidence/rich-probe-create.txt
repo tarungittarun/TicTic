@@ -1,0 +1,47 @@
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+app.space.notes.ReleaseRichMigrationProbe:
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=publicRichLibraryRetainsItsOldWriterSnapshot
+INSTRUMENTATION_STATUS: class=app.space.notes.ReleaseRichMigrationProbe
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+Error in publicRichLibraryRetainsItsOldWriterSnapshot(app.space.notes.ReleaseRichMigrationProbe):
+java.lang.AssertionError: expected:<64> but was:<66>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:647)
+	at org.junit.Assert.assertEquals(Assert.java:633)
+	at app.space.notes.ReleaseRichMigrationProbe.publicRichLibraryRetainsItsOldWriterSnapshot(ReleaseRichMigrationProbe.java:67)
+
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=publicRichLibraryRetainsItsOldWriterSnapshot
+INSTRUMENTATION_STATUS: class=app.space.notes.ReleaseRichMigrationProbe
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<64> but was:<66>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:647)
+	at org.junit.Assert.assertEquals(Assert.java:633)
+	at app.space.notes.ReleaseRichMigrationProbe.publicRichLibraryRetainsItsOldWriterSnapshot(ReleaseRichMigrationProbe.java:67)
+
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.005
+There was 1 failure:
+1) publicRichLibraryRetainsItsOldWriterSnapshot(app.space.notes.ReleaseRichMigrationProbe)
+java.lang.AssertionError: expected:<64> but was:<66>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:647)
+	at org.junit.Assert.assertEquals(Assert.java:633)
+	at app.space.notes.ReleaseRichMigrationProbe.publicRichLibraryRetainsItsOldWriterSnapshot(ReleaseRichMigrationProbe.java:67)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

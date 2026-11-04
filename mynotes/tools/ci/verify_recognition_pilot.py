@@ -26,6 +26,11 @@ def main():
     print(summary)
     if not result['ok']:
         print('::error title=Recognition pilot incomplete::'+summary.replace('%','%25').replace('\n','%0A'))
+        # A single aggregate annotation is truncated by Actions. Keep each actual
+        # native cause accessible without needing a large artifact or losing later failures.
+        for failure in result.get('failures', []):
+            excerpt='\n'.join(failure.splitlines()[:9])[:1600]
+            print('::error title=Native pilot case::'+excerpt.replace('%','%25').replace('\n','%0A').replace('\r','%0D'))
         raise SystemExit(1)
 
 

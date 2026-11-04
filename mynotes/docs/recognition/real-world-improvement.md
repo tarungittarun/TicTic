@@ -350,8 +350,34 @@ A separate **private local desktop** experiment became possible using the binary
 shipping weights. Twelve probes of the supplied crash-popup screenshot stayed
 outside Git/CI; no images or extracted text were uploaded. Three whole-image
 adaptive probes recovered all three manually referenced popup strings; ordinary
-whole-image probes did not. Six unnormalised manual-crop probes recovered none.
-This uses Pillow approximation, not Android JNI/app selection, and does not prove
-the reported popup fixed. It reinforces why global adaptive replacement and
-blind crop/upscale are unsafe. Private outputs remain local; no phone-speed,
-physical acceptance or speech improvement is inferred.
+whole-image probes did not. The initial manual-crop coordinates were taken from the resized viewer instead
+of the original 1200×2670 source, so those off-target crop results are INVALID
+as dialog evidence. Corrected source-mapped crops produced all three strings in
+3/6 unnormalised probes and 6/6 dark-normalised probes (including all three
+ordinary-threshold modes). This corrects the local experiment, not an app mapping
+change. It uses Pillow approximation, not Android JNI/app selection, and does not
+prove the reported popup fixed on a phone. Whole-image automatic reading still
+needs qualification; global adaptive replacement loses other existing text.
+Private outputs remain local; no phone-speed, physical acceptance or speech
+improvement is inferred.
+
+
+### Nonshipping speech speed investigation (release/default unchanged)
+
+`CompactSpeechBenchmark` is opt-in benchmark source, not production code. The
+new debug-only CPU attention study keeps the exact existing F16 weights and all
+Java/resources fixed; APK payload proof permits only the three ABI native-wrapper
+entries to differ. Default and release attention remain OFF, no GPU, extra model,
+training, release adoption or speed gain claimed. It evaluates CMU KSP/SLT
+B0065–B0100: 36 prompts × two speakers × four deterministic acoustic conditions,
+plus four silence controls, across API26/API34 with balanced phase order. KSP is
+not an unseen speaker. Per-row source preservation, independent raw-hypothesis
+WER, partial results, separate warmups and observable wall time are retained.
+Any WER regression blocks adoption; emulator timing is not phone-speed proof.
+
+Initial research runs 41784821798 / 41784916890 stopped during preparation;
+no native accuracy outcome is inferred. A repository-root package-import mistake
+was reproduced locally and repaired. A missing progress heartbeat was also fixed
+before the corrected native study. The integration denied cancelling the initial
+queued run (403), so it is not described as cancelled. These failures remain
+visible; no assertion is weakened or retried to choose a favourable transcript.

@@ -74,3 +74,35 @@ class BootSupplement(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp,patch.object(module,'ingest',return_value=(data,rows,{})),patch.object(module,'render',return_value={}):
             module.build(Path(temp),Path(temp),r,999)
         self.assertEqual('100',data['screens'][0]['capture_run'])
+
+    def test_native_boot_lane_accepted_but_partial_or_asserted_original_never_replaced(self):
+        r=receipt();r['missing_lanes']=['light-portrait-ordered'];r['lane_capture_runs']={'light-portrait-ordered':999};r['original_failed_jobs'][0]['lane']='light-portrait-ordered'
+        self.assertEqual({'light-portrait-ordered'},validate_receipt(r))
+        for field,value in [('tests_executed',1),('boot_timeout_verified',False)]:
+            wrong=copy.deepcopy(r);wrong['original_failed_jobs'][0][field]=value
+            with self.assertRaises(ValueError):validate_receipt(wrong)
+        r['original_artifact_names'].append('module-native-light-portrait-ordered')
+        with self.assertRaises(ValueError):validate_receipt(r)
+
+    def test_native_supplement_keeps_original_benchmark_capture_and_all_native_methods(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from mynotes.tools.ci import build_boot_supplement_report as m
+        r=receipt();r.update(build_run=100,missing_lanes=['light-portrait-ordered'],lane_capture_runs={'light-portrait-ordered':999});r['original_failed_jobs'][0]['lane']='light-portrait-ordered'
+        data={'screens':[{'profile':'light-portrait','lane':'light-portrait-ordered'},{'profile':'dark-portrait','lane':'dark-portrait-ordered'},{'profile':'synthetic-input-not-UI'}],'benchmark_executions':{},'native':{'light-portrait-ordered':{'ok':True,'passed':2,'cases':['a','b']}},'native_complete':True,'benchmark_complete':True}
+        rows=[{'lane':'light-portrait-ocr'}]
+        with tempfile.TemporaryDirectory() as temp,patch.object(m,'ingest',return_value=(data,rows,{'a':{},'b':{}})),patch.object(m,'render',return_value={}):m.build(Path(temp),Path(temp),r,999)
+        self.assertEqual(['999','100','100'],[f['capture_run'] for f in data['screens']]);self.assertEqual(100,rows[0]['capture_run'])
+        self.assertEqual({'light-portrait-ordered':999},data['native_capture_runs'])
+
+    def test_native_supplement_with_duplicate_or_missing_method_is_fatal(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from mynotes.tools.ci import build_boot_supplement_report as m
+        r=receipt();r.update(build_run=100,missing_lanes=['light-portrait-ordered'],lane_capture_runs={'light-portrait-ordered':999});r['original_failed_jobs'][0]['lane']='light-portrait-ordered'
+        for cases in [['a'],['a','a']]:
+            data={'screens':[],'benchmark_executions':{},'native':{'light-portrait-ordered':{'ok':True,'passed':2,'cases':cases}},'native_complete':True,'benchmark_complete':True}
+            with tempfile.TemporaryDirectory() as temp,patch.object(m,'ingest',return_value=(data,[],{'a':{},'b':{}})),patch.object(m,'render',return_value={}):
+                with self.assertRaisesRegex(ValueError,'complete exact original inventory'):m.build(Path(temp),Path(temp),r,999)

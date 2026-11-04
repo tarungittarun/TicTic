@@ -63,7 +63,11 @@ jobs:
             adb shell wm dismiss-keyguard
             adb shell am start -n app.space.notes.debug/app.space.notes.NotesActivity
             adb shell dumpsys gfxinfo app.space.notes.debug reset > animation-frame-reset.txt
+            adb shell settings put global window_animation_scale 1.0
+            adb shell settings put global transition_animation_scale 1.0
+            adb shell settings put global animator_duration_scale 1.0
             adb shell settings get global animator_duration_scale > animation-scale.txt
+            python3 -c 'from pathlib import Path;assert float(Path("animation-scale.txt").read_text().strip())==1.0'
             bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards
             adb shell dumpsys gfxinfo app.space.notes.debug framestats > animation-frame-statistics.txt
             python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards

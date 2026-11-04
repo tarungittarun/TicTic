@@ -17,7 +17,7 @@ jobs:
         shell: python
         run: |
           import os, pathlib, subprocess, re
-          for job in (126365615277, 126366665061, 126370468181):
+          for job in (126388737905, 126388737880):
               result = subprocess.run(['gh','api','--allow-escape-sequences',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
               pathlib.Path(f'job-{job}.txt').write_text(result.stdout)
               # Do not print storage URLs with signed query strings.
@@ -26,7 +26,7 @@ jobs:
               lines = clean.splitlines()
               selected = set(range(max(0,len(lines)-25),len(lines)))
               for i, line in enumerate(lines):
-                  if any(word in line.lower() for word in ('panic:', 'error:', '##[error]', 'fatal', 'insufficient', 'not enough', 'emulator: error', 'no space', 'failed to', 'connection refused')):
+                  if any(word in line.lower() for word in ('panic:', 'error:', '##[error]', 'fatal', 'insufficient', 'not enough', 'emulator: error', 'no space', 'failed to', 'connection refused', 'killed', 'exit code 137', 'out of memory')):
                       selected.update(range(max(0,i-4), min(len(lines),i+5)))
               # Large missing-test JSON must not push the original provisioning
               # error out of the bounded annotation. Keep earliest causes + tail.
@@ -36,28 +36,6 @@ jobs:
               for i in range(0,len(text),3500):
                   msg=text[i:i+3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
                   print(f'::warning title=Retained job {job}::{msg}',flush=True)
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          github-token: ${{ github.token }}
-          run-id: 41770347277
-          name: independently-rescored-historical-ocr61
-          path: public-ocr-audit
-      - name: Expose every independently scored OCR regression, not just a green test count
-        shell: python
-        run: |
-          import json,pathlib,collections
-          report=json.loads(pathlib.Path('public-ocr-audit/historical-ocr61.json').read_text())
-          groups={}
-          for row in report['pairs']:
-              if not row['regressed']:continue
-              clean={k:v for k,v in row.items() if k not in ('profile','improved','regressed')}
-              for version in ('baseline','candidate'):
-                  clean[version]={k:v for k,v in clean[version].items() if k!='elapsed_ms'}
-              key=json.dumps(clean,sort_keys=True,ensure_ascii=False)
-              groups.setdefault(key,[]).append(row['profile'])
-          for key,profiles in groups.items():
-              value=json.dumps({'profiles':profiles,**json.loads(key)},ensure_ascii=False)
-              print('::warning title=Measured public OCR regression::'+value.replace('%','%25').replace('\n','%0A'))
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

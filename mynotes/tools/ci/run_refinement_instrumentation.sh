@@ -6,7 +6,7 @@ python3 "$(dirname "$0")/instrumentation_watchdog.py" timeout 1500s adb shell am
 code=$?
 # Static phase names and elapsed milliseconds for PUBLIC synthetic benchmark fixtures only.
 # Observe the entire retained tag buffer, not just the last 500 unrelated UI log lines.
-timeout 15s adb logcat -d -s NotesPublicBenchmark:I NotesCpuPhase:I '*:S' > refinement-native-cpu-phases.txt 2>/dev/null || true
+timeout 15s adb logcat -d -s NotesPublicBenchmark:I NotesCpuPhase:I NotesSpeechTiming:I '*:S' > refinement-native-cpu-phases.txt 2>/dev/null || true
 set -e
 # Independent diagnostic thread writes these even if the app main thread cannot answer dumpsys.
 for report in native-test-progress native-stall-threads; do

@@ -1,0 +1,36 @@
+name: Retain original recognition failure causes (no test retries)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-recognition-failure-evidence.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Retrieve completed job logs with explicit download failure evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import os, pathlib, subprocess
+          for job in (126162491682, 126175447781, 126358855145):
+              result = subprocess.run(['gh','api',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
+              pathlib.Path(f'job-{job}.txt').write_text(result.stdout)
+              # Do not print storage URLs with signed query strings.
+              stderr = '\n'.join(line.split('?')[0] for line in result.stderr.splitlines())
+              text = result.stdout[-24000:] if result.returncode == 0 else f'Log download failed with code {result.returncode}: {stderr}'
+              pathlib.Path(f'job-{job}-retrieval.txt').write_text(f'exit={result.returncode}\n'+stderr)
+              for i in range(0,len(text),3500):
+                  msg=text[i:i+3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+                  print(f'::warning title=Retained job {job}::{msg}',flush=True)
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: recognition-original-failure-logs
+          path: job-*.txt
+          if-no-files-found: error
+          retention-days: 7

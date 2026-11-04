@@ -18,7 +18,7 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41875828454
+          run-id: 41882249147
           pattern: animation-enabled-reorder-*
           path: animation-evidence
       - name: Verify actual native outcomes and actual animation scale; never equate them to physical smoothness
@@ -29,11 +29,11 @@ jobs:
         run: |
           import pathlib,json,subprocess,shutil,re
           from mynotes.tools.ci.results import android
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41875828454']))
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41882249147']))
           print('::notice title=Observed original animation workflow identity::'+json.dumps({'source':run['head_sha'],'conclusion':run['conclusion']}))
-          assert run['conclusion']=='success' and run['head_sha']=='274818c633b62d638a30c3ce4757dee61faed0ce'
+          assert run['conclusion']=='success' and run['head_sha']=='f2d4b3358c3e9ceb1f02d6797e2a77a116e4a979'
           methods=['app.space.notes.CoreJourneysTest#'+n for n in ['nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments','nativeNotesBottomToTopDragScrollsAcrossThirtySixCards','nativeDocBottomToTopDragScrollsAcrossThirtySixCards']]
-          out=pathlib.Path('mynotes/docs/recognition/interactions/41875828454');out.mkdir(parents=True,exist_ok=True);profiles=[]
+          out=pathlib.Path('mynotes/docs/recognition/interactions/41882249147');out.mkdir(parents=True,exist_ok=True);profiles=[]
           for folder in pathlib.Path('animation-evidence').iterdir():
               dest=out/folder.name;dest.mkdir(exist_ok=True)
               for source in folder.iterdir():
@@ -44,7 +44,7 @@ jobs:
               gfx=(dest/'animation-frame-statistics.txt').read_text();frames=re.search(r'Total frames rendered:\s*(\d+)',gfx)
               profiles.append({'profile':folder.name,'native':verified,'animator_scale':scale,'frames_in_post_instrumentation_dump':int(frames.group(1)) if frames else None,'performance_qualified':False,'physical_smoothness_qualified':False})
           assert len(profiles)==4
-          (out/'provenance.json').write_text(json.dumps({'run':41875828454,'workflow_source':run['head_sha'],'compiled_app_source':'fc80d800481f3861098bde04fe7da3c12712b623','compiled_apk_run':41874321912,'profiles':profiles,'tests_repeated':False,'physical_acceptance':False,'release_approval':False,'scope':'Three existing native long-distance reorder journeys repeated across all four profiles with verified animator scale1.0. Post-instrumentation gfxinfo may have no live process; no physical or emulator smoothness/speed-up claim.'},indent=2)+'\n')
+          (out/'provenance.json').write_text(json.dumps({'run':41882249147,'workflow_source':run['head_sha'],'compiled_app_source':'fc80d800481f3861098bde04fe7da3c12712b623','compiled_apk_run':41874321912,'profiles':profiles,'tests_repeated':False,'physical_acceptance':False,'release_approval':False,'scope':'Three existing native long-distance reorder journeys repeated across all four profiles with verified animator scale1.0. Post-instrumentation gfxinfo may have no live process; no physical or emulator smoothness/speed-up claim.'},indent=2)+'\n')
       - name: Root gate before preserving on fixed branch
         run: |
           set -euo pipefail
@@ -54,7 +54,7 @@ jobs:
           git pull --ff-only origin arena/3caca636-tictic
           python3 -m unittest discover -s qa
           git diff --check
-          git add mynotes/docs/recognition/interactions/41875828454
+          git add mynotes/docs/recognition/interactions/41882249147
           git commit -m 'Retain twelve animation-enabled native reorder outcomes with actual scale, not physical smoothness acceptance [skip ci]'
           for attempt in 1 2 3; do
             if git push origin arena/3caca636-tictic; then break; fi

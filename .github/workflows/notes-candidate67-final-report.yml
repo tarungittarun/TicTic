@@ -1,0 +1,103 @@
+# Reassembles existing immutable evidence only. No native or model tests are repeated.
+name: Candidate67 pinned-source composite report only, all original capture runs retained
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate67-final-report.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  report:
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - name: Wait only for the original native capture, not rerun or rebuild it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import json,subprocess,time
+          for attempt in range(240):
+              artifacts=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41882249274/artifacts']))['artifacts']
+              if any(a['name']=='module-native-light-portrait-ordered' and not a['expired'] for a in artifacts):break
+              run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41882249274?exclude_pull_requests=true']))
+              if run['status']=='completed':raise SystemExit('No native capture: original recovery failed; no assertion is replaced')
+              time.sleep(15)
+          else:raise SystemExit('Bounded wait for actual native evidence expired; no report approval')
+      - name: Wait for original evidence and verify there was no other failure to hide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          gh run watch 41876975461 --exit-status --interval 60
+          set -e
+          python3 - <<'PROOF'
+          import json,pathlib,subprocess,os
+          def api(p):return json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/'+p]))
+          original=api('actions/runs/41876975461?exclude_pull_requests=true');assert original['conclusion']=='failure' and original['head_sha']=='acfd671d4afa4fceb09475cc6e70d1dabb77aefe'
+          failed=[j for j in api('actions/runs/41876975461/jobs?per_page=100')['jobs'] if j['conclusion']=='failure']
+          assert {j['id'] for j in failed}=={126746123138},[(j['name'],j['conclusion']) for j in failed]
+          annotations=api('check-runs/126746123138/annotations');assert any(a['message']=='Timeout waiting for emulator to boot.' for a in annotations)
+          names=[a['name'] for a in api('actions/runs/41876975461/artifacts?per_page=100')['artifacts']]
+          assert 'module-native-light-portrait-ordered' not in names
+          receipt={'source':original['head_sha'],'original_source':original['head_sha'],'build_run':41876975461,'original_conclusion':'failure','original_failed_jobs':[{'job':126746123138,'lane':'light-portrait-ordered','conclusion':'failure','boot_timeout_verified':True,'tests_executed':0,'annotations':annotations}],'original_artifact_names':names,'missing_lanes':['light-portrait-ordered'],'lane_capture_runs':{'light-portrait-ordered':41882249274},'report_only':True,'native_capture_workflow':41882249274,'foundation_artifact':13347602297,'foundation_digest':'sha256:65a1312363456a8ccf087e9f7df60e9abf5e9358768f4e070cea15c17c0a49a1','release_apk_artifact':13347771946,'release_apk_sha256':'91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de','application_rebuilt':False,'models_changed':False,'assertion_failures_replaced':False}
+          pathlib.Path('boot-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          PROOF
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41876975461
+          pattern: module-native-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41876975461
+          pattern: module-benchmark-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41876975461
+          name: module-foundation-lint
+          path: module-artifacts/foundation
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41882249274
+          name: module-native-light-portrait-ordered
+          path: module-artifacts/module-native-light-portrait-ordered
+      - name: Require all1748 native outcomes,4752 original inferences and8 separate public observations; no green relabelling
+        run: |
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          git fetch origin acfd671d4afa4fceb09475cc6e70d1dabb77aefe --depth=1
+          python3 -m mynotes.tools.ci.build_boot_supplement_report --additional-scenes-required --artifacts module-artifacts --output mynotes/docs/module-e2e/${{ github.run_id }} --receipt boot-receipt.json --run ${{ github.run_id }}
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: candidate67-explicit-composite-report
+          path: mynotes/docs/module-e2e/${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: error
+      - name: Root gate and preserve explicit composite on session branch
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = 'arena/3caca636-tictic'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/${{ github.run_id }}
+          git commit -m 'Retain complete exact-build67 composite with original failed boot visible, no repeated corpus [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

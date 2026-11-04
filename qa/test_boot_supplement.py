@@ -33,3 +33,28 @@ class BootSupplement(unittest.TestCase):
         for lanes in ([],['light-portrait-ocr']*2,['unknown-ocr'],['light-portrait-voice0']):
             r=receipt();r['missing_lanes']=lanes
             with self.assertRaises(ValueError):validate_receipt(r)
+
+    def test_every_missing_lane_requires_actual_numeric_capture_run(self):
+        for mapping in ({},{'light-portrait-ocr':True},{'light-portrait-ocr':0},{'light-portrait-ocr':'999'},{'light-portrait-ocr':999,'dark-portrait-ocr':888}):
+            r=receipt();r['lane_capture_runs']=mapping
+            with self.assertRaises(ValueError):validate_receipt(r)
+
+    def test_original_native_screens_and_distinct_supplement_runs_retained(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from mynotes.tools.ci import build_boot_supplement_report as module
+        r=receipt();r['build_run']=100
+        r['missing_lanes'].append('dark-landscape-ocr')
+        r['lane_capture_runs']['dark-landscape-ocr']=888
+        r['original_failed_jobs'].append(dict(lane='dark-landscape-ocr',conclusion='failure',boot_timeout_verified=True,tests_executed=0))
+        data={'screens':[{'profile':'light-portrait'},{'profile':'synthetic-input-not-UI'}],
+              'benchmark_executions':{lane:dict(ok=True,passed=4) for lane in r['missing_lanes']},
+              'native_complete':True,'benchmark_complete':True}
+        rows=[{'lane':lane} for lane in r['missing_lanes'] for i in range(384)]+[{'lane':'dark-portrait-voice0'}]
+        with tempfile.TemporaryDirectory() as temp,patch.object(module,'ingest',return_value=(data,rows,{})),patch.object(module,'render',return_value={}):
+            module.build(Path(temp),Path(temp),r,999)
+        self.assertEqual(['100','999'],[f['capture_run'] for f in data['screens']])
+        self.assertEqual({999},set(row['capture_run'] for row in rows[:384]))
+        self.assertEqual({888},set(row['capture_run'] for row in rows[384:768]))
+        self.assertEqual(100,rows[-1]['capture_run'])

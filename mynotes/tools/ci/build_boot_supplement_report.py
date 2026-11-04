@@ -36,6 +36,11 @@ def build(artifacts,output,receipt,run):
         if not execution.get('ok') or execution.get('passed')!=4 or len(selected)!=384:
             raise ValueError('Supplement must execute all four original assertions and exact 384-case OCR cohort')
     for row in rows:row['capture_run']=receipt['lane_capture_runs'].get(row['lane'],receipt['build_run'])
+    for frame in data['screens']:
+        # Native UI screenshots belong to the original run; OCR input specimens
+        # are supplied by the new light-portrait benchmark, not the UI suite.
+        capture=receipt['lane_capture_runs'].get('light-portrait-ocr') if frame['profile']=='synthetic-input-not-UI' else receipt['build_run']
+        frame['capture_run']=str(capture)
     data.update(composite_evidence=True,build_run=receipt['build_run'],original_workflow_conclusion='failure',benchmark_capture_runs={lane:receipt['lane_capture_runs'].get(lane,receipt['build_run']) for lane in data['benchmark_executions']},
                 supplemental_provenance=receipt,source_run_note='Original build workflow remains failed at emulator boot. Only its zero-test missing OCR lanes were executed separately against the exact same compiled APKs. Other measurements/native outcomes retain original capture runs. No assertion failures replaced.')
     write(output/'provenance.json',data);write(output/'measurements.json',rows)

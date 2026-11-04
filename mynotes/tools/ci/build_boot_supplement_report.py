@@ -15,6 +15,9 @@ def validate_receipt(receipt):
     failed=receipt['original_failed_jobs']
     if {r['lane'] for r in failed}!=expected or len(failed)!=len(expected):
         raise ValueError('Supplement cannot hide another failed job')
+    captures=receipt['lane_capture_runs']
+    if set(captures)!=expected or any(type(v) is not int or v<=0 for v in captures.values()):
+        raise ValueError('Explicit actual supplemental capture runs required')
     names=set(receipt['original_artifact_names'])
     for row in failed:
         if row['conclusion']!='failure' or row['boot_timeout_verified'] is not True or row['tests_executed']!=0:
@@ -32,8 +35,8 @@ def build(artifacts,output,receipt,run):
         selected=[r for r in rows if r['lane']==lane]
         if not execution.get('ok') or execution.get('passed')!=4 or len(selected)!=384:
             raise ValueError('Supplement must execute all four original assertions and exact 384-case OCR cohort')
-    for row in rows:row['capture_run']=run if row['lane'] in lanes else receipt['build_run']
-    data.update(composite_evidence=True,build_run=receipt['build_run'],original_workflow_conclusion='failure',
+    for row in rows:row['capture_run']=receipt['lane_capture_runs'].get(row['lane'],receipt['build_run'])
+    data.update(composite_evidence=True,build_run=receipt['build_run'],original_workflow_conclusion='failure',benchmark_capture_runs={lane:receipt['lane_capture_runs'].get(lane,receipt['build_run']) for lane in data['benchmark_executions']},
                 supplemental_provenance=receipt,source_run_note='Original build workflow remains failed at emulator boot. Only its zero-test missing OCR lanes were executed separately against the exact same compiled APKs. Other measurements/native outcomes retain original capture runs. No assertion failures replaced.')
     write(output/'provenance.json',data);write(output/'measurements.json',rows)
     write(output/'boot-supplement-receipt.json',receipt)

@@ -70,11 +70,27 @@ def settle_home() -> None:
     raise RuntimeError("External emulator HOME never obtained a stable focused window; do not run app fixtures against a black transitioning launcher")
 
 
+def settle_app() -> None:
+    """Require the actual Notes window; never dismiss its error/ANR dialogs."""
+    adb("am", "start", "-W", "-n", "app.space.notes.debug/app.space.notes.NotesActivity")
+    stable=0
+    for attempt in range(60):
+        windows=adb("dumpsys", "window")
+        focused=[line for line in windows.splitlines() if "mCurrentFocus=Window{" in line]
+        ready=any("app.space.notes.debug/" in line and "NotesActivity" in line for line in focused)
+        stable=stable+1 if ready else 0
+        if stable>=3:return
+        time.sleep(.25)
+    snapshot("app-failed")
+    raise RuntimeError("Notes never obtained a stable focused window; app error/ANR dialogs remain visible and fixtures must not run")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--orientation", choices=("portrait", "landscape"))
     parser.add_argument("--stop-pixel-launcher", action="store_true")
     parser.add_argument("--settle-home", action="store_true")
+    parser.add_argument("--settle-app", action="store_true")
     parser.add_argument("--snapshot", choices=("before", "configured", "after"))
     args = parser.parse_args()
     if args.snapshot:
@@ -95,6 +111,8 @@ def main() -> None:
         adb("am", "force-stop", "com.google.android.apps.nexuslauncher")
     if args.settle_home:
         settle_home()
+    if args.settle_app:
+        settle_app()
 
 
 if __name__ == "__main__":

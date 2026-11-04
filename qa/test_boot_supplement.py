@@ -4,7 +4,7 @@ from mynotes.tools.ci.build_boot_supplement_report import validate_receipt
 
 
 def receipt():
-    return dict(original_conclusion='failure',source='a'*40,original_source='a'*40,missing_lanes=['light-portrait-ocr'],original_artifact_names=['module-benchmark-dark-portrait-ocr'],original_failed_jobs=[dict(lane='light-portrait-ocr',conclusion='failure',boot_timeout_verified=True,tests_executed=0)])
+    return dict(original_conclusion='failure',source='a'*40,original_source='a'*40,missing_lanes=['light-portrait-ocr'],lane_capture_runs={'light-portrait-ocr':999},original_artifact_names=['module-benchmark-dark-portrait-ocr'],original_failed_jobs=[dict(lane='light-portrait-ocr',conclusion='failure',boot_timeout_verified=True,tests_executed=0)])
 
 
 class BootSupplement(unittest.TestCase):

@@ -1,0 +1,781 @@
+﻿2026-11-04T12:57:56.8058411Z Current runner version: '2.338.2'
+2026-11-04T12:57:56.8084899Z ##[group]Runner Image Provisioner
+2026-11-04T12:57:56.8085880Z Hosted Compute Agent
+2026-11-04T12:57:56.8086545Z Version: 20261021.618
+2026-11-04T12:57:56.8087212Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-04T12:57:56.8088016Z Build Date: 2026-10-21T00:45:21Z
+2026-11-04T12:57:56.8088773Z Worker ID: {46a4f2dc-d1cf-4b0f-89f9-c1b705624786}
+2026-11-04T12:57:56.8089536Z Region: westus2
+2026-11-04T12:57:56.8090764Z Cloud: Azure
+2026-11-04T12:57:56.8091407Z ##[endgroup]
+2026-11-04T12:57:56.8092954Z ##[group]Operating System
+2026-11-04T12:57:56.8093673Z Ubuntu
+2026-11-04T12:57:56.8094240Z 24.04.5
+2026-11-04T12:57:56.8094745Z LTS
+2026-11-04T12:57:56.8095337Z ##[endgroup]
+2026-11-04T12:57:56.8095900Z ##[group]Runner Image
+2026-11-04T12:57:56.8096600Z Image: ubuntu-24.04
+2026-11-04T12:57:56.8097216Z Version: 20261025.353.1
+2026-11-04T12:57:56.8098565Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-04T12:57:56.8100418Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-04T12:57:56.8101534Z ##[endgroup]
+2026-11-04T12:57:56.8102707Z ##[group]GITHUB_TOKEN Permissions
+2026-11-04T12:57:56.8105009Z Actions: read
+2026-11-04T12:57:56.8105645Z Contents: read
+2026-11-04T12:57:56.8106303Z Metadata: read
+2026-11-04T12:57:56.8106991Z ##[endgroup]
+2026-11-04T12:57:56.8109582Z Secret source: Actions
+2026-11-04T12:57:56.8111058Z Cache mode: write
+2026-11-04T12:57:56.8111820Z Prepare workflow directory
+2026-11-04T12:57:56.8476965Z Prepare all required actions
+2026-11-04T12:57:56.8526613Z Getting action download info
+2026-11-04T12:57:57.2660113Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-04T12:57:57.4036525Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+2026-11-04T12:57:57.6350053Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-04T12:57:57.8553441Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-04T12:57:58.0662610Z Complete job name: interactions (light-portrait, no, portrait)
+2026-11-04T12:57:58.1820921Z ##[group]Run actions/checkout@v5
+2026-11-04T12:57:58.1822337Z with:
+2026-11-04T12:57:58.1823138Z   repository: tarungittarun/TicTic
+2026-11-04T12:57:58.1832061Z   token: ***
+2026-11-04T12:57:58.1832861Z   ssh-strict: true
+2026-11-04T12:57:58.1833657Z   ssh-user: git
+2026-11-04T12:57:58.1834478Z   persist-credentials: true
+2026-11-04T12:57:58.1835390Z   clean: true
+2026-11-04T12:57:58.1836221Z   sparse-checkout-cone-mode: true
+2026-11-04T12:57:58.1837218Z   fetch-depth: 1
+2026-11-04T12:57:58.1838024Z   fetch-tags: false
+2026-11-04T12:57:58.1838848Z   show-progress: true
+2026-11-04T12:57:58.1839666Z   lfs: false
+2026-11-04T12:57:58.1840573Z   submodules: false
+2026-11-04T12:57:58.1841438Z   set-safe-directory: true
+2026-11-04T12:57:58.1842389Z   allow-unsafe-pr-checkout: false
+2026-11-04T12:57:58.1843712Z ##[endgroup]
+2026-11-04T12:57:58.5327908Z Syncing repository: tarungittarun/TicTic
+2026-11-04T12:57:58.5332291Z ##[group]Getting Git version info
+2026-11-04T12:57:58.5334569Z Working directory is '/home/runner/work/TicTic/TicTic'
+2026-11-04T12:57:58.5337009Z [command]/usr/bin/git version
+2026-11-04T12:57:58.5447301Z git version 2.56.0
+2026-11-04T12:57:58.5487030Z ##[endgroup]
+2026-11-04T12:57:58.5498078Z Temporarily overriding HOME='/home/runner/work/_temp/2b75b6a4-6fd4-4da1-8347-586a808a7081' before making global git config changes
+2026-11-04T12:57:58.5503115Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T12:57:58.5506181Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-04T12:57:58.5594075Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+2026-11-04T12:57:58.5615861Z ##[group]Initializing the repository
+2026-11-04T12:57:58.5643432Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+2026-11-04T12:57:58.5795715Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-04T12:57:58.5799125Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-04T12:57:58.5803360Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-04T12:57:58.5805921Z hint: call:
+2026-11-04T12:57:58.5807653Z hint:
+2026-11-04T12:57:58.5809940Z hint: 	git config --global init.defaultBranch <name>
+2026-11-04T12:57:58.5812505Z hint:
+2026-11-04T12:57:58.5814584Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-04T12:57:58.5817870Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-04T12:57:58.5819506Z hint:
+2026-11-04T12:57:58.5820700Z hint: 	git branch -m <name>
+2026-11-04T12:57:58.5821988Z hint:
+2026-11-04T12:57:58.5823776Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-04T12:57:58.5826280Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+2026-11-04T12:57:58.5829969Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+2026-11-04T12:57:58.5886927Z ##[endgroup]
+2026-11-04T12:57:58.5888787Z ##[group]Disabling automatic garbage collection
+2026-11-04T12:57:58.5891215Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-04T12:57:58.5933372Z ##[endgroup]
+2026-11-04T12:57:58.5935102Z ##[group]Setting up auth
+2026-11-04T12:57:58.5942086Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T12:57:58.6007299Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T12:57:58.6471548Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T12:57:58.6524180Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T12:57:58.6789105Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T12:57:58.6839561Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T12:57:58.7102388Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-04T12:57:58.7158666Z ##[endgroup]
+2026-11-04T12:57:58.7160884Z ##[group]Fetching the repository
+2026-11-04T12:57:58.7174176Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5b248b6955028dcd5e8a61cefadb7ca0972b5b63:refs/remotes/origin/arena/3caca636-tictic
+2026-11-04T12:58:29.1247151Z From https://github.com/tarungittarun/TicTic
+2026-11-04T12:58:29.1248714Z  * [new ref]           5b248b6955028dcd5e8a61cefadb7ca0972b5b63 -> origin/arena/3caca636-tictic
+2026-11-04T12:58:29.1253220Z ##[endgroup]
+2026-11-04T12:58:29.1254182Z ##[group]Determining the checkout info
+2026-11-04T12:58:29.1256705Z ##[endgroup]
+2026-11-04T12:58:29.1265418Z [command]/usr/bin/git sparse-checkout disable
+2026-11-04T12:58:29.1338518Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-04T12:58:29.1393107Z ##[group]Checking out the ref
+2026-11-04T12:58:29.1393963Z [command]/usr/bin/git checkout --progress --force -B arena/3caca636-tictic refs/remotes/origin/arena/3caca636-tictic
+2026-11-04T12:58:30.2314658Z Updating files:  11% (5369/48458)
+2026-11-04T12:58:30.2817775Z Updating files:  12% (5815/48458)
+2026-11-04T12:58:30.3301474Z Updating files:  13% (6300/48458)
+2026-11-04T12:58:30.3837559Z Updating files:  14% (6785/48458)
+2026-11-04T12:58:30.4363678Z Updating files:  15% (7269/48458)
+2026-11-04T12:58:30.4917866Z Updating files:  16% (7754/48458)
+2026-11-04T12:58:30.5470535Z Updating files:  17% (8238/48458)
+2026-11-04T12:58:30.6001995Z Updating files:  18% (8723/48458)
+2026-11-04T12:58:30.6509201Z Updating files:  19% (9208/48458)
+2026-11-04T12:58:30.7085321Z Updating files:  20% (9692/48458)
+2026-11-04T12:58:30.7593272Z Updating files:  21% (10177/48458)
+2026-11-04T12:58:30.8131050Z Updating files:  22% (10661/48458)
+2026-11-04T12:58:30.8639423Z Updating files:  23% (11146/48458)
+2026-11-04T12:58:30.9129213Z Updating files:  24% (11630/48458)
+2026-11-04T12:58:30.9759264Z Updating files:  25% (12115/48458)
+2026-11-04T12:58:31.0316054Z Updating files:  26% (12600/48458)
+2026-11-04T12:58:31.0845347Z Updating files:  27% (13084/48458)
+2026-11-04T12:58:31.1363930Z Updating files:  28% (13569/48458)
+2026-11-04T12:58:31.1859030Z Updating files:  29% (14053/48458)
+2026-11-04T12:58:31.1993863Z Updating files:  29% (14443/48458)
+2026-11-04T12:58:31.2499003Z Updating files:  30% (14538/48458)
+2026-11-04T12:58:31.3056396Z Updating files:  31% (15022/48458)
+2026-11-04T12:58:31.3576824Z Updating files:  32% (15507/48458)
+2026-11-04T12:58:31.4108968Z Updating files:  33% (15992/48458)
+2026-11-04T12:58:31.4625088Z Updating files:  34% (16476/48458)
+2026-11-04T12:58:31.5192171Z Updating files:  35% (16961/48458)
+2026-11-04T12:58:31.5760465Z Updating files:  36% (17445/48458)
+2026-11-04T12:58:31.6311249Z Updating files:  37% (17930/48458)
+2026-11-04T12:58:31.6857420Z Updating files:  38% (18415/48458)
+2026-11-04T12:58:31.7329132Z Updating files:  39% (18899/48458)
+2026-11-04T12:58:31.7823954Z Updating files:  40% (19384/48458)
+2026-11-04T12:58:31.8285858Z Updating files:  41% (19868/48458)
+2026-11-04T12:58:31.8803595Z Updating files:  42% (20353/48458)
+2026-11-04T12:58:31.9329345Z Updating files:  43% (20837/48458)
+2026-11-04T12:58:31.9806346Z Updating files:  44% (21322/48458)
+2026-11-04T12:58:32.0278580Z Updating files:  45% (21807/48458)
+2026-11-04T12:58:32.0758228Z Updating files:  46% (22291/48458)
+2026-11-04T12:58:32.1257732Z Updating files:  47% (22776/48458)
+2026-11-04T12:58:32.1752265Z Updating files:  48% (23260/48458)
+2026-11-04T12:58:32.1858274Z Updating files:  49% (23745/48458)
+2026-11-04T12:58:32.2254200Z Updating files:  49% (23866/48458)
+2026-11-04T12:58:32.2758719Z Updating files:  50% (24229/48458)
+2026-11-04T12:58:32.3205087Z Updating files:  51% (24714/48458)
+2026-11-04T12:58:32.3651703Z Updating files:  52% (25199/48458)
+2026-11-04T12:58:32.4098349Z Updating files:  53% (25683/48458)
+2026-11-04T12:58:32.4589484Z Updating files:  54% (26168/48458)
+2026-11-04T12:58:32.5123304Z Updating files:  55% (26652/48458)
+2026-11-04T12:58:32.5600064Z Updating files:  56% (27137/48458)
+2026-11-04T12:58:32.6094155Z Updating files:  57% (27622/48458)
+2026-11-04T12:58:32.6587998Z Updating files:  58% (28106/48458)
+2026-11-04T12:58:32.7063134Z Updating files:  59% (28591/48458)
+2026-11-04T12:58:32.7549732Z Updating files:  60% (29075/48458)
+2026-11-04T12:58:32.8004184Z Updating files:  61% (29560/48458)
+2026-11-04T12:58:32.8460902Z Updating files:  62% (30044/48458)
+2026-11-04T12:58:32.9003812Z Updating files:  63% (30529/48458)
+2026-11-04T12:58:32.9445539Z Updating files:  64% (31014/48458)
+2026-11-04T12:58:32.9915327Z Updating files:  65% (31498/48458)
+2026-11-04T12:58:33.0413069Z Updating files:  66% (31983/48458)
+2026-11-04T12:58:33.0903284Z Updating files:  67% (32467/48458)
+2026-11-04T12:58:33.1415881Z Updating files:  68% (32952/48458)
+2026-11-04T12:58:33.1860468Z Updating files:  69% (33437/48458)
+2026-11-04T12:58:33.1890527Z Updating files:  69% (33900/48458)
+2026-11-04T12:58:33.2397754Z Updating files:  70% (33921/48458)
+2026-11-04T12:58:33.2903350Z Updating files:  71% (34406/48458)
+2026-11-04T12:58:33.4686488Z Updating files:  72% (34890/48458)
+2026-11-04T12:58:33.5281055Z Updating files:  73% (35375/48458)
+2026-11-04T12:58:33.5682851Z Updating files:  74% (35859/48458)
+2026-11-04T12:58:33.7205496Z Updating files:  75% (36344/48458)
+2026-11-04T12:58:33.7602738Z Updating files:  76% (36829/48458)
+2026-11-04T12:58:33.9039077Z Updating files:  77% (37313/48458)
+2026-11-04T12:58:33.9404412Z Updating files:  78% (37798/48458)
+2026-11-04T12:58:34.0819268Z Updating files:  79% (38282/48458)
+2026-11-04T12:58:34.1937438Z Updating files:  80% (38767/48458)
+2026-11-04T12:58:34.2021843Z Updating files:  80% (39219/48458)
+2026-11-04T12:58:34.2562426Z Updating files:  81% (39251/48458)
+2026-11-04T12:58:34.3738429Z Updating files:  82% (39736/48458)
+2026-11-04T12:58:34.4288005Z Updating files:  83% (40221/48458)
+2026-11-04T12:58:34.5598455Z Updating files:  84% (40705/48458)
+2026-11-04T12:58:34.6399937Z Updating files:  85% (41190/48458)
+2026-11-04T12:58:34.6879544Z Updating files:  86% (41674/48458)
+2026-11-04T12:58:34.8068234Z Updating files:  87% (42159/48458)
+2026-11-04T12:58:34.8573645Z Updating files:  88% (42644/48458)
+2026-11-04T12:58:34.9881458Z Updating files:  89% (43128/48458)
+2026-11-04T12:58:35.0471208Z Updating files:  90% (43613/48458)
+2026-11-04T12:58:35.1243203Z Updating files:  91% (44097/48458)
+2026-11-04T12:58:35.1859797Z Updating files:  92% (44582/48458)
+2026-11-04T12:58:35.2157342Z Updating files:  92% (44910/48458)
+2026-11-04T12:58:35.3060006Z Updating files:  93% (45066/48458)
+2026-11-04T12:58:35.3993383Z Updating files:  94% (45551/48458)
+2026-11-04T12:58:35.4957596Z Updating files:  95% (46036/48458)
+2026-11-04T12:58:35.5944910Z Updating files:  96% (46520/48458)
+2026-11-04T12:58:35.6960701Z Updating files:  97% (47005/48458)
+2026-11-04T12:58:35.7963370Z Updating files:  98% (47489/48458)
+2026-11-04T12:58:35.8797193Z Updating files:  99% (47974/48458)
+2026-11-04T12:58:35.8797883Z Updating files: 100% (48458/48458)
+2026-11-04T12:58:35.8798414Z Updating files: 100% (48458/48458), done.
+2026-11-04T12:58:35.9379850Z Switched to a new branch 'arena/3caca636-tictic'
+2026-11-04T12:58:35.9383677Z branch 'arena/3caca636-tictic' set up to track 'origin/arena/3caca636-tictic'.
+2026-11-04T12:58:35.9674646Z ##[endgroup]
+2026-11-04T12:58:35.9737060Z [command]/usr/bin/git log -1 --format=%H
+2026-11-04T12:58:35.9778186Z 5b248b6955028dcd5e8a61cefadb7ca0972b5b63
+2026-11-04T12:58:36.0514259Z ##[group]Run actions/download-artifact@v8.0.2
+2026-11-04T12:58:36.0514616Z with:
+2026-11-04T12:58:36.0514837Z   name: module-foundation-test-apks
+2026-11-04T12:58:36.0515123Z   path: refinement-apks
+2026-11-04T12:58:36.0515374Z   merge-multiple: false
+2026-11-04T12:58:36.0515617Z   repository: tarungittarun/TicTic
+2026-11-04T12:58:36.0515877Z   run-id: 41832709872
+2026-11-04T12:58:36.0516102Z   skip-decompress: false
+2026-11-04T12:58:36.0516331Z   digest-mismatch: error
+2026-11-04T12:58:36.0516554Z ##[endgroup]
+2026-11-04T12:58:36.3633263Z Downloading single artifact
+2026-11-04T12:58:36.7817309Z Preparing to download the following artifacts:
+2026-11-04T12:58:36.7818668Z - module-foundation-test-apks (ID: 13325050747, Size: 180864461, Expected Digest: sha256:7b1d6fb1b54cc50ffccbceace36f3f8e139ce5872f28bf149212002a2d466111)
+2026-11-04T12:58:37.2708063Z Redirecting to blob download url: https://productionresultssa19.blob.core.windows.net/actions-results/9d537af5-c751-8033-8d7a-d708040c62a5/workflow-job-run-b16a351b-a2d0-5743-8e05-1374497419c5/artifacts/367fc22e2776c39895971186a6a7fc0fdf279f8e733d888e94a3a1584c8ac545.zip
+2026-11-04T12:58:37.2710584Z Starting download of artifact to: /home/runner/work/TicTic/TicTic/refinement-apks
+2026-11-04T12:58:37.6132522Z (node:2593) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-04T12:58:37.6134415Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T12:58:42.4505975Z SHA256 digest of downloaded artifact is 7b1d6fb1b54cc50ffccbceace36f3f8e139ce5872f28bf149212002a2d466111
+2026-11-04T12:58:42.4507279Z Artifact download completed successfully.
+2026-11-04T12:58:42.4508069Z Total of 1 artifact(s) downloaded
+2026-11-04T12:58:42.4516303Z Download artifact has finished successfully
+2026-11-04T12:58:42.4721432Z ##[group]Run sudo apt-get update
+2026-11-04T12:58:42.4722040Z [36;1msudo apt-get update[0m
+2026-11-04T12:58:42.4722439Z [36;1msudo apt-get install -y --no-install-recommends libpulse0[0m
+2026-11-04T12:58:42.4723143Z [36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules[0m
+2026-11-04T12:58:42.4723760Z [36;1msudo udevadm control --reload-rules[0m
+2026-11-04T12:58:42.4724112Z [36;1msudo udevadm trigger --name-match=kvm[0m
+2026-11-04T12:58:42.4749360Z shell: /usr/bin/bash -e {0}
+2026-11-04T12:58:42.4749674Z ##[endgroup]
+2026-11-04T12:58:42.5799666Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-04T12:58:42.6067476Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-04T12:58:42.6221804Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-04T12:58:42.6228745Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-04T12:58:42.6365555Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-04T12:58:42.6441458Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-04T12:58:42.7231707Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [652 kB]
+2026-11-04T12:58:42.7439514Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [721 kB]
+2026-11-04T12:58:42.8721680Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1408 kB]
+2026-11-04T12:58:42.8797693Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [311 kB]
+2026-11-04T12:58:42.8831421Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1707 kB]
+2026-11-04T12:58:42.8917225Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+2026-11-04T12:58:42.8961848Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1813 kB]
+2026-11-04T12:58:42.9048060Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [412 kB]
+2026-11-04T12:58:42.9078334Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-11-04T12:58:43.0088404Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1155 kB]
+2026-11-04T12:58:43.0181733Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [233 kB]
+2026-11-04T12:58:43.0191406Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1224 kB]
+2026-11-04T12:58:43.0663746Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [247 kB]
+2026-11-04T12:58:43.0713819Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+2026-11-04T12:58:43.0811703Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+2026-11-04T12:58:43.0813637Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-11-04T12:58:46.9601800Z Fetched 12.7 MB in 1s (8995 kB/s)
+2026-11-04T12:58:48.2344436Z Reading package lists...
+2026-11-04T12:58:48.2758511Z Reading package lists...
+2026-11-04T12:58:48.5458034Z Building dependency tree...
+2026-11-04T12:58:48.5465449Z Reading state information...
+2026-11-04T12:58:48.7715328Z The following additional packages will be installed:
+2026-11-04T12:58:48.7719290Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libsndfile1
+2026-11-04T12:58:48.7722556Z   libvorbisenc2
+2026-11-04T12:58:48.7729696Z Suggested packages:
+2026-11-04T12:58:48.7730381Z   opus-tools pulseaudio
+2026-11-04T12:58:48.8022204Z The following NEW packages will be installed:
+2026-11-04T12:58:48.8028952Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libpulse0
+2026-11-04T12:58:48.8036920Z   libsndfile1 libvorbisenc2
+2026-11-04T12:58:48.8278831Z 0 upgraded, 8 newly installed, 0 to remove and 16 not upgraded.
+2026-11-04T12:58:48.8279804Z Need to get 1310 kB of archives.
+2026-11-04T12:58:48.8281022Z After this operation, 3874 kB of additional disk space will be used.
+2026-11-04T12:58:48.8281724Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-04T12:58:48.9152878Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+2026-11-04T12:58:48.9863923Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libflac12t64 amd64 1.4.3+ds-2.1ubuntu2 [197 kB]
+2026-11-04T12:58:49.0612649Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmp3lame0 amd64 3.100-6build1 [142 kB]
+2026-11-04T12:58:49.1433523Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
+2026-11-04T12:58:49.2276860Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopus0 amd64 1.4-1build1 [208 kB]
+2026-11-04T12:58:49.3150973Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libvorbisenc2 amd64 1.3.7-1build3 [80.8 kB]
+2026-11-04T12:58:49.3912362Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libsndfile1 amd64 1.2.2-1ubuntu5.24.04.1 [209 kB]
+2026-11-04T12:58:49.4784822Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpulse0 amd64 1:16.1+dfsg1-2ubuntu10.1 [292 kB]
+2026-11-04T12:58:49.8035682Z Fetched 1310 kB in 1s (1902 kB/s)
+2026-11-04T12:58:49.8301874Z Selecting previously unselected package libasyncns0:amd64.
+2026-11-04T12:58:49.8651267Z (Reading database ... 
+2026-11-04T12:58:49.8652046Z (Reading database ... 5%
+2026-11-04T12:58:49.8652852Z (Reading database ... 10%
+2026-11-04T12:58:49.8653531Z (Reading database ... 15%
+2026-11-04T12:58:49.8654007Z (Reading database ... 20%
+2026-11-04T12:58:49.8654479Z (Reading database ... 25%
+2026-11-04T12:58:49.8654945Z (Reading database ... 30%
+2026-11-04T12:58:49.8655405Z (Reading database ... 35%
+2026-11-04T12:58:49.8655861Z (Reading database ... 40%
+2026-11-04T12:58:49.8656262Z (Reading database ... 45%
+2026-11-04T12:58:49.8656634Z (Reading database ... 50%
+2026-11-04T12:58:49.8723672Z (Reading database ... 55%
+2026-11-04T12:58:49.9519268Z (Reading database ... 60%
+2026-11-04T12:58:50.1085401Z (Reading database ... 65%
+2026-11-04T12:58:50.3490784Z (Reading database ... 70%
+2026-11-04T12:58:50.5052247Z (Reading database ... 75%
+2026-11-04T12:58:50.6501985Z (Reading database ... 80%
+2026-11-04T12:58:50.7366853Z (Reading database ... 85%
+2026-11-04T12:58:50.8486283Z (Reading database ... 90%
+2026-11-04T12:58:50.9926223Z (Reading database ... 95%
+2026-11-04T12:58:50.9926932Z (Reading database ... 100%
+2026-11-04T12:58:50.9927702Z (Reading database ... 215504 files and directories currently installed.)
+2026-11-04T12:58:50.9972814Z Preparing to unpack .../0-libasyncns0_0.8-6build4_amd64.deb ...
+2026-11-04T12:58:51.0008982Z Unpacking libasyncns0:amd64 (0.8-6build4) ...
+2026-11-04T12:58:51.0263442Z Selecting previously unselected package libflac12t64:amd64.
+2026-11-04T12:58:51.0411626Z Preparing to unpack .../1-libflac12t64_1.4.3+ds-2.1ubuntu2_amd64.deb ...
+2026-11-04T12:58:51.0419886Z Unpacking libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-04T12:58:51.0722930Z Selecting previously unselected package libmp3lame0:amd64.
+2026-11-04T12:58:51.0869358Z Preparing to unpack .../2-libmp3lame0_3.100-6build1_amd64.deb ...
+2026-11-04T12:58:51.0878960Z Unpacking libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-04T12:58:51.1159621Z Selecting previously unselected package libmpg123-0t64:amd64.
+2026-11-04T12:58:51.1312247Z Preparing to unpack .../3-libmpg123-0t64_1.32.5-1ubuntu1.1_amd64.deb ...
+2026-11-04T12:58:51.1322995Z Unpacking libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-04T12:58:51.1591576Z Selecting previously unselected package libopus0:amd64.
+2026-11-04T12:58:51.1737957Z Preparing to unpack .../4-libopus0_1.4-1build1_amd64.deb ...
+2026-11-04T12:58:51.1746526Z Unpacking libopus0:amd64 (1.4-1build1) ...
+2026-11-04T12:58:51.2039232Z Selecting previously unselected package libvorbisenc2:amd64.
+2026-11-04T12:58:51.2206044Z Preparing to unpack .../5-libvorbisenc2_1.3.7-1build3_amd64.deb ...
+2026-11-04T12:58:51.2217275Z Unpacking libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-04T12:58:51.2499382Z Selecting previously unselected package libsndfile1:amd64.
+2026-11-04T12:58:51.2648724Z Preparing to unpack .../6-libsndfile1_1.2.2-1ubuntu5.24.04.1_amd64.deb ...
+2026-11-04T12:58:51.2657587Z Unpacking libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-04T12:58:51.2959111Z Selecting previously unselected package libpulse0:amd64.
+2026-11-04T12:58:51.3109169Z Preparing to unpack .../7-libpulse0_1%3a16.1+dfsg1-2ubuntu10.1_amd64.deb ...
+2026-11-04T12:58:51.3198059Z Unpacking libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-04T12:58:51.3726930Z Setting up libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-04T12:58:51.3750875Z Setting up libopus0:amd64 (1.4-1build1) ...
+2026-11-04T12:58:51.3771804Z Setting up libasyncns0:amd64 (0.8-6build4) ...
+2026-11-04T12:58:51.3796544Z Setting up libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-04T12:58:51.3825364Z Setting up libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-04T12:58:51.3847817Z Setting up libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-04T12:58:51.3869247Z Setting up libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-04T12:58:51.3891990Z Setting up libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-04T12:58:51.3979161Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-11-04T12:58:52.1783490Z 
+2026-11-04T12:58:52.1784262Z Running kernel seems to be up-to-date.
+2026-11-04T12:58:52.1784670Z 
+2026-11-04T12:58:52.1784846Z No services need to be restarted.
+2026-11-04T12:58:52.1785183Z 
+2026-11-04T12:58:52.1785374Z No containers need to be restarted.
+2026-11-04T12:58:52.1785688Z 
+2026-11-04T12:58:52.1785900Z No user sessions are running outdated binaries.
+2026-11-04T12:58:52.1786276Z 
+2026-11-04T12:58:52.1786623Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-04T12:58:53.5133986Z KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"
+2026-11-04T12:58:53.5531283Z ##[group]Run bash mynotes/tools/ci/use_installed_emulator.sh
+2026-11-04T12:58:53.5531808Z [36;1mbash mynotes/tools/ci/use_installed_emulator.sh[0m
+2026-11-04T12:58:53.5552525Z shell: /usr/bin/bash -e {0}
+2026-11-04T12:58:53.5552803Z ##[endgroup]
+2026-11-04T12:58:53.5851269Z No preinstalled emulator; retain normal SDK installation.
+2026-11-04T12:58:53.6005331Z ##[group]Run ReactiveCircus/android-emulator-runner@v2
+2026-11-04T12:58:53.6005720Z with:
+2026-11-04T12:58:53.6005929Z   api-level: 34
+2026-11-04T12:58:53.6006159Z   target: google_apis
+2026-11-04T12:58:53.6006385Z   arch: x86_64
+2026-11-04T12:58:53.6006594Z   profile: Nexus 5
+2026-11-04T12:58:53.6006808Z   disk-size: 4G
+2026-11-04T12:58:53.6007036Z   disable-animations: true
+2026-11-04T12:58:53.6007701Z   emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+2026-11-04T12:58:53.6018967Z   script: adb shell settings put global airplane_mode_on 1
+adb shell svc wifi disable
+adb shell svc data disable
+adb install -r refinement-apks/debug/notes-debug.apk
+adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+adb shell settings put system font_scale 1.0
+adb shell cmd uimode night no
+python3 -m mynotes.tools.ci.native_environment --settle-app
+python3 -m mynotes.tools.ci.native_environment --orientation portrait
+python3 -m mynotes.tools.ci.native_environment --settle-app
+python3 -m mynotes.tools.ci.native_environment --snapshot configured
+adb shell svc power stayon true
+adb shell settings put system screen_off_timeout 3600000
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard
+bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+python3 -m mynotes.tools.ci.native_environment --snapshot after
+
+2026-11-04T12:58:53.6030400Z   cores: 2
+2026-11-04T12:58:53.6030663Z   avd-name: test
+2026-11-04T12:58:53.6030898Z   force-avd-creation: true
+2026-11-04T12:58:53.6031161Z   emulator-boot-timeout: 600
+2026-11-04T12:58:53.6031417Z   emulator-port: 5554
+2026-11-04T12:58:53.6031658Z   disable-spellchecker: false
+2026-11-04T12:58:53.6031933Z   disable-linux-hw-accel: auto
+2026-11-04T12:58:53.6032193Z   enable-hw-keyboard: false
+2026-11-04T12:58:53.6032441Z   channel: stable
+2026-11-04T12:58:53.6032659Z ##[endgroup]
+2026-11-04T12:58:53.6644307Z ##[group]Configure emulator
+2026-11-04T12:58:53.6646928Z API level: 34
+2026-11-04T12:58:53.6647260Z System image API level: 34
+2026-11-04T12:58:53.6647757Z target: google_apis
+2026-11-04T12:58:53.6648649Z CPU architecture: x86_64
+2026-11-04T12:58:53.6649171Z Hardware profile: Nexus 5
+2026-11-04T12:58:53.6650083Z Cores: 2
+2026-11-04T12:58:53.6650673Z RAM size: 
+2026-11-04T12:58:53.6651043Z Heap size: 
+2026-11-04T12:58:53.6651433Z SD card path or size: 
+2026-11-04T12:58:53.6652709Z Disk size: 4G
+2026-11-04T12:58:53.6654618Z AVD name: test
+2026-11-04T12:58:53.6655605Z force avd creation: true
+2026-11-04T12:58:53.6656126Z Emulator boot timeout: 600
+2026-11-04T12:58:53.6656628Z emulator port: 5554
+2026-11-04T12:58:53.6657791Z emulator options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+2026-11-04T12:58:53.6659029Z disable animations: true
+2026-11-04T12:58:53.6659443Z disable spellchecker: false
+2026-11-04T12:58:53.6659953Z disable Linux hardware acceleration: false
+2026-11-04T12:58:53.6660797Z enable hardware keyboard: false
+2026-11-04T12:58:53.6661286Z Channel: 0 (stable)
+2026-11-04T12:58:53.6661694Z Script:
+2026-11-04T12:58:53.6662170Z adb shell settings put global airplane_mode_on 1
+2026-11-04T12:58:53.6662780Z adb shell svc wifi disable
+2026-11-04T12:58:53.6663238Z adb shell svc data disable
+2026-11-04T12:58:53.6663792Z adb install -r refinement-apks/debug/notes-debug.apk
+2026-11-04T12:58:53.6664632Z adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+2026-11-04T12:58:53.6665448Z adb shell settings put system font_scale 1.0
+2026-11-04T12:58:53.6666028Z adb shell cmd uimode night no
+2026-11-04T12:58:53.6666629Z python3 -m mynotes.tools.ci.native_environment --settle-app
+2026-11-04T12:58:53.6667502Z python3 -m mynotes.tools.ci.native_environment --orientation portrait
+2026-11-04T12:58:53.6668362Z python3 -m mynotes.tools.ci.native_environment --settle-app
+2026-11-04T12:58:53.6669201Z python3 -m mynotes.tools.ci.native_environment --snapshot configured
+2026-11-04T12:58:53.6669948Z adb shell svc power stayon true
+2026-11-04T12:58:53.6670866Z adb shell settings put system screen_off_timeout 3600000
+2026-11-04T12:58:53.6671810Z adb shell input keyevent KEYCODE_WAKEUP
+2026-11-04T12:58:53.6672296Z adb shell wm dismiss-keyguard
+2026-11-04T12:58:53.6678301Z bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+2026-11-04T12:58:53.6691396Z python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+2026-11-04T12:58:53.6698372Z adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+2026-11-04T12:58:53.6699331Z python3 -m mynotes.tools.ci.native_environment --snapshot after
+2026-11-04T12:58:53.6699736Z Pre emulator launch script:
+2026-11-04T12:58:53.6700634Z ##[endgroup]
+2026-11-04T12:58:53.6701050Z ##[group]Install Android SDK
+2026-11-04T12:58:53.6762776Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-11-04T12:58:58.9128185Z Installing latest build tools, platform tools, and platform.
+2026-11-04T12:58:58.9146709Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'> /dev/null
+2026-11-04T12:59:00.7027840Z Installing latest emulator.
+2026-11-04T12:59:00.7042719Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-11-04T12:59:09.5238212Z Installing system images.
+2026-11-04T12:59:09.5251802Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-34;google_apis;x86_64' --channel=0 > /dev/null
+2026-11-04T12:59:40.2802119Z ##[endgroup]
+2026-11-04T12:59:40.2803833Z ##[group]Create AVD
+2026-11-04T12:59:40.2804372Z Creating AVD.
+2026-11-04T12:59:40.2822859Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-34;google_apis;x86_64' --device 'Nexus 5'
+2026-11-04T12:59:41.1253825Z Loading local repository...                                                     
+2026-11-04T12:59:41.1271459Z [=========                              ] 25% Loading local repository...       
+2026-11-04T12:59:41.1281395Z [=========                              ] 25% Fetch remote repository...        
+2026-11-04T12:59:41.1284000Z [=======================================] 100% Fetch remote repository...       
+2026-11-04T12:59:41.3104718Z Auto-selecting single ABI x86_64
+2026-11-04T12:59:41.8070535Z [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\ndisk.dataPartition.size=4G\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-11-04T12:59:41.8095450Z ##[endgroup]
+2026-11-04T12:59:41.8097771Z ##[group]Launch Emulator
+2026-11-04T12:59:41.8098236Z Starting emulator.
+2026-11-04T12:59:41.8111482Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none &
+2026-11-04T12:59:41.8240902Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+2026-11-04T12:59:41.8241489Z INFO         | Graphics backend: gfxstream
+2026-11-04T12:59:41.8242116Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/
+2026-11-04T12:59:41.8746617Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-11-04T12:59:41.8747426Z INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+2026-11-04T12:59:41.8749265Z INFO         | Increasing RAM size to 2560MB
+2026-11-04T12:59:41.8749930Z ##############################################################################
+2026-11-04T12:59:41.8750899Z ##                        WARNING - ACTION REQUIRED                         ##
+2026-11-04T12:59:41.8751753Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+2026-11-04T12:59:41.8752693Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+2026-11-04T12:59:41.8753637Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+2026-11-04T12:59:41.8754539Z ##  In a future release this warning will turn into a one-time blocking     ##
+2026-11-04T12:59:41.8755446Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+2026-11-04T12:59:41.8756235Z ##                                                                          ##
+2026-11-04T12:59:41.8757000Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+2026-11-04T12:59:41.8757916Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+2026-11-04T12:59:41.8758830Z ##  data is being collected by emulator as part of usage statistics.        ##
+2026-11-04T12:59:41.8759593Z ##############################################################################
+2026-11-04T12:59:41.8760456Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-11-04T12:59:41.8761326Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-11-04T12:59:41.8762219Z INFO         | Checking system compatibility:
+2026-11-04T12:59:41.8762808Z INFO         |   Checking: hasSufficientDiskSpace
+2026-11-04T12:59:41.8763514Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-11-04T12:59:41.8764552Z INFO         |   Checking: hasSufficientHwGpu
+2026-11-04T12:59:41.8765277Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-11-04T12:59:41.8765970Z INFO         |   Checking: hasSufficientSystem
+2026-11-04T12:59:41.8766510Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-11-04T12:59:41.8767752Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-11-04T12:59:42.3621306Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-11-04T12:59:42.3651345Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 3454
+2026-11-04T12:59:42.3652985Z INFO         | Initializing gfxstream backend
+2026-11-04T12:59:42.3663579Z INFO         | startOpenglesRendererImpl: gpu info
+2026-11-04T12:59:42.3664061Z INFO         | 
+2026-11-04T12:59:42.3708516Z INFO         | SharedLibrary::open for [libX11]
+2026-11-04T12:59:42.3709381Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-11-04T12:59:42.3710119Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-11-04T12:59:42.3711270Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-11-04T12:59:42.3711872Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-11-04T12:59:42.3712459Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-11-04T12:59:42.3833951Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-11-04T12:59:42.3837145Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-11-04T12:59:42.3838990Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-11-04T12:59:42.3843454Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-11-04T12:59:42.3846919Z INFO         | Graphics Device Extensions N/A
+2026-11-04T12:59:42.3912914Z INFO         | Sending adb public key [QAAAAFUfRGADGvGhpzkDS2Rkvuf901kmVLKgFtv4ORJvLjEIPTNZzd8N+TSqEX4wLukdGOiIH2RwtF5LOjboNAh60RKqBAeV5Gzwq9RYA3IygL3bDmAl0iM/vN0anTujWZgZDslT5/VlyeTDI/uJcsTInbNSJlVS1hiKZ74P33wh3px86GAKZK3cGu97bkp/0fUt6v6U+cBvvMAM2fJ2BYg6Nf0a1ohYOp5RnWXr8ypb10Aa2jKUb0uY6NpOdx3sO72Lx+t+V8Y3C0aZ+9vNmvftLUVR9GSVoMnfm0P+KTJ5eCPzqO1b3TXO4or4+CeJmxkL/F9vsH+emHfTMXwEoNoirlXOb0qvFtXXwLxyWFboPakGX9lJijjALpBvHVy8/PA8qnZh/WcB79URcm8ewwdmooNPdql02lcSX3teTwg01gRYGWUGh7Aaa+0XwRH13Wj3V33rc0RALmB3AAkcYsK+EqejLn84mNjqNDHpwBLot8HuK4F1X5Sod2ZCrGKGcOsnoteObBwGZf529RRec/xGMbpDKURBokeeOFd3CCVs4lChcV372TNQnCxf8Bd0ZCAc3GG69gDQKeQ6cvWalBl1IEDOG4xjZRV48ibvdjUDLNoq0fI8kfHOsABttAQEbb3mn7TqvGl0AeSYonMKyk4zE/8uuXnpu1TVMP2RJd1QThuf93mHgAEAAQA= runner@unknown]
+2026-11-04T12:59:42.3920883Z INFO         | Userspace boot properties:
+2026-11-04T12:59:42.3921715Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-11-04T12:59:42.3922557Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-11-04T12:59:42.3923198Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-11-04T12:59:42.3923816Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-11-04T12:59:42.3924183Z INFO         |   androidboot.hardware=ranchu
+2026-11-04T12:59:42.3924557Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-11-04T12:59:42.3924895Z INFO         |   androidboot.logcat=*:V
+2026-11-04T12:59:42.3925218Z INFO         |   androidboot.opengles.version=196608
+2026-11-04T12:59:42.3925545Z INFO         |   androidboot.qemu=1
+2026-11-04T12:59:42.3929650Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAFUfRGADGvGhpzkDS2Rkvuf901kmVLKgFtv4ORJvLjEIPTNZzd8N+TSqEX4wLukdGOiIH2RwtF5LOjboNAh60RKqBAeV5Gzwq9RYA3IygL3bDmAl0iM/vN0anTujWZgZDslT5/VlyeTDI/uJcsTInbNSJlVS1hiKZ74P33wh3px86GAKZK3cGu97bkp/0fUt6v6U+cBvvMAM2fJ2BYg6Nf0a1ohYOp5RnWXr8ypb10Aa2jKUb0uY6NpOdx3sO72Lx+t+V8Y3C0aZ+9vNmvftLUVR9GSVoMnfm0P+KTJ5eCPzqO1b3TXO4or4+CeJmxkL/F9vsH+emHfTMXwEoNoirlXOb0qvFtXXwLxyWFboPakGX9lJijjALpBvHVy8/PA8qnZh/WcB79URcm8ewwdmooNPdql02lcSX3teTwg01gRYGWUGh7Aaa+0XwRH13Wj3V33rc0RALmB3AAkcYsK+EqejLn84mNjqNDHpwBLot8HuK4F1X5Sod2ZCrGKGcOsnoteObBwGZf529RRec/xGMbpDKURBokeeOFd3CCVs4lChcV372TNQnCxf8Bd0ZCAc3GG69gDQKeQ6cvWalBl1IEDOG4xjZRV48ibvdjUDLNoq0fI8kfHOsABttAQEbb3mn7TqvGl0AeSYonMKyk4zE/8uuXnpu1TVMP2RJd1QThuf93mHgAEAAQA= runner@unknown
+2026-11-04T12:59:42.3933896Z INFO         |   androidboot.qemu.avd_name=test
+2026-11-04T12:59:42.3934276Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-11-04T12:59:42.3934665Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-11-04T12:59:42.3935037Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-11-04T12:59:42.3935458Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-11-04T12:59:42.3935888Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-11-04T12:59:42.3936254Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-11-04T12:59:42.3936612Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-11-04T12:59:42.3936967Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-11-04T12:59:42.3937418Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-11-04T12:59:42.3937858Z INFO         |   androidboot.qemu.skin=1080x1920
+2026-11-04T12:59:42.3938390Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-11-04T12:59:42.3938720Z INFO         |   androidboot.qemu.vsync=60
+2026-11-04T12:59:42.3939102Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+2026-11-04T12:59:42.3939665Z INFO         |   androidboot.vbmeta.digest=451e57ed688ff746d2c636d52169ade253e2bc5bb30a5c3ff23679ca15d3bcd3
+2026-11-04T12:59:42.3940505Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-11-04T12:59:42.3940854Z INFO         |   androidboot.vbmeta.size=6656
+2026-11-04T12:59:42.3941200Z INFO         |   androidboot.veritymode=enforcing
+2026-11-04T12:59:42.4182074Z WARNING: cannnot unmap ptr 0x7f0602c01000 as it is in the protected range from 0x7f0562c00000 to 0x7f0602e00000
+2026-11-04T12:59:42.4441239Z INFO         | Monitoring duration of emulator setup.
+2026-11-04T12:59:43.4445207Z INFO         | Activated packet streamer for bluetooth emulation
+2026-11-04T12:59:43.4445988Z INFO         | Successfully initialized netsim WiFi
+2026-11-04T12:59:43.4510823Z INFO         | Setting display: 0 configuration to: 1080x1920, dpi: 480x480 
+2026-11-04T12:59:43.4511874Z INFO         | setDisplayActiveConfig: id:0, 1080x1920
+2026-11-04T12:59:43.4512666Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-11-04T12:59:43.4587827Z USER_INFO    | Emulator is performing a full startup. This may take upto two minutes, or more.
+2026-11-04T12:59:43.4589205Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-04T12:59:43.5404167Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-04T12:59:51.8166078Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T12:59:51.8201824Z * daemon not running; starting now at tcp:5037
+2026-11-04T12:59:51.8862090Z * daemon started successfully
+2026-11-04T12:59:51.8895587Z adb: device offline
+2026-11-04T12:59:51.8899574Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-04T12:59:53.8945417Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T12:59:53.8984703Z adb: device offline
+2026-11-04T12:59:53.8991351Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-04T12:59:55.9056390Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T12:59:55.9717654Z 
+2026-11-04T12:59:57.9781983Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T12:59:58.0251341Z 
+2026-11-04T13:00:00.0298925Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:00.0487165Z 
+2026-11-04T13:00:02.0598011Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:02.0885196Z 
+2026-11-04T13:00:04.1011867Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:04.1250864Z 
+2026-11-04T13:00:06.1314870Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:06.1735877Z 
+2026-11-04T13:00:08.1780863Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:08.2023559Z 
+2026-11-04T13:00:10.2078217Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:10.2361494Z 
+2026-11-04T13:00:12.2442104Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:12.2730875Z 
+2026-11-04T13:00:14.2771730Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:14.3168333Z 
+2026-11-04T13:00:16.3205807Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:16.3485691Z 
+2026-11-04T13:00:18.3536271Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:18.3903495Z 
+2026-11-04T13:00:20.4052147Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:20.4307170Z 
+2026-11-04T13:00:21.5153355Z INFO         | Boot completed in 39659 ms
+2026-11-04T13:00:21.5154285Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-11-04T13:00:22.4371845Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T13:00:22.4652172Z 1
+2026-11-04T13:00:22.4663143Z Emulator booted.
+2026-11-04T13:00:22.4686653Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-11-04T13:00:28.4265378Z Disabling animations.
+2026-11-04T13:00:28.4287168Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+2026-11-04T13:00:28.6493899Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+2026-11-04T13:00:28.8504077Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+2026-11-04T13:00:28.9356388Z ##[endgroup]
+2026-11-04T13:00:28.9401778Z [command]/usr/bin/sh -c adb shell settings put global airplane_mode_on 1
+2026-11-04T13:00:29.0431541Z [command]/usr/bin/sh -c adb shell svc wifi disable
+2026-11-04T13:00:29.1779777Z [command]/usr/bin/sh -c adb shell svc data disable
+2026-11-04T13:00:29.2406413Z [command]/usr/bin/sh -c adb install -r refinement-apks/debug/notes-debug.apk
+2026-11-04T13:00:38.6156496Z Performing Streamed Install
+2026-11-04T13:00:38.6172367Z Success
+2026-11-04T13:00:38.6238337Z [command]/usr/bin/sh -c adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+2026-11-04T13:00:39.9745355Z Performing Streamed Install
+2026-11-04T13:00:39.9751105Z Success
+2026-11-04T13:00:39.9784406Z [command]/usr/bin/sh -c adb shell settings put system font_scale 1.0
+2026-11-04T13:00:40.1491979Z [command]/usr/bin/sh -c adb shell cmd uimode night no
+2026-11-04T13:00:40.2085743Z Night mode: no
+2026-11-04T13:00:40.2123824Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --settle-app
+2026-11-04T13:00:44.4102128Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --orientation portrait
+2026-11-04T13:00:44.9573547Z Natural display (1080, 1920); requested portrait; rotation=0
+2026-11-04T13:00:44.9664371Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --settle-app
+2026-11-04T13:00:45.8843346Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --snapshot configured
+2026-11-04T13:00:46.2954757Z [command]/usr/bin/sh -c adb shell svc power stayon true
+2026-11-04T13:00:47.8947818Z [command]/usr/bin/sh -c adb shell settings put system screen_off_timeout 3600000
+2026-11-04T13:00:47.9865835Z [command]/usr/bin/sh -c adb shell input keyevent KEYCODE_WAKEUP
+2026-11-04T13:00:48.0709632Z [command]/usr/bin/sh -c adb shell wm dismiss-keyguard
+2026-11-04T13:00:48.1573360Z [command]/usr/bin/sh -c bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+2026-11-04T13:00:51.2122016Z Native progress: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage status=1
+2026-11-04T13:00:54.9794818Z s_glBindAttribLocation: bind attrib 0 name position
+2026-11-04T13:00:54.9795817Z s_glBindAttribLocation: bind attrib 1 name color
+2026-11-04T13:00:54.9796662Z s_glBindAttribLocation: bind attrib 2 name localCoord
+2026-11-04T13:01:11.2221769Z Native progress: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage status=0
+2026-11-04T13:01:11.2292303Z Native progress: app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments status=1
+2026-11-04T13:01:17.2196645Z Native progress: app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments status=0
+2026-11-04T13:01:17.2221680Z Native progress: app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll status=1
+2026-11-04T13:01:22.2199539Z Native progress: app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll status=0
+2026-11-04T13:01:23.2203392Z Native progress: app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards status=1
+2026-11-04T13:01:33.2227435Z Native progress: app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards status=0
+2026-11-04T13:01:34.2247871Z Native progress: app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards status=1
+2026-11-04T13:01:44.2321417Z Native progress: app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards status=0
+2026-11-04T13:01:44.2350436Z Native progress: app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll status=1
+2026-11-04T13:01:48.2351756Z Native progress: app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll status=0
+2026-11-04T13:01:49.2334418Z Native progress: app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage status=1
+2026-11-04T13:02:07.2416055Z Native progress: app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage status=0
+2026-11-04T13:02:07.2418763Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedGeometrySelectsActualUnicodeWithoutOpeningTextDialog status=1
+2026-11-04T13:02:07.2421556Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedGeometrySelectsActualUnicodeWithoutOpeningTextDialog status=0
+2026-11-04T13:02:07.2424013Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#selectionSurvivesDragInUnselectedTextWhileViewportScrolls status=1
+2026-11-04T13:02:07.2426358Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#selectionSurvivesDragInUnselectedTextWhileViewportScrolls status=0
+2026-11-04T13:02:08.2420527Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPagePreviewRejectsEntitiesAndArchiveTraversal status=1
+2026-11-04T13:02:08.2422452Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPagePreviewRejectsEntitiesAndArchiveTraversal status=0
+2026-11-04T13:02:08.2423642Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage status=1
+2026-11-04T13:02:10.2452099Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#actualLongHoldEndpointDragAndFloatingCopySelectEmbeddedPdfOnPage status=0
+2026-11-04T13:02:10.2461559Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wholeFileZoomPropagatesAndEachPageRemainsIndependent status=1
+2026-11-04T13:02:11.2452305Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wholeFileZoomPropagatesAndEachPageRemainsIndependent status=0
+2026-11-04T13:02:11.2461356Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages status=1
+2026-11-04T13:02:11.2491591Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageDoubleTapZoomIsBoundedAndResetsForRecycledPages status=0
+2026-11-04T13:02:11.2521688Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetControlsLeaveAFullDataRowVisibleWithLongNamesAndCurrentFontScale status=1
+2026-11-04T13:02:14.2441305Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetControlsLeaveAFullDataRowVisibleWithLongNamesAndCurrentFontScale status=0
+2026-11-04T13:02:15.2471989Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText status=1
+2026-11-04T13:02:16.2451927Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#oversizedWordInlineImageFitsPaperAndKeepsFollowingText status=0
+2026-11-04T13:02:16.2462859Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#quotedCsvRetainsMultilineValuesAndNeverEvaluatesFormula status=1
+2026-11-04T13:02:16.2481750Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#quotedCsvRetainsMultilineValuesAndNeverEvaluatesFormula status=0
+2026-11-04T13:02:16.2503546Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageZoomRejectsNonFiniteMalformedStateAndClampsFiniteExtremes status=1
+2026-11-04T13:02:16.2531862Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageZoomRejectsNonFiniteMalformedStateAndClampsFiniteExtremes status=0
+2026-11-04T13:02:16.2561365Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetBeyondEditorLimitKeepsWorkbookOrderAndSparsePositions status=1
+2026-11-04T13:02:17.2451343Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetBeyondEditorLimitKeepsWorkbookOrderAndSparsePositions status=0
+2026-11-04T13:02:17.2454049Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#fixedWordLineHeightIsNotAddedAsExtraLeadingAndSymbolLossIsDisclosed status=1
+2026-11-04T13:02:17.2456034Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#fixedWordLineHeightIsNotAddedAsExtraLeadingAndSymbolLossIsDisclosed status=0
+2026-11-04T13:02:17.2457932Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#copyToSameDocumentRejectsBeforeOpeningAnythingForWrite status=1
+2026-11-04T13:02:17.2460029Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#copyToSameDocumentRejectsBeforeOpeningAnythingForWrite status=0
+2026-11-04T13:02:17.2462081Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#continuousPdfHasVerticalRecyclerAndOfflineTextWithoutTouchingOriginal status=1
+2026-11-04T13:02:17.2463864Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#continuousPdfHasVerticalRecyclerAndOfflineTextWithoutTouchingOriginal status=0
+2026-11-04T13:02:17.2465578Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageZoomRestoresBeforeLayoutAndRetainsNormalizedPanAcrossResize status=1
+2026-11-04T13:02:17.2467239Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#pageZoomRestoresBeforeLayoutAndRetainsNormalizedPanAcrossResize status=0
+2026-11-04T13:02:17.2468822Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#eighteenMiBThousandPagePdfOpensAndRendersLastPage status=1
+2026-11-04T13:02:18.2456364Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#eighteenMiBThousandPagePdfOpensAndRendersLastPage status=0
+2026-11-04T13:02:18.2457888Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedPagesKeepStoredBreaksHeaderLogoAndOriginalBytes status=1
+2026-11-04T13:02:19.2459139Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#wordPreparedPagesKeepStoredBreaksHeaderLogoAndOriginalBytes status=0
+2026-11-04T13:02:19.2461212Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#embeddedGlyphSelectionUsesRealPdfCoordinatesAndPreservesSource status=1
+2026-11-04T13:02:19.2462843Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#embeddedGlyphSelectionUsesRealPdfCoordinatesAndPreservesSource status=0
+2026-11-04T13:02:19.2464528Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#viewedIndexFindsRealEnglishAndIndicPrefixesAndClearingNeverTouchesOriginals status=1
+2026-11-04T13:02:19.2466845Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#viewedIndexFindsRealEnglishAndIndicPrefixesAndClearingNeverTouchesOriginals status=0
+2026-11-04T13:02:19.2468860Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetTraversalAndEntityDeclarationsFailClosed status=1
+2026-11-04T13:02:19.2470655Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#spreadsheetTraversalAndEntityDeclarationsFailClosed status=0
+2026-11-04T13:02:19.2472272Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#illustratedHandbookExactBytesRenderAll116PagesAndHaveSelectableText status=1
+2026-11-04T13:02:27.2489428Z Native progress: app.space.notes.runtime.ViewedFileJourneysTest#illustratedHandbookExactBytesRenderAll116PagesAndHaveSelectableText status=0
+2026-11-04T13:02:27.2492522Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerBackReleasesPreviewAndKeepsSavedData status=1
+2026-11-04T13:02:30.2489222Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerBackReleasesPreviewAndKeepsSavedData status=0
+2026-11-04T13:02:31.2493488Z Native progress: app.space.notes.runtime.ImageSelectionTest#transparentPreviewUsesWhiteWithoutChangingSourcePixels status=1
+2026-11-04T13:02:32.0431560Z ERROR        | Failed to find ColorBuffer: 459
+2026-11-04T13:02:32.0511285Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-04T13:02:32.2524816Z Native progress: app.space.notes.runtime.ImageSelectionTest#transparentPreviewUsesWhiteWithoutChangingSourcePixels status=0
+2026-11-04T13:02:33.2499977Z Native progress: app.space.notes.runtime.ImageSelectionTest#reviewFieldsAndSaveStayReachableInReducedViewport status=1
+2026-11-04T13:02:35.2521912Z Native progress: app.space.notes.runtime.ImageSelectionTest#reviewFieldsAndSaveStayReachableInReducedViewport status=0
+2026-11-04T13:02:35.2551699Z Native progress: app.space.notes.runtime.ImageSelectionTest#copySelectedTextDoesNotSaveOrDismissAndClearDisablesCopy status=1
+2026-11-04T13:02:37.2575073Z Native progress: app.space.notes.runtime.ImageSelectionTest#copySelectedTextDoesNotSaveOrDismissAndClearDisablesCopy status=0
+2026-11-04T13:02:38.2571267Z Native progress: app.space.notes.runtime.ImageSelectionTest#clearDisablesExtractionUntilAccessibleWordSelectionChanges status=1
+2026-11-04T13:02:41.0661382Z ERROR        | Failed to find ColorBuffer: 531
+2026-11-04T13:02:41.0710941Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-04T13:02:41.2578263Z Native progress: app.space.notes.runtime.ImageSelectionTest#clearDisablesExtractionUntilAccessibleWordSelectionChanges status=0
+2026-11-04T13:02:42.2585623Z Native progress: app.space.notes.runtime.ImageSelectionTest#compactSecondaryToolsRemainAccessibleAndReadAreaIsVisible status=1
+2026-11-04T13:02:44.2621987Z Native progress: app.space.notes.runtime.ImageSelectionTest#compactSecondaryToolsRemainAccessibleAndReadAreaIsVisible status=0
+2026-11-04T13:02:45.2595267Z Native progress: app.space.notes.runtime.ImageSelectionTest#dismissingPreviewDoesNotExtractOrModifyAnything status=1
+2026-11-04T13:02:46.2658066Z Native progress: app.space.notes.runtime.ImageSelectionTest#dismissingPreviewDoesNotExtractOrModifyAnything status=0
+2026-11-04T13:02:47.2612305Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerVisualCopySavesAnEmbeddedImageAndKeepsBody status=1
+2026-11-04T13:02:49.2616501Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerVisualCopySavesAnEmbeddedImageAndKeepsBody status=0
+2026-11-04T13:02:49.2636746Z Native progress: app.space.notes.runtime.ImageSelectionTest#unsupportedPlaybackStillReportsAnErrorAndCanBeDisposed status=1
+2026-11-04T13:02:50.2611093Z Native progress: app.space.notes.runtime.ImageSelectionTest#unsupportedPlaybackStillReportsAnErrorAndCanBeDisposed status=0
+2026-11-04T13:02:51.2641880Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectedTextIsReviewedWithoutInventingObjectNames status=1
+2026-11-04T13:02:52.2631709Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectedTextIsReviewedWithoutInventingObjectNames status=0
+2026-11-04T13:02:53.2629563Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim status=1
+2026-11-04T13:02:54.2641814Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectedVisualAreaIsPixelsNotAnEmojiRecognitionClaim status=0
+2026-11-04T13:02:54.2701651Z Native progress: app.space.notes.runtime.ImageSelectionTest#draggingKeepsOnlyIntersectingWordsAndTheOriginalPixels status=1
+2026-11-04T13:02:56.2643515Z Native progress: app.space.notes.runtime.ImageSelectionTest#draggingKeepsOnlyIntersectingWordsAndTheOriginalPixels status=0
+2026-11-04T13:02:56.2663468Z Native progress: app.space.notes.runtime.ImageSelectionTest#retainedDialogReflowsBothWaysWithoutLosingSelectionOrBitmap status=1
+2026-11-04T13:02:59.2644582Z Native progress: app.space.notes.runtime.ImageSelectionTest#retainedDialogReflowsBothWaysWithoutLosingSelectionOrBitmap status=0
+2026-11-04T13:02:59.2691848Z Native progress: app.space.notes.runtime.ImageSelectionTest#emptyTextStillAllowsVisualSelectionWithoutInventedWords status=1
+2026-11-04T13:03:00.4511352Z ERROR        | Failed to find ColorBuffer: 736
+2026-11-04T13:03:00.4551695Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-04T13:03:01.2671694Z Native progress: app.space.notes.runtime.ImageSelectionTest#emptyTextStillAllowsVisualSelectionWithoutInventedWords status=0
+2026-11-04T13:03:01.2701474Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend status=1
+2026-11-04T13:03:04.2658184Z Native progress: app.space.notes.runtime.ImageSelectionTest#controllerSelectionChangesOnlyReviewUntilExplicitAppend status=0
+2026-11-04T13:03:04.2701717Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape status=1
+2026-11-04T13:03:05.4781511Z ERROR        | Failed to find ColorBuffer: 779
+2026-11-04T13:03:05.4806166Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-04T13:03:06.2681722Z Native progress: app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape status=0
+2026-11-04T13:03:06.2711363Z Native progress: app.space.notes.runtime.ImageSelectionTest#closeWaitsForCropLeaseAndIsIdempotent status=1
+2026-11-04T13:03:07.1884045Z Native progress: app.space.notes.runtime.ImageSelectionTest#closeWaitsForCropLeaseAndIsIdempotent status=0
+2026-11-04T13:03:07.5755753Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+2026-11-04T13:03:07.8080393Z {"ok": true, "expected": 45, "passed": 45, "missing": [], "unexpected": [], "duplicates": [], "failures": []}
+2026-11-04T13:03:07.8210631Z [command]/usr/bin/sh -c adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+2026-11-04T13:03:07.8800731Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --snapshot after
+2026-11-04T13:03:08.0224976Z ##[group]Terminate Emulator
+2026-11-04T13:03:08.0238896Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-11-04T13:03:08.0279180Z OK: killing emulator, bye bye
+2026-11-04T13:03:08.0280509Z OK
+2026-11-04T13:03:08.0282072Z INFO         | Wait for emulator (pid 3454) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-11-04T13:03:08.0283531Z 
+2026-11-04T13:03:08.0284280Z ##[endgroup]
+2026-11-04T13:03:08.0564075Z USER_INFO    | Snapshots have been disabled by the user, save request is ignored.
+2026-11-04T13:03:08.0565856Z INFO         | Saving snapshot 'default_boot' took 0 ms
+2026-11-04T13:03:08.5723830Z ERROR        | stop: Not implemented
+2026-11-04T13:03:08.5724570Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-11-04T13:03:08.5871909Z INFO         | removeAll
+2026-11-04T13:03:08.6368821Z WARNING      | Netsim Wifi dns:///localhost:38711 is gone due to Stream removed (CANCELLED)
+2026-11-04T13:03:09.3022288Z ##[group]Run python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll
+2026-11-04T13:03:09.3029739Z [36;1mpython3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.runtime.ViewedFileJourneysTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.CoreJourneysTest#nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments,app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards,app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#wholeAppSettingsTraversalRecordsEachVisitedPage,app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll,app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll[0m
+2026-11-04T13:03:09.3056841Z shell: /usr/bin/bash -e {0}
+2026-11-04T13:03:09.3057106Z env:
+2026-11-04T13:03:09.3057343Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-04T13:03:09.3057653Z ##[endgroup]
+2026-11-04T13:03:09.5200932Z {"ok": true, "expected": 45, "passed": 45, "missing": [], "unexpected": [], "duplicates": [], "failures": []}
+2026-11-04T13:03:09.5375606Z ##[group]Run actions/upload-artifact@v7.0.2
+2026-11-04T13:03:09.5375955Z with:
+2026-11-04T13:03:09.5376199Z   name: recognition-focused-light-portrait
+2026-11-04T13:03:09.5377008Z   path: refinement-captures.tar
+refinement-native.*
+refinement-native-*.json
+refinement-native-*.txt
+ordered-module-*
+refinement-environment-*
+emulator-preflight.txt
+
+2026-11-04T13:03:09.5377804Z   retention-days: 7
+2026-11-04T13:03:09.5378033Z   if-no-files-found: warn
+2026-11-04T13:03:09.5378281Z   compression-level: 6
+2026-11-04T13:03:09.5378515Z   overwrite: false
+2026-11-04T13:03:09.5378745Z   include-hidden-files: false
+2026-11-04T13:03:09.5378992Z   archive: true
+2026-11-04T13:03:09.5379194Z env:
+2026-11-04T13:03:09.5379415Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-04T13:03:09.5379710Z ##[endgroup]
+2026-11-04T13:03:09.7276803Z With the provided path, there will be 11 files uploaded
+2026-11-04T13:03:09.7277717Z Artifact name is valid!
+2026-11-04T13:03:09.7278221Z Root directory input is valid!
+2026-11-04T13:03:10.0960137Z Uploading artifact: recognition-focused-light-portrait.zip
+2026-11-04T13:03:10.1004062Z Beginning upload of artifact content to blob storage
+2026-11-04T13:03:11.0133506Z Uploaded bytes 1888381
+2026-11-04T13:03:11.0919561Z Finished uploading artifact content to blob storage!
+2026-11-04T13:03:11.0923386Z SHA256 digest of uploaded artifact is 21bf6345dc9321a59c0037c49d5429b90c56580da63acf006dd6e73068051bdc
+2026-11-04T13:03:11.0924444Z Finalizing artifact upload
+2026-11-04T13:03:11.7565291Z Artifact recognition-focused-light-portrait successfully finalized. Artifact ID 13323793075
+2026-11-04T13:03:11.7566829Z Artifact recognition-focused-light-portrait has been successfully uploaded! Final size is 1888381 bytes. Artifact ID is 13323793075
+2026-11-04T13:03:11.7570669Z Artifact download URL: https://github.com/tarungittarun/TicTic/actions/runs/41832709872/artifacts/13323793075
+2026-11-04T13:03:11.7791509Z Post job cleanup.
+2026-11-04T13:03:11.8764570Z [command]/usr/bin/git version
+2026-11-04T13:03:11.8817146Z git version 2.56.0
+2026-11-04T13:03:11.8862916Z Temporarily overriding HOME='/home/runner/work/_temp/099d6ba4-ed8f-4068-863c-6ac81d31668e' before making global git config changes
+2026-11-04T13:03:11.8864716Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T13:03:11.8869657Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-04T13:03:11.8940660Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T13:03:11.8982774Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T13:03:11.9366853Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T13:03:11.9405236Z http.https://github.com/.extraheader
+2026-11-04T13:03:11.9421242Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-04T13:03:11.9475235Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T13:03:11.9886678Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T13:03:11.9944691Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T13:03:12.0465401Z Cleaning up orphan processes
+2026-11-04T13:03:12.0908414Z Terminate orphan process: pid (3549) (adb)

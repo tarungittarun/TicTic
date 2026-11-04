@@ -15,6 +15,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v5
+      - name: Fetch exact compiled source tree for independent inventory, never rebuild
+        run: |
+          git fetch --no-tags --depth=1 origin 3aa67629e1f1748531f348308aa53e833b2becc7
+          git cat-file -e 3aa67629e1f1748531f348308aa53e833b2becc7^{tree}
       - name: Wait for remaining OCR capture and preserve its original report attempt
         env:
           GH_TOKEN: ${{ github.token }}

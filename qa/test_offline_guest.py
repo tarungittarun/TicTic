@@ -29,7 +29,7 @@ class OfflineGuest(unittest.TestCase):
    proof=guest.configure(Path(temp)/'proof.json')
    self.assertEqual(3,proof['consecutive_checks']);self.assertEqual(2000,proof['final_shell_uid'])
    self.assertEqual([0,2000],[c.args[0] for c in uid.call_args_list])
-   self.assertNotIn('svc',[str(c.args) for c in adb.call_args_list])
+   self.assertFalse(any('svc' in c.args for c in adb.call_args_list))
  def test_failed_broadcast_never_creates_success_proof_and_still_unroots(self):
   def fail(*args):
    if 'broadcast' in args:raise RuntimeError('broadcast failed')
@@ -38,3 +38,20 @@ class OfflineGuest(unittest.TestCase):
    path=Path(temp)/'proof.json'
    with self.assertRaisesRegex(RuntimeError,'broadcast failed'):guest.configure(path)
    self.assertFalse(path.exists());self.assertEqual(('unroot',),adb.call_args.args)
+ def test_live_default_network_blocks_proof_and_unroots(self):
+  def online(*args):
+   if args==('shell','dumpsys','connectivity'):return 'Active default network: 100'
+   return self.response(*args)
+  with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=online) as adb,patch.object(guest,'wait_uid'),patch.object(guest.time,'sleep'):
+   path=Path(temp)/'proof.json'
+   with self.assertRaisesRegex(RuntimeError,'never proved offline'):guest.configure(path)
+   self.assertFalse(path.exists());self.assertEqual(('unroot',),adb.call_args.args)
+ def test_transient_network_resets_required_consecutive_observations(self):
+  observations=[]
+  def transition(*args):
+   if args==('shell','dumpsys','wifi'):
+    observations.append(1)
+    return 'Wi-Fi is enabled' if len(observations)==3 else 'Wi-Fi is disabled'
+   return self.response(*args)
+  with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=transition),patch.object(guest,'wait_uid'),patch.object(guest.time,'sleep'):
+   guest.configure(Path(temp)/'proof.json');self.assertEqual(6,len(observations))

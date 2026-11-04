@@ -43,3 +43,9 @@ class Candidate67Safety(unittest.TestCase):
         self.assertIn('holder.image.setImageBitmap(result);deferTextIndex();',source)
         self.assertIn('if(!closed && !indexingStopped)indexText(consumer)',source)
         self.assertNotIn('if(index!=null)indexText(index)',source)
+
+    def test_image_rotation_reflows_before_measuring_children(self):
+        source=(JAVA/'ImageTextSelectionDialog.java').read_text()
+        measure=source.split('@Override protected void onMeasure',1)[1].split('private static void showChild',1)[0]
+        self.assertLess(measure.index('reflow.accept'),measure.index('super.onMeasure'))
+        self.assertNotIn('root.addOnLayoutChangeListener',source)

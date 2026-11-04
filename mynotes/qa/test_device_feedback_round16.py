@@ -60,8 +60,9 @@ class DeviceFeedbackRound16(unittest.TestCase):
 
     def test_retained_image_dialog_reflows_existing_view_not_new_selection(self):
         source=(JAVA/'ImageTextSelectionDialog.java').read_text()
-        self.assertIn('root.addOnLayoutChangeListener',source)
-        reflow=source.split('root.addOnLayoutChangeListener',1)[1].split('view.onChanged',1)[0]
+        self.assertIn('root.reflow=',source)
+        self.assertLess(source.index('reflow.accept(View.MeasureSpec'),source.index('super.onMeasure(width,height)'))
+        reflow=source.split('root.reflow=',1)[1].split('view.onChanged',1)[0]
         self.assertIn('body.setOrientation',reflow)
         self.assertIn('side.setLayoutParams',reflow)
         self.assertNotIn('new ImageTextSelection(',reflow)

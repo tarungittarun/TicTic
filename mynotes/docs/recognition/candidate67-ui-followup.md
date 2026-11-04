@@ -112,3 +112,23 @@ accidentally copied43-case interaction verifier then rejected those two study
 identities. Raw study JSON is retained by the artifact step; inspect/recover the
 actual data, do not relabel this workflow green or rerun inference merely to fix
 that reporting gate. No OCR production change has been adopted.
+
+## Expanded diagnostic41830346993 — executed, not full acceptance
+
+Build/JVM/lint/size passed. Native:43/43 both portraits;42/43 both landscapes.
+Both new36-card bottom-to-top Notes/Doc gestures, actual Home overlay/Settings-last
+ordering/Library/Settings traversals, and new independent/whole-file zoom state
+propagation passed in all four profiles. The SAME strict rotation assertion still
+failed in both landscapes (174px vs163px): initial short labels/min-height alone
+were insufficient. Do not call that earlier repair qualified.
+
+Next repair moves responsive reflow from a post-layout callback into the root's
+onMeasure BEFORE children are measured, eliminating stale child bounds rather
+than relaxing the unchanged visibility assertion. The next pass also includes
+attached real native Notes/Doc selection-ActionMode scrolling and foreground-first
+PDF raster/deferred64-page history indexing. Inventory437/profile. No OCR model
+or production recognition-output change yet; study results awaiting retention.
+Original150/152 diagnostic outcomes now retained successfully by41832126874,
+bot230dd997. Missing/empty capture profiles remain explicit; dark portrait has
+three actual public UI captures. The original driver255 is confirmed disappeared
+emulator after38 native passes, not an app assertion failure.

@@ -20,4 +20,7 @@ done
     timeout 15s adb shell dumpsys input | tail -n 100 || true
     timeout 15s adb logcat -d -t 500 || true
 } > refinement-native-diagnostics.txt 2>&1
+# Retain existing PUBLIC debug fixtures before returning an assertion failure.
+# A missing emulator/capture is not converted into native success.
+timeout 15s adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar 2>/dev/null || true
 exit "$code"

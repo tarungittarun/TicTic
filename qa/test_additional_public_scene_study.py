@@ -16,3 +16,14 @@ class AdditionalPublicSceneStudy(unittest.TestCase):
     def test_gate_verifies_only_actual_new_native_identity_and_independent_scores(self):
         source=(ROOT/'mynotes/tools/ci/run_additional_public_scene_study.sh').read_text()
         self.assertIn('originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs',source);self.assertIn('independent_row(row)',source);self.assertNotIn('verify_recognition_pilot',source)
+    def test_missing_study_is_incomplete_not_eight_expected_successes(self):
+        import tempfile
+        from mynotes.tools.ci.additional_scene_results import collect
+        with tempfile.TemporaryDirectory() as folder:
+            result=collect(Path(folder)/'empty',Path(folder)/'out',ROOT/'mynotes/report-assets/public-ocr-scenes-v3/manifest.json')
+        self.assertEqual(0,result['observed']);self.assertFalse(result['complete']);self.assertEqual(8,result['expected']);self.assertEqual(4,len(result['profiles']))
+    def test_extra_study_does_not_overwrite_main_corpus_native_log(self):
+        source=(ROOT/'mynotes/tools/ci/run_additional_public_scene_study.sh').read_text()
+        self.assertIn('NOTES_NATIVE_OUTPUT=additional-public-native.txt',source)
+        self.assertIn("Path('additional-public-native.txt').read_text()",source)
+        self.assertIn('expectedNight "$1"',source);self.assertIn('expectedOrientation "$2"',source)

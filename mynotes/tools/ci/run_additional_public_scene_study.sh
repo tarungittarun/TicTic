@@ -2,7 +2,8 @@
 # New public inputs only; do not repeat the already retained149-observation study.
 set -uo pipefail
 set +e
-bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.AdditionalPublicSceneStudy
+export NOTES_NATIVE_OUTPUT=additional-public-native.txt
+bash mynotes/tools/ci/run_refinement_instrumentation.sh -e expectedNight "$1" -e expectedOrientation "$2" -e class app.space.notes.EnvironmentQualificationTest,app.space.notes.AdditionalPublicSceneStudy
 code=$?
 timeout 20s adb exec-out run-as app.space.notes.debug cat files/additional-public-scenes.json > additional-public-scenes.json
 python3 - <<'PY'
@@ -11,7 +12,8 @@ from pathlib import Path
 from mynotes.tools.ci.results import android
 from mynotes.tools.ci.smallfont_scene_report import independent_row
 name='app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs'
-report=android(Path('refinement-native.txt').read_text(),[name]);Path('additional-public-native-verified.json').write_text(json.dumps(report,indent=2)+'\n');assert report['ok'],report
+expected=['app.space.notes.EnvironmentQualificationTest#'+m for m in ['fontScaleMatchesRequestedLane','orientationMatchesRequestedLane','nightResourcesMatchRequestedLane']]+[name]
+report=android(Path('additional-public-native.txt').read_text(),expected);Path('additional-public-native-verified.json').write_text(json.dumps(report,indent=2)+'\n');assert report['ok'],report
 study=json.loads(Path('additional-public-scenes.json').read_text());assert study['expected']==len(study['cases'])==2 and not study['production_changed'] and not study['physical_acceptance']
 frozen=json.loads(Path('mynotes/report-assets/public-ocr-scenes-v3/manifest.json').read_text());expected={r['id']:r for r in frozen['records']};assert {r['id'] for r in study['cases']}==set(expected)
 for row in study['cases']:

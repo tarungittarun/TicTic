@@ -58,7 +58,7 @@ def independent_public_probes(row):
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def write(path,data):path.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
-def ingest(artifacts,output,source,run):
+def ingest(artifacts,output,source,run,additional_scenes_required=False):
     from PIL import Image
     Image.MAX_IMAGE_PIXELS=16000000
     inventory=methods(source);lanes={};screens=[];observations=[];executions={};module_timings={}
@@ -131,6 +131,9 @@ def ingest(artifacts,output,source,run):
         complete=complete and len(rows)==len({r['id'] for r in rows})==count and all(r['status']=='OK' for r in rows)
     quality_ok=bool(complete) and bool(observations) and all(r.get('accuracy_target_met') is True for r in observations)
     result={'schema':1,'source':source,'run':run,'native_complete':bool(native_ok),'benchmark_complete':bool(complete),'all_accuracy_targets_met':quality_ok,'profiles':PROFILES,'native_methods':len(inventory),'native_outcomes':sum(r.get('passed',0) for r in lanes.values()),'observed_inferences':len(observations),'expected_inferences':4752,'native':lanes,'benchmark_executions':executions,'screens':screens,'model_changed':False,'training_steps':0,'physical_acceptance':False}
+    if additional_scenes_required:
+        from mynotes.tools.ci.additional_scene_results import collect
+        result['additional_public_scenes']=collect(artifacts,output,ROOT/'mynotes/report-assets/public-ocr-scenes-v3/manifest.json')
     if module_timings:write(output/'strict-native-module-executions.json',module_timings)
     write(output/'provenance.json',result);write(output/'measurements.json',observations)
     return result,observations,inventory
@@ -249,6 +252,7 @@ def render(data,observations,inventory,output):
     y=text('Native complete: '+str(data['native_complete'])+' · Corpus execution complete: '+str(data['benchmark_complete'])+' · ALL accuracy targets met: '+str(data['all_accuracy_targets_met']),y)
     if 'native_passed_outcomes' in data:y=text(f"ORDERED NATIVE RESULTS: {data['native_passed_outcomes']} PASS / {data['native_failed_outcomes']} FAIL. All selected methods produced outcomes: {data['native_execution_complete']}. Failed assertions are not waived, retried into green or called app regressions without diagnosis. See the owning module ledger and retained raw statuses.",y)
     y=text(f"{data['native_methods']} source-discovered native methods; {data['native_outcomes']} actual native outcomes. {data['observed_inferences']}/{data['expected_inferences']} model observations. Four explicitly paired API34 profiles: light/dark × portrait/landscape. Bundled model weights are unchanged; application/selection code is identified by the exact execution source. No training.",y)
+    if 'additional_public_scenes' in data:y=text(f"Additional public scene observations (separate from4752): {data['additional_public_scenes']['observed']}/8; execution complete={data['additional_public_scenes']['complete']}; exact={data['additional_public_scenes']['exact']}. Includes unsupported French as a capability-limit challenge, not French support.",y)
     if data.get('strict_native_run'):y=text('Strict native module schedule run '+data['strict_native_run']+' records all419 selected methods per profile in chapter order, including any failed assertions. Original native run remains separately retained. Native screenshots below identify their actual capture run.',y)
     if data.get('composite_evidence'):y=text('COMPOSITE BOOT SUPPLEMENT: '+data['source_run_note']+' Build run '+str(data['build_run'])+'; original workflow remains FAILED. Supplemental capture/report run '+str(data['run'])+'. See boot-supplement-receipt.json and per-row capture_run.',y)
     if data.get('rechecks'):y=text('SETUP CORRECTIONS: original run failed landscape orientation checks. Accepted cohorts below include explicitly source-matched rechecks '+', '.join(sorted({r['run'] for r in data['rechecks']}))+'. Original failed configuration and rejected observations remain retained; no failed run is relabelled successful.',y)
@@ -270,6 +274,16 @@ def render(data,observations,inventory,output):
         for name,method in sorted(members.items(),key=lambda item:(item[1]['file'],item[1]['line'])):
             passed=[lane for lane,r in data['native'].items() if name in r.get('cases',[])];failed=[lane for lane,r in data['native'].items() if any(str(f).startswith(name+':') for f in r.get('failures',[]))]
             y=text(name.split('#')[-1]+f"\nActual passed shards:{', '.join(passed) or 'NONE'}; failed:{', '.join(failed) or 'none reported'}. Source {method['file']}:{method['line']}.\nActions: "+(' → '.join(method['actions']) or 'Direct runtime/storage assertions; no UI route inferred.'),y,tiny=True)
+        if module==MODULES[3] and 'additional_public_scenes' in data:
+            extra=data['additional_public_scenes'];y=new(module+' · additional public poster and outdoor-sign challenge')
+            y=text('Separate eight-observation study, two original images across four profiles; no training or model changes. French is not supported; this is a capability-limit challenge, not a French-support claim. The historical poster is a pixel fixture, not medical advice. Execution completion does not mean exact OCR. First-call cold setup is included; decode/scoring excluded; not physical tap latency.',y)
+            y=text(f"Actual {extra['observed']}/8; complete={extra['complete']}; exact strings={extra['exact']}. Raw outputs, fixed references, provenance and native configuration assertions are retained in additional-public-scenes/.",y)
+            for row in extra['rows']:
+                y=new(module+' · '+row['id']+' · '+row['profile'])
+                y=text('Reference: '+row.get('reference','Unavailable'),y)
+                y=text(f"Status {row['status']} · CER {row.get('cer','unavailable')} · {row['elapsed_ms']}ms · source {row['source_sha256']}",y,tiny=True)
+                actual=row.get('recognized','ERROR: '+row.get('error','No output'))
+                for offset in range(0,len(actual),1600):y=text('Actual: '+actual[offset:offset+1600],y,tiny=True)
         diagnostic=output/'pdf-option-diagnostic/provenance.json'
         if module==MODULES[6] and diagnostic.exists():
             proof=json.loads(diagnostic.read_text());frame=next(r for r in proof['frames'] if r['frame']=='frame-8');image=diagnostic.parent/'frame-8.jpg'
@@ -374,7 +388,7 @@ def render(data,observations,inventory,output):
     return summary
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path);p.add_argument('--rebuild',action='store_true');p.add_argument('--rechecks',type=Path,nargs='*',default=[]);p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser();p.add_argument('--artifacts',type=Path);p.add_argument('--rebuild',action='store_true');p.add_argument('--additional-scenes-required',action='store_true');p.add_argument('--rechecks',type=Path,nargs='*',default=[]);p.add_argument('--output',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--run',required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     if a.rebuild:
         data=json.loads((a.output/'provenance.json').read_text());rows=json.loads((a.output/'measurements.json').read_text());inventory=methods(data['source'])
         if data['source']!=a.source or data['run']!=a.run:raise ValueError('Rebuild cannot relabel source/run')
@@ -383,7 +397,7 @@ def main():
         write(a.output/'provenance.json',data)
     else:
         if a.artifacts is None:raise ValueError('Artifacts required for real ingestion')
-        data,rows,inventory=ingest(a.artifacts,a.output,a.source,a.run)
+        data,rows,inventory=ingest(a.artifacts,a.output,a.source,a.run,a.additional_scenes_required)
     for path in a.rechecks:
         proof=json.loads(path.read_text())
         for entry in (proof if isinstance(proof,list) else [proof]):apply_recheck(data,rows,entry,a.output)

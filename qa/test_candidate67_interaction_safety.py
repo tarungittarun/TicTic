@@ -73,3 +73,11 @@ class ImageActionRailSafety(unittest.TestCase):
         source=(JAVA/'ImageTextSelectionDialog.java').read_text()
         self.assertIn('Photo textures and status icons can be mistaken for letters',source)
         self.assertIn('even when no writing is present',source)
+
+class NativeSelectionTapTargetSafety(unittest.TestCase):
+    def test_post_scroll_tap_is_remapped_to_visible_field_above_keyboard(self):
+        source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        self.assertIn('fieldBounds.intersect(scrollBounds)',source)
+        self.assertIn('fieldBounds.intersect(windowBounds)',source)
+        self.assertNotIn('float tapY=(point[1]+point[3])/2',source)
+        self.assertIn('A deliberate tap deselects normally without changing content',source)

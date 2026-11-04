@@ -7,7 +7,7 @@ class Candidate67MigrationPlan(unittest.TestCase):
     def test_exact_new_candidate_old_original_and_two_supported_apis(self):
         path=ROOT/'.github/workflows/notes-candidate67-rich-update.yml';text=path.read_text();data=yaml.safe_load(text)
         self.assertEqual([26,34],[row['api'] for row in data['jobs']['update']['strategy']['matrix']['include']])
-        self.assertIn('run-id: 41842482778',text);self.assertIn('run-id: 41807474878',text)
+        self.assertIn('run-id: 41871176226',text);self.assertIn('run-id: 41807474878',text)
         self.assertIn('MyNotes-v0.67.0-67-development.apk',text);self.assertIn('MyNotes-v0.66.0-66-development.apk',text)
         self.assertIn('candidate[\'digest\'].removeprefix(\'sha256:\')',text)
         self.assertIn('"--old-code","66","--candidate-code","67"',text)

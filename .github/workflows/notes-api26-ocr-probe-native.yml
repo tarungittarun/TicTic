@@ -1,0 +1,88 @@
+name: API26 native-only original OCR probe after provisioning repair
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-api26-ocr-probe-native.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41775792629
+          name: api26-diagnostic-test-apk
+          path: test-apk
+      - name: Verify exact unchanged candidate62 app foundation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          a=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13294803770']))
+          assert not a['expired'] and a['workflow_run']['head_sha']=='84a02f6f954add7bf1b6a8ea3a8d0c12a59ebebd'
+          assert a['digest']=='sha256:5f80459fe2bc4ea375af198c4822fd8e0884d2836df0d4447325a7e66a482871'
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41771337080
+          name: module-foundation-test-apks
+          path: foundation
+      - name: Share one ephemeral debug signature without modifying app or test payloads
+        run: |
+          APP=$(find foundation -name notes-debug.apk -print -quit)
+          TEST=$(find test-apk -name '*androidTest.apk' -print -quit)
+          python3 -m mynotes.tools.ci.resign_public_benchmark_apks "$APP" "$TEST"
+      - name: Enable KVM and installed emulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 26
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disk-size: 4G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: bash mynotes/tools/ci/run_api26_ocr_diagnostic.sh
+      - name: Retain original assertion failure and expose bounded PUBLIC hypotheses
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json,pathlib
+          from mynotes.tools.ci.results import android
+          p=pathlib.Path('public-native-ocr-probe.json')
+          if p.exists():
+              r=json.loads(p.read_text())
+              for row in r['cases']:
+                  print('::notice title=Public native OCR probe, not production selection::'+json.dumps(row,ensure_ascii=False).replace('%','%25'))
+          log=pathlib.Path('refinement-native.txt')
+          result=android(log.read_text(errors='replace') if log.exists() else '',['app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols'])
+          pathlib.Path('original-assertion.json').write_text(json.dumps(result,indent=2)+'\n')
+          print('::warning title=Original API26 assertion outcome::'+json.dumps(result))
+          if not result['ok']:raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: api26-public-ocr-diagnostic
+          path: |
+            public-native-ocr-*
+            original-assertion.json
+            refinement-native*.txt
+            diagnostic-bootstrap.txt
+            benchmark-signing-proof.json
+          if-no-files-found: error
+          retention-days: 7

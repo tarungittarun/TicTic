@@ -15,3 +15,11 @@ class SmallFontSceneReport(unittest.TestCase):
         from pathlib import Path
         source=(Path(__file__).resolve().parents[1]/'.github/workflows/notes-candidate67-recover-study.yml').read_text()
         self.assertIn('PYTHONPATH: ${{ github.workspace }}',source)
+    def test_nan_or_boolean_cer_cannot_pass_independent_verification(self):
+        for value in [float('nan'),float('inf'),True]:
+            row=self.row();row['cer']=value
+            with self.assertRaises(ValueError):independent_row(row)
+    def test_nonfinite_timing_and_nonboolean_preservation_are_rejected(self):
+        for key,value in [('elapsed_ms',float('nan')),('source_pixels_unchanged',1)]:
+            row=self.row();row[key]=value
+            with self.assertRaises(ValueError):independent_row(row)

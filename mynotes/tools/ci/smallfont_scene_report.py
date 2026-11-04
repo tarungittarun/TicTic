@@ -1,5 +1,5 @@
 """Independent scoring/retention of a completed public study, never an OCR oracle."""
-import argparse, html, json, re, statistics, unicodedata
+import argparse, html, json, math, re, statistics, unicodedata
 from pathlib import Path
 
 def normalize(value):
@@ -14,7 +14,9 @@ def distance(a,b):
         previous=row
     return previous[-1]
 def independent_row(row):
-    if row['status']!='OK' or not row['source_pixels_unchanged']:raise ValueError('Operational/source preservation failure retained')
+    if row['status']!='OK' or row['source_pixels_unchanged'] is not True:raise ValueError('Operational/source preservation failure retained')
+    if type(row['cer']) not in (int,float) or not math.isfinite(row['cer']):raise ValueError('Nonfinite or invalid CER')
+    if type(row['elapsed_ms']) not in (int,float) or not math.isfinite(row['elapsed_ms']):raise ValueError('Nonfinite elapsed time')
     a,b=normalize(row['reference']),normalize(row['recognized']);edits=distance(a,b)
     if edits!=row['character_edits'] or len(a)!=row['reference_characters'] or abs(edits/max(1,len(a))-row['cer'])>1e-9:raise ValueError('Independent CER mismatch')
     if row['elapsed_ms']<0:raise ValueError('Invalid elapsed time')

@@ -27,7 +27,8 @@ def run(cli, models, corpus, output):
         raise ValueError('Expected 32 fixed prompts per speaker')
     rows=[];sizes={}
     for label,model in models.items():
-        sizes[label]={'bytes':model.stat().st_size,'sha256':hashlib.file_digest(model.open('rb'),'sha256').hexdigest()}
+        with model.open('rb') as stream:
+            sizes[label]={'bytes':model.stat().st_size,'sha256':hashlib.file_digest(stream,'sha256').hexdigest()}
         for record in records:
             wave=corpus/record['file']
             if hashlib.sha256(wave.read_bytes()).hexdigest()!=record['sha256']:

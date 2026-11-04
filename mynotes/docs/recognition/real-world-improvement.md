@@ -69,3 +69,24 @@ image enlargement alone still missed the dialog while a tight region read it.
 Those private pixels/results are NOT committed or uploaded and are not Android
 qualification, model training or evidence of general accuracy. This motivated the
 area re-read implementation rather than a claim that scaling solved the issue.
+
+## Observed red native evidence and follow-up
+Strict pilot 41764909944 / light-landscape job 126362188800 executed 45
+methods: 43 passed, two failed. Kept exact assertions:
+- `mixedStyleDialogScreenshotKeepsTitleAndActions`: full-image recognition empty.
+- `automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols`: the retained
+  tilted Kannada document helper regressed after raster enlargement.
+
+Do NOT call earlier process-exit-only success qualification. Subsequent strict
+pilot reports are authoritative. Repair preserves documents whose short edge is
+already at least 1000px; does not shrink test expectations. An adaptive threshold
+pass is tried ONLY if all ordinary passes returned empty, never to globally
+rewrite already-recognized document text. These changes await native evidence.
+
+Speech quantization study 41765677553 uses exactly the existing adapted export,
+verified original artifact and source hashes, desktop whisper.cpp at the same
+pinned revision, fixed B0033-B0064 public prompts on KSP/SLT (64 utterances), f16
+versus q8_0 versus q5_1, identical greedy decoding/two threads. This is model
+quantization parity research, not new training, Android timing, default Vosk
+comparison or unseen-Indian-speaker evidence. Outputs retain individual hypotheses,
+WER and regressions. No quantized file is installed in the app by this work.

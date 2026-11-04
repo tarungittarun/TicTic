@@ -81,6 +81,7 @@ public final class OfflineOcr {
     }
     /** Fresh inference on a selected source area, not filtering stale full-image words. */
     public static Result recognizeRegion(Context context,Bitmap source,RectF box,String language,Cancellation cancellation)throws Exception{
+        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");
         cancellation.check();
         if(source==null || source.isRecycled() || (long)source.getWidth()*source.getHeight()>4000000L || box==null || !Float.isFinite(box.left) || !Float.isFinite(box.top) || !Float.isFinite(box.right) || !Float.isFinite(box.bottom) || box.left<0 || box.top<0 || box.right>1 || box.bottom>1 || box.width()<=0 || box.height()<=0)throw new IOException("Choose an area inside the image");
         int w=source.getWidth(),h=source.getHeight(),left=(int)Math.floor(box.left*w),top=(int)Math.floor(box.top*h),right=Math.min(w,(int)Math.ceil(box.right*w)),bottom=Math.min(h,(int)Math.ceil(box.bottom*h));

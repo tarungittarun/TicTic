@@ -14,8 +14,10 @@ final class ImageRegionText {
     private ImageRegionText(){}
     static OfflineOcr.Cancellation read(Context context,OfflineOcr.Scan scan,RectF box,Listener listener){
         OfflineOcr.Cancellation cancel=new OfflineOcr.Cancellation();
+        if(box==null){main.post(()->{if(!cancel.cancelled())listener.complete("","Select an image area first.");});return cancel;}
+        RectF area=new RectF(box);
         if(!scan.retain()){main.post(()->listener.complete("","Image is no longer available."));return cancel;}
-        Context app=context.getApplicationContext();RectF area=new RectF(box);
+        Context app=context.getApplicationContext();
         try{worker.execute(()->{
             String text="",failure="";
             try{text=OfflineOcr.recognizeRegion(app,scan.image,area,scan.result.language,cancel).text;}

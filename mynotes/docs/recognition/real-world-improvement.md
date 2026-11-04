@@ -381,3 +381,33 @@ was reproduced locally and repaired. A missing progress heartbeat was also fixed
 before the corrected native study. The integration denied cancelling the initial
 queued run (403), so it is not described as cancelled. These failures remain
 visible; no assertion is weakened or retried to choose a favourable transcript.
+
+### Build63 missing-lane provisioning and split-capture provenance
+
+The original full run `41784134085` remains failed: two OCR emulators timed out
+before any tests. All four native UI lanes and all voice benchmark lanes passed.
+Its incomplete report is retained, not relabelled green.
+
+The first exact-APK supplement `41787131044` passed dark-landscape OCR. Its
+light-portrait emulator booted but failed **before Notes tests**, because the
+external Pixel HOME never obtained stable focus. Read-only cause recovery
+`41788213312` retains that traceback. The failed attempt has a diagnostics-only
+artifact; it is not missing and is not corpus evidence.
+
+The narrow follow-up `41788513984` executes only light-portrait OCR, against the
+same pinned compiled foundation `13300687412`. Provisioning starts the actual
+Notes activity and requires three consecutive actual focused-window observations,
+including after orientation setup. It does not dismiss app errors/ANRs, tap dialogs,
+force-stop Notes or bypass the four original environment/corpus assertions.
+Root tests cover real focus, interruption resetting stability, and rejecting a
+system ANR dialog. Passing dark-landscape tests are not executed again.
+
+Composite receipts explicitly map dark-landscape measurements to `41787131044`,
+light-portrait to `41788513984`, and all other measurements/native UI captures to
+`41784134085`. Synthetic OCR input specimens belong to the light-portrait capture,
+not the native UI suite. Capture provenance tests prevent the new report run from
+being incorrectly printed as the original screenshots' capture run. The report-only
+correction workflow waits for the existing capture; it neither compiles nor runs
+app tests and corrects the same report directory rather than duplicating the full
+bundle. A passing capture/report is not broad scene accuracy, a phone-speed result,
+physical acceptance, model training or shipping qualification.

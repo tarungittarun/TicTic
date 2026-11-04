@@ -93,3 +93,15 @@ cancelled. Current follow-up41807291666 must still provide its actual result.
   identity were required. The read-only evidence-retention workflow downloads
   these original artifacts; it does not repeat passing device tests. Rich-data
   migration and physical acceptance remain separate, unverified work.
+
+### Exact-binary continuation, not a new candidate
+
+Direct failed-job rerun was denied by GitHub with403 `Resource not accessible by
+integration`; no rerun was started. The continuation workflow instead verifies
+original foundation13311605121/sourcea267b059/digest1543b3f0…, the three successful
+focus job identities, and the exact original boot-timeout annotation. It reuses
+those binaries, runs **only dark portrait focus**, then unlocks the previously
+skipped four full-native and twelve corpus cohorts. Production/instrumentation
+source directories must have no diff from the APK source. Runner/helper source
+is separately recorded in `continuation-provenance.json`; original app source is
+not relabelled. Fresh guests must prove offline before either APK installation.

@@ -1,0 +1,320 @@
+# Exact binary continuation; original boot failure and three passing focus profiles retained.
+name: Continue exact build66 after retained emulator boot failure, no rebuild
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate66-qualification-continuation.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: notes-module-e2e-continuation66-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require exact original source, foundation identity and three passing profiles
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import json,subprocess,pathlib,os
+          def api(path):return json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/'+path],text=True))
+          original='a267b05935b0272c05a0d9c525dfd5c6f3a17f6d'
+          artifact=api('actions/artifacts/13311605121')
+          assert artifact['workflow_run']['id']==41807474878 and artifact['workflow_run']['head_sha']==original and not artifact['expired']
+          assert artifact['name']=='module-foundation-test-apks' and artifact['digest']=='sha256:1543b3f04cabb421857516f30d8057bc89d36f57585401b58e5598bd540330f5'
+          passes={126502278930:'light-portrait',126502279018:'light-landscape',126502279047:'dark-landscape'}
+          for job,profile in passes.items():
+              actual=api(f'actions/jobs/{job}')
+              assert actual['run_id']==41807474878 and actual['conclusion']=='success' and actual['name'].startswith(f'recognition_focus ({profile},')
+          failed=api('actions/jobs/126502279030');assert failed['conclusion']=='failure' and failed['run_id']==41807474878
+          assert any('Timeout waiting for emulator to boot.' in a['message'] for a in api('check-runs/126502279030/annotations'))
+          subprocess.run(['git','fetch','origin',original,'--depth=1'],check=True)
+          # No mixed-source app or instrumentation: only CI/helper/evidence changes allowed.
+          subprocess.run(['git','diff','--exit-code',original,'HEAD','--','mynotes/app','mynotes/runtime','mynotes/domain','mynotes/benchmarks'],check=True)
+          pathlib.Path('continuation-provenance.json').write_text(json.dumps({'apk_source':original,'runner_source':os.environ['GITHUB_SHA'],'original_run':41807474878,'original_boot_failed_job':126502279030,'reused_passes':passes,'foundation_artifact':13311605121,'app_rebuilt':False,'physical_acceptance':False,'scope':'Only missing dark portrait focus is repeated; full native/corpus cohorts were previously skipped.'},indent=2)+'\n')
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41807474878
+          name: module-foundation-test-apks
+          path: reused-apks
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: module-foundation-test-apks
+          path: reused-apks
+          retention-days: 1
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: continuation-provenance
+          path: continuation-provenance.json
+          retention-days: 7
+          if-no-files-found: error
+  native:
+    needs: [build, recognition_focus]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: light-portrait, night: 'no', orientation: portrait}
+          - {id: dark-portrait, night: 'yes', orientation: portrait}
+          - {id: light-landscape, night: 'no', orientation: landscape}
+          - {id: dark-landscape, night: 'yes', orientation: landscape}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: module-foundation-test-apks
+          path: refinement-apks
+      - name: Enable KVM and audio loader
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Preflight runner emulator without unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disk-size: 4G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            python3 -m mynotes.tools.ci.offline_guest
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 3600000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            python3 -m mynotes.tools.ci.run_ordered_modules --night ${{ matrix.night }} --orientation ${{ matrix.orientation }}
+            adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: module-native-${{ matrix.id }}-ordered
+          path: |
+            refinement-captures.tar
+            refinement-native.*
+            ordered-module-*
+            refinement-environment-*
+            emulator-preflight.txt
+          retention-days: 7
+          if-no-files-found: warn
+
+  benchmark:
+    needs: [build, recognition_focus]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: light-portrait-ocr, night: 'no', orientation: portrait, workload: ocr}
+          - {id: light-portrait-voice0, night: 'no', orientation: portrait, workload: voice0}
+          - {id: light-portrait-voice1, night: 'no', orientation: portrait, workload: voice1}
+          - {id: dark-portrait-ocr, night: 'yes', orientation: portrait, workload: ocr}
+          - {id: dark-portrait-voice0, night: 'yes', orientation: portrait, workload: voice0}
+          - {id: dark-portrait-voice1, night: 'yes', orientation: portrait, workload: voice1}
+          - {id: light-landscape-ocr, night: 'no', orientation: landscape, workload: ocr}
+          - {id: light-landscape-voice0, night: 'no', orientation: landscape, workload: voice0}
+          - {id: light-landscape-voice1, night: 'no', orientation: landscape, workload: voice1}
+          - {id: dark-landscape-ocr, night: 'yes', orientation: landscape, workload: ocr}
+          - {id: dark-landscape-voice0, night: 'yes', orientation: landscape, workload: voice0}
+          - {id: dark-landscape-voice1, night: 'yes', orientation: landscape, workload: voice1}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: module-foundation-test-apks
+          path: refinement-apks
+      - name: Enable KVM and audio loader
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Preflight runner emulator without unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disk-size: 4G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            python3 -m mynotes.tools.ci.offline_guest
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 3600000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            bash mynotes/tools/ci/run_module_benchmark.sh ${{ matrix.workload }} ${{ matrix.night }} ${{ matrix.orientation }}
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: module-benchmark-${{ matrix.id }}
+          path: |
+            module-benchmark.tar
+            module-execution.json
+            refinement-native.txt
+            refinement-environment-*
+            emulator-preflight.txt
+          retention-days: 7
+          if-no-files-found: warn
+  recognition_focus:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: dark-portrait, night: 'yes', orientation: portrait}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: module-foundation-test-apks
+          path: refinement-apks
+      - name: Enable KVM and audio loader
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Validate runner emulator and avoid unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disk-size: 4G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            python3 -m mynotes.tools.ci.offline_guest
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 3600000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest,app.space.notes.runtime.ImageRegionTextTest
+            python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest,app.space.notes.runtime.ImageRegionTextTest
+            adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
+      - name: Require all native pilot assertions even after emulator failure
+        if: always()
+        run: python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest,app.space.notes.runtime.ImageRegionTextTest
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: recognition-focused-${{ matrix.id }}
+          path: |
+            refinement-captures.tar
+            refinement-native.*
+            ordered-module-*
+            refinement-environment-*
+            emulator-preflight.txt
+          retention-days: 7
+          if-no-files-found: warn
+
+  report:
+    if: always() && github.ref == 'refs/heads/arena/3caca636-tictic'
+    needs: [build, native, benchmark, recognition_focus]
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: module-native-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: module-benchmark-*
+          path: module-artifacts
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41807474878
+          name: module-foundation-lint
+          path: module-artifacts/foundation
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: continuation-provenance
+          path: continuation-evidence
+      - name: Generate module-ordered results, independent scores and screenshot PDF even on failures
+        env:
+          SOURCE_SHA: a267b05935b0272c05a0d9c525dfd5c6f3a17f6d
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          python3 -m mynotes.tools.build_module_e2e_report --artifacts module-artifacts --output mynotes/docs/module-e2e/${RUN_ID} --source ${SOURCE_SHA} --run ${RUN_ID}
+          cp continuation-evidence/continuation-provenance.json mynotes/docs/module-e2e/${RUN_ID}/continuation-provenance.json
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: module-ordered-executed-report
+          path: mynotes/docs/module-e2e/${{ github.run_id }}
+          retention-days: 7
+      - name: Gate and preserve actual report evidence, including failures without relabelling
+        run: |
+          set -euo pipefail
+          git checkout -B arena/3caca636-tictic "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/module-e2e/${{ github.run_id }}
+          git commit -m 'Preserve separate module-ordered E2E, measured OCR/voice ground truth and performance [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

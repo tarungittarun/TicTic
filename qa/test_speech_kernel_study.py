@@ -56,6 +56,10 @@ class SpeechKernelStudy(unittest.TestCase):
         self.assertIn('params.use_gpu=false;params.flash_attn=false;',cpp)
         self.assertIn('#if NOTES_WHISPER_FLASH_ATTENTION',cpp)
 
+    def test_corpus_absolute_imports_run_from_repository_root(self):
+        workflow=(ROOT/'.github/workflows/notes-speech-kernel-study.yml').read_text()
+        self.assertIn('(cd .. && python3 -m mynotes.tools.ci.module_corpus',workflow)
+
     def test_benchmark_reports_public_progress_to_bounded_watchdog(self):
         source=(ROOT/'mynotes/app/benchmarks/java/app/space/notes/CompactSpeechBenchmark.java').read_text()
         self.assertIn('sendStatus(2,status)',source)

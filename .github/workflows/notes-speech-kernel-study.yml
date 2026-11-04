@@ -17,7 +17,7 @@ jobs:
       - name: Verify licensed public corpus and compile baseline debug/test APKs only
         working-directory: mynotes
         run: |
-          python3 -m tools.ci.module_corpus --output benchmarks/assets/module-corpus
+          (cd .. && python3 -m mynotes.tools.ci.module_corpus --output mynotes/benchmarks/assets/module-corpus)
           cp docs/regression/ocr-heldout-v1.json benchmarks/assets/module-corpus/ocr-heldout-v1.json
           sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:lintDebug --no-daemon --max-workers=2 --console=plain --stacktrace
           mkdir -p ../kernel-apks

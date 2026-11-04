@@ -106,3 +106,50 @@ class BootSupplement(unittest.TestCase):
             data={'screens':[],'benchmark_executions':{},'native':{'light-portrait-ordered':{'ok':True,'passed':2,'cases':cases}},'native_complete':True,'benchmark_complete':True}
             with tempfile.TemporaryDirectory() as temp,patch.object(m,'ingest',return_value=(data,[],{'a':{},'b':{}})),patch.object(m,'render',return_value={}):
                 with self.assertRaisesRegex(ValueError,'complete exact original inventory'):m.build(Path(temp),Path(temp),r,999)
+
+class PreNativeComposite(unittest.TestCase):
+    def setUp(self):
+        import json
+        from mynotes.tools.ci.pre_native_setup_evidence import PREFIX,COMMAND,verify
+        self.files={'refinement-environment-configured.json':json.dumps({'stage':'configured','anr_header':'<no ANR has occurred since boot>'}).encode(),'refinement-environment-configured.txt':b'actual'}
+        self.log=PREFIX+'[command]/usr/bin/sh -c '+COMMAND+'\n'+PREFIX+'##[error]The operation was canceled.\nWith the provided path, there will be 2 files uploaded\n'
+        self.r=receipt();self.r.update(build_run=100,missing_lanes=['light-landscape-ordered'],lane_capture_runs={'light-landscape-ordered':999},original_artifact_names=['module-native-light-landscape-ordered'],original_failed_jobs=[dict(lane='light-landscape-ordered',conclusion='cancelled',tests_executed=0,pre_native_setup_verified=True,setup_failure_proof=verify(self.log,self.files))])
+
+    def test_precisely_proven_pre_native_cancel_is_distinct_from_boot(self):
+        self.assertEqual({'light-landscape-ordered'},validate_receipt(self.r))
+
+    def test_unknown_cancellation_is_not_accepted(self):
+        del self.r['original_failed_jobs'][0]['setup_failure_proof']
+        with self.assertRaises(ValueError):validate_receipt(self.r)
+
+    def test_native_launcher_started_cannot_be_zero_test(self):
+        self.r['original_failed_jobs'][0]['setup_failure_proof']['native_launcher_started']=True
+        with self.assertRaises(ValueError):validate_receipt(self.r)
+
+    def test_original_zero_native_artifact_cannot_be_hidden(self):
+        self.r['original_artifact_names']=[]
+        with self.assertRaises(ValueError):validate_receipt(self.r)
+
+    def test_other_lane_cannot_use_the_landscape_specific_setup_proof(self):
+        self.r['original_failed_jobs'][0]['lane']='light-portrait-ordered';self.r['missing_lanes']=['light-portrait-ordered'];self.r['lane_capture_runs']={'light-portrait-ordered':999}
+        with self.assertRaises(ValueError):validate_receipt(self.r)
+
+    def test_boolean_zero_is_not_an_executed_test_counter(self):
+        self.r['original_failed_jobs'][0]['tests_executed']=False
+        with self.assertRaises(ValueError):validate_receipt(self.r)
+
+    def test_original_environment_is_preserved_before_recovered_native_ingestion(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from mynotes.tools.ci import build_boot_supplement_report as m
+        data={'screens':[],'benchmark_executions':{},'native':{'light-landscape-ordered':{'ok':True,'passed':2,'cases':['a','b']}},'native_complete':True,'benchmark_complete':True}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);original=root/'original-zero-test-light-landscape-ordered';original.mkdir();out=root/'report';out.mkdir()
+            for name,raw in self.files.items():(original/name).write_bytes(raw)
+            (root/'original-zero-test-light-landscape-ordered-job-log.txt').write_text(self.log)
+            with patch.object(m,'ingest',return_value=(data,[],{'a':{},'b':{}})),patch.object(m,'render',return_value={}):
+                m.build(root,out,self.r,999)
+                self.assertEqual((out/'original-zero-test-setup/light-landscape-ordered/original-job-log.txt').read_text(),self.log)
+                (original/'refinement-native.json').write_text('{}')
+                with self.assertRaises(ValueError):m.build(root,out,self.r,999)

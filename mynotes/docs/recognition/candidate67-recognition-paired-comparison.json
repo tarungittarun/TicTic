@@ -1,0 +1,39 @@
+{
+  "baseline_run": 41810449937,
+  "candidate_run": 41876975461,
+  "source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+  "rows": [
+    {
+      "module": "ocr",
+      "paired_rows": 1536,
+      "identical_sha256_input_pairs": 1536,
+      "parameter_matched_controls_without_recorded_hash": 0,
+      "control_kinds": {},
+      "recognized_changed": 0,
+      "accuracy_target_passes_old": 1512,
+      "accuracy_target_passes_new": 1512,
+      "score_worse": 0,
+      "score_better": 0,
+      "median_ms_old": 382.0,
+      "median_ms_new": 385.0
+    },
+    {
+      "module": "voice",
+      "paired_rows": 3216,
+      "identical_sha256_input_pairs": 3200,
+      "parameter_matched_controls_without_recorded_hash": 16,
+      "control_kinds": {
+        "silence-control": 16
+      },
+      "recognized_changed": 239,
+      "accuracy_target_passes_old": 2526,
+      "accuracy_target_passes_new": 2521,
+      "score_worse": 80,
+      "score_better": 88,
+      "median_ms_old": 1506.5,
+      "median_ms_new": 1459.0
+    }
+  ],
+  "timing_scope": "Emulator wall-clock only; not a controlled physical speed comparison",
+  "accuracy_improvement_claimed": false
+}

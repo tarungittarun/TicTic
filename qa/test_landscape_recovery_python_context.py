@@ -18,3 +18,11 @@ class LandscapeRecoveryPythonContext(unittest.TestCase):
         self.assertIn('timeout 30s adb shell settings put global stay_on_while_plugged_in 3',script)
         for line in script.splitlines():
             if 'adb ' in line:self.assertTrue(line.strip().startswith('timeout '),line)
+
+    def test_future_full_matrix_cannot_repeat_the_unbounded_pre_native_power_stall(self):
+        data=yaml.safe_load(Path('.github/workflows/notes-module-e2e.yml').read_text())
+        for job in ('native','benchmark','recognition_focus'):
+            script=next(s['with']['script'] for s in data['jobs'][job]['steps'] if s.get('uses','').startswith('ReactiveCircus/'))
+            self.assertNotIn('svc power stayon',script)
+            for line in script.splitlines():
+                if 'adb ' in line:self.assertTrue(line.strip().startswith('timeout '),line)

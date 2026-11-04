@@ -1,3 +1,4 @@
+# Candidate61: real-world screenshot source preservation, fresh-area inference, empty-only adaptive fallback and restrained motion. Models unchanged.
 # Execute candidate60 production repair against complete native and original recognition corpus; source-pinned failed reproduction retained separately.
 # Cycle60: reproduce stale hOCR versus UTF8 selection disagreement, repair correspondence, rerun exact full corpus and native assertions. No model training.
 #331-method JVM gate found numeric fallback accepted a lower-confidence rewrite; fixed the production guard, unchanged failing test retained.
@@ -14,7 +15,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression60-${{ github.ref }}
+  group: notes-module-e2e-regression61-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -47,16 +48,26 @@ jobs:
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
           retention-days: 1
           if-no-files-found: error
+      - name: Enforce previous 155MB-class release budget and account for bytes
+        run: |
+          python3 -m mynotes.tools.ci.apk_size_audit mynotes/app/build/outputs/apk/release/notes-release.apk evidence/release-apk-size.json
+          python3 - <<'PY'
+          from pathlib import Path
+          # Existing qualified release was 155,165,372 bytes. Allow at most 1MiB
+          # for code/resources; never silently add tens of MB of new model assets.
+          size=Path('mynotes/app/build/outputs/apk/release/notes-release.apk').stat().st_size
+          assert size <= 156213948, f'Release APK exceeds bounded growth budget: {size}'
+          PY
       - name: Prepare genuinely new signed development APK, not a public release
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.60.0-60-development.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.60.0-60-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.61.0-61-development.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.61.0-61-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
-          sha256sum MyNotes-v0.60.0-60-development.apk > notes-development-sha256.txt
+          sha256sum MyNotes-v0.61.0-61-development.apk > notes-development-sha256.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.60.0-60-development.apk
+          path: MyNotes-v0.61.0-61-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -67,6 +78,7 @@ jobs:
           path: |
             mynotes/runtime/build/generated/trained-whisper-assets/voice/trained-whisper.json
             evidence/refinement-jvm.json
+            evidence/release-apk-size.json
             mynotes/app/build/reports/lint-results-debug.*
             mynotes/benchmarks/assets/module-corpus/manifest.json
             mynotes/benchmarks/assets/module-corpus/*-COPYING.txt
@@ -97,6 +109,8 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Preflight runner emulator without unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -133,6 +147,7 @@ jobs:
             refinement-native.*
             ordered-module-*
             refinement-environment-*
+            emulator-preflight.txt
           retention-days: 7
           if-no-files-found: warn
 
@@ -169,6 +184,8 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Preflight runner emulator without unnecessary latest upgrade
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -203,6 +220,7 @@ jobs:
             module-execution.json
             refinement-native.txt
             refinement-environment-*
+            emulator-preflight.txt
           retention-days: 7
           if-no-files-found: warn
   report:

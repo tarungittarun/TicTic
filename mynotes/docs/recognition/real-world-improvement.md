@@ -90,3 +90,12 @@ versus q8_0 versus q5_1, identical greedy decoding/two threads. This is model
 quantization parity research, not new training, Android timing, default Vosk
 comparison or unseen-Indian-speaker evidence. Outputs retain individual hypotheses,
 WER and regressions. No quantized file is installed in the app by this work.
+
+## Candidate61 qualification boundary
+Version 0.61.0/code61 marks the actual source changes, not a renamed old APK.
+The full module workflow must run all 425 native methods across four profiles,
+original OCR/voice benchmarks, JVM coverage, lint and module-ordered reporting.
+Release APK growth is gated at 156,213,948 bytes (the previous 155,165,372-byte
+qualified release plus 1MiB). No model weights were added or replaced in61.
+The Q8 candidate remains research-only despite its promising parity/size results.
+Physical acceptance and broad real-scene/unseen-speaker accuracy remain open.

@@ -1,0 +1,120 @@
+{
+  "scope": "Failure-only public synthetic fixture; probes never select production output or replace original assertion",
+  "api": 26,
+  "cases": [
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 3,
+      "recognized": "22५6८: ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 249
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 6,
+      "recognized": "22५6८: ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 218
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 11,
+      "recognized": "22५6८: ಭಾಷೆ\n\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 225
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 3,
+      "recognized": "ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 120
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 6,
+      "recognized": "ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 128
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 11,
+      "recognized": "ಭಾಷೆ\n\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 95,
+      "elapsed_ms": 123
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 3,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 125
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 6,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 130
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 11,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\n\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 128
+    },
+    {
+      "language": "kan",
+      "threshold": 2,
+      "psm": 3,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 98
+    },
+    {
+      "language": "kan",
+      "threshold": 2,
+      "psm": 6,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 95
+    },
+    {
+      "language": "kan",
+      "threshold": 2,
+      "psm": 11,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\n\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 95,
+      "elapsed_ms": 116
+    }
+  ],
+  "run": 41778572752,
+  "job": 126406214786,
+  "compiled_source": "e5939ea88c18f83f1bb9a7de76bf5bc1de60ce99",
+  "original_assertion": {
+    "ok": false,
+    "expected": 1,
+    "passed": 0,
+    "missing": [
+      "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols"
+    ],
+    "unexpected": [],
+    "duplicates": [],
+    "failures": [
+      "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols: status -2 org.junit.ComparisonFailure: expected:<ಕನ್[ನ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ> but was:<ಕನ್[ಹ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.OfflineOcrTest.knownNativeOmissionsKeepExistingTextAndCoordinates(OfflineOcrTest.java:111)\n\tat app.space.notes.OfflineOcrTest.automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols(OfflineOcrTest.java:104)\n"
+    ],
+    "cases": []
+  },
+  "selection_prohibited": true
+}

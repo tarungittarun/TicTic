@@ -320,3 +320,38 @@ gate explains this remaining rejection. Candidate word geometry is being
 recovered separately from the immutable artifact (GitHub truncates long check
 annotations to 4096 characters). No accuracy/physical acceptance, audio speed gain,
 model training, release, or completed task is claimed.
+
+
+### Original API26 failure repaired and independently regression-gated
+
+Run **41782476953**, source **5b0891a1**, is **SUCCESS**: build/JVM/lint and both
+API26/API34 native jobs. Each API passed all original 21 OCR methods plus both
+corpus methods (**23/23**); 384 varied and 128 frozen-reference inferences per API
+completed. The original strict conjunct, word-selection and source-generation
+assertions remain unchanged and now pass. API34 historical comparison retained
+**1 improved / 0 regressed / 0 operational errors** across 384 hash-matched cases.
+
+Read-only geometry recovery **41782226457** established the remaining rejection:
+ordinary Kannada word boxes matched the baseline exactly, while adaptive boxes
+were vertically padded. Both native texts agreed. The repair retains the tight
+ordinary text/boxes together, and accepts bounded adaptive corroboration only
+when it substantially overlaps the tight word, has at most three times its area,
+and does not swallow another word centre. Strict original/ordinary alignment,
+complete word coverage, script, digit/punctuation and source-copy guards remain.
+No expected-word substitution or confidence-only selection is used.
+
+Development **0.63.0/code63** is now the full-suite candidate. Release APK signing,
+size cap 156213948 bytes, four-theme/orientation native/focused/recognition runs
+and module-ordered PDF remain required. No new weights, training or public release.
+The whole real-world/ASR/interface task is not declared complete by this fix.
+
+A separate **private local desktop** experiment became possible using the binary
+`tesserocr 2.12.0` wheel (Tesseract 5.5.3, Leptonica 1.87.0) and exact existing
+shipping weights. Twelve probes of the supplied crash-popup screenshot stayed
+outside Git/CI; no images or extracted text were uploaded. Three whole-image
+adaptive probes recovered all three manually referenced popup strings; ordinary
+whole-image probes did not. Six unnormalised manual-crop probes recovered none.
+This uses Pillow approximation, not Android JNI/app selection, and does not prove
+the reported popup fixed. It reinforces why global adaptive replacement and
+blind crop/upscale are unsafe. Private outputs remain local; no phone-speed,
+physical acceptance or speech improvement is inferred.

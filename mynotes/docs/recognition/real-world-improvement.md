@@ -99,3 +99,31 @@ Release APK growth is gated at 156,213,948 bytes (the previous 155,165,372-byte
 qualified release plus 1MiB). No model weights were added or replaced in61.
 The Q8 candidate remains research-only despite its promising parity/size results.
 Physical acceptance and broad real-scene/unseen-speaker accuracy remain open.
+
+## Nonshipping Q8 Android compatibility probe
+
+`notes-q8-native-smoke.yml` reuses candidate61's exact compiled debug/test foundation
+(run 41767304608, source a3833061, artifact 13292844719) rather than rebuilding or
+changing the user APK. It quantizes the existing F16 asset with the pinned desktop
+quantizer and rejects any Q8 bytes other than the independently retained study's
+43,550,778-byte SHA256 65fb6de21bcb73d3ff8f86ea5d8a3da65a25df913f731af60e5b7b952c426d3c.
+Only the model and its install checksum/length manifest may change. All Java,
+native libraries, resources, package/version and test payloads must remain byte-identical.
+The workflow accepts debug packages only and re-signs the three research APKs with
+one ephemeral key; these are **not user release APKs**.
+
+Two fresh emulator guests each run the original three TrainedWhisperTest methods
+once for F16, then install Q8 over it without uninstalling/clearing data. A public
+marker must survive; the existing public recording-preservation, cancellation and
+worker-death assertions remain mandatory for both models even if adb reports zero.
+This is only a compatibility/safety smoke, not a broad paired accuracy benchmark.
+Its public-fixture timing includes first installation/verification and is neither
+isolated decode latency nor a physical-device speed claim.
+
+Known adoption blocker: model installation uses checksum-named files. An upgrade
+can leave the old 77MB installed model alongside Q8. The probe explicitly retains
+model-directory disk usage; APK shrinkage alone is not an installed-storage win.
+No cleanup policy, model adoption, default-engine change or new training is made
+here. Independent Android accuracy, paired decode latency/peak RAM, cache migration
+and physical acceptance remain required. Results are pending until the workflow
+has actually executed; root derivative/identity tests are not Android evidence.

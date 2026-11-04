@@ -28,7 +28,10 @@ jobs:
               for i, line in enumerate(lines):
                   if any(word in line.lower() for word in ('panic:', 'error:', '##[error]', 'fatal', 'insufficient', 'not enough', 'emulator: error', 'no space', 'failed to', 'connection refused')):
                       selected.update(range(max(0,i-4), min(len(lines),i+5)))
-              text = '\n'.join(lines[i] for i in sorted(selected))[-10000:] if result.returncode == 0 else f'Log download failed with code {result.returncode}: {stderr}'
+              # Large missing-test JSON must not push the original provisioning
+              # error out of the bounded annotation. Keep earliest causes + tail.
+              excerpt = '\n'.join(lines[i][:700] for i in sorted(selected))
+              text = (excerpt if len(excerpt) <= 10000 else excerpt[:7500]+'\n[bounded middle omitted]\n'+excerpt[-2000:]) if result.returncode == 0 else f'Log download failed with code {result.returncode}: {stderr}'
               pathlib.Path(f'job-{job}-retrieval.txt').write_text(f'exit={result.returncode}\n'+stderr)
               for i in range(0,len(text),3500):
                   msg=text[i:i+3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')

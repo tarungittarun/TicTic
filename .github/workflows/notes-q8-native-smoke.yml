@@ -1,0 +1,140 @@
+name: Q8 Android compatibility smoke (nonshipping, not adoption)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-q8-native-smoke.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            mynotes/tools
+      - name: Verify exact candidate61 debug foundation identity
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          a=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13292844719']))
+          assert not a['expired']
+          assert a['workflow_run']['head_sha']=='a3833061a4888d6f831f8fed7146425a12fe9a67'
+          assert a['workflow_run']['id']==41767304608
+          assert a['digest']=='sha256:3012a4bbdab4d3e39200aba174b704f304b81b0cdf128b5fa1ec088e54de7b44'
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41767304608
+          name: module-foundation-test-apks
+          path: foundation
+      - name: Build only the pinned desktop quantizer, not Android code
+        run: |
+          curl --fail --location --max-time 180 https://codeload.github.com/ggml-org/whisper.cpp/tar.gz/4979e04f5dcaccb36057e059bbaed8a2f5288315 -o whisper-source.tar.gz
+          echo 'ec8e33f4c838ed459ad0a23da255c0262f150a6f54839a17e504ddf1495305d5  whisper-source.tar.gz' | sha256sum -c -
+          mkdir whisper-source
+          tar -xzf whisper-source.tar.gz --strip-components=1 -C whisper-source
+          cmake -S whisper-source -B desktop-tools -DCMAKE_BUILD_TYPE=Release -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
+          cmake --build desktop-tools --target quantize -j2
+      - name: Derive Q8 from existing bundled weights and verify exact published Q8 identity
+        run: |
+          APP=$(find foundation -name notes-debug.apk -print -quit)
+          test -n "$APP"
+          python3 -m mynotes.tools.ci.q8_native_derivative extract --app "$APP" --output f16.bin
+          desktop-tools/bin/quantize f16.bin q8.bin q8_0
+          python3 -m mynotes.tools.ci.q8_native_derivative derive --app "$APP" --model q8.bin --output q8-unsigned.apk
+      - name: Sign debug-only derivatives with one ephemeral research key and retain payload proof
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,subprocess
+          from mynotes.tools.ci.resign_public_benchmark_apks import payload
+          tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
+          key=pathlib.Path('ephemeral-q8-smoke.jks')
+          subprocess.run(['keytool','-genkeypair','-keystore',str(key),'-storepass','android','-keypass','android','-alias','smoke','-keyalg','RSA','-validity','2','-dname','CN=Nonshipping public Q8 smoke'],check=True)
+          proof={'adopted':False,'scope':'Debug-only research, same compiled Java/native/test payload. Not a release APK.','files':[]}
+          originals=[('f16',next(pathlib.Path('foundation').rglob('notes-debug.apk'))),('q8',pathlib.Path('q8-unsigned.apk')),('test',next(pathlib.Path('foundation').rglob('*androidTest.apk')))]
+          for role,file in originals:
+              package=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(file)],text=True).splitlines()[0]
+              expected='app.space.notes.debug.test' if role=='test' else 'app.space.notes.debug'
+              assert "name='"+expected+"'" in package,package
+              before=payload(file);aligned=pathlib.Path(role+'-aligned.apk');out=pathlib.Path(role+'-smoke.apk')
+              subprocess.run([str(tools/'zipalign'),'-f','-P','16','4',str(file),str(aligned)],check=True)
+              subprocess.run([str(tools/'apksigner'),'sign','--ks',str(key),'--ks-pass','pass:android','--key-pass','pass:android','--out',str(out),str(aligned)],check=True)
+              subprocess.run([str(tools/'apksigner'),'verify',str(out)],check=True)
+              assert payload(out)==before,'Unexpected code/resource modification'
+              proof['files'].append({'role':role,'package':package,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'bytes':out.stat().st_size,'unchanged_unsigned_payload':True})
+          key.unlink()
+          pathlib.Path('signing-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: nonshipping-q8-debug-smoke-apks
+          path: |
+            *-smoke.apk
+            signing-proof.json
+            q8-unsigned.json
+          if-no-files-found: error
+          retention-days: 3
+  native:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: light-portrait, night: 'no', orientation: portrait}
+          - {id: dark-landscape, night: 'yes', orientation: landscape}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            mynotes/tools
+            mynotes/app/src/androidTest
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: nonshipping-q8-debug-smoke-apks
+      - name: Enable KVM and prefer the installed emulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 3072 -cores 2 -feature -Vulkan
+          disable-animations: true
+          script: bash mynotes/tools/ci/run_q8_native_smoke.sh ${{ matrix.night }} ${{ matrix.orientation }}
+      - name: Independently require all three native assertions for BOTH models
+        if: always()
+        run: |
+          failed=0
+          for model in f16 q8; do
+            python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.TrainedWhisperTest --log "$model-native.txt" --output "$model-verified.json" || failed=1
+          done
+          exit "$failed"
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: nonshipping-q8-native-${{ matrix.id }}
+          path: |
+            *-native.txt
+            *-verified.json
+            *-storage.txt
+            *proof.json
+            q8-unsigned.json
+            refinement-native-*.txt
+          if-no-files-found: error
+          retention-days: 7

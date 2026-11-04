@@ -124,3 +124,30 @@ Every profile must execute all six cases and its three environment assertions;
 any operational failure or CER above0.15 fails the separate research workflow.
 No images, new model or benchmark class are included in the production APK.
 Native results are pending; this is not yet an accuracy-gain claim.
+
+## Completed older-source benchmark evidence, not overall candidate approval
+
+Full65/run41805972777 finished. Its corpus is complete4752/4752; its native
+qualification is incomplete (1714 recorded outcomes for429×4 expected) and its
+portrait clipping failures predate the repaired66 UI. Do not offer it as a newly
+qualified complete app. Measured65 targets still miss24 OCR observations
+(20 Kannada/4 mixed) and691 speech observations (117 clean/114 clipped/123 quiet/
+337 noisy), versus685 speech misses in the older63 report. There is no claimed
+causal acoustic gain or new model; full66 must retain its own measurements.
+
+There **is** a narrow measured exact-zero speed result: sixteen generated
+silence controls in four profiles kept empty output. Median emulator times for
+1/5/15/30-second zero WAVs changed from1021.5/942/1341.5/1717.5ms in the63 report
+to1/1/3/2.5ms in65. The benchmark generator/timer file has the same Git blob in
+both sources. Old silence rows did not record byte hashes, so this is a matched
+generated-control comparison, not a falsely hash-bound audio comparison.
+A recorded0ms means below the1ms timer resolution, never infinite speedup.
+`exact-zero-emulator-speed-evidence.json` preserves all sixteen paired rows and
+capture identities. This is not a quiet-speech optimization or phone-speed claim.
+
+Continuation41810449937 passed the missing dark-portrait focus53/53 using the
+original66 test APKs; all four exact-binary focus profiles are now covered across
+the original run and continuation. The previously skipped full-native/corpus
+cohorts are running. Current-display focus helper code was exercised by the
+successful continuation; its conditional external-ANR recovery branch is not
+claimed exercised without retained evidence that it actually occurred.

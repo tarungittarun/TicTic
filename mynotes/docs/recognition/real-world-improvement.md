@@ -428,3 +428,25 @@ script) and 685 voice rows. Voice hash-matched comparison: 3,033 equal, 87 gains
 unchanged shipping speech weights and emulator variation do not justify a causal
 speech improvement claim. Broad scene-text and phone audio/UI acceptance remain
 unfinished. The separate exact-weight attention study is not shipping adoption.
+
+### Speech attention study finished red; fresh APK64 requested
+
+The exact-F16 attention research run `41785635161` completed **failure** at
+2026-11-04 07:22:47 UTC (12:52:47 IST). Three completed 146-pair comparisons
+retained 2, 1 and 1 WER regressions respectively. Their observed median standard /
+flash elapsed-time ratios were about 0.802, 0.836 and 0.815: not an observed speed
+win. The fourth lane passed one phase but lacked successful benchmark completion
+in the other. Do not claim all four comparisons completed or conceal that failure.
+Read-only original annotations and timestamps are retained in
+`speech-kernel-study-41785635161-status.json`. Default/release attention stays OFF;
+this experiment is not adopted and adds no shipping model. Actual phone-speed and
+speech accuracy improvements remain pending.
+
+On the user's explicit fresh-APK request, commit `4d0916ea` advanced the app to
+0.64.0/code64 and initiated Actions-only build `41791806372` at 12:52 IST.
+This is a fresh signed development build of the current pipeline, not a claim of
+new app improvements after the qualified63 OCR change. The 1,097-page E2E report
+is for code63, not code64. The build independently gates domain tests, release
+lint, package/version/minimum/target SDK, absence of INTERNET permission, stable
+signer and the existing 156,213,948-byte cap. No public release or completed native
+64 E2E/physical acceptance is inferred merely from compiling an APK.

@@ -1,0 +1,99 @@
+{
+  "run": 41785635161,
+  "conclusion": "failure",
+  "completed_at_utc": "2026-11-04T07:22:47Z",
+  "adopted": false,
+  "shipping_attention_unchanged": true,
+  "evidence_method": "Read-only GitHub check-run annotations; raw hypothesis/timing artifacts remain with original workflow.",
+  "lanes": [
+    {
+      "job": 126428954097,
+      "conclusion": "failure",
+      "completed_at_utc": "2026-11-04T07:21:02Z",
+      "evidence": [
+        {
+          "title": "",
+          "message": "The process '/usr/bin/sh' failed with exit code 1"
+        },
+        {
+          "title": "Nonshipping CPU attention parity",
+          "message": "{\"scope\": \"Exact-model ordered same-guest CPU attention comparison, balanced order across guests; observational end-to-end emulator timings, not causal phone speed, physical qualification, new training or adoption.\", \"adopted\": false, \"shard\": 0, \"observations\": 146, \"improved\": 2, \"regressed\": 2, \"observed_median_ratio_standard_over_flash\": 0.8021260229064409}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        }
+      ]
+    },
+    {
+      "job": 126428954155,
+      "conclusion": "failure",
+      "completed_at_utc": "2026-11-04T07:20:40Z",
+      "evidence": [
+        {
+          "title": "",
+          "message": "The process '/usr/bin/sh' failed with exit code 1"
+        },
+        {
+          "title": "Nonshipping CPU attention parity",
+          "message": "{\"scope\": \"Exact-model ordered same-guest CPU attention comparison, balanced order across guests; observational end-to-end emulator timings, not causal phone speed, physical qualification, new training or adoption.\", \"adopted\": false, \"shard\": 1, \"observations\": 146, \"improved\": 3, \"regressed\": 1, \"observed_median_ratio_standard_over_flash\": 0.8358987635112223}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        }
+      ]
+    },
+    {
+      "job": 126428954205,
+      "conclusion": "failure",
+      "completed_at_utc": "2026-11-04T07:12:37Z",
+      "evidence": [
+        {
+          "title": "",
+          "message": "The process '/usr/bin/sh' failed with exit code 1"
+        },
+        {
+          "title": "Nonshipping CPU attention parity",
+          "message": "{\"scope\": \"Exact-model ordered same-guest CPU attention comparison, balanced order across guests; observational end-to-end emulator timings, not causal phone speed, physical qualification, new training or adoption.\", \"adopted\": false, \"shard\": 1, \"observations\": 146, \"improved\": 3, \"regressed\": 1, \"observed_median_ratio_standard_over_flash\": 0.8149095797466868}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        }
+      ]
+    },
+    {
+      "job": 126428954231,
+      "conclusion": "failure",
+      "completed_at_utc": "2026-11-04T07:22:47Z",
+      "evidence": [
+        {
+          "title": "",
+          "message": "The process '/usr/bin/sh' failed with exit code 1"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": true, \"expected\": 4, \"passed\": 4, \"missing\": [], \"unexpected\": [], \"duplicates\": [], \"failures\": []}"
+        },
+        {
+          "title": "Original native speech phase",
+          "message": "{\"ok\": false, \"expected\": 4, \"passed\": 3, \"missing\": [\"app.space.notes.CompactSpeechBenchmark#fixedPublicClipsRetainEveryHypothesisAndTime\"], \"unexpected\": [], \"duplicates\": [], \"failures\": [\"Missing, duplicate or unsuccessful instrumentation completion: []\"]}"
+        }
+      ]
+    }
+  ],
+  "interpretation": "Three complete 146-pair comparisons each have 1-2 WER regressions and observed median standard/flash time ratios below 1. Fourth lane has incomplete second-phase benchmark. No causal phone-speed conclusion, complete four-lane accuracy claim, model training or adoption."
+}

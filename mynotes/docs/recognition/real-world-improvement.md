@@ -199,3 +199,37 @@ Supplemental voice run 41769511821 completed all 402 measurements, with only
 all 4752 planned observations exist across explicitly separate runs. The original
 full run and its 1097-page report still correctly retain their missing 402-case
 lane and failed/unqualified status; no historical result is relabelled green.
+
+### Candidate62 measured result and remaining API26 failure
+
+Run 41771337080 built the genuine 0.62.0/code62 development APK, 155169768 bytes
+(788 bytes over v61, 4192 over v60), under the unchanged cap. All 50 focused native
+methods passed in all four API34 UI profiles (200 outcomes). Historical audit
+41772789535 found **zero improved and zero regressed observations versus v60**:
+mean CER 0.014457963659729964 and 1134/1152 targets met. Against v61 it repaired
+51 observations but lost v61's 45 improvements; that second comparison correctly
+keeps the audit workflow red. Thus this restores the measured paper baseline,
+not an across-the-board OCR/model accuracy improvement. Historical median times
+(341.5/442/335ms for v60/v61/v62) are not causal phone speed evidence.
+
+Separate v61 refinement 41767304688 failed on API26: 217/218 in the min-api26 shard,
+with the original automatic-Kannada assertion reading a conjunct incorrectly
+(`ಕನ್ಹಡ` instead of `ಕನ್ನಡ`). API34/native-theme success does not resolve that.
+The original failing assertion remains unchanged. Candidate62's paper guard does
+not alter that 2400×1000 native-resolution fixture, so this remains an open
+qualification issue rather than a reason to relax the assertion.
+
+`notes-kan-best-native.yml` is an isolated **nonshipping** Android weight study:
+reuse exact candidate62 debug/test APKs, replace only Kannada fast weights plus
+its explicit manifest override, retain the original Apache-2.0 notice from the
+best repository, and verify all Java/native/test/permission payloads unchanged.
+Best model blob 8f2e98e1d36ee516a1638522e569d2c4d11ac86d is 10233763 bytes;
+repository revision e12c65a915945e4c28e237a9b52bc4a8f39a0cec, exact license blob
+d9a10c0d8e868ebf8da0b3dc95bb0be634c34bfe. It runs the same 21 original OCR
+assertions once per weight set on API26 and API34, no uninstall/clear-data or
+assertion retries, and retains failures for BOTH phases. A failing fast baseline
+keeps the research workflow red even if best improves it. This is not training,
+shipping adoption, a varied-scene accuracy corpus, or peak-RAM/phone-speed proof.
+The larger model may be slower and exceed the user APK budget; it is not added
+to the actual user APK. Shipping weights/defaults and the 156213948-byte cap stay
+unchanged. Research results are pending actual execution.

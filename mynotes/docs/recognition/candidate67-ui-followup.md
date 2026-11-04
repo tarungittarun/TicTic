@@ -85,3 +85,11 @@ OCR change. Added three SHA/Git-blob verified original public iOS screenshots,
 five frozen inputs including two no-text nature-photo negative controls. These
 are not positive street-sign photos or five independent source scenes. All
 hypotheses/misses/inventions/timing must be retained before any adoption.
+
+Original proof retention initially failed in41830346993: the earlier artifact
+pattern refinement-native.* omits the verifier's refinement-native-verified.json
+(hyphen rather than dot). Separate corrected retainer reconstructs exactly the
+38 original expected methods fromaffcadbb and parses the original retained raw
+logs; it does not substitute today's435-method inventory or repeat any device
+case. Explicit PYTHONPATH covers Actions temporary Python script context. The
+current diagnostic's independent build/native/study jobs can continue unaffected.

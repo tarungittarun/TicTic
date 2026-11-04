@@ -11,6 +11,13 @@ import android.widget.*;
 final class SelectionScrollView extends ScrollView {
     private Runnable userGesture;
     void onUserGesture(Runnable listener){userGesture=listener;}
+    private EditText manualRangeField;private int manualAnchor,manualFocus;
+    void clearManualRangeViewport(){manualRangeField=null;}
+    boolean manualRangeActive(View focus){return focus!=null && focus==manualRangeField && manualRangeField.hasSelection() && manualRangeField.getSelectionStart()==manualAnchor && manualRangeField.getSelectionEnd()==manualFocus;}
+    private void rememberManualRange(){View focus=findFocus();if(focus instanceof EditText && ((EditText)focus).hasSelection()){manualRangeField=(EditText)focus;manualAnchor=manualRangeField.getSelectionStart();manualFocus=manualRangeField.getSelectionEnd();}}
+    @Override public boolean requestChildRectangleOnScreen(View child,android.graphics.Rect rectangle,boolean immediate){if(manualRangeActive(findFocus()))return false;return super.requestChildRectangleOnScreen(child,rectangle,immediate);}
+    @Override public void requestChildFocus(View child,View focused){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(focused);super.requestChildFocus(child,focused);if(keep && manualRangeActive(focused))scrollTo(x,y);}
+    @Override protected void onLayout(boolean changed,int left,int top,int right,int bottom){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(findFocus());super.onLayout(changed,left,top,right,bottom);if(keep && manualRangeActive(findFocus()))scrollTo(x,y);}
     private MotionEvent down;private float lastY;private boolean scrolling;private VelocityTracker velocity;
     private final Runnable passHold=()->{if(down!=null && !scrolling){MotionEvent held=MotionEvent.obtain(down);release();super.dispatchTouchEvent(held);held.recycle();}};
     SelectionScrollView(Context context){super(context);}
@@ -41,7 +48,7 @@ final class SelectionScrollView extends ScrollView {
         if(event.getPointerCount()>1){release();return super.dispatchTouchEvent(event);}
         velocity.addMovement(event);
         if(action==MotionEvent.ACTION_MOVE){
-            if(!scrolling && Math.abs(event.getY()-down.getY())>ViewConfiguration.get(getContext()).getScaledTouchSlop())scrolling=true;
+            if(!scrolling && Math.abs(event.getY()-down.getY())>ViewConfiguration.get(getContext()).getScaledTouchSlop()){scrolling=true;rememberManualRange();}
             if(scrolling)removeCallbacks(passHold);if(scrolling)scrollBy(0,Math.round(lastY-event.getY()));lastY=event.getY();return true;
         }
         if(action==MotionEvent.ACTION_UP){

@@ -89,18 +89,19 @@ class DeferredSelectionGestureCancelsCaretReveal(unittest.TestCase):
         self.assertLess(dispatch.index('userGesture.run()'),dispatch.index('if(action==MotionEvent.ACTION_DOWN)'))
         self.assertIn('action==MotionEvent.ACTION_MOVE',dispatch.split('userGesture.run()',1)[0])
         doc=(JAVA/'DocumentEditorView.java').read_text()
-        self.assertIn('((SelectionScrollView)scroll).onUserGesture(()->{caretRevealUntil=0;',doc)
-        self.assertIn('manualRangeViewport=true',doc)
-        self.assertIn('manualRangeViewport && selected!=null && selected.hasSelection()',doc)
-        self.assertIn('manualRangeViewport=false;host.cursor',doc)
+        self.assertIn('((SelectionScrollView)scroll).onUserGesture(()->caretRevealUntil=0)',doc)
+        self.assertIn('((SelectionScrollView)scroll).manualRangeActive(selected)',doc)
         self.assertNotIn('scroll.setOnTouchListener((v,event)->{if(event.getActionMasked()',doc)
 
 class NotesManualRangeViewport(unittest.TestCase):
     def test_notes_honors_manual_range_for_both_layout_and_ime_reveals(self):
         source=(JAVA/'NotesController.java').read_text()
-        self.assertIn('((SelectionScrollView)document).onUserGesture',source)
-        self.assertIn('body.hasFocus() && body.hasSelection())manualNoteRangeViewport=true',source)
-        self.assertIn('selectionChanged=()->{manualNoteRangeViewport=false;updateFormatting();}',source)
         reveal=source.split('private void revealWritingCaret(ScrollView document)',1)[1].split('private boolean keyboardVisible',1)[0]
-        self.assertLess(reveal.index('manualNoteRangeViewport && field.hasSelection()'),reveal.index('document.scrollTo'))
-        self.assertIn('field==body',reveal)
+        self.assertLess(reveal.index('manualRangeActive(field)'),reveal.index('document.scrollTo'))
+        scroll=(JAVA/'SelectionScrollView.java').read_text()
+        self.assertIn('getSelectionStart()==manualAnchor',scroll)
+        self.assertIn('getSelectionEnd()==manualFocus',scroll)
+        self.assertIn('scrolling=true;rememberManualRange()',scroll)
+        self.assertIn('if(manualRangeActive(findFocus()))return false',scroll)
+        self.assertIn('if(keep && manualRangeActive(findFocus()))scrollTo(x,y)',scroll)
+        self.assertIn('clearManualRangeViewport()', (JAVA/'NoteFindDialog.java').read_text())

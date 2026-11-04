@@ -25,7 +25,7 @@ final class DocumentEditorView extends LinearLayout {
     private final TextView saveStatus;TextView saveStatus(){return saveStatus;}
     private EditorRails rails;
     private LinearLayout topControls,documentControls;private View formatControls;private int topHeight,documentHeight,statusHeight,lastViewportHeight;
-    private View liftedContent;private boolean draggingContent,manualRangeViewport;private int dragDirection;private long caretRevealUntil,uiGeneration;
+    private View liftedContent;private boolean draggingContent;private int dragDirection;private long caretRevealUntil,uiGeneration;
     private final Runnable dragTick=new Runnable(){public void run(){if(dragDirection!=0 && scroll!=null && isAttachedToWindow()){scroll.scrollBy(0,dragDirection*dp(16));postDelayed(this,50);}}};
     private boolean imeAnimationRunning;private String keyboardDiagnostic="idle";private Runnable keyboardStartup;
     private void stopKeyboardStartup(){if(keyboardStartup!=null){removeCallbacks(keyboardStartup);keyboardStartup=null;}}
@@ -69,14 +69,14 @@ final class DocumentEditorView extends LinearLayout {
 
     private void addButton(LinearLayout row,String label,Runnable action){row.addView(button(label,action),new LayoutParams(-2,-2));}
     private void render(){
-        uiGeneration++;stopKeyboardStartup();manualRangeViewport=false;stopDragScroll();closeFormatting();rails=null;saveState();building=true;removeAllViews();fields.clear();selectedCard=null;selected=null;selectedBlock=null;selectedRow=null;
+        uiGeneration++;stopKeyboardStartup();stopDragScroll();closeFormatting();rails=null;saveState();building=true;removeAllViews();fields.clear();selectedCard=null;selected=null;selectedBlock=null;selectedRow=null;
         Note note=host.current();LinearLayout top=row(this);topControls=top;top.setTag("editor-top-chrome");
         top.addView(compactButton("‹","Back",host::back),new LayoutParams(dp(48),dp(48)));
         if(saveStatus.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)saveStatus.getParent()).removeView(saveStatus);
         saveStatus.setSingleLine(true);saveStatus.setEllipsize(android.text.TextUtils.TruncateAt.END);top.addView(saveStatus,new LayoutParams(0,-2,1));
         undo=compactButton("↶","Undo",()->host.undo(false));redo=compactButton("↷","Redo",()->host.undo(true));top.addView(undo,new LayoutParams(dp(48),dp(48)));top.addView(redo,new LayoutParams(dp(48),dp(48)));top.addView(compactButton("?","Find in document",()->host.action("Find in document")),new LayoutParams(dp(48),dp(48)));top.addView(compactButton("⋯","Document",this::documentMenu),new LayoutParams(dp(48),dp(48)));undo.setEnabled(!readOnly() && host.canUndo(false));redo.setEnabled(!readOnly() && host.canUndo(true));
         scroll=new SelectionScrollView(getContext());scroll.setFillViewport(true);
-        ((SelectionScrollView)scroll).onUserGesture(()->{caretRevealUntil=0;if(selected!=null && selected.hasSelection())manualRangeViewport=true;});
+        ((SelectionScrollView)scroll).onUserGesture(()->caretRevealUntil=0);
         scroll.setOnScrollChangeListener((v,x,y,oldX,oldY)->{if(android.os.SystemClock.uptimeMillis()<caretRevealUntil)postOnAnimation(this::revealCaret);});scroll.setOnDragListener((v,event)->{if(!internalDrag(event))return false;trackDrag(event,v);return true;});scroll.setBackground(new NoteBackground(note.background,note.color==0?design.surface:NotesBoard.colour(note.color,design.dark),design.dark,getResources().getDisplayMetrics().density,true));
         LinearLayout content=new LinearLayout(getContext());content.setOrientation(VERTICAL);content.setPadding(dp(12),0,dp(12),dp(16));scroll.addView(content);addView(scroll,new LayoutParams(-1,0,1));
         EditText title=field("title",new RichText(note.title,Collections.emptyList()),(text)->host.change(host.current().title(text.text,System.currentTimeMillis()),"title"),null,null);title.setHint("Title");title.setTextSize(26);content.addView(title,new LayoutParams(-1,-2));
@@ -172,7 +172,7 @@ final class DocumentEditorView extends LinearLayout {
         // Snapshot before native focus/window transitions, restore after, without treating it as a user edit.
         input.beforeFocusTransition=()->{if(!building && !restoringSelection && !selectionLocked)saveState();focusTransition=true;};
         input.afterFocusTransition=()->{focusTransition=false;if(!building && !restoringSelection && input.hasFocus() && key.equals(state.getString("field"))){restoringSelection=true;try{input.setSelection(Math.max(0,Math.min(input.length(),state.getInt("start"))),Math.max(0,Math.min(input.length(),state.getInt("end"))));}finally{restoringSelection=false;}}};
-        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection && !focusTransition){manualRangeViewport=false;host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();if(input==selected)refreshFormatRibbon();}};
+        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection && !focusTransition){host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();if(input==selected)refreshFormatRibbon();}};
         input.addTextChangedListener(new TextWatcher(){
             public void beforeTextChanged(CharSequence s,int start,int count,int after){
                 if(autoChange[0])return;erasePrefix[0]=!formattingChange && count==1 && after==0 && input.getSelectionStart()==input.getSelectionEnd() && input.getSelectionEnd()==start+count && block!=null && host.current().content.block(block).text!=null?AutoListContinuation.beforeBackspace(s.toString(),start+count):null;editingText[0]=true;if(!formattingChange)selectionLocked=false;paragraphBoundaryChange=false;for(int i=start;i<Math.min(s.length(),start+count);i++)if(s.charAt(i)=='\n')paragraphBoundaryChange=true;numberAtEdit[0]=null;headingAtEdit[0]=false;
@@ -236,7 +236,7 @@ final class DocumentEditorView extends LinearLayout {
         if(changed)requestLayout();if(selected!=null)postOnAnimation(this::revealCaret);
     }
     /** Bounded IME settling correction. Explicit reading/drag gestures cancel it. */
-    private void revealCaret(){if(draggingContent)return;if(manualRangeViewport && selected!=null && selected.hasSelection())return;EditText field=selected;if(field==null || !field.hasFocus() || !hasWindowFocus() || !field.isAttachedToWindow() || field.getLayout()==null || scroll.getHeight()<=0)return;android.text.Layout layout=field.getLayout();int caretLine=layout.getLineForOffset(Math.max(0,Math.min(field.length(),field.getSelectionEnd()))),top=field.getCompoundPaddingTop()+layout.getLineTop(caretLine)-field.getScrollY();View current=field;while(current!=scroll && current.getParent() instanceof View){top+=current.getTop();current=(View)current.getParent();if(current!=scroll)top-=current.getScrollY();}if(current!=scroll)return;int bottom=top+layout.getLineBottom(caretLine)-layout.getLineTop(caretLine),at=scroll.getScrollY(),height=scroll.getHeight()-scroll.getPaddingBottom();if(top<at)at=top;else if(bottom>at+height)at=bottom-height;scroll.scrollTo(0,Math.max(0,at));
+    private void revealCaret(){if(draggingContent)return;if(scroll instanceof SelectionScrollView && ((SelectionScrollView)scroll).manualRangeActive(selected))return;EditText field=selected;if(field==null || !field.hasFocus() || !hasWindowFocus() || !field.isAttachedToWindow() || field.getLayout()==null || scroll.getHeight()<=0)return;android.text.Layout layout=field.getLayout();int caretLine=layout.getLineForOffset(Math.max(0,Math.min(field.length(),field.getSelectionEnd()))),top=field.getCompoundPaddingTop()+layout.getLineTop(caretLine)-field.getScrollY();View current=field;while(current!=scroll && current.getParent() instanceof View){top+=current.getTop();current=(View)current.getParent();if(current!=scroll)top-=current.getScrollY();}if(current!=scroll)return;int bottom=top+layout.getLineBottom(caretLine)-layout.getLineTop(caretLine),at=scroll.getScrollY(),height=scroll.getHeight()-scroll.getPaddingBottom();if(top<at)at=top;else if(bottom>at+height)at=bottom-height;scroll.scrollTo(0,Math.max(0,at));
     }
     private void renderBlock(LinearLayout parent,DocumentContent.Block block){
         LinearLayout card=new LinearLayout(getContext());card.setOrientation(VERTICAL);card.setPadding(0,dp(4),0,dp(8));parent.addView(card,new LayoutParams(-1,-2));card.setTag("content-box:"+block.id);

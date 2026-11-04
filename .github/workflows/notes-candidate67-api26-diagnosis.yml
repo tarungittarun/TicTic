@@ -22,7 +22,9 @@ jobs:
           log=subprocess.check_output(args,text=True,timeout=90)
           pathlib.Path('original-api26-failure.txt').write_text(log)
           tail='\n'.join(log.splitlines()[-110:])[-45000:]
-          print('::warning title=Actual original API26 failure, not migration acceptance::'+tail.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+          tail='\n'.join(log.splitlines()[-55:])[-10000:]
+          for i in range(0,len(tail),2800):
+              print('::warning title=Original API26 failure chunk '+str(i//2800)+'::'+tail[i:i+2800].replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
           assert log.strip()
       - uses: actions/download-artifact@v8.0.2
         with:

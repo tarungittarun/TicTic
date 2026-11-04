@@ -1,3 +1,4 @@
+# Candidate65: exact-zero silence preflight, explicit image-text copy and image-led accessible tools. Full new-source qualification; no model added or speech attention adoption.
 # Candidate63: bounded same-script consensus; retain tight native boxes, source pixels and exact original API26 assertion. 41782476953 passed both APIs and one-profile historical audit. No weight addition or training.
 # Candidate62: preserve already readable paper ink; repair independently observed Kannada/mixed-script interpolation regressions.
 # Candidate61: real-world screenshot source preservation, fresh-area inference, empty-only adaptive fallback and restrained motion. Models unchanged.
@@ -17,7 +18,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression63-${{ github.ref }}
+  group: notes-module-e2e-regression65-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -63,13 +64,13 @@ jobs:
       - name: Prepare genuinely new signed development APK, not a public release
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.63.0-63-development.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.63.0-63-development.apk | tee notes-development-signature.txt
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.65.0-65-development.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.65.0-65-development.apk | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
-          sha256sum MyNotes-v0.63.0-63-development.apk > notes-development-sha256.txt
+          sha256sum MyNotes-v0.65.0-65-development.apk > notes-development-sha256.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.63.0-63-development.apk
+          path: MyNotes-v0.65.0-65-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
@@ -121,7 +122,7 @@ jobs:
           profile: Nexus 5
           disk-size: 4G
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
           script: |
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable
@@ -130,9 +131,9 @@ jobs:
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale 1.0
             adb shell cmd uimode night ${{ matrix.night }}
-            python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
-            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 3600000
@@ -197,7 +198,7 @@ jobs:
           profile: Nexus 5
           disk-size: 4G
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
           script: |
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable
@@ -206,9 +207,9 @@ jobs:
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale 1.0
             adb shell cmd uimode night ${{ matrix.night }}
-            python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
-            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 3600000
@@ -262,7 +263,7 @@ jobs:
           profile: Nexus 5
           disk-size: 4G
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
           script: |
             adb shell settings put global airplane_mode_on 1
             adb shell svc wifi disable
@@ -271,9 +272,9 @@ jobs:
             adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
             adb shell settings put system font_scale 1.0
             adb shell cmd uimode night ${{ matrix.night }}
-            python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home
-            adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python3 -m mynotes.tools.ci.native_environment --settle-app
             python3 -m mynotes.tools.ci.native_environment --snapshot configured
             adb shell svc power stayon true
             adb shell settings put system screen_off_timeout 3600000

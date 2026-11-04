@@ -208,6 +208,7 @@ def describe(scene, guide):
         destination=scene.removeprefix('e2e-library-').replace('-',' ')
         return 'Home > Library > '+destination,'Capture the actual Library sheet immediately before opening '+destination+'. The following captured page records that destination, and Back returns to Home.','The menu capture proves a visible navigation state, not data mutation or a successful export.'
     viewer68={
+      'word68-attached-filename-toolbar':('Word > attached approximate page viewer','Actual attached Word preview window after rendering a public generated DOCX. Checks the compact filename toolbar and real page raster.','Approximate Word pagination, not Office fidelity. This replaces neither original-byte assertions nor physical acceptance.'),
       'pdf68-compact-filename-toolbar':('PDF > initial attached viewer','One Back/filename/Search/options row with the continuous page viewport below.','PixelCopy of the attached public-fixture window; not proof of every file size or vendor configuration.'),
       'pdf68-file-zoom-distant-page':('PDF > whole-file zoom > distant page','Injected two-finger input changes measured document width, then page3 is checked at the enlarged height.','Emulator input and actual geometry assertions, not physical-phone acceptance.'),
       'pdf68-draggable-page-position':('PDF > right page rail','Current/total page state after direct native touch dispatch to the rail; auto-hide is asserted separately.','Direct View dispatch is not a system-injected physical drag.'),

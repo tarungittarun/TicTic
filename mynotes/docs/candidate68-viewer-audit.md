@@ -20,7 +20,7 @@ Previously identified exact duplicate groups are Library entry-sheet captures: t
 |---|---|---|
 | PDF | No attached continuous PDF-viewer state in the old 11-scene File viewers screenshot group; PDF export options are not PDF viewing. | Seven new declared native viewer scenes cover the actual attached PDF window, search, rail, recognition loader and marking; passing execution is still required. |
 | Large TXT | Generic “File preview” heading plus a second action row; pagination controls scroll with the file body. | Filename/Search/options in the header, persistent bottom pagination, no editable copy until explicitly chosen. Current-page Find remains a documented limitation. |
-| Word | Raw prepared-page image cannot expose viewer chrome problems. | Shared compact PDF-derived viewer; source is unchanged and approximate Word rendering is explicitly identified in metadata. An attached Word screenshot is still needed. |
+| Word | Raw prepared-page image cannot expose viewer chrome problems. | Shared compact PDF-derived viewer; source is unchanged and approximate Word rendering is explicitly identified in metadata. A new attached Word screenshot is declared in the native toolbar case; execution/review remains required. |
 | Spreadsheet | Old fixture uses an artificial heading and its own grid controls, not the actual controller navigation. | Filename toolbar with native Back, sheet selection, Search/options; controller duplicate header removed; IME Search supported. Keep full heading plus a complete grid row visible. |
 | File details | Help/limitations were mixed with “details.” | Shared asynchronous original-provider metadata with actual name/location/type/size/modified and counts. Absent fields say Unavailable; Word preview cache size is not presented as original size. Visible metadata loader. |
 | PDF extracted text | Static heading/count and selectable body were insufficiently distinguished. | Nonselectable type/count line and divider; selectable body separated from title; copy remains body-only. |
@@ -50,7 +50,7 @@ Reviewed all **7,606 JSON records** after the header in the latest supplied diag
 ## Remaining delivery gates
 
 1. Diagnose and pass updated native viewer lanes, including actual IME/Enter, two-finger zoom, direct selection release, annotations, original-byte preservation and SAF readback.
-2. Inspect attached Word and current rare-page screenshots; distinguish fixture-render evidence from actual windows and direct callbacks from injected input.
+2. Execute and inspect attached Word and current rare-page screenshots; distinguish fixture-render evidence from actual windows and direct callbacks from injected input.
 3. Run complete matching module-ordered E2E in all four theme/orientation profiles; update descriptions, retain all failures and review actual captures.
 4. Run exact-source install-over/migration and retention checks without uninstalling or clearing the user's data.
 5. Only then deliver the next signed raw development APK and matching report with exact results and remaining physical/recognition limitations.

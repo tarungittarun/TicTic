@@ -26,6 +26,8 @@ jobs:
           pattern: release64-to66-api*-rich-public-update-evidence
           path: update-evidence
       - name: Bound, verify and retain original offline and signed-update proofs
+        env:
+          PYTHONPATH: .
         shell: python
         run: |
           import json,pathlib,shutil,os

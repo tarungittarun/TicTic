@@ -21,9 +21,13 @@ jobs:
       - name: Require exact original APKs and independently verified pre-instrumentation host timeout
         env:
           GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: ${{ github.workspace }}
         shell: python
         run: |
           import json,subprocess,pathlib
+          prior=subprocess.check_output(['gh','run','view','41890942364','--job','126787851381','--log'],timeout=90)
+          pathlib.Path('prior-preflight-import-failure.txt').write_bytes(prior)
+          assert b"ModuleNotFoundError: No module named 'mynotes'" in prior and b'MODULE 01/' not in prior
           def api(p):return json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/'+p]))
           artifact=api('actions/artifacts/13347602297')
           assert not artifact['expired'] and artifact['workflow_run']['id']==41876975461 and artifact['workflow_run']['head_sha']=='acfd671d4afa4fceb09475cc6e70d1dabb77aefe'
@@ -93,5 +97,6 @@ jobs:
             refinement-environment-*
             emulator-preflight.txt
             original-pre-native-setup-proof.json
+            prior-preflight-import-failure.txt
           retention-days: 7
           if-no-files-found: warn

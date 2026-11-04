@@ -30,8 +30,11 @@ jobs:
           for i in range(0,len(text),3000):
               print('::notice title=Measured recognition byte budget::'+text[i:i+3000].replace('%','%25').replace('\n','%0A'))
   speech-audit:
+    permissions:
+      contents: write
+      actions: read
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
         with:
@@ -62,3 +65,29 @@ jobs:
           path: independent-speech-audit.json
           if-no-files-found: error
           retention-days: 7
+      - name: Preserve public references hypotheses and independent audit without model weights
+        run: |
+          set -euo pipefail
+          git sparse-checkout disable
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m pip install PyYAML==6.0.3 Pillow==11.3.0 reportlab==4.4.4 uharfbuzz==0.52.0 PyMuPDF
+          python3 - <<'PY'
+          import hashlib,json,shutil
+          from pathlib import Path
+          source=Path('speech-study/quantization-results/report.json')
+          assert source.stat().st_size<1000000
+          result=json.loads(source.read_text());assert len(result['cases'])==192
+          dest=Path('mynotes/docs/recognition/compact-speech/41765677553');dest.mkdir(parents=True,exist_ok=True)
+          shutil.copyfile(source,dest/'paired-public-predictions.json')
+          shutil.copyfile('independent-speech-audit.json',dest/'independent-audit.json')
+          receipt={'run':41765677553,'source_sha':'b332b33a0800a5fe0b3089a3f187702c23c13d8c','artifact_id':13292179240,'artifact_digest':'sha256:80d44758b00ae8e3eb3c94050681b2859804d3122d718ca5b8275dbe0e2d1151','report_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'adopted':False,'scope':'Public speech research only. No training, model adoption, private upload, Android-speed or unseen-Indian-speaker claim.'}
+          (dest/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          PY
+          python3 -m unittest discover -s qa
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mynotes/docs/recognition/compact-speech/41765677553
+          git diff --cached --quiet && exit 0
+          git commit -m 'Preserve measured compact speech predictions and independently rescored regressions [skip ci]'
+          git push origin arena/3caca636-tictic

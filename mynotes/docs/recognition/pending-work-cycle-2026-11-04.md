@@ -169,3 +169,23 @@ Indic characters. The rule applies only to these frozen ASCII-text references,
 never to arbitrary user images. This newly observed production issue remains
 open pending a source-aware, independently validated repair; global script
 stripping, dictionary rewriting and score-only candidate selection are rejected.
+
+## Rich signed-update retention probe, separately bounded
+
+Added a CI-only release-target instrumentation source set, selected solely by an
+explicit Gradle initializer. The tester must carry the same stable release
+certificate; Android target security is not bypassed. Neither the probe nor any
+fixture is shipped in the production APK. The workflow downloads the exact
+already-built signed64/66 originals and checks source, artifact, raw hash and
+signer again. No new production APK is published.
+
+On fresh emulator-only guests it will seed four public repository-generated
+fixtures using the **old64 runtime writer**, record the complete old payload,
+verify it after an old-release cold stop, install66 over it, then compare the
+entire rich payload and perform candidate repository write/readback. Fixtures
+cover legacy formatting/hyperlink/Unicode, nested checked rows, canonical Doc
+text/checklist/table/image/drawing/diagram, folder/labels/pin/archive/trash,
+reminder names and voice-source metadata. Empty-library/no-checkpoint guards
+prevent overwriting a populated guest. No uninstall or clear-data operation is
+used. This is not real recording retention, SAF, post-update UI rendering or
+physical acceptance. Compile/device outcomes remain pending until observed.

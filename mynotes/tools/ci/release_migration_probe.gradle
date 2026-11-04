@@ -1,0 +1,9 @@
+// Explicit CI-only initializer. Never changes the production build or source set.
+gradle.beforeProject { p ->
+    if (p.path == ':notes') {
+        p.plugins.withId('com.android.application') {
+            p.android.testBuildType = 'release'
+            p.android.sourceSets.androidTest.java.setSrcDirs([p.file('releaseMigration/java')])
+        }
+    }
+}

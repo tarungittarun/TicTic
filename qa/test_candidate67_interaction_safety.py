@@ -37,3 +37,9 @@ class Candidate67Safety(unittest.TestCase):
         for token in ['Zoom scope','Each page · independent zoom','Whole file · same zoom on every page','viewer-file-zoom','pageZooms','sharedZoom']:
             self.assertIn(token,source)
         self.assertNotIn('createBitmap',(JAVA/'ZoomablePageImage.java').read_text())
+
+    def test_history_indexing_yields_to_first_raster_and_foreground_work(self):
+        source=(JAVA/'LocalPdfPreview.java').read_text()
+        self.assertIn('holder.image.setImageBitmap(result);deferTextIndex();',source)
+        self.assertIn('if(!closed && !indexingStopped)indexText(consumer)',source)
+        self.assertNotIn('if(index!=null)indexText(index)',source)

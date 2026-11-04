@@ -73,11 +73,36 @@ public final class OfflineOcr {
     /** Composite transparency, normalize dark screenshots, upscale small text; never alter the source. */
     public static Bitmap prepareBitmap(Bitmap source){
         double scale=app.space.notes.domain.OcrRasterScale.factor(source.getWidth(),source.getHeight());
+        if(scale>1 && readablePaperInk(source))scale=1;
         Bitmap out=Bitmap.createBitmap(Math.max(1,(int)Math.floor(source.getWidth()*scale)),Math.max(1,(int)Math.floor(source.getHeight()*scale)),Bitmap.Config.ARGB_8888);try{Canvas canvas=new Canvas(out);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(source,null,new Rect(0,0,out.getWidth(),out.getHeight()),paint);
         long border=0;int samples=0;for(int i=0;i<16;i++){int x=i*(out.getWidth()-1)/15;for(int y:new int[]{0,out.getHeight()-1}){int c=out.getPixel(x,y);border+=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;samples++;}}
         int dark=0;for(int gy=0;gy<8;gy++)for(int gx=0;gx<8;gx++){int c=out.getPixel((2*gx+1)*out.getWidth()/16,(2*gy+1)*out.getHeight()/16);if((Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000<80)dark++;}
         if(border/samples<80 && dark>=45){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
         return out;}catch(RuntimeException | OutOfMemoryError failure){out.recycle();throw failure;}
+    }
+    /** Cheap source-only estimate: do not interpolate already readable paper text.
+     * No dictionary/reference/language oracle. Unknown scenes keep the bounded fallback.
+     */
+    private static boolean readablePaperInk(Bitmap source){
+        int width=source.getWidth(),height=source.getHeight(),light=0,dark=0;
+        if(height>3200 || width>3200)return false;
+        for(int gy=0;gy<32;gy++)for(int gx=0;gx<32;gx++){
+            int c=source.getPixel(gx*(width-1)/31,gy*(height-1)/31);
+            if(Color.alpha(c)<250)continue;
+            int l=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;
+            if(l>=245)light++;if(l<=10)dark++;
+        }
+        if(Math.max(light,dark)<870)return false; // At least 85% near-uniform paper background.
+        boolean inverted=dark>light;boolean[] ink=new boolean[height];int[] row=new int[width];
+        int step=Math.max(1,width/1600);
+        for(int y=0;y<height;y++){
+            source.getPixels(row,0,width,0,y,width,1);int count=0;
+            for(int x=0;x<width;x+=step){int c=row[x];if(Color.alpha(c)<250)continue;
+                int l=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;
+                if(inverted?l>128:l<128)if(++count>=2){ink[y]=true;break;}
+            }
+        }
+        return app.space.notes.domain.OcrRasterScale.readableInkRows(ink);
     }
     /** Fresh inference on a selected source area, not filtering stale full-image words. */
     public static Result recognizeRegion(Context context,Bitmap source,RectF box,String language,Cancellation cancellation)throws Exception{

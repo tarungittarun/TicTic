@@ -10,6 +10,22 @@ public final class OcrRasterScale {
                 || Math.max(width, height) / sample > 3200) sample *= 2;
         return sample;
     }
+    /** Keep already readable ink at native resolution; interpolation can erase native-script details. */
+    public static boolean readableInkRows(boolean[] ink) {
+        if (ink == null || ink.length > 3200) throw new IllegalArgumentException("Invalid bounded row projection");
+        int[] heights = new int[ink.length]; int bands = 0, start = -1, last = -1;
+        for (int y = 0; y <= ink.length + 2; y++) {
+            if (y < ink.length && ink[y]) {if (start < 0) start = y; last = y;}
+            else if (start >= 0 && y - last > 2) {
+                int height = last - start + 1;
+                if (height >= 8 && height <= 128 && height * 4 <= ink.length * 3) heights[bands++] = height;
+                start = -1;
+            }
+        }
+        if (bands == 0) return false;
+        java.util.Arrays.sort(heights, 0, bands);
+        return heights[(bands - 1) / 2] >= 20;
+    }
     public static double factor(int width, int height) {
         if (width <= 0 || height <= 0) throw new IllegalArgumentException("Invalid image dimensions");
         long pixels = (long) width * height;

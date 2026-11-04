@@ -159,3 +159,43 @@ Original full run 41767304608 remains failed in that lane even if supplemental
 runs later pass. The other 11 original benchmark lanes finished successfully;
 operational success does not imply every accuracy target was met. Supplemental
 results remain pending here until independently verified completion.
+
+## Candidate62: repair measured interpolation regressions, not a tuned score gate
+
+Historical audit 41770347277 independently rescored 1152 matched case/profile
+observations from v60 and v61. Operational errors: zero for each; accuracy-target
+passes: 1134 for each. Mean CER worsened from 0.014457963659729964 to
+0.015758643781741608; 45 observations improved and **51 regressed** (17 input IDs,
+repeated across the three available v60 profiles). The audit correctly FAILED.
+The missing fourth historical profile was excluded for absent artifact, not
+accuracy. This is synthetic historical evidence, not fresh same-guest A/B or
+1152 independent photos. v61 is not an established overall accuracy improvement.
+
+Every regression was on a native 1600×700 paper-style input that the new
+short-edge rule interpolated unnecessarily. One lost the first Kannada line
+(ocr-0268); other failures changed Kannada letters, arithmetic symbols/spacing or
+inserted a space in an email address. The source-preserving decode for actual tall
+screenshots is retained. Candidate62 adds a bounded, source-only paper/row-ink
+estimate: already readable ink stays native, while tiny ink and unknown scenes
+keep the bounded enlargement fallback. This uses neither case IDs, reference
+text, language predictions nor dictionaries. It samples 1024 background pixels,
+then uses one reusable source row plus a bounded ink-row projection; no extra
+full-image copy or model assets. The estimate is a preprocessing heuristic, not
+an accurate scene-text detector or universal quality guarantee.
+
+A new native test reproduces the exact public italic-monospace Kannada paper
+case in both polarities, requiring native raster dimensions and BOTH lines.
+Original popup, small/tall-image, native inference, symbol and region assertions
+remain intact. The module inventory increases from 425 to 426; the pure JVM test
+adds readable/tiny/solid/noisy/diacritic row cases. Candidate62 needs its own actual
+Android build, original-corpus comparison and full qualification; root tests
+alone do not prove the repair. APK cap stays 156213948 bytes; model weights and
+default speech engine remain unchanged.
+
+Executed v61 evidence: all 425 native methods in all four profiles completed
+(1700 outcomes); supplemental 41769343840 passed 49×4=196 focused outcomes.
+Supplemental voice run 41769511821 completed all 402 measurements, with only
+312 meeting their accuracy targets. Together with the original eleven lanes,
+all 4752 planned observations exist across explicitly separate runs. The original
+full run and its 1097-page report still correctly retain their missing 402-case
+lane and failed/unqualified status; no historical result is relabelled green.

@@ -22,6 +22,19 @@ public class OcrRasterScaleTest {
         }
     }
     @Test public void largeDocumentIsNotEnlarged() {assertEquals(1, OcrRasterScale.factor(2000,2000),0);assertEquals("Preserve qualified native-script document raster",1,OcrRasterScale.factor(2400,1000),0);}
+    @Test public void readableInkDoesNotNeedMoreInterpolationButTinyInkStillDoes() {
+        boolean[] readable=new boolean[300];
+        java.util.Arrays.fill(readable,20,45,true);java.util.Arrays.fill(readable,120,146,true);
+        readable[60]=true;assertTrue(OcrRasterScale.readableInkRows(readable));
+        boolean[] tiny=new boolean[300];
+        java.util.Arrays.fill(tiny,20,32,true);java.util.Arrays.fill(tiny,120,132,true);
+        assertFalse(OcrRasterScale.readableInkRows(tiny));
+        assertFalse(OcrRasterScale.readableInkRows(new boolean[300]));
+        java.util.Arrays.fill(tiny,true);assertFalse(OcrRasterScale.readableInkRows(tiny));
+        boolean[] separatedAccents=new boolean[300];
+        java.util.Arrays.fill(separatedAccents,20,29,true);java.util.Arrays.fill(separatedAccents,31,44,true);
+        assertTrue(OcrRasterScale.readableInkRows(separatedAccents));
+    }
     @Test(expected=IllegalArgumentException.class) public void invalidDimensionsRejected() {OcrRasterScale.factor(0,100);}
     @Test(expected=IllegalArgumentException.class) public void oversizedRejected() {OcrRasterScale.factor(Integer.MAX_VALUE,Integer.MAX_VALUE);}
 }

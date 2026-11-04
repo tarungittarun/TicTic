@@ -30,6 +30,23 @@ public class OfflineOcrTest {
             try{assertEquals("Do not halve readable screenshot pixels just because it is tall",1200,decoded.getWidth());assertEquals(2670,decoded.getHeight());}finally{decoded.recycle();}
         }finally{tall.recycle();file.delete();}
     }
+    @Test public void readableKannadaPaperPreservesNativeInkAndBothLines()throws Exception{
+        // Reproduce independently found public corpus ocr-0268, including its actual italic font.
+        for(boolean dark:new boolean[]{false,true}){
+            Bitmap source=Bitmap.createBitmap(1600,700,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(source);
+            canvas.drawColor(dark?Color.BLACK:Color.WHITE);Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+            p.setColor(dark?Color.WHITE:Color.BLACK);p.setTextSize(48);p.setTypeface(Typeface.create("monospace",Typeface.ITALIC));
+            canvas.drawText("ಕನ್ನಡ ಭಾಷೆ",70,150,p);canvas.drawText("ಭಾರತ ನಮಸ್ಕಾರ",70,280,p);
+            Bitmap prepared=OfflineOcr.prepareBitmap(source);
+            try{
+                assertEquals("Do not interpolate already readable native-script strokes",1600,prepared.getWidth());assertEquals(700,prepared.getHeight());
+                assertEquals(1600,source.getWidth());
+                OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),source,"auto",new OfflineOcr.Cancellation());
+                String text=result.text.replaceAll("\\s+"," ");
+                assertTrue(result.text,text.contains("ಕನ್ನಡ ಭಾಷೆ"));assertTrue(result.text,text.contains("ಭಾರತ ನಮಸ್ಕಾರ"));
+            }finally{prepared.recycle();source.recycle();}
+        }
+    }
     @Test public void mixedStyleDialogScreenshotKeepsTitleAndActions()throws Exception{
         // Own-authored recreation: never upload a user's screenshot into CI.
         Bitmap original=Bitmap.createBitmap(705,1568,Bitmap.Config.ARGB_8888);

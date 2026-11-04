@@ -1,4 +1,4 @@
-name: Validate bounded API26 script consensus r3 (no output oracle)
+name: Validate bounded script consensus r4, original suite and independent corpus
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -39,6 +39,13 @@ jobs:
           if-no-files-found: error
   native:
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [26, 34]
+    env:
+      OCR_TEST_CLASS: app.space.notes.OfflineOcrTest,app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime,app.space.notes.ModuleCorpusBenchmark#heldOutOcrReferencesMeasureIndependentRecognition
+      OCR_TIMEOUT_MS: 1800000
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -62,7 +69,7 @@ jobs:
           bash mynotes/tools/ci/use_installed_emulator.sh
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 26
+          api-level: ${{ matrix.api }}
           target: google_apis
           arch: x86_64
           profile: Nexus 5
@@ -79,19 +86,43 @@ jobs:
           p=pathlib.Path('public-native-ocr-probe.json')
           if p.exists():
               r=json.loads(p.read_text())
-              print('::notice title=Full public native OCR probe, not production selection::'+json.dumps(r,ensure_ascii=False).replace('%','%25'))
+              for row in r['cases']:
+                  print('::notice title=Public native OCR probe, not production selection::'+json.dumps(row,ensure_ascii=False).replace('%','%25'))
           log=pathlib.Path('refinement-native.txt')
-          result=android(log.read_text(errors='replace') if log.exists() else '',['app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols'])
+          result=android(log.read_text(errors='replace') if log.exists() else '',['app.space.notes.OfflineOcrTest#'+name for name in __import__('re').findall(r'@Test\s+public\s+void\s+(\w+)\(',pathlib.Path('mynotes/app/src/androidTest/java/app/space/notes/OfflineOcrTest.java').read_text())]+['app.space.notes.ModuleCorpusBenchmark#variedImageCorpusMeasuresGroundTruthAndElapsedTime','app.space.notes.ModuleCorpusBenchmark#heldOutOcrReferencesMeasureIndependentRecognition'])
           pathlib.Path('original-assertion.json').write_text(json.dumps(result,indent=2)+'\n')
-          print('::warning title=Original API26 assertion outcome::'+json.dumps(result))
+          print('::warning title=Full original OCR class outcome::'+json.dumps(result))
           if not result['ok']:raise SystemExit(1)
+          PY
+      - name: Independently compare API34 historical same-input corpus without selecting output
+        if: always() && matrix.api == 34
+        run: |
+          python3 - <<'PY'
+          import json,pathlib
+          from mynotes.tools.ci.audit_ocr61_history import pair
+          base=json.loads(pathlib.Path('mynotes/docs/module-e2e/41771337080/light-portrait-ocr-measurements.json').read_text())['cases']
+          current=json.loads(pathlib.Path('ocr.json').read_text())['cases']
+          assert len(base)==len(current)==384
+          old={r['id']:r for r in base};new={r['id']:r for r in current}
+          assert len(old)==len(new)==384 and old.keys()==new.keys()
+          pairs=[pair(old[k],new[k]) for k in sorted(old)]
+          errors=sum(r['status']!='OK' for r in current)
+          report={'scope':'One API34 historical profile, hash-matched synthetic corpus; not same-guest A/B, causal speed, physical acceptance or broad scene accuracy. Never used for production selection.','baseline_run':41771337080,'candidate_compilation_run':'${{ github.run_id }}','adopted':False,'operational_errors':errors,'improved':sum(r['improved'] for r in pairs),'regressed':sum(r['regressed'] for r in pairs),'pairs':pairs}
+          pathlib.Path('historical-consensus.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print('::notice title=Independent historical consensus audit::'+json.dumps({k:v for k,v in report.items() if k!='pairs'}))
+          assert not errors and not report['regressed'], 'Retained regressions block adoption'
           PY
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: api26-public-ocr-diagnostic
+          name: consensus-original-ocr-api${{ matrix.api }}
           path: |
             public-native-ocr-*
+            ocr-common-text-report.json
+            ocr-corpus-report.json
+            ocr.json
+            ocr-holdout.json
+            historical-consensus.json
             original-assertion.json
             refinement-native*.txt
             diagnostic-bootstrap.txt

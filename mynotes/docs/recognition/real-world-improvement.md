@@ -286,3 +286,15 @@ full-class gate 41777705341 correctly refuses that failed prerequisite. Probe
 annotations are now emitted as one bounded report to avoid GitHub's ten-notice
 limit; the older retained annotation export explicitly says it has only ten of
 twelve cases and points to the complete original artifact.
+
+
+Source-copy revision **41778572752** passed build/JVM/lint, but still failed the
+original conjunct assertion. Earlier text/selection success was not completion
+of the fixture loop. No fixture/font-specific correction is introduced. The
+next experiment separates the near-uniform background check from the old
+8–128px projected-ink-band heuristic, which can exclude larger/rotated glyph
+bands. The exact cause is not established by the available probes. All two-pass
+agreement, source-copy, word coverage, digit/punctuation and geometry checks stay
+in place. Its native gate now executes the full original 21-method OCR class
+plus 384 varied and 128 frozen-reference inferences on each API, with an API34
+historical same-input regression audit. These remain unqualified until executed.

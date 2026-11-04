@@ -144,8 +144,15 @@ public final class OfflineOcr {
             return finishRecognition(root,bitmap,prepared,language,text,confidence,chosen,engine,cancellation);
         }finally{synchronized(cancellation){cancellation.active=null;try{engine.recycle();}finally{if(prepared!=null)prepared.recycle();}}}
     }
+    private static boolean uniformPaperBackground(Bitmap source){
+        int light=0,dark=0;
+        for(int gy=0;gy<32;gy++)for(int gx=0;gx<32;gx++){
+            int c=source.getPixel(gx*(source.getWidth()-1)/31,gy*(source.getHeight()-1)/31);if(Color.alpha(c)<250)continue;
+            int l=(Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000;if(l>=245)light++;if(l<=10)dark++;
+        }return Math.max(light,dark)>=870;
+    }
     private static Result finishRecognition(File root,Bitmap bitmap,Bitmap prepared,String language,String text,int confidence,List<ImageTextSelection.Word> chosen,TessBaseAPI engine,Cancellation cancellation)throws Exception {
-        if("auto".equals(language) && prepared.getWidth()==bitmap.getWidth() && prepared.getHeight()==bitmap.getHeight() && app.space.notes.domain.OcrScriptConsensus.eligible(text,chosen) && readablePaperInk(bitmap)){
+        if("auto".equals(language) && prepared.getWidth()==bitmap.getWidth() && prepared.getHeight()==bitmap.getHeight() && app.space.notes.domain.OcrScriptConsensus.eligible(text,chosen) && uniformPaperBackground(bitmap)){
             Result agreed=kannadaConsensus(root,bitmap,text,chosen,engine,cancellation);if(agreed!=null)return agreed;
         }
         cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),chosen);

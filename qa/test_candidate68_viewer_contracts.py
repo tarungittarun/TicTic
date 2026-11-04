@@ -40,3 +40,14 @@ class Candidate68ViewerContracts(unittest.TestCase):
   from mynotes.tools.ci.run_ordered_modules import plan
   native=methods();self.assertEqual(444,len(native));self.assertEqual(set(native),{n for names in plan().values() for n in names})
   self.assertEqual(7,sum(n.startswith('app.space.notes.runtime.PdfViewerInteractionTest#') for n in native))
+
+ def test_shared_metadata_uses_provider_values_and_marks_absent_fields(self):
+  s=(JAVA/'LocalFileMetadata.java').read_text()
+  for text in ['worker.execute','COLUMN_LAST_MODIFIED','OpenableColumns.SIZE','getDocumentId(uri)','fallbackBytes<0?"Unavailable"','progress.setVisibility(android.view.View.GONE)']:self.assertIn(text,s)
+  self.assertNotIn('lastModified()',s)
+ def test_text_and_sheet_viewers_use_filename_chrome_and_keep_readonly_actions(self):
+  s=(JAVA/'NotesController.java').read_text().split('private void renderFileTextPreview(',1)[1].split('private Bundle fileSession(',1)[0]
+  for text in ['scrollContent(name)','filename.setSingleLine(true)','fileToolbar.addView(icon("Find in preview"','fileToolbar.addView(icon("Text file options"','root.addView(navigation)','LocalFileMetadata.show','Create editable copy']:self.assertIn(text,s)
+  self.assertNotIn('scrollContent("File preview")',s)
+  s=(JAVA/'SpreadsheetPreview.java').read_text()
+  for text in ['IME_ACTION_SEARCH','title.setSingleLine(true)','LocalFileMetadata.show','void setOnBack']:self.assertIn(text,s)

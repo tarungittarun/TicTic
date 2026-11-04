@@ -40,4 +40,4 @@ class ViewerSearchDiagnosticsContracts(unittest.TestCase):
   s=source('LocalPdfPreview.java');self.assertIn('design.icon("Read options","more"',s);self.assertIn('host.saveViewedCopy(uri,name,mime)',s);self.assertIn('filename.setSingleLine(true)',s);self.assertIn('Page text · count / select / copy',s)
 
  def test_spreadsheet_toolbars_leave_space_for_the_actual_grid(self):
-  s=source('SpreadsheetPreview.java');self.assertIn('title.setMaxLines(2)',s);self.assertIn('find.setVisibility(GONE)',s);self.assertIn('design.icon("Spreadsheet options","more"',s);self.assertIn('new LayoutParams(design.dp(48),design.dp(48))',s)
+  s=source('SpreadsheetPreview.java');self.assertIn('title.setSingleLine(true)',s);self.assertIn('find.setVisibility(GONE)',s);self.assertIn('design.icon("Spreadsheet options","more"',s);self.assertIn('new LayoutParams(design.dp(48),design.dp(48))',s)

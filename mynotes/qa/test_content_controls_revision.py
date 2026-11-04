@@ -73,7 +73,7 @@ class ContentControlsRevision(unittest.TestCase):
   gradle=(ROOT/'app/build.gradle').read_text()
   version=re.search(r"versionName '([^']+)'",gradle).group(1)
   code=re.search(r'versionCode (\d+)',gradle).group(1)
-  workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()
+  workflow=(ROOT.parent/'.github/workflows/notes-candidate64-apk.yml').read_text()
   names=set(re.findall(r'MyNotes-v[0-9.]+-\d+-development\.apk',workflow))
   self.assertEqual({f'MyNotes-v{version}-{code}-development.apk'},names)
 

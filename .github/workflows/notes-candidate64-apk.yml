@@ -1,0 +1,60 @@
+name: Latest signed development APK64, bounded size and exact identity
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate64-apk.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Compile release, test domain and lint without publication
+        working-directory: mynotes
+        run: |
+          set -o pipefail
+          sh gradlew :notes-domain:test :notes:assembleRelease :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/apk64-build.log
+      - name: Require actual domain outcomes and verify APK bytes, identity and stable signing
+        run: |
+          set -euo pipefail
+          python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/apk64-jvm.json
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.64.0-64-development.apk
+          python3 -m mynotes.tools.ci.apk_size_audit MyNotes-v0.64.0-64-development.apk evidence/apk64-size.json
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.64.0-64-development.apk > evidence/apk64-signature.txt
+          grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' evidence/apk64-signature.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging MyNotes-v0.64.0-64-development.apk > evidence/apk64-badging.txt
+          python3 - <<'PY'
+          import datetime,hashlib,json,os,pathlib
+          apk=pathlib.Path('MyNotes-v0.64.0-64-development.apk');badging=pathlib.Path('evidence/apk64-badging.txt').read_text()
+          assert "package: name='app.space.notes' versionCode='64' versionName='0.64.0'" in badging
+          assert "sdkVersion:'26'" in badging and "targetSdkVersion:'34'" in badging
+          assert apk.stat().st_size<=156213948, 'APK exceeds established size cap'
+          assert 'android.permission.INTERNET' not in badging
+          jvm=json.loads(pathlib.Path('evidence/apk64-jvm.json').read_text());assert jvm['ok']
+          proof={'source':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],'built_verified_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'file':apk.name,'sha256':hashlib.file_digest(apk.open('rb'),'sha256').hexdigest(),'bytes':apk.stat().st_size,'package':'app.space.notes','version_code':64,'version_name':'0.64.0','development_only':True,'public_release':False,'physical_acceptance':False,'new_version_native_e2e_complete':False,'previous_complete_e2e_report_run':41789450818,'previous_e2e_version_code':63,'models_added':False,'training_steps':0}
+          pathlib.Path('evidence/apk64-verification.json').write_text(json.dumps(proof,indent=2)+'\n')
+          print('::notice title=APK64 verified identity::'+json.dumps(proof))
+          PY
+      - name: Bounded failure diagnostics
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/apk64-build.log
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          path: MyNotes-v0.64.0-64-development.apk
+          archive: false
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: apk64-verification-and-lint
+          path: |
+            evidence/
+            mynotes/app/build/reports/lint-results-release.*
+            mynotes/runtime/build/reports/lint-results-release.*
+          retention-days: 7
+          if-no-files-found: warn

@@ -69,3 +69,27 @@ cancelled. Current follow-up41807291666 must still provide its actual result.
 - No physical device is attached to this workspace. Physical acceptance cannot be
   manufactured from emulator results. Private screenshot pixels from the earlier
   session are not present in this restored workspace and are not uploaded to CI.
+
+## Subsequent measured outcomes (4 November)
+
+- Signed63→64 follow-up41807291666 **passed both API26 and API34**;
+  original reports are in `updates/41807291666/`. The earlier failures remain
+  pre-install provisioning failures, not migration failures.
+- Repaired pilot41806836439 passed53/53 in light portrait and both landscape
+  profiles. Dark portrait executed0/53: retained current-window evidence showed
+  an external Pixel Launcher ANR over a resumed Notes activity, not a Notes ANR.
+  Helper e4b15cee now checks only current displays, requires all focused windows
+  to be Notes, and may recover only that exact external Launcher once after
+  retaining evidence. Notes/unknown errors remain blockers. Root tests pass;
+  the helper change still requires native exercise.
+- Full66/run41807474878 attempt1 built the exact signed APK and passed all53
+  focus tests in three profiles. Dark portrait **timed out booting the emulator**
+  and executed0/53; native/benchmark gates correctly skipped. Check-run
+  126502279030 retains the boot-timeout annotation. This is distinct from the
+  earlier pilot's Launcher ANR and does not qualify the missing profile.
+- Signed64→66/run41809268340 passed API26/job126504096066 and
+  API34/job126504096277. Exact APK hashes, stable signer, offline state,
+  Note/Doc persistence, old-release cold restart and unchanged first-install
+  identity were required. The read-only evidence-retention workflow downloads
+  these original artifacts; it does not repeat passing device tests. Rich-data
+  migration and physical acceptance remain separate, unverified work.

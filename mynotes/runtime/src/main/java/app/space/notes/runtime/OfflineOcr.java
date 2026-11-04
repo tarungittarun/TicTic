@@ -126,7 +126,7 @@ public final class OfflineOcr {
             String hocr=engine.getHOCRText(0);cancellation.check();String text=engine.getUTF8Text();cancellation.check();int confidence=engine.meanConfidence();if(text==null)text="";{engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);engine.setImage(prepared);String sparse=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
                 if(app.space.notes.domain.OcrLineRecovery.eligible(text,confidence,sparse,score)){
                     app.space.notes.domain.OcrLineRecovery.Recovered recovered=app.space.notes.domain.OcrLineRecovery.recover(text,confidence,regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation),sparse,score,regions(engine.getHOCRText(0),prepared.getWidth(),prepared.getHeight(),cancellation));
-                    cancellation.check();if(recovered!=null)return new Result(recovered.text,language,recovered.confidence,bitmap.getWidth(),bitmap.getHeight(),recovered.words);
+                    cancellation.check();if(recovered!=null)return finishRecognition(root,bitmap,prepared,language,recovered.text,recovered.confidence,recovered.words,engine,cancellation);
                 }
                 if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,sparse,score)){text=sparse;confidence=score;hocr=engine.getHOCRText(0);}}
             if(app.space.notes.domain.OcrAlternatives.needsBlockCheck(text)){
@@ -140,8 +140,32 @@ public final class OfflineOcr {
                 String adaptive=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
                 if(adaptive!=null && app.space.notes.domain.OcrAlternatives.prefer(text,confidence,adaptive,score)){text=adaptive;confidence=score;hocr=engine.getHOCRText(0);}
             }
-            cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
+            List<ImageTextSelection.Word> chosen=regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation);
+            return finishRecognition(root,bitmap,prepared,language,text,confidence,chosen,engine,cancellation);
         }finally{synchronized(cancellation){cancellation.active=null;try{engine.recycle();}finally{if(prepared!=null)prepared.recycle();}}}
+    }
+    private static Result finishRecognition(File root,Bitmap bitmap,Bitmap prepared,String language,String text,int confidence,List<ImageTextSelection.Word> chosen,TessBaseAPI engine,Cancellation cancellation)throws Exception {
+        if("auto".equals(language) && prepared.getWidth()==bitmap.getWidth() && prepared.getHeight()==bitmap.getHeight() && app.space.notes.domain.OcrScriptConsensus.eligible(text,chosen) && readablePaperInk(bitmap)){
+            Result agreed=kannadaConsensus(root,bitmap,text,chosen,engine,cancellation);if(agreed!=null)return agreed;
+        }
+        cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),chosen);
+    }
+    // Two complete native outputs must agree, including source-coordinate coverage.
+    // Raw source polarity is deliberate; no expected phrase or dictionary is consulted.
+    private static Result kannadaConsensus(File root,Bitmap source,String baseline,List<ImageTextSelection.Word> original,TessBaseAPI primary,Cancellation cancellation)throws Exception {
+        TessBaseAPI probe=new TessBaseAPI();
+        try{
+            cancellation.check();if(!probe.init(root.getAbsolutePath(),"kan"))return null;
+            synchronized(cancellation){cancellation.active=probe;}cancellation.check();
+            probe.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);probe.setVariable("preserve_interword_spaces","1");
+            probe.setImage(source);String ordinary=probe.getUTF8Text();cancellation.check();int ordinaryScore=probe.meanConfidence();
+            List<ImageTextSelection.Word> ordinaryWords=regions(probe.getHOCRText(0),source.getWidth(),source.getHeight(),cancellation);
+            if(!probe.setVariable("thresholding_method","2"))return null;
+            probe.setImage(source);String adaptive=probe.getUTF8Text();cancellation.check();int adaptiveScore=probe.meanConfidence();
+            List<ImageTextSelection.Word> adaptiveWords=regions(probe.getHOCRText(0),source.getWidth(),source.getHeight(),cancellation);
+            if(app.space.notes.domain.OcrScriptConsensus.prefer(baseline,original,ordinary,ordinaryScore,ordinaryWords,adaptive,adaptiveScore,adaptiveWords))return new Result(adaptive,"auto",Math.min(ordinaryScore,adaptiveScore),source.getWidth(),source.getHeight(),adaptiveWords);
+            return null;
+        }finally{synchronized(cancellation){cancellation.active=primary;probe.recycle();}}
     }
     /** Bounded native-generated XHTML; no external entities, HTML views, or network fetches. */
     private static List<ImageTextSelection.Word> regions(String hocr,int width,int height,Cancellation cancel)throws InterruptedException {

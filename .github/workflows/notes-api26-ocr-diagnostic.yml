@@ -1,4 +1,4 @@
-name: Diagnose original API26 Kannada assertion (no output oracle)
+name: Validate bounded API26 script consensus (no output oracle)
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -34,6 +34,7 @@ jobs:
           name: api26-diagnostic-test-apk
           path: |
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
+            mynotes/app/build/outputs/apk/debug/notes-debug.apk
           retention-days: 1
           if-no-files-found: error
   native:
@@ -46,25 +47,9 @@ jobs:
         with:
           name: api26-diagnostic-test-apk
           path: test-apk
-      - name: Verify exact unchanged candidate62 app foundation
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PY'
-          import json,subprocess
-          a=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13294803770']))
-          assert not a['expired'] and a['workflow_run']['head_sha']=='84a02f6f954add7bf1b6a8ea3a8d0c12a59ebebd'
-          assert a['digest']=='sha256:5f80459fe2bc4ea375af198c4822fd8e0884d2836df0d4447325a7e66a482871'
-          PY
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          github-token: ${{ github.token }}
-          run-id: 41771337080
-          name: module-foundation-test-apks
-          path: foundation
       - name: Share one ephemeral debug signature without modifying app or test payloads
         run: |
-          APP=$(find foundation -name notes-debug.apk -print -quit)
+          APP=$(find test-apk -name notes-debug.apk -print -quit)
           TEST=$(find test-apk -name '*androidTest.apk' -print -quit)
           python3 -m mynotes.tools.ci.resign_public_benchmark_apks "$APP" "$TEST"
       - name: Enable KVM and installed emulator

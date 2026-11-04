@@ -45,3 +45,27 @@ crash-dialog title/action recognition test. Native inference must run in Actions
 
 No new trained/quantized weights, speech accuracy improvement, physical acceptance,
 new APK size or completed interface redesign is claimed by this document.
+
+## Follow-up implementation (unqualified until native pilot completes)
+- Source decode now preserves a 1200x2670 screenshot (3.204 MP) rather than
+  halving both axes solely because its height exceeds 2400; 4MP remains the cap.
+- Selected-area inference runs freshly on source pixels with bounded worker queue,
+  source retain/release, cancellation on dismissal, and an editable confirmation.
+  It does not mutate stored notes or replace full-image word coordinates.
+- Preview selected text before using it; simplify help; remove entry translation
+  and drag scale changes while preserving system animation preferences/haptics.
+- Separate speech install/verification, model load and decode timings; add
+  cancellation checks within model hashing/unpacking without weakening hashes.
+- Byte audit reports compressed model/ABI contributions. No added model weights.
+- Strict pilot inventory gate rejects missing/duplicate/failed tests even if adb
+  returned zero. Missing output is a failure, not a pass.
+- Retrieved original missing landscape job logs: sdkmanager emulator download
+  failed with `Error on ZipFile unknown archive` before launch. New provisioning
+  validates the runner-provided emulator and skips only unnecessary emulator
+  upgrades, forwarding all other SDK installations normally.
+
+A private local desktop English-only WASM Tesseract experiment found that full
+image enlargement alone still missed the dialog while a tight region read it.
+Those private pixels/results are NOT committed or uploaded and are not Android
+qualification, model training or evidence of general accuracy. This motivated the
+area re-read implementation rather than a claim that scaling solved the issue.

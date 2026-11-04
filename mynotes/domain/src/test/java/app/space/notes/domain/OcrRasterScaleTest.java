@@ -3,6 +3,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class OcrRasterScaleTest {
+    @Test public void actualTallScreenshotRetainsOriginalPixelsBeforeRecognition() {
+        assertEquals(1, OcrRasterScale.decodeSample(1200,2670));
+        assertEquals(1, OcrRasterScale.decodeSample(2670,1200));
+        assertEquals(2, OcrRasterScale.decodeSample(2400,5340));
+        assertEquals(2, OcrRasterScale.decodeSample(2001,2001));
+    }
     @Test public void tallScreenshotGetsMoreRecognitionPixelsNotJustViewerZoom() {
         double scale = OcrRasterScale.factor(705, 1568);
         assertTrue(scale > 1.5);

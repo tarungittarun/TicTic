@@ -56,7 +56,7 @@ public final class OfflineOcr {
     static Bitmap decodeImage(File image) throws Exception {
         BitmapFactory.Options options=new BitmapFactory.Options();options.inJustDecodeBounds=true;BitmapFactory.decodeFile(image.getPath(),options);
         if(options.outWidth<=0 || options.outHeight<=0 || options.outWidth>32768 || options.outHeight>32768)throw new IOException("Unsupported image or dimensions");
-        int sample=1;while(options.outWidth/(long)sample*(options.outHeight/(long)sample)>4000000L || Math.max(options.outWidth,options.outHeight)/sample>2400)sample*=2;
+        int sample=app.space.notes.domain.OcrRasterScale.decodeSample(options.outWidth,options.outHeight);
         options.inJustDecodeBounds=false;options.inSampleSize=sample;options.inPreferredConfig=Bitmap.Config.ARGB_8888;Bitmap bitmap=BitmapFactory.decodeFile(image.getPath(),options);if(bitmap==null)throw new IOException("Cannot decode this image");
         try{int orientation=ExifInterface.ORIENTATION_NORMAL;try{orientation=new ExifInterface(image.getPath()).getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL);}catch(IOException unsupportedMetadata){/* Decoder already verified pixels; no EXIF orientation is also valid. */}
         Matrix matrix=new Matrix();switch(orientation){
@@ -78,6 +78,15 @@ public final class OfflineOcr {
         int dark=0;for(int gy=0;gy<8;gy++)for(int gx=0;gx<8;gx++){int c=out.getPixel((2*gx+1)*out.getWidth()/16,(2*gy+1)*out.getHeight()/16);if((Color.red(c)*299+Color.green(c)*587+Color.blue(c)*114)/1000<80)dark++;}
         if(border/samples<80 && dark>=45){ColorMatrix invert=new ColorMatrix(new float[]{-1,0,0,0,255,0,-1,0,0,255,0,0,-1,0,255,0,0,0,1,0});paint.setColorFilter(new ColorMatrixColorFilter(invert));Bitmap copy=out.copy(Bitmap.Config.ARGB_8888,false);try{canvas.drawBitmap(copy,0,0,paint);}finally{copy.recycle();}}
         return out;}catch(RuntimeException | OutOfMemoryError failure){out.recycle();throw failure;}
+    }
+    /** Fresh inference on a selected source area, not filtering stale full-image words. */
+    public static Result recognizeRegion(Context context,Bitmap source,RectF box,String language,Cancellation cancellation)throws Exception{
+        cancellation.check();
+        if(source==null || source.isRecycled() || (long)source.getWidth()*source.getHeight()>4000000L || box==null || !Float.isFinite(box.left) || !Float.isFinite(box.top) || !Float.isFinite(box.right) || !Float.isFinite(box.bottom) || box.left<0 || box.top<0 || box.right>1 || box.bottom>1 || box.width()<=0 || box.height()<=0)throw new IOException("Choose an area inside the image");
+        int w=source.getWidth(),h=source.getHeight(),left=(int)Math.floor(box.left*w),top=(int)Math.floor(box.top*h),right=Math.min(w,(int)Math.ceil(box.right*w)),bottom=Math.min(h,(int)Math.ceil(box.bottom*h));
+        if(right<=left || bottom<=top)throw new IOException("Choose a larger image area");
+        Bitmap crop=Bitmap.createBitmap(source,left,top,right-left,bottom-top);
+        try{return recognizeBitmap(context,crop,language,cancellation);}finally{if(crop!=source)crop.recycle();}
     }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");

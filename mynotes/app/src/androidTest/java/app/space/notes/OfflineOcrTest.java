@@ -16,12 +16,19 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class OfflineOcrTest {
-    @Test public void tallScreenshotPreprocessingEnlargesSmallTextWithinBudget(){
+    @Test public void tallScreenshotPreprocessingEnlargesSmallTextWithinBudget()throws Exception{
         Bitmap original=Bitmap.createBitmap(705,1568,Bitmap.Config.ARGB_8888);
         new Canvas(original).drawColor(Color.rgb(53,56,63));
         Bitmap prepared=OfflineOcr.prepareBitmap(original);
         try{assertTrue(prepared.getWidth()>1057);assertTrue((long)prepared.getWidth()*prepared.getHeight()<=4000000L);assertEquals(705,original.getWidth());}
         finally{prepared.recycle();original.recycle();}
+        Bitmap tall=Bitmap.createBitmap(1200,2670,Bitmap.Config.ARGB_8888);
+        File file=File.createTempFile("tall-screenshot-", ".png", InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir());
+        try{try(OutputStream output=new FileOutputStream(file)){assertTrue(tall.compress(Bitmap.CompressFormat.PNG,100,output));}
+            java.lang.reflect.Method decode=OfflineOcr.class.getDeclaredMethod("decodeImage",File.class);decode.setAccessible(true);
+            Bitmap decoded=(Bitmap)decode.invoke(null,file);
+            try{assertEquals("Do not halve readable screenshot pixels just because it is tall",1200,decoded.getWidth());assertEquals(2670,decoded.getHeight());}finally{decoded.recycle();}
+        }finally{tall.recycle();file.delete();}
     }
     @Test public void mixedStyleDialogScreenshotKeepsTitleAndActions()throws Exception{
         // Own-authored recreation: never upload a user's screenshot into CI.
@@ -38,6 +45,16 @@ public class OfflineOcrTest {
             assertTrue(result.text,text.contains("onedoc keeps stopping"));
             assertTrue(result.text,text.contains("app info"));assertTrue(result.text,text.contains("close app"));
         }finally{original.recycle();}
+    }
+    @Test public void selectedRegionRunsFreshInferenceWithoutChangingSource()throws Exception{
+        Bitmap source=Bitmap.createBitmap(705,1568,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(source);canvas.drawColor(Color.rgb(57,53,27));Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.rgb(53,56,63));canvas.drawRect(40,650,665,950,paint);paint.setColor(Color.WHITE);paint.setTextSize(32);paint.setTypeface(Typeface.create("sans-serif",Typeface.BOLD));canvas.drawText("APP KEEPS STOPPING",80,730,paint);paint.setTextSize(24);paint.setTypeface(Typeface.DEFAULT);canvas.drawText("App info",220,815,paint);canvas.drawText("Close app",220,895,paint);
+        try{OfflineOcr.Result result=OfflineOcr.recognizeRegion(InstrumentationRegistry.getInstrumentation().getTargetContext(),source,new RectF(40f/705,650f/1568,665f/705,950f/1568),"eng",new OfflineOcr.Cancellation());String text=result.text.toLowerCase(Locale.ROOT);assertTrue(result.text,text.contains("app keeps stopping"));assertTrue(result.text,text.contains("app info"));assertTrue(result.text,text.contains("close app"));assertEquals(705,source.getWidth());assertFalse(source.isRecycled());assertEquals(Color.rgb(57,53,27),source.getPixel(0,0));}finally{source.recycle();}
+    }
+    @Test public void invalidOrCancelledRegionNeverRecyclesOriginal()throws Exception{
+        Bitmap source=Bitmap.createBitmap(200,100,Bitmap.Config.ARGB_8888);
+        try{for(RectF box:Arrays.asList(new RectF(-1,0,1,1),new RectF(0,0,Float.NaN,1),new RectF(1,1,0,0),new RectF(0,0,2,1))){try{OfflineOcr.recognizeRegion(InstrumentationRegistry.getInstrumentation().getTargetContext(),source,box,"eng",new OfflineOcr.Cancellation());fail("Invalid crop must not run inference");}catch(IOException expected){assertFalse(source.isRecycled());}}
+            OfflineOcr.Cancellation cancel=new OfflineOcr.Cancellation();cancel.cancel();try{OfflineOcr.recognizeRegion(InstrumentationRegistry.getInstrumentation().getTargetContext(),source,new RectF(0,0,1,1),"eng",cancel);fail("Cancelled");}catch(InterruptedException expected){assertFalse(source.isRecycled());}
+        }finally{source.recycle();}
     }
     @Test public void bundledModelsMatchPinnedHashes() throws Exception {android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();JSONObject manifest;try(InputStream in=context.getAssets().open("ocr/models.json")){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);manifest=new JSONObject(out.toString("UTF-8"));}for(String language:OfflineOcr.LANGUAGES)try(InputStream in=context.getAssets().open("ocr/"+language+".traineddata")){assertEquals(manifest.getJSONObject("files").getJSONObject(language+".traineddata").getString("sha256"),OfflineOcr.digest(in));}}
     @Test public void offlineEnglishImageRunsRealNativeInference() throws Exception {Bitmap bitmap=Bitmap.createBitmap(1200,400,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(bitmap);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTypeface(Typeface.create("sans-serif",Typeface.BOLD));paint.setTextSize(72);canvas.drawText("MEETING NOTES",70,140,paint);canvas.drawText("Monday at 10 AM",70,250,paint);try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),bitmap,"eng",new OfflineOcr.Cancellation());assertTrue(result.text,result.text.toUpperCase(Locale.ROOT).contains("MEETING"));assertTrue(result.text,result.text.toUpperCase(Locale.ROOT).contains("MONDAY"));assertTrue(result.confidence>=0);assertEquals(1200,result.width);}finally{bitmap.recycle();}}

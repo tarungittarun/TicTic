@@ -269,6 +269,8 @@ align source boxes, and preserve digits/punctuation; stale boxes and mixed-scrip
 text are rejected. The displayed text and selectable boxes come from the same
 chosen pass. There is no vocabulary/reference substitution, weight addition,
 training, new release APK, or demonstrated speech/phone-speed improvement.
-The original API26 assertion is unchanged. Native run **41777249420** tests the
-first experimental revision; broad regression/size/latency gates remain required
+The original API26 assertion is unchanged. Run **41777249420** stopped at its JVM gate (348/349): a synthetic single-line
+input with two-line boxes exposed a missing text-line check. The policy now
+requires both multi-line text and geometry. Native inference did not run there.
+Broad regression/size/latency gates remain required
 before adoption. Root Python coverage is not a substitute for its JVM/native gates.

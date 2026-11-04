@@ -6,7 +6,7 @@ public final class OcrScriptConsensus {
  private OcrScriptConsensus(){}
  private static String normalized(String s){return java.text.Normalizer.normalize(s,java.text.Normalizer.Form.NFC).trim().replaceAll("\\s+"," ");}
  public static boolean eligible(String text,List<ImageTextSelection.Word> words){
-  if(text==null || text.length()>512 || words==null || words.size()<4 || words.size()>64 || OcrLineRecovery.nativeScript(text)!=Character.UnicodeScript.KANNADA)return false;
+  if(text==null || text.length()>512 || text.trim().split("[\\r\\n]+").length<2 || words==null || words.size()<4 || words.size()>64 || OcrLineRecovery.nativeScript(text)!=Character.UnicodeScript.KANNADA)return false;
   Set<Integer> lines=new HashSet<>();for(ImageTextSelection.Word w:words){if(w==null)return false;lines.add(w.line);}
   return lines.size()>=2 && lines.size()<=8 && matches(text,words);
  }

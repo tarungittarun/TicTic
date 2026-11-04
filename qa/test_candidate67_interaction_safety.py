@@ -94,3 +94,13 @@ class DeferredSelectionGestureCancelsCaretReveal(unittest.TestCase):
         self.assertIn('manualRangeViewport && selected!=null && selected.hasSelection()',doc)
         self.assertIn('manualRangeViewport=false;host.cursor',doc)
         self.assertNotIn('scroll.setOnTouchListener((v,event)->{if(event.getActionMasked()',doc)
+
+class NotesManualRangeViewport(unittest.TestCase):
+    def test_notes_honors_manual_range_for_both_layout_and_ime_reveals(self):
+        source=(JAVA/'NotesController.java').read_text()
+        self.assertIn('((SelectionScrollView)document).onUserGesture',source)
+        self.assertIn('body.hasFocus() && body.hasSelection())manualNoteRangeViewport=true',source)
+        self.assertIn('selectionChanged=()->{manualNoteRangeViewport=false;updateFormatting();}',source)
+        reveal=source.split('private void revealWritingCaret(ScrollView document)',1)[1].split('private boolean keyboardVisible',1)[0]
+        self.assertLess(reveal.index('manualNoteRangeViewport && field.hasSelection()'),reveal.index('document.scrollTo'))
+        self.assertIn('field==body',reveal)

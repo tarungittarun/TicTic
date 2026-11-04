@@ -153,19 +153,20 @@ public final class OfflineOcr {
     // Two complete native outputs must agree, including source-coordinate coverage.
     // Raw source polarity is deliberate; no expected phrase or dictionary is consulted.
     private static Result kannadaConsensus(File root,Bitmap source,String baseline,List<ImageTextSelection.Word> original,TessBaseAPI primary,Cancellation cancellation)throws Exception {
-        TessBaseAPI probe=new TessBaseAPI();
+        TessBaseAPI probe=new TessBaseAPI();Bitmap input=null;
         try{
             cancellation.check();if(!probe.init(root.getAbsolutePath(),"kan"))return null;
             synchronized(cancellation){cancellation.active=probe;}cancellation.check();
             probe.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);probe.setVariable("preserve_interword_spaces","1");
-            probe.setImage(source);String ordinary=probe.getUTF8Text();cancellation.check();int ordinaryScore=probe.meanConfidence();
+            input=source.copy(Bitmap.Config.ARGB_8888,true);if(input==null)return null;
+            probe.setImage(input);String ordinary=probe.getUTF8Text();cancellation.check();int ordinaryScore=probe.meanConfidence();
             List<ImageTextSelection.Word> ordinaryWords=regions(probe.getHOCRText(0),source.getWidth(),source.getHeight(),cancellation);
             if(!probe.setVariable("thresholding_method","2"))return null;
-            probe.setImage(source);String adaptive=probe.getUTF8Text();cancellation.check();int adaptiveScore=probe.meanConfidence();
+            probe.setImage(input);String adaptive=probe.getUTF8Text();cancellation.check();int adaptiveScore=probe.meanConfidence();
             List<ImageTextSelection.Word> adaptiveWords=regions(probe.getHOCRText(0),source.getWidth(),source.getHeight(),cancellation);
             if(app.space.notes.domain.OcrScriptConsensus.prefer(baseline,original,ordinary,ordinaryScore,ordinaryWords,adaptive,adaptiveScore,adaptiveWords))return new Result(adaptive,"auto",Math.min(ordinaryScore,adaptiveScore),source.getWidth(),source.getHeight(),adaptiveWords);
             return null;
-        }finally{synchronized(cancellation){cancellation.active=primary;probe.recycle();}}
+        }finally{synchronized(cancellation){cancellation.active=primary;try{probe.recycle();}finally{if(input!=null)input.recycle();}}}
     }
     /** Bounded native-generated XHTML; no external entities, HTML views, or network fetches. */
     private static List<ImageTextSelection.Word> regions(String hocr,int width,int height,Cancellation cancel)throws InterruptedException {

@@ -1,0 +1,103 @@
+{
+  "scope": "Partial annotation export of own-authored raw-source failure-only probes. GitHub retained ten notices; full twelve-case JSON and input PNG remain in the referenced artifact. Not a production output selector, broad corpus, training or phone-speed claim.",
+  "run": 41776598360,
+  "job": 126398297062,
+  "artifact": 13297750621,
+  "artifact_archive_digest": "sha256:71fabcfe0fe5dea3160e1be6393f9672b2720e8cd69fec096ac89024ee6fd155",
+  "original_assertion": {
+    "ok": false,
+    "expected": 1,
+    "passed": 0,
+    "missing": [
+      "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols"
+    ],
+    "unexpected": [],
+    "duplicates": [],
+    "failures": [
+      "app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols: status -2 org.junit.ComparisonFailure: expected:<ಕನ್[ನ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ> but was:<ಕನ್[ಹ]ಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.OfflineOcrTest.knownNativeOmissionsKeepExistingTextAndCoordinates(OfflineOcrTest.java:111)\n\tat app.space.notes.OfflineOcrTest.automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols(OfflineOcrTest.java:104)\n"
+    ],
+    "cases": []
+  },
+  "annotated_cases": [
+    {
+      "language": "kan",
+      "threshold": 2,
+      "psm": 3,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 89
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 11,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\n\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 90
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 6,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 86
+    },
+    {
+      "language": "kan",
+      "threshold": 0,
+      "psm": 3,
+      "recognized": "ಕನ್ನಡ ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 70,
+      "elapsed_ms": 91
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 11,
+      "recognized": "ಭಾಷೆ\n\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 95,
+      "elapsed_ms": 106
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 6,
+      "recognized": "ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 102
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 2,
+      "psm": 3,
+      "recognized": "ಭಾಷೆ\nಭಾರತ ನಮಸ್ಕಾರ",
+      "confidence": 96,
+      "elapsed_ms": 108
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 11,
+      "recognized": "22५6८: ಭಾಷೆ\n\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 173
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 6,
+      "recognized": "22५6८: ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 167
+    },
+    {
+      "language": "eng+hin+kan",
+      "threshold": 0,
+      "psm": 3,
+      "recognized": "22५6८: ಭಾಷೆ\nಭಾರತ  ನಮಸ್ಕಾರ",
+      "confidence": 82,
+      "elapsed_ms": 170
+    }
+  ]
+}

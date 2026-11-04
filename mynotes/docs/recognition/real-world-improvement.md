@@ -274,3 +274,15 @@ input with two-line boxes exposed a missing text-line check. The policy now
 requires both multi-line text and geometry. Native inference did not run there.
 Broad regression/size/latency gates remain required
 before adoption. Root Python coverage is not a substitute for its JVM/native gates.
+
+
+Revision 52e8f19f / run **41777570980** passed the JVM/build/lint gate but failed
+its native assertion at **source preservation**, after text and word-selection
+assertions passed. Source generation changed 272 → 278. This does not establish
+which bytes changed or qualify the full fixture loop. The extra native passes
+had been handed the original bitmap; the repair gives them a bounded disposable
+ARGB copy instead. The original generation/pixel assertion is retained. Downstream
+full-class gate 41777705341 correctly refuses that failed prerequisite. Probe
+annotations are now emitted as one bounded report to avoid GitHub's ten-notice
+limit; the older retained annotation export explicitly says it has only ten of
+twelve cases and points to the complete original artifact.

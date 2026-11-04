@@ -1,4 +1,4 @@
-name: Validate bounded API26 script consensus r2 (no output oracle)
+name: Validate bounded API26 script consensus r3 (no output oracle)
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -79,8 +79,7 @@ jobs:
           p=pathlib.Path('public-native-ocr-probe.json')
           if p.exists():
               r=json.loads(p.read_text())
-              for row in r['cases']:
-                  print('::notice title=Public native OCR probe, not production selection::'+json.dumps(row,ensure_ascii=False).replace('%','%25'))
+              print('::notice title=Full public native OCR probe, not production selection::'+json.dumps(r,ensure_ascii=False).replace('%','%25'))
           log=pathlib.Path('refinement-native.txt')
           result=android(log.read_text(errors='replace') if log.exists() else '',['app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols'])
           pathlib.Path('original-assertion.json').write_text(json.dumps(result,indent=2)+'\n')

@@ -191,3 +191,9 @@ Root/report parser smoke uses explicitly fabricated temporary unit inputs only, 
 | Latency | Foreground-first PDF text indexing, retained per-module public phase logs; rejected slower OCR candidate. | No broad measured speed-up or audio-accuracy improvement claim. Physical start/tap/recording latency unqualified. |
 
 Active full-source qualification41839360685/source92f51576 and signed66→67 rich upgrade41839619874. The migration run inherited an old64→66 display title; workflow display name corrected without rerunning its current native work. Its pinned inputs/CLI codes are66→67, which must be checked in actual proof rather than inferred from its title. Root gate969 passed before this documentation-only change. No APK shared.
+
+### Measured bounded PDF fixture and candidate byte budget
+
+Recovered round5 PUBLIC CPU logs record the generated18,994,387-byte1097-page document constructor plus120×170 final-page raster: light portrait22ms, dark portrait23ms, light landscape26ms, dark landscape25ms. Raw per-profile logs and a scoped receipt are retained. These numbers **exclude fixture generation, SAF copying, full-resolution page raster, first visible UI, text indexing and physical latency**; cache may be warm. They demonstrate no small18MB hard cap in that tested path, not a measured cold-open speed-up.
+
+Full-source candidate raw APK metadata:155,176,860 bytes, only3,548 bytes above66; remains1,037,088 bytes below the156,213,948-byte cap. Source/run/digest/expiry retained in `candidate67-artifact-receipt.json`. This is a metadata receipt, **not** actual byte/aapt/signer verification or final qualification. The running signed-update jobs must independently check raw bytes, manifest/noINTERNET/min26 and stable signer. No APK offered.

@@ -203,7 +203,9 @@ class SeparateModuleE2E(unittest.TestCase):
         import yaml
         full=yaml.safe_load((ROOT/'.github/workflows/notes-module-e2e.yml').read_text())
         prepare=next(s for s in full['jobs']['build']['steps'] if s.get('name','').startswith('Prepare public'))['run']
-        self.assertEqual(2,len(prepare.strip().splitlines()))
+        self.assertEqual(4,len(prepare.strip().splitlines()))
+        self.assertIn("cp -r mynotes/report-assets/public-ocr-scenes-v2 mynotes/benchmarks/assets/public-scenes-v2",prepare)
+        self.assertIn("cp -r mynotes/report-assets/public-ocr-scenes-v3 mynotes/benchmarks/assets/public-scenes-v3",prepare)
         self.assertTrue(prepare.strip().splitlines()[0].endswith('--output mynotes/benchmarks/assets/module-corpus'))
         holdout=yaml.safe_load((ROOT/'.github/workflows/notes-regression59-heldout.yml').read_text())
         compile=next(s for s in holdout['jobs']['test-build']['steps'] if s.get('name','').startswith('Compile test-only'))

@@ -1,7 +1,7 @@
 """Run every native method once, with strict module barriers, on an existing APK.
 No app/model changes. Preserve failed modules and continue to collect other evidence.
 """
-import argparse,json,os,subprocess,time
+import argparse,json,os,shutil,subprocess,time
 from pathlib import Path
 from mynotes.tools.build_module_e2e_report import MODULES,ROOT
 from mynotes.tools.build_e2e_report import methods
@@ -25,6 +25,10 @@ def main():
         raw=Path(f'ordered-module-{index+1:02d}.txt');environment={**os.environ,'NOTES_NATIVE_OUTPUT':str(raw)}
         result=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,env=environment);elapsed=round((time.monotonic()-start)*1000)
         Path(f'ordered-module-{index+1:02d}-launcher.txt').write_text(result.stdout)
+        # The wrapper overwrites these each module; preserve bounded PUBLIC fixture phases.
+        for suffix in ['cpu-phases','test-progress','stall-threads']:
+            diagnostic=Path('refinement-native-'+suffix+'.txt')
+            if diagnostic.exists() and diagnostic.stat().st_size<=5000000:shutil.copyfile(diagnostic,Path(f'ordered-module-{index+1:02d}-{suffix}.txt'))
         actual=raw.read_text(errors='replace') if raw.exists() else '';observed=android(actual,selected);observed.update(module=module,elapsed_ms=elapsed,process_exit=result.returncode)
         executions.append(observed);combined+=actual+'\n';Path('refinement-native.txt').write_text(combined);Path('ordered-module-execution.json').write_text(json.dumps(executions,indent=2)+'\n')
         print(f'MODULE {index+1:02d} END '+json.dumps({k:v for k,v in observed.items() if k!='cases'}),flush=True)

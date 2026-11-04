@@ -13,9 +13,10 @@ public final class OcrScriptConsensus {
  private static boolean matches(String text,List<ImageTextSelection.Word> words){
   try{ImageTextSelection selection=new ImageTextSelection(words);selection.all(true);return normalized(text).equals(normalized(selection.text()));}catch(IllegalArgumentException | NullPointerException invalid){return false;}
  }
+ private static String nonLetters(String text){StringBuilder out=new StringBuilder();text.codePoints().forEach(cp->{int type=Character.getType(cp);if(!Character.isLetter(cp) && type!=Character.NON_SPACING_MARK && type!=Character.COMBINING_SPACING_MARK && type!=Character.ENCLOSING_MARK)out.appendCodePoint(cp);});return out.toString();}
  private static boolean aligned(List<ImageTextSelection.Word> a,List<ImageTextSelection.Word> b){
   if(a==null || b==null || a.size()!=b.size())return false;
-  for(int i=0;i<a.size();i++){ImageTextSelection.Word x=a.get(i),y=b.get(i);if(x==null || y==null)return false;
+  for(int i=0;i<a.size();i++){ImageTextSelection.Word x=a.get(i),y=b.get(i);if(x==null || y==null || !nonLetters(x.text).equals(nonLetters(y.text)))return false;
    float intersection=Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
    float union=(x.right-x.left)*(x.bottom-x.top)+(y.right-y.left)*(y.bottom-y.top)-intersection;
    if(intersection<.65f*union)return false;

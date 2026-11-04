@@ -232,4 +232,43 @@ keeps the research workflow red even if best improves it. This is not training,
 shipping adoption, a varied-scene accuracy corpus, or peak-RAM/phone-speed proof.
 The larger model may be slower and exceed the user APK budget; it is not added
 to the actual user APK. Shipping weights/defaults and the 156213948-byte cap stay
-unchanged. Research results are pending actual execution.
+unchanged. Research run 41773501883 failed; see the retained outcome below.
+
+
+### Retained full62, rejected larger weights, and actual API26 probes
+
+Full62 run **41771337080 succeeded**: 426 native methods × four profiles = 1704
+outcomes, plus 200 focused outcomes; 4752/4752 inference rows retained. The
+1097-page report is `../module-e2e/41771337080/MyNotes-Module-E2E-Report.pdf`.
+Operational completion does **not** mean all accuracy targets met: that field is
+false, physical acceptance is false, training steps zero, shipping models unchanged.
+
+Larger-weight study **41773501883 failed**. API34 reported 20/21 with the paper
+assertion reading `ಕನ್ನಡ ಭಾಷೆ\n\nಭಾರತ ಸಮಸ್ಕಾರ`; API26 exited 137 before native
+methods. Per-phase raw artifacts have not yet been audited, so this is not a
+claim about individual fast/best phase counts or a diagnosis of exit 137. No
+larger model was adopted.
+
+Diagnostic 41775792629 compiled successfully but failed before tests because its
+API26 setup incorrectly assumed a Pixel launcher. Native-only **41776598360**
+reused that compiled test APK, removed that assumption, and used the established
+root → radio provisioning → unroot handoff. It reached the original strict
+assertion, reproduced `ಕನ್ಹಡ` versus `ಕನ್ನಡ`, and retained all 12 raw-source probes.
+Fixtures executed as uid 2000, not root; no assertion retry or reference substitution.
+
+Those probes demonstrate why confidence cannot select output alone. Combined
+languages with adaptive thresholding scored 95–96 yet omitted the first word.
+Kannada-only ordinary and adaptive passes agreed on the full phrase (ordinary
+confidence 70, adaptive 96 for PSM3). These are raw-source diagnostics, not a
+controlled end-to-end accuracy comparison or a prediction for arbitrary photos.
+
+An **unqualified source experiment** adds a bounded consensus fallback for
+already-native-resolution, readable-paper, multi-line Kannada blocks only.
+Both isolated ordinary/adaptive outputs must agree, retain every word position,
+align source boxes, and preserve digits/punctuation; stale boxes and mixed-script
+text are rejected. The displayed text and selectable boxes come from the same
+chosen pass. There is no vocabulary/reference substitution, weight addition,
+training, new release APK, or demonstrated speech/phone-speed improvement.
+The original API26 assertion is unchanged. Native run **41777249420** tests the
+first experimental revision; broad regression/size/latency gates remain required
+before adoption. Root Python coverage is not a substitute for its JVM/native gates.

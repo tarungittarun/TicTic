@@ -30,6 +30,7 @@ jobs:
         run: |
           import json,pathlib,subprocess,shutil,tarfile,re
           from mynotes.tools.ci.results import android
+          from mynotes.tools.ci.retain_public_captures import retain
           from mynotes.tools.ci.test_plan import mask_comments_and_strings
           out=pathlib.Path('mynotes/docs/recognition/interactions/41827950030');out.mkdir(parents=True,exist_ok=True)
           def api(path):return json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/'+path],text=True))
@@ -47,13 +48,8 @@ jobs:
               dest=out/folder.name;dest.mkdir(exist_ok=True)
               for source in folder.iterdir():
                   if source.suffix in {'.txt','.json'} and source.stat().st_size<5000000:shutil.copyfile(source,dest/source.name)
-              capture=folder/'refinement-captures.tar'
-              if capture.exists():
-                  with tarfile.open(capture) as bundle:
-                      for member in bundle.getmembers():
-                          if member.isfile() and pathlib.PurePosixPath(member.name).name in {'image-text-selection.png','word-synthetic-paper-page.png','spreadsheet-grid-viewport.png'}:
-                              assert member.size<5000000
-                              (dest/pathlib.PurePosixPath(member.name).name).write_bytes(bundle.extractfile(member).read())
+              capture=retain(folder/'refinement-captures.tar',dest)
+              (dest/'capture-status.json').write_text(json.dumps(capture,indent=2)+'\n')
               verified=android((dest/'refinement-native.txt').read_text(),expected);(dest/'refinement-native-verified.json').write_text(json.dumps(verified,indent=2)+'\n');receipts.append({'profile':folder.name,'verification':verified})
           assert len(receipts)==4
           for job in jobs:

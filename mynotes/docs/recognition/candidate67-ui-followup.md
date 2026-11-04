@@ -93,3 +93,12 @@ pattern refinement-native.* omits the verifier's refinement-native-verified.json
 logs; it does not substitute today's435-method inventory or repeat any device
 case. Explicit PYTHONPATH covers Actions temporary Python script context. The
 current diagnostic's independent build/native/study jobs can continue unaffected.
+
+Reader41830910204 confirmed both original retention causes: missing verifier JSON
+in job126575628645, and empty capture TAR in corrected job126576722854. It also
+confirmed light portrait's255: emulator-5554 disappeared AFTER native38/38 and
+before adb TAR capture. This is not a native assertion failure; screenshot proof
+for that profile is unavailable, not fabricated/relabelled. Retainer now records
+missing/empty/corrupt capture explicitly while retaining original raw native
+outcomes. Four actual Python file-I/O tests cover empty/corrupt/named/traversal
+archives. Device tests are not repeated for proof-retention repairs.

@@ -1,8 +1,11 @@
 # Pending-work implementation cycle — 4 November 2026
 
 This is an implementation/evidence log, not a completion or release declaration.
-The previous qualified composite remains build63/report41789450818; build64's
-signed APK is unchanged. New code must be qualified separately.
+At cycle start the latest complete emulator composite was build63/report41789450818.
+Build66 now has complete same-source emulator E2E and corpus evidence in
+report41810449937 (recovered export41814068970). Accuracy targets and physical
+acceptance remain false; this is not a release-completion declaration. Build64's
+previously offered signed APK is unchanged.
 
 ## Actual changes
 
@@ -56,7 +59,7 @@ suppressed. Unit tests reject physical/populated devices, failed broadcasts,
 remaining active default networks and unstable state. A guard correction changes
 `pm path` (exit1 when absent) to successful-empty `pm list packages`. Cancellation
 of obsolete queued attempt41807216965 was denied403; it is **not** described as
-cancelled. Current follow-up41807291666 must still provide its actual result.
+cancelled. Follow-up41807291666 subsequently passed both APIs; actual retained results are recorded below.
 
 ## Still open
 
@@ -219,3 +222,27 @@ and app Gradle file); only test/CI/evidence additions follow it. Raw signed APK
 is155,173,312 bytes, just1340 bytes above64. The release-signed APK has bounded
 public install-over evidence; full native UI suites used same-source debug APKs.
 This distinction and all residual accuracy/physical gaps remain explicit.
+
+### Retained rich proof verified locally
+
+Corrected retention41815085231 **succeeded**. Both original API reports and all
+six raw instrumentation-stage logs are now in `updates/41813371404/` and were
+read/verified after fetching the bot commit. API26 firstInstallTime stayed
+`2026-11-04 10:25:31`; API34 stayed`2026-11-04 10:26:19`. Each API's old-writer
+payload hash is identical across create/before/after, and candidate write/readback
+is true after66. All four public fixtures and the private folder survived.
+No uninstall/data clearing, physical or rich-UI acceptance is claimed.
+
+Cause reader41814822993 confirmed the first retention failure was
+`ModuleNotFoundError: mynotes` in the temporary Python script; explicit PYTHONPATH
+and a temporary-script regression test fixed it. Reader41815085495 confirmed the
+next failure was GitHub's remote500 **after** proofs and root tests passed.
+Bounded publication retries resolved that, without rerunning device assertions.
+The development66 receipt now points to the actually retained signed-update data.
+
+**Remaining:**24 OCR/690 speech benchmark target misses; the independently
+exposed status-icon script inventions; broader unseen real scene/speaker and
+general phone-speed work; physical microphone/playback, real user-library/SAF
+and phone acceptance. No physical device or earlier private screenshot pixels
+are available here. Complete emulator automation is not completion of these
+items. No new model or experimental kernel was adopted and no training invented.

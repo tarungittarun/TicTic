@@ -23,6 +23,15 @@ jobs:
         run: |
           set -o pipefail
           sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:lintDebug --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/refinement-native-build.log
+      - name: Account for actual APK bytes by model and native architecture
+        run: python3 -m mynotes.tools.ci.apk_size_audit mynotes/app/build/outputs/apk/debug/notes-debug.apk evidence/recognition-apk-size.json
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: recognition-build-measurements
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
       - name: Verify exact executed JVM coverage
         if: always()
         run: python3 -m mynotes.tools.ci.results jvm --path mynotes/domain/build/test-results/test --output evidence/refinement-jvm.json

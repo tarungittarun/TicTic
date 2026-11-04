@@ -1,6 +1,7 @@
 package app.space.notes;
 
 import android.content.Context;
+import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import app.space.notes.domain.*;
@@ -25,6 +26,7 @@ public class CompactSpeechBenchmark {
  private void persist(String variant,int shard,JSONArray rows,JSONObject warmup)throws Exception{
   JSONObject report=new JSONObject().put("scope","Public CMU KSP/SLT B0065-B0100 plus silence; two speakers, KSP used in earlier adaptation. Not unseen-Indian-speaker/phone acceptance. Exact F16 weights, no training or default adoption. Balanced ordered phases; times are observational emulator end-to-end wall time, not causal phone speed or peak RAM.").put("variant",variant).put("shard",shard).put("expected",146).put("training_steps",0).put("adopted",false).put("warmup",warmup).put("cases",rows);
   File directory=new File(context().getFilesDir(),"speech-kernel-study");assertTrue(directory.isDirectory()||directory.mkdirs());File temporary=new File(directory,"partial.tmp");Files.write(temporary.toPath(),report.toString().getBytes(StandardCharsets.UTF_8));Files.move(temporary.toPath(),new File(directory,variant+"-"+shard+".json").toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+  Bundle status=new Bundle();status.putString("stream","public-kernel "+variant+"-"+shard+" "+rows.length()+"/146\n");InstrumentationRegistry.getInstrumentation().sendStatus(2,status);
  }
  private JSONObject recognize(String id,String reference,byte[] input,double seconds,String kind)throws Exception{
   File wave=File.createTempFile("public-kernel-",".wav",context().getCacheDir());Files.write(wave.toPath(),input);JSONObject row=new JSONObject().put("id",id).put("reference",reference).put("input_sha256",digest(input)).put("input_bytes",input.length).put("seconds",seconds).put("kind",kind);long began=android.os.SystemClock.elapsedRealtime();

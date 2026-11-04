@@ -56,6 +56,11 @@ class SpeechKernelStudy(unittest.TestCase):
         self.assertIn('params.use_gpu=false;params.flash_attn=false;',cpp)
         self.assertIn('#if NOTES_WHISPER_FLASH_ATTENTION',cpp)
 
+    def test_benchmark_reports_public_progress_to_bounded_watchdog(self):
+        source=(ROOT/'mynotes/app/benchmarks/java/app/space/notes/CompactSpeechBenchmark.java').read_text()
+        self.assertIn('sendStatus(2,status)',source)
+        self.assertIn('public-kernel ',source)
+
     def test_benchmark_is_opt_in_not_production_source(self):
         self.assertTrue((ROOT/'mynotes/app/benchmarks/java/app/space/notes/CompactSpeechBenchmark.java').is_file())
         self.assertFalse((ROOT/'mynotes/app/src/main/java/app/space/notes/CompactSpeechBenchmark.java').exists())

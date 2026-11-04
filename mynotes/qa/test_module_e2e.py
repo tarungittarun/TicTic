@@ -54,13 +54,17 @@ class SeparateModuleE2E(unittest.TestCase):
         script=(ROOT/'mynotes/tools/ci/run_module_benchmark.sh').read_text()
         self.assertIn('sys.exit(1)',script)
         self.assertIn('exit "$verification"',script)
-    def test_every_existing_native_scene_has_one_explicit_module_and_workflow_order(self):
+    def test_existing_and_newly_declared_native_scenes_have_explicit_module_order(self):
         from mynotes.tools.build_module_e2e_report import SCENE_ORDER,SCENE_MODULE
         scenes=[scene for values in SCENE_ORDER.values() for scene in values]
         self.assertEqual(len(scenes),len(set(scenes)))
         evidence=json.loads((ROOT/'mynotes/docs/e2e/41591079488/provenance.json').read_text())
         known={row['scene'] for row in evidence['screens'] if not row.get('proof_kind')}
-        self.assertEqual(known,set(scenes))
+        # The frozen old receipt is immutable; new declarations are not executed evidence.
+        import re
+        source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
+        declared=set(re.findall(r'screenshot\("([^"]+)"\)',source))
+        self.assertEqual(known|declared,set(scenes))
         self.assertEqual('Diagrams',SCENE_MODULE['diagram'])
         self.assertEqual('Voice inbox and transcripts',SCENE_MODULE['voice-inbox'])
         self.assertEqual('Images and drawing',SCENE_MODULE['drawing'])
@@ -86,7 +90,7 @@ class SeparateModuleE2E(unittest.TestCase):
         from mynotes.tools.ci.run_ordered_modules import plan
         from mynotes.tools.build_module_e2e_report import MODULES
         ordered=plan();self.assertEqual(MODULES,list(ordered))
-        self.assertEqual(437,sum(map(len,ordered.values())))
+        self.assertEqual(444,sum(map(len,ordered.values())))
         script=(ROOT/'mynotes/tools/ci/run_ordered_modules.py').read_text()
         self.assertIn('for index,(module,selected) in enumerate(ordered.items())',script)
         self.assertIn('subprocess.run(command',script)

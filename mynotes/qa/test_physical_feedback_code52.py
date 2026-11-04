@@ -28,7 +28,7 @@ class PhysicalFeedback52Contracts(unittest.TestCase):
   source=(JAVA/'NotesController.java').read_text()
   for marker in ['private void openWordPages(', 'private void openFile(android.net.Uri uri,boolean importWord)']:
    section=source.split(marker,1)[1].split('busy=true;',1)[1]
-   self.assertTrue(section.startswith('fileReader.execute('))
+   self.assertIn('fileOpeningIndicator()',section.split('fileReader.execute(',1)[0]);self.assertNotIn('disk.execute(',section.split('fileReader.execute(',1)[0]);self.assertIn('fileReader.execute(',section)
   self.assertIn('fileReader.shutdownNow()',source)
  def test_viewing_is_default_and_copy_is_explicit_with_bounded_native_pages(self):
   source=(JAVA/'NotesController.java').read_text()

@@ -9,7 +9,7 @@ import app.space.notes.runtime.NotesHost;
 /** Thin standalone host. Business/UI code is reusable by a future MySpace adapter. */
 public final class NotesActivity extends Activity implements NotesHost {
     private NotesController controller;private boolean pdfPrintGuides;
-    private Uri viewedCopySource;private long diagnosticFrom,diagnosticTo;private String[] diagnosticLevels;
+    private java.io.File markedPdfSource;private Uri viewedCopySource;private long diagnosticFrom,diagnosticTo;private String[] diagnosticLevels;
     private String ocrLanguage="eng",voiceExportId,imageNoteId;
     @Override public void onCreate(Bundle state) {
         boolean dark=app.space.notes.runtime.NotesAppearance.dark(this,this);setTheme(dark?R.style.NotesThemeDark:R.style.NotesThemeLight);
@@ -18,7 +18,7 @@ public final class NotesActivity extends Activity implements NotesHost {
         boolean light=!dark;
         int lightBars=android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         android.view.View decor=getWindow().getDecorView();decor.setSystemUiVisibility(light?decor.getSystemUiVisibility()|lightBars:decor.getSystemUiVisibility()&~lightBars);
-        if(state!=null){diagnosticFrom=state.getLong("diagnosticFrom");diagnosticTo=state.getLong("diagnosticTo");diagnosticLevels=state.getStringArray("diagnosticLevels");String copy=state.getString("viewedCopySource");if(copy!=null)viewedCopySource=Uri.parse(copy);pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
+        if(state!=null){String marked=state.getString("markedPdfSource");if(marked!=null)markedPdfSource=new java.io.File(marked);diagnosticFrom=state.getLong("diagnosticFrom");diagnosticTo=state.getLong("diagnosticTo");diagnosticLevels=state.getStringArray("diagnosticLevels");String copy=state.getString("viewedCopySource");if(copy!=null)viewedCopySource=Uri.parse(copy);pdfPrintGuides=state.getBoolean("pdfPrintGuides",false);ocrLanguage=state.getString("ocrLanguage","eng");voiceExportId=state.getString("voiceExportId");imageNoteId=state.getString("imageNoteId");}
         try {controller=new NotesController(this,this,state);
         setContentView(controller.view());
         installDocumentDrop();
@@ -53,6 +53,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override protected void onPause() { if(controller!=null)controller.pause(); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putLong("diagnosticFrom",diagnosticFrom);state.putLong("diagnosticTo",diagnosticTo);state.putStringArray("diagnosticLevels",diagnosticLevels);
+        if(markedPdfSource!=null)state.putString("markedPdfSource",markedPdfSource.getPath());
         if(viewedCopySource!=null)state.putString("viewedCopySource",viewedCopySource.toString());
         state.putBoolean("pdfPrintGuides",pdfPrintGuides);state.putString("ocrLanguage",ocrLanguage);state.putString("voiceExportId",voiceExportId);state.putString("imageNoteId",imageNoteId);
         if(controller!=null)controller.saveState(state); super.onSaveInstanceState(state);
@@ -62,6 +63,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public void chooseLocalFolder() { chooseTree(94); }
     @Override public void openExistingFolder() { chooseTree(95); }
     @Override public void recoverAppFolder() { chooseTree(105); }
+    @Override public void saveAnnotatedPdf(java.io.File generated,String name){markedPdfSource=generated;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/pdf");picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.putExtra(Intent.EXTRA_TITLE,name);openPicker(picker,107);}
     @Override public void saveViewedCopy(Uri source,String name,String mime){
         viewedCopySource=source;Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType(mime);picker.addCategory(Intent.CATEGORY_OPENABLE);picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.putExtra(Intent.EXTRA_TITLE,name);openPicker(picker,106);
     }
@@ -128,13 +130,14 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>106)return;
+        if(request<94 || request>107)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
-            if(request==106)viewedCopySource=null;if(request==101)diagnosticLevels=null;
+            if(request==107)markedPdfSource=null;if(request==106)viewedCopySource=null;if(request==101)diagnosticLevels=null;
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
         }
         app.space.notes.runtime.Diagnostics.record("picker.result","request="+request+" accepted");
         Uri uri=data.getData();
+        if(request==107){final java.io.File generated=markedPdfSource;markedPdfSource=null;if(generated==null){showMessage("Reopen the retained PDF annotation draft and export again.");return;}new Thread(()->{try{app.space.notes.runtime.PdfMarkedCopy.write(this,generated,uri);runOnUiThread(()->showMessage("Marked PDF copy verified. Original unchanged; private draft retained."));}catch(Exception error){app.space.notes.runtime.Diagnostics.failure("pdf.markup.copy",error);runOnUiThread(()->showMessage("Marked copy was not verified. Original and draft retained; a partial destination may remain."));}},"notes-marked-pdf-copy").start();return;}
         if(request==106){final Uri source=viewedCopySource;viewedCopySource=null;if(source==null){showMessage("Choose the original file again; nothing copied.");return;}new Thread(()->{try{app.space.notes.runtime.ViewedFileCopy.write(this,source,uri);runOnUiThread(()->showMessage("Original file copied. Saved notes and the source are unchanged."));}catch(Exception error){app.space.notes.runtime.Diagnostics.failure("viewed.copy.failure",error);runOnUiThread(()->showMessage("Copy could not be completed. Original unchanged; a partial destination may remain."));}},"notes-viewed-file-copy").start();return;}
         if(request==101){Runnable success=()->runOnUiThread(()->showMessage("Diagnostics exported. Review before sharing."));java.util.function.Consumer<Exception> failure=e->runOnUiThread(()->showMessage("Export failed; local logs retained. A partial destination may need removal."));String[] selected=diagnosticLevels;diagnosticLevels=null;if(selected==null)app.space.notes.runtime.Diagnostics.export(this,uri,success,failure);else app.space.notes.runtime.Diagnostics.exportFiltered(this,uri,diagnosticFrom,diagnosticTo,new java.util.HashSet<>(java.util.Arrays.asList(selected)),success,failure);return;}
         if(controller==null){showMessage("Open MyNotes successfully before importing files. Your data is unchanged.");return;}

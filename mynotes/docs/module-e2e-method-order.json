@@ -189,7 +189,8 @@
     "app.space.notes.OfflineOcrTest#selectedRegionRunsFreshInferenceWithoutChangingSource",
     "app.space.notes.OfflineOcrTest#invalidOrCancelledRegionNeverRecyclesOriginal",
     "app.space.notes.runtime.ImageRegionTextTest#cancellationSuppressesLateResultAndEventuallyReleasesSource",
-    "app.space.notes.runtime.ImageRegionTextTest#absentAreaDoesNotLeakSourceOrDeliverAfterCancellation"
+    "app.space.notes.runtime.ImageRegionTextTest#absentAreaDoesNotLeakSourceOrDeliverAfterCancellation",
+    "app.space.notes.runtime.ImageSelectionTest#compactSecondaryToolsRemainAccessibleAndReadAreaIsVisible"
   ],
   "Voice inbox and transcripts": [
     "app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec",
@@ -225,7 +226,8 @@
     "app.space.notes.runtime.ArchiveSemanticTest#malformedJsonErrorsDoNotEchoTranscriptContent",
     "app.space.notes.runtime.ArchiveSemanticTest#atomicMetadataSnapshotsAreBoundedAndLeaveOriginalRecordingUntouched",
     "app.space.notes.runtime.ArchiveSemanticTest#transcriptContentIdentityIgnoresOperationalStateUuidAndKeyOrderButPreservesWords",
-    "app.space.notes.runtime.WhisperConnectionJourneysTest#cancellationBeforeLateConnectionNeverStartsNativeWorkAndUnbindsOnce"
+    "app.space.notes.runtime.WhisperConnectionJourneysTest#cancellationBeforeLateConnectionNeverStartsNativeWorkAndUnbindsOnce",
+    "app.space.notes.OfflineSpeechTest#exactDigitalSilenceSkipsModelProvisioningAndPreservesAudio"
   ],
   "Images and drawing": [
     "app.space.notes.CoreJourneysTest#imageEditRasterMatchesPreviewGeometryWithoutChangingSource",

@@ -16,7 +16,13 @@ public final class OfflineSpeech {
     public static String transcribe(Context context,File wave,AtomicBoolean cancelled)throws Exception{return transcribeResult(context,wave,cancelled).raw;}
     public static Result transcribeResult(Context context,File wave,AtomicBoolean cancelled) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("Speech inference must run off UI thread");
-        long started=android.os.SystemClock.elapsedRealtime();if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");File model=install(context,cancelled);long installed=android.os.SystemClock.elapsedRealtime();StringBuilder transcript=new StringBuilder(),readable=new StringBuilder();List<app.space.notes.domain.TranscriptReadability.Word> timeline=new ArrayList<>();boolean[] timed={true};double[] confidence={0,0};
+        long started=android.os.SystemClock.elapsedRealtime();if(cancelled.get())throw new InterruptedException("Transcription cancelled; audio retained");try(RandomAccessFile source=new RandomAccessFile(wave,"r")){
+            if(app.space.notes.domain.PcmSilence.isDigitalSilence(source,cancelled::get)){
+                android.util.Log.i("NotesSpeechTiming","engine=none reason=digital_silence total_ms="+(android.os.SystemClock.elapsedRealtime()-started));
+                return new Result("","",Double.NaN);
+            }
+        }
+        File model=install(context,cancelled);long installed=android.os.SystemClock.elapsedRealtime();StringBuilder transcript=new StringBuilder(),readable=new StringBuilder();List<app.space.notes.domain.TranscriptReadability.Word> timeline=new ArrayList<>();boolean[] timed={true};double[] confidence={0,0};
         LibVosk.vosk_set_log_level(-1);
         try(Model nativeModel=new Model(model.getPath());Recognizer recognizer=new Recognizer(nativeModel,PcmWave.RATE);RandomAccessFile input=new RandomAccessFile(wave,"r")){
             long loaded=android.os.SystemClock.elapsedRealtime();recognizer.setWords(true);

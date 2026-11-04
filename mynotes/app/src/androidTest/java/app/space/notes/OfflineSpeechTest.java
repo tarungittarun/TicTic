@@ -11,6 +11,7 @@ import java.nio.channels.FileLock;
 import app.space.notes.domain.*;
 import app.space.notes.runtime.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -33,6 +34,17 @@ public class OfflineSpeechTest {
             for(int variant=0;variant<2;variant++){File altered=File.createTempFile("speech-degraded-",".wav",context().getCacheDir());try{byte[] bytes=source.clone();Random random=new Random(20261101);try(RandomAccessFile input=new RandomAccessFile(original,"r")){PcmWave.Data data=PcmWave.inspect(input);for(long offset=data.offset;offset+1<data.offset+data.bytes;offset+=2){int i=(int)offset;int value=(short)((bytes[i]&255)|(bytes[i+1]<<8));int adjusted=variant==0?value/3:value+(random.nextInt(401)-200);adjusted=Math.max(-32768,Math.min(32767,adjusted));bytes[i]=(byte)adjusted;bytes[i+1]=(byte)(adjusted>>8);}}java.nio.file.Files.write(altered.toPath(),bytes);long began=android.os.SystemClock.elapsedRealtime();String recognized=OfflineSpeech.transcribe(context(),altered,new AtomicBoolean());RecognitionMetrics.Score score=RecognitionMetrics.words(clean,recognized);assertFalse(recognized,recognized.trim().isEmpty());assertTrue("relative WER="+score.rate()+" text="+recognized,score.rate()<=.6);try(InputStream unchanged=new FileInputStream(altered)){assertEquals(OfflineOcr.digest(new ByteArrayInputStream(bytes)),OfflineOcr.digest(unchanged));}rows.put(new org.json.JSONObject().put("variant",variant==0?"one-third-amplitude":"seeded-plus-minus-200-pcm16").put("baseline",clean).put("recognized",recognized).put("relative_wer",score.rate()).put("elapsed_ms",android.os.SystemClock.elapsedRealtime()-began));}finally{altered.delete();}}
             assertEquals(digest,OfflineOcr.digest(new ByteArrayInputStream(java.nio.file.Files.readAllBytes(original.toPath()))));try(OutputStream out=new FileOutputStream(new File(context().getFilesDir(),"speech-degradation-report.json"))){out.write(new org.json.JSONObject().put("source_sha256",digest).put("recognizer","Pinned bundled Vosk, unchanged model").put("scope","Synthetic perturbations of one public fixture. Relative WER against model clean output, NOT ground-truth WER, accents or physical microphone acceptance.").put("cases",rows).toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
         }finally{original.delete();}
+    }
+    @Test public void exactDigitalSilenceSkipsModelProvisioningAndPreservesAudio()throws Exception{
+        File root=new File(context().getCacheDir(),"silent-model-"+UUID.randomUUID());assertTrue(root.mkdir());File audio=new File(root,"original.wav");
+        try{try(RandomAccessFile out=new RandomAccessFile(audio,"rw")){out.setLength(PcmWave.HEADER+32000);PcmWave.header(out,32000);}
+            byte[] before=java.nio.file.Files.readAllBytes(audio.toPath());long began=android.os.SystemClock.elapsedRealtime();
+            OfflineSpeech.Result result=OfflineSpeech.transcribeResult(isolated(root),audio,new AtomicBoolean());
+            assertEquals("",result.raw);assertEquals("",result.text);assertFalse(result.reviewRequired);
+            assertFalse("Silent audio must not install/load the speech model",new File(root,"offline-speech-v1").exists());
+            assertArrayEquals(before,java.nio.file.Files.readAllBytes(audio.toPath()));
+            android.util.Log.i("NotesSpeechTiming","silent_native_fixture_ms="+(android.os.SystemClock.elapsedRealtime()-began));
+        }finally{remove(root);}
     }
     private void remove(File file){File[] children=file.listFiles();if(children!=null)for(File child:children)remove(child);file.delete();}
 }

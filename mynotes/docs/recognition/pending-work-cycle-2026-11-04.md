@@ -105,3 +105,22 @@ skipped four full-native and twelve corpus cohorts. Production/instrumentation
 source directories must have no diff from the APK source. Runner/helper source
 is separately recorded in `continuation-provenance.json`; original app source is
 not relabelled. Fresh guests must prove offline before either APK installation.
+
+## Real public screenshot baseline (separate from exact66 continuation)
+
+Added two actual third-party Google sample Android UI screenshots, not newly
+painted fixtures, with their original Apache-2.0 LICENSE, verified Git blob IDs
+and SHA-256s. References were visually transcribed before native inference.
+Six explicitly labelled inputs cover original, half-size and JPEG50 forms;
+this is two real screenshots, **not six independent scenes**. These examples
+are development evaluation, not untouched heldout or camera-photo acceptance.
+
+An opt-in test-only harness passes pixels to the unchanged automatic recognizer;
+references are used only afterward. It records references/hypotheses, hashes,
+source-pixel preservation and separately scoped inference times. An independent
+Python edit-distance scorer rejects missing/duplicate inputs, rewritten targets,
+wrong identities/dimensions, source mutation and native-score disagreement.
+Every profile must execute all six cases and its three environment assertions;
+any operational failure or CER above0.15 fails the separate research workflow.
+No images, new model or benchmark class are included in the production APK.
+Native results are pending; this is not yet an accuracy-gain claim.

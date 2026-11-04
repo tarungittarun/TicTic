@@ -151,3 +151,21 @@ the original run and continuation. The previously skipped full-native/corpus
 cohorts are running. Current-display focus helper code was exercised by the
 successful continuation; its conditional external-ANR recovery branch is not
 claimed exercised without retained evidence that it actually occurred.
+
+### Real outputs reveal a false-script counterexample despite passing CER
+
+Public screenshot run41811062528 passed6/6 inputs in all four profiles; original
+native/independent files and complete hypotheses are retained in
+`public-screenshots/41811062528/` by evidence run41812260739. CER ranges0.03597 to
+0.05755. Clocks5:32/12:25 and100% were recovered in every observation, including
+half-size/JPEG derivatives. This is still not exact transcription.
+
+Actual output also contains invented Indic characters from status-bar icons,
+for example `5:32 ೫60 ... ९ 100%`. Therefore the aggregate CER pass is **not** a
+pass for the user's icon→Kannada-digit complaint. A separate read-only script
+review retains each exact character, Unicode identity and surrounding text;
+it does not mutate output, relabel the original test run, or delete legitimate
+Indic characters. The rule applies only to these frozen ASCII-text references,
+never to arbitrary user images. This newly observed production issue remains
+open pending a source-aware, independently validated repair; global script
+stripping, dictionary rewriting and score-only candidate selection are rejected.

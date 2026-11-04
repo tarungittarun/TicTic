@@ -71,4 +71,9 @@ jobs:
           git diff --check
           git add mynotes/docs/recognition/updates/41813371404
           git commit -m 'Retain exact old-writer rich signed64 to66 public payload proofs on API26 and34 [skip ci]'
-          git push origin arena/3caca636-tictic
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

@@ -2,6 +2,13 @@
 from pathlib import Path, PurePosixPath
 import hashlib, tarfile
 ALLOWED={'image-text-selection.png','word-synthetic-paper-page.png','spreadsheet-grid-viewport.png'}
+# Exact synthetic traversal names, never an arbitrary PNG-prefix/file whitelist.
+ALLOWED.update('e2e-'+name+'.png' for name in [
+    'home-notes','home-doc','viewed-options','viewed-help','settings-library','settings',
+    'appearance','speech-engine','diagnostics','diagnostic-log-viewer','log-time-range',
+    'log-levels','log-delete-confirmation','about-models','storage','storage-repair','storage-copy-choices'])
+ALLOWED.update('e2e-'+kind+'-'+page+'.png' for kind in ['library','page']
+               for page in ['archive','trash','folders','voice-inbox','viewed-files'])
 def retain(archive,destination):
     archive=Path(archive);destination=Path(destination)
     status={'available':False,'retained':[]}

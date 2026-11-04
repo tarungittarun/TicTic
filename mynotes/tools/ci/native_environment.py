@@ -74,10 +74,19 @@ def settle_app() -> None:
     """Require the actual Notes window; never dismiss its error/ANR dialogs."""
     adb("am", "start", "-W", "-n", "app.space.notes.debug/app.space.notes.NotesActivity")
     stable=0
+    external_recovered=False
     for attempt in range(60):
-        windows=adb("dumpsys", "window")
+        windows=adb("dumpsys", "window", "displays")
         focused=[line for line in windows.splitlines() if "mCurrentFocus=Window{" in line]
-        ready=any("app.space.notes.debug/" in line and "NotesActivity" in line for line in focused)
+        # Full dumpsys includes historical LAST ANR focus. Read only current
+        # displays, and never accept an app window alongside an error overlay.
+        if not external_recovered and len(focused)==1 and focused[0].strip().endswith("Application Not Responding: com.google.android.apps.nexuslauncher}"):
+            snapshot("external-launcher-anr")
+            adb("am", "force-stop", "com.google.android.apps.nexuslauncher")
+            external_recovered=True;stable=0
+            adb("am", "start", "-W", "-n", "app.space.notes.debug/app.space.notes.NotesActivity")
+            continue
+        ready=bool(focused) and all("app.space.notes.debug/" in line and "NotesActivity" in line for line in focused)
         stable=stable+1 if ready else 0
         if stable>=3:return
         time.sleep(.25)

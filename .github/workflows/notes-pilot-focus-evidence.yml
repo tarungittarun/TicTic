@@ -1,0 +1,35 @@
+name: Read retained repaired-pilot focus and ANR evidence, no test reruns
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-pilot-focus-evidence.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41806836439
+          name: module-native-dark-portrait-ordered
+          path: retained
+      - name: Surface actual app/window/keyguard/ANR cause without dismissing it
+        shell: python
+        run: |
+          import json,pathlib
+          root=pathlib.Path('retained');files=list(root.rglob('refinement-environment-app-failed.json'))
+          assert len(files)==1, list(root.rglob('*'))
+          file=files[0];assert file.stat().st_size<20000
+          summary=json.loads(file.read_text());print('::warning title=Retained original focus failure::'+json.dumps(summary).replace('%','%25').replace('\n','%0A'))
+          text=file.with_suffix('.txt');assert 0<text.stat().st_size<2000000
+          lines=text.read_text().splitlines();selected=set()
+          for i,line in enumerate(lines):
+              if any(word in line.lower() for word in ('mcurrentfocus','mfocusedapp','keyguard','anr in','reason:','app.space.notes','application not responding')):
+                  selected.update(range(max(0,i-1),min(len(lines),i+2)))
+          excerpt='\n'.join(lines[i][:500] for i in sorted(selected))[:12000]
+          for start in range(0,len(excerpt),3500):
+              print('::warning title=Original window state::'+excerpt[start:start+3500].replace('%','%25').replace('\n','%0A'))

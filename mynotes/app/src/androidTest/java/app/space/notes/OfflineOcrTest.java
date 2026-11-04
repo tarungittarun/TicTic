@@ -108,7 +108,28 @@ public class OfflineOcrTest {
 
     private void knownNativeOmissionsKeepExistingTextAndCoordinates()throws Exception{
         for(int[] fixture:new int[][]{{48,0},{72,1}}){Bitmap image=Bitmap.createBitmap(2400,1000,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(image);canvas.drawColor(fixture[1]==1?Color.BLACK:Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setColor(fixture[1]==1?Color.WHITE:Color.BLACK);paint.setTypeface(Typeface.create("monospace",Typeface.ITALIC));paint.setTextSize(fixture[0]);canvas.rotate(2,1200,500);canvas.drawText("ಕನ್ನಡ ಭಾಷೆ",70,150,paint);canvas.drawText("ಭಾರತ ನಮಸ್ಕಾರ",70,280,paint);int generation=image.getGenerationId();
-            try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),image,"auto",new OfflineOcr.Cancellation());String expected="ಕನ್ನಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ";assertEquals(expected,result.text.trim().replaceAll("\\s+"," "));app.space.notes.domain.ImageTextSelection selection=new app.space.notes.domain.ImageTextSelection(result.words);selection.all(true);assertEquals(expected,selection.text().trim().replaceAll("\\s+"," "));assertEquals("OCR must never alter source pixels",generation,image.getGenerationId());}finally{image.recycle();}
+            try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),image,"auto",new OfflineOcr.Cancellation());String expected="ಕನ್ನಡ ಭಾಷೆ ಭಾರತ ನಮಸ್ಕಾರ";assertEquals(expected,result.text.trim().replaceAll("\\s+"," "));app.space.notes.domain.ImageTextSelection selection=new app.space.notes.domain.ImageTextSelection(result.words);selection.all(true);assertEquals(expected,selection.text().trim().replaceAll("\\s+"," "));assertEquals("OCR must never alter source pixels",generation,image.getGenerationId());}catch(AssertionError failure){try{writePublicNativeFailureProbe(image);}catch(Exception diagnostic){android.util.Log.w("NotesPublicBenchmark","Public OCR probe unavailable",diagnostic);}throw failure;}finally{image.recycle();}
         }
     }
+    /** Failure-only probes of the OWN-AUTHORED fixture, never user image data or an output oracle. */
+    private void writePublicNativeFailureProbe(Bitmap image)throws Exception{
+        android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        try(OutputStream out=new FileOutputStream(new File(context.getFilesDir(),"public-native-ocr-input.png"))){assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,out));}
+        org.json.JSONArray rows=new org.json.JSONArray();
+        for(String language:new String[]{"eng+hin+kan","kan"}){
+            com.googlecode.tesseract.android.TessBaseAPI engine=new com.googlecode.tesseract.android.TessBaseAPI();
+            try{
+                if(!engine.init(new File(context.getFilesDir(),"offline-ocr-v1").getAbsolutePath(),language))throw new IOException("Public probe model unavailable");
+                engine.setVariable("preserve_interword_spaces","1");
+                for(int threshold:new int[]{0,2})for(int mode:new int[]{3,6,11}){
+                    engine.setVariable("thresholding_method",String.valueOf(threshold));engine.setPageSegMode(mode);engine.setImage(image);
+                    long began=android.os.SystemClock.elapsedRealtime();String text=engine.getUTF8Text();
+                    rows.put(new JSONObject().put("language",language).put("threshold",threshold).put("psm",mode).put("recognized",text==null?"":text).put("confidence",engine.meanConfidence()).put("elapsed_ms",android.os.SystemClock.elapsedRealtime()-began));
+                }
+            }finally{engine.recycle();}
+        }
+        JSONObject report=new JSONObject().put("scope","Failure-only public synthetic fixture; probes never select production output or replace original assertion").put("api",android.os.Build.VERSION.SDK_INT).put("cases",rows);
+        try(OutputStream out=new FileOutputStream(new File(context.getFilesDir(),"public-native-ocr-probe.json"))){out.write(report.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+    }
+
 }

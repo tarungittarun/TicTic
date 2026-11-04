@@ -107,6 +107,13 @@ public final class OfflineOcr {
                 cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);engine.setImage(prepared);String block=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
                 if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,block,score)){text=block;confidence=score;hocr=engine.getHOCRText(0);}
             }
+            // Local adaptive threshold fallback only after all ordinary passes are empty.
+            // Never rewrite already-recognized native-script/document text globally.
+            if(text.trim().isEmpty() && engine.setVariable("thresholding_method","2")){
+                cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setImage(prepared);
+                String adaptive=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
+                if(adaptive!=null && app.space.notes.domain.OcrAlternatives.prefer(text,confidence,adaptive,score)){text=adaptive;confidence=score;hocr=engine.getHOCRText(0);}
+            }
             cancellation.check();return new Result(text,language,confidence,bitmap.getWidth(),bitmap.getHeight(),regions(hocr,prepared.getWidth(),prepared.getHeight(),cancellation));
         }finally{synchronized(cancellation){cancellation.active=null;try{engine.recycle();}finally{if(prepared!=null)prepared.recycle();}}}
     }

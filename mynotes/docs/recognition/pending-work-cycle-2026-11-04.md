@@ -189,3 +189,33 @@ reminder names and voice-source metadata. Empty-library/no-checkpoint guards
 prevent overwriting a populated guest. No uninstall or clear-data operation is
 used. This is not real recording retention, SAF, post-update UI rendering or
 physical acceptance. Compile/device outcomes remain pending until observed.
+
+## Exact66 automated qualification completed; residual accuracy remains open
+
+Continuation41810449937 passed all four full-native suites (429 methods/profile,
+1716 outcomes) and all twelve corpus cohorts (4752 measurements). Its original
+exporter failed before ingestion because the shallow checkout lacked the APK's
+source tree (`git ls-tree a267…` →128, “not a tree object”). Cause reader41813840646
+retains the exact failure. Report-only recovery41814068970 fetched that exact
+source tree and succeeded **without rerunning devices**. Complete report:
+`module-e2e/41810449937/MyNotes-Module-E2E-Report.pdf`,1097 pages,
+SHA256`bc99bcd116947e8db36f5020a0d95baa0de9f21fad64f7807198c7f7d9081fe4`.
+It explicitly records native_complete/benchmark_complete=true,
+all_accuracy_targets_met/physical_acceptance=false. Measured66 misses:24 OCR
+(20 Kannada/4 mixed) and690 voice (111 clean/114 clipped/124 quiet/341 noisy).
+All16 zero controls kept empty output in0–3ms;0ms is below timer resolution.
+
+Rich update41813371404 passed API26/job126519508722 and
+API34/job126519509286, including old64 writer/cold read and66 write/readback.
+The first evidence-retention job41814407239 failed separately; temporary
+`shell: python` scripts need an explicit repository PYTHONPATH to import the
+shared parser. A temporary-script import regression test and corrected importer
+are added; original failure retrieval runs separately. Passing device checks
+are not repeated. Retention is still pending until the corrected job succeeds.
+
+Development66 receipt is `apk66-verified-build.json`. Its production source is
+unchanged from the original exact APK (checked main runtime/domain/app sources
+and app Gradle file); only test/CI/evidence additions follow it. Raw signed APK
+is155,173,312 bytes, just1340 bytes above64. The release-signed APK has bounded
+public install-over evidence; full native UI suites used same-source debug APKs.
+This distinction and all residual accuracy/physical gaps remain explicit.

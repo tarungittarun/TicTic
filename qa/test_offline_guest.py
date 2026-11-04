@@ -19,7 +19,7 @@ class OfflineGuest(unittest.TestCase):
    self.assertFalse(any(c.args==('root',) for c in adb.call_args_list))
  def response(self,*args):
   if args==('shell','getprop','ro.kernel.qemu'):return '1'
-  if args[:3]==('shell','pm','path'):return ''
+  if args[:4]==('shell','pm','list','packages'):return ''
   if args[:3]==('shell','settings','get'):return '1'
   if args==('shell','dumpsys','wifi'):return 'Wi-Fi is disabled'
   if args==('shell','dumpsys','connectivity'):return 'Active default network: none'

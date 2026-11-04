@@ -24,7 +24,7 @@ def configure(output=Path('offline-guest-proof.json')):
     if adb('shell','getprop','ro.kernel.qemu').strip()!='1':
         raise RuntimeError('Offline provisioning is restricted to disposable emulator guests')
     for package in ('app.space.notes','app.space.notes.debug'):
-        if adb('shell','pm','path',package).strip():
+        if adb('shell','pm','list','packages',package).strip():
             raise RuntimeError('Bootstrap must precede all Notes installation; never modify a populated device')
     rooted=False
     try:

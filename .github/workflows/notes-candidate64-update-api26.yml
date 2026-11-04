@@ -132,3 +132,5 @@ jobs:
           git push origin arena/3caca636-tictic
 
 # Both original API26 attempts failed in svc wifi before installing Notes. Require actual offline state instead of skipping the failed command.
+
+# The absent-package guard uses pm list packages (successful empty output), not pm path (which exits1 for absent packages).

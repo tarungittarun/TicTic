@@ -1,0 +1,70 @@
+name: Retain original66 to67 stale-probe failure and executed raw identity checks
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate67-retain-migration-failure.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41839619874
+          pattern: release66-to67-api*-rich-public-update-evidence
+          path: original-migration
+      - name: Preserve original failed native create, not an app retention failure or approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: ${{ github.workspace }}
+        shell: python
+        run: |
+          import json,pathlib,subprocess,shutil
+          from mynotes.tools.ci.results import android
+          from mynotes.tools.ci.release_rich_update_probe import METHOD
+          out=pathlib.Path('mynotes/docs/migration/41839619874');out.mkdir(parents=True,exist_ok=True)
+          root='repos/tarungittarun/TicTic/'
+          run=json.loads(subprocess.check_output(['gh','api',root+'actions/runs/41839619874']))
+          jobs=json.loads(subprocess.check_output(['gh','api',root+'actions/runs/41839619874/jobs?per_page=100']))['jobs'];receipts=[]
+          for folder in pathlib.Path('original-migration').iterdir():
+              assert folder.is_dir();dest=out/folder.name;dest.mkdir(exist_ok=True)
+              for source in folder.iterdir():
+                  assert source.suffix in {'.txt','.json'} and source.stat().st_size<5000000
+                  shutil.copyfile(source,dest/source.name)
+              proof=json.loads((dest/'release-rich-update-proof.json').read_text());assert proof['phases']==[] and not proof['ok']
+              identities=json.loads((dest/'release-apks.json').read_text());assert identities['old']['version_code']==66 and identities['candidate']['version_code']==67
+              native=android((dest/'rich-probe-create.txt').read_text(),[METHOD]);assert not native['ok'] and native['failures']
+              (dest/'failed-create-verification.json').write_text(json.dumps(native,indent=2)+'\n');receipts.append({'profile':folder.name,'native':native,'upgrade_attempted':False})
+              print('::warning title=Original native probe failed before upgrade::'+str(native['failures'])[:2500].replace('%','%25').replace('\n','%0A'))
+          assert len(receipts)==2
+          for job in jobs:
+              if job['name'].startswith('update'):
+                  assert job['conclusion']=='failure'
+                  assert next(s for s in job['steps'] if s['name']=='Verify exact original and candidate identity, raw bytes and stable signer')['conclusion']=='success'
+          (out/'provenance.json').write_text(json.dumps({'run':run['id'],'source':run['head_sha'],'jobs':jobs,'receipts':receipts,'raw_apk_identity_checks_passed':True,'migration_passed':False,'inference_or_native_repeated':False,'physical_acceptance':False,'release_approval':False},indent=2)+'\n')
+      - name: Root gate and preserve original evidence on fixed branch
+        run: |
+          set -euo pipefail
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          test "$(git branch --show-current)" = 'arena/3caca636-tictic'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/migration/41839619874
+          git commit -m 'Retain original failed migration probe and successful raw identity checks, not migration acceptance [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

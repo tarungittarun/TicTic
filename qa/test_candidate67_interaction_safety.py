@@ -61,3 +61,15 @@ class LibraryPortraitDiscoverability(unittest.TestCase):
         source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
         self.assertIn('settings.getGlobalVisibleRect(visible)',source)
         self.assertIn('settings.getHeight(),visible.height()',source)
+
+class ImageActionRailSafety(unittest.TestCase):
+    def test_compact_actions_keep_real_touch_targets_and_do_not_wrap(self):
+        source=(JAVA/'ImageTextSelectionDialog.java').read_text()
+        self.assertIn('compactAction(extract,d);compactAction(keep,d)',source)
+        self.assertIn('button.setMinimumHeight(d.dp(48))',source)
+        self.assertIn('button.setSingleLine(true)',source)
+        self.assertIn('new LinearLayout.LayoutParams(wide?-1:0,d.dp(48),wide?0:1)',source)
+    def test_capability_help_warns_about_observed_no_text_hallucinations(self):
+        source=(JAVA/'ImageTextSelectionDialog.java').read_text()
+        self.assertIn('Photo textures and status icons can be mistaken for letters',source)
+        self.assertIn('even when no writing is present',source)

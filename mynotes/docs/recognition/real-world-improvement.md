@@ -138,3 +138,24 @@ image default); this changes only the disposable emulator, not app storage rules
 APK bytes or assertions. Existing running jobs retain their original config.
 A native-only rerun can reuse the exact candidate61 foundation without rebuilding
 another user APK. Full qualification still requires actual completed results.
+
+### Executed compatibility result (not adoption)
+
+Run https://github.com/tarungittarun/TicTic/actions/runs/41769080104 completed
+successfully: prepare job 126374272768, native dark-landscape job 126374923615,
+native light-portrait job 126374923706. Each native job independently required all
+three existing TrainedWhisperTest assertions for F16 and Q8: **12 successful test
+executions total**. This establishes that the exact previously studied Q8 model
+can load/infer through the existing Android x86_64 private worker and pass the
+public original-audio, cancellation and worker-death smoke assertions. It is NOT
+12 independent speech samples, an Android paired accuracy corpus, ARM/physical
+qualification, decode-latency proof, or an adopted/shipped model reduction.
+
+Supplemental native replay 41769343840 reuses original candidate61 foundation with
+explicit 4G disk and sparse source checkout. Voice-only replay 41769511821 repeats
+only the light-portrait voice0 lane blocked in job 126370468181; the diagnostic
+also confirmed its fatal 6061.23MB-available / 7372.80MB-required disk error.
+Original full run 41767304608 remains failed in that lane even if supplemental
+runs later pass. The other 11 original benchmark lanes finished successfully;
+operational success does not imply every accuracy target was met. Supplemental
+results remain pending here until independently verified completion.

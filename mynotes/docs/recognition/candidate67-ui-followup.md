@@ -56,3 +56,32 @@ Never upload the supplied private screenshots; CI fixtures are generated public
 text/shapes. Stable package/signing and Calculator untouched. Root gate required
 before every push. Final module-ordered E2E, varied OCR/performance evidence,
 install-over proof and honestly recorded failures are required before sharing67.
+
+## First executed diagnostic:41827950030, sourceaffcadbb
+
+Actions compilation/JVM/lint/size gate passed. All20 viewer tests, including the
+new >18MiB/1097-page last-page render, Word geometry/direct hold, selection scroll
+and actual PDF long-hold/endpoint/floating Copy passed in every profile.
+Native verification: dark portrait38/38, light portrait38/38, dark landscape37/38,
+light landscape37/38. Both landscape failures are the unchanged image dialog
+rotation visibility assertion: Keep selected image measured174px but only163px
+visible. Light portrait job additionally exited255 after its native verification
+passed; exact driver-stage reason is pending original job-log retention, not
+labelled an app assertion failure or silently passed.
+
+Repair: create primary image buttons with short visible labels and48dp minimum
+BEFORE the first layout, rather than changing52dp to48dp inside a post-layout
+rotation callback. Full accessibility labels and original strict visibility tests
+remain unchanged. This avoids a transient old-height measurement during reflow.
+Second diagnostic includes two real bottom-to-top36-card hold/edge-scroll cases
+(Notes and Doc), actual Home overlay/Library-order assertions, Settings traversal
+captures and normalized zoom-scope propagation. Drag targets use finger position,
+not an assumed centered grab, retaining scroll-adjusted target hysteresis.
+435 native methods/profile are now in the strict eventual full module inventory.
+
+Test-only small-font study added:72 authored script/font/size/polarity inputs,
+144 counterbalanced baseline versus4x-crop measurements planned, no production
+OCR change. Added three SHA/Git-blob verified original public iOS screenshots,
+five frozen inputs including two no-text nature-photo negative controls. These
+are not positive street-sign photos or five independent source scenes. All
+hypotheses/misses/inventions/timing must be retained before any adoption.

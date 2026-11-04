@@ -162,4 +162,14 @@ public class ViewedFileJourneysTest {
         android.util.Log.i("NotesPublicBenchmark","large_pdf_open_ms="+(android.os.SystemClock.elapsedRealtime()-started)+" bytes="+file.length()+" pages=1097");
         }finally{if(doc!=null){doc.closeText();doc.close();}file.delete();}
     }
+    @Test public void wholeFileZoomPropagatesAndEachPageRemainsIndependent()throws Exception{
+        File file=File.createTempFile("scope-zoom-",".pdf",context().getCacheDir());LocalPdfPreview.Document document=null;
+        try{android.graphics.pdf.PdfDocument generated=new android.graphics.pdf.PdfDocument();try{for(int i=0;i<2;i++){android.graphics.pdf.PdfDocument.Page page=generated.startPage(new android.graphics.pdf.PdfDocument.PageInfo.Builder(600,800,i+1).create());generated.finishPage(page);}try(OutputStream out=new FileOutputStream(file)){generated.writeTo(out);}}finally{generated.close();}document=new LocalPdfPreview.Document(file);final LocalPdfPreview.Document owned=document;
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{LocalPdfPreview preview=new LocalPdfPreview(context(),new NotesDesign(context(),false),owned);preview.measure(android.view.View.MeasureSpec.makeMeasureSpec(400,1073741824),android.view.View.MeasureSpec.makeMeasureSpec(1600,1073741824));preview.layout(0,0,400,1600);androidx.recyclerview.widget.RecyclerView pages=null;for(int i=0;i<preview.getChildCount();i++)if(preview.getChildAt(i) instanceof androidx.recyclerview.widget.RecyclerView)pages=(androidx.recyclerview.widget.RecyclerView)preview.getChildAt(i);assertNotNull(pages);assertTrue("Both real page holders must be laid out",pages.getChildCount()>=2);ZoomablePageImage first=(ZoomablePageImage)pages.getChildAt(0),second=(ZoomablePageImage)pages.getChildAt(1);
+                preview.setZoomScope(false);first.restoreZoom(new float[]{2,.5f,.5f,0,0});first.zoomChanged.accept(first.savedZoom());assertEquals(1,second.zoomFactor(),.001f);
+                preview.setZoomScope(true);assertEquals(2,second.zoomFactor(),.001f);first.restoreZoom(new float[]{3,.5f,.5f,0,0});first.zoomChanged.accept(first.savedZoom());assertEquals(3,second.zoomFactor(),.001f);
+                preview.setZoomScope(false);first.restoreZoom(new float[]{1.5f,.5f,.5f,0,0});first.zoomChanged.accept(first.savedZoom());assertEquals(3,second.zoomFactor(),.001f);assertFalse(preview.savedViewport().getBoolean("fileZoom"));preview.close();
+            });document=null;
+        }finally{if(document!=null){document.closeText();document.close();}file.delete();}
+    }
 }

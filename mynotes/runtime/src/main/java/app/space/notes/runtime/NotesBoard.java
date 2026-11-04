@@ -21,7 +21,7 @@ public final class NotesBoard extends RecyclerView {
     public static int colour(int index,boolean dark){return Color.parseColor((dark?DARK:LIGHT)[index]);}
     private final List<Object> rows=new ArrayList<>();private final Set<String> selection=new HashSet<>();
     private final NotesDesign design;private final boolean dark;private final Listener listener;private final BoardAdapter adapter=new BoardAdapter();
-    private long dragEpoch,dataEpoch;
+    private long dragEpoch,dataEpoch;private float dragX,dragY;
     private String dragLastTarget;private final android.graphics.Rect dragTargetBounds=new android.graphics.Rect();private String dragDiagnostic="idle";private int dragMoves;private ItemTouchHelper dragHelper;private List<Object> dragBefore;private boolean dragging,dropAccepted,dragGesture,refreshAfterDrag;private Note dragSource;
     public NotesBoard(Context c,boolean dark,Listener listener,boolean grid){
         this(c,new NotesDesign(c,dark),listener,grid);
@@ -32,7 +32,7 @@ public final class NotesBoard extends RecyclerView {
             @Override public boolean isLongPressDragEnabled(){return false;}
             @Override public boolean isItemViewSwipeEnabled(){return false;}
             @Override public boolean canDropOver(RecyclerView r,ViewHolder a,ViewHolder b){int x=a.getBindingAdapterPosition(),y=b.getBindingAdapterPosition();return x>=0 && y>=0 && x<rows.size() && y<rows.size() && rows.get(x) instanceof Note && rows.get(y) instanceof Note && ((Note)rows.get(x)).pinned==((Note)rows.get(y)).pinned;}
-            @Override public ViewHolder chooseDropTarget(ViewHolder selected,List<ViewHolder> candidates,int x,int y){float cx=x+selected.itemView.getWidth()/2f,cy=y+selected.itemView.getHeight()/2f;if(dragLastTarget!=null && !dragTargetBounds.contains(Math.round(cx),Math.round(cy)))dragLastTarget=null;ViewHolder best=null;double distance=Double.MAX_VALUE;for(ViewHolder candidate:candidates){View v=candidate.itemView;int position=candidate.getBindingAdapterPosition();boolean repeated=position>=0 && position<rows.size() && rows.get(position) instanceof Note && ((Note)rows.get(position)).id.equals(dragLastTarget);if(!repeated && canDropOver(NotesBoard.this,selected,candidate) && cx>=v.getLeft() && cx<=v.getRight() && cy>=v.getTop() && cy<=v.getBottom()){double d=Math.hypot(cx-(v.getLeft()+v.getRight())/2f,cy-(v.getTop()+v.getBottom())/2f);if(d<distance){distance=d;best=candidate;}}}return best;}
+            @Override public ViewHolder chooseDropTarget(ViewHolder selected,List<ViewHolder> candidates,int x,int y){float cx=dragX,cy=dragY;if(dragLastTarget!=null && !dragTargetBounds.contains(Math.round(cx),Math.round(cy)))dragLastTarget=null;ViewHolder best=null;double distance=Double.MAX_VALUE;for(ViewHolder candidate:candidates){View v=candidate.itemView;int position=candidate.getBindingAdapterPosition();boolean repeated=position>=0 && position<rows.size() && rows.get(position) instanceof Note && ((Note)rows.get(position)).id.equals(dragLastTarget);if(!repeated && canDropOver(NotesBoard.this,selected,candidate) && cx>=v.getLeft() && cx<=v.getRight() && cy>=v.getTop() && cy<=v.getBottom()){double d=Math.hypot(cx-(v.getLeft()+v.getRight())/2f,cy-(v.getTop()+v.getBottom())/2f);if(d<distance){distance=d;best=candidate;}}}return best;}
             @Override public boolean onMove(RecyclerView r,ViewHolder a,ViewHolder b){if(!canDropOver(r,a,b))return false;int from=a.getBindingAdapterPosition(),to=b.getBindingAdapterPosition();dragLastTarget=((Note)rows.get(to)).id;dragTargetBounds.set(b.itemView.getLeft(),b.itemView.getTop(),b.itemView.getRight(),b.itemView.getBottom());Object item=rows.remove(from);rows.add(to,item);dragMoves++;adapter.notifyItemMoved(from,to);return true;}
             @Override public int interpolateOutOfBoundsScroll(RecyclerView view,int size,int beyond,int total,long elapsed){
                 float edge=Math.min(1,Math.abs(beyond)/(float)Math.max(dp(48),size/3));
@@ -56,11 +56,11 @@ public final class NotesBoard extends RecyclerView {
                     if(!rows.equals(before))listener.reorder(ids);else if(source!=null)listener.select(source);refreshAfterGesture();
                 }});
             }
-        });dragHelper.attachToRecyclerView(this);addOnScrollListener(new OnScrollListener(){@Override public void onScrolled(RecyclerView r,int dx,int dy){if(dy!=0){dragLastTarget=null;dragTargetBounds.setEmpty();}else if(dragLastTarget!=null)dragTargetBounds.offset(-dx,-dy);}});
+        });dragHelper.attachToRecyclerView(this);addOnScrollListener(new OnScrollListener(){@Override public void onScrolled(RecyclerView r,int dx,int dy){if(dragLastTarget!=null)dragTargetBounds.offset(-dx,-dy);}});
     }
     @Override protected void onDetachedFromWindow(){dragEpoch++;super.onDetachedFromWindow();dragEpoch++;}
     private void refreshAfterGesture(){if(refreshAfterDrag && !dragging && !dragGesture){refreshAfterDrag=false;listener.refresh();}}
-    @Override public boolean dispatchTouchEvent(MotionEvent event){boolean end=event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL;if(dragGesture && end)dropAccepted=event.getActionMasked()==MotionEvent.ACTION_UP;try{return super.dispatchTouchEvent(event);}finally{if(end){dragGesture=false;post(this::refreshAfterGesture);}}}
+    @Override public boolean dispatchTouchEvent(MotionEvent event){dragX=event.getX();dragY=event.getY();boolean end=event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL;if(dragGesture && end)dropAccepted=event.getActionMasked()==MotionEvent.ACTION_UP;try{return super.dispatchTouchEvent(event);}finally{if(end){dragGesture=false;post(this::refreshAfterGesture);}}}
     private float swipeX,swipeY;private boolean workspaceSwipe;
     @Override public boolean onInterceptTouchEvent(MotionEvent e){
         if(e.getActionMasked()==MotionEvent.ACTION_DOWN){swipeX=e.getX();swipeY=e.getY();workspaceSwipe=false;}

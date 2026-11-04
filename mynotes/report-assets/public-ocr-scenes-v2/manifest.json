@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "production_packaged": false,
+  "training_steps": 0,
+  "scope": "Three original public iOS screenshots containing two nature photos. Five frozen inputs: two complete photo/dialog screenshots, one selected-row crop, two no-text nature-photo crops. Not five independent source photos, positive street-sign OCR, private screenshots or untouched heldout data. References manually transcribed from original visible pixels before inference. Crop coordinates are frozen, not engine-selected.",
+  "repository": "https://github.com/googlesamples/mlkit",
+  "license": "Apache-2.0 repository license; upstream photos/trademarks remain their owners; development evaluation only, no endorsement",
+  "license_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+  "records": [
+    {
+      "id": "ios-vision-1",
+      "file": "vision-1.jpg",
+      "width": 750,
+      "height": 1334,
+      "sha256": "c8d4bf8d00fb09196da791117ef8d59a95924b27be7cb9f367008755fbae1328",
+      "git_blob": "7eb566ed117872cefca0c937cf9749877c8b1fe3",
+      "url": "https://api.github.com/repos/googlesamples/mlkit/git/blobs/7eb566ed117872cefca0c937cf9749877c8b1fe3",
+      "repository_path": "ios/screenshots/vision_quickstart_1.jpg",
+      "crop": [
+        0,
+        0,
+        750,
+        1334
+      ],
+      "reference": "No SIM 1:19 PM 100% Detection Results Label: Beach, Confidence: 0.9846113 Label: Rock, Confidence: 0.9304716 Label: Sky, Confidence: 0.9121827 Label: Cliff, Confidence: 0.7825736 Label: Sand, Confidence: 0.75200534 OK",
+      "condition": "original-photo-and-dialog-screenshot"
+    },
+    {
+      "id": "ios-vision-2",
+      "file": "vision-2.jpg",
+      "width": 750,
+      "height": 1334,
+      "sha256": "70e18b6a55193232bb7402f1fed6fe3ca6ce871f4247fa2f8ca8c79117d0cf4c",
+      "git_blob": "1a711e61089584aa4196b525cf1257ae7f4222f1",
+      "url": "https://api.github.com/repos/googlesamples/mlkit/git/blobs/1a711e61089584aa4196b525cf1257ae7f4222f1",
+      "repository_path": "ios/screenshots/vision_quickstart_2.jpg",
+      "crop": [
+        0,
+        1136,
+        750,
+        1183
+      ],
+      "reference": "ODT, custom, single, labeling",
+      "condition": "selected-row-derived-crop"
+    },
+    {
+      "id": "ios-vision-3",
+      "file": "vision-3.jpg",
+      "width": 750,
+      "height": 1334,
+      "sha256": "1f873c0f664d9f01d6ff068cde91e39306a1d54de4a8fa9f04b12e14fc6a5bd2",
+      "git_blob": "6f23251669c75f9735da4589d3a4b6d5e123f51b",
+      "url": "https://api.github.com/repos/googlesamples/mlkit/git/blobs/6f23251669c75f9735da4589d3a4b6d5e123f51b",
+      "repository_path": "ios/screenshots/vision_quickstart_3.jpg",
+      "crop": [
+        0,
+        0,
+        750,
+        1334
+      ],
+      "reference": "No SIM 1:18 PM 100% Detect Next image Detection Results Frame: (444.0, 104.0, 1125.0, 1225.0) Label 0: Ardea cinerea (Grey Heron), 0.91796875, 567 OK",
+      "condition": "original-photo-and-dialog-screenshot"
+    },
+    {
+      "id": "heron-no-text",
+      "file": "vision-2.jpg",
+      "crop": [
+        0,
+        243,
+        750,
+        809
+      ],
+      "reference": "",
+      "condition": "nontext-scene-negative-control"
+    },
+    {
+      "id": "beach-no-text",
+      "file": "vision-1.jpg",
+      "crop": [
+        0,
+        248,
+        750,
+        804
+      ],
+      "reference": "",
+      "condition": "nontext-scene-negative-control"
+    }
+  ]
+}

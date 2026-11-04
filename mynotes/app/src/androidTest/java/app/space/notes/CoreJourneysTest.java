@@ -28,9 +28,9 @@ import static org.junit.Assert.assertSame;
 @RunWith(AndroidJUnit4.class)
 public class CoreJourneysTest {
     @Test public void wholeAppLibraryTraversalRecordsEachVisitedPage()throws Exception{
-        start(Arrays.asList(note("Workflow note")));screenshot("e2e-home-notes");
+        start(Arrays.asList(note("Workflow note")));main(()->{View create=controller.view().findViewWithTag("home-create-row"),board=controller.view().findViewWithTag("home-board");assertNotNull(create);assertTrue("Create actions float in the content frame, not a separate plain Home band",create.getParent() instanceof FrameLayout);assertSame(board.getParent(),create.getParent());});screenshot("e2e-home-notes");
         for(String destination:Arrays.asList("Archive","Trash","Folders","Voice inbox","Viewed files")){
-            tap("Library");screenshot("e2e-library-"+destination.toLowerCase(Locale.ROOT).replace(' ','-'));
+            tap("Library");main(()->{View settings=text("Settings"),folders=text("Folders");assertNotNull(settings);assertNotNull(folders);assertSame(settings.getParent(),folders.getParent());ViewGroup panel=(ViewGroup)settings.getParent();assertSame(settings,panel.getChildAt(panel.getChildCount()-1));assertSame(folders,panel.getChildAt(panel.getChildCount()-2));});screenshot("e2e-library-"+destination.toLowerCase(Locale.ROOT).replace(' ','-'));
             tap(destination);screenshot("e2e-page-"+destination.toLowerCase(Locale.ROOT).replace(' ','-'));
             if(destination.equals("Viewed files")){await(()->text("0 viewed files · read-only originals")!=null);assertNotNull(input("Search viewed files and indexed text"));tap("Viewed files options");screenshot("e2e-viewed-options");dialogTap("About viewed files and search");screenshot("e2e-viewed-help");dialogTap("Close");}
             tap("Back");await(()->input("Search all content & settings")!=null);
@@ -768,4 +768,13 @@ public class CoreJourneysTest {
         tap("Close tools");
     }
 
+    @Test public void nativeNotesBottomToTopDragScrollsAcrossThirtySixCards()throws Exception{longDistanceHomeDrag(false);}
+    @Test public void nativeDocBottomToTopDragScrollsAcrossThirtySixCards()throws Exception{longDistanceHomeDrag(true);}
+    private void longDistanceHomeDrag(boolean docs)throws Exception{
+        context.getSharedPreferences("mynotes-ui",0).edit().putString("sort","title").putBoolean("grid",false).commit();List<Note> seed=new ArrayList<>();for(int i=0;i<36;i++){Note n=note(String.format(java.util.Locale.ROOT,"Card %02d",i));if(docs)n=n.withContent(new app.space.notes.domain.DocumentContent(Collections.emptyList()),4);seed.add(n);}start(seed);if(docs)tap("Doc");closeKeyboard();final NotesBoard[] board={null};main(()->{board[0]=(NotesBoard)controller.view().findViewWithTag("home-board");assertNotNull(board[0]);board[0].scrollToPosition(35);});await(()->board[0].findViewHolderForAdapterPosition(35)!=null);
+        byte[] before=DocumentCodec.encode(new NotesRepository(context).load());final float[] points=new float[4];main(()->{android.graphics.Rect source=new android.graphics.Rect(),viewport=new android.graphics.Rect();assertTrue(board[0].findViewHolderForAdapterPosition(35).itemView.getGlobalVisibleRect(source));assertTrue(board[0].getGlobalVisibleRect(viewport));points[0]=source.exactCenterX();points[1]=source.exactCenterY();points[2]=viewport.exactCenterX();points[3]=viewport.top+6*context.getResources().getDisplayMetrics().density;});
+        long down=android.os.SystemClock.uptimeMillis();documentTouch(down,MotionEvent.ACTION_DOWN,points[0],points[1]);android.os.SystemClock.sleep(android.view.ViewConfiguration.getLongPressTimeout()+150);boolean reached=false;
+        try{for(int step=1;step<=20;step++){float f=step/20f;documentTouch(down,MotionEvent.ACTION_MOVE,points[0]+(points[2]-points[0])*f,points[1]+(points[3]-points[1])*f);android.os.SystemClock.sleep(20);}final boolean[] top={false};for(int tick=0;tick<280 && !top[0];tick++){documentTouch(down,MotionEvent.ACTION_MOVE,points[2],points[3]);android.os.SystemClock.sleep(50);main(()->top[0]=board[0].findViewHolderForAdapterPosition(0)!=null && !board[0].canScrollVertically(-1));}reached=top[0];storeScreenshot(docs?"home-doc-long-distance-drag":"home-notes-long-distance-drag",instrumentation.getUiAutomation().takeScreenshot());}finally{documentTouch(down,MotionEvent.ACTION_UP,points[2],points[3]);}
+        assertTrue("Bottom-to-top hold must reveal the first card without releasing or switching workspace",reached);await(()->{try{return new org.json.JSONArray(context.getSharedPreferences("mynotes-ui",0).getString("manual-order","[]")).optString(0).equals(seed.get(35).id);}catch(Exception error){return false;}});assertTrue(Arrays.equals(before,DocumentCodec.encode(new NotesRepository(context).load())));assertNotNull(card(controller.view(),"Card 35"));
+    }
 }

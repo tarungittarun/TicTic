@@ -30,6 +30,8 @@ if [[ "$#" == 3 && "$1" == '--install' && "$2" == 'emulator' && "$3" == '--chann
     exit 0
   fi
 fi
-exec "$sdk/cmdline-tools/latest/bin/sdkmanager.recognition-original" "$@"
+# A stalled package server must fail provisioning explicitly, not consume the
+# whole emulator/test budget. This retries no command and runs no assertions.
+exec timeout --signal=TERM --kill-after=15s 600s "$sdk/cmdline-tools/latest/bin/sdkmanager.recognition-original" "$@"
 WRAPPER
 chmod +x "$manager"

@@ -58,3 +58,19 @@ class BootSupplement(unittest.TestCase):
         self.assertEqual({999},set(row['capture_run'] for row in rows[:384]))
         self.assertEqual({888},set(row['capture_run'] for row in rows[384:768]))
         self.assertEqual(100,rows[-1]['capture_run'])
+
+    def test_original_input_specimens_remain_original_if_only_dark_lane_missing(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from mynotes.tools.ci import build_boot_supplement_report as module
+        r=receipt();r['build_run']=100
+        r['missing_lanes']=['dark-landscape-ocr'];r['lane_capture_runs']={'dark-landscape-ocr':888}
+        r['original_failed_jobs'][0]['lane']='dark-landscape-ocr'
+        data={'screens':[{'profile':'synthetic-input-not-UI'}],
+              'benchmark_executions':{'dark-landscape-ocr':dict(ok=True,passed=4)},
+              'native_complete':True,'benchmark_complete':True}
+        rows=[{'lane':'dark-landscape-ocr'} for i in range(384)]
+        with tempfile.TemporaryDirectory() as temp,patch.object(module,'ingest',return_value=(data,rows,{})),patch.object(module,'render',return_value={}):
+            module.build(Path(temp),Path(temp),r,999)
+        self.assertEqual('100',data['screens'][0]['capture_run'])

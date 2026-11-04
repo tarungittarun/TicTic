@@ -39,7 +39,7 @@ def build(artifacts,output,receipt,run):
     for frame in data['screens']:
         # Native UI screenshots belong to the original run; OCR input specimens
         # are supplied by the new light-portrait benchmark, not the UI suite.
-        capture=receipt['lane_capture_runs'].get('light-portrait-ocr') if frame['profile']=='synthetic-input-not-UI' else receipt['build_run']
+        capture=receipt['lane_capture_runs'].get('light-portrait-ocr',receipt['build_run']) if frame['profile']=='synthetic-input-not-UI' else receipt['build_run']
         frame['capture_run']=str(capture)
     data.update(composite_evidence=True,build_run=receipt['build_run'],original_workflow_conclusion='failure',benchmark_capture_runs={lane:receipt['lane_capture_runs'].get(lane,receipt['build_run']) for lane in data['benchmark_executions']},
                 supplemental_provenance=receipt,source_run_note='Original build workflow remains failed at emulator boot. Only its zero-test missing OCR lanes were executed separately against the exact same compiled APKs. Other measurements/native outcomes retain original capture runs. No assertion failures replaced.')

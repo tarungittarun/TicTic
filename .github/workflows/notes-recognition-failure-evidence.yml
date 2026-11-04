@@ -17,7 +17,7 @@ jobs:
         shell: python
         run: |
           import os, pathlib, subprocess, re
-          for job in (126431724513,):
+          for job in (126438325589,):
               result = subprocess.run(['gh','api','--allow-escape-sequences',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
               pathlib.Path(f'job-{job}.txt').write_text(result.stdout)
               # Do not print storage URLs with signed query strings.
@@ -26,7 +26,7 @@ jobs:
               lines = clean.splitlines()
               selected = set(range(max(0,len(lines)-25),len(lines)))
               for i, line in enumerate(lines):
-                  if any(word in line.lower() for word in ('panic:', 'error:', '##[error]', 'fatal', 'insufficient', 'not enough', 'emulator: error', 'no space', 'failed to', 'connection refused', 'killed', 'exit code 137', 'out of memory', 'traceback', 'runtimeerror', 'external emulator home')):
+                  if any(word in line.lower() for word in ('panic:', 'error:', '##[error]', 'fatal', 'insufficient', 'not enough', 'emulator: error', 'no space', 'failed to', 'connection refused', 'killed', 'exit code 137', 'out of memory', 'traceback', 'runtimeerror', 'external emulator home', 'modulenotfounderror', 'valueerror', 'syntaxerror', 'importerror', 'externally-managed', 'no matching distribution', 'no module named')):
                       selected.update(range(max(0,i-4), min(len(lines),i+5)))
               # Large missing-test JSON must not push the original provisioning
               # error out of the bounded annotation. Keep earliest causes + tail.

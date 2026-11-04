@@ -1,0 +1,59 @@
+[{"path": "original-artifacts/release66-to67-api26-rich-public-update-evidence/release-apks.json", "bytes": 547}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/rich-probe-after.txt", "bytes": 1377}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/offline-guest-proof.json", "bytes": 319}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/release-apks.json", "bytes": 547}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/release-rich-update-proof.json", "bytes": 2271}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/rich-probe-before.txt", "bytes": 1379}, {"path": "original-artifacts/release66-to67-api34-rich-public-update-evidence/rich-probe-create.txt", "bytes": 1379}]
+fault)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:09.1346205Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:09.1433398Z INFO         | removeAll
+in check_output
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3625232Z     return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3625821Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3626249Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3626646Z     raise CalledProcessError(retcode, process.args,
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3627200Z subprocess.CalledProcessError: Command '['adb', 'root']' returned non-zero exit status 1.
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3779004Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3794346Z ##[group]Terminate Emulator
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3794863Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3806318Z OK: killing emulator, bye bye
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3806774Z OK
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3807580Z INFO         | Wait for emulator (pid 3196) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3808182Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3808423Z ##[endgroup]
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3920337Z USER_INFO    | Snapshots have been disabled by the user, save request is ignored.
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3920775Z INFO         | Saving snapshot 'default_boot' took 0 ms
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.9016567Z WARNING      | adb command '/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put system accelerometer_rotation 1 ' failed: 'adb: device 'emulator-5554' not found'
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:09.1345592Z ERROR        | stop: Not implemented
+update (26, de
+er@v2	2026-11-04T16:57:07.7147041Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.7480239Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.7808469Z ##[endgroup]
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.7830070Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.offline_guest
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.2823551Z adb: unable to connect for root: closed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3606748Z Traceback (most recent call last):
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3607720Z   File "<frozen runpy>", line 198, in _run_module_as_main
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3608570Z   File "<frozen runpy>", line 88, in _run_code
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3609214Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/ci/offline_guest.py", line 52, in <module>
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3611396Z     if __name__=='__main__':configure()
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3613097Z                             ^^^^^^^^^^^
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3617234Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/ci/offline_guest.py", line 31, in configure
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3617982Z     adb('root');rooted=True;wait_uid(0)
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3618308Z     ^^^^^^^^^^^
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3618814Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/ci/offline_guest.py", line 16, in adb
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3619468Z     return subprocess.check_output(['adb',*args],text=True,timeout=30)
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3620283Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:08.3620792Z   File "/usr/lib/python3.12/subprocess.py", line 466, 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:56:56.9497001Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:56:56.9596907Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:56:58.9636795Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:56:58.9712909Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:00.9753380Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:01.0392494Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:03.0415310Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:03.0617116Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:05.0671533Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:05.0949934Z 
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.0988395Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.1260609Z 1
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.1280390Z Emulator booted.
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.1300290Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.5868039Z INFO         | Boot completed in 30812 ms
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.5868999Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.6821526Z Disabling animations.
+update (26, default)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T16:57:07.6850589Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+update (26, default)	Run ReactiveCircus/android-emulator-runn

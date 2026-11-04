@@ -13,7 +13,7 @@ from mynotes.tools.ci.adb_state import wait_uid
 
 
 def adb(*args):
-    return subprocess.check_output(['adb',*args],text=True,timeout=30)
+    return subprocess.check_output(['adb',*args],text=True,stderr=subprocess.STDOUT,timeout=30)
 
 
 def network_off(wifi,connectivity):
@@ -28,7 +28,12 @@ def configure(output=Path('offline-guest-proof.json')):
             raise RuntimeError('Bootstrap must precede all Notes installation; never modify a populated device')
     rooted=False
     try:
-        adb('root');rooted=True;wait_uid(0)
+        try:adb('root')
+        except subprocess.CalledProcessError as error:
+            # API26 may close this transport while adbd actually restarts as root.
+            # Accept only that exact transition, then independently require UID0.
+            if 'unable to connect for root: closed' not in (error.output or ''):raise
+        rooted=True;wait_uid(0)
         adb('shell','settings','put','global','airplane_mode_on','1')
         adb('shell','am','broadcast','-a','android.intent.action.AIRPLANE_MODE','--ez','state','true')
         stable=0

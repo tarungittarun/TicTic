@@ -55,3 +55,30 @@ class OfflineGuest(unittest.TestCase):
    return self.response(*args)
   with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=transition),patch.object(guest,'wait_uid'),patch.object(guest.time,'sleep'):
    guest.configure(Path(temp)/'proof.json');self.assertEqual(6,len(observations))
+
+ def test_root_closed_transport_requires_actual_uid_before_any_proof(self):
+  import subprocess
+  def transient(*args):
+   if args==('root',):raise subprocess.CalledProcessError(1,['adb','root'],output='adb: unable to connect for root: closed')
+   return self.response(*args)
+  with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=transient),patch.object(guest,'wait_uid') as uid,patch.object(guest.time,'sleep'):
+   path=Path(temp)/'proof.json';guest.configure(path)
+   self.assertTrue(path.exists());self.assertEqual([0,2000],[c.args[0] for c in uid.call_args_list])
+ def test_unverified_root_transition_never_creates_proof(self):
+  import subprocess
+  def transient(*args):
+   if args==('root',):raise subprocess.CalledProcessError(1,['adb','root'],output='adb: unable to connect for root: closed')
+   return self.response(*args)
+  with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=transient) as adb,patch.object(guest,'wait_uid',side_effect=[RuntimeError('UID0 not verified'),2000]):
+   path=Path(temp)/'proof.json'
+   with self.assertRaisesRegex(RuntimeError,'UID0 not verified'):guest.configure(path)
+   self.assertFalse(path.exists());self.assertEqual(('unroot',),adb.call_args.args)
+ def test_real_root_rejection_not_suppressed(self):
+  import subprocess
+  def denied(*args):
+   if args==('root',):raise subprocess.CalledProcessError(1,['adb','root'],output='adbd cannot run as root in production builds')
+   return self.response(*args)
+  with tempfile.TemporaryDirectory() as temp,patch.object(guest,'adb',side_effect=denied),patch.object(guest,'wait_uid') as uid:
+   path=Path(temp)/'proof.json'
+   with self.assertRaises(subprocess.CalledProcessError):guest.configure(path)
+   self.assertFalse(path.exists());uid.assert_not_called()

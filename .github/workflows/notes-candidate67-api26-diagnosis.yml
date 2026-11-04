@@ -1,0 +1,48 @@
+name: Inspect original API26 final-source migration infrastructure failure without repeating tests
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate67-api26-diagnosis.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Expose bounded original public CI failure log; no device execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import subprocess,pathlib,json
+          args=['gh','run','view','41871240310','--repo','tarungittarun/TicTic','--job','126721571688','--log-failed']
+          log=subprocess.check_output(args,text=True,timeout=90)
+          pathlib.Path('original-api26-failure.txt').write_text(log)
+          tail='\n'.join(log.splitlines()[-110:])[-45000:]
+          print('::warning title=Actual original API26 failure, not migration acceptance::'+tail.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+          assert log.strip()
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41871240310
+          pattern: release66-to67-api*-rich-public-update-evidence
+          path: original-artifacts
+      - name: Inventory exactly which probe stages were actually reached
+        shell: python
+        run: |
+          import pathlib,json
+          inventory=[{'path':str(p),'bytes':p.stat().st_size} for p in pathlib.Path('original-artifacts').rglob('*') if p.is_file()]
+          pathlib.Path('original-inventory.json').write_text(json.dumps(inventory,indent=2)+'\n')
+          print('::notice title=Original migration evidence inventory::'+json.dumps(inventory))
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: original-api26-migration-failure-no-rerun
+          path: |
+            original-api26-failure.txt
+            original-inventory.json
+            original-artifacts
+          retention-days: 7

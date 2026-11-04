@@ -1,0 +1,61 @@
+name: Compact speech model parity study (nonshipping)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-compact-speech-pilot.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  quantization:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify exact existing experimental export identity
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          a=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13124627967']))
+          assert not a['expired']
+          assert a['workflow_run']['head_sha']=='2373ce10c71223f210fd4e1536b6ff1118c99afd'
+          assert a['digest']=='sha256:86899e08eafa46c167c06a88e2d5428b38dff14897d656e6824f2715d5a54d50'
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41409413622
+          name: trained-whisper-android-offline
+          path: source-export
+      - name: Verify source weights; prepare fixed public evaluation clips
+        run: |
+          python3 -m mynotes.tools.models.bundle_trained_whisper --source source-export --output verified-export
+          python3 -m mynotes.tools.ci.module_corpus --output public-speech
+      - name: Build pinned desktop CPU quantizer and inference tool
+        run: |
+          curl --fail --location --max-time 180 https://codeload.github.com/ggml-org/whisper.cpp/tar.gz/4979e04f5dcaccb36057e059bbaed8a2f5288315 -o whisper-source.tar.gz
+          echo 'ec8e33f4c838ed459ad0a23da255c0262f150a6f54839a17e504ddf1495305d5  whisper-source.tar.gz' | sha256sum -c -
+          mkdir whisper-source
+          tar -xzf whisper-source.tar.gz --strip-components=1 -C whisper-source
+          cmake -S whisper-source -B desktop-tools -DCMAKE_BUILD_TYPE=Release -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
+          cmake --build desktop-tools --target quantize whisper-cli -j2
+      - name: Quantize replacements without adding models to the app
+        run: |
+          mkdir compact-models
+          cp verified-export/voice/trained-whisper.bin compact-models/f16.bin
+          desktop-tools/bin/quantize compact-models/f16.bin compact-models/q8_0.bin q8_0
+          desktop-tools/bin/quantize compact-models/f16.bin compact-models/q5_1.bin q5_1
+      - name: Retain every reference hypothesis regression size and process time
+        run: python3 -m mynotes.tools.ci.quantized_speech_pilot --cli desktop-tools/bin/whisper-cli --models compact-models --corpus public-speech --output quantization-results
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: nonshipping-compact-speech-parity-results
+          path: |
+            quantization-results/
+            public-speech/*-COPYING.txt
+            public-speech/manifest.json
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,80 @@
+{
+  "expected": 6,
+  "observed": 6,
+  "all_accuracy_targets_met": true,
+  "cases": [
+    {
+      "id": "quickstart-picker-0",
+      "reference": "5:32 100% MLKit-Vision LivePreviewActivity Vision detectors demo with live camera preview StillImageActivity Vision detectors demo with a still image CameraXLivePreviewActivity Vision detectors demo with live preview using CameraX. Note that CameraX is only supported on API 21+",
+      "recognized": "5:32 ೫60                 ९ 100%\n\nM.\n\nMLKit-Vision\n\nLivePreviewActivity\nVision detectors demo with live camera preview\n\nStilllmageActivity\nVision detectors demo with a still image\n\nCameraXLivePreviewActivity\n\nVision detectors demo with live preview using\nCameraX. Note that CameraX is only supported on API\n21+",
+      "cer": 0.03597122302158273,
+      "character_edits": 10,
+      "accuracy_target_met": true,
+      "elapsed_ms": 3242
+    },
+    {
+      "id": "quickstart-picker-1",
+      "reference": "5:32 100% MLKit-Vision LivePreviewActivity Vision detectors demo with live camera preview StillImageActivity Vision detectors demo with a still image CameraXLivePreviewActivity Vision detectors demo with live preview using CameraX. Note that CameraX is only supported on API 21+",
+      "recognized": "5:32 B@                ೫ 100%\n\nM.\n\nMLKit-Vision\n\nLivePreviewActivity\nVision detectors demo with live camera preview\n\nStilllmageActivity\nVision detectors demo with a still image\n\nCameraXLivePreviewActivity\n\nVision detectors demo with live preview using\nCameraX. Note that CameraxX is only supported on API\n21+",
+      "cer": 0.03597122302158273,
+      "character_edits": 10,
+      "accuracy_target_met": true,
+      "elapsed_ms": 1273
+    },
+    {
+      "id": "quickstart-picker-2",
+      "reference": "5:32 100% MLKit-Vision LivePreviewActivity Vision detectors demo with live camera preview StillImageActivity Vision detectors demo with a still image CameraXLivePreviewActivity Vision detectors demo with live preview using CameraX. Note that CameraX is only supported on API 21+",
+      "recognized": "5:32 ೫06                 ೩೫. 48100%\n\nM.\n\nMLKit-Vision\n\nLivePreviewActivity\nVision detectors demo with live camera preview\n\nStilllmageActivity\nVision detectors demo with a still image\n\nCameraXLivePreviewActivity\n\nVision detectors demo with live preview using\nCameraX. Note that CameraX is only supported on API\n೫11",
+      "cer": 0.05755395683453238,
+      "character_edits": 16,
+      "accuracy_target_met": true,
+      "elapsed_ms": 1795
+    },
+    {
+      "id": "langid-quickstart-0",
+      "reference": "12:25 100% MLKit-LanguageID Enter your text IDENTIFY LANGUAGE Your input: ML Kit is great huh? Identified language: en ML Kit sample app to provide basic knowledge on using Language Identification API on Android. Enter your text in the text box above and press button to trigger the API.",
+      "recognized": "12:25 @                17: CO ೪ + ह100%\n\nMLKit-LanguagelD\n\nEnter your text\n\nIDENTIFY LANGUAGE\n\nYour input: ML Kit is great huh?\nIdentified language: en\n\nML Kit sample app to provide basic knowledge on using\nLanguage Identification API on Android.\nEnter your text in the text box above and press button to\n\ntrigger the API.",
+      "cer": 0.05226480836236934,
+      "character_edits": 15,
+      "accuracy_target_met": true,
+      "elapsed_ms": 1700
+    },
+    {
+      "id": "langid-quickstart-1",
+      "reference": "12:25 100% MLKit-LanguageID Enter your text IDENTIFY LANGUAGE Your input: ML Kit is great huh? Identified language: en ML Kit sample app to provide basic knowledge on using Language Identification API on Android. Enter your text in the text box above and press button to trigger the API.",
+      "recognized": "12:25 @               a (७ ९ 4 100%\n\nMLKit-LanguagelD\n\nEnter your text\n\nIDENTIFY LANGUAGE\n\nYour input: ML Kit is great huh?\nIdentified language: en\n\nML Kit sample app to provide basic knowledge on using\nLanguage Identification API on Android.\nEnter your text in the text box above and press button to\n\ntrigger the API.",
+      "cer": 0.041811846689895474,
+      "character_edits": 12,
+      "accuracy_target_met": true,
+      "elapsed_ms": 789
+    },
+    {
+      "id": "langid-quickstart-2",
+      "reference": "12:25 100% MLKit-LanguageID Enter your text IDENTIFY LANGUAGE Your input: ML Kit is great huh? Identified language: en ML Kit sample app to provide basic knowledge on using Language Identification API on Android. Enter your text in the text box above and press button to trigger the API.",
+      "recognized": "12:25 @                1” (0 FY +z 100%\n\nMLKit-LanguagelD\n\nEnter your text\n\nIDENTIFY LANGUAGE\n\nYour input: ML Kit is great huh?\nIdentified language: en\n\nML Kit sample app to provide basic knowledge on using\nLanguage Identification API on Android.\n\nEnter your text in the text box above and press button to\ntrigger the API.",
+      "cer": 0.05226480836236934,
+      "character_edits": 15,
+      "accuracy_target_met": true,
+      "elapsed_ms": 1289
+    }
+  ],
+  "physical_acceptance": false,
+  "training_steps": 0,
+  "scope": "Two public actual third-party Android UI screenshots, not camera photos or private user screenshots. Development evaluation, not untouched heldout data. References manually transcribed from verified original pixels before native inference. Logos and non-text status/navigation icons are not reference words.",
+  "execution": {
+    "ok": true,
+    "expected": 4,
+    "passed": 4,
+    "missing": [],
+    "unexpected": [],
+    "duplicates": [],
+    "failures": [],
+    "cases": [
+      "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+      "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+      "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane",
+      "app.space.notes.PublicScreenshotBenchmark#verifiedPublicScreenshotsMeasureProductionRecognitionAndSourcePreservation"
+    ]
+  },
+  "ok": true
+}

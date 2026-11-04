@@ -1,0 +1,79 @@
+name: Preserve completed final-source rich signed66 to67 retention without device reruns
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate67-rich-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require both original successful update jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for job in 126741737128 126741737100; do
+            gh api repos/tarungittarun/TicTic/actions/jobs/$job --jq .conclusion | grep -x success
+          done
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41877111541
+          pattern: release66-to67-api*-rich-public-update-evidence
+          path: update-evidence
+      - name: Bound, verify and retain original offline and signed-update proofs
+        env:
+          PYTHONPATH: .
+        shell: python
+        run: |
+          import json,pathlib,shutil,os
+          from mynotes.tools.ci.release_rich_update_probe import parse_proof
+          dest=pathlib.Path('mynotes/docs/recognition/updates/41877111541');dest.mkdir(parents=True,exist_ok=True)
+          expected={'old':(66,'3a2023ef33b675ccab26f70b8de683faea14dde11b81ca0c9635546adb40ec87','a267b05935b0272c05a0d9c525dfd5c6f3a17f6d',13311116366),'candidate':(67,'91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de','acfd671d4afa4fceb09475cc6e70d1dabb77aefe',13347771946)}
+          for api in (26,34):
+              folder=pathlib.Path('update-evidence')/f'release66-to67-api{api}-rich-public-update-evidence'
+              data={}
+              for name in ('release-rich-update-proof.json','release-apks.json','offline-guest-proof.json'):
+                  file=folder/name;assert 0<file.stat().st_size<20000;data[name]=json.loads(file.read_text())
+              report=data['release-rich-update-proof.json'];assert report['api']==api and report['ok'] is True
+              assert report['uninstall_or_clear_data'] is False and report['release_approval'] is False
+              assert report['physical_acceptance'] is False and report['ui_rendering_acceptance'] is False
+              assert report['from']['version_code']==66 and report['to']['version_code']==67
+              assert report['from']['first_install_time']==report['to']['first_install_time']
+              phases=report['phases'];assert [p['phase'] for p in phases]==['create','before','after']
+              assert len({p['old_snapshot_sha256'] for p in phases})==1
+              for phase,version in (('create',66),('before',66),('after',67)):
+                  file=folder/f'rich-probe-{phase}.txt';assert 0<file.stat().st_size<100000
+                  proof=parse_proof(file.read_text(),phase,version)
+                  assert proof==next(p for p in phases if p['phase']==phase)
+                  shutil.copyfile(file,dest/f'api{api}-rich-probe-{phase}.txt')
+              for label,(code,sha,source,artifact) in expected.items():
+                  identity=data['release-apks.json'][label]
+                  assert (identity['version_code'],identity['sha256'],identity['source'],identity['artifact'])==(code,sha,source,artifact)
+              offline=data['offline-guest-proof.json']
+              for key in ('emulator_only','airplane_mode','wifi_disabled'):assert offline[key] is True
+              for key in ('notes_installed','active_default_network','uninstall_or_clear_data'):assert offline[key] is False
+              assert offline['consecutive_checks']>=3 and offline['final_shell_uid']==2000
+              for name in data:shutil.copyfile(folder/name,dest/f'api{api}-{name}')
+              print('::notice title=Original signed update proof::'+json.dumps(report))
+          (dest/'provenance.json').write_text(json.dumps({'capture_run':41877111541,'retention_run':os.environ['GITHUB_RUN_ID'],'api26_job':126741737128,'api34_job':126741737100,'physical_acceptance':False,'release_approval':False,'scope':'Four public rich repository-generated fixtures; old writer, cold restart, signed66 to67 install-over and candidate write/readback. Not real microphone audio, SAF, UI rendering, exhaustive user libraries or physical acceptance.'},indent=2)+'\n')
+      - name: Test before preserving proofs on the session branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m pip install PyYAML==6.0.3 Pillow==11.3.0 reportlab==4.4.4 uharfbuzz==0.52.0
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/recognition/updates/41877111541
+          git commit -m 'Retain exact old-writer rich signed66 to67 public payload proofs on API26 and34 [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

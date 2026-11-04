@@ -30,6 +30,7 @@ jobs:
           import pathlib,json,subprocess,shutil,re
           from mynotes.tools.ci.results import android
           run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41875828454']))
+          print('::notice title=Observed original animation workflow identity::'+json.dumps({'source':run['head_sha'],'conclusion':run['conclusion']}))
           assert run['conclusion']=='success' and run['head_sha']=='274818c633b62d638a30c3ce4757dee61faed0ce'
           methods=['app.space.notes.CoreJourneysTest#'+n for n in ['nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments','nativeNotesBottomToTopDragScrollsAcrossThirtySixCards','nativeDocBottomToTopDragScrollsAcrossThirtySixCards']]
           out=pathlib.Path('mynotes/docs/recognition/interactions/41875828454');out.mkdir(parents=True,exist_ok=True);profiles=[]
@@ -37,7 +38,8 @@ jobs:
               dest=out/folder.name;dest.mkdir(exist_ok=True)
               for source in folder.iterdir():
                   if source.suffix in {'.txt','.json'} and source.stat().st_size<5000000:shutil.copyfile(source,dest/source.name)
-              scale=float((dest/'animation-scale.txt').read_text().strip());assert scale==1.0
+              raw_scale=(dest/'animation-scale.txt').read_text().strip();print('::notice title=Actual original animation scale::'+json.dumps({'profile':folder.name,'raw_scale':raw_scale}))
+              scale=float(raw_scale);assert scale==1.0
               verified=android((dest/'refinement-native.txt').read_text(),methods);assert verified['ok']
               gfx=(dest/'animation-frame-statistics.txt').read_text();frames=re.search(r'Total frames rendered:\s*(\d+)',gfx)
               profiles.append({'profile':folder.name,'native':verified,'animator_scale':scale,'frames_in_post_instrumentation_dump':int(frames.group(1)) if frames else None,'performance_qualified':False,'physical_smoothness_qualified':False})

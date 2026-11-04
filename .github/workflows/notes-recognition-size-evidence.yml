@@ -1,0 +1,31 @@
+name: Expose measured recognition APK byte budget
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-recognition-size-evidence.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  size-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41765073727
+          name: recognition-build-measurements
+          path: size-evidence
+      - name: Expose actual debug APK size without calling it release size
+        shell: python
+        run: |
+          import json,pathlib
+          reports=list(pathlib.Path('size-evidence').rglob('recognition-apk-size.json'))
+          assert len(reports)==1
+          data=json.loads(reports[0].read_text())
+          summary={'source_run':41765073727,'scope':'Debug APK accounting, NOT the shipped signed release size or an accuracy pass','apk_bytes':data['apk_bytes'],'categories':data['categories'],'largest_entries':data['largest_entries'][:6]}
+          text=json.dumps(summary)
+          assert len(text.encode())<10000
+          for i in range(0,len(text),3000):
+              print('::notice title=Measured recognition byte budget::'+text[i:i+3000].replace('%','%25').replace('\n','%0A'))

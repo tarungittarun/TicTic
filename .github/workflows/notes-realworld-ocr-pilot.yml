@@ -86,9 +86,13 @@ jobs:
             adb shell settings put system screen_off_timeout 3600000
             adb shell input keyevent KEYCODE_WAKEUP
             adb shell wm dismiss-keyguard
-            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.OfflineOcrTest
+            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e class app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest
+            python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest
             adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
             python3 -m mynotes.tools.ci.native_environment --snapshot after
+      - name: Require all native pilot assertions even after emulator failure
+        if: always()
+        run: python3 -m mynotes.tools.ci.verify_recognition_pilot --classes app.space.notes.OfflineOcrTest,app.space.notes.OfflineSpeechTest,app.space.notes.runtime.ImageSelectionTest,app.space.notes.runtime.NotesMotionTest
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

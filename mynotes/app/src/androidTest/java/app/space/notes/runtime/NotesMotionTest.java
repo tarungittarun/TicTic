@@ -19,11 +19,11 @@ public class NotesMotionTest {
   assertEquals("Actual Android animator setting must match the qualification profile",enabled,NotesMotion.enabled());
   AtomicReference<View> target=new AtomicReference<>();
   try(ActivityScenario<NotesActivity> scenario=ActivityScenario.launch(NotesActivity.class)){
-   scenario.onActivity(activity->{FrameLayout surface=new FrameLayout(activity);View view=new View(activity);surface.addView(view,new FrameLayout.LayoutParams(160,160));activity.setContentView(surface);target.set(view);NotesMotion.enter(view);assertEquals(enabled?.75f:1f,view.getAlpha(),.001f);});
+   scenario.onActivity(activity->{FrameLayout surface=new FrameLayout(activity);View view=new View(activity);surface.addView(view,new FrameLayout.LayoutParams(160,160));activity.setContentView(surface);target.set(view);NotesMotion.enter(view);assertEquals("Opening must not slide content",0f,view.getTranslationY(),.001f);assertEquals(enabled?.75f:1f,view.getAlpha(),.001f);});
    Thread.sleep(450);
    scenario.onActivity(activity->{View view=target.get();assertEquals(1f,view.getAlpha(),.001f);assertEquals(0f,view.getTranslationY(),.001f);NotesMotion.lift(view);});
    Thread.sleep(450);
-   scenario.onActivity(activity->{View view=target.get();assertEquals(enabled?1.025f:1f,view.getScaleX(),.001f);assertEquals(enabled?.8f:1f,view.getAlpha(),.001f);NotesMotion.settle(view);assertEquals(1f,view.getScaleX(),.001f);assertEquals(1f,view.getScaleY(),.001f);assertEquals(1f,view.getAlpha(),.001f);});
+   scenario.onActivity(activity->{View view=target.get();assertEquals("Dragging must not resize content",1f,view.getScaleX(),.001f);assertEquals(enabled?.9f:1f,view.getAlpha(),.001f);NotesMotion.settle(view);assertEquals(1f,view.getScaleX(),.001f);assertEquals(1f,view.getScaleY(),.001f);assertEquals(1f,view.getAlpha(),.001f);});
   }
  }
  @SuppressWarnings({"rawtypes","unchecked"}) @Test public void selectionRefreshReusesUnchangedImagePreviewInsteadOfRestartingDecode(){

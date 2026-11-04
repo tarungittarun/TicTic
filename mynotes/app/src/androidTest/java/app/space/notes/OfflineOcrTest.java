@@ -16,6 +16,29 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class OfflineOcrTest {
+    @Test public void tallScreenshotPreprocessingEnlargesSmallTextWithinBudget(){
+        Bitmap original=Bitmap.createBitmap(705,1568,Bitmap.Config.ARGB_8888);
+        new Canvas(original).drawColor(Color.rgb(53,56,63));
+        Bitmap prepared=OfflineOcr.prepareBitmap(original);
+        try{assertTrue(prepared.getWidth()>1057);assertTrue((long)prepared.getWidth()*prepared.getHeight()<=4000000L);assertEquals(705,original.getWidth());}
+        finally{prepared.recycle();original.recycle();}
+    }
+    @Test public void mixedStyleDialogScreenshotKeepsTitleAndActions()throws Exception{
+        // Own-authored recreation: never upload a user's screenshot into CI.
+        Bitmap original=Bitmap.createBitmap(705,1568,Bitmap.Config.ARGB_8888);
+        Canvas canvas=new Canvas(original);canvas.drawColor(Color.rgb(57,53,27));
+        Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);p.setColor(Color.rgb(53,56,63));
+        canvas.drawRoundRect(44,658,661,941,32,32,p);
+        p.setColor(Color.WHITE);p.setTypeface(Typeface.create("sans-serif",Typeface.BOLD));p.setTextSize(34);
+        canvas.drawText("OneDoc keeps stopping",84,735,p);
+        p.setTypeface(Typeface.create("sans-serif",Typeface.NORMAL));p.setTextSize(24);
+        canvas.drawText("App info",217,816,p);canvas.drawText("Close app",217,896,p);
+        try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),original,"auto",new OfflineOcr.Cancellation());
+            String text=result.text.toLowerCase(Locale.ROOT).replaceAll("\\s+"," ");
+            assertTrue(result.text,text.contains("onedoc keeps stopping"));
+            assertTrue(result.text,text.contains("app info"));assertTrue(result.text,text.contains("close app"));
+        }finally{original.recycle();}
+    }
     @Test public void bundledModelsMatchPinnedHashes() throws Exception {android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();JSONObject manifest;try(InputStream in=context.getAssets().open("ocr/models.json")){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);manifest=new JSONObject(out.toString("UTF-8"));}for(String language:OfflineOcr.LANGUAGES)try(InputStream in=context.getAssets().open("ocr/"+language+".traineddata")){assertEquals(manifest.getJSONObject("files").getJSONObject(language+".traineddata").getString("sha256"),OfflineOcr.digest(in));}}
     @Test public void offlineEnglishImageRunsRealNativeInference() throws Exception {Bitmap bitmap=Bitmap.createBitmap(1200,400,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(bitmap);canvas.drawColor(Color.WHITE);Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);paint.setColor(Color.BLACK);paint.setTypeface(Typeface.create("sans-serif",Typeface.BOLD));paint.setTextSize(72);canvas.drawText("MEETING NOTES",70,140,paint);canvas.drawText("Monday at 10 AM",70,250,paint);try{OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),bitmap,"eng",new OfflineOcr.Cancellation());assertTrue(result.text,result.text.toUpperCase(Locale.ROOT).contains("MEETING"));assertTrue(result.text,result.text.toUpperCase(Locale.ROOT).contains("MONDAY"));assertTrue(result.confidence>=0);assertEquals(1200,result.width);}finally{bitmap.recycle();}}
     @Test public void hindiAndKannadaBundledModelsRunWithoutDownloading() throws Exception {Bitmap bitmap=Bitmap.createBitmap(400,300,Bitmap.Config.ARGB_8888);new Canvas(bitmap).drawColor(Color.WHITE);try{for(String language:Arrays.asList("hin","kan")){OfflineOcr.Result result=OfflineOcr.recognizeBitmap(InstrumentationRegistry.getInstrumentation().getTargetContext(),bitmap,language,new OfflineOcr.Cancellation());assertEquals(language,result.language);assertTrue(result.text,result.text.isEmpty());}}finally{bitmap.recycle();}}

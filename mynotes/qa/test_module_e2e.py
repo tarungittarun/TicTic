@@ -86,7 +86,7 @@ class SeparateModuleE2E(unittest.TestCase):
         from mynotes.tools.ci.run_ordered_modules import plan
         from mynotes.tools.build_module_e2e_report import MODULES
         ordered=plan();self.assertEqual(MODULES,list(ordered))
-        self.assertEqual(419,sum(map(len,ordered.values())))
+        self.assertEqual(421,sum(map(len,ordered.values())))
         script=(ROOT/'mynotes/tools/ci/run_ordered_modules.py').read_text()
         self.assertIn('for index,(module,selected) in enumerate(ordered.items())',script)
         self.assertIn('subprocess.run(command',script)

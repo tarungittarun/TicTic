@@ -23,19 +23,25 @@ def parse_proof(output,phase,version):
     return proof
 
 
-def verify(old,candidate,tester,output):
+def validate_upgrade_codes(old_code,candidate_code):
+    if type(old_code) is not int or type(candidate_code) is not int or not 1<=old_code<candidate_code<=2100000000:
+        raise ValueError('Explicit increasing Android release codes required; downgrades are not supported')
+
+
+def verify(old,candidate,tester,output,old_code=64,candidate_code=66):
+    validate_upgrade_codes(old_code,candidate_code)
     device=Device();report={'ok':False,'phases':[],'uninstall_or_clear_data':False,'physical_acceptance':False,'ui_rendering_acceptance':False,'release_approval':False,'scope':'Public generated rich repository payloads only; not real microphone files, SAF, rich UI rendering or an exhaustive user library.'}
     try:
         if device.adb('shell','getprop','ro.kernel.qemu').strip()!='1':raise ValueError('Disposable emulator required')
         if device.adb('shell','pm','list','packages','app.space.notes').strip():raise ValueError('Never seed a populated guest')
         device.adb('install',old);before=device.state();report['from']=before
-        if before['version_code']!=64:raise ValueError('Expected exact old release64')
+        if before['version_code']!=old_code:raise ValueError('Expected exact old release'+str(old_code))
         device.adb('install','-t',tester)
-        for phase,version in (('create',64),('before',64),('after',66)):
+        for phase,version in (('create',old_code),('before',old_code),('after',candidate_code)):
             device.adb('shell','am','force-stop','app.space.notes')
             if phase=='after':
                 device.adb('install','-r',candidate);after=device.state();report['to']=after
-                if after['version_code']!=66 or after['first_install_time']!=before['first_install_time']:raise ValueError('Installation identity changed')
+                if after['version_code']!=candidate_code or after['first_install_time']!=before['first_install_time']:raise ValueError('Installation identity changed')
             result=device.adb('shell','am','instrument','-w','-r','-e','timeout_msec','120000','-e','explicitPublicFixtureOnly',TOKEN,'-e','richPhase',phase,'-e','expectedReleaseCode',version,'-e','class',METHOD,'app.space.notes.test/androidx.test.runner.AndroidJUnitRunner')
             Path('rich-probe-'+phase+'.txt').write_text(result)
             report['phases'].append(parse_proof(result,phase,version))
@@ -52,4 +58,5 @@ def verify(old,candidate,tester,output):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('old','candidate','tester','output'):parser.add_argument('--'+name,required=True)
-    args=parser.parse_args();verify(args.old,args.candidate,args.tester,args.output)
+    parser.add_argument('--old-code',type=int,default=64);parser.add_argument('--candidate-code',type=int,default=66)
+    args=parser.parse_args();verify(args.old,args.candidate,args.tester,args.output,args.old_code,args.candidate_code)

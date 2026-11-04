@@ -54,3 +54,9 @@ preBuild.dependsOn requireTrainedWhisperBundle
 
 // Offline text layer for PDF search/copy on minSdk 26 as well as current devices.
 dependencies { implementation 'com.tom-roush:pdfbox-android:2.0.27.0' }
+
+// Research changes only debug CPU attention. A release build never opts in.
+android.buildTypes {
+    debug { externalNativeBuild { cmake { arguments "-DNOTES_FLASH_ATTENTION_RESEARCH=${project.hasProperty('flashAttentionResearch') ? 'ON' : 'OFF'}" } } }
+    release { externalNativeBuild { cmake { arguments '-DNOTES_FLASH_ATTENTION_RESEARCH=OFF' } } }
+}

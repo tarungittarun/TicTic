@@ -15,6 +15,9 @@ extern "C" JNIEXPORT jlong JNICALL Java_app_space_notes_runtime_TrainedWhisper_c
   // No audio, transcript, private paths or debug tensors in native logs.
   whisper_log_set([](enum ggml_log_level,const char*,void*){},nullptr);
   auto session=std::make_unique<Session>();auto params=whisper_context_default_params();params.use_gpu=false;params.flash_attn=false;
+#if NOTES_WHISPER_FLASH_ATTENTION
+  params.flash_attn=true; // Opt-in debug research; release/default remains false.
+#endif
   session->context=whisper_init_from_file_with_params(file.c_str(),params);
   if(!session->context){fail(env,"Experimental offline model could not be loaded; original audio retained");return 0;}
   return reinterpret_cast<jlong>(session.release());

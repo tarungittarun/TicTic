@@ -25,7 +25,9 @@ FetchContent_Declare(whisper
  URL https://codeload.github.com/ggml-org/whisper.cpp/tar.gz/4979e04f5dcaccb36057e059bbaed8a2f5288315
  URL_HASH SHA256=ec8e33f4c838ed459ad0a23da255c0262f150a6f54839a17e504ddf1495305d5)
 FetchContent_MakeAvailable(whisper)
+option(NOTES_FLASH_ATTENTION_RESEARCH "Opt-in debug CPU attention study, not shipping adoption" OFF)
 add_library(notes_whisper SHARED notes_whisper.cpp)
+target_compile_definitions(notes_whisper PRIVATE NOTES_WHISPER_FLASH_ATTENTION=$<BOOL:${NOTES_FLASH_ATTENTION_RESEARCH}>)
 target_compile_features(notes_whisper PRIVATE cxx_std_17)
 target_link_libraries(notes_whisper PRIVATE whisper android log)
 

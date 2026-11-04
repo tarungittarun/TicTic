@@ -127,3 +127,14 @@ No cleanup policy, model adoption, default-engine change or new training is made
 here. Independent Android accuracy, paired decode latency/peak RAM, cache migration
 and physical acceptance remain required. Results are pending until the workflow
 has actually executed; root derivative/identity tests are not Android evidence.
+
+### Proven host disk exhaustion, not an OCR assertion failure
+
+Read-only diagnostic 41769079870 retained the original fatal lines for jobs
+126365615277 and 126366665061: available 6533.30 / 6061.37 MB versus 7372.80 MB
+required to create the default emulator userdata partition. Both executed zero
+native tests. CI now requests an explicit 4G userdata disk (rather than the larger
+image default); this changes only the disposable emulator, not app storage rules,
+APK bytes or assertions. Existing running jobs retain their original config.
+A native-only rerun can reuse the exact candidate61 foundation without rebuilding
+another user APK. Full qualification still requires actual completed results.

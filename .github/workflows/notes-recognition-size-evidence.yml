@@ -29,3 +29,36 @@ jobs:
           assert len(text.encode())<10000
           for i in range(0,len(text),3000):
               print('::notice title=Measured recognition byte budget::'+text[i:i+3000].replace('%','%25').replace('\n','%0A'))
+  speech-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: mynotes/tools
+      - name: Verify retained study artifact identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          a=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/13292179240']))
+          assert not a['expired']
+          assert a['workflow_run']['head_sha']=='b332b33a0800a5fe0b3089a3f187702c23c13d8c'
+          assert a['digest']=='sha256:80d44758b00ae8e3eb3c94050681b2859804d3122d718ca5b8275dbe0e2d1151'
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41765677553
+          name: nonshipping-compact-speech-parity-results
+          path: speech-study
+      - name: Recompute all word errors and retain individual regressions
+        run: python3 -m mynotes.tools.ci.audit_quantized_speech speech-study/quantization-results/report.json independent-speech-audit.json
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: independent-speech-quantization-audit
+          path: independent-speech-audit.json
+          if-no-files-found: error
+          retention-days: 7

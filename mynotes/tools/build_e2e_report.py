@@ -207,6 +207,16 @@ def describe(scene, guide):
     if scene.startswith('e2e-library-'):
         destination=scene.removeprefix('e2e-library-').replace('-',' ')
         return 'Home > Library > '+destination,'Capture the actual Library sheet immediately before opening '+destination+'. The following captured page records that destination, and Back returns to Home.','The menu capture proves a visible navigation state, not data mutation or a successful export.'
+    viewer68={
+      'pdf68-compact-filename-toolbar':('PDF > initial attached viewer','One Back/filename/Search/options row with the continuous page viewport below.','PixelCopy of the attached public-fixture window; not proof of every file size or vendor configuration.'),
+      'pdf68-file-zoom-distant-page':('PDF > whole-file zoom > distant page','Injected two-finger input changes measured document width, then page3 is checked at the enlarged height.','Emulator input and actual geometry assertions, not physical-phone acceptance.'),
+      'pdf68-draggable-page-position':('PDF > right page rail','Current/total page state after direct native touch dispatch to the rail; auto-hide is asserted separately.','Direct View dispatch is not a system-injected physical drag.'),
+      'pdf68-search-above-keyboard':('PDF > Search > keyboard visible','Attached bottom search controls with IME visibility confirmed; system screenshot includes the separate keyboard window.','Public generated PDF only. File text is populated by the test, not manually typed by a person.'),
+      'pdf68-search-result-highlight':('PDF > Enter search > first highlighted match','Window-dispatched Enter triggers search and the test requires real glyph highlight geometry on the matching page.','Only embedded text is searched; scanned-page OCR is separate.'),
+      'pdf68-offline-recognition-loader':('PDF > Recognize page offline','A real visible indeterminate ProgressBar is asserted before cancelling queued recognition.','Worker is deliberately held: this proves loader/cancel presentation, not OCR accuracy or measured latency.'),
+      'pdf68-pen-and-highlighter-tools':('PDF > Edit / mark > pen and highlight','Attached marking toolbar and actual window-injected pen/highlighter strokes; normalized draft content is asserted.','Marked-copy rendering and SAF readback are separate native assertions. No original PDF is edited.'),
+      'word-synthetic-paper-page':('Word renderer > prepared public page','A rendered page bitmap checks header/logo, stored breaks and original-byte preservation.','This is NOT an attached viewer screenshot; it cannot qualify toolbar, keyboard, scrolling or navigation design.')}
+    if scene in viewer68:return viewer68[scene]
     descriptions={
       'e2e-viewed-files-count':('Library > Viewed files','Two synthetic index entries are shown with a count, typed file badges and individual open actions. No Home note is imported.','Index-only fixture: the two displayed URI records are not proof of opening two actual originals.'),
       'e2e-viewed-files-search':('Viewed files > Search Alpha','Enter a term from indexed body text. Only First.pdf should remain and the count must be one.','A matching indexed word is not proof that every word in a file was indexed.'),

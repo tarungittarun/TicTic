@@ -1,0 +1,48 @@
+{
+  "adopted": false,
+  "scope": "Independently rescored retained predictions. Desktop CPU, not Android timing or unseen Indian-speaker acceptance. No runtime model changed. Process times include loading; ordered runs are descriptive, not causal speed estimates.",
+  "summary": {
+    "f16": {
+      "cases": 64,
+      "word_edits": 14,
+      "reference_words": 568,
+      "model_bytes": 77704698,
+      "regressed_ids": [],
+      "improved_ids": [],
+      "changed_hypothesis_ids": [],
+      "median_process_seconds": 1.4295807415000041
+    },
+    "q8_0": {
+      "cases": 64,
+      "word_edits": 14,
+      "reference_words": 568,
+      "model_bytes": 43550778,
+      "regressed_ids": [],
+      "improved_ids": [],
+      "changed_hypothesis_ids": [],
+      "median_process_seconds": 1.3680518095000025
+    },
+    "q5_1": {
+      "cases": 64,
+      "word_edits": 15,
+      "reference_words": 568,
+      "model_bytes": 32166138,
+      "regressed_ids": [
+        "slt-arctic_b0040",
+        "slt-arctic_b0045"
+      ],
+      "improved_ids": [
+        "ksp-arctic_b0053"
+      ],
+      "changed_hypothesis_ids": [
+        "ksp-arctic_b0040",
+        "ksp-arctic_b0053",
+        "ksp-arctic_b0059",
+        "slt-arctic_b0040",
+        "slt-arctic_b0045",
+        "slt-arctic_b0059"
+      ],
+      "median_process_seconds": 1.536268500999995
+    }
+  }
+}

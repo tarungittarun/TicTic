@@ -11,3 +11,7 @@ class SmallFontSceneReport(unittest.TestCase):
         with self.assertRaises(ValueError):independent_row(row)
     def test_java_ascii_whitespace_and_unicode_nfc_are_matched(self):
         self.assertEqual('é a',normalize(' e\u0301\n a '));self.assertEqual('\u00a0a\u00a0',normalize('\u00a0a\u00a0'))
+    def test_actions_python_shell_can_import_repo_without_installing_production(self):
+        from pathlib import Path
+        source=(Path(__file__).resolve().parents[1]/'.github/workflows/notes-candidate67-recover-study.yml').read_text()
+        self.assertIn('PYTHONPATH: ${{ github.workspace }}',source)

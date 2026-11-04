@@ -24,6 +24,7 @@ jobs:
       - name: Independently score existing native measurements and retain failures, no device rerun
         env:
           GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: ${{ github.workspace }}
         shell: python
         run: |
           import json,pathlib,subprocess,shutil,re

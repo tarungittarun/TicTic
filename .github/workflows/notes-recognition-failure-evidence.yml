@@ -17,7 +17,7 @@ jobs:
         shell: python
         run: |
           import os, pathlib, subprocess, re
-          for job in (126522814570,):
+          for job in (126575628645,126576722854,126571092764):
               result = subprocess.run(['gh','api','--allow-escape-sequences',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
               pathlib.Path(f'job-{job}.txt').write_text(result.stdout)
               # Do not print storage URLs with signed query strings.

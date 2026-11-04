@@ -22,7 +22,8 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,pathlib
-          root=pathlib.Path('retained/consensus-original-ocr-api26')
+          print('::notice title=Retained public evidence paths::'+json.dumps([str(p) for p in pathlib.Path('retained').rglob('*') if p.is_file()]))
+          root=next(pathlib.Path('retained').rglob('public-native-ocr-probe.json')).parent
           original=json.loads((root/'original-assertion.json').read_text())
           report=json.loads((root/'public-native-ocr-probe.json').read_text())
           print('::notice title=Original immutable assertion::'+json.dumps(original))

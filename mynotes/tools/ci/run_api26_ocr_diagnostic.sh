@@ -16,9 +16,9 @@ adb install -r benchmark-test.apk
 adb shell settings put system font_scale 1.0
 adb shell am start -W -n app.space.notes.debug/app.space.notes.NotesActivity
 set +e
-bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e class app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols
+bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e class "${OCR_TEST_CLASS:-app.space.notes.OfflineOcrTest#automaticBundledRecognitionNeedsNoLanguageChoiceAndKeepsSymbols}"
 code=$?
-for name in public-native-ocr-probe.json public-native-ocr-input.png; do
+for name in public-native-ocr-probe.json public-native-ocr-input.png ocr-common-text-report.json ocr-corpus-report.json; do
   adb exec-out run-as app.space.notes.debug cat "files/$name" > "$name" || rm -f "$name"
 done
 exit "$code"

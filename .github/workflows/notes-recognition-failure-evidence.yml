@@ -16,13 +16,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: python
         run: |
-          import os, pathlib, subprocess
+          import os, pathlib, subprocess, re
           for job in (126162491682, 126175447781, 126358855145):
-              result = subprocess.run(['gh','api',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
+              result = subprocess.run(['gh','api','--allow-escape-sequences',f'repos/tarungittarun/TicTic/actions/jobs/{job}/logs'],capture_output=True,text=True)
               pathlib.Path(f'job-{job}.txt').write_text(result.stdout)
               # Do not print storage URLs with signed query strings.
               stderr = '\n'.join(line.split('?')[0] for line in result.stderr.splitlines())
-              text = result.stdout[-24000:] if result.returncode == 0 else f'Log download failed with code {result.returncode}: {stderr}'
+              text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', result.stdout)[-24000:] if result.returncode == 0 else f'Log download failed with code {result.returncode}: {stderr}'
               pathlib.Path(f'job-{job}-retrieval.txt').write_text(f'exit={result.returncode}\n'+stderr)
               for i in range(0,len(text),3500):
                   msg=text[i:i+3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')

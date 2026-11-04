@@ -186,7 +186,9 @@
     "app.space.notes.OfflineOcrTest#tallScreenshotPreprocessingEnlargesSmallTextWithinBudget",
     "app.space.notes.OfflineOcrTest#mixedStyleDialogScreenshotKeepsTitleAndActions",
     "app.space.notes.OfflineOcrTest#selectedRegionRunsFreshInferenceWithoutChangingSource",
-    "app.space.notes.OfflineOcrTest#invalidOrCancelledRegionNeverRecyclesOriginal"
+    "app.space.notes.OfflineOcrTest#invalidOrCancelledRegionNeverRecyclesOriginal",
+    "app.space.notes.runtime.ImageRegionTextTest#cancellationSuppressesLateResultAndEventuallyReleasesSource",
+    "app.space.notes.runtime.ImageRegionTextTest#absentAreaDoesNotLeakSourceOrDeliverAfterCancellation"
   ],
   "Voice inbox and transcripts": [
     "app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec",

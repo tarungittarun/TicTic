@@ -1,0 +1,103 @@
+{
+  "source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+  "original_source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+  "build_run": 41876975461,
+  "original_conclusion": "failure",
+  "original_failed_jobs": [
+    {
+      "job": 126746123138,
+      "lane": "light-portrait-ordered",
+      "conclusion": "failure",
+      "boot_timeout_verified": true,
+      "tests_executed": 0,
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/acfd671d4afa4fceb09475cc6e70d1dabb77aefe/.github",
+          "start_line": 19,
+          "start_column": null,
+          "end_line": 19,
+          "end_column": null,
+          "annotation_level": "warning",
+          "title": "",
+          "message": "No files were found with the provided path: refinement-captures.tar\nrefinement-native*\nordered-module-*\nrefinement-environment-*\nemulator-preflight.txt. No artifacts will be uploaded.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/tarungittarun/TicTic/blob/acfd671d4afa4fceb09475cc6e70d1dabb77aefe/.github",
+          "start_line": 1043,
+          "start_column": null,
+          "end_line": 1043,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "Timeout waiting for emulator to boot.",
+          "raw_details": ""
+        }
+      ]
+    },
+    {
+      "job": 126746123067,
+      "lane": "light-landscape-ordered",
+      "conclusion": "cancelled",
+      "tests_executed": 0,
+      "pre_native_setup_verified": true,
+      "setup_failure_proof": {
+        "kind": "pre_native_host_command_timeout",
+        "last_command": "adb shell svc power stayon true",
+        "native_launcher_started": false,
+        "tests_executed": 0,
+        "log_sha256": "84d355121d96d31949b3fded216c4239948aec58f410c0227c030132d485e0f1",
+        "original_artifact_files": {
+          "refinement-environment-configured.json": "49f827fdcd67c4131ec6160af51a303f58507a7d5bd3662c5f68b55fa01cf5de",
+          "refinement-environment-configured.txt": "133f5e0b2a9bc4295602be704a943ed3729d657e5c34091759e01030eefee084"
+        }
+      },
+      "original_artifact": 13351779319,
+      "original_artifact_digest": "sha256:852f2b7dba8d1f61dc392b0048eda8f78ff61c21f634aee9bd9f626a33c3edd4"
+    }
+  ],
+  "original_artifact_names": [
+    "module-ordered-executed-report",
+    "module-native-light-landscape-ordered",
+    "module-native-dark-landscape-ordered",
+    "module-benchmark-light-portrait-voice1",
+    "module-benchmark-dark-landscape-voice0",
+    "module-benchmark-light-landscape-voice1",
+    "module-native-dark-portrait-ordered",
+    "module-benchmark-dark-portrait-voice0",
+    "module-benchmark-dark-landscape-voice1",
+    "recognition-focused-light-landscape",
+    "recognition-focused-dark-landscape",
+    "module-benchmark-light-portrait-voice0",
+    "module-benchmark-light-landscape-voice0",
+    "module-benchmark-dark-portrait-voice1",
+    "module-benchmark-light-portrait-ocr",
+    "module-benchmark-dark-portrait-ocr",
+    "module-benchmark-light-landscape-ocr",
+    "MyNotes-v0.67.0-67-development.apk",
+    "module-benchmark-dark-landscape-ocr",
+    "module-foundation-lint",
+    "module-foundation-test-apks",
+    "recognition-focused-light-portrait",
+    "recognition-focused-dark-portrait"
+  ],
+  "missing_lanes": [
+    "light-portrait-ordered",
+    "light-landscape-ordered"
+  ],
+  "lane_capture_runs": {
+    "light-portrait-ordered": 41882249274,
+    "light-landscape-ordered": 41891572081
+  },
+  "report_only": true,
+  "native_capture_workflow": 41882249274,
+  "foundation_artifact": 13347602297,
+  "foundation_digest": "sha256:65a1312363456a8ccf087e9f7df60e9abf5e9358768f4e070cea15c17c0a49a1",
+  "release_apk_artifact": 13347771946,
+  "release_apk_sha256": "91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de",
+  "application_rebuilt": false,
+  "models_changed": false,
+  "assertion_failures_replaced": false
+}

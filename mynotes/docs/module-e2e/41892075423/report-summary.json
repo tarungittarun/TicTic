@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+  "run": "41892075423",
+  "native_complete": true,
+  "benchmark_complete": true,
+  "all_accuracy_targets_met": false,
+  "profiles": [
+    "light-portrait",
+    "dark-portrait",
+    "light-landscape",
+    "dark-landscape"
+  ],
+  "native_methods": 437,
+  "native_outcomes": 1748,
+  "observed_inferences": 4752,
+  "expected_inferences": 4752,
+  "model_changed": false,
+  "training_steps": 0,
+  "physical_acceptance": false,
+  "additional_public_scenes": {
+    "expected": 8,
+    "observed": 8,
+    "complete": true,
+    "profiles": {
+      "light-portrait": {
+        "complete": true,
+        "native": {
+          "ok": true,
+          "expected": 4,
+          "passed": 4,
+          "missing": [],
+          "unexpected": [],
+          "duplicates": [],
+          "failures": [],
+          "cases": [
+            "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+            "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+          ]
+        },
+        "observed": 2
+      },
+      "dark-portrait": {
+        "complete": true,
+        "native": {
+          "ok": true,
+          "expected": 4,
+          "passed": 4,
+          "missing": [],
+          "unexpected": [],
+          "duplicates": [],
+          "failures": [],
+          "cases": [
+            "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+            "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+          ]
+        },
+        "observed": 2
+      },
+      "light-landscape": {
+        "complete": true,
+        "native": {
+          "ok": true,
+          "expected": 4,
+          "passed": 4,
+          "missing": [],
+          "unexpected": [],
+          "duplicates": [],
+          "failures": [],
+          "cases": [
+            "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+            "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+          ]
+        },
+        "observed": 2
+      },
+      "dark-landscape": {
+        "complete": true,
+        "native": {
+          "ok": true,
+          "expected": 4,
+          "passed": 4,
+          "missing": [],
+          "unexpected": [],
+          "duplicates": [],
+          "failures": [],
+          "cases": [
+            "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+            "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+            "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+          ]
+        },
+        "observed": 2
+      }
+    },
+    "rows": [
+      {
+        "id": "english",
+        "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+        "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+        "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+        "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+        "elapsed_ms": 2133,
+        "status": "OK",
+        "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+        "cer": 0.08882521489971347,
+        "character_edits": 31,
+        "reference_characters": 349,
+        "source_pixels_unchanged": true,
+        "profile": "light-portrait",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "french",
+        "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+        "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+        "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+        "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+        "elapsed_ms": 4207,
+        "status": "OK",
+        "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+        "cer": 0.8333333333333334,
+        "character_edits": 75,
+        "reference_characters": 90,
+        "source_pixels_unchanged": true,
+        "profile": "light-portrait",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "english",
+        "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+        "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+        "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+        "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+        "elapsed_ms": 2382,
+        "status": "OK",
+        "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+        "cer": 0.08882521489971347,
+        "character_edits": 31,
+        "reference_characters": 349,
+        "source_pixels_unchanged": true,
+        "profile": "dark-portrait",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "french",
+        "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+        "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+        "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+        "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+        "elapsed_ms": 4742,
+        "status": "OK",
+        "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+        "cer": 0.8333333333333334,
+        "character_edits": 75,
+        "reference_characters": 90,
+        "source_pixels_unchanged": true,
+        "profile": "dark-portrait",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "english",
+        "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+        "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+        "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+        "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+        "elapsed_ms": 1436,
+        "status": "OK",
+        "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+        "cer": 0.08882521489971347,
+        "character_edits": 31,
+        "reference_characters": 349,
+        "source_pixels_unchanged": true,
+        "profile": "light-landscape",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "french",
+        "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+        "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+        "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+        "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+        "elapsed_ms": 3029,
+        "status": "OK",
+        "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+        "cer": 0.8333333333333334,
+        "character_edits": 75,
+        "reference_characters": 90,
+        "source_pixels_unchanged": true,
+        "profile": "light-landscape",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "english",
+        "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+        "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+        "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+        "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+        "elapsed_ms": 2588,
+        "status": "OK",
+        "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+        "cer": 0.08882521489971347,
+        "character_edits": 31,
+        "reference_characters": 349,
+        "source_pixels_unchanged": true,
+        "profile": "dark-landscape",
+        "capture_run": 41876975461
+      },
+      {
+        "id": "french",
+        "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+        "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+        "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+        "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+        "elapsed_ms": 4696,
+        "status": "OK",
+        "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+        "cer": 0.8333333333333334,
+        "character_edits": 75,
+        "reference_characters": 90,
+        "source_pixels_unchanged": true,
+        "profile": "dark-landscape",
+        "capture_run": 41876975461
+      }
+    ],
+    "scope": "Two original public inputs, manually transcribed from visible pixels before inference. Not heldout training data or French support. Historical health poster is a pixel fixture, not current medical advice. No native results at fixture freeze.",
+    "physical_acceptance": false,
+    "production_changed": false,
+    "exact": 0
+  },
+  "composite_evidence": true,
+  "build_run": 41876975461,
+  "original_workflow_conclusion": "failure",
+  "benchmark_capture_runs": {
+    "dark-landscape-ocr": 41876975461,
+    "dark-landscape-voice0": 41876975461,
+    "dark-landscape-voice1": 41876975461,
+    "dark-portrait-ocr": 41876975461,
+    "dark-portrait-voice0": 41876975461,
+    "dark-portrait-voice1": 41876975461,
+    "light-landscape-ocr": 41876975461,
+    "light-landscape-voice0": 41876975461,
+    "light-landscape-voice1": 41876975461,
+    "light-portrait-ocr": 41876975461,
+    "light-portrait-voice0": 41876975461,
+    "light-portrait-voice1": 41876975461
+  },
+  "native_capture_runs": {
+    "dark-landscape-ordered": 41876975461,
+    "dark-portrait-ordered": 41876975461,
+    "light-landscape-ordered": 41891572081,
+    "light-portrait-ordered": 41882249274
+  },
+  "supplemental_provenance": {
+    "source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+    "original_source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
+    "build_run": 41876975461,
+    "original_conclusion": "failure",
+    "original_failed_jobs": [
+      {
+        "job": 126746123138,
+        "lane": "light-portrait-ordered",
+        "conclusion": "failure",
+        "boot_timeout_verified": true,
+        "tests_executed": 0,
+        "annotations": [
+          {
+            "path": ".github",
+            "blob_href": "https://github.com/tarungittarun/TicTic/blob/acfd671d4afa4fceb09475cc6e70d1dabb77aefe/.github",
+            "start_line": 19,
+            "start_column": null,
+            "end_line": 19,
+            "end_column": null,
+            "annotation_level": "warning",
+            "title": "",
+            "message": "No files were found with the provided path: refinement-captures.tar\nrefinement-native*\nordered-module-*\nrefinement-environment-*\nemulator-preflight.txt. No artifacts will be uploaded.",
+            "raw_details": ""
+          },
+          {
+            "path": ".github",
+            "blob_href": "https://github.com/tarungittarun/TicTic/blob/acfd671d4afa4fceb09475cc6e70d1dabb77aefe/.github",
+            "start_line": 1043,
+            "start_column": null,
+            "end_line": 1043,
+            "end_column": null,
+            "annotation_level": "failure",
+            "title": "",
+            "message": "Timeout waiting for emulator to boot.",
+            "raw_details": ""
+          }
+        ]
+      },
+      {
+        "job": 126746123067,
+        "lane": "light-landscape-ordered",
+        "conclusion": "cancelled",
+        "tests_executed": 0,
+        "pre_native_setup_verified": true,
+        "setup_failure_proof": {
+          "kind": "pre_native_host_command_timeout",
+          "last_command": "adb shell svc power stayon true",
+          "native_launcher_started": false,
+          "tests_executed": 0,
+          "log_sha256": "84d355121d96d31949b3fded216c4239948aec58f410c0227c030132d485e0f1",
+          "original_artifact_files": {
+            "refinement-environment-configured.json": "49f827fdcd67c4131ec6160af51a303f58507a7d5bd3662c5f68b55fa01cf5de",
+            "refinement-environment-configured.txt": "133f5e0b2a9bc4295602be704a943ed3729d657e5c34091759e01030eefee084"
+          }
+        },
+        "original_artifact": 13351779319,
+        "original_artifact_digest": "sha256:852f2b7dba8d1f61dc392b0048eda8f78ff61c21f634aee9bd9f626a33c3edd4"
+      }
+    ],
+    "original_artifact_names": [
+      "module-ordered-executed-report",
+      "module-native-light-landscape-ordered",
+      "module-native-dark-landscape-ordered",
+      "module-benchmark-light-portrait-voice1",
+      "module-benchmark-dark-landscape-voice0",
+      "module-benchmark-light-landscape-voice1",
+      "module-native-dark-portrait-ordered",
+      "module-benchmark-dark-portrait-voice0",
+      "module-benchmark-dark-landscape-voice1",
+      "recognition-focused-light-landscape",
+      "recognition-focused-dark-landscape",
+      "module-benchmark-light-portrait-voice0",
+      "module-benchmark-light-landscape-voice0",
+      "module-benchmark-dark-portrait-voice1",
+      "module-benchmark-light-portrait-ocr",
+      "module-benchmark-dark-portrait-ocr",
+      "module-benchmark-light-landscape-ocr",
+      "MyNotes-v0.67.0-67-development.apk",
+      "module-benchmark-dark-landscape-ocr",
+      "module-foundation-lint",
+      "module-foundation-test-apks",
+      "recognition-focused-light-portrait",
+      "recognition-focused-dark-portrait"
+    ],
+    "missing_lanes": [
+      "light-portrait-ordered",
+      "light-landscape-ordered"
+    ],
+    "lane_capture_runs": {
+      "light-portrait-ordered": 41882249274,
+      "light-landscape-ordered": 41891572081
+    },
+    "report_only": true,
+    "native_capture_workflow": 41882249274,
+    "foundation_artifact": 13347602297,
+    "foundation_digest": "sha256:65a1312363456a8ccf087e9f7df60e9abf5e9358768f4e070cea15c17c0a49a1",
+    "release_apk_artifact": 13347771946,
+    "release_apk_sha256": "91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de",
+    "application_rebuilt": false,
+    "models_changed": false,
+    "assertion_failures_replaced": false
+  },
+  "source_run_note": "Original build workflow remains failed/cancelled during emulator boot or verified pre-native host setup. Only independently verified zero-test missing lanes were executed separately against the exact same compiled APKs. Other measurements/native outcomes retain original capture runs. No assertion failures replaced.",
+  "pages": 1119,
+  "pdf_sha256": "9fa4063e49318fe08015d5928e0308968d2c5f90dda2f62d795a98d8b27d541d",
+  "module_order": [
+    {
+      "module": "Notes and checklists",
+      "page": 3
+    },
+    {
+      "module": "Rich Doc and tables",
+      "page": 58
+    },
+    {
+      "module": "Diagrams",
+      "page": 122
+    },
+    {
+      "module": "Read image / OCR",
+      "page": 137
+    },
+    {
+      "module": "Voice inbox and transcripts",
+      "page": 548
+    },
+    {
+      "module": "Images and drawing",
+      "page": 965
+    },
+    {
+      "module": "File viewers",
+      "page": 984
+    },
+    {
+      "module": "Home, search and Library",
+      "page": 1010
+    },
+    {
+      "module": "Folders and storage",
+      "page": 1033
+    },
+    {
+      "module": "Backup, history and Trash",
+      "page": 1060
+    },
+    {
+      "module": "Reminders",
+      "page": 1083
+    },
+    {
+      "module": "Settings and diagnostics",
+      "page": 1091
+    }
+  ]
+}

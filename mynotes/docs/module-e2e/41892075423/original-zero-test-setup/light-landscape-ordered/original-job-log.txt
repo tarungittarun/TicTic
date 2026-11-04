@@ -1,0 +1,660 @@
+native (light-landscape, no, landscape)	Set up job	﻿2026-11-04T17:36:51.3301378Z Current runner version: '2.338.2'
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3326962Z ##[group]Runner Image Provisioner
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3327787Z Hosted Compute Agent
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3328373Z Version: 20261021.618
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3328962Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3329805Z Build Date: 2026-10-21T00:45:21Z
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3330866Z Worker ID: {2820176d-39d6-419c-a6dd-343bacddeca2}
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3331514Z Region: eastus3
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3331997Z Cloud: Azure
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3332528Z ##[endgroup]
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3334085Z ##[group]Operating System
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3335146Z Ubuntu
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3335636Z 24.04.5
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3336074Z LTS
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3336564Z ##[endgroup]
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3337055Z ##[group]Runner Image
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3337636Z Image: ubuntu-24.04
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3338149Z Version: 20261025.353.1
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3339095Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3341003Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3341910Z ##[endgroup]
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3342996Z ##[group]GITHUB_TOKEN Permissions
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3345384Z Actions: read
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3345964Z Contents: read
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3346509Z Metadata: read
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3347041Z ##[endgroup]
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3349157Z Secret source: Actions
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3350032Z Cache mode: write
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3351163Z Prepare workflow directory
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3693616Z Prepare all required actions
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.3744024Z Getting action download info
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.6266362Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.7121002Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:51.9764100Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:52.2167443Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+native (light-landscape, no, landscape)	Set up job	2026-11-04T17:36:52.4000692Z Complete job name: native (light-landscape, no, landscape)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	﻿2026-11-04T17:36:52.4992275Z ##[group]Run actions/checkout@v5
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4993297Z with:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4993747Z   repository: tarungittarun/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4997883Z   token: ***
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4998411Z   ssh-strict: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4998829Z   ssh-user: git
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4999260Z   persist-credentials: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.4999712Z   clean: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5000123Z   sparse-checkout-cone-mode: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5000870Z   fetch-depth: 1
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5001275Z   fetch-tags: false
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5001692Z   show-progress: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5002133Z   lfs: false
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5002545Z   submodules: false
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5003012Z   set-safe-directory: true
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5003493Z   allow-unsafe-pr-checkout: false
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.5004368Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7453918Z Syncing repository: tarungittarun/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7457447Z ##[group]Getting Git version info
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7459015Z Working directory is '/home/runner/work/TicTic/TicTic'
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7461451Z [command]/usr/bin/git version
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7527071Z git version 2.56.0
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7555123Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7573199Z Temporarily overriding HOME='/home/runner/work/_temp/8d14d203-9606-425a-814a-44576d17c65f' before making global git config changes
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7576239Z Adding repository directory to the temporary git global config as a safe directory
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7579383Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7635356Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7642398Z ##[group]Initializing the repository
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7654426Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7754284Z hint: Using 'master' as the name for the initial branch. This default branch name
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7760707Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7764805Z hint: to use in all of your new repositories, which will suppress this warning,
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7767876Z hint: call:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7769664Z hint:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7771823Z hint: 	git config --global init.defaultBranch <name>
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7774279Z hint:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7776559Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7780209Z hint: 'development'. The just-created branch can be renamed via this command:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7783374Z hint:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7784465Z hint: 	git branch -m <name>
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7786594Z hint:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7789177Z hint: Disable this message with "git config set advice.defaultBranchName false"
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7793799Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7800847Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7826092Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7828617Z ##[group]Disabling automatic garbage collection
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7830846Z [command]/usr/bin/git config --local gc.auto 0
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7867549Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7869151Z ##[group]Setting up auth
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7879592Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.7919996Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8268855Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8308213Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8524364Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8562036Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8762755Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8805792Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8807543Z ##[group]Fetching the repository
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:36:52.8819922Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +acfd671d4afa4fceb09475cc6e70d1dabb77aefe:refs/remotes/origin/arena/3caca636-tictic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5359561Z From https://github.com/tarungittarun/TicTic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5360718Z  * [new ref]           acfd671d4afa4fceb09475cc6e70d1dabb77aefe -> origin/arena/3caca636-tictic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5365163Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5365794Z ##[group]Determining the checkout info
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5368721Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5376961Z [command]/usr/bin/git sparse-checkout disable
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5553715Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5585638Z ##[group]Checking out the ref
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:20.5599550Z [command]/usr/bin/git checkout --progress --force -B arena/3caca636-tictic refs/remotes/origin/arena/3caca636-tictic
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.6095295Z Updating files:  12% (6286/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.6508482Z Updating files:  13% (6395/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.6949893Z Updating files:  14% (6887/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.7423745Z Updating files:  15% (7379/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.7867513Z Updating files:  16% (7870/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.8392603Z Updating files:  17% (8362/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.8839853Z Updating files:  18% (8854/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.9293206Z Updating files:  19% (9346/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:21.9743865Z Updating files:  20% (9838/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.0212884Z Updating files:  21% (10330/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.0641666Z Updating files:  22% (10822/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.1067073Z Updating files:  23% (11314/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.1541040Z Updating files:  24% (11805/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.2015501Z Updating files:  25% (12297/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.2457795Z Updating files:  26% (12789/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.2946862Z Updating files:  27% (13281/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.3447143Z Updating files:  28% (13773/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.3930967Z Updating files:  29% (14265/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.4382193Z Updating files:  30% (14757/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.4879113Z Updating files:  31% (15248/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.5357874Z Updating files:  32% (15740/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.5776213Z Updating files:  33% (16232/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.5985915Z Updating files:  34% (16724/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.6261556Z Updating files:  34% (16958/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.6723681Z Updating files:  35% (17216/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.7223391Z Updating files:  36% (17708/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.7711015Z Updating files:  37% (18200/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.8133393Z Updating files:  38% (18692/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.8569278Z Updating files:  39% (19183/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.8982450Z Updating files:  40% (19675/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.9401817Z Updating files:  41% (20167/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:22.9813555Z Updating files:  42% (20659/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.0241489Z Updating files:  43% (21151/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.0656439Z Updating files:  44% (21643/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.1062173Z Updating files:  45% (22135/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.1483249Z Updating files:  46% (22627/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.1911997Z Updating files:  47% (23118/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.2349660Z Updating files:  48% (23610/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.2751481Z Updating files:  49% (24102/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.3128467Z Updating files:  50% (24594/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.3510899Z Updating files:  51% (25086/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.3915549Z Updating files:  52% (25578/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.4313536Z Updating files:  53% (26070/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.4781067Z Updating files:  54% (26561/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.5206022Z Updating files:  55% (27053/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.5633705Z Updating files:  56% (27545/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.5985614Z Updating files:  57% (28037/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.6068413Z Updating files:  57% (28432/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.6469047Z Updating files:  58% (28529/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.6902279Z Updating files:  59% (29021/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.7278768Z Updating files:  60% (29513/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.7650721Z Updating files:  61% (30005/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.8192478Z Updating files:  62% (30496/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.8579475Z Updating files:  63% (30988/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.8987909Z Updating files:  64% (31480/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.9399270Z Updating files:  65% (31972/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:23.9840560Z Updating files:  66% (32464/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.0377732Z Updating files:  67% (32956/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.0785997Z Updating files:  68% (33448/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.1223951Z Updating files:  69% (33940/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.1648452Z Updating files:  70% (34431/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.3401322Z Updating files:  71% (34923/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.3921804Z Updating files:  72% (35415/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.4209538Z Updating files:  73% (35907/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.5740189Z Updating files:  74% (36399/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.5984934Z Updating files:  75% (36891/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.6145044Z Updating files:  75% (37301/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.7469255Z Updating files:  76% (37383/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.8633476Z Updating files:  77% (37874/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:24.9107254Z Updating files:  78% (38366/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.0239193Z Updating files:  79% (38858/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.0680546Z Updating files:  80% (39350/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.1897141Z Updating files:  81% (39842/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.2314420Z Updating files:  82% (40334/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.3656225Z Updating files:  83% (40826/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.4314200Z Updating files:  84% (41318/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.4671884Z Updating files:  85% (41809/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.5911603Z Updating files:  86% (42301/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.5984972Z Updating files:  87% (42793/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.6240893Z Updating files:  87% (42900/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.7644056Z Updating files:  88% (43285/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.7967697Z Updating files:  89% (43777/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.8676713Z Updating files:  90% (44269/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:25.9536722Z Updating files:  91% (44761/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.0366750Z Updating files:  92% (45253/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.1219142Z Updating files:  93% (45744/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.2097012Z Updating files:  94% (46236/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.3038901Z Updating files:  95% (46728/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.3981812Z Updating files:  96% (47220/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.4883707Z Updating files:  97% (47712/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.5830197Z Updating files:  98% (48204/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.6004193Z Updating files:  99% (48696/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.6640907Z Updating files:  99% (48903/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.6641552Z Updating files: 100% (49187/49187)
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.6642100Z Updating files: 100% (49187/49187), done.
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.7151010Z Switched to a new branch 'arena/3caca636-tictic'
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.7151889Z branch 'arena/3caca636-tictic' set up to track 'origin/arena/3caca636-tictic'.
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.7304730Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.7353416Z [command]/usr/bin/git log -1 --format=%H
+native (light-landscape, no, landscape)	Run actions/checkout@v5	2026-11-04T17:37:26.7388591Z acfd671d4afa4fceb09475cc6e70d1dabb77aefe
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	﻿2026-11-04T17:37:26.7622164Z ##[group]Run actions/download-artifact@v8.0.2
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7622485Z with:
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7622702Z   name: module-foundation-test-apks
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7622968Z   path: refinement-apks
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7623201Z   merge-multiple: false
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7623430Z   repository: tarungittarun/TicTic
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7623677Z   run-id: 41876975461
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7623888Z   skip-decompress: false
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7624118Z   digest-mismatch: error
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.7624329Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:26.9072058Z Downloading single artifact
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.0536361Z Preparing to download the following artifacts:
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.0537531Z - module-foundation-test-apks (ID: 13347602297, Size: 181326448, Expected Digest: sha256:65a1312363456a8ccf087e9f7df60e9abf5e9358768f4e070cea15c17c0a49a1)
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.3144096Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/15c2d990-82be-8a3e-bfc3-eb0bb8bab748/workflow-job-run-5bb976f2-684d-559d-b40c-8c5e5e6abd47/artifacts/367fc22e2776c39895971186a6a7fc0fdf279f8e733d888e94a3a1584c8ac545.zip
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.3146358Z Starting download of artifact to: /home/runner/work/TicTic/TicTic/refinement-apks
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.4169994Z (node:2345) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:27.4171991Z (Use `node --trace-deprecation ...` to show where the warning was created)
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:29.5723215Z SHA256 digest of downloaded artifact is 65a1312363456a8ccf087e9f7df60e9abf5e9358768f4e070cea15c17c0a49a1
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:29.5723815Z Artifact download completed successfully.
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:29.5724135Z Total of 1 artifact(s) downloaded
+native (light-landscape, no, landscape)	Run actions/download-artifact@v8.0.2	2026-11-04T17:37:29.5730202Z Download artifact has finished successfully
+native (light-landscape, no, landscape)	Enable KVM and audio loader	﻿2026-11-04T17:37:29.5844624Z ##[group]Run sudo apt-get update
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5845068Z ^[[36;1msudo apt-get update^[[0m
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5845481Z ^[[36;1msudo apt-get install -y --no-install-recommends libpulse0^[[0m
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5846378Z ^[[36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules^[[0m
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5846955Z ^[[36;1msudo udevadm control --reload-rules^[[0m
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5847279Z ^[[36;1msudo udevadm trigger --name-match=kvm^[[0m
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5864840Z shell: /usr/bin/bash -e {0}
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.5865137Z ##[endgroup]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.6647271Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.6879676Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7086299Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7203821Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7672099Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [721 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7701751Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7833048Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.7862308Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [652 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.8913567Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1408 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.9286247Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [311 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.9422044Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1707 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.9642812Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.9765952Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1813 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:29.9968773Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [412 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.0106991Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.0221202Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1155 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.0375302Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [233 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.0497071Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1224 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.1226028Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [247 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.1348983Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.1525348Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:30.1657140Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:35.0742466Z Fetched 12.7 MB in 1s (9485 kB/s)
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.2319094Z Reading package lists...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.2702747Z Reading package lists...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.5228630Z Building dependency tree...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.5235119Z Reading state information...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7294077Z The following additional packages will be installed:
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7298159Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libsndfile1
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7303006Z   libvorbisenc2
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7314728Z Suggested packages:
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7315134Z   opus-tools pulseaudio
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7534584Z The following NEW packages will be installed:
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7540064Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libpulse0
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7546183Z   libsndfile1 libvorbisenc2
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7749914Z 0 upgraded, 8 newly installed, 0 to remove and 16 not upgraded.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7751139Z Need to get 1310 kB of archives.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7751502Z After this operation, 3874 kB of additional disk space will be used.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.7752049Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.8327965Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.8623956Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libflac12t64 amd64 1.4.3+ds-2.1ubuntu2 [197 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.9243702Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmp3lame0 amd64 3.100-6build1 [142 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.9577855Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:36.9918438Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopus0 amd64 1.4-1build1 [208 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.0229031Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libvorbisenc2 amd64 1.3.7-1build3 [80.8 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.0543177Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libsndfile1 amd64 1.2.2-1ubuntu5.24.04.1 [209 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.0876489Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpulse0 amd64 1:16.1+dfsg1-2ubuntu10.1 [292 kB]
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.3710029Z Fetched 1310 kB in 0s (3982 kB/s)
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.3957001Z Selecting previously unselected package libasyncns0:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4139440Z (Reading database ... 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4139779Z (Reading database ... 5%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4140031Z (Reading database ... 10%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4140465Z (Reading database ... 15%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4140859Z (Reading database ... 20%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4141222Z (Reading database ... 25%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4141554Z (Reading database ... 30%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4141885Z (Reading database ... 35%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4142218Z (Reading database ... 40%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4142540Z (Reading database ... 45%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4142818Z (Reading database ... 50%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.4182920Z (Reading database ... 55%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.5546523Z (Reading database ... 60%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.7594841Z (Reading database ... 65%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:37.9506343Z (Reading database ... 70%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.1579268Z (Reading database ... 75%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.3562766Z (Reading database ... 80%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.4571684Z (Reading database ... 85%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.6080720Z (Reading database ... 90%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7578216Z (Reading database ... 95%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7578841Z (Reading database ... 100%
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7579296Z (Reading database ... 215504 files and directories currently installed.)
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7625413Z Preparing to unpack .../0-libasyncns0_0.8-6build4_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7656026Z Unpacking libasyncns0:amd64 (0.8-6build4) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7849878Z Selecting previously unselected package libflac12t64:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7975990Z Preparing to unpack .../1-libflac12t64_1.4.3+ds-2.1ubuntu2_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.7987775Z Unpacking libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8204874Z Selecting previously unselected package libmp3lame0:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8331905Z Preparing to unpack .../2-libmp3lame0_3.100-6build1_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8340091Z Unpacking libmp3lame0:amd64 (3.100-6build1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8536346Z Selecting previously unselected package libmpg123-0t64:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8661156Z Preparing to unpack .../3-libmpg123-0t64_1.32.5-1ubuntu1.1_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8670143Z Unpacking libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8865949Z Selecting previously unselected package libopus0:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.8989760Z Preparing to unpack .../4-libopus0_1.4-1build1_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9004068Z Unpacking libopus0:amd64 (1.4-1build1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9205162Z Selecting previously unselected package libvorbisenc2:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9329532Z Preparing to unpack .../5-libvorbisenc2_1.3.7-1build3_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9339883Z Unpacking libvorbisenc2:amd64 (1.3.7-1build3) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9548791Z Selecting previously unselected package libsndfile1:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9674512Z Preparing to unpack .../6-libsndfile1_1.2.2-1ubuntu5.24.04.1_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9682717Z Unpacking libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:38.9898897Z Selecting previously unselected package libpulse0:amd64.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0025099Z Preparing to unpack .../7-libpulse0_1%3a16.1+dfsg1-2ubuntu10.1_amd64.deb ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0093682Z Unpacking libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0485925Z Setting up libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0508935Z Setting up libopus0:amd64 (1.4-1build1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0527514Z Setting up libasyncns0:amd64 (0.8-6build4) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0544788Z Setting up libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0561073Z Setting up libmp3lame0:amd64 (3.100-6build1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0580024Z Setting up libvorbisenc2:amd64 (1.3.7-1build3) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0598585Z Setting up libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0615787Z Setting up libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.0691728Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6659530Z 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6660182Z Running kernel seems to be up-to-date.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6660652Z 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6660782Z No services need to be restarted.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6660951Z 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6661061Z No containers need to be restarted.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6661233Z 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6661361Z No user sessions are running outdated binaries.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6661572Z 
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:39.6661757Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+native (light-landscape, no, landscape)	Enable KVM and audio loader	2026-11-04T17:37:40.7755177Z KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"
+native (light-landscape, no, landscape)	Preflight runner emulator without unnecessary latest upgrade	﻿2026-11-04T17:37:40.8051448Z ##[group]Run bash mynotes/tools/ci/use_installed_emulator.sh
+native (light-landscape, no, landscape)	Preflight runner emulator without unnecessary latest upgrade	2026-11-04T17:37:40.8051922Z ^[[36;1mbash mynotes/tools/ci/use_installed_emulator.sh^[[0m
+native (light-landscape, no, landscape)	Preflight runner emulator without unnecessary latest upgrade	2026-11-04T17:37:40.8064570Z shell: /usr/bin/bash -e {0}
+native (light-landscape, no, landscape)	Preflight runner emulator without unnecessary latest upgrade	2026-11-04T17:37:40.8064843Z ##[endgroup]
+native (light-landscape, no, landscape)	Preflight runner emulator without unnecessary latest upgrade	2026-11-04T17:37:40.8121591Z No preinstalled emulator; retain normal SDK installation.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	﻿2026-11-04T17:37:40.8316969Z ##[group]Run ReactiveCircus/android-emulator-runner@v2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8317323Z with:
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8317515Z   api-level: 34
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8317727Z   target: google_apis
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8317939Z   arch: x86_64
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8318146Z   profile: Nexus 5
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8318387Z   disk-size: 4G
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8318609Z   disable-animations: true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8319255Z   emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8323495Z   script: adb shell settings put global airplane_mode_on 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell svc wifi disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell svc data disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb install -r refinement-apks/debug/notes-debug.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell settings put system font_scale 1.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell cmd uimode night no
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.native_environment --orientation landscape
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.native_environment --snapshot configured
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell svc power stayon true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell settings put system screen_off_timeout 3600000
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell input keyevent KEYCODE_WAKEUP
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb shell wm dismiss-keyguard
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.run_ordered_modules --night no --orientation landscape
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	python3 -m mynotes.tools.ci.native_environment --snapshot after
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8326835Z   cores: 2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8327037Z   avd-name: test
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8327247Z   force-avd-creation: true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8327677Z   emulator-boot-timeout: 600
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8327917Z   emulator-port: 5554
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8328152Z   disable-spellchecker: false
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8328403Z   disable-linux-hw-accel: auto
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8328650Z   enable-hw-keyboard: false
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8328880Z   channel: stable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8329095Z ##[endgroup]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8887521Z ##[group]Configure emulator
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8889911Z API level: 34
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8890933Z System image API level: 34
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8891442Z target: google_apis
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8891802Z CPU architecture: x86_64
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8892180Z Hardware profile: Nexus 5
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8892548Z Cores: 2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8892850Z RAM size: 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8893168Z Heap size: 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8893836Z SD card path or size: 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8895209Z Disk size: 4G
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8895712Z AVD name: test
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8896308Z force avd creation: true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8896622Z Emulator boot timeout: 600
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8897071Z emulator port: 5554
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8897712Z emulator options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8898428Z disable animations: true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8898708Z disable spellchecker: false
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8899046Z disable Linux hardware acceleration: false
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8899424Z enable hardware keyboard: false
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8899719Z Channel: 0 (stable)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8901992Z Script:
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8902455Z adb shell settings put global airplane_mode_on 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8902808Z adb shell svc wifi disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8903109Z adb shell svc data disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8903428Z adb install -r refinement-apks/debug/notes-debug.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8903935Z adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8904413Z adb shell settings put system font_scale 1.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8904771Z adb shell cmd uimode night no
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8905166Z python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8905679Z python3 -m mynotes.tools.ci.native_environment --orientation landscape
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8906183Z python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8907000Z python3 -m mynotes.tools.ci.native_environment --snapshot configured
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8907439Z adb shell svc power stayon true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8907831Z adb shell settings put system screen_off_timeout 3600000
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8908226Z adb shell input keyevent KEYCODE_WAKEUP
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8908578Z adb shell wm dismiss-keyguard
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8909007Z python3 -m mynotes.tools.ci.run_ordered_modules --night no --orientation landscape
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8909644Z adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8910391Z python3 -m mynotes.tools.ci.native_environment --snapshot after
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8910888Z Pre emulator launch script:
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8911425Z ##[endgroup]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8911813Z ##[group]Install Android SDK
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:40.8961750Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:43.4983941Z Installing latest build tools, platform tools, and platform.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:43.4996639Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'> /dev/null
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:44.9700778Z Installing latest emulator.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:44.9712518Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:52.6322680Z Installing system images.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:37:52.6335613Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-34;google_apis;x86_64' --channel=0 > /dev/null
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:20.6031993Z ##[endgroup]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:20.6033198Z ##[group]Create AVD
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:20.6033778Z Creating AVD.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:20.6055739Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-34;google_apis;x86_64' --device 'Nexus 5'
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.4117496Z Loading local repository...                                                     
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.4142519Z [=========                              ] 25% Loading local repository...       
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.4161727Z [=========                              ] 25% Fetch remote repository...        
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.4162761Z [=======================================] 100% Fetch remote repository...       
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.4693881Z Auto-selecting single ABI x86_64
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9130589Z [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\ndisk.dataPartition.size=4G\n' >> /home/runner/.android/avd/test.avd/config.ini
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9151549Z ##[endgroup]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9153382Z ##[group]Launch Emulator
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9153799Z Starting emulator.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9165834Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none &
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9274542Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9275289Z INFO         | Graphics backend: gfxstream
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9276023Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9706529Z INFO         | Saving last run QEMU version for the AVD to 2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9707601Z INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9708591Z INFO         | Increasing RAM size to 2560MB
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9709633Z ##############################################################################
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9710607Z ##                        WARNING - ACTION REQUIRED                         ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9711433Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9712372Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9713244Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9714126Z ##  In a future release this warning will turn into a one-time blocking     ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9715283Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9716008Z ##                                                                          ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9716726Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9717565Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9718540Z ##  data is being collected by emulator as part of usage statistics.        ##
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9719362Z ##############################################################################
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9720066Z INFO         | Guest GLES Driver: Auto (ext controls)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9721176Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9722193Z INFO         | Checking system compatibility:
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9722833Z INFO         |   Checking: hasSufficientDiskSpace
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9723621Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9724367Z INFO         |   Checking: hasSufficientHwGpu
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9725103Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9725838Z INFO         |   Checking: hasSufficientSystem
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9726526Z INFO         |      Ok: System requirements to run avd: `test` are met
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:21.9728139Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2486456Z ERROR        | Unable to connect to adb daemon on port: 5037
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2515967Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 3174
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2516946Z INFO         | Initializing gfxstream backend
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2526383Z INFO         | startOpenglesRendererImpl: gpu info
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2526928Z INFO         | 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2563494Z INFO         | SharedLibrary::open for [libX11]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2563948Z WARNING      | Could not open libX11.so, try libX11.so.6
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2564344Z INFO         | SharedLibrary::open for [libX11.so.6]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2564683Z INFO         | SharedLibrary::open for [libX11-xcb]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2565061Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2565449Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2646614Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2647536Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2648209Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2650632Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2654331Z INFO         | Graphics Device Extensions N/A
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2792528Z INFO         | Sending adb public key [QAAAAJfdfPrZjUSGmsh1/AC+oCuKTfrTHlA+zGo1AAYsXKn1GXbYIa5X1JpSm4InZsw4SAnjxSLW8myJpnop2uci1gA5UsoTaKDud8MM8wBQdxw3ZYm9wdqn/v1BHOL8/z8sapgakGlYItpzNlSzA7IQP0sCrAXsPc/5km7ld+6xmCVZnJiuY14knXzTN7CMwygAhFRh/5LVJAP8jkuA0wsHGRIsDkdwN5tbd4rWKFJrUvDAh+yYS8nlyP1me8qUVB+yD59PbWEg6uA7QpYwHVV6YAbTRvLor6ELlSta+jxbmg9rCbQlnb6veuhbDaaKkRr8Ooa/wDX4sXaNECa2G+Flf6m0g/S5KyOsoVmTarRm8ANLVok2WsWCmf067EIQ10prbSv5aw4LHjaE8mxVmwMUbDtUqrnPFUPwXATr/J+s2uL3gmmIH9GIXYt7s6crJYg0Mph9Lni9H3ZYV9tn3a2QsyXU9isWBvwZVsYGC/Uo5/SAuyHq+Rnkg+B2Qh9f9PSWUR8Vy9RvZNB+/tkVo2xDS+nExW+vrgiZIPWlemmZVW1TzlWWpr26wyOj7isTY2Xm0DzPQSzaabxZov9b2pcEtOMov9FCQzSCRGDq3hunla/V5K/ffiFo7VpzqLaGaz62GwaoGrmyn8B3RxPcKHBoVLKD9dqoKL8cR8G5lolQrgQGXwruuQEAAQA= runner@unknown]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2797979Z INFO         | Userspace boot properties:
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2798878Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2799673Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2800637Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2801598Z INFO         |   androidboot.debug.sf.nobootanimation=1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2802500Z INFO         |   androidboot.hardware=ranchu
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2803112Z INFO         |   androidboot.hardware.gltransport=pipe
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2803453Z INFO         |   androidboot.logcat=*:V
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2804011Z INFO         |   androidboot.opengles.version=196608
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2804322Z INFO         |   androidboot.qemu=1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2809212Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAJfdfPrZjUSGmsh1/AC+oCuKTfrTHlA+zGo1AAYsXKn1GXbYIa5X1JpSm4InZsw4SAnjxSLW8myJpnop2uci1gA5UsoTaKDud8MM8wBQdxw3ZYm9wdqn/v1BHOL8/z8sapgakGlYItpzNlSzA7IQP0sCrAXsPc/5km7ld+6xmCVZnJiuY14knXzTN7CMwygAhFRh/5LVJAP8jkuA0wsHGRIsDkdwN5tbd4rWKFJrUvDAh+yYS8nlyP1me8qUVB+yD59PbWEg6uA7QpYwHVV6YAbTRvLor6ELlSta+jxbmg9rCbQlnb6veuhbDaaKkRr8Ooa/wDX4sXaNECa2G+Flf6m0g/S5KyOsoVmTarRm8ANLVok2WsWCmf067EIQ10prbSv5aw4LHjaE8mxVmwMUbDtUqrnPFUPwXATr/J+s2uL3gmmIH9GIXYt7s6crJYg0Mph9Lni9H3ZYV9tn3a2QsyXU9isWBvwZVsYGC/Uo5/SAuyHq+Rnkg+B2Qh9f9PSWUR8Vy9RvZNB+/tkVo2xDS+nExW+vrgiZIPWlemmZVW1TzlWWpr26wyOj7isTY2Xm0DzPQSzaabxZov9b2pcEtOMov9FCQzSCRGDq3hunla/V5K/ffiFo7VpzqLaGaz62GwaoGrmyn8B3RxPcKHBoVLKD9dqoKL8cR8G5lolQrgQGXwruuQEAAQA= runner@unknown
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2814217Z INFO         |   androidboot.qemu.avd_name=test
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2814580Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2814949Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2815322Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2815905Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2816645Z INFO         |   androidboot.qemu.gltransport.name=pipe
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2817004Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2817349Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2817692Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2818320Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2818750Z INFO         |   androidboot.qemu.skin=1080x1920
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2819078Z INFO         |   androidboot.qemu.virtiowifi=1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2819405Z INFO         |   androidboot.qemu.vsync=60
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2819743Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2820838Z INFO         |   androidboot.vbmeta.digest=451e57ed688ff746d2c636d52169ade253e2bc5bb30a5c3ff23679ca15d3bcd3
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2821369Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2821697Z INFO         |   androidboot.vbmeta.size=6656
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.2822067Z INFO         |   androidboot.veritymode=enforcing
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.3041244Z WARNING: cannnot unmap ptr 0x7ff691401000 as it is in the protected range from 0x7ff5f1400000 to 0x7ff691600000
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:22.3256039Z INFO         | Monitoring duration of emulator setup.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3080932Z INFO         | Successfully initialized netsim WiFi
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3082312Z INFO         | Activated packet streamer for bluetooth emulation
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3143641Z INFO         | Setting display: 0 configuration to: 1080x1920, dpi: 480x480 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3144430Z INFO         | setDisplayActiveConfig: id:0, 1080x1920
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3144860Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3223895Z USER_INFO    | Emulator is performing a full startup. This may take upto two minutes, or more.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3229781Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:23.3661371Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:31.9219195Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:31.9256459Z * daemon not running; starting now at tcp:5037
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:31.9337486Z * daemon started successfully
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:31.9342563Z adb: device offline
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:31.9354662Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:33.9399099Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:33.9448897Z adb: device offline
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:33.9457929Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:35.9488966Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:35.9521236Z adb: device offline
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:35.9525688Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:37.9553588Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:37.9611623Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:37.9613204Z adb: device offline
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:39.9653611Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:40.0485290Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:42.0536606Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:42.0811131Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:44.0853936Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:44.1088236Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:46.1121955Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:46.1454883Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:48.1539808Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:48.1746245Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:50.1802175Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:50.2076872Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:52.2126181Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:52.2551479Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:54.2584247Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:54.3149239Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:56.3204717Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:56.3600073Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:58.3643152Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:38:58.3904019Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:00.3951955Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:00.4355055Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:02.4382219Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:02.4677104Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:04.4731731Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:04.5109634Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:06.5231942Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:06.5632734Z 
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.5731910Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.8862605Z 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.8953489Z Emulator booted.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.9074228Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.9859017Z INFO         | Boot completed in 47033 ms
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:08.9862919Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.1593804Z Disabling animations.
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.1612197Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.4032497Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.5529882Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.7301352Z ##[endgroup]
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.7344765Z [command]/usr/bin/sh -c adb shell settings put global airplane_mode_on 1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:09.8327685Z [command]/usr/bin/sh -c adb shell svc wifi disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:10.0691745Z [command]/usr/bin/sh -c adb shell svc data disable
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:10.1832364Z [command]/usr/bin/sh -c adb install -r refinement-apks/debug/notes-debug.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:20.9744763Z Performing Streamed Install
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:20.9745728Z Success
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:20.9783849Z [command]/usr/bin/sh -c adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.0591685Z Performing Streamed Install
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.0621160Z Success
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.0669182Z [command]/usr/bin/sh -c adb shell settings put system font_scale 1.0
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.4439515Z [command]/usr/bin/sh -c adb shell cmd uimode night no
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.4965027Z Night mode: no
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:25.5179888Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:29.0001637Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --orientation landscape
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:30.3301557Z Natural display (1080, 1920); requested landscape; rotation=1
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:30.3383166Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --settle-app
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:31.9515716Z [command]/usr/bin/sh -c python3 -m mynotes.tools.ci.native_environment --snapshot configured
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T17:39:32.3952618Z [command]/usr/bin/sh -c adb shell svc power stayon true
+native (light-landscape, no, landscape)	Run ReactiveCircus/android-emulator-runner@v2	2026-11-04T18:41:53.1378271Z ##[error]The operation was canceled.
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	﻿2026-11-04T18:41:53.1449222Z ##[group]Run actions/upload-artifact@v7.0.2
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1449537Z with:
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1449788Z   name: module-native-light-landscape-ordered
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1450603Z   path: refinement-captures.tar
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	refinement-native*
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	ordered-module-*
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	refinement-environment-*
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	emulator-preflight.txt
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1451175Z   retention-days: 7
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1451400Z   if-no-files-found: warn
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1451649Z   compression-level: 6
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1451872Z   overwrite: false
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1452103Z   include-hidden-files: false
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1452347Z   archive: true
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1452539Z env:
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1452759Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.1453041Z ##[endgroup]
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.3058611Z With the provided path, there will be 2 files uploaded
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.3066892Z Artifact name is valid!
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.3067438Z Root directory input is valid!
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.5656336Z Uploading artifact: module-native-light-landscape-ordered.zip
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.5693671Z Beginning upload of artifact content to blob storage
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.7131405Z Uploaded bytes 15421
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.7415136Z Finished uploading artifact content to blob storage!
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.7416658Z SHA256 digest of uploaded artifact is 852f2b7dba8d1f61dc392b0048eda8f78ff61c21f634aee9bd9f626a33c3edd4
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:53.7417906Z Finalizing artifact upload
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:54.2922813Z Artifact module-native-light-landscape-ordered successfully finalized. Artifact ID 13351779319
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:54.2923703Z Artifact module-native-light-landscape-ordered has been successfully uploaded! Final size is 15421 bytes. Artifact ID is 13351779319
+native (light-landscape, no, landscape)	Run actions/upload-artifact@v7.0.2	2026-11-04T18:41:54.2926948Z Artifact download URL: https://github.com/tarungittarun/TicTic/actions/runs/41876975461/artifacts/13351779319
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	﻿2026-11-04T18:41:54.3107159Z Post job cleanup.
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4006604Z [command]/usr/bin/git version
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4047514Z git version 2.56.0
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4089101Z Temporarily overriding HOME='/home/runner/work/_temp/7043581e-b2b8-4e4f-850d-03ec1aff807b' before making global git config changes
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4091145Z Adding repository directory to the temporary git global config as a safe directory
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4094793Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4134636Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4170492Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4501121Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4531781Z http.https://github.com/.extraheader
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4582896Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4585648Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4894900Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+native (light-landscape, no, landscape)	Post Run actions/checkout@v5	2026-11-04T18:41:54.4963992Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+native (light-landscape, no, landscape)	Complete job	﻿2026-11-04T18:41:54.5393387Z Cleaning up orphan processes
+native (light-landscape, no, landscape)	Complete job	2026-11-04T18:41:54.5722134Z Terminate orphan process: pid (3174) (qemu-system-x86_64-headless)
+native (light-landscape, no, landscape)	Complete job	2026-11-04T18:41:54.5817174Z Terminate orphan process: pid (3178) (crashpad_handler)
+native (light-landscape, no, landscape)	Complete job	2026-11-04T18:41:54.5905216Z Terminate orphan process: pid (3232) (netsimd)
+native (light-landscape, no, landscape)	Complete job	2026-11-04T18:41:54.5998180Z Terminate orphan process: pid (3268) (adb)
+native (light-landscape, no, landscape)	Complete job	2026-11-04T18:41:54.6088074Z Terminate orphan process: pid (3540) (sh)

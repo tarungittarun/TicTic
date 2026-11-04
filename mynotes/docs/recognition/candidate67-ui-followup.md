@@ -1,0 +1,58 @@
+# Follow-up to pre66 physical feedback — in progress
+
+No next APK has been offered. User has not tested66. Intermediate diagnostic
+builds retain version66; the distributable version will advance only for the
+final qualification source. Development diagnostics are not release acceptance.
+
+## Implementation and acceptance matrix
+
+1. Home create controls now overlay the board, transparent container; bottom
+   padding keeps final cards reachable. Needs four-profile visual acceptance.
+2. Reorder edge-scroll is frame-paced/bounded and drops stale-target suppression
+   during scrolling. Existing native drag retained. Long-distance bottom-to-top
+   journey and animations-enabled qualification still required.
+3. Library Settings last/Folders penultimate, including Checklist; glyphs now
+   follow action names instead of obsolete indices. Needs native ordering check.
+4–6. Image reader primary actions no longer horizontally scroll/clip; shortened
+   labels retain full accessibility names; redundant Reset zoom removed (pinch
+   remains). Small-font OCR, startup speed and broader varied-image accuracy
+   investigation NOT complete. No model/recognition-output change yet.
+7. Shared Notes/Doc SelectionScrollView defers unselected-area down events,
+   directly scrolls/flings without collapsing selection; actual taps and long
+   holds forward to native editor, native endpoints remain native. Added actual
+   Android dispatch regression; attached real editor/handle extension still due.
+8. Discovered PDF hard cap of1,000 pages independently of32MiB. Raised bounded
+   visual preview caps to10,000 pages/128MiB; retained 2MP raster and bounded text
+   scratch. Automatic Viewed indexing stops at64 pages and marks partial, while
+   explicit Find still scans all pages. Added >18MiB/1097-page public fixture and
+   last-page rendering test; original private PDF not available/tested.
+9. Word page glyph geometry comes directly from the same shaped StaticLayout
+   painted to PDF, with Unicode cluster boundaries, image-span exclusion and
+   finite50k total/5k per-page geometry. Uses direct PdfSelectionImage rather than
+   long-hold opening Page text. Explicit Page text remains fallback and source
+   Unicode retained. Added source/geometry/direct-hold regression.
+10. PDF highlight bands now include font ascender/descender and join adjacent
+   glyphs on a line, rather than sparse separate ink rectangles. Outside-area
+   page scrolling retains selection; existing hold/drag/floating Copy retained.
+   Screenshot comparison against recreated public checklist/table still due.
+11. Overflow Zoom scope chooses Each page versus Whole file; normalized zoom
+   state propagates across visible/recycled pages without allocating larger
+   rasters. Preference persisted and viewport restores scope. Native scope
+   propagation/rotation regression still due.
+12–13. Full page audit and broad latency pass NOT complete. Do not infer those
+   from the targeted changes or structural Python tests.
+
+## Diagnostic execution
+
+New workflow notes-candidate67-interactions.yml compiles/lints on Actions only,
+then runs ViewedFileJourneysTest, ImageSelectionTest and the existing actual
+Home long-hold drag in light/dark × portrait/landscape. No distributable APK
+publication in this workflow. It is a focused diagnostic, NOT full module/corpus
+qualification. New three native tests are included in strict ordered inventory
+(432/profile) for eventual full qualification. Python structural guardrails are
+not substituted for Android execution. Native results currently pending.
+
+Never upload the supplied private screenshots; CI fixtures are generated public
+text/shapes. Stable package/signing and Calculator untouched. Root gate required
+before every push. Final module-ordered E2E, varied OCR/performance evidence,
+install-over proof and honestly recorded failures are required before sharing67.

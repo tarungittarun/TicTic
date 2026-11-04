@@ -12,12 +12,13 @@ class RegionDiscoverabilityTest(unittest.TestCase):
 
     def test_secondary_tools_are_compact_and_keep_accessible_names(self):
         source=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java').read_text()
-        for label,icon in [('Select all','check'),('Clear','close'),('Choose words','text'),('Reset zoom','fit')]:
+        for label,icon in [('Select all','check'),('Clear','close'),('Choose words','text')]:
             self.assertIn('d.icon("'+label+'","'+icon+'"',source)
+        self.assertNotIn('d.icon("Reset zoom"',source)
         self.assertIn('preview.setMinHeight(d.dp(48))',source)
 
     def test_primary_actions_are_pinned_outside_secondary_scrolling_controls(self):
         source=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java').read_text()
-        self.assertIn('sidePanel.addView(actionContainer,0',source)
+        self.assertIn('sidePanel.addView(actions,0',source)
         self.assertIn('sidePanel.addView(reread[0],1',source)
         self.assertIn('side.setLayoutParams(wide?new LinearLayout.LayoutParams(-1,0,1)',source)

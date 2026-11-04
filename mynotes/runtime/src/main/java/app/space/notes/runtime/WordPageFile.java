@@ -21,7 +21,7 @@ final class WordPageFile {
     private static final String SW="http://purl.oclc.org/ooxml/wordprocessingml/main",SR="http://purl.oclc.org/ooxml/officeDocument/relationships";
     private static final String W="http://schemas.openxmlformats.org/wordprocessingml/2006/main",R="http://schemas.openxmlformats.org/officeDocument/2006/relationships";
     private final Map<String,byte[]> files;private final Map<String,Bitmap> images=new HashMap<>();private final List<Bitmap> allocated=new ArrayList<>();
-    private final List<StringBuilder> pageText=new ArrayList<>();private String pageHeader="",pageFooter="";
+    private final List<StringBuilder> pageText=new ArrayList<>();private final List<List<PdfTextLayer.Glyph>> pageGlyphs=new ArrayList<>();private int selectionGlyphs;private String pageHeader="",pageFooter="";
     private final LinkedHashSet<String> warnings=new LinkedHashSet<>();private final StringBuilder plain=new StringBuilder();private int pixels,characters,paragraphs,keptImages;
     private float width=595,height=842,left=72,right=72,top=72,bottom=72,defaultSize=11;
     private String headerPart,footerPart;private final List<Paragraph> body=new ArrayList<>();
@@ -34,7 +34,7 @@ final class WordPageFile {
     static Result preview(Context context,byte[] bytes)throws Exception{
         WordPageFile document=new WordPageFile(archive(bytes));File target=File.createTempFile("word-pages-",".pdf",context.getCacheDir());boolean done=false;
         try{
-            document.prepare();document.render(target);com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(context.getApplicationContext());LocalPdfPreview.Document pdf=new LocalPdfPreview.Document(target);try{List<String> pageSources=new ArrayList<>();for(StringBuilder page:document.pageText)pageSources.add(page.toString());pdf.sourceText(pageSources);}catch(Exception | OutOfMemoryError failure){pdf.close();throw failure;}done=true;
+            document.prepare();document.render(target);com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(context.getApplicationContext());LocalPdfPreview.Document pdf=new LocalPdfPreview.Document(target);try{List<String> pageSources=new ArrayList<>();for(StringBuilder page:document.pageText)pageSources.add(page.toString());pdf.sourceText(pageSources);List<PdfTextLayer> layers=new ArrayList<>();for(List<PdfTextLayer.Glyph> glyphs:document.pageGlyphs)layers.add(new PdfTextLayer(glyphs));pdf.sourceLayers(layers);}catch(Exception | OutOfMemoryError failure){pdf.close();throw failure;}done=true;
             return new Result(pdf,document.plain.toString(),"Prepared-paper preview (approximate), not an original-layout guarantee.\n"+document.width+" × "+document.height+" pt; "+document.keptImages+" decoded image references.\n"+android.text.TextUtils.join("\n",document.warnings));
         }finally{document.releaseImages();if(!done)target.delete();}
     }
@@ -114,24 +114,38 @@ final class WordPageFile {
         float bodyTop=Math.max(top,headerLayout==null?top:headerLayout.getHeight()+20),bodyBottom=Math.min(height-bottom,footerLayout==null?height-bottom:height-footerLayout.getHeight()-20);if(bodyBottom-bodyTop<72)throw new IOException("Word header/footer leaves no safe body area; use original reader");
         PdfDocument pdf=new PdfDocument();PdfDocument.Page page=null;int pageNumber=0;float y=bodyTop;
         try{
-            for(Paragraph paragraph:body){StaticLayout text=layout(authoredText(paragraph),paragraph.align,contentWidth,paragraph.lineMultiple,paragraph.lineExtra);if(page==null || paragraph.pageBreak){if(page!=null)pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}y+=paragraph.before;int line=0;
+            for(Paragraph paragraph:body){StaticLayout text=layout(authoredText(paragraph),paragraph.align,contentWidth,paragraph.lineMultiple,paragraph.lineExtra);if(page==null || paragraph.pageBreak){if(page!=null)finishPage(pdf,page,footerLayout);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}y+=paragraph.before;int line=0;
                 while(line<text.getLineCount()){
                     int end=line;while(end<text.getLineCount() && text.getLineBottom(end)-text.getLineTop(line)<=bodyBottom-y)end++;
                     if(end==line){if(y<=bodyTop+Math.max(1,paragraph.before)){
                         float lineHeight=text.getLineBottom(line)-text.getLineTop(line);
                         float fit=Math.min(1,(bodyBottom-bodyTop)/Math.max(1,lineHeight));
                         Canvas canvas=page.getCanvas();canvas.save();canvas.clipRect(left,bodyTop,width-right,bodyBottom);canvas.translate(left,bodyTop);canvas.scale(fit,fit);canvas.translate(0,-text.getLineTop(line));text.draw(canvas);canvas.restore();
-                        pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(line)).append('\n');
+                        recordText(text,line,line+1,left,bodyTop-text.getLineTop(line)*fit,fit);pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(line)).append('\n');
                         warnings.add("Oversized line/image scaled to fit the available paper body.");y=bodyTop+lineHeight*fit;line++;continue;
-                    }pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;continue;}
-                    float block=text.getLineBottom(end-1)-text.getLineTop(line);Canvas canvas=page.getCanvas();canvas.save();canvas.clipRect(left,y,width-right,y+block);canvas.translate(left,y-text.getLineTop(line));text.draw(canvas);canvas.restore();pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(end-1)).append('\n');y+=block;line=end;if(line<text.getLineCount()){pdf.finishPage(page);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}
+                    }finishPage(pdf,page,footerLayout);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;continue;}
+                    float block=text.getLineBottom(end-1)-text.getLineTop(line);Canvas canvas=page.getCanvas();canvas.save();canvas.clipRect(left,y,width-right,y+block);canvas.translate(left,y-text.getLineTop(line));text.draw(canvas);canvas.restore();recordText(text,line,end,left,y-text.getLineTop(line),1);pageText.get(pageNumber-1).append(text.getText(),text.getLineStart(line),text.getLineEnd(end-1)).append('\n');y+=block;line=end;if(line<text.getLineCount()){finishPage(pdf,page,footerLayout);page=newPage(pdf,++pageNumber,headerLayout,footerLayout);y=bodyTop;}
                 }y+=paragraph.after;
             }
-            if(page!=null){pdf.finishPage(page);page=null;}for(StringBuilder source:pageText)source.append(pageFooter);try(OutputStream file=new FileOutputStream(target);OutputStream bounded=new FilterOutputStream(file){long count;@Override public void write(int b)throws IOException{if(++count>32L*1024*1024)throw new IOException("Rendered Word preview exceeds 32 MiB safety limit");out.write(b);}@Override public void write(byte[] b,int off,int length)throws IOException{if((count+=length)>32L*1024*1024)throw new IOException("Rendered Word preview exceeds 32 MiB safety limit");out.write(b,off,length);}}){pdf.writeTo(bounded);}
-        }finally{if(page!=null)try{pdf.finishPage(page);}catch(RuntimeException ignored){}pdf.close();}
+            if(page!=null){finishPage(pdf,page,footerLayout);page=null;}for(StringBuilder source:pageText)source.append(pageFooter);try(OutputStream file=new FileOutputStream(target);OutputStream bounded=new FilterOutputStream(file){long count;@Override public void write(int b)throws IOException{if(++count>32L*1024*1024)throw new IOException("Rendered Word preview exceeds 32 MiB safety limit");out.write(b);}@Override public void write(byte[] b,int off,int length)throws IOException{if((count+=length)>32L*1024*1024)throw new IOException("Rendered Word preview exceeds 32 MiB safety limit");out.write(b,off,length);}}){pdf.writeTo(bounded);}
+        }finally{if(page!=null)try{finishPage(pdf,page,footerLayout);}catch(RuntimeException ignored){}pdf.close();}
     }
+    /** Geometry is taken from the same shaped Layout that is painted, not re-OCRed or guessed from a rendered PDF font. */
+    private void recordText(StaticLayout layout,int first,int last,float x,float y,float scale){
+        List<PdfTextLayer.Glyph> glyphs=pageGlyphs.get(pageGlyphs.size()-1);CharSequence value=layout.getText();
+        java.text.BreakIterator characters=java.text.BreakIterator.getCharacterInstance(Locale.ROOT);characters.setText(value.toString());
+        int start=layout.getLineStart(first),limit=layout.getLineEnd(last-1);android.graphics.Path path=new android.graphics.Path();RectF rect=new RectF();
+        for(int at=start;at<limit;){int end=characters.following(at);if(end==java.text.BreakIterator.DONE || end>limit)end=limit;
+            if(selectionGlyphs>=50000 || glyphs.size()>=5000){warnings.add("On-page selection is bounded for very large documents; Page text retains the prepared source text.");break;}
+            String cluster=value.subSequence(at,end).toString();boolean image=value instanceof Spanned && ((Spanned)value).getSpans(at,end,ImageSpan.class).length>0;
+            if(!image && !cluster.equals("\n") && !cluster.equals("\r")){path.reset();layout.getSelectionPath(at,end,path);path.computeBounds(rect,true);if(!rect.isEmpty()){
+                glyphs.add(new PdfTextLayer.Glyph(cluster,(x+rect.left*scale)/width,(y+rect.top*scale)/height,(x+rect.right*scale)/width,(y+rect.bottom*scale)/height));selectionGlyphs++;
+            }}at=end;
+        }
+    }
+    private void finishPage(PdfDocument pdf,PdfDocument.Page page,StaticLayout footer){if(footer!=null)recordText(footer,0,footer.getLineCount(),left,height-footer.getHeight()-10,1);pdf.finishPage(page);}
     private PdfDocument.Page newPage(PdfDocument pdf,int number,StaticLayout header,StaticLayout footer)throws IOException{
-        if(number>1000)throw new IOException("Word preview exceeds 1,000 pages; original unchanged");pageText.add(new StringBuilder(pageHeader));PdfDocument.Page page=pdf.startPage(new PdfDocument.PageInfo.Builder(Math.round(width),Math.round(height),number).create());try{Canvas canvas=page.getCanvas();canvas.drawColor(Color.WHITE);if(header!=null){canvas.save();canvas.translate(left,10);header.draw(canvas);canvas.restore();}if(footer!=null){canvas.save();canvas.translate(left,height-footer.getHeight()-10);footer.draw(canvas);canvas.restore();}return page;}catch(RuntimeException | Error failure){try{pdf.finishPage(page);}catch(RuntimeException ignored){}throw failure;}
+        if(number>1000)throw new IOException("Word preview exceeds 1,000 pages; original unchanged");pageText.add(new StringBuilder(pageHeader));pageGlyphs.add(new ArrayList<>());PdfDocument.Page page=pdf.startPage(new PdfDocument.PageInfo.Builder(Math.round(width),Math.round(height),number).create());try{Canvas canvas=page.getCanvas();canvas.drawColor(Color.WHITE);if(header!=null){canvas.save();canvas.translate(left,10);header.draw(canvas);canvas.restore();recordText(header,0,header.getLineCount(),left,10,1);}if(footer!=null){canvas.save();canvas.translate(left,height-footer.getHeight()-10);footer.draw(canvas);canvas.restore();}return page;}catch(RuntimeException | Error failure){try{pdf.finishPage(page);}catch(RuntimeException ignored){}throw failure;}
     }
     private void releaseImages(){for(Bitmap bitmap:allocated)if(!bitmap.isRecycled())bitmap.recycle();allocated.clear();images.clear();}
 }

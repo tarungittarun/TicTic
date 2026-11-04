@@ -10,7 +10,7 @@ import android.widget.ImageView;
 /** Bounded visual zoom; keeps lazy page raster allocation independent of pinch scale. */
 class ZoomablePageImage extends ImageView {
     private float zoom=1,panX,panY,focusX,focusY;
-    private float[] pendingZoom;
+    private float[] pendingZoom;java.util.function.Consumer<float[]> zoomChanged;
     private final ScaleGestureDetector pinch;
     private final GestureDetector gestures;
     ZoomablePageImage(Context context){
@@ -61,7 +61,7 @@ class ZoomablePageImage extends ImageView {
     @Override public boolean onTouchEvent(MotionEvent event){
         if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(event.getPointerCount()>1 || zoom>1);
         pinch.onTouchEvent(event);gestures.onTouchEvent(event);
-        if(event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL){if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);}
+        if(event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL){if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);}if(event.getActionMasked()==MotionEvent.ACTION_UP && zoomChanged!=null)zoomChanged.accept(savedZoom());
         return true;
     }
     @Override public boolean performClick(){super.performClick();return true;}

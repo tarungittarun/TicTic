@@ -34,6 +34,10 @@ public final class NotesBoard extends RecyclerView {
             @Override public boolean canDropOver(RecyclerView r,ViewHolder a,ViewHolder b){int x=a.getBindingAdapterPosition(),y=b.getBindingAdapterPosition();return x>=0 && y>=0 && x<rows.size() && y<rows.size() && rows.get(x) instanceof Note && rows.get(y) instanceof Note && ((Note)rows.get(x)).pinned==((Note)rows.get(y)).pinned;}
             @Override public ViewHolder chooseDropTarget(ViewHolder selected,List<ViewHolder> candidates,int x,int y){float cx=x+selected.itemView.getWidth()/2f,cy=y+selected.itemView.getHeight()/2f;if(dragLastTarget!=null && !dragTargetBounds.contains(Math.round(cx),Math.round(cy)))dragLastTarget=null;ViewHolder best=null;double distance=Double.MAX_VALUE;for(ViewHolder candidate:candidates){View v=candidate.itemView;int position=candidate.getBindingAdapterPosition();boolean repeated=position>=0 && position<rows.size() && rows.get(position) instanceof Note && ((Note)rows.get(position)).id.equals(dragLastTarget);if(!repeated && canDropOver(NotesBoard.this,selected,candidate) && cx>=v.getLeft() && cx<=v.getRight() && cy>=v.getTop() && cy<=v.getBottom()){double d=Math.hypot(cx-(v.getLeft()+v.getRight())/2f,cy-(v.getTop()+v.getBottom())/2f);if(d<distance){distance=d;best=candidate;}}}return best;}
             @Override public boolean onMove(RecyclerView r,ViewHolder a,ViewHolder b){if(!canDropOver(r,a,b))return false;int from=a.getBindingAdapterPosition(),to=b.getBindingAdapterPosition();dragLastTarget=((Note)rows.get(to)).id;dragTargetBounds.set(b.itemView.getLeft(),b.itemView.getTop(),b.itemView.getRight(),b.itemView.getBottom());Object item=rows.remove(from);rows.add(to,item);dragMoves++;adapter.notifyItemMoved(from,to);return true;}
+            @Override public int interpolateOutOfBoundsScroll(RecyclerView view,int size,int beyond,int total,long elapsed){
+                float edge=Math.min(1,Math.abs(beyond)/(float)Math.max(dp(48),size/3));
+                float ramp=Math.min(1,(elapsed+150)/650f);return (beyond<0?-1:1)*Math.max(1,Math.round(dp(18)*edge*ramp));
+            }
             @Override public void onSwiped(ViewHolder h,int direction){}
             @Override public void onSelectedChanged(ViewHolder h,int state){if(state==ItemTouchHelper.ACTION_STATE_DRAG){dragEpoch++;dragMoves=0;dragLastTarget=null;dragTargetBounds.setEmpty();dragDiagnostic="dragging";dragBefore=new ArrayList<>(rows);int source=h==null?-1:h.getBindingAdapterPosition();dragSource=source>=0 && rows.get(source) instanceof Note?(Note)rows.get(source):null;dragging=true;dragGesture=true;workspaceSwipe=false;dropAccepted=false;}super.onSelectedChanged(h,state);}
             @Override public void clearView(RecyclerView r,ViewHolder h){
@@ -52,7 +56,7 @@ public final class NotesBoard extends RecyclerView {
                     if(!rows.equals(before))listener.reorder(ids);else if(source!=null)listener.select(source);refreshAfterGesture();
                 }});
             }
-        });dragHelper.attachToRecyclerView(this);addOnScrollListener(new OnScrollListener(){@Override public void onScrolled(RecyclerView r,int dx,int dy){if(dragLastTarget!=null)dragTargetBounds.offset(-dx,-dy);}});
+        });dragHelper.attachToRecyclerView(this);addOnScrollListener(new OnScrollListener(){@Override public void onScrolled(RecyclerView r,int dx,int dy){if(dy!=0){dragLastTarget=null;dragTargetBounds.setEmpty();}else if(dragLastTarget!=null)dragTargetBounds.offset(-dx,-dy);}});
     }
     @Override protected void onDetachedFromWindow(){dragEpoch++;super.onDetachedFromWindow();dragEpoch++;}
     private void refreshAfterGesture(){if(refreshAfterDrag && !dragging && !dragGesture){refreshAfterDrag=false;listener.refresh();}}

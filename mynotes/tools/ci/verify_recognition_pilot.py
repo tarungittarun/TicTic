@@ -7,8 +7,9 @@ from mynotes.tools.ci.results import android
 
 
 def verify(text, classes):
-    expected = [name for name in methods() if name.split('#')[0] in classes]
-    if not expected or {name.split('#')[0] for name in expected} != set(classes):
+    inventory = methods()
+    expected = [name for name in inventory if name in classes or name.split('#')[0] in classes]
+    if not expected or any(not any(name == selector or name.split('#')[0] == selector for name in expected) for selector in classes):
         raise ValueError('Unknown or empty pilot test class')
     return android(text, expected)
 

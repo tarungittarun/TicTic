@@ -44,7 +44,7 @@ class DeviceFeedbackRound16(unittest.TestCase):
         self.assertIn('NotesAppearance.dark(activity,host)',native)
         self.assertIn('parent.setBackgroundColor(design.background)',native)
         pdf=(JAVA/'LocalPdfPreview.java').read_text()
-        for action in ['Select page text','Share original file','new ZoomablePageImage']:
+        for action in ['Select page text','Share original file','new PdfSelectionImage']:
             self.assertIn(action,pdf)
 
     def test_share_grants_read_only_and_selection_opens_without_insertion(self):

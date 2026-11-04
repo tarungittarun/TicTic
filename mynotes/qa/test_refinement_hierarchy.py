@@ -19,7 +19,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
             self.assertIn(token, creation)
         self.assertNotIn('tool(dock,"+ Checklist"',dock)
         self.assertIn('if(!documentsWorkspace && !page.equals("Trash"))menuRows(navigation',home)
-        new_row=home.split('LinearLayout createRow=tools(root);',1)[1].split('LinearLayout dock=tools(root);',1)[0]
+        new_row=home.split('LinearLayout createRow=new LinearLayout(context);',1)[1].split('LinearLayout dock=tools(root);',1)[0]
         self.assertIn('if(!page.equals("Trash")){Button create=',new_row)
         self.assertIn('"New text note"',new_row)
         self.assertIn('createRow.addView(create);',new_row)

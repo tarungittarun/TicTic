@@ -137,4 +137,29 @@ public class ViewedFileJourneysTest {
         Uri uri=Uri.parse("content://com.android.externalstorage.documents/document/primary%3Anever-write-original.txt");try{ViewedFileCopy.write(context(),uri,uri);fail("Never truncate original URI");}catch(IOException expected){assertTrue(expected.getMessage().contains("different destination"));}
     }
     private void remove(File file){File[] children=file.listFiles();if(children!=null)for(File child:children)remove(child);file.delete();}
+    @Test public void wordPreparedGeometrySelectsActualUnicodeWithoutOpeningTextDialog()throws Exception{
+        Map<String,String> files=new LinkedHashMap<>();files.put("word/document.xml","<w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:body><w:p><w:r><w:t>Direct Word selection ಭಾರತ 😀</w:t></w:r></w:p></w:body></w:document>");
+        WordPageFile.Result result=WordPageFile.preview(context(),zip(files));try{
+            PdfTextLayer layer=result.pdf.selection(0);assertFalse(layer.glyphs.isEmpty());assertEquals("Direct Word selection ಭಾರತ 😀",layer.selected(0,layer.glyphs.size()-1));
+            for(PdfTextLayer.Glyph glyph:layer.glyphs){assertTrue(glyph.box.width()>0);assertTrue(glyph.box.height()>0);assertTrue(glyph.box.top>=0);assertTrue(glyph.box.bottom<=1);}
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{PdfSelectionImage image=new PdfSelectionImage(context(),(view,point)->view.selectionReady(layer,point));android.widget.FrameLayout parent=new android.widget.FrameLayout(context());parent.addView(image);android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(595,842,android.graphics.Bitmap.Config.ARGB_8888);try{image.setImageBitmap(bitmap);image.layout(0,0,595,842);PdfTextLayer.Glyph first=layer.glyphs.get(0);assertTrue(image.onPageLongPress(first.box.centerX()*595,first.box.centerY()*842));image.clearLayer();image.setImageDrawable(null);}finally{bitmap.recycle();}});
+        }finally{result.pdf.closeText();result.pdf.close();}
+    }
+    @Test public void selectionSurvivesDragInUnselectedTextWhileViewportScrolls(){
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+            SelectionScrollView scroll=new SelectionScrollView(context());NotesController.WritingField field=new NotesController.WritingField(context());field.setTextSize(18);StringBuilder value=new StringBuilder();for(int i=0;i<200;i++)value.append("Line ").append(i).append(" selectable text\n");field.setText(value);scroll.addView(field,new android.widget.ScrollView.LayoutParams(-1,-2));scroll.measure(android.view.View.MeasureSpec.makeMeasureSpec(400,1073741824),android.view.View.MeasureSpec.makeMeasureSpec(240,1073741824));scroll.layout(0,0,400,240);assertTrue(field.requestFocus());field.setSelection(1,7);
+            long now=android.os.SystemClock.uptimeMillis();int[] actions={0,2,2,1};float[] y={210,160,90,80};for(int i=0;i<actions.length;i++){android.view.MotionEvent event=android.view.MotionEvent.obtain(now,now+i*80,actions[i],360,y[i],0);try{assertTrue(scroll.dispatchTouchEvent(event));}finally{event.recycle();}}
+            assertEquals(1,field.getSelectionStart());assertEquals(7,field.getSelectionEnd());assertTrue("Actual ScrollView must move, not just swallow touch",scroll.getScrollY()>50);
+        });
+    }
+    @Test public void eighteenMiBThousandPagePdfOpensAndRendersLastPage()throws Exception{
+        File file=File.createTempFile("public-large-pdf-",".pdf",context().getCacheDir());LocalPdfPreview.Document doc=null;
+        try{com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(context());try(com.tom_roush.pdfbox.pdmodel.PDDocument generated=new com.tom_roush.pdfbox.pdmodel.PDDocument()){
+            for(int i=0;i<1097;i++)generated.addPage(new com.tom_roush.pdfbox.pdmodel.PDPage());
+            // Uncompressed synthetic attachment exercises real >18MiB I/O without private source pixels.
+            com.tom_roush.pdfbox.pdmodel.common.PDStream padding=new com.tom_roush.pdfbox.pdmodel.common.PDStream(generated);try(OutputStream out=padding.createOutputStream()){byte[] block=new byte[8192];for(int i=0;i<2304;i++)out.write(block);}generated.getDocumentCatalog().getCOSObject().setItem("PublicFixturePadding",padding);generated.save(file);
+        }assertTrue(file.length()>18L*1024*1024);long started=android.os.SystemClock.elapsedRealtime();doc=new LocalPdfPreview.Document(file);assertEquals(1097,doc.ratios.length);try(android.graphics.pdf.PdfRenderer.Page page=doc.renderer.openPage(1096)){android.graphics.Bitmap raster=android.graphics.Bitmap.createBitmap(120,170,android.graphics.Bitmap.Config.ARGB_8888);try{page.render(raster,null,null,android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);}finally{raster.recycle();}}
+        android.util.Log.i("NotesPublicBenchmark","large_pdf_open_ms="+(android.os.SystemClock.elapsedRealtime()-started)+" bytes="+file.length()+" pages=1097");
+        }finally{if(doc!=null){doc.closeText();doc.close();}file.delete();}
+    }
 }

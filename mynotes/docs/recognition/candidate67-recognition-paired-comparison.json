@@ -31,9 +31,15 @@
       "score_worse": 80,
       "score_better": 88,
       "median_ms_old": 1506.5,
-      "median_ms_new": 1459.0
+      "median_ms_new": 1459.0,
+      "metric": "normalized_wer",
+      "mean_old": 0.19002211942976857,
+      "mean_new": 0.18927914781459532,
+      "previous_target_passes_now_missed": 31,
+      "previous_target_misses_now_passed": 26
     }
   ],
   "timing_scope": "Emulator wall-clock only; not a controlled physical speed comparison",
-  "accuracy_improvement_claimed": false
+  "accuracy_improvement_claimed": false,
+  "interpretation": "Recognition source and weights unchanged. OCR outputs identical. Speech outputs varied:239 changed,80 normalized-WER worse and88 better;31 prior target passes now missed and26 prior misses now passed. Five fewer threshold passes despite slightly lower mean WER. Neither an accuracy improvement nor a blanket no-recognition-regression claim is established. Sixteen silence controls have matched parameters but no recorded input hash."
 }

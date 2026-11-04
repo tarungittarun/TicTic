@@ -2,12 +2,15 @@
 
 ## Latest source-bound status (supersedes historical pending notes below)
 
-- Shipping-candidate source **acfd671d**, code67/0.67.0; raw APK artifact13347771946,155177704B (**+4392B versus66**). Not offered yet.
-- **180/180 focused interaction checks passed**, and **12/12 reorder checks passed with explicitly verified animation scale1.0**. Proofs retained under interactions/41874321912 and41882249147. Physical smoothness is not established.
-- **Exact signed66→67 install-over passed on API26 and34**; original six native phase logs and byte/source identities retained under updates/41877111541. No uninstall/clear; private-folder and rich-payload fixtures retained. Not proof of a real user's SAF library or microphone.
-- All twelve main benchmark lanes completed success, including separately captured public-scene inference. Final independent4752+8 count/score verification remains a report gate; no universal accuracy claim.
-- Original native light portrait failed to boot before tests; its **437 methods are being captured once on the same compiled APKs**, not rebuilt or retried after assertions. Original native light landscape is still running; dark portrait/landscape passed. Composite report41883233302 must pass every completeness/provenance guard before sharing.
-- Models unchanged; the rejected blanket4x experiment is **not adopted**. Tiny text, complex scenes/emoji and real microphone accuracy remain capability limits, not solved by a UI pass.
+- Candidate source **acfd671d**, code67/0.67.0; raw APK artifact13347771946,155177704B (**+4392B versus66**). **Not offered** until every native/completeness gate passes.
+- **180/180 focused checks** and **12/12 explicitly scale1.0 reorder checks** passed and are retained. Not physical smoothness acceptance.
+- Exact signed66→67 install-over passed on **API26 and34**, retaining all six actual native phase logs under updates/41877111541. No uninstall/clear. Not proof of a user's exact SAF library or microphone.
+- Original full41876975461 remains red: portrait boot failed before tests; landscape stalled in **host `svc power stayon true` before the native launcher** until65-minute cancellation. Original landscape log and two-file pre-native artifact are retained under failures/41876975461-light-landscape; no app ANR/native assertions observed there.
+- Portrait supplement41882249274 **passed all437 methods**. Dark portrait/landscape original437 each passed. Only missing landscape437 is now captured by41891572081 against the same original APKs. No rebuild/model inference repeats. First landscape recovery failed at Python import setup, not app testing; corrected run must verify and retain that actual failure log.
+- Host cause is fixed for recovery and future full matrices: replace synchronous power-service stayon call with Settings; bound adb steps and preserve partial native results. Does not retroactively fix or relabel the original run.
+- Original **4752 main inferences and8 additional public observations** independently scored. OCR24/1536 target misses; speech695/3216. All8 additional public cases non-exact: English poster adds spurious script text around illustrations; French signs remain unsupported. Universal/tiny-text/emoji accuracy remains unresolved.
+- Paired66→67 comparison: OCR1536 hypotheses identical. Speech239 changed,80 worse/88 better by normalized WER; **31 previous passes now miss,26 prior misses now pass**, five fewer target passes overall. Mean WER slightly lower (.190022→.189279), not proof of improvement. No model/recognition implementation changes; no blanket no-accuracy-regression claim. Timing is emulator-only, not physical speed evidence.
+- Strict composite must still establish **1748 native +4752 original +8 separate observations**, preserve both original zero-test failures and exact capture provenance, before the development APK is offered. Physical acceptance remains pending.
 
 No next APK has been offered. User has not tested66. Intermediate diagnostic
 builds retain version66; the distributable version will advance only for the

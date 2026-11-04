@@ -21,7 +21,7 @@ public class OcrRasterScaleTest {
             assertTrue((long)size[0]*size[1]*scale*scale <= 4000000.01);
         }
     }
-    @Test public void largeDocumentIsNotEnlarged() {assertEquals(1, OcrRasterScale.factor(2000,2000),0);}
+    @Test public void largeDocumentIsNotEnlarged() {assertEquals(1, OcrRasterScale.factor(2000,2000),0);assertEquals("Preserve qualified native-script document raster",1,OcrRasterScale.factor(2400,1000),0);}
     @Test(expected=IllegalArgumentException.class) public void invalidDimensionsRejected() {OcrRasterScale.factor(0,100);}
     @Test(expected=IllegalArgumentException.class) public void oversizedRejected() {OcrRasterScale.factor(Integer.MAX_VALUE,Integer.MAX_VALUE);}
 }

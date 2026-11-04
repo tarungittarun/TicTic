@@ -1,5 +1,14 @@
 # Follow-up to pre66 physical feedback — in progress
 
+## Latest source-bound status (supersedes historical pending notes below)
+
+- Shipping-candidate source **acfd671d**, code67/0.67.0; raw APK artifact13347771946,155177704B (**+4392B versus66**). Not offered yet.
+- **180/180 focused interaction checks passed**, and **12/12 reorder checks passed with explicitly verified animation scale1.0**. Proofs retained under interactions/41874321912 and41882249147. Physical smoothness is not established.
+- **Exact signed66→67 install-over passed on API26 and34**; original six native phase logs and byte/source identities retained under updates/41877111541. No uninstall/clear; private-folder and rich-payload fixtures retained. Not proof of a real user's SAF library or microphone.
+- All twelve main benchmark lanes completed success, including separately captured public-scene inference. Final independent4752+8 count/score verification remains a report gate; no universal accuracy claim.
+- Original native light portrait failed to boot before tests; its **437 methods are being captured once on the same compiled APKs**, not rebuilt or retried after assertions. Original native light landscape is still running; dark portrait/landscape passed. Composite report41883233302 must pass every completeness/provenance guard before sharing.
+- Models unchanged; the rejected blanket4x experiment is **not adopted**. Tiny text, complex scenes/emoji and real microphone accuracy remain capability limits, not solved by a UI pass.
+
 No next APK has been offered. User has not tested66. Intermediate diagnostic
 builds retain version66; the distributable version will advance only for the
 final qualification source. Development diagnostics are not release acceptance.

@@ -1,0 +1,73 @@
+name: Independently audit candidate62 against v60 and v61
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-ocr62-history.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require exact original source and artifact identities
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,subprocess
+          entries=[
+            (13266431752,'7da80375b7fd3f337cc0f48be871beef645dae41','59d32bf4cb8e48303bc80bf62a4ee6f050f9efd4e8579a767f8c137290cc6a2d'),
+            (13266585204,'7da80375b7fd3f337cc0f48be871beef645dae41','7d0c48af8e3c482ee0610bad53daeefad8eda0677128401669904833f704d3ba'),
+            (13266735820,'7da80375b7fd3f337cc0f48be871beef645dae41','31595386a72a11fb4850593f20af1b9d062609b3e7de1d123c8274147a8a4237'),
+            (13293104979,'a3833061a4888d6f831f8fed7146425a12fe9a67','6f17bd7b17c2537407f60cfbd2d7ff906bc5977cd86d46fed7044d9762d0c3f5'),
+            (13294270881,'a3833061a4888d6f831f8fed7146425a12fe9a67','a2fa17f53f9c3531537d5513c602de61285273071d113d04979644365dc16839'),
+            (13293686966,'a3833061a4888d6f831f8fed7146425a12fe9a67','af1a3206edb15a1e55369ea6250943ec72fdd23b47451243c00e572c2fa6b8f1')]
+          entries.extend([
+            (13295362259,'84a02f6f954add7bf1b6a8ea3a8d0c12a59ebebd','7a3e95ff692b826491e92df86196bc1ca1e58b9297e0eb2825aecde3194d8e6e'),
+            (13295611952,'84a02f6f954add7bf1b6a8ea3a8d0c12a59ebebd','65d3e7b270e5e52a21cc388df4ca700537f82dbb2b4b1a18d2d583a3d5bfa1fe'),
+            (13295751261,'84a02f6f954add7bf1b6a8ea3a8d0c12a59ebebd','cf5360be644bde2f35d34d3f76a1c09de5d28854be8417660a46de16f27e30ec')])
+          receipts=[]
+          for identity,source,digest in entries:
+              a=json.loads(subprocess.check_output(['gh','api',f'repos/tarungittarun/TicTic/actions/artifacts/{identity}']))
+              assert not a['expired'] and a['workflow_run']['head_sha']==source
+              assert a['digest']=='sha256:'+digest
+              receipts.append({k:a[k] for k in ('id','name','digest','workflow_run')})
+          pathlib.Path('artifact-receipts.json').write_text(json.dumps(receipts,indent=2)+'\n')
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41704429338
+          pattern: module-benchmark-*-ocr
+          path: baseline60
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41767304608
+          pattern: module-benchmark-*-ocr
+          path: baseline61
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41771337080
+          pattern: module-benchmark-*-ocr
+          path: candidate62
+      - name: Retain both exact-pixel comparisons even if either has a regression
+        run: |
+          failed=0
+          python3 -m mynotes.tools.ci.audit_ocr61_history baseline60 candidate62 historical-60-62.json --baseline-run 41704429338 --candidate-run 41771337080 || failed=1
+          python3 -m mynotes.tools.ci.audit_ocr61_history baseline61 candidate62 historical-61-62.json --baseline-run 41767304608 --candidate-run 41771337080 || failed=1
+          exit "$failed"
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: independently-rescored-historical-ocr62
+          path: |
+            historical-60-62.json
+            historical-61-62.json
+            artifact-receipts.json
+          if-no-files-found: error
+          retention-days: 7

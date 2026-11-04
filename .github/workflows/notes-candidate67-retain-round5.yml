@@ -1,0 +1,81 @@
+# Original diagnostic proof only: retain original source inventory and raw failures, no device repeats.
+name: Retain round5 candidate67 interaction diagnostic evidence
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate67-retain-round5.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preserve_original_diagnostics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41837142840
+          pattern: recognition-focused-*
+          path: original-diagnostics
+      - name: Retain original native failures and exact public evidence without rerunning them
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import json,pathlib,subprocess,shutil,tarfile,re
+          from mynotes.tools.ci.results import android
+          from mynotes.tools.ci.retain_public_captures import retain
+          from mynotes.tools.ci.test_plan import mask_comments_and_strings
+          out=pathlib.Path('mynotes/docs/recognition/interactions/41837142840');out.mkdir(parents=True,exist_ok=True)
+          def api(path):return json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/'+path],text=True))
+          run=api('actions/runs/41837142840');assert run['head_sha']=='2c9a3d363387006e33755f832d7e86be1eec5661'
+          jobs=api('actions/runs/41837142840/jobs?per_page=100')['jobs'];receipts=[]
+          subprocess.run(['git','fetch','origin',run['head_sha'],'--depth=1'],check=True)
+          expected=[]
+          for cls in ['ViewedFileJourneysTest','ImageSelectionTest']:
+              path='mynotes/app/src/androidTest/java/app/space/notes/runtime/'+cls+'.java'
+              original=subprocess.check_output(['git','show',run['head_sha']+':'+path],text=True)
+              expected += ['app.space.notes.runtime.'+cls+'#'+name for name in re.findall(r'@Test\s+public\s+void\s+(\w+)\s*\(',mask_comments_and_strings(original))]
+          expected+=['app.space.notes.CoreJourneysTest#'+name for name in ['nativeHomeLongHoldDragPersistsUserOrderWithoutChangingDocuments','nativeNotesBottomToTopDragScrollsAcrossThirtySixCards','nativeDocBottomToTopDragScrollsAcrossThirtySixCards','wholeAppLibraryTraversalRecordsEachVisitedPage','wholeAppSettingsTraversalRecordsEachVisitedPage','nativeNotesSelectionSurvivesUnselectedAreaScroll','nativeDocSelectionSurvivesUnselectedAreaScroll']];assert len(expected)==45
+          for folder in pathlib.Path('original-diagnostics').iterdir():
+              if not folder.is_dir():continue
+              dest=out/folder.name;dest.mkdir(exist_ok=True)
+              for source in folder.iterdir():
+                  if source.suffix in {'.txt','.json'} and source.stat().st_size<5000000:shutil.copyfile(source,dest/source.name)
+              capture=retain(folder/'refinement-captures.tar',dest)
+              (dest/'capture-status.json').write_text(json.dumps(capture,indent=2)+'\n')
+              verified=android((dest/'refinement-native.txt').read_text(),expected);(dest/'refinement-native-verified.json').write_text(json.dumps(verified,indent=2)+'\n');receipts.append({'profile':folder.name,'verification':verified})
+          assert len(receipts)==4
+          for job in jobs:
+              if job['name'].startswith('interactions'):
+                  annotations=api(f"check-runs/{job['id']}/annotations");(out/(str(job['id'])+'-annotations.json')).write_text(json.dumps(annotations,indent=2)+'\n')
+          target=next(job for job in jobs if job['name']=='interactions (light-portrait, no, portrait)')
+          log=subprocess.check_output(['gh','api','--allow-escape-sequences',f"repos/tarungittarun/TicTic/actions/jobs/{target['id']}/logs"])
+          assert len(log)<10000000
+          log=re.sub(r'(https?://[^\s?]+)\?[^\s]+',r'\1?[redacted-query]',log.decode('utf8',errors='replace'))
+          (out/'original-light-portrait-job.log').write_text(log)
+          (out/'provenance.json').write_text(json.dumps({'source':run['head_sha'],'run':run['id'],'jobs':jobs,'profiles':receipts,'tests_repeated':False,'full_acceptance':False,'physical_acceptance':False},indent=2)+'\n')
+      - name: Root gate and retain on the session branch only
+        run: |
+          set -euo pipefail
+          python3 -m pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 uharfbuzz==0.52.0
+          test "$(git branch --show-current)" = 'arena/3caca636-tictic'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          python3 -m unittest discover -s qa
+          git diff --check
+          git add mynotes/docs/recognition/interactions/41837142840
+          git commit -m 'Preserve original interaction diagnostic failures and public captures, not qualification [skip ci]'
+          for attempt in 1 2 3; do
+            if git push origin arena/3caca636-tictic; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            git pull --rebase origin arena/3caca636-tictic
+            python3 -m unittest discover -s qa
+          done

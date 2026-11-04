@@ -45,7 +45,7 @@ class ReleaseRichUpdateProbe(unittest.TestCase):
                 return self.output(self.proof(phase,version))
             return ''
         device.adb.side_effect=adb
-        with tempfile.TemporaryDirectory() as folder,patch('mynotes.tools.ci.release_rich_update_probe.Device',return_value=device),patch('mynotes.tools.ci.release_rich_update_probe.Path') as paths:
+        with tempfile.TemporaryDirectory() as folder,patch('mynotes.tools.ci.release_rich_update_probe.Device',return_value=device),patch('mynotes.tools.ci.release_rich_update_probe.Path'),patch('builtins.print'):
             result=verify('old.apk','candidate.apk','probe.apk',str(Path(folder)/'proof.json'),66,67)
         self.assertTrue(result['ok']);calls=[c.args for c in device.adb.call_args_list]
         self.assertEqual(1,calls.count(('install','-r','candidate.apk')))

@@ -40,7 +40,7 @@ def load(folder):
     return indexed
 
 
-def summarize(baseline, candidate):
+def summarize(baseline, candidate, baseline_run=41704429338, candidate_run=41767304608):
     pairs = []
     for profile in PROFILES:
         name = 'module-benchmark-'+profile+'-ocr'
@@ -55,9 +55,9 @@ def summarize(baseline, candidate):
                             'accuracy_targets_met': sum(r['cer'] <= .2 for r in ok),
                             'mean_cer': statistics.mean(r['cer'] for r in ok) if ok else None,
                             'median_historical_elapsed_ms': statistics.median(r['elapsed_ms'] for r in rows)}
-    return {'scope': 'Historical v60 versus v61; 384 synthetic images repeated across three profiles, NOT 1152 independent real photos. Exact original input pixels/reference/render fields required. Timing non-causal: different historical guests.',
-            'excluded_profile': 'light-landscape: v60 OCR lane did not produce an artifact; not an accuracy-based exclusion',
-            'source_runs': {'baseline': 41704429338, 'candidate': 41767304608},
+    return {'scope': f'Historical run {baseline_run} versus {candidate_run}; 384 synthetic images repeated across three profiles, NOT 1152 independent real photos. Exact original input pixels/reference/render fields required. Timing non-causal: different historical guests.',
+            'excluded_profile': 'Fixed three-profile cohort inherited from absent v60 light-landscape artifact; not an accuracy-based exclusion',
+            'source_runs': {'baseline': baseline_run, 'candidate': candidate_run},
             'summary': summary, 'improved_pairs': sum(p['improved'] for p in pairs),
             'regressed_pairs': sum(p['regressed'] for p in pairs), 'adopted': False, 'pairs': pairs}
 
@@ -67,8 +67,10 @@ def main():
     p.add_argument('baseline', type=Path)
     p.add_argument('candidate', type=Path)
     p.add_argument('output', type=Path)
+    p.add_argument('--baseline-run', type=int, default=41704429338)
+    p.add_argument('--candidate-run', type=int, default=41767304608)
     args = p.parse_args()
-    result = summarize(args.baseline, args.candidate)
+    result = summarize(args.baseline, args.candidate, args.baseline_run, args.candidate_run)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False)+'\n')
     summary = {k:v for k,v in result.items() if k != 'pairs'}
     print('::notice title=Historical OCR measurement::'+json.dumps(summary))

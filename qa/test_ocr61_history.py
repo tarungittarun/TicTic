@@ -24,3 +24,14 @@ class HistoricalOcr61Test(unittest.TestCase):
                 pair(old, {**old, field: 'changed'})
         with self.assertRaises(ValueError):
             pair(old, {**old, 'recognized': 'bad', 'cer': 0.})
+
+    def test_supplemental_audits_identify_actual_source_runs(self):
+        from unittest.mock import patch
+        from pathlib import Path
+        from mynotes.tools.ci.audit_ocr61_history import summarize
+        row=self.row('hello',0.)
+        with patch('mynotes.tools.ci.audit_ocr61_history.load',return_value={'one':row}):
+            report=summarize(Path('old'),Path('new'),41767304608,41771337080)
+        self.assertEqual({'baseline':41767304608,'candidate':41771337080},report['source_runs'])
+        self.assertIn('41771337080',report['scope'])
+        self.assertFalse(report['adopted'])

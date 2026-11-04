@@ -17,3 +17,10 @@ class Candidate67MigrationPlan(unittest.TestCase):
         self.assertIn('08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca',text)
         self.assertIn("'android.permission.INTERNET' not in manifest",text)
         self.assertNotIn('adb uninstall',text);self.assertNotIn('pm clear',text);self.assertNotIn('install -d',text)
+    def test_native_probe_checks_explicit_pair_instead_of_stale_64_to_66_assertions(self):
+        text=(ROOT/'mynotes/app/releaseMigration/java/app/space/notes/ReleaseRichMigrationProbe.java').read_text()
+        self.assertIn('oldVersion>0 && candidateVersion>oldVersion',text)
+        self.assertIn('assertEquals(oldVersion,version)',text);self.assertIn('assertEquals(candidateVersion,version)',text)
+        self.assertNotIn('assertEquals(64,version)',text);self.assertNotIn('assertEquals(66,version)',text)
+        runner=(ROOT/'mynotes/tools/ci/release_rich_update_probe.py').read_text()
+        self.assertIn("'oldReleaseCode',old_code",runner);self.assertIn("'candidateReleaseCode',candidate_code",runner)

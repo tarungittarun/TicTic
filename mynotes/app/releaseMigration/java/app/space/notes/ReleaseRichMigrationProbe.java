@@ -62,9 +62,11 @@ public class ReleaseRichMigrationProbe {
         String phase=args.getString("richPhase");assertTrue(Arrays.asList("create","before","after").contains(phase));
         int version=context.getPackageManager().getPackageInfo(context.getPackageName(),0).versionCode;
         assertEquals(Integer.parseInt(args.getString("expectedReleaseCode")),version);
+        int oldVersion=Integer.parseInt(args.getString("oldReleaseCode","64")),candidateVersion=Integer.parseInt(args.getString("candidateReleaseCode","66"));assertTrue("Only explicit increasing release codes",oldVersion>0 && candidateVersion>oldVersion);
+        assertEquals("after".equals(phase)?candidateVersion:oldVersion,version);
         NotesRepository repository=new NotesRepository(context);File marker=new File(context.getFilesDir(),"ci-public-rich-old-snapshot.json");
         if("create".equals(phase)){
-            assertEquals(64,version);assertFalse("Never overwrite an earlier checkpoint",marker.exists());
+            assertEquals(oldVersion,version);assertFalse("Never overwrite an earlier checkpoint",marker.exists());
             assertTrue("Never seed a populated library",repository.loadForStartup().isEmpty());assertTrue(repository.appOnlyStorage());
             List<Note> notes=fixtures();repository.createFolder("PublicUpgrade",Collections.emptyList());repository.save(notes);
             Files.write(marker.toPath(),DocumentCodec.encode(notes));
@@ -77,7 +79,7 @@ public class ReleaseRichMigrationProbe {
         assertTrue(repository.listPrivateFolders(actual).contains("PublicUpgrade"));
         // Verify the candidate can write its own repository snapshot and cold-read it,
         // not just decode an untouched old file. Neither uninstall nor data clearing.
-        if("after".equals(phase)){assertEquals(66,version);repository.save(actual);assertArrayEquals(expected,DocumentCodec.encode(new NotesRepository(context).loadForStartup()));}
+        if("after".equals(phase)){assertEquals(candidateVersion,version);repository.save(actual);assertArrayEquals(expected,DocumentCodec.encode(new NotesRepository(context).loadForStartup()));}
         JSONObject proof=new JSONObject().put("phase",phase).put("version_code",version).put("notes",4).put("old_snapshot_sha256",hash(expected))
             .put("payload_unchanged",true).put("private_folder_retained",true).put("candidate_write_readback", "after".equals(phase))
             .put("physical_acceptance",false).put("ui_rendering_acceptance",false).put("scope","Public repository-generated legacy/rich/checklist/canonical Doc/image/drawing/table/diagram/label/folder/trash/reminder/voice-source metadata; not real recordings, SAF or exhaustive user-library acceptance");

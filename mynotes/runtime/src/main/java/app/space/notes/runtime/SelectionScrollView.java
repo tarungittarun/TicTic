@@ -9,6 +9,8 @@ import android.widget.*;
  * Real taps retain normal caret behavior; endpoint gestures stay in Android's editor.
  */
 final class SelectionScrollView extends ScrollView {
+    private Runnable userGesture;
+    void onUserGesture(Runnable listener){userGesture=listener;}
     private MotionEvent down;private float lastY;private boolean scrolling;private VelocityTracker velocity;
     private final Runnable passHold=()->{if(down!=null && !scrolling){MotionEvent held=MotionEvent.obtain(down);release();super.dispatchTouchEvent(held);held.recycle();}};
     SelectionScrollView(Context context){super(context);}
@@ -31,6 +33,9 @@ final class SelectionScrollView extends ScrollView {
     }
     @Override public boolean dispatchTouchEvent(MotionEvent event){
         int action=event.getActionMasked();
+        // Deferred range-preserving gestures bypass child/onTouch listeners. The
+        // editor must still cancel pending automatic caret reveal before scrollBy.
+        if((action==MotionEvent.ACTION_DOWN || action==MotionEvent.ACTION_MOVE) && userGesture!=null)userGesture.run();
         if(action==MotionEvent.ACTION_DOWN){release();if(defer(event)){down=MotionEvent.obtain(event);lastY=event.getY();scrolling=false;velocity=VelocityTracker.obtain();velocity.addMovement(event);postDelayed(passHold,ViewConfiguration.getLongPressTimeout());return true;}}
         if(down==null)return super.dispatchTouchEvent(event);
         if(event.getPointerCount()>1){release();return super.dispatchTouchEvent(event);}

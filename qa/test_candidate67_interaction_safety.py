@@ -81,3 +81,13 @@ class NativeSelectionTapTargetSafety(unittest.TestCase):
         self.assertIn('fieldBounds.intersect(windowBounds)',source)
         self.assertNotIn('float tapY=(point[1]+point[3])/2',source)
         self.assertIn('A deliberate tap deselects normally without changing content',source)
+
+class DeferredSelectionGestureCancelsCaretReveal(unittest.TestCase):
+    def test_custom_dispatch_notifies_editor_before_swallowing_or_scrolling(self):
+        source=(JAVA/'SelectionScrollView.java').read_text()
+        dispatch=source.split('@Override public boolean dispatchTouchEvent',1)[1]
+        self.assertLess(dispatch.index('userGesture.run()'),dispatch.index('if(action==MotionEvent.ACTION_DOWN)'))
+        self.assertIn('action==MotionEvent.ACTION_MOVE',dispatch.split('userGesture.run()',1)[0])
+        doc=(JAVA/'DocumentEditorView.java').read_text()
+        self.assertIn('((SelectionScrollView)scroll).onUserGesture(()->caretRevealUntil=0)',doc)
+        self.assertNotIn('scroll.setOnTouchListener((v,event)->{if(event.getActionMasked()',doc)

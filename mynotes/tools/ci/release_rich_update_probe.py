@@ -42,7 +42,7 @@ def verify(old,candidate,tester,output,old_code=64,candidate_code=66):
             if phase=='after':
                 device.adb('install','-r',candidate);after=device.state();report['to']=after
                 if after['version_code']!=candidate_code or after['first_install_time']!=before['first_install_time']:raise ValueError('Installation identity changed')
-            result=device.adb('shell','am','instrument','-w','-r','-e','timeout_msec','120000','-e','explicitPublicFixtureOnly',TOKEN,'-e','richPhase',phase,'-e','expectedReleaseCode',version,'-e','class',METHOD,'app.space.notes.test/androidx.test.runner.AndroidJUnitRunner')
+            result=device.adb('shell','am','instrument','-w','-r','-e','timeout_msec','120000','-e','explicitPublicFixtureOnly',TOKEN,'-e','richPhase',phase,'-e','expectedReleaseCode',version,'-e','oldReleaseCode',old_code,'-e','candidateReleaseCode',candidate_code,'-e','class',METHOD,'app.space.notes.test/androidx.test.runner.AndroidJUnitRunner')
             Path('rich-probe-'+phase+'.txt').write_text(result)
             report['phases'].append(parse_proof(result,phase,version))
         if len({r['old_snapshot_sha256'] for r in report['phases']})!=1:raise ValueError('Old checkpoint identity changed across phases')

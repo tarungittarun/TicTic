@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-11-04T18:17:24.854428+00:00",
+  "observed_at_utc": "2026-11-04T19:21:34.122368+00:00",
   "source": "acfd671d4afa4fceb09475cc6e70d1dabb77aefe",
   "build_run": 41876975461,
   "artifact": 13347771946,
@@ -21,16 +21,16 @@
   "same_install_identity_and_rich_payloads_retained": true,
   "focused_native_outcomes_passed": 180,
   "explicit_animation_enabled_reorder_outcomes_passed": 12,
-  "full_native_qualification_pending": true,
+  "full_native_qualification_pending": false,
   "original_native_boot_failure_job": 126746123138,
   "native_boot_supplement_capture_run": 41882249274,
-  "planned_composite_report_run": null,
+  "planned_composite_report_run": 41892075423,
   "model_changed": false,
   "training_steps": 0,
   "physical_acceptance": false,
   "release_approval": false,
-  "apk_shared": false,
-  "local_sandbox_download_note": "Artifact download redirected to a storage host unavailable from this sandbox. No complete local APK was obtained; the empty failed-transfer file was removed. Delivery will use the authenticated native raw GitHub artifact only after all report gates pass.",
+  "apk_shared": true,
+  "local_sandbox_download_note": "No local APK obtained. Identity and signature verified in both original CI install-over jobs. Delivery is the authenticated native raw GitHub artifact, not a ZIP wrapper.",
   "original_native_outcomes_retained": 874,
   "portrait_supplement_native_passed": 437,
   "original_landscape_cancelled_job": 126746123067,
@@ -44,5 +44,29 @@
   "recognition_comparison": "candidate67-recognition-paired-comparison.json",
   "ocr_accuracy_target_misses": 24,
   "voice_accuracy_target_misses": 695,
-  "all_accuracy_targets_met": false
+  "all_accuracy_targets_met": false,
+  "development_functional_qualification": true,
+  "full_native_outcomes_passed": 1748,
+  "full_native_methods_per_profile": 437,
+  "full_native_profiles": [
+    "light-portrait",
+    "dark-portrait",
+    "light-landscape",
+    "dark-landscape"
+  ],
+  "landscape_supplement_native_passed": 437,
+  "qualified_composite_report_run": 41892075423,
+  "report_path": "mynotes/docs/module-e2e/41892075423/MyNotes-Module-E2E-Report.pdf",
+  "report_pages": 1119,
+  "report_sha256": "9fa4063e49318fe08015d5928e0308968d2c5f90dda2f62d795a98d8b27d541d",
+  "report_bytes": 19101497,
+  "native_capture_runs": {
+    "dark-landscape-ordered": 41876975461,
+    "dark-portrait-ordered": 41876975461,
+    "light-landscape-ordered": 41891572081,
+    "light-portrait-ordered": 41882249274
+  },
+  "root_tests_passed": 1006,
+  "download_url": "https://github.com/tarungittarun/TicTic/actions/runs/41876975461/artifacts/13347771946",
+  "delivery_scope": "Signed raw development APK for physical-device testing; complete native execution does not mean all recognition accuracy targets met or physical acceptance."
 }

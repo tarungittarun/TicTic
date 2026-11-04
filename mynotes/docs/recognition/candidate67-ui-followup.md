@@ -1,18 +1,23 @@
 # Follow-up to pre66 physical feedback — in progress
 
-## Latest source-bound status (supersedes historical pending notes below)
+## Qualified development delivery — source acfd671d (supersedes historical pending notes below)
 
-- Candidate source **acfd671d**, code67/0.67.0; raw APK artifact13347771946,155177704B (**+4392B versus66**). **Not offered** until every native/completeness gate passes.
-- **180/180 focused checks** and **12/12 explicitly scale1.0 reorder checks** passed and are retained. Not physical smoothness acceptance.
-- Exact signed66→67 install-over passed on **API26 and34**, retaining all six actual native phase logs under updates/41877111541. No uninstall/clear. Not proof of a user's exact SAF library or microphone.
-- Original full41876975461 remains red: portrait boot failed before tests; landscape stalled in **host `svc power stayon true` before the native launcher** until65-minute cancellation. Original landscape log and two-file pre-native artifact are retained under failures/41876975461-light-landscape; no app ANR/native assertions observed there.
-- Portrait supplement41882249274 **passed all437 methods**. Dark portrait/landscape original437 each passed. Only missing landscape437 is now captured by41891572081 against the same original APKs. No rebuild/model inference repeats. First landscape recovery failed at Python import setup, not app testing; corrected run must verify and retain that actual failure log.
-- Host cause is fixed for recovery and future full matrices: replace synchronous power-service stayon call with Settings; bound adb steps and preserve partial native results. Does not retroactively fix or relabel the original run.
-- Original **4752 main inferences and8 additional public observations** independently scored. OCR24/1536 target misses; speech695/3216. All8 additional public cases non-exact: English poster adds spurious script text around illustrations; French signs remain unsupported. Universal/tiny-text/emoji accuracy remains unresolved.
-- Paired66→67 comparison: OCR1536 hypotheses identical. Speech239 changed,80 worse/88 better by normalized WER; **31 previous passes now miss,26 prior misses now pass**, five fewer target passes overall. Mean WER slightly lower (.190022→.189279), not proof of improvement. No model/recognition implementation changes; no blanket no-accuracy-regression claim. Timing is emulator-only, not physical speed evidence.
-- Strict composite must still establish **1748 native +4752 original +8 separate observations**, preserve both original zero-test failures and exact capture provenance, before the development APK is offered. Physical acceptance remains pending.
+[Raw signed MyNotes0.67/67 development APK](https://github.com/tarungittarun/TicTic/actions/runs/41876975461/artifacts/13347771946) —155177704B, +4392B versus66. Native unarchived APK; no complete APK was downloaded into this sandbox. Hash/signature identity independently verified in both API26/API34 original signed update jobs. Link expires2026-11-11T17:29:41Z.
 
-No next APK has been offered. User has not tested66. Intermediate diagnostic
+[1119-page ordered native/recognition E2E report](../module-e2e/41892075423/MyNotes-Module-E2E-Report.pdf) is complete and passed strict source/inventory/count guards. See candidate67-final-source-artifact-receipt.json for immutable APK/PDF identities.
+
+- **1748/1748 native outcomes passed**,437 methods ×light/dark ×portrait/landscape. Dark profiles captured in original41876975461; portrait supplement41882249274 and landscape supplement41891572081 used the same original compiled APKs. No app/model rebuild or4752-measurement rerun.
+- **180/180 focused interaction outcomes** and **12/12 explicitly animation-scale1.0 reorder outcomes** separately passed and are retained. Not physical smoothness acceptance.
+- Exact signed66→67 install-over passed on **API26 and34**, retaining all six native phase logs under updates/41877111541. No uninstall/clear. This is emulator fixture preservation, not proof of a user's exact SAF library or microphone.
+- Original full run remains red: portrait boot timeout before tests and landscape65-minute cancellation at **host `svc power stayon true` before native launcher invocation**. Actual original landscape log and both original environment files are preserved in the final report directory. Recovery's initial missing-PYTHONPATH preflight failure and its actual log are retained too; no asserted test failure replaced.
+- Cause fixed for recovery and future matrices: use bounded Settings-based keep-awake, not the observed blocking power-service command. Bound adb phases and preserve incomplete results without approval. Does not retroactively relabel original runs green.
+- **4752 main inferences and8 additional public observations independently scored**. OCR24/1536 target misses; speech695/3216. All8 additional cases non-exact: English poster still adds spurious script text around illustrations; French outdoor signs unsupported. Universal/tiny-font/emoji/scene accuracy remains unresolved.
+- Paired66→67: OCR1536 hypotheses identical; speech239 changed,80 worse/88 better by normalized WER; **31 prior passes now miss,26 prior misses now pass** (five fewer threshold passes). Mean WER slightly lower (.190022→.189279); not proof of accuracy improvement or blanket no-recognition-regression. Models/recognition implementation unchanged. Emulator timing is not controlled physical speed evidence.
+- Install over the existing signed copy; **do not uninstall or clear data**. If Android rejects the update, stop and retain the error. Device/SAF/private18MB original PDF/microphone acceptance and Keep-like physical smoothness still require actual device confirmation. This is not production/public release approval.
+
+## Historical investigation log (does not override qualified delivery above)
+
+The following entries record earlier withheld builds and unresolved acceptance criteria at the time. User has not tested66. Intermediate diagnostic
 builds retain version66; the distributable version will advance only for the
 final qualification source. Development diagnostics are not release acceptance.
 

@@ -22,3 +22,7 @@ class RetainPublicCaptures(unittest.TestCase):
             with tarfile.open(path,'w') as bundle:
                 member=tarfile.TarInfo('../image-text-selection.png');member.size=1;bundle.addfile(member,io.BytesIO(b'x'))
             self.assertFalse(retain(path,root/'out')['available']);self.assertFalse((root/'image-text-selection.png').exists())
+    def test_job_log_retention_allows_bytes_but_redacts_url_queries(self):
+        source=(Path(__file__).resolve().parents[1]/'.github/workflows/notes-candidate67-retain-original.yml').read_text()
+        self.assertIn("['gh','api','--allow-escape-sequences'",source)
+        self.assertIn('[redacted-query]',source)

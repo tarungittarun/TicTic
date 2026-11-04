@@ -102,3 +102,13 @@ for that profile is unavailable, not fabricated/relabelled. Retainer now records
 missing/empty/corrupt capture explicitly while retaining original raw native
 outcomes. Four actual Python file-I/O tests cover empty/corrupt/named/traversal
 archives. Device tests are not repeated for proof-retention repairs.
+
+Reader41831443088 confirmed the third retainer was blocked by gh CLI's terminal
+escape-sequence guard when reading the original job log. Added the same explicit
+--allow-escape-sequences already used by the proven failure reader, with URL-query
+redaction before public retention. No device/test repetition. Small-font study
+in41830346993 completed its two test methods (149 measurements planned), but an
+accidentally copied43-case interaction verifier then rejected those two study
+identities. Raw study JSON is retained by the artifact step; inspect/recover the
+actual data, do not relabel this workflow green or rerun inference merely to fix
+that reporting gate. No OCR production change has been adopted.

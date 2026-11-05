@@ -1,3 +1,4 @@
+# Candidate68: full444-method/profile qualification after successful source-matching five-lane viewer gate; no physical acceptance.
 # Final67 qualification: native range ownership passed180/180 focused checks in41874321912; exact source, all437 methods/profile,4752 main inferences plus8 separately scored public-scene observations.
 # Candidate67: preserve Notes manual range viewport through IME/relayout; retain strict after-layout scroll assertion that exposed this defect.
 # Candidate67: honor manual selected-range viewport even for already queued / unconditional relayout caret reveals; reset intent on a real selection/caret change.
@@ -24,10 +25,29 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression67-${{ github.ref }}
+  group: notes-module-e2e-regression68-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  viewer_gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Require successful exact-source viewer interactions before full qualification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYGATE'
+          import json,subprocess
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41951373044']))
+          assert run['status']=='completed' and run['conclusion']=='success', 'Viewer interaction gate is not green; no full qualification or APK publication'
+          assert run['head_sha']=='adf705ff29b9487ed7cbdf84bd02ff08c59bbbfc'
+          subprocess.run(['git','diff','--exit-code',run['head_sha'],'HEAD','--','mynotes'],check=True)
+          PYGATE
   build:
+    needs: viewer_gate
     if: github.ref == 'refs/heads/arena/3caca636-tictic'
     runs-on: ubuntu-24.04
     timeout-minutes: 40

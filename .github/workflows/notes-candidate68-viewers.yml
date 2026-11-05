@@ -1,3 +1,4 @@
+# Round9: identical pixel range for drag/scroll, strict endpoint assertion, painted-IME capture guard, consistent search gutters and vertical previous/next icons.
 # Round8: actual dialog-inclusive loader capture; remove fictitious spreadsheet fixture title. No assertion waiver or production change.
 # Round7: continuous pixel-based page rail, actual injected rail drag, and within-page progress assertion. Supersedes round6 in its concurrency group.
 # Round6: fix actual window-review findings: vertically aligned filename and compact rounded page pill; retain 48dp target.
@@ -15,7 +16,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-viewers68-r6-${{ github.ref }}
+  group: notes-viewers68-r9-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -24,19 +25,6 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
-      - name: Retain each exact initial native cause in bounded annotations
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download 41949675736 --name pdf68-focused-dark-portrait-api36-small-font --dir /tmp/pdf68-initial
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          result=json.loads(Path('/tmp/pdf68-initial/refinement-native-verified.json').read_text())
-          for failure in result.get('failures',[]):
-              excerpt='\n'.join(failure.splitlines()[:12])[:1800]
-              print('::warning title=Round4 API36 native cause (not this source)::'+excerpt.replace('%','%25').replace('\n','%0A').replace('\r','%0D'))
-          PY
       - uses: ./.github/actions/setup-mynotes
       - name: Prepare public ground-truth evaluation corpus, verify original licenses and hashes
         run: |

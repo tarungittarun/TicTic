@@ -16,8 +16,14 @@ class Candidate68ViewerContracts(unittest.TestCase):
  def test_loader_capture_includes_dialog_window_not_just_underlying_activity(self):
   s=(R/'mynotes/app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
   self.assertIn('boolean systemWindow=name.equals("pdf68-search-above-keyboard") || name.equals("pdf68-offline-recognition-loader")',s)
-  self.assertIn('Bitmap bitmap=systemWindow?instrument.getUiAutomation().takeScreenshot()',s)
+  self.assertIn('Bitmap bitmap=systemWindow?composedScreenshot(',s)
   self.assertNotIn('Synthetic spreadsheet preview',(R/'mynotes/app/src/androidTest/java/app/space/notes/runtime/ViewedFileJourneysTest.java').read_text())
+ def test_drag_and_scroll_share_pixel_geometry_and_capture_requires_painted_ime(self):
+  s=(JAVA/'LocalPdfPreview.java').read_text()
+  for text in ['scrubTo(fraction)','distance-before','range==0?0:fraction','"Previous match","up"','query.setPadding(design.dp(12)']:self.assertIn(text,s)
+  test=(R/'mynotes/app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
+  self.assertIn('End drag must not snap back to last-page start',test)
+  self.assertIn('if(high-low>24)return shot',test)
  def test_file_zoom_changes_page_geometry_not_shared_image_crop(self):
   s=(JAVA/'LocalPdfPreview.java').read_text()
   for text in ['viewport.getWidth()*(fileZoom?fileScale:1)','pages.getLayoutParams().width=width','holder.image.getLayoutParams().height','fileScaleChanged=fileZoom?']:self.assertIn(text,s)

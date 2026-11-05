@@ -54,9 +54,9 @@ jobs:
           python3 - <<'PYWAIT'
           import subprocess,json,time
           for attempt in range(60):
-              data=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41952856261/artifacts']))
+              data=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41956285981/artifacts']))
               if any(a['name']=='MyNotes-v0.68.0-68-development.apk' and not a['expired'] for a in data['artifacts']):break
-              run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41952856261']))
+              run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41956285981']))
               if run['status']=='completed':raise SystemExit('Exact source run ended without candidate artifact; no migration executed')
               time.sleep(10)
           else:raise SystemExit('Candidate artifact unavailable after bounded wait; no migration executed')
@@ -70,7 +70,7 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41952856261
+          run-id: 41956285981
           name: MyNotes-v0.68.0-68-development.apk
           path: candidate-apk
       - name: Verify exact original and candidate identity, raw bytes and stable signer
@@ -80,9 +80,9 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
           python3 - <<'PY'
           import json,hashlib,subprocess,os,pathlib
-          candidates=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41952856261/artifacts']))['artifacts']
+          candidates=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41956285981/artifacts']))['artifacts']
           selected=[a for a in candidates if a['name']=='MyNotes-v0.68.0-68-development.apk'];assert len(selected)==1;candidate=selected[0]
-          specs=[('old',67,13347771946,41876975461,'acfd671d4afa4fceb09475cc6e70d1dabb77aefe','91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de'),('candidate',68,candidate['id'],41952856261,'76378f90ba5f6dd09588bdcda040e026ece3cc96',candidate['digest'].removeprefix('sha256:'))]
+          specs=[('old',67,13347771946,41876975461,'acfd671d4afa4fceb09475cc6e70d1dabb77aefe','91dd4b679027b747d6f5e7d55d5b12b697992a2bf29ed9bc1e20256312e007de'),('candidate',68,candidate['id'],41956285981,'13977f13609a38fcf4f545508b574829f3bf1f18',candidate['digest'].removeprefix('sha256:'))]
           proof={};tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
           for label,code,artifact,run,source,expected in specs:
               meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/'+str(artifact)]))

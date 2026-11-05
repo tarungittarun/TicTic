@@ -1,3 +1,4 @@
+# Final viewer-window audit source: centered filename, compact pixel-tracking rail, actual injected drag, dialog-inclusive loader and no fictitious CSV heading. Wait for exact five-lane gate before build; supersede old pre-audit full run.
 # Candidate68: full444-method/profile qualification after successful source-matching five-lane viewer gate; no physical acceptance.
 # Final67 qualification: native range ownership passed180/180 focused checks in41874321912; exact source, all437 methods/profile,4752 main inferences plus8 separately scored public-scene observations.
 # Candidate67: preserve Notes manual range viewport through IME/relayout; retain strict after-layout scroll assertion that exposed this defect.
@@ -30,20 +31,21 @@ concurrency:
 jobs:
   viewer_gate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 8
       - name: Require successful exact-source viewer interactions before full qualification
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh run watch 41956018427 --exit-status --interval 30
           python3 - <<'PYGATE'
           import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41951373044']))
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41956018427']))
           assert run['status']=='completed' and run['conclusion']=='success', 'Viewer interaction gate is not green; no full qualification or APK publication'
-          assert run['head_sha']=='adf705ff29b9487ed7cbdf84bd02ff08c59bbbfc'
+          assert run['head_sha']=='d431b1665b318d8ffb7aaa099eee8922d2bff1c9'
           subprocess.run(['git','diff','--exit-code',run['head_sha'],'HEAD','--','mynotes'],check=True)
           PYGATE
   build:

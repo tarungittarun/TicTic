@@ -1,3 +1,4 @@
+# Round5: explicit hardware Enter consumption and actual text-key injection; retain four green API34 lanes from round4, still require source-matching rerun.
 # Round4: force exact Recycler width during horizontal measurement; refresh geometry on size and consume Enter before focus traversal.
 # Round3: window-focus-aware IME, no landscape extraction, physical-span pinch, attached Word and real marking.
 # Round2: actual whole-file measurement fix, persistent search, real pointer/key input and SAF copies.
@@ -11,7 +12,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-viewers68-r4-${{ github.ref }}
+  group: notes-viewers68-r5-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -24,14 +25,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download 41918473400 --name pdf68-focused-dark-landscape --dir /tmp/pdf68-initial
+          gh run download 41949675736 --name pdf68-focused-dark-portrait-api36-small-font --dir /tmp/pdf68-initial
           python3 - <<'PY'
           import json
           from pathlib import Path
           result=json.loads(Path('/tmp/pdf68-initial/refinement-native-verified.json').read_text())
           for failure in result.get('failures',[]):
               excerpt='\n'.join(failure.splitlines()[:12])[:1800]
-              print('::warning title=Round3 native cause (not this source)::'+excerpt.replace('%','%25').replace('\n','%0A').replace('\r','%0D'))
+              print('::warning title=Round4 API36 native cause (not this source)::'+excerpt.replace('%','%25').replace('\n','%0A').replace('\r','%0D'))
           PY
       - uses: ./.github/actions/setup-mynotes
       - name: Prepare public ground-truth evaluation corpus, verify original licenses and hashes

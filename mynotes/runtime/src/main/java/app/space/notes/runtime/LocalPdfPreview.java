@@ -111,6 +111,7 @@ final class LocalPdfPreview extends LinearLayout implements AutoCloseable {
             }).setNegativeButton("Close",null).create());
         }),new LayoutParams(design.dp(48),design.dp(48)));addView(bar);
         query=new EditText(context);query.setHint("Find in document");query.setSingleLine(true);query.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI|android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN);design.entry(query,16);
+        query.setOnKeyListener((view,keyCode,event)->{if(keyCode!=KeyEvent.KEYCODE_ENTER)return false;if(event.getAction()==KeyEvent.ACTION_DOWN && event.getRepeatCount()==0)find();return true;});
         query.setOnEditorActionListener((v,action,event)->{if(action==android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH || (event!=null && event.getKeyCode()==KeyEvent.KEYCODE_ENTER)){if(event==null || event.getAction()==KeyEvent.ACTION_DOWN)find();return true;}return false;});
         pages=new RecyclerView(context){
             @Override protected void onMeasure(int widthSpec,int heightSpec){android.view.ViewGroup.LayoutParams params=getLayoutParams();int width=params!=null && params.width>0?params.width:Math.max(1,View.MeasureSpec.getSize(widthSpec));super.onMeasure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),heightSpec);}

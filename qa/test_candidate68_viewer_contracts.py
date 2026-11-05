@@ -61,3 +61,5 @@ class Candidate68ViewerContracts(unittest.TestCase):
   for filename in ['LocalPdfPreview.java','SpreadsheetPreview.java']:
    s=(JAVA/filename).read_text()
    self.assertIn('if(event==null || event.getAction()==KeyEvent.ACTION_DOWN)find();return true;',s)
+   self.assertIn('query.setOnKeyListener',s)
+   self.assertIn('event.getRepeatCount()==0',s)

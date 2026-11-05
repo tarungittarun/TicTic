@@ -1,0 +1,134 @@
+# Candidate69 exact signed68-to69 retention. Internal test artifacts only; no APK delivery or physical acceptance implied.
+name: Rich public repository retention across exact signed68 to69 update
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-candidate69-rich-update.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: candidate69-exact-rich-update-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  probe_build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-mynotes
+      - name: Compile CI-only same-signer release-target probe, no APK publication
+        working-directory: mynotes
+        run: |
+          set -o pipefail
+          sh gradlew -I tools/ci/release_migration_probe.gradle :notes-domain:test :notes:assembleReleaseAndroidTest --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/rich-probe-build.log
+      - name: Surface bounded compiler diagnostics
+        if: failure()
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/rich-probe-build.log
+      - name: Require stable release signer on instrumentation, never bypass target security
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs mynotes/app/build/outputs/apk/androidTest/release/notes-release-androidTest.apk | tee probe-signer.txt
+          grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' probe-signer.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: same-signer-rich-release-probe
+          path: mynotes/app/build/outputs/apk/androidTest/release/notes-release-androidTest.apk
+          retention-days: 1
+          if-no-files-found: error
+  update:
+    needs: probe_build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {api: 26, target: default}
+          - {api: 34, target: google_apis}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Wait for exact candidate artifact, not for or instead of native acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYWAIT'
+          import subprocess,json,time
+          for attempt in range(180):
+              data=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42019419461/artifacts']))
+              if any(a['name']=='MyNotes-v0.69.0-69-development.apk' and not a['expired'] for a in data['artifacts']):break
+              run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42019419461']))
+              if run['status']=='completed':raise SystemExit('Exact source run ended without candidate artifact; no migration executed')
+              time.sleep(10)
+          else:raise SystemExit('Candidate artifact unavailable after bounded wait; no migration executed')
+          PYWAIT
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41959926147
+          name: MyNotes-v0.68.0-68-development.apk
+          path: old-apk
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42019419461
+          name: MyNotes-v0.69.0-69-development.apk
+          path: candidate-apk
+      - name: Verify exact original and candidate identity, raw bytes and stable signer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          python3 - <<'PY'
+          import json,hashlib,subprocess,os,pathlib
+          candidates=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42019419461/artifacts']))['artifacts']
+          selected=[a for a in candidates if a['name']=='MyNotes-v0.69.0-69-development.apk'];assert len(selected)==1;candidate=selected[0]
+          specs=[('old',68,13384974927,41959926147,'b9bfd47f84d16fe6962e4cc60043e70a9176cc44','dd8121d9d0e3ca144752345652088f51b5fe86f0f2ef8e52e53d8179e4f6de76'),('candidate',69,candidate['id'],42019419461,'4847c023105d0c9450c14cb77792e1d3644fbb04',candidate['digest'].removeprefix('sha256:'))]
+          proof={};tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
+          for label,code,artifact,run,source,expected in specs:
+              meta=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/artifacts/'+str(artifact)]))
+              assert meta['workflow_run']['id']==run and meta['workflow_run']['head_sha']==source and not meta['expired']
+              files=list(pathlib.Path(label+'-apk').rglob('*.apk'));assert len(files)==1;apk=files[0]
+              with apk.open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
+              assert digest==expected==meta['digest'].removeprefix('sha256:') and apk.stat().st_size==meta['size_in_bytes']
+              cert=subprocess.check_output([str(tools/'apksigner'),'verify','--print-certs',str(apk)],text=True);assert '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' in cert
+              manifest=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(apk)],text=True)
+              assert "package: name='app.space.notes' versionCode='"+str(code)+"'" in manifest
+              assert 'android.permission.INTERNET' not in manifest and "sdkVersion:'26'" in manifest
+              proof[label]={'path':str(apk),'version_code':code,'sha256':digest,'source':source,'artifact':artifact}
+          pathlib.Path('release-apks.json').write_text(json.dumps(proof,indent=2)+'\n')
+          PY
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: same-signer-rich-release-probe
+          path: probe-apk
+      - name: Enable KVM and use verified installed emulator
+        run: |
+          sudo chmod 666 /dev/kvm
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            python3 -m mynotes.tools.ci.offline_guest
+            adb shell settings put system screen_off_timeout 3600000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            python3 -c 'import json,subprocess,sys,pathlib; a=json.load(open("release-apks.json")); p=list(pathlib.Path("probe-apk").rglob("*.apk"));assert len(p)==1; subprocess.run([sys.executable,"-m","mynotes.tools.ci.release_rich_update_probe","--old",a["old"]["path"],"--candidate",a["candidate"]["path"],"--tester",str(p[0]),"--old-code","68","--candidate-code","69","--output","release-rich-update-proof.json"],check=True)' 
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: release68-to69-api${{ matrix.api }}-rich-public-update-evidence
+          path: |
+            release-apks.json
+            release-rich-update-proof.json
+            rich-probe-*.txt
+            offline-guest-proof.json
+          retention-days: 7
+          if-no-files-found: error

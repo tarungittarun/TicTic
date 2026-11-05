@@ -1,0 +1,209 @@
+{
+  "expected": 8,
+  "observed": 8,
+  "complete": true,
+  "profiles": {
+    "light-portrait": {
+      "complete": true,
+      "native": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+        ]
+      },
+      "observed": 2
+    },
+    "dark-portrait": {
+      "complete": true,
+      "native": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+        ]
+      },
+      "observed": 2
+    },
+    "light-landscape": {
+      "complete": true,
+      "native": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+        ]
+      },
+      "observed": 2
+    },
+    "dark-landscape": {
+      "complete": true,
+      "native": {
+        "ok": true,
+        "expected": 4,
+        "passed": 4,
+        "missing": [],
+        "unexpected": [],
+        "duplicates": [],
+        "failures": [],
+        "cases": [
+          "app.space.notes.AdditionalPublicSceneStudy#originalPosterAndObliqueUnsupportedLatinSignsRetainAllOutputs",
+          "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+          "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+        ]
+      },
+      "observed": 2
+    }
+  },
+  "rows": [
+    {
+      "id": "english",
+      "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+      "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+      "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+      "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+      "elapsed_ms": 2165,
+      "status": "OK",
+      "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+      "cer": 0.08882521489971347,
+      "character_edits": 31,
+      "reference_characters": 349,
+      "source_pixels_unchanged": true,
+      "profile": "light-portrait"
+    },
+    {
+      "id": "french",
+      "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+      "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+      "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+      "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+      "elapsed_ms": 4237,
+      "status": "OK",
+      "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+      "cer": 0.8333333333333334,
+      "character_edits": 75,
+      "reference_characters": 90,
+      "source_pixels_unchanged": true,
+      "profile": "light-portrait"
+    },
+    {
+      "id": "english",
+      "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+      "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+      "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+      "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+      "elapsed_ms": 2130,
+      "status": "OK",
+      "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+      "cer": 0.08882521489971347,
+      "character_edits": 31,
+      "reference_characters": 349,
+      "source_pixels_unchanged": true,
+      "profile": "dark-portrait"
+    },
+    {
+      "id": "french",
+      "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+      "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+      "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+      "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+      "elapsed_ms": 4199,
+      "status": "OK",
+      "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+      "cer": 0.8333333333333334,
+      "character_edits": 75,
+      "reference_characters": 90,
+      "source_pixels_unchanged": true,
+      "profile": "dark-portrait"
+    },
+    {
+      "id": "english",
+      "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+      "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+      "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+      "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+      "elapsed_ms": 1438,
+      "status": "OK",
+      "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+      "cer": 0.08882521489971347,
+      "character_edits": 31,
+      "reference_characters": 349,
+      "source_pixels_unchanged": true,
+      "profile": "light-landscape"
+    },
+    {
+      "id": "french",
+      "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+      "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+      "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+      "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+      "elapsed_ms": 3056,
+      "status": "OK",
+      "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+      "cer": 0.8333333333333334,
+      "character_edits": 75,
+      "reference_characters": 90,
+      "source_pixels_unchanged": true,
+      "profile": "light-landscape"
+    },
+    {
+      "id": "english",
+      "condition": "English historical illustrated poster: white/gold text on cyan, several sizes, logos/illustrations excluded from text",
+      "reference": "Reduce your risk of coronavirus infection: Clean hands with soap and water or alcohol-based hand rub Cover nose and mouth when coughing and sneezing with tissue or flexed elbow Avoid close contact with anyone with cold or flu-like symptoms Thoroughly cook meat and eggs No unprotected contact with live wild or farm animals World Health Organization",
+      "source_sha256": "f9f8c82b6b15ac6c9367c7939129395d6c45a882a2dadde33aaa810da4d450d5",
+      "input_pixels_sha256": "8ceb84c6b2f34a56dbba3958dc36261888fc807a07ff194acf8cf32ed182ff21",
+      "elapsed_ms": 2553,
+      "status": "OK",
+      "recognized": "Reduce your risk of coronavirus infection:\n\n७ ಈ. Clean hands with soap and water\n\nor alcohol-based hand rub\n\nCover nose and mouth when coughing and\n\nsneezing with tissue or flexed elbow\n\nಎ\n\nAvoid close contact with anyone with\n\nಟ್ಟ\n\ncold or flu-like symptoms\n\nThoroughly cook meat and eggs     ಕ್‌\n\nNo unprotected contact with live wild\n\n“ಇಲ್ಲಾ ह   or farm animals\n\n(2) World Health\n\n@)  Organization",
+      "cer": 0.08882521489971347,
+      "character_edits": 31,
+      "reference_characters": 349,
+      "source_pixels_unchanged": true,
+      "profile": "dark-landscape"
+    },
+    {
+      "id": "french",
+      "condition": "Real oblique outdoor direction signs, mixed case, small superscript and accented Latin. French is NOT a supported model language; capability-limit challenge only; arrows/pedestrian icons excluded",
+      "reference": "Mairie du Ier Palais du LOUVRE LES ARTS DÉCORATIFS Musée du LOUVRE Théâtre du PALAIS-ROYAL",
+      "source_sha256": "549784c349af8a87d53e2fec897d03aa800ed73a64bb9d8de60485cdd71d1e98",
+      "input_pixels_sha256": "68798a64aff0a202ff75fae9a93a546bc187021b1cbc8d764b8658076f010cc9",
+      "elapsed_ms": 4688,
+      "status": "OK",
+      "recognized": "ee\nThéatre\ndu PALAIS-ROVAL\n\nಕ್‌\nರುವ.\n\n—_—          —\n— ——            i.\n\nರ್ಮ್‌\n\n_\nOE ಷಷ್ಟಿ",
+      "cer": 0.8333333333333334,
+      "character_edits": 75,
+      "reference_characters": 90,
+      "source_pixels_unchanged": true,
+      "profile": "dark-landscape"
+    }
+  ],
+  "scope": "Two original public inputs, manually transcribed from visible pixels before inference. Not heldout training data or French support. Historical health poster is a pixel fixture, not current medical advice. No native results at fixture freeze.",
+  "physical_acceptance": false,
+  "production_changed": false,
+  "exact": 0
+}

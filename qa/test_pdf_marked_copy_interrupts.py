@@ -16,3 +16,10 @@ class MarkedCopyInterruptionContracts(unittest.TestCase):
   for text in ['for(int rotation:new int[]{0,90,180,270})','for(boolean cropped:new boolean[]{false,true})','red ink at normalized visual coordinate','translucent yellow at normalized visual coordinate','original bytes retained','rotatedAndCroppedMarkedCopiesKeepVisibleCoordinates();']:self.assertIn(text,source)
   source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java').read_text()
   for text in ['interruptedFailure.get() instanceof java.io.InterruptedIOException','interruptRetained.get()','Pre-cancelled copy leaves empty destination untouched']:self.assertIn(text,source)
+
+ def test_unreadable_existing_draft_cannot_be_treated_as_fresh(self):
+  source=(ROOT/'mynotes/runtime/src/main/java/app/space/notes/runtime/PdfMarkup.java').read_text()
+  self.assertIn('if(marks.draft.exists() || new File(marks.draft.getPath()+".bak").exists())throw fresh;',source)
+  native=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
+  self.assertIn('Unreadable draft remains byte-identical',native)
+  self.assertIn('exact source extraction retained',native)

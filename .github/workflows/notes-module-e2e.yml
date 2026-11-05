@@ -1,5 +1,5 @@
 # Final viewer-window audit source: centered filename, compact pixel-tracking rail, actual injected drag, dialog-inclusive loader and no fictitious CSV heading. Wait for exact five-lane gate before build; supersede old pre-audit full run.
-# Candidate68: full444-method/profile qualification after successful source-matching five-lane viewer gate; no physical acceptance.
+# Candidate69: rotation/crop markup and interrupted-copy follow-up; full444-method/profile qualification after successful source-matching five-lane viewer gate; no physical acceptance.
 # Final67 qualification: native range ownership passed180/180 focused checks in41874321912; exact source, all437 methods/profile,4752 main inferences plus8 separately scored public-scene observations.
 # Candidate67: preserve Notes manual range viewport through IME/relayout; retain strict after-layout scroll assertion that exposed this defect.
 # Candidate67: honor manual selected-range viewport even for already queued / unconditional relayout caret reveals; reset intent on a real selection/caret change.
@@ -26,12 +26,12 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression68-${{ github.ref }}
+  group: notes-module-e2e-regression69-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   viewer_gate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
         with:
@@ -40,12 +40,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run watch 41959810821 --exit-status --interval 30
+          gh run watch 42019299312 --exit-status --interval 30
           python3 - <<'PYGATE'
           import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41959810821']))
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42019299312']))
           assert run['status']=='completed' and run['conclusion']=='success', 'Viewer interaction gate is not green; no full qualification or APK publication'
-          assert run['head_sha']=='d3323889055f57b6cea91cfde61d10bd63efefc5'
+          assert run['head_sha']=='59c4fc8d97e53b4a2f6c1d67f9e1cbde674e0bc8'
           subprocess.run(['git','diff','--exit-code',run['head_sha'],'HEAD','--','mynotes'],check=True)
           PYGATE
   build:

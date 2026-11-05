@@ -17,16 +17,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run watch 41956018427 --exit-status --interval 30
+          gh run watch 41959810821 --exit-status --interval 30
           python3 - <<'PY'
           import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41956018427']))
-          assert run['head_sha']=='d431b1665b318d8ffb7aaa099eee8922d2bff1c9' and run['conclusion']=='success'
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/41959810821']))
+          assert run['head_sha']=='d3323889055f57b6cea91cfde61d10bd63efefc5' and run['conclusion']=='success'
           PY
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 41956018427
+          run-id: 41959810821
           pattern: pdf68-focused-*
           path: viewer-artifacts
       - name: Build bounded unaltered-window review and explicit provenance
@@ -36,7 +36,7 @@ jobs:
           from pathlib import Path
           import json,tarfile,hashlib,io
           from PIL import Image
-          root=Path('mynotes/docs/viewer68/41956018427');root.mkdir(parents=True,exist_ok=True)
+          root=Path('mynotes/docs/viewer68/41959810821');root.mkdir(parents=True,exist_ok=True)
           profiles={'light-portrait','dark-portrait','light-landscape','dark-landscape','dark-portrait-api36-small-font'}
           selected={'e2e-large-txt-page-one','e2e-large-txt-page-two','spreadsheet-grid-viewport'}
           records=[];outcomes={};seen=set()
@@ -60,7 +60,7 @@ jobs:
           for profile in profiles:
               names={r['scene'] for r in records if r['profile']==profile}
               assert {'pdf68-search-above-keyboard','pdf68-search-result-highlight','pdf68-file-zoom-distant-page','pdf68-pen-and-highlighter-tools','word68-attached-filename-toolbar'}<=names
-          receipt={'source':'d431b1665b318d8ffb7aaa099eee8922d2bff1c9','run':41956018427,'scope':'Focused 59 native methods per profile, not full module E2E','expected':295,'passed':295,'profiles':outcomes,'physical_acceptance':False,'full_e2e_acceptance':False,'manual_layout_review':'Pending actual image review; native assertion success is not visual acceptance.','private_inputs_uploaded':False,'screens':records}
+          receipt={'source':'d3323889055f57b6cea91cfde61d10bd63efefc5','run':41959810821,'scope':'Focused 59 native methods per profile, not full module E2E','expected':295,'passed':295,'profiles':outcomes,'physical_acceptance':False,'full_e2e_acceptance':False,'manual_layout_review':'Pending actual image review; native assertion success is not visual acceptance.','private_inputs_uploaded':False,'screens':records}
           (root/'provenance.json').write_text(json.dumps(receipt,indent=2)+'\n')
           text=['# Candidate68 focused viewer windows','', '295/295 source-qualified native checks. These are public fixture captures, not full E2E or physical acceptance.', '', 'JPEGs are aspect-preserving review thumbnails. Original PNG hashes and exact source/run are retained in provenance.json.', '']
           for profile in sorted(profiles):
@@ -78,6 +78,6 @@ jobs:
           git pull --ff-only origin arena/3caca636-tictic
           python3 -m unittest discover -s qa
           git diff --check
-          git add mynotes/docs/viewer68/41956018427
+          git add mynotes/docs/viewer68/41959810821
           git commit -m 'Preserve public source-qualified viewer windows and exact focused outcomes [skip ci]'
           git push origin arena/3caca636-tictic

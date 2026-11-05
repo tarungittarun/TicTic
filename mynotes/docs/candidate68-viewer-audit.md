@@ -66,3 +66,11 @@ Reviewed all **7,606 JSON records** after the header in the latest supplied diag
 - Full replacement **41956285981**, source **13977f13609a38fcf4f545508b574829f3bf1f18**, has passed the exact-source five-lane gate. Its444-method/profile full run, matching report, visual review and exact-APK migration remain delivery gates while running. No candidate68 APK has been delivered.
 
 The entire latest supplied diagnostic log review and external-folder-copy limitation above remain unchanged. No model training, private input upload, Calculator change, or physical-device acceptance is implied.
+
+## Coupled drag and painted-IME follow-up
+
+Further actual-window review found that page-index drag mapping could move the thumb back upward after release on a zoomed/landscape last page. Sourced3323889 couples dragging to the same pixel range used by document scrolling. A stronger native assertion requires the released end-drag position to remain at document end within3px. Search gutters and matching vertical previous/next icons were corrected together. The capture helper now rejects a uniformly blank IME region and waits for painted keyboard pixels, rather than treating insets visibility as compositing proof.
+
+Run **41959810821**, source **d3323889055f57b6cea91cfde61d10bd63efefc5**, passed **295/295** in all five profiles, including the stronger endpoint and painted-IME checks. Root Python inventory is **1,021 passing tests**. All55 current thumbnails and four individual critical windows were reviewed; all five IME scenes show keyboards. The sparse public PDF's blank landscape last-page tail is original content at document end, not a render reconstruction. `viewer68/41959810821/provenance.json` records the exact review scope and PNG hashes.
+
+The preceding full41956285981 and its migration41958060729 are superseded-source evidence, not final acceptance. Replacement full **41959926147**, source **b9bfd47f84d16fe6962e4cc60043e70a9176cc44**, passed its strict source gate and is executing. Matching full results, final-APK migration, report inspection and stated physical/format limitations remain delivery gates. No candidate68 APK has been delivered.

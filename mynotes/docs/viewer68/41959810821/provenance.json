@@ -28,7 +28,17 @@
   },
   "physical_acceptance": false,
   "full_e2e_acceptance": false,
-  "manual_layout_review": "Pending actual image review; native assertion success is not visual acceptance.",
+  "manual_layout_review": {
+    "thumbnail_windows_reviewed": 55,
+    "critical_individual_views_reviewed": 4,
+    "scope": "11 scenes across five profiles at thumbnail resolution; individual API34 dark IME, API36 IME, landscape document-end rail and TXT page-two views. Not every full-resolution app scene or physical acceptance.",
+    "findings": [
+      "All five keyboard scenes show painted keyboards; previous blank composed-IME limitation is resolved in this execution.",
+      "Toolbar alignment, compact rounded rail, actual OCR dialog, attached Word, CSV wrapper removal, search gutters and matching vertical previous/next controls are visible.",
+      "The landscape end-drag frame shows the genuinely blank tail of the sparse public PDF, with the thumb at document end; it is not a failed page reconstruction."
+    ],
+    "full_module_e2e_acceptance": false
+  },
   "private_inputs_uploaded": false,
   "screens": [
     {

@@ -51,3 +51,13 @@ class Candidate68ViewerContracts(unittest.TestCase):
   self.assertNotIn('scrollContent("File preview")',s)
   s=(JAVA/'SpreadsheetPreview.java').read_text()
   for text in ['IME_ACTION_SEARCH','title.setSingleLine(true)','LocalFileMetadata.show','void setOnBack']:self.assertIn(text,s)
+
+ def test_horizontal_measurement_enforces_document_width_and_updates_page_geometry(self):
+  s=(JAVA/'LocalPdfPreview.java').read_text()
+  self.assertIn('super.onMeasure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),heightSpec)',s)
+  self.assertIn('resizePageGeometry(w)',s)
+  self.assertIn('post(LocalPdfPreview.this::highlightVisibleMatch)',s)
+ def test_enter_is_consumed_on_both_phases_but_search_starts_on_key_down(self):
+  for filename in ['LocalPdfPreview.java','SpreadsheetPreview.java']:
+   s=(JAVA/filename).read_text()
+   self.assertIn('if(event==null || event.getAction()==KeyEvent.ACTION_DOWN)find();return true;',s)

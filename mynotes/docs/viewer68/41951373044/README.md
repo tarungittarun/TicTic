@@ -1,5 +1,7 @@
 # Candidate68 focused viewer windows
 
+**Superseded pre-audit windows:** manual review found title alignment and oversized page-indicator issues. The loader image copied only the activity surface and omitted its dialog. These are retained historical captures, not visual acceptance. Corrected captures: ../41956018427/.
+
 295/295 source-qualified native checks. These are public fixture captures, not full E2E or physical acceptance.
 
 JPEGs are aspect-preserving review thumbnails. Original PNG hashes and exact source/run are retained in provenance.json.

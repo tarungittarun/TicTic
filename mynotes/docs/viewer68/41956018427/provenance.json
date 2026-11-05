@@ -28,7 +28,15 @@
   },
   "physical_acceptance": false,
   "full_e2e_acceptance": false,
-  "manual_layout_review": "Pending actual image review; native assertion success is not visual acceptance.",
+  "manual_layout_review": {
+    "thumbnail_windows_reviewed": 55,
+    "critical_individual_views_reviewed": 4,
+    "scope": "All 11 scene IDs in five profiles, at thumbnail resolution, plus individual loader, compact toolbar, spreadsheet landscape and API36 IME views. Not a full-resolution audit of every app scene or physical acceptance.",
+    "findings": [
+      "Centered toolbar titles and compact rounded page rail are visible. The OCR dialog itself is now captured and readable; the fictitious spreadsheet wrapper title is absent.",
+      "API34 dark-portrait search-above-keyboard capture has an uncomposed/blank IME region despite visible-insets and subsequent real typing/Enter assertions. It is not visual proof of keyboard rendering. Inspect matching full-module IME captures before delivery."
+    ]
+  },
   "private_inputs_uploaded": false,
   "screens": [
     {
@@ -245,7 +253,9 @@
       ],
       "original_png_sha256": "1d24d5a1653cd40d3a20f47bbd0396a2a3544fc251618a631e4af718d10188b2",
       "review_jpeg_sha256": "05e1fa78ba952e82b6139b67accd27154d4189ac7f604fcd745b3aec731d84d3",
-      "transformation": "Aspect-preserving thumbnail only; no crop, reconstruction or generated pixels."
+      "transformation": "Aspect-preserving thumbnail only; no crop, reconstruction or generated pixels.",
+      "ime_visual_proof": false,
+      "capture_limitation": "IME region is blank in this frame. Native input assertions passed, but that does not repair the missing visual evidence."
     },
     {
       "profile": "dark-portrait",

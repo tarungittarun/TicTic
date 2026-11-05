@@ -1,5 +1,7 @@
 # Candidate68 focused viewer windows
 
+**Capture limitation:** the API34 dark-portrait keyboard frame has a blank IME region. Do not use it as visual keyboard proof; matching full-module captures still require inspection. Native input assertions passed independently.
+
 295/295 source-qualified native checks. These are public fixture captures, not full E2E or physical acceptance.
 
 JPEGs are aspect-preserving review thumbnails. Original PNG hashes and exact source/run are retained in provenance.json.

@@ -9,6 +9,10 @@ class Candidate68ViewerContracts(unittest.TestCase):
   for text in ['filename.setSingleLine(true)','"File name: "+name','"File options"','pageRail.setVisibility(INVISIBLE)']:self.assertIn(text,s)
   self.assertNotIn('"Go to page"',s)
   self.assertNotIn('controls.addView(position',s)
+ def test_visual_audit_keeps_centered_titles_and_compact_accessible_page_pill(self):
+  s=(JAVA/'LocalPdfPreview.java').read_text()
+  for text in ['filename.setGravity(Gravity.CENTER_VERTICAL)','pageRail.setMinWidth(design.dp(64))','pageRail.setBackground(design.shape(design.surface,12))','new FrameLayout.LayoutParams(-2,design.dp(48),Gravity.RIGHT|Gravity.TOP)']:self.assertIn(text,s)
+  self.assertIn('title.setGravity(Gravity.CENTER_VERTICAL)',(JAVA/'SpreadsheetPreview.java').read_text())
  def test_file_zoom_changes_page_geometry_not_shared_image_crop(self):
   s=(JAVA/'LocalPdfPreview.java').read_text()
   for text in ['viewport.getWidth()*(fileZoom?fileScale:1)','pages.getLayoutParams().width=width','holder.image.getLayoutParams().height','fileScaleChanged=fileZoom?']:self.assertIn(text,s)

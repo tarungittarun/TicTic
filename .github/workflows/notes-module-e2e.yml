@@ -40,12 +40,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run watch 42019299312 --exit-status --interval 30
+          gh run watch 42021419781 --exit-status --interval 30
           python3 - <<'PYGATE'
           import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42019299312']))
+          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42021419781']))
           assert run['status']=='completed' and run['conclusion']=='success', 'Viewer interaction gate is not green; no full qualification or APK publication'
-          assert run['head_sha']=='59c4fc8d97e53b4a2f6c1d67f9e1cbde674e0bc8'
+          assert run['head_sha']=='b43d3a6840378813cfbbe8534ebbbf0acbd37e97'
           subprocess.run(['git','diff','--exit-code',run['head_sha'],'HEAD','--','mynotes'],check=True)
           PYGATE
   build:

@@ -1,3 +1,4 @@
+# Qualification correction: existing OfflineOcrTest imports require the opt-in instrumentation dependency; no assertion was run or weakened in first build.
 name: Candidate70 evidence-led search and formatting qualification
 on:
   push:
@@ -20,7 +21,7 @@ jobs:
         working-directory: mynotes
         run: |
           set -o pipefail
-          sh gradlew :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/improvement70-build.log
+          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/improvement70-build.log
       - name: Surface bounded compiler diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/improvement70-build.log

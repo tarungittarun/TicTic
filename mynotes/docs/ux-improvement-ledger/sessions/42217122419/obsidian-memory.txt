@@ -1,0 +1,66 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 293428 Realtime: 293428
+
+** MEMINFO in pid 5696 [md.obsidian] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    17809    17792        8       33    18748    33016    24635     3332
+  Dalvik Heap     2391     2352       16       96     3572     6591     3296     3295
+ Dalvik Other     1260     1232        0        0     1788                           
+        Stack     1108     1108        0        0     1116                           
+       Ashmem      324      168        0        0     1112                           
+    Other dev       22        8       12        0      264                           
+     .so mmap     4906      312     1532       15    39020                           
+    .jar mmap     2512        0      528        0    40820                           
+    .apk mmap    40889      500    17840        0    70044                           
+    .ttf mmap       49        0        0        0      464                           
+    .dex mmap     3819        0     3784        0     4768                           
+    .oat mmap      489        0       12        0    12228                           
+    .art mmap     2210     1536      256      143    22888                           
+   Other mmap     2363      292      640        0     5052                           
+      Unknown    10847    10832        8        0    11308                           
+        TOTAL    91285    36132    24636      287   233192    39607    27931     6627
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:     4144                          26460
+         Native Heap:    17792                          18748
+                Code:    24512                         167400
+               Stack:     1108                           1116
+            Graphics:        0                              0
+       Private Other:    13212
+              System:    30517
+             Unknown:                                   19468
+ 
+           TOTAL PSS:    91285            TOTAL RSS:   233192       TOTAL SWAP PSS:      287
+ 
+ Objects
+               Views:       32         ViewRootImpl:        1
+         AppContexts:        6           Activities:        1
+              Assets:       23        AssetManagers:        0
+       Local Binders:       97        Proxy Binders:       67
+       Parcel memory:       17         Parcel count:       61
+    Death Recipients:        4             WebViews:        1
+ 
+ Native Allocations
+                         Count                       Total(kB)
+                        ------                         ------
+    Other (malloced):      447                             41
+ Other (nonmalloced):      177                            111
+   Bitmap (malloced):        1                             81
+ 
+ SQL
+         MEMORY_USED:      258
+  PAGECACHE_OVERFLOW:       71          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       96            123     7    37     9  /data/user/0/md.obsidian/no_backup/androidx.work.workdb
+         4        8                    0     0     0    (attached) temp
+         4       96             32     2    15     3  /data/user/0/md.obsidian/no_backup/androidx.work.workdb (2)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+             11            73            84  /data/user/0/md.obsidian/no_backup/androidx.work.workdb

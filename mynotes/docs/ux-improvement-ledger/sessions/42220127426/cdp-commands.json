@@ -1,0 +1,541 @@
+[
+  {
+    "at": "2026-11-06T12:50:43.068802+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "!!window.app?.vault",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.56,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:50:45.335836+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.58,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:11.018468+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{document.querySelectorAll(\"[data-paired-target]\").forEach(x=>x.removeAttribute(\"data-paired-target\"));const e=[...document.querySelectorAll(\"button,a,.clickable-icon,.empty-state-action\")].find(e=>e.textContent.trim().startsWith(\"New note\") || e.getAttribute(\"aria-label\")===\"New note\");if(!e)return null;e.setAttribute(\"data-paired-target\",\"target\");return \"[data-paired-target=target]\"})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.29,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:11.020460+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\"[data-paired-target=target]\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.7,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:11.037879+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 179.99739837646484,
+          "y": 297.8463649749756
+        }
+      ]
+    },
+    "host_roundtrip_ms": 17.18,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:11.063469+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 25.27,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:14.825599+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.96,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:14.836895+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\".inline-title\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.69,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:14.853482+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 177.5,
+          "y": 106.00260543823242
+        }
+      ]
+    },
+    "host_roundtrip_ms": 16.29,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:14.869576+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 15.77,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:15.417971+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyDown",
+      "key": "a",
+      "code": "KeyA",
+      "modifiers": 2,
+      "windowsVirtualKeyCode": 65
+    },
+    "host_roundtrip_ms": 48.01,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:15.595226+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyUp",
+      "key": "a",
+      "code": "KeyA",
+      "modifiers": 2,
+      "windowsVirtualKeyCode": 65
+    },
+    "host_roundtrip_ms": 176.71,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:15.782171+00:00",
+    "method": "Input.insertText",
+    "params": {
+      "text": "UX Meeting"
+    },
+    "host_roundtrip_ms": 186.26,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:16.167798+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyDown",
+      "key": "Enter",
+      "code": "Enter",
+      "windowsVirtualKeyCode": 13
+    },
+    "host_roundtrip_ms": 385.07,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:16.781979+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyUp",
+      "key": "Enter",
+      "code": "Enter",
+      "windowsVirtualKeyCode": 13
+    },
+    "host_roundtrip_ms": 612.65,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:16.999530+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\".cm-content\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 217.04,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:17.119214+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 177.5,
+          "y": 312.9479217529297
+        }
+      ]
+    },
+    "host_roundtrip_ms": 118.0,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:17.201596+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 80.42,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:18.651297+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyDown",
+      "key": "a",
+      "code": "KeyA",
+      "modifiers": 2,
+      "windowsVirtualKeyCode": 65
+    },
+    "host_roundtrip_ms": 945.47,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:18.663440+00:00",
+    "method": "Input.dispatchKeyEvent",
+    "params": {
+      "type": "keyUp",
+      "key": "a",
+      "code": "KeyA",
+      "modifiers": 2,
+      "windowsVirtualKeyCode": 65
+    },
+    "host_roundtrip_ms": 11.65,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:18.945805+00:00",
+    "method": "Input.insertText",
+    "params": {
+      "text": "Shared agenda. Compare editor controls while the keyboard is open. Decision marker cobalt42 belongs near the middle. Keep this sentence readable after formatting. Save this note and find it by its body text."
+    },
+    "host_roundtrip_ms": 279.68,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:23.223424+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.3,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:23.236151+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "app.workspace.activeLeaf.view.editor?.getValue()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.93,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:23.238084+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "app.workspace.activeLeaf.view.file?.path",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.54,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:25.241843+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(async()=>await app.vault.read(app.vault.getAbstractFileByPath(\"UX Meeting.md\")))()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 3.26,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:25.271516+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(async()=>{const p=\"UX Meeting.md\";let f=app.vault.getAbstractFileByPath(p);if(f)await app.vault.modify(f,\"Shared agenda. Compare editor controls while the keyboard is open. Decision marker cobalt42 belongs near the middle. Keep this sentence readable after formatting. Save this note and find it by its body text.\");else f=await app.vault.create(p,\"Shared agenda. Compare editor controls while the keyboard is open. Decision marker cobalt42 belongs near the middle. Keep this sentence readable after formatting. Save this note and find it by its body text.\");await app.workspace.getLeaf(false).openFile(f);await app.workspace.activeLeaf.setViewState({type:\"markdown\",state:{file:p,mode:\"source\"}});return await app.vault.read(f)})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 6.32,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:27.593421+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.14,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:27.627128+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\".cm-content\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.56,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:27.637570+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 177.5,
+          "y": 181.61458206176758
+        }
+      ]
+    },
+    "host_roundtrip_ms": 10.01,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:27.653558+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 15.46,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:31.215284+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.12,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:31.229348+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{document.querySelectorAll(\"[data-paired-target]\").forEach(x=>x.removeAttribute(\"data-paired-target\"));const e=document.querySelector(\".mobile-toolbar svg.lucide-bold\")?.parentElement || [...document.querySelectorAll(\"[aria-label],button\")].find(e=>/^(toggle )?bold(?:$| \\()/i.test(e.getAttribute(\"aria-label\")||e.getAttribute(\"title\")||\"\"));if(!e)return null;e.setAttribute(\"data-paired-target\",\"target\");return \"[data-paired-target=target]\"})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.69,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:31.231546+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\"[data-paired-target=target]\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.71,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:31.236539+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 312,
+          "y": 311
+        }
+      ]
+    },
+    "host_roundtrip_ms": 4.49,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:31.252658+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 15.54,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:34.193836+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 5.03,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:34.256111+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "app.commands.executeCommandById(\"global-search:open\")",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 21.26,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:35.259539+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "(()=>{const e=document.querySelector(\".search-input-container input\");if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.34,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:35.270109+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "x": 158,
+          "y": 62
+        }
+      ]
+    },
+    "host_roundtrip_ms": 9.99,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:35.295518+00:00",
+    "method": "Input.dispatchTouchEvent",
+    "params": {
+      "type": "touchEnd",
+      "touchPoints": []
+    },
+    "host_roundtrip_ms": 24.86,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:35.812108+00:00",
+    "method": "Input.insertText",
+    "params": {
+      "text": "cobalt42"
+    },
+    "host_roundtrip_ms": 13.09,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:40.208831+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.15,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:40.226159+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "document.body.innerText",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.91,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:40.228374+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "[...document.querySelectorAll(\".search-result-file-match\")].map(e=>({text:e.textContent,visible:e.getBoundingClientRect().height>0&&e.getBoundingClientRect().top<innerHeight&&e.getBoundingClientRect().bottom>0}))",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.61,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:40.230347+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "[...document.querySelectorAll(\".search-result-file-title\")].map(e=>e.textContent)",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 1.41,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:40.304457+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "app.setting.open();app.setting.openTabById(\"appearance\");void 0",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 44.01,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  },
+  {
+    "at": "2026-11-06T12:51:44.953393+00:00",
+    "method": "Runtime.evaluate",
+    "params": {
+      "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+      "returnByValue": true,
+      "awaitPromise": true
+    },
+    "host_roundtrip_ms": 2.92,
+    "limit": "Debug transport duration, not input-to-visible latency."
+  }
+]

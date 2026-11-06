@@ -54,3 +54,16 @@ def command_brief(command_id,name):
   'mobile':'Configure a mobile-specific toolbar or quick-action entry.',
   'app':'An application-level navigation, settings or configuration action.'}
  return name+'. '+groups.get(command_id.split(':')[0], 'A built-in action exposed in this inspected mobile configuration; use the coverage status to distinguish intent from verified behavior.')
+
+def normalize_requested_variants(features):
+ """Do not label a portrait capture as successful landscape evidence."""
+ result=[dict(row) for row in features]
+ blocked={row['feature'].removeprefix('Appearance variant: '):row.get('observed','') for row in result if row['feature'].startswith('Appearance variant: ') and row['status']=='blocked'}
+ for row in result:
+  if row['feature'].startswith('Canvas variant: '):
+   request=row['feature'].removeprefix('Canvas variant: ')
+   if request in blocked:
+    row['feature']='Canvas: requested '+request+' (not achieved)'
+    row['status']='blocked'
+    row['observed']='Requested orientation/theme was not achieved: '+blocked[request]+'. Actual screenshot retained; this is not landscape proof.'
+ return result

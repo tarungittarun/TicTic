@@ -1,13 +1,13 @@
 """Evidence PDF: per-feature brief + real image + honest coverage classification."""
 import collections,json,os,shutil,textwrap
-from obsidian_coverage import command_coverage,command_brief
+from obsidian_coverage import command_coverage,command_brief,normalize_requested_variants
 import re
 from pathlib import Path
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.pagesizes import A4
-src=Path('obsidian-evidence');out=Path('mynotes/docs/comparisons/obsidian/audit')/os.environ['GITHUB_RUN_ID'];out.mkdir(parents=True,exist_ok=True)
-rows=json.loads((src/'feature-results.json').read_text());summary=json.loads((src/'coverage-summary.json').read_text()) if (src/'coverage-summary.json').exists() else {'full_functional_coverage':False,'interrupted':True}
+src=Path(os.environ.get('OBSIDIAN_REPORT_INPUT','obsidian-evidence'));out=Path('mynotes/docs/comparisons/obsidian/audit')/os.environ['GITHUB_RUN_ID'];out.mkdir(parents=True,exist_ok=True)
+rows=normalize_requested_variants(json.loads((src/'feature-results.json').read_text()));summary=json.loads((src/'coverage-summary.json').read_text()) if (src/'coverage-summary.json').exists() else {'full_functional_coverage':False,'interrupted':True}
 c=Canvas(str(out/'Obsidian-Features-and-Screenshots.pdf'),pagesize=A4);c.setTitle('Obsidian 1.15.0 Android — feature walkthrough and coverage limits')
 def lines(text,y,size=10,width=95):
  c.setFont('Helvetica',size)
@@ -30,12 +30,20 @@ for i,r in enumerate(rows):
   y=lines('About the feature: '+command_brief(cid.group(1),name),y-3,10)
  y=lines('Check scope: '+r['brief'],y-3,9)
  y=lines('Observed: '+r['observed'],y-3,9)
- im=Image.open(src/r['screenshot']).convert('RGB');im.thumbnail((1280,1280));name=r['screenshot'].replace('.png','.jpg');im.save(out/name,quality=80,optimize=True)
+ source_image=src/r['screenshot'];name=r['screenshot'].replace('.png','.jpg')
+ if not source_image.exists():source_image=src/name
+ if source_image.suffix.lower()=='.jpg':shutil.copyfile(source_image,out/name)
+ else:
+  im=Image.open(source_image).convert('RGB');im.thumbnail((1280,1280));im.save(out/name,quality=80,optimize=True)
  c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')
  c.setFont('Helvetica',8);c.drawString(30,23,'Real Android emulator capture | Obsidian 1.15.0 | '+os.environ['GITHUB_RUN_ID']);c.showPage()
 c.save()
 for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt','module-enablement.json','last-cdp-request.json','failure-logcat.txt']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
+(out/'feature-results.json').write_text(json.dumps(rows,indent=2))
+summary['status_counts']=dict(collections.Counter(r['status'] for r in rows))
+summary['report_review_note']='Requested landscape Canvas captions are blocked when the paired real viewport check remained portrait; no image restyling or new device-test claim.'
+(out/'coverage-summary.json').write_text(json.dumps(summary,indent=2))
 # Full command census: every offered command is accounted for as inventoried, not automatically passed.
 inv=json.loads((src/'feature-inventory.json').read_text()) if (src/'feature-inventory.json').exists() else {}
 commands=command_coverage(inv.get('commands',[]),rows)

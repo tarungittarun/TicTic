@@ -18,3 +18,13 @@ class ObsidianCoverageTruth(unittest.TestCase):
  def test_account_service_limit_stays_in_description(self):
   from mynotes.tools.comparisons.obsidian_coverage import command_brief
   self.assertIn('not end-to-end verified',command_brief('sync:setup','Set up Sync'))
+ def test_portrait_image_cannot_be_counted_as_landscape(self):
+  from mynotes.tools.comparisons.obsidian_coverage import normalize_requested_variants
+  rows=[{'feature':'Appearance variant: light landscape','status':'blocked','observed':'landscape=False'}, {'feature':'Canvas variant: light landscape','status':'screen_inspected','screenshot':'real.jpg'}]
+  actual=normalize_requested_variants(rows)
+  self.assertEqual('blocked',actual[1]['status']);self.assertEqual('real.jpg',actual[1]['screenshot']);self.assertIn('not achieved',actual[1]['feature'])
+  self.assertEqual('screen_inspected',rows[1]['status'])
+ def test_achieved_portrait_variant_is_not_reclassified(self):
+  from mynotes.tools.comparisons.obsidian_coverage import normalize_requested_variants
+  x={'feature':'Canvas variant: light portrait','status':'screen_inspected','screenshot':'real.jpg'}
+  self.assertEqual([x],normalize_requested_variants([x]))

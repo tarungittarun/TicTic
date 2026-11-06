@@ -1,0 +1,4496 @@
+{
+  "title": "OurApp_vs_Obsidian",
+  "scope": "All identified MyNotes functional families and all 29 internal Obsidian modules in the retained pinned-version registry; not all possible third-party extensions or full functional acceptance.",
+  "baseline_revision": "95471afb28704ee084e3cbd7c82f54aeb648425a",
+  "new_live_sessions": 0,
+  "new_runtime_bugs_reproduced": 0,
+  "matched_task_timings": null,
+  "method": "Visual expert inspection of retained native frames (additional contact-sheet review) plus bounded implementation and provenance review. No new live/device/participant session.",
+  "modules": [
+    {
+      "id": "X01",
+      "title": "Find, organise, label and reorder",
+      "scope": "Search, folders, labels/tags, list/grid, sorting and manual order",
+      "evidence": [
+        "M01",
+        "O01"
+      ],
+      "observed": "The retained home has a floating New note overlapping preview words; Library combines destinations and creation actions. Current source makes a nonempty home query global, bypassing the current folder/workspace/label filters.",
+      "comparison": "Quick switcher, file explorer, tags and full-content search are distinct Obsidian surfaces. Its empty search frame does not demonstrate better relevance or speed.",
+      "judgment": "Priority remains content visibility and a clearly stated search contract. Detailed findings N01\u2013N10 are retained in the phase-one appendix.",
+      "direction": "Keep floating creation and cross-workspace search, but state scope and protect preview space; separate browsing from administration.",
+      "task": "Find an archived body-only match while a folder filter is active; reorder a distant card, then return.",
+      "acceptance": "Record actual scope, result passage, selected filters and persisted order; repeat list/grid, keyboard and large text. Measure drag continuity only in a new live session.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderHome/filterNow/renderUniversalResults"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesBoard.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LibraryOrderStore.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "file-explorer",
+        "global-search",
+        "switcher"
+      ],
+      "kind": "Visible issue + source-supported candidates",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X02",
+      "title": "Writing, reading and formatting",
+      "scope": "Notes/Doc, selected text, new typing, headings and Markdown modes",
+      "evidence": [
+        "M09",
+        "O06"
+      ],
+      "observed": "Format plus keyboard leaves only a short strip of writing context. The source already has selected-text/new-typing semantics and accessible selected controls; formatting is not declared broken.",
+      "comparison": "Obsidian keeps a compact keyboard toolbar but exposes Markdown syntax and icon-learning costs. It is not automatically simpler for a novice.",
+      "judgment": "E01\u2013E10 in the appendix explain context, hierarchy and feedback problems. More controls are not a substitute for confident writing.",
+      "direction": "Adapt the existing single Format panel to the available viewport; preserve labels, selection, fifth Clear and direct editing.",
+      "task": "Format the middle of a paragraph, type new text, undo, dismiss the keyboard and reopen the note.",
+      "acceptance": "Retain surrounding prose, correct style target, caret and saved result. Repeat with large text; compare actual task completion and mistakes, not assertion counts.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderEditor"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/FormatControls.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "editor-status"
+      ],
+      "kind": "Visible viewport constraint",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X03",
+      "title": "Checklists, numbering and list editing",
+      "scope": "Complete, indent, reorder, convert selected text and hide checked",
+      "evidence": [
+        "AM01",
+        "AO01"
+      ],
+      "observed": "Our row sheet labels its target List item 1 and exposes Indent/Outdent/Remove; checklist-level actions occupy another sheet. That helps discoverability but requires understanding row versus whole-list scope.",
+      "comparison": "Obsidian renders bullets, numbered items and checkboxes inside prose. The retained transformation readbacks establish narrow Markdown edits, not equal drag usability.",
+      "judgment": "Candidate friction is scope switching, not an established inability to edit lists. Do not remove our visible text labels just to imitate Markdown.",
+      "direction": "Keep row grips, direct item insertion, named lists and a non-drag Move route; make the affected list/item unmistakable.",
+      "task": "Insert an item in the middle, indent it, move it past the viewport, hide completed rows and undo.",
+      "acceptance": "No lost items, wrong-list operations or accidental workspace swipes. Verify numbering after insertion and Backspace exit at an empty item.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "convertNote"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/AutoListContinuation.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/ParagraphNumbering.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X04",
+      "title": "Tables and direct cell editing",
+      "scope": "Cell/row/column operations, header role and wide content",
+      "evidence": [
+        "M14",
+        "O08"
+      ],
+      "observed": "Our table is embedded with a named-content header and nearby pen/overflow actions. The captured compact table does not establish behavior for many columns, large fonts or long cells.",
+      "comparison": "Obsidian shows a readable rendered Markdown table; that is not evidence its cell editor, paste or column operations are faster.",
+      "judgment": "Scope ambiguity and narrow-screen navigation need validation. E08 already flags multiple neighboring action scopes.",
+      "direction": "Preserve direct cell editing, header toggles, boundaries, overflow cues and undoable confirmed deletion.",
+      "task": "Edit a long cell in a wide table; insert a column beside it, toggle header role, delete a row and undo.",
+      "acceptance": "Keep the active cell visible above the IME; no unexpected horizontal jump; restore content and header meaning after undo. Compare the same table, not these unequal fixtures.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/TableWidths.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/TextTable.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X05",
+      "title": "Images, attachments and inline media",
+      "scope": "Insert, name, select, crop/edit, remove and return to text",
+      "evidence": [
+        "AM02",
+        "AO02"
+      ],
+      "observed": "Our image selection sheet presents Use text, Keep image, Read this area and selection controls together. This is a specialised workflow with several possible outcomes to interpret.",
+      "comparison": "Obsidian captures links and an embedded note. This is not a matched image crop or OCR interface, and media/PDF embed correctness was not functionally accepted.",
+      "judgment": "Candidate mental-model friction: selecting an image region, extracting words and editing an attachment must not appear to be the same destructive operation.",
+      "direction": "Explain what each action inserts or retains, preserve originals, and keep image management subordinate to reading.",
+      "task": "Insert a photo, select two recognized words, keep the image, edit its crop, then remove only the intended attachment.",
+      "acceptance": "Keep source bytes, unrelated blocks and names intact; make copy versus replacement clear. Verify offscreen word selection and explicit outside-tap dismissal.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/ImageEditView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NoteImageFiles.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X06",
+      "title": "Web hyperlinks and external opening",
+      "scope": "Display text, safe URL validation, edit/remove and browser consent",
+      "evidence": [
+        "AM03",
+        "AO02"
+      ],
+      "observed": "Our Hyperlink form separates display text and address; the captured invalid-address state shows an error affordance. Source limits web links to HTTP/HTTPS and confirms external opening.",
+      "comparison": "Obsidian internal links and embeds are not the same operation as adding a web URL. Do not award a graph/navigation win for a web-link form.",
+      "judgment": "Validation visibility and multiline entry deserve a matched test; no claim of broken link handling follows from this captured fixture.",
+      "direction": "Keep visible URL errors and original words on Remove; identify when another app will open.",
+      "task": "Add a long URL to selected words, correct a malformed address, reopen, edit and remove the link.",
+      "acceptance": "No duplicate URL per line, changed neighboring prose or unnoticed external launch. Check keyboard visibility, wrapped fields and TalkBack error announcement.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "noteHyperlink"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/RichLinks.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/SafeLinks.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X07",
+      "title": "Internal links, backlinks, graph and previews",
+      "scope": "Connected-note navigation and local/global context",
+      "evidence": [
+        "O12",
+        "AO03"
+      ],
+      "observed": "The scoped MyNotes source inspection establishes web links; it does not establish an equivalent vault-wide internal-link/backlink/graph workflow. This is a candidate scope gap, not a proved app-wide absence.",
+      "comparison": "Obsidian shows linked mentions with a passage, outgoing links, global/local graphs and an embedded note. A tiny graph with a large options panel also has cognitive and viewport costs.",
+      "judgment": "Potential effectiveness gap for connected research notes, not a reason to add a decorative graph to every simple note.",
+      "direction": "Validate whether users need stable internal-note references first. Prefer a small reliable related-note route before copying complex graph controls.",
+      "task": "Link A to a heading in B, rename B, return through backlinks and preview the target without losing A.",
+      "acceptance": "Target identity and rename behavior must be verified live; count wrong destinations and recovery steps. No graph speed or link-integrity winner has been measured.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/RichLinks.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "backlink",
+        "outgoing-link",
+        "graph",
+        "page-preview"
+      ],
+      "kind": "Comparator reference / scoped capability unknown",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X08",
+      "title": "Long-note orientation, tags, footnotes and word count",
+      "scope": "Headings, jump/navigation, find and document context",
+      "evidence": [
+        "O09",
+        "AO04"
+      ],
+      "observed": "MyNotes supports headings and highlighted find return. The reviewed source/captures do not establish a heading-outline jump path equivalent to the captured Obsidian outline.",
+      "comparison": "Obsidian tags and outline are visible; the Footnotes pane says No footnotes found even though fixture text contains a footnote. Rendered detection was explicitly blocked, not accepted.",
+      "judgment": "Long-note orientation is a candidate gap; footnote and word-count completeness remain untested in our matching scope.",
+      "direction": "Keep fast highlighted Find, and validate a compact heading route rather than adding permanent chrome.",
+      "task": "Locate a middle heading, find a repeated phrase, follow a footnote and return to the exact reading location.",
+      "acceptance": "Verify target and return anchors, heading levels, counts and generated text treatment; do not infer footnote success from a registered command.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NoteFindDialog.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/FindInNote.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DocumentEditorView.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "outline",
+        "tag-pane",
+        "footnotes",
+        "word-count"
+      ],
+      "kind": "Scoped gap + explicit comparator blocker",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X09",
+      "title": "Properties and Bases",
+      "scope": "Structured metadata, records and filtered views",
+      "evidence": [
+        "O11",
+        "AO05"
+      ],
+      "observed": "Our note properties include labels, color, folder and reminder state; arbitrary typed-property and database-view editing is not established by this inspection.",
+      "comparison": "Obsidian shows typed properties and a Bases table of vault files. The canonical standalone Properties attempt was obscured; visible Properties is a layout reference, not proof of a successful properties interaction.",
+      "judgment": "Not a fair row-for-row comparison with our document tables. A Bases database is a different information architecture, not just more columns.",
+      "direction": "Treat structured-record management as a separate product decision. Do not burden everyday notes with unused metadata fields.",
+      "task": "For users who need records, edit one typed field, filter a view, rename a file and reopen the view.",
+      "acceptance": "Validate data types, retained filters, note identity and error recovery. No Bases performance, formulas or equivalent MyNotes capability is certified here.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderLabels/renderColours"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/Note.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "properties",
+        "bases"
+      ],
+      "kind": "Different product scope",
+      "priority": "Not ranked",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X10",
+      "title": "Quick capture, daily notes, templates and unique notes",
+      "scope": "Start a useful note with low setup cost",
+      "evidence": [
+        "M01",
+        "AO06"
+      ],
+      "observed": "Our floating create action is direct, but a sparse fixture cannot establish first-use usefulness. The reviewed slice does not establish equivalent daily-note/template workflows.",
+      "comparison": "Obsidian daily notes and timestamp names are visible. Template insertion failed because no template folder was configured; random-note invocation does not certify selection distribution.",
+      "judgment": "Capture efficiency is a shared job; daily notes/templates are optional aids, not automatic points. Setup failures must not be presented as competitor success.",
+      "direction": "Preserve immediate blank-note creation. Evaluate templates only against actual repeated writing tasks and explain required configuration.",
+      "task": "From a cold start, capture a short thought; then create a repeated meeting structure and return tomorrow.",
+      "acceptance": "Observe time to first saved words, setup mistakes, duplicate daily notes and return continuity. Do not populate fake user content to make the app feel busy.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderHome"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/Note.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "daily-notes",
+        "templates",
+        "zk-prefixer",
+        "random-note"
+      ],
+      "kind": "Shared capture task / optional workflows unknown",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X11",
+      "title": "Freehand drawing and Canvas",
+      "scope": "Visual thinking, embedded drawings versus spatial boards",
+      "evidence": [
+        "AM04",
+        "AO07"
+      ],
+      "observed": "Our dedicated drawing screen exposes labelled Pen/Pencil/Highlighter, width/color and undo tools; the frame alone does not measure pen latency, palm rejection or save reliability.",
+      "comparison": "Obsidian Canvas shows connected cards on a spatial board. It is not a native freehand drawing benchmark, and the requested landscape captures stayed portrait.",
+      "judgment": "These tools overlap in visual thinking but are not interchangeable. Do not score our pen tools against a card-board feature count.",
+      "direction": "Keep accessible drawing tools and clear draft/save meaning; make the transition back to the containing note predictable.",
+      "task": "Draw a diagram annotation, leave and reopen it; in Canvas connect two cards, pan/zoom and reopen the board.",
+      "acceptance": "Evaluate each tool against its own output goal. For common save/return work, preserve content and location; latency needs real stroke traces on matched hardware.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DrawingPad.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "stashDrawing/renderDrawing"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DrawingClipboard.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "canvas"
+      ],
+      "kind": "Partially overlapping tools",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X12",
+      "title": "Diagrams, shapes, arrows and grouping",
+      "scope": "Create/edit a bounded structured visual",
+      "evidence": [
+        "AM05",
+        "AM06"
+      ],
+      "observed": "Our diagram editor has shape selection plus a separate options sheet for Group shapes, Edit arrows and Split arrow. A large empty canvas in a one-shape fixture is not evidence of missing content.",
+      "comparison": "Canvas is the nearest retained Obsidian visual reference, not a matched shape-and-arrow editor. No successful comparator arrow/group gesture is established.",
+      "judgment": "Candidate discoverability issue: users must find contextual grouping and connection actions without confusing selection, editing and export.",
+      "direction": "Preserve colorless diagram options, pen-scoped names and direct arrow editing. Improve guidance at the relevant selection state, not with a permanent tutorial overlay.",
+      "task": "Add two shapes, connect them, group, resize, split the arrow, undo and reopen.",
+      "acceptance": "Check actual anchor geometry, target selection, retained names and no accidental duplication. Run long-press/context-menu actions with large text and TalkBack.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DiagramView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DiagramRenderer.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/Diagram.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderDiagram"
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X13",
+      "title": "PDF reading, selection, search and markup",
+      "scope": "Open, scroll, zoom, find, annotate and export a marked copy",
+      "evidence": [
+        "AM07",
+        "AM08"
+      ],
+      "observed": "Current retained frames show a compact filename toolbar, keyboard-adjacent find field and separate markup rail. Earlier rejected viewer duplication should not be reported as still present.",
+      "comparison": "The Obsidian audit did not certify PDF embed/viewer workflows. No matched PDF search, annotation or original-preservation run exists for it.",
+      "judgment": "Current design has the requested shape; gesture precision, search latency, scrubber timeout and zoom continuity remain acceptance work, not proved polish.",
+      "direction": "Retain real file-wide zoom, selection-clearing outside tap, compact controls, loader and the hiding page scrubber. Do not reintroduce Go to page or duplicate counts.",
+      "task": "Open a large scanned/mixed PDF, zoom a distant page, select offscreen text, find a hit with IME, mark a rotated page and export.",
+      "acceptance": "Compare the original bytes; inspect hit position, highlight geometry and rendered export. Exercise cancellation and a partial destination; private markup drafts are outside Notes backups.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalPdfPreview.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfTextLayer.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfPageOcr.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfMarkup.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfMarkedCopy.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Current-state reference / comparator workflow unverified",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X14",
+      "title": "Word files and original-layout expectations",
+      "scope": "DOCX preview, selection, zoom, import versus original reader",
+      "evidence": [
+        "AM09",
+        "AM10"
+      ],
+      "observed": "Our filename toolbar is compact. Source explicitly says MyNotes pages are an approximate local preview and offers an original-layout reader or a separate editable copy.",
+      "comparison": "Obsidian is not a retained Word-layout comparator; its rendered Markdown cannot establish DOCX fidelity.",
+      "judgment": "Effectiveness depends on honest mode boundaries. A readable preview must not be mistaken for a faithful Office renderer or editable original.",
+      "direction": "Keep the original-only opening flow and clear disclosure. Separate page appearance controls from edits to imported content.",
+      "task": "Open a DOCX with headers, inline images, wide tables and hard page breaks; select text, zoom and create an editable copy.",
+      "acceptance": "Check original bytes and document return position, compare rendered pages with a suitable Word reference, and disclose any dropped layout/media. Do not invent fidelity from a synthetic one-page frame.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/WordPageFile.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/StructuredWord.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "openFile/openWordPages"
+        }
+      ],
+      "plugins": [],
+      "kind": "Different file-format scope",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X15",
+      "title": "Large TXT and read-only text viewing",
+      "scope": "Pagination, selecting, find and creating an explicit editable copy",
+      "evidence": [
+        "AM11",
+        "O07"
+      ],
+      "observed": "Our retained TXT view shows real text, a 1/17 page indicator and page arrows rather than the note editor. It is an opening state, not a measured large-file completion test.",
+      "comparison": "Obsidian native Markdown reading is a text-oriented reference, but arbitrary TXT opening, pagination and selection were not matched.",
+      "judgment": "The shared job is locating and copying information without accidentally importing or overwriting the source. Input size alone is not proof of low latency.",
+      "direction": "Preserve read-only original viewing until explicit copy/edit, and stable search/selection across page boundaries.",
+      "task": "Open a large multilingual TXT, find a repeated phrase near the end, select across the viewport and return to the prior file list.",
+      "acceptance": "Measure open/find latency separately from rendering; inspect Unicode integrity, clear selection on deliberate tap, retained page and unchanged original.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderFileTextPreview"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalOpenFile.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/TextPages.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Current viewer reference / performance unmeasured",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X16",
+      "title": "Spreadsheet previews and cached values",
+      "scope": "CSV/XLSX grids, viewport navigation and data expectations",
+      "evidence": [
+        "AM12",
+        "AO05"
+      ],
+      "observed": "Our preview exposes a 3-row, 2-column fixture with row/column coordinates. The inspected source opens CSV/XLSX through SpreadsheetFile and SpreadsheetPreview.",
+      "comparison": "Obsidian Bases is a vault-record view, not an Excel engine. Its table cannot establish XLSX formula execution, workbook fidelity or CSV compatibility.",
+      "judgment": "Do not imply a preview is a full spreadsheet editor. Cached-value handling and sheet ordering must be explained when creating text copies.",
+      "direction": "Keep grid context and explicit preview mode; provide readable wide-cell navigation without competing zoom/scroll gestures.",
+      "task": "Open quoted CSV and a multi-sheet XLSX with formulas, missing cached results and wide cells; locate a value and copy it.",
+      "acceptance": "Compare visible rows/columns and Unicode with source values, disclose cached-only results, retain sheet/scroll position and never execute macros or scripts.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/SpreadsheetFile.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/SpreadsheetPreview.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/CommonFileText.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Different data-model scope",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X17",
+      "title": "Markdown, HTML, RTF, ODT and slide imports",
+      "scope": "Safe text extraction versus native rich rendering",
+      "evidence": [
+        "AM13",
+        "AO08"
+      ],
+      "observed": "CommonFileText supports CSV/Markdown/HTML/RTF/ODT/XLSX/PPTX extraction. HTML strips script/style blocks; Office extraction does not promise layout, media or live formulas.",
+      "comparison": "Obsidian natively renders Markdown with code/callouts/math. This is not proof of equivalent import behavior for every other file type.",
+      "judgment": "Our supported-extension breadth should not hide a lower-fidelity text-copy contract. This is a source-supported limitation, not a reproduced corruption bug.",
+      "direction": "Explain exactly what a viewer preserves and what an editable copy drops before confirmation; keep other-reader privacy boundaries explicit.",
+      "task": "Open one realistic file of each advertised type, inspect text order and unsupported elements, then cancel or create a copy.",
+      "acceptance": "Record per-format fidelity and actionable errors; preserve originals, reject malformed/oversized archives safely and distinguish external-reader delegation from in-app support.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/CommonFileText.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalOpenFile.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "openFile"
+        }
+      ],
+      "plugins": [],
+      "kind": "Source-supported fidelity limitation",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X18",
+      "title": "OCR, image-region text and scanned-page recognition",
+      "scope": "English/Hindi/Kannada, correction, provenance and loaders",
+      "evidence": [
+        "AM02",
+        "AM14"
+      ],
+      "observed": "The retained review screen requires checking text before saving. The delivered qualification receipt says OCR targets were met for 1512/1536 main observations; eight extra public scenes executed with zero exact outputs.",
+      "comparison": "No equivalent built-in Obsidian OCR outcome was established. A denied/absent comparator workflow is not an accuracy win for us.",
+      "judgment": "Known recognition-quality limit, not merely a styling concern. Generated repeated-reference observations do not establish field accuracy on varied posters, tiny fonts or emoji.",
+      "direction": "Keep original images, explicit user-triggered OCR, visible loading, editable review and a clear insertion destination. Do not silently retry duplicates or invent unsupported-language text.",
+      "task": "Read tiny/oblique/multilingual public scenes, blank controls and selected image regions; compare exact expected text and corrected output.",
+      "acceptance": "Retain source hashes, full hypotheses, CER, omissions/false words, cold/warm latency and correction time. No new accuracy study or training occurred in this report.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/ImageRegionText.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfPageOcr.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/docs/candidate69-markup-followup.md",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Retained measured limitation, not new live reproduction",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X19",
+      "title": "Voice recording, playback and transcription",
+      "scope": "Permission, pause/resume, originals, review and speech engines",
+      "evidence": [
+        "AM15",
+        "AM16"
+      ],
+      "observed": "Our inbox displays transcript state, playback controls and a progress rail. Existing qualification met speech targets for 2528/3216 observations, not all. The optional engine is labelled experimental.",
+      "comparison": "Obsidian audio recorder reached permission denial in its audit; successful recording, playback and quality were not certified. Recording audio is not equivalent to transcription.",
+      "judgment": "Known effectiveness limits must not be buried behind a polished inbox. Neither a playback icon nor an aggregate processing rate proves physical listening quality.",
+      "direction": "Preserve original audio independently of transcripts, honest engine labels, readable progress and review-before-use. Do not claim general Indian-accent competence from one adapted speaker.",
+      "task": "Record varied Indian speakers, pause/resume, deny/regrant permission, play through a headset and correct names/numbers while listening.",
+      "acceptance": "Measure word errors, boundary losses, time-to-review, seek accuracy and actual audible playback on physical hardware. Verify originals export separately from note backups.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceCapture.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/VoicePlaybackCard.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceFiles.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/OfflineSpeech.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/docs/module-e2e/42021523354/voice-speaker-summary.json",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "audio-recorder"
+      ],
+      "kind": "Retained accuracy limitation / comparator recording blocked",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X20",
+      "title": "Reminders and notifications",
+      "scope": "Schedule, rename, deliver, cancel and reopen the intended note",
+      "evidence": [
+        "AM17",
+        "AM18"
+      ],
+      "observed": "A native time picker is visible. LocalReminders schedules inexact alarms and checks notification permission/channel state; this is not proof that a reminder arrived on a physical device.",
+      "comparison": "Daily-note creation in Obsidian is not equivalent to notification scheduling. No built-in matched reminder-delivery workflow is established.",
+      "judgment": "Delivery expectation is the key effectiveness risk: a selected time must not imply an exact-alarm guarantee the implementation does not provide.",
+      "direction": "Keep reminders optional, renameable and local; explain approximate timing and permission blocks at the point they matter.",
+      "task": "Set, rename and reschedule a reminder, deny notifications, reboot and then tap the delivered notification.",
+      "acceptance": "Use disposable notes; verify no stale/duplicate notification, correct note identity and sensible blocked-state feedback. Measure actual delivery under power restrictions separately.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalReminders.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/ReminderReceiver.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/LocalSurfaces.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Source-supported delivery boundary",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X21",
+      "title": "Home widget and Android entry points",
+      "scope": "Pinned/recent projection, resizing, share-in and deep-link continuity",
+      "evidence": [
+        "AM19",
+        "M01"
+      ],
+      "observed": "Settings offers a Home widget. NotesWidget source renders up to four projected note titles and a first-use empty message; no launcher widget screenshot is used as visual acceptance evidence.",
+      "comparison": "The retained Obsidian mobile quick action is an in-app gesture, not proof of an equivalent Android home widget.",
+      "judgment": "Source presence is not launcher usability. Actual widget placement, refresh and accessibility are outstanding.",
+      "direction": "Preserve optional widget consent, pinned-first content and clear launch destinations; do not expose trashed notes through stale OS surfaces.",
+      "task": "Place/resize the widget, pin and archive notes, share text from another app and open a reminder deep link.",
+      "acceptance": "Verify labels, intended note, no duplicates and return context on real launchers, including large system text. Do not restore widget/notification consent silently during recovery.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesWidget.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalSystemSurfaces.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/app/src/main/AndroidManifest.xml",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Source inspection only for launcher workflow",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X22",
+      "title": "Appearance, backgrounds, fonts and accessibility",
+      "scope": "Theme, paper, writing lines, large text and assistive input",
+      "evidence": [
+        "AM20",
+        "AO09"
+      ],
+      "observed": "Our theme sheet has System/Light/Dark choices, while note paper backgrounds and text formatting are separate controls. E04 already notes implementation-facing sp units; Obsidian also exposes pixels.",
+      "comparison": "Obsidian offers base scheme, accent, themes, fonts and CSS snippets. More appearance settings do not prove better contrast, legibility or accessible interaction.",
+      "judgment": "Potential confusion comes from several appearance scopes and cramped large-text editing, not a lack of decorative options.",
+      "direction": "Preserve system appearance, legible labels, writing-line independence and generous targets; clarify app theme versus note paper versus selected-text color.",
+      "task": "Switch system theme, increase font scale, navigate with TalkBack and format selected text over a patterned background.",
+      "acceptance": "Check clipping, announced scope/selection, contrast and focus order across orientations; screenshots alone do not establish 48dp targets or a successful screen-reader task.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesAppearance.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesDesign.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NoteBackground.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/FormatControls.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/EditorRails.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X23",
+      "title": "First-use storage, private folders and optional App folder",
+      "scope": "Where notes live, extra copies, reconnect and recovery expectations",
+      "evidence": [
+        "AM21",
+        "AM22"
+      ],
+      "observed": "Our Storage & recovery page explains on-phone saving plus optional extra copies. A second dialog lists selectable categories and says active recording remains pending until stopped.",
+      "comparison": "Obsidian audit used private app storage; its vault is not an automatic cross-device backup. Private app storage is vulnerable to uninstall in both workflows.",
+      "judgment": "Our architecture asks users to distinguish private notes, organisational folders, extra App-folder copies and portable backup. This is a real mental-model burden, not evidence of current data loss.",
+      "direction": "Keep truthful copy/permission warnings but use progressive disclosure and one understandable status: saved privately, extra copy ready/pending, recovery needs verification.",
+      "task": "Create notes offline, choose an empty optional folder, revoke access, save again and reconnect without clearing app data.",
+      "acceptance": "Inspect exact copied categories and pending status; test reinstall/reselection only on disposable fixtures. Never tell the user to uninstall or clear their real library for this review.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderStorage"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/AppFolder.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/AppFolderTasks.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesRepository.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Source-supported model complexity",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X24",
+      "title": "Portable backup, import merge and full recovery",
+      "scope": "Verify output, disclose exclusions, restore without overwriting newer work",
+      "evidence": [
+        "AM23",
+        "AM24"
+      ],
+      "observed": "The backup page visibly lists exclusions; restore previews added/skipped/conflicting notes before Confirm merge. BackupCodec and the UI explicitly cap portable backup at 8 MiB.",
+      "comparison": "Obsidian file recovery is per-file history, not a certified full-vault backup/restore path. Sync is not used here as a backup benchmark.",
+      "judgment": "The 8 MiB bound is a concrete portability limitation for rich libraries. Original audio, empty folders, saved named presets and edit history are excluded; private PDF drafts need separate export.",
+      "direction": "Make backup scope and actual readiness legible before users rely on it. Preserve checksum/readback, non-destructive merge and checkpoints; plan larger-library portability only after comparison approval.",
+      "task": "Export a near-limit rich library, exceed the limit safely, import identical and same-ID changed notes, then verify every supported content type.",
+      "acceptance": "No silent partial success or overwrite; disclose omitted categories and readable/non-encrypted JSON. A complete App-folder checkpoint is a separate opt-in recovery mechanism, not this portable file.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/BackupCodec.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LocalBackupFiles.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderBackups/renderPreview"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/AppFolder.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Documented/source-confirmed capability limitation",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X25",
+      "title": "Trash, permanent deletion and recovery",
+      "scope": "Restore, seven-day retention policy, purge scope and safety",
+      "evidence": [
+        "AM25",
+        "AO10"
+      ],
+      "observed": "Our confirmation explicitly says permanent deletion cannot be undone and that backups/original voice recordings are kept separately. The ordinary Trash view lists deleted note cards.",
+      "comparison": "Obsidian local recovery shows source text with Copy/Restore actions. It is not a matched Trash purge or successful restoration test.",
+      "judgment": "The visible warning is a strength to preserve. Recovery confidence still depends on explaining different lifetimes for a note, recording, backup and annotation draft.",
+      "direction": "Keep seven-day Trash/Undo and explicit destructive confirmation. Make restoration and separately retained copies understandable without alarming first-use notes.",
+      "task": "Delete/restore a rich note, inspect what happens to its audio and exports, then purge only a disposable selected note.",
+      "acceptance": "Verify the exact affected IDs, Undo boundaries, expiry policy and retained separate data. Never infer crash or power-loss recovery from a confirmation screenshot.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "confirmPermanentDelete/bulkState"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesRepository.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceFiles.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "file-recovery"
+      ],
+      "kind": "Visible safety affordance / recovery execution unverified",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X26",
+      "title": "Archive, pinning and bookmarks",
+      "scope": "Keep important content reachable without duplicating it",
+      "evidence": [
+        "AM26",
+        "AO11"
+      ],
+      "observed": "Our Library offers Archive, and home distinguishes Pinned/Others. Source toggles archive/pin on note identities rather than making content copies.",
+      "comparison": "Obsidian Bookmarks capture is empty. It establishes an entry point, not successful bookmark creation, folder organisation or persistence.",
+      "judgment": "Archive, pin, tab pin and bookmark are different concepts. The shared criterion is reliable return to important content, not equal label counts.",
+      "direction": "Keep pinning and Archive; state when global search includes archived content, and avoid teaching a second path that duplicates the same action.",
+      "task": "Pin a note, archive it, find it globally, restore it and compare a saved Obsidian bookmark task.",
+      "acceptance": "Check persisted identity/order, scope labels and no accidental duplicate. Bookmark persistence must be newly verified rather than inferred from its empty pane.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "bulkState/filterNow"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/LibraryFilter.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "bookmarks"
+      ],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X27",
+      "title": "Undo, redo, editing history and save feedback",
+      "scope": "Session recovery, retained history and draft durability",
+      "evidence": [
+        "AM27",
+        "AO10"
+      ],
+      "observed": "Our top bar exposes Undo/Redo. Source explains retained history bounds: up to 50 steps per note, 64 recently edited notes, 16 MiB on disk; it is not exported in portable backups.",
+      "comparison": "Obsidian snapshots provide a source-text recovery view; not an equivalent guarantee for every rich-object undo or process interruption.",
+      "judgment": "Distinguish undo history, saved note, recovery snapshot and backup. A visible Saved label cannot prove every external copy is verified.",
+      "direction": "Keep clear private-save versus copy-pending feedback and safe Back. Do not fix perceived empty space by hiding durability warnings.",
+      "task": "Edit text/table/image, undo and redo, leave and reopen; repeat after controlled process restart on disposable data.",
+      "acceptance": "Verify exact rich payload and history matching the saved revision; preserve current content when history is invalid or trimmed. Never run destructive migration on the user library.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/TextEditHistory.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PersistentHistoryStore.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "queueSave/undo"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/DocumentHistory.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X28",
+      "title": "Workspaces, tabs and mobile navigation",
+      "scope": "Notes/Doc, switching contexts, Back and layout restoration",
+      "evidence": [
+        "M02",
+        "AO12"
+      ],
+      "observed": "Our Library and Notes/Doc switcher support different destinations; workspace recall is an expert concern, not evidence two workspaces are inherently wrong.",
+      "comparison": "Obsidian tab overview and Manage workspace layouts are visible. Saving/restoring a layout was not semantically certified, and mobile settings expose additional navigation variants.",
+      "judgment": "Two different navigation architectures both need a simple return path. Do not demand a desktop-style tab model for our app.",
+      "direction": "Preserve deliberate Notes/Doc switching and block accidental workspace swipes during drag. Keep route and cursor/scroll context on Back.",
+      "task": "Switch between two notes, a PDF and Settings; reorder content near an edge, then return to the initial editing location.",
+      "acceptance": "Log wrong destinations, lost context, accidental switches and state after restart. Workspace restoration is outstanding until a matching live task succeeds.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "openWorkspace/fileReturnTarget"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/LibraryGestureLayout.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/EditorRails.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "workspaces"
+      ],
+      "kind": "Expert inference",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X29",
+      "title": "Settings, commands, quick actions and help discovery",
+      "scope": "Find an action without memorising hidden gestures",
+      "evidence": [
+        "AM19",
+        "O04"
+      ],
+      "observed": "Our settings are grouped and globally searchable. The inspected scope does not establish a full action-command palette equivalent; this is not a claim settings search is missing.",
+      "comparison": "Obsidian command palette, quick action and mobile-toolbar configuration are visible. Slash-command invocation was blocked and keyboard shortcuts do not guarantee touch reachability.",
+      "judgment": "The gap is discovering the right action at the right time, not simply matching the number of command rows.",
+      "direction": "Make common actions predictable in context, preserve readable labels and teach rare gestures progressively; evaluate command search only if tasks justify it.",
+      "task": "Without a walkthrough, find move, undo, export, a setting and one uncommon editor action using touch alone.",
+      "acceptance": "Observe search terms, wrong taps and help requests; distinguish disabled/contextual/unconfigured actions. Do not use all 205 inventoried commands as a usability success count.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderSettings/renderUniversalResults"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/EditorActions.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/InsertPalette.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "command-palette",
+        "slash-command"
+      ],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X30",
+      "title": "Export, sharing, duplication and note composition",
+      "scope": "PDF/JSON/text, content copy versus flattening, merge safety",
+      "evidence": [
+        "AM28",
+        "O04"
+      ],
+      "observed": "Our PDF sheet exposes writing-guide export choice. Source Android text sharing uses plainText with a 100,000-character cap; merging moves sources to Trash and provides Undo.",
+      "comparison": "Obsidian note-composer commands are inventoried, not a matched full compose/export/share acceptance run. Do not equate a command entry with a successful destination write.",
+      "judgment": "Different export routes preserve different things. Users need to know when they are sending plain text, a visual PDF, an editable note file or a recoverable backup.",
+      "direction": "State preservation scope before export, keep originals unchanged, retain per-content copy semantics and verify destination writing rather than reporting chooser launch as completion.",
+      "task": "Share a mixed note, export PDF and JSON, duplicate it, merge selected notes and undo the merge.",
+      "acceptance": "Check text/media/table fidelity for each promised format, exact source IDs and retained source copies; destination failure must not silently destroy content.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "exportPdf/shareSelected/mergeSelected"
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfExporter.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/ContentCopies.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "note-composer"
+      ],
+      "kind": "Source-supported format/scope boundaries",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X31",
+      "title": "Local summary and text assistance",
+      "scope": "Extractive summary with source context, not generative AI",
+      "evidence": [
+        "M07"
+      ],
+      "observed": "NotesController.quickSummary uses a local sentence ranker and displays a warning that it may miss important details. The selected editor frame is context only, not a captured summary result.",
+      "comparison": "No equivalent built-in summarizer was established in the Obsidian audit. Community AI plugins are outside the installed-core comparison.",
+      "judgment": "This app-specific tool receives no comparative feature credit. Effectiveness must be judged against faithful extraction and useful coverage, not generated-looking text.",
+      "direction": "Keep local-only, non-generative labelling, source context and explicit user review. Do not claim a language model or training where none is used.",
+      "task": "Summarize varied notes with negation, dates and multilingual sentences; check the retained source and decide whether the result is useful.",
+      "acceptance": "Verify each sentence comes from the source, essential cautions are not lost and limits are clear. No summary-quality test was executed in this report.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "quickSummary"
+        },
+        {
+          "path": "mynotes/domain/src/main/java/app/space/notes/domain/LocalSummary.java",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Source-only / app-specific / not comparatively ranked",
+      "priority": "Not ranked",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X32",
+      "title": "Privacy, permission boundaries and diagnostic logs",
+      "scope": "Offline processing, opt-in collection, export and delete",
+      "evidence": [
+        "AM29",
+        "AM30"
+      ],
+      "observed": "Diagnostics collection is visibly off in the retained frame; the log viewer states there are no matching records. The app manifest declares microphone, notifications and boot reception, not INTERNET.",
+      "comparison": "Obsidian has accounts/Sync and community-plugin trust boundaries. This does not imply ordinary local editing uploads content or that it is insecure.",
+      "judgment": "Our local/opt-in stance is worth preserving. A friendly sentence is not a complete privacy/security audit, especially when handing files to another reader.",
+      "direction": "Keep collection off until opted in; distinguish local save/export from upload and explain external-reader control. Never collect private content merely to make a diagnostic report fuller.",
+      "task": "Deny microphone, use notes normally, enable logs for a dummy issue, filter/export/delete and inspect the resulting local file.",
+      "acceptance": "Verify opt-out, readable levels/time range, explicit delete confirmation and exported content minimisation. Security of all native dependencies was not certified here.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/Diagnostics.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/DiagnosticLogView.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/app/src/main/AndroidManifest.xml",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X33",
+      "title": "Smoothness, speed, footprint and reliability",
+      "scope": "Cold start, typing, drag, file open, search, crashes and memory",
+      "evidence": [
+        "AM31",
+        "O07"
+      ],
+      "observed": "The signed APK receipt is 155,195,444 bytes; the verified Obsidian APK is 14,511,986 bytes. Our retained report explicitly has physical_acceptance=false and recognition targets not all met.",
+      "comparison": "APK size ratio is about 10.7:1, not installed storage, memory, startup latency or a causal explanation of bugs. A static Obsidian reading frame cannot establish a speed winner.",
+      "judgment": "Your complaints of sluggishness/bugs remain unresolved inputs. No new app-crash count, task latency, jank trace or matched user completion rate was measured.",
+      "direction": "First define common fixtures and success criteria. Separate bundled-model payload from startup/interaction work; do not trade away offline features solely to chase a tiny APK.",
+      "task": "On matched hardware, cold start, create/type, search a large library, drag a distant card, open a large PDF and recover from a controlled failure.",
+      "acceptance": "Collect touch-to-visible timings, frame trace, dropped frames, memory and exact failure logs. Distinguish timeouts/socket failures from app crashes and do not publish a fabricated global score.",
+      "sources": [
+        {
+          "path": "mynotes/docs/candidate69-markup-followup.md",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/docs/module-e2e/42021523354/report-summary.json",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/README.md",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Measured APK payload only / live performance unknown",
+      "priority": "P1",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X34",
+      "title": "Core modules, community plugins and extensibility",
+      "scope": "Enable/disable, configuration burden and trust",
+      "evidence": [
+        "AO13",
+        "AO14"
+      ],
+      "observed": "Our inspected app bundles first-party tools; an Obsidian-equivalent user-installable plugin marketplace is not established in this scope.",
+      "comparison": "Obsidian core toggles and community-plugin warning are visible. The audit records 29 internal module definitions, 28 exposed controls; editor-status is not an extra exposed toggle.",
+      "judgment": "Plugins change functionality and risk, not automatically UX quality. Missing a third-party extension is not a core-app defect in this comparison.",
+      "direction": "Keep default flows usable without setup. Treat optional complexity and code execution as separate consent decisions, not onboarding requirements.",
+      "task": "Find a core module, understand its description, enable/disable it and identify changed controls; inspect restricted/plugin trust text without installing unknown code.",
+      "acceptance": "Verify reversible configuration and a stable default note workflow. No community code was installed or executed; unknown plugins and future modules are outside this pinned-version inventory.",
+      "sources": [
+        {
+          "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-inventory.json",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Version-pinned module census / no plugin execution",
+      "priority": "Not ranked",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X35",
+      "title": "Sync, Publish, account and service boundaries",
+      "scope": "Local-first use versus optional cross-device/public services",
+      "evidence": [
+        "AO15",
+        "AO16"
+      ],
+      "observed": "MyNotes explicitly presents itself as local/no-account. No matching built-in multi-device sync or publishing service was established.",
+      "comparison": "Obsidian Sync sign-in is visible; Publish was disabled in the retained module inventory. Account/payment-dependent behavior was not executed or accepted.",
+      "judgment": "These are optional service-scope differences, not evidence that Obsidian synchronises perfectly or our local notes are empty/defective.",
+      "direction": "Do not bolt on cloud services to win a feature table. Explain local storage, backup and transfer clearly; assess a service only if the product requirement changes.",
+      "task": "For a future explicitly authorised service study, evaluate offline edits, conflicts, account loss, export and deliberate public visibility with disposable data.",
+      "acceptance": "No login, purchase, upload or publishing was performed. Conflict resolution, encryption, recovery and cost/value remain untested; an entry screen is not a passed sync task.",
+      "sources": [
+        {
+          "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/README.md",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderModelInfo"
+        }
+      ],
+      "plugins": [
+        "sync",
+        "publish"
+      ],
+      "kind": "Account/paid/disabled workflow not tested",
+      "priority": "Not ranked",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X36",
+      "title": "Slides, presentation and reading projections",
+      "scope": "View a note as a presentation without changing its source",
+      "evidence": [
+        "AO17",
+        "AM28"
+      ],
+      "observed": "Our PDF export and PPTX text extraction are different operations from presenting a Markdown note. No equivalent built-in slide-show workflow is established.",
+      "comparison": "Obsidian shows a Slides title screen, but the software keyboard occupies much of the viewport. This captured constraint prevents claiming a polished full-screen presentation session.",
+      "judgment": "Presentation is a separate output job. Do not count PPTX extension support as presentation editing or a title screen as successful end-to-end presenting.",
+      "direction": "For current shared output tasks prioritise readable exports. If presentation becomes required, validate full-screen entry, controls, source preservation and return state.",
+      "task": "Present a multi-slide disposable note, navigate, dismiss the keyboard, rotate and return to editing; compare PDF reading only as a separate output route.",
+      "acceptance": "Verify every slide, media, controls and return location. Obsidian landscape was not qualified by its retained audit; no physical presentation run occurred here.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/CommonFileText.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/PdfExporter.java",
+          "anchor": ""
+        },
+        {
+          "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-results.json",
+          "anchor": ""
+        }
+      ],
+      "plugins": [
+        "slides"
+      ],
+      "kind": "Different output scope / visible comparator viewport constraint",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    },
+    {
+      "id": "X37",
+      "title": "About, models, licences and honest help",
+      "scope": "Version identity, offline model claims and troubleshooting guidance",
+      "evidence": [
+        "AM32",
+        "AM33"
+      ],
+      "observed": "Our About/model source describes bundled OCR/speech, optional experimental adaptation, disk/RAM costs and separate audio export. This is implementation disclosure, not a new training or accuracy result.",
+      "comparison": "Obsidian General/settings exposes version/help/account and licences. The inspected screenshot reference pins 1.15.0/code396 rather than claiming all future versions behave alike.",
+      "judgment": "Help should answer how to do a task before presenting internal engine detail. Existing limitations must stay available, not disappear in a cosmetic simplification.",
+      "direction": "Keep concise task-first help and progressive technical/licence detail; show exact version and actionable permission/storage recovery routes.",
+      "task": "Ask a novice to identify where notes are saved, how to protect audio and how to export useful diagnostics without sending private notes.",
+      "acceptance": "Observe whether they can explain the result in their own words. Do not substitute long notices or a generated guide for successful comprehension.",
+      "sources": [
+        {
+          "path": "mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java",
+          "anchor": "renderModelInfo"
+        },
+        {
+          "path": "mynotes/docs/candidate69-markup-followup.md",
+          "anchor": ""
+        }
+      ],
+      "plugins": [],
+      "kind": "Expert inference",
+      "priority": "P2",
+      "live_status": "NOT RUN",
+      "timing": null
+    }
+  ],
+  "assets": {
+    "M01": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-home.jpg",
+      "state": "home",
+      "profile": "light portrait"
+    },
+    "M02": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-library.jpg",
+      "state": "library",
+      "profile": "light portrait"
+    },
+    "M03": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-folders.jpg",
+      "state": "folders",
+      "profile": "light portrait"
+    },
+    "M04": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-filters-view.jpg",
+      "state": "filters-view",
+      "profile": "light portrait"
+    },
+    "M05": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-filters-labels.jpg",
+      "state": "filters-labels",
+      "profile": "light portrait"
+    },
+    "M06": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-search-keyboard.jpg",
+      "state": "search-keyboard",
+      "profile": "light portrait"
+    },
+    "M07": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-editor.jpg",
+      "state": "editor",
+      "profile": "light portrait"
+    },
+    "M08": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-editor-keyboard.jpg",
+      "state": "editor-keyboard",
+      "profile": "light portrait"
+    },
+    "M09": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-format-keyboard.jpg",
+      "state": "format-keyboard",
+      "profile": "light portrait"
+    },
+    "M10": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-format.jpg",
+      "state": "format",
+      "profile": "light portrait"
+    },
+    "M11": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-editor-folder-create.jpg",
+      "state": "editor-folder-create",
+      "profile": "light portrait"
+    },
+    "M12": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-notes-workspace.jpg",
+      "state": "notes-workspace",
+      "profile": "light portrait"
+    },
+    "M13": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-mixed-notes-selection.jpg",
+      "state": "mixed-notes-selection",
+      "profile": "light portrait"
+    },
+    "M14": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-document-table.jpg",
+      "state": "document-table",
+      "profile": "light portrait"
+    },
+    "M15": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-note-find-sheet.jpg",
+      "state": "note-find-sheet",
+      "profile": "light portrait"
+    },
+    "M16": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-note-find-result.jpg",
+      "state": "note-find-result",
+      "profile": "light portrait"
+    },
+    "M17": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-stage-aa-selection.jpg",
+      "state": "stage-aa-selection",
+      "profile": "light portrait"
+    },
+    "M18": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-stage-aa-typing.jpg",
+      "state": "stage-aa-typing",
+      "profile": "light portrait"
+    },
+    "M19": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-notes-native-selection-scroll.jpg",
+      "state": "notes-native-selection-scroll",
+      "profile": "light portrait"
+    },
+    "M20": {
+      "app": "MyNotes 0.69.0 / code 69",
+      "run": "42021523354",
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-mixed-note-header.jpg",
+      "state": "mixed-note-header",
+      "profile": "light portrait"
+    },
+    "O01": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-015.jpg",
+      "state": "Quick switcher with file paths and Find or create input",
+      "profile": "light portrait"
+    },
+    "O02": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-014.jpg",
+      "state": "File explorer, fixture folder collapsed",
+      "profile": "light portrait"
+    },
+    "O03": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-016.jpg",
+      "state": "Vault search, empty query; not search-result quality evidence",
+      "profile": "light portrait"
+    },
+    "O04": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-017.jpg",
+      "state": "Command palette with actions",
+      "profile": "light portrait"
+    },
+    "O05": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-023.jpg",
+      "state": "Tags pane with usage counts",
+      "profile": "light portrait"
+    },
+    "O06": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-027.jpg",
+      "state": "Bold action on dedicated scratch note; keyboard visible",
+      "profile": "light portrait"
+    },
+    "O07": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-003.jpg",
+      "state": "Rendered reading view of fixture",
+      "profile": "light portrait"
+    },
+    "O08": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-007.jpg",
+      "state": "Rendered table within note prose",
+      "profile": "light portrait"
+    },
+    "O09": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-022.jpg",
+      "state": "Heading outline pane",
+      "profile": "light portrait"
+    },
+    "O10": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-061.jpg",
+      "state": "Mobile toolbar configuration",
+      "profile": "light portrait"
+    },
+    "O11": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-004.jpg",
+      "state": "Properties in note; metadata occupies substantial space",
+      "profile": "light portrait"
+    },
+    "O12": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-020.jpg",
+      "state": "Backlinks pane",
+      "profile": "light portrait"
+    },
+    "O13": {
+      "app": "Obsidian 1.15.0 / code 396",
+      "run": "42179340885",
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-022.jpg",
+      "state": "Appearance font-size setting",
+      "profile": "light portrait"
+    },
+    "AM01": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-checklist-item-actions.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "checklist-item-actions",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO01": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-006.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 6",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM02": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-image-text-selection.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "image-text-selection",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO02": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-009.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 9",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM03": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-word-link-form.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "word-link-form",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO03": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-018.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 18",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO04": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-054.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 54",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO05": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-013.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 13",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO06": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-057.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 57",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM04": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-drawing-tools.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "drawing-tools",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO07": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-012.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 12",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM05": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-diagram-options.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "diagram-options",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM06": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-shape-picker.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "shape-picker",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM07": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-pdf68-search-above-keyboard.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "pdf68-search-above-keyboard",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM08": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-pdf68-pen-and-highlighter-tools.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "pdf68-pen-and-highlighter-tools",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM09": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-word68-attached-filename-toolbar.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "word68-attached-filename-toolbar",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM10": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-word-appearance.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "word-appearance",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM11": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-large-txt-page-one.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-large-txt-page-one",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM12": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-spreadsheet-grid-viewport.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "spreadsheet-grid-viewport",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM13": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-library-viewed-files.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-library-viewed-files",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO08": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-008.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 8",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM14": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-ocr-review.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "ocr-review",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM15": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-voice-inbox.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "voice-inbox",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM16": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-speech-engine.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-speech-engine",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM17": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-reminder-time.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "reminder-time",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM18": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-add-reminder.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "add-reminder",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM19": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-settings.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-settings",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM20": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-appearance.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-appearance",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO09": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-012.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 12",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM21": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-storage.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "storage",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM22": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-app-folder-copy-choices.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "app-folder-copy-choices",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM23": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-backups.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "backups",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM24": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-restore-preview.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "restore-preview",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM25": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-trash-confirmation.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "trash-confirmation",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO10": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-026.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 26",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM26": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-library-archive.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-library-archive",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO11": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-024.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 24",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM27": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-document-saved-styles.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "document-saved-styles",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO12": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-063.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 63",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM28": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-document-pdf-options.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "document-pdf-options",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM29": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-diagnostics.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "diagnostics",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM30": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-diagnostic-log-viewer.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-diagnostic-log-viewer",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM31": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-home-notes-long-distance-drag.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "home-notes-long-distance-drag",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO13": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-289.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 289",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO14": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-318.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 318",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO15": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-064.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 64",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO16": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-326.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 326",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO17": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-059.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 59",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AM32": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-about.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "about",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM33": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-e2e-about-models.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "e2e-about-models",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM34": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-checklist.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "checklist",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM35": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-document-content-options.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "document-content-options",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM36": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-image-editor.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "image-editor",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM37": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-diagram.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "diagram",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM38": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-pdf68-compact-filename-toolbar.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "pdf68-compact-filename-toolbar",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM39": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-read-image-auto.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "read-image-auto",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AM40": {
+      "path": "mynotes/docs/module-e2e/42021523354/images/light-portrait-ordered-trash.jpg",
+      "app": "MyNotes 0.69.0 / code 69",
+      "state": "trash",
+      "run": "42021523354",
+      "profile": "retained portrait"
+    },
+    "AO18": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-000.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 0",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO19": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-010.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 10",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO20": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-019.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 19",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO21": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-021.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 21",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO22": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-025.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 25",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO23": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-055.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 55",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO24": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-056.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 56",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO25": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-060.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 60",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO26": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/walkthrough-feature-062.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "walkthrough frame 62",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO27": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-024.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 24",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO28": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-056.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 56",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO29": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-070.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 70",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO30": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-355.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 355",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    },
+    "AO31": {
+      "path": "mynotes/docs/comparisons/obsidian/audit/42182162974/settings-feature-367.jpg",
+      "app": "Obsidian Android 1.15.0 / code 396",
+      "state": "settings frame 367",
+      "run": "42179340885",
+      "profile": "retained portrait"
+    }
+  },
+  "obsidian_module_registry": [
+    {
+      "id": "file-explorer",
+      "enabled": true,
+      "module": "X01",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "global-search",
+      "enabled": true,
+      "module": "X01",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "switcher",
+      "enabled": true,
+      "module": "X01",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "graph",
+      "enabled": true,
+      "module": "X07",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "backlink",
+      "enabled": true,
+      "module": "X07",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "canvas",
+      "enabled": true,
+      "module": "X11",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "outgoing-link",
+      "enabled": true,
+      "module": "X07",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "tag-pane",
+      "enabled": true,
+      "module": "X08",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "footnotes",
+      "enabled": true,
+      "module": "X08",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "properties",
+      "enabled": true,
+      "module": "X09",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "page-preview",
+      "enabled": true,
+      "module": "X07",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "daily-notes",
+      "enabled": true,
+      "module": "X10",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "templates",
+      "enabled": true,
+      "module": "X10",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "note-composer",
+      "enabled": true,
+      "module": "X30",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "command-palette",
+      "enabled": true,
+      "module": "X29",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "slash-command",
+      "enabled": true,
+      "module": "X29",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "editor-status",
+      "enabled": true,
+      "module": "X02",
+      "exposed_control": false,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "bookmarks",
+      "enabled": true,
+      "module": "X26",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "zk-prefixer",
+      "enabled": true,
+      "module": "X10",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "random-note",
+      "enabled": true,
+      "module": "X10",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "outline",
+      "enabled": true,
+      "module": "X08",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "word-count",
+      "enabled": true,
+      "module": "X08",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "slides",
+      "enabled": true,
+      "module": "X36",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "audio-recorder",
+      "enabled": true,
+      "module": "X19",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "workspaces",
+      "enabled": true,
+      "module": "X28",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "file-recovery",
+      "enabled": true,
+      "module": "X25",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "publish",
+      "enabled": false,
+      "module": "X35",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "sync",
+      "enabled": true,
+      "module": "X35",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    },
+    {
+      "id": "bases",
+      "enabled": true,
+      "module": "X09",
+      "exposed_control": true,
+      "review_status": "Not live-tested in this expansion"
+    }
+  ],
+  "obsidian_command_routing": [
+    {
+      "id": "editor:save-file",
+      "name": "Save current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Save current file"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:download-attachments",
+      "name": "Download attachments for current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Download attachments for current file"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:follow-link",
+      "name": "Follow link under cursor",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Follow link under cursor"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:open-link-in-new-leaf",
+      "name": "Open link under cursor in new tab",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Open link under cursor in new tab"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:toggle-pin",
+      "name": "Toggle pin",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle pin"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:edit-file-title",
+      "name": "Rename file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Rename file"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:copy-path",
+      "name": "Copy current file path from vault folder",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Copy current file path from vault folder"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:copy-url",
+      "name": "Copy Obsidian URL for current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Copy Obsidian URL for current file"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:undo-close-pane",
+      "name": "Undo close tab",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Undo close tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:export-pdf",
+      "name": "Export to PDF...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Export to PDF..."
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:rename-heading",
+      "name": "Rename this heading...",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Rename this heading..."
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:next-tab",
+      "name": "Go to next tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Go to next tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-1",
+      "name": "Go to tab #1",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #1"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-2",
+      "name": "Go to tab #2",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #2"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-3",
+      "name": "Go to tab #3",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #3"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-4",
+      "name": "Go to tab #4",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #4"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-5",
+      "name": "Go to tab #5",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #5"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-6",
+      "name": "Go to tab #6",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #6"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-7",
+      "name": "Go to tab #7",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #7"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-tab-8",
+      "name": "Go to tab #8",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Go to tab #8"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:goto-last-tab",
+      "name": "Go to last tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Go to last tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:previous-tab",
+      "name": "Go to previous tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Go to previous tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:new-tab",
+      "name": "New tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: New tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:close",
+      "name": "Close current tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Close current tab"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:close-others",
+      "name": "Close all other tabs",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Close all other tabs"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:close-tab-group",
+      "name": "Close this tab group",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Close this tab group"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspace:close-others-tab-group",
+      "name": "Close others in tab group",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Close others in tab group"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "mobile:quick-action",
+      "name": "Configure mobile Quick Action",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Mobile quick action",
+        "Command entry: Configure mobile Quick Action"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:go-back",
+      "name": "Navigate back",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Navigate back"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:go-forward",
+      "name": "Navigate forward",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Navigate forward"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:open-vault",
+      "name": "Manage vaults",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Manage vaults",
+        "Vault management"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:switch-vault",
+      "name": "Change vault...",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Change vault..."
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:show-tab-switcher",
+      "name": "Show tab overview",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Tab overview",
+        "Command entry: Show tab overview"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "theme:toggle-light-dark",
+      "name": "Toggle light/dark mode",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle light/dark mode"
+      ],
+      "module": "X22",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "theme:switch",
+      "name": "Change theme...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Change theme..."
+      ],
+      "module": "X22",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:open-settings",
+      "name": "Open settings",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Open settings"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:show-release-notes",
+      "name": "Show release notes",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Show release notes"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "markdown:toggle-preview",
+      "name": "Toggle reading view",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle reading view"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "markdown:add-metadata-property",
+      "name": "Add file property",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add file property"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "markdown:add-alias",
+      "name": "Add alias",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add alias"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "markdown:clear-metadata-properties",
+      "name": "Clear file properties",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Clear file properties"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:delete-file",
+      "name": "Delete current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Delete current file"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:toggle-ribbon",
+      "name": "Toggle ribbon",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Toggle ribbon"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-readable-line-length",
+      "name": "Toggle readable line length",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle readable line length"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-line-numbers",
+      "name": "Toggle line numbers",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle line numbers"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:toggle-left-sidebar",
+      "name": "Toggle left sidebar",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle left sidebar"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:toggle-right-sidebar",
+      "name": "Toggle right sidebar",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle right sidebar"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:toggle-default-new-pane-mode",
+      "name": "Toggle default mode for new tabs",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle default mode for new tabs"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:open-help",
+      "name": "Open help",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Open help"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:reload",
+      "name": "Reload app without saving",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Reload app without saving"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:migrate-frontmatter",
+      "name": "Format converter: Frontmatter migration",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Format converter: Frontmatter migration"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:show-debug-info",
+      "name": "Show debug info",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Show debug info"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:increase-font-size",
+      "name": "Increase font size",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Increase font size"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "app:decrease-font-size",
+      "name": "Decrease font size",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Decrease font size"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:new-file",
+      "name": "Create new note",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Create new note"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:new-file-in-current-tab",
+      "name": "Create new note in current tab",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Create new note in current tab"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:new-file-in-new-pane",
+      "name": "Create note to the right",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Create note to the right"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "open-with-default-app:open",
+      "name": "Share",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Share"
+      ],
+      "module": "X17",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:move-file",
+      "name": "Move current file to another folder",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move current file to another folder"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:duplicate-file",
+      "name": "Make a copy of the current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Make a copy of the current file"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-source",
+      "name": "Toggle Live Preview/Source mode",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle Live Preview/Source mode"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:open-search",
+      "name": "Search current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Search current file"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:open-search-replace",
+      "name": "Search & replace in current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Search & replace in current file"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:focus",
+      "name": "Focus on last note",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Focus on last note"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-fold-properties",
+      "name": "Toggle fold properties in current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle fold properties in current file"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-fold",
+      "name": "Toggle fold on the current line",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle fold on the current line"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:fold-all",
+      "name": "Fold all headings and lists",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Fold all headings and lists"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:unfold-all",
+      "name": "Unfold all headings and lists",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Unfold all headings and lists"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:fold-less",
+      "name": "Fold less",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Fold less"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:fold-more",
+      "name": "Fold more",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Fold more"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-wikilink",
+      "name": "Add internal link",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add internal link"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-embed",
+      "name": "Add embed",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add embed"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-link",
+      "name": "Insert Markdown link",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Insert Markdown link"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-tag",
+      "name": "Add tag",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add tag"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading",
+      "name": "Toggle heading",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle heading"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-0",
+      "name": "Remove heading",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Remove heading"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-1",
+      "name": "Set as heading 1",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-1",
+        "Command entry: Set as heading 1"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-2",
+      "name": "Set as heading 2",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-2",
+        "Command entry: Set as heading 2"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-3",
+      "name": "Set as heading 3",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-3",
+        "Command entry: Set as heading 3"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-4",
+      "name": "Set as heading 4",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-4",
+        "Command entry: Set as heading 4"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-5",
+      "name": "Set as heading 5",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-5",
+        "Command entry: Set as heading 5"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:set-heading-6",
+      "name": "Set as heading 6",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: set-heading-6",
+        "Command entry: Set as heading 6"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-bold",
+      "name": "Toggle bold",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-bold",
+        "Command entry: Toggle bold"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-italics",
+      "name": "Toggle italic",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-italics",
+        "Command entry: Toggle italic"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-strikethrough",
+      "name": "Toggle strikethrough",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-strikethrough",
+        "Command entry: Toggle strikethrough"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight",
+      "name": "Toggle highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight",
+        "Command entry: Toggle highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-red",
+      "name": "Toggle red highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-red",
+        "Command entry: Toggle red highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-orange",
+      "name": "Toggle orange highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-orange",
+        "Command entry: Toggle orange highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-yellow",
+      "name": "Toggle yellow highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-yellow",
+        "Command entry: Toggle yellow highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-green",
+      "name": "Toggle green highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-green",
+        "Command entry: Toggle green highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-blue",
+      "name": "Toggle blue highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-blue",
+        "Command entry: Toggle blue highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-highlight-purple",
+      "name": "Toggle purple highlight",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-highlight-purple",
+        "Command entry: Toggle purple highlight"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-code",
+      "name": "Toggle code",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-code",
+        "Command entry: Toggle code"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-inline-math",
+      "name": "Toggle inline math",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle inline math"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-blockquote",
+      "name": "Toggle blockquote",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-blockquote",
+        "Command entry: Toggle blockquote"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-comments",
+      "name": "Toggle comment",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle comment"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:clear-formatting",
+      "name": "Clear formatting",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Clear formatting"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-bullet-list",
+      "name": "Toggle bullet list",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-bullet-list",
+        "Command entry: Toggle bullet list"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-numbered-list",
+      "name": "Toggle numbered list",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-numbered-list",
+        "Command entry: Toggle numbered list"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-checklist-status",
+      "name": "Toggle checkbox status",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: toggle-checklist-status",
+        "Command entry: Toggle checkbox status"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:cycle-list-checklist",
+      "name": "Cycle bullet/checkbox",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Cycle bullet/checkbox"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-callout",
+      "name": "Insert callout",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-callout",
+        "Command entry: Insert callout"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-codeblock",
+      "name": "Insert code block",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-codeblock",
+        "Command entry: Insert code block"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-horizontal-rule",
+      "name": "Insert horizontal rule",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-horizontal-rule",
+        "Command entry: Insert horizontal rule"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-mathblock",
+      "name": "Insert math block",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-mathblock",
+        "Command entry: Insert math block"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-table",
+      "name": "Insert table",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-table",
+        "Command entry: Insert table"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:insert-footnote",
+      "name": "Insert footnote",
+      "status": "functional_readback_pass",
+      "evidence_features": [
+        "Editor: insert-footnote",
+        "Command entry: Insert footnote"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:indent-list",
+      "name": "Indent list item",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Indent list item"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:unindent-list",
+      "name": "Unindent list item",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Unindent list item"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:swap-line-up",
+      "name": "Move line up",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move line up"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:swap-line-down",
+      "name": "Move line down",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move line down"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:undo",
+      "name": "Undo",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Undo"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:redo",
+      "name": "Redo",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Redo"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:move-caret-up",
+      "name": "Move caret up",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move caret up"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:move-caret-down",
+      "name": "Move caret down",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move caret down"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:move-caret-left",
+      "name": "Move caret left",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move caret left"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:move-caret-right",
+      "name": "Move caret right",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Move caret right"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:go-start",
+      "name": "Go to first line",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Go to first line"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:go-end",
+      "name": "Go to last line",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Go to last line"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-keyboard",
+      "name": "Toggle keyboard",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle keyboard"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:configure-toolbar",
+      "name": "Configure mobile toolbar",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Mobile toolbar",
+        "Command entry: Configure mobile toolbar"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:attach-file",
+      "name": "Insert attachment",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Insert attachment"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:delete-paragraph",
+      "name": "Delete paragraph",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Delete paragraph"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:add-cursor-below",
+      "name": "Add cursor below",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add cursor below"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:add-cursor-above",
+      "name": "Add cursor above",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Add cursor above"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:toggle-spellcheck",
+      "name": "Toggle spellcheck",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Toggle spellcheck"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-before",
+      "name": "Table: Add row above",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Add row above"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-after",
+      "name": "Table: Add row below",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Add row below"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-up",
+      "name": "Table: Move row up",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Move row up"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-down",
+      "name": "Table: Move row down",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Move row down"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-copy",
+      "name": "Table: Duplicate row",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Duplicate row"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-row-delete",
+      "name": "Table: Delete row",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Delete row"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-before",
+      "name": "Table: Add column to the left",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Add column to the left"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-after",
+      "name": "Table: Add column to the right",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Add column to the right"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-left",
+      "name": "Table: Move column left",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Move column left"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-right",
+      "name": "Table: Move column right",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Move column right"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-copy",
+      "name": "Table: Duplicate column",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Duplicate column"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-delete",
+      "name": "Table: Delete column",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Delete column"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-align-left",
+      "name": "Table: Align left",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Align left"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-align-center",
+      "name": "Table: Align center",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Align center"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:table-col-align-right",
+      "name": "Table: Align right",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Table: Align right"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:cut",
+      "name": "Cut",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Cut"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:copy",
+      "name": "Copy",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Copy"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:paste",
+      "name": "Paste",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Paste"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "editor:context-menu",
+      "name": "Show context menu under cursor",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Show context menu under cursor"
+      ],
+      "module": "X02",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:open",
+      "name": "Files: Show file explorer",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "File explorer",
+        "Command entry: Files: Show file explorer"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:reveal-active-file",
+      "name": "Files: Reveal current file in navigation",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Files: Reveal current file in navigation"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-explorer:new-folder",
+      "name": "Files: Create new folder",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Files: Create new folder"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "global-search:open",
+      "name": "Search: Search in all files",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Vault search",
+        "Command entry: Search: Search in all files"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "switcher:open",
+      "name": "Quick switcher: Open quick switcher",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Quick switcher",
+        "Command entry: Quick switcher: Open quick switcher"
+      ],
+      "module": "X01",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "graph:open",
+      "name": "Graph view: Open graph view",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Global graph",
+        "Command entry: Graph view: Open graph view"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "graph:open-local",
+      "name": "Graph view: Open local graph",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Local graph",
+        "Command entry: Graph view: Open local graph"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "graph:animate",
+      "name": "Graph view: Start graph timelapse animation",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Graph view: Start graph timelapse animation"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "backlink:open",
+      "name": "Backlinks: Show backlinks",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Backlinks",
+        "Command entry: Backlinks: Show backlinks"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "backlink:open-backlinks",
+      "name": "Backlinks: Open backlinks for the current note",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Backlinks: Open backlinks for the current note"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "backlink:toggle-backlinks-in-document",
+      "name": "Backlinks: Toggle backlinks in document",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Backlinks: Toggle backlinks in document"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "canvas:new-file",
+      "name": "Canvas: Create new canvas",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Canvas: Create new canvas"
+      ],
+      "module": "X11",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "canvas:jump-to-group",
+      "name": "Canvas: Jump to group",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Canvas: Jump to group"
+      ],
+      "module": "X11",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "canvas:convert-to-file",
+      "name": "Canvas: Convert to file...",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Canvas: Convert to file..."
+      ],
+      "module": "X11",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "outgoing-links:open",
+      "name": "Outgoing links: Show outgoing links",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Outgoing links",
+        "Command entry: Outgoing links: Show outgoing links"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "outgoing-links:open-for-current",
+      "name": "Outgoing links: Open outgoing links for the current file",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Outgoing links: Open outgoing links for the current file"
+      ],
+      "module": "X07",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "tag-pane:open",
+      "name": "Tags view: Show tags",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Tags view",
+        "Command entry: Tags view: Show tags"
+      ],
+      "module": "X08",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "properties:open",
+      "name": "Properties view: Show all properties",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Properties view",
+        "Command entry: Properties view: Show all properties"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "properties:open-local",
+      "name": "Properties view: Show file properties",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Properties view: Show file properties"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "daily-notes",
+      "name": "Daily notes: Open today's daily note",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Daily notes",
+        "Command entry: Daily notes: Open today's daily note"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "daily-notes:goto-prev",
+      "name": "Daily notes: Open previous daily note",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Daily notes: Open previous daily note"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "daily-notes:goto-next",
+      "name": "Daily notes: Open next daily note",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Daily notes: Open next daily note"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "insert-template",
+      "name": "Templates: Insert template",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Templates",
+        "Command entry: Templates: Insert template"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "insert-current-date",
+      "name": "Templates: Insert current date",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Templates: Insert current date"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "insert-current-time",
+      "name": "Templates: Insert current time",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Templates: Insert current time"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "note-composer:merge-file",
+      "name": "Note composer: Merge current file with another file...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Note composer: Merge current file with another file..."
+      ],
+      "module": "X30",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "note-composer:split-file",
+      "name": "Note composer: Extract current selection...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Note composer: Extract current selection..."
+      ],
+      "module": "X30",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "note-composer:extract-heading",
+      "name": "Note composer: Extract this heading...",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Note composer: Extract this heading..."
+      ],
+      "module": "X30",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "command-palette:open",
+      "name": "Command palette: Open command palette",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command palette",
+        "Command entry: Command palette: Open command palette"
+      ],
+      "module": "X29",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:open",
+      "name": "Bookmarks: Show bookmarks",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Bookmarks",
+        "Command entry: Bookmarks: Show bookmarks"
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:bookmark-current-view",
+      "name": "Bookmarks: Bookmark...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bookmarks: Bookmark..."
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:bookmark-current-search",
+      "name": "Bookmarks: Bookmark current search...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bookmarks: Bookmark current search..."
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:unbookmark-current-view",
+      "name": "Bookmarks: Remove bookmark for the current file",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Bookmarks: Remove bookmark for the current file"
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:bookmark-current-section",
+      "name": "Bookmarks: Bookmark block under cursor...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bookmarks: Bookmark block under cursor..."
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:bookmark-current-heading",
+      "name": "Bookmarks: Bookmark heading under cursor...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bookmarks: Bookmark heading under cursor..."
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bookmarks:bookmark-all-tabs",
+      "name": "Bookmarks: Bookmark all tabs...",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bookmarks: Bookmark all tabs..."
+      ],
+      "module": "X26",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "outline:open",
+      "name": "Outline: Show outline",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Outline",
+        "Command entry: Outline: Show outline"
+      ],
+      "module": "X08",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "outline:open-for-current",
+      "name": "Outline: Open outline of the current file",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Outline: Open outline of the current file"
+      ],
+      "module": "X08",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "file-recovery:open",
+      "name": "File recovery: Open local history",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "File recovery",
+        "Command entry: File recovery: Open local history"
+      ],
+      "module": "X25",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "sync:setup",
+      "name": "Sync: Set up Sync",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Sync sign-in entry",
+        "Command entry: Sync: Set up Sync"
+      ],
+      "module": "X35",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "sync:view-version-history",
+      "name": "Sync: Open version history for the current file",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Sync: Open version history for the current file"
+      ],
+      "module": "X35",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "sync:open-sync-view",
+      "name": "Sync: Show Sync history",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Sync: Show Sync history"
+      ],
+      "module": "X35",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "sync:open-sync-log",
+      "name": "Sync: Open activity log",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Sync: Open activity log"
+      ],
+      "module": "X35",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:new-file",
+      "name": "Bases: Create new base",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bases: Create new base"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:insert",
+      "name": "Bases: Insert new base",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Bases: Insert new base"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:copy-table",
+      "name": "Bases: Copy table to clipboard",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bases: Copy table to clipboard"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:change-view",
+      "name": "Bases: Switch view...",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Bases: Switch view..."
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:add-view",
+      "name": "Bases: Add view",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bases: Add view"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "bases:add-item",
+      "name": "Bases: Add item",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Bases: Add item"
+      ],
+      "module": "X09",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "footnotes:open",
+      "name": "Footnotes view: Show footnotes",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Footnotes view",
+        "Command entry: Footnotes view: Show footnotes"
+      ],
+      "module": "X08",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "zk-prefixer",
+      "name": "Unique note creator: Create new unique note",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Unique note creator",
+        "Command entry: Unique note creator: Create new unique note"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "insert-unique-link",
+      "name": "Unique note creator: Add unique internal link",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Unique note creator: Add unique internal link"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "random-note",
+      "name": "Random note: Open random note",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Random note",
+        "Command entry: Random note: Open random note"
+      ],
+      "module": "X10",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "slides:start",
+      "name": "Slides: Start presentation",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Slides",
+        "Command entry: Slides: Start presentation"
+      ],
+      "module": "X36",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "audio-recorder:start",
+      "name": "Audio recorder: Start recording audio",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Audio recorder: Start recording audio"
+      ],
+      "module": "X19",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "audio-recorder:stop",
+      "name": "Audio recorder: Stop recording audio",
+      "status": "blocked_or_unverified",
+      "evidence_features": [
+        "Command entry: Audio recorder: Stop recording audio"
+      ],
+      "module": "X19",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspaces:load",
+      "name": "Workspaces: Load workspace layout",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Workspaces: Load workspace layout"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspaces:save",
+      "name": "Workspaces: Save layout",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Workspaces: Save layout"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspaces:save-and-load",
+      "name": "Workspaces: Save and load another layout",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Command entry: Workspaces: Save and load another layout"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    },
+    {
+      "id": "workspaces:open-modal",
+      "name": "Workspaces: Manage workspace layouts",
+      "status": "invoked_ui_inspected",
+      "evidence_features": [
+        "Workspaces",
+        "Command entry: Workspaces: Manage workspace layouts"
+      ],
+      "module": "X28",
+      "classification_scope": "Retained audit status, not newly executed; primary family routing, not exhaustive command-level UX review."
+    }
+  ],
+  "obsidian_settings_sections": [
+    {
+      "section": "General",
+      "source_index": 2,
+      "status": "screen_inspected",
+      "primary_module": "X37"
+    },
+    {
+      "section": "Appearance",
+      "source_index": 12,
+      "status": "screen_inspected",
+      "primary_module": "X22"
+    },
+    {
+      "section": "Interface",
+      "source_index": 24,
+      "status": "screen_inspected",
+      "primary_module": "X28"
+    },
+    {
+      "section": "Editor",
+      "source_index": 32,
+      "status": "screen_inspected",
+      "primary_module": "X02"
+    },
+    {
+      "section": "Files and links",
+      "source_index": 56,
+      "status": "screen_inspected",
+      "primary_module": "X23"
+    },
+    {
+      "section": "Hotkeys",
+      "source_index": 79,
+      "status": "screen_inspected",
+      "primary_module": "X29"
+    },
+    {
+      "section": "Keychain",
+      "source_index": 285,
+      "status": "screen_inspected",
+      "primary_module": "X32"
+    },
+    {
+      "section": "Core plugins",
+      "source_index": 289,
+      "status": "screen_inspected",
+      "primary_module": "X34"
+    },
+    {
+      "section": "Community plugins",
+      "source_index": 318,
+      "status": "screen_inspected",
+      "primary_module": "X34"
+    },
+    {
+      "section": "Quick switcher",
+      "source_index": 322,
+      "status": "screen_inspected",
+      "primary_module": "X01"
+    },
+    {
+      "section": "Sync",
+      "source_index": 326,
+      "status": "screen_inspected",
+      "primary_module": "X35"
+    },
+    {
+      "section": "Backlinks",
+      "source_index": 327,
+      "status": "screen_inspected",
+      "primary_module": "X07"
+    },
+    {
+      "section": "Canvas",
+      "source_index": 329,
+      "status": "screen_inspected",
+      "primary_module": "X11"
+    },
+    {
+      "section": "Page preview",
+      "source_index": 338,
+      "status": "screen_inspected",
+      "primary_module": "X07"
+    },
+    {
+      "section": "Daily notes",
+      "source_index": 350,
+      "status": "screen_inspected",
+      "primary_module": "X10"
+    },
+    {
+      "section": "Templates",
+      "source_index": 355,
+      "status": "screen_inspected",
+      "primary_module": "X10"
+    },
+    {
+      "section": "Note composer",
+      "source_index": 359,
+      "status": "screen_inspected",
+      "primary_module": "X30"
+    },
+    {
+      "section": "Command palette",
+      "source_index": 363,
+      "status": "screen_inspected",
+      "primary_module": "X29"
+    },
+    {
+      "section": "File recovery",
+      "source_index": 367,
+      "status": "screen_inspected",
+      "primary_module": "X25"
+    },
+    {
+      "section": "Unique note creator",
+      "source_index": 372,
+      "status": "screen_inspected",
+      "primary_module": "X10"
+    }
+  ],
+  "unverified_services": [
+    "Sync",
+    "Publish",
+    "Community plugin execution",
+    "Physical-device acceptance"
+  ],
+  "earlier_detailed_findings": 20
+}

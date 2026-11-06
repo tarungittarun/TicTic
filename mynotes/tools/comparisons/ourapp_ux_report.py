@@ -130,12 +130,12 @@ manifest={}
 for key,v in assets.items():
  path=ROOT/v['path'];im=PILImage.open(path);manifest[key]={**v,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'width':im.width,'height':im.height,'source_pixels_modified':False}
 (OUT/'evidence-manifest.json').write_text(json.dumps({'method':data['method'],'baseline_revision':data['baseline_revision'],'source_frame_count':len(manifest),'new_live_sessions':0,'new_runtime_bugs_reproduced':0,'matched_timing_results':None,'assets':manifest},indent=2))
-UXDoc(str(OUT/'OurApp_vs_Obsidian.pdf'),pagesize=(595.276,841.89),rightMargin=40,leftMargin=40,topMargin=40,bottomMargin=42,title='OurApp_vs_Obsidian',author='MyNotes comparative UX review').build(flow,onFirstPage=footer,onLaterPages=footer)
+UXDoc(str(OUT/'OurApp_vs_Obsidian_Phase1.pdf'),pagesize=(595.276,841.89),rightMargin=40,leftMargin=40,topMargin=40,bottomMargin=42,title='OurApp_vs_Obsidian',author='MyNotes comparative UX review').build(flow,onFirstPage=footer,onLaterPages=footer)
 md=['# OurApp_vs_Obsidian','',data['method'],'','Phase 1: two modules only. No new live/physical test or measured speed ranking. Not a feature-count or E2E-pass comparison.','']
 for f in findings:
  md += ['## '+f['id']+' — '+f['title'],f['priority']+' | '+f['kind'],'']
  for label,key in [('Task','task'),('Observed','observed'),('Comparison','comparison'),('Impact','impact'),('Direction','direction'),('Manual acceptance','acceptance'),('Source','source'),('Limit','limit')]:md += ['**'+label+':** '+f[key],'']
  md += ['Evidence: '+', '.join(f['evidence']),'']
 md += ['## Live testing remains outstanding','T01–T08 and smoothness/latency metrics are proposed in the PDF, not executed. The PDF contains the full method, caveats, prioritisation and module roadmap.']
-(OUT/'OurApp_vs_Obsidian.md').write_text('\n'.join(md))
-print(OUT/'OurApp_vs_Obsidian.pdf')
+(OUT/'OurApp_vs_Obsidian_Phase1.md').write_text('\n'.join(md))
+print(OUT/'OurApp_vs_Obsidian_Phase1.pdf')

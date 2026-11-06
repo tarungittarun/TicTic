@@ -43,7 +43,19 @@ jobs:
       - name: Gate and save evidence only on this session branch
         run: |
           git pull --ff-only origin arena/3caca636-tictic
-          python -m unittest discover -s qa
+          set +e
+          python -m unittest discover -s qa > /tmp/paired-retain-root-gate.log 2>&1
+          gate=$?
+          cat /tmp/paired-retain-root-gate.log
+          if [ "$gate" -ne 0 ]; then
+            python - <<'PYLOG'
+          import pathlib
+          text=pathlib.Path('/tmp/paired-retain-root-gate.log').read_text()[-12000:]
+          print('::error title=Root gate failure (not app failure)::'+text.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+          PYLOG
+            exit "$gate"
+          fi
+          set -e
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

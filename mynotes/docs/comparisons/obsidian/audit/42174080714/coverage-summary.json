@@ -1,0 +1,61 @@
+{
+  "version": "1.15.0",
+  "run": "42174080714",
+  "api": 36,
+  "session_execution_complete": false,
+  "full_functional_coverage": false,
+  "evidence_entries": 593,
+  "status_counts": {
+    "functional_pass": 30,
+    "screen_inspected": 540,
+    "blocked": 23
+  },
+  "sessions": {
+    "walkthrough": {
+      "version": "1.15.0",
+      "phase": "walkthrough",
+      "execution_complete": true,
+      "features_recorded": 67,
+      "functional_passes": 30,
+      "failed": 0,
+      "full_functional_coverage": false,
+      "limitations": [
+        "Settings screens are inspected, not every possible value/combination.",
+        "Not every command is executed.",
+        "Paid Sync/Publish, sign-in and external integrations are not end-to-end verified.",
+        "No community plugin is installed or executed.",
+        "No physical-device acceptance.",
+        "Desktop-only features are not claimed as Android support."
+      ]
+    },
+    "commands": {
+      "execution_complete": false
+    },
+    "settings": {
+      "version": "1.15.0",
+      "phase": "settings",
+      "execution_complete": true,
+      "features_recorded": 377,
+      "functional_passes": 3,
+      "failed": 0,
+      "full_functional_coverage": false,
+      "limitations": [
+        "Settings screens are inspected, not every possible value/combination.",
+        "Not every command is executed.",
+        "Paid Sync/Publish, sign-in and external integrations are not end-to-end verified.",
+        "No community plugin is installed or executed.",
+        "No physical-device acceptance.",
+        "Desktop-only features are not claimed as Android support."
+      ]
+    },
+    "variants": {
+      "execution_complete": false
+    }
+  },
+  "limits": [
+    "Entry invocation/inspection is not exhaustive functional acceptance.",
+    "Accounts/paid services/external integrations and community plugins are not fully tested.",
+    "A command needing another context remains blocked, not passed.",
+    "No physical-device acceptance."
+  ]
+}

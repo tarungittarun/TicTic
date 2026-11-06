@@ -14,8 +14,8 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 42174080714
-          name: obsidian-session-variants
+          run-id: 42179340885
+          name: obsidian-session-commands
           path: evidence
       - name: Surface bounded actual driver diagnostics, no retest or pass relabelling
         run: |
@@ -29,5 +29,5 @@ jobs:
                   print('::notice title=Obsidian '+name+'::'+text)
           p=Path('evidence/feature-results.json')
           if p.exists():
-              rows=json.loads(p.read_text()); print('::notice title=Actual captured cases::'+json.dumps([(r['feature'],r['status']) for r in rows]))
+              rows=json.loads(p.read_text()); print('::notice title=Actual captured cases::'+json.dumps([(r['feature'],r['status']) for r in rows[-5:]]))
           PY

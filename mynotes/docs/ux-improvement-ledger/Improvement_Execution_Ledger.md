@@ -1,6 +1,6 @@
 # MyNotes — improvement execution ledger
 
-**Status: ongoing, incomplete. No whole-app or physical-device acceptance. Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.**
+**Status: ongoing, incomplete. No whole-app or physical-device acceptance. Two production changes implemented and focused checks passed on candidate71 (0.71.0/code71). Expanded native qualification completed: 2671/2676 passed originally; API26 full-shard recheck 218/218; three navigation/large-text failures reproduced in isolation. Broader acceptance and exhaustive 37-module paired comparison remain incomplete.**
 
 This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.
 
@@ -14,9 +14,23 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 **Known measurement limits:** Activity launch TotalTime is not interactive-ready time. Host command elapsed durations include inspection/adb overhead, not touch latency or human efficiency. Gfx/memory dumps are diagnostics, not a cross-engine smoothness rank. Animations, frame jank, battery and physical playback are not accepted without separate experiments.
 
-**Implementation phase:** Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.
+**Implementation phase:** Two production changes implemented and focused checks passed on candidate71 (0.71.0/code71). Expanded native qualification completed: 2671/2676 passed originally; API26 full-shard recheck 218/218; three navigation/large-text failures reproduced in isolation. Broader acceptance and exhaustive 37-module paired comparison remain incomplete.
 
 **Scope still outstanding:** physical devices, participant usability, precise touch latency, animation quality, frame jank, battery, all unexecuted plan tasks
+
+## Expanded qualification — completed, not all green
+
+**Original full native inventory:** 2671/2676 passed across 6 profiles; 5 actual failures. Fresh JVM 366 passed; debug/release build and lint passed; signed 69-to71 public-rich retention passed API26/34.
+
+**Completed recheck:** 218/221 selected executions passed. API26 owning shard 218/218 after API-compatible instrumentation observer correction. Three unchanged navigation/large-text assertions fail again in isolation. Original spreadsheet discrepancy not reproduced; not an app fix.
+
+**Scope remains open:** Completed full discovered native inventory, not whole-app UX acceptance. API26 full shard 218/218 after instrumentation observer correction; original spreadsheet mismatch not reproduced, not fixed. Three unchanged navigation/large-text checks reproduce in isolated rechecks. Original failures retained; no release approval.
+
+[https://github.com/tarungittarun/TicTic/actions/runs/42277337133](https://github.com/tarungittarun/TicTic/actions/runs/42277337133)
+
+[https://github.com/tarungittarun/TicTic/actions/runs/42282354356](https://github.com/tarungittarun/TicTic/actions/runs/42282354356)
+
+[Detailed full qualification and actual failed checks](../full-qualification/Full_Qualification.md)
 
 ## Actual runs and provenance
 
@@ -56,6 +70,10 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 - [42231725611](https://github.com/tarungittarun/TicTic/actions/runs/42231725611): candidate71_original_evidence_retained — Original four-profile receipts, public screenshots, new JVM XML and exact source pins retained after root gate. Screenshots inspected separately; retention/job success alone does not supply acceptance.
 
+- [42277337133](https://github.com/tarungittarun/TicTic/actions/runs/42277337133): completed_failure — Fresh 366 JVM/build/debug+release lint/audit passed; 446 native methods across 6 profiles: 2671/2676 passed, 5 actual failures. Signed release69-to71 public-rich install-over passed API26/34. Not a release approval.
+
+- [42282354356](https://github.com/tarungittarun/TicTic/actions/runs/42282354356): completed_failure — Corrected internally consistent debug pair; API26 owning shard 218/218, including fixed API26 test observer. Three unchanged navigation/large-text checks fail again in isolation. The original spreadsheet mismatch is not reproduced, not marked fixed. Original full-run score is unchanged.
+
 **OBS-0001 / W01 / create a note containing the shared agenda:** Wave one created the agenda words in both apps, but Obsidian saved source had an extra leading #. MyNotes accessibility body and home title versus Obsidian editor/vault readback are unequal checks, not crash-recovery proof. Wave two did NOT correct the fixture: its exact Obsidian body assertion blocked on empty readback. No creation success or data-loss conclusion is drawn from that wave.
 
 Evidence: [sessions/42217122419/mynotes-W01-typed.png](sessions/42217122419/mynotes-W01-typed.png), [sessions/42217122419/mynotes-W01-home-saved.png](sessions/42217122419/mynotes-W01-home-saved.png), [sessions/42217122419/obsidian-W01-typed.png](sessions/42217122419/obsidian-W01-typed.png), [sessions/42217122419/session.json](sessions/42217122419/session.json)
@@ -92,7 +110,7 @@ Evidence: [sessions/42220127426/offline-guest-proof.json](sessions/42220127426/o
 
 ## Changed-build qualification — bounded, not closed
 
-**Current candidate:** Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.
+**Current candidate:** Two production changes implemented and focused checks passed on candidate71 (0.71.0/code71). Expanded native qualification completed: 2671/2676 passed originally; API26 full-shard recheck 218/218; three navigation/large-text failures reproduced in isolation. Broader acceptance and exhaustive 37-module paired comparison remain incomplete.
 
 **Exact tested source:** 95f5d24f668ac899ef595f2765b491d2c2a6f5dd
 

@@ -49,3 +49,45 @@ class FullOriginalEvidenceTest(unittest.TestCase):
             self.assertFalse(proof['release_approval'])
             self.assertEqual(proof['from']['version_code'], 69)
             self.assertEqual(proof['to']['version_code'], 71)
+
+
+class FullRecheckEvidenceTest(unittest.TestCase):
+    def test_final_rechecks_are_actual_outcomes_not_a_replacement_full_score(self):
+        root = Path('mynotes/docs/ux-improvement-ledger/implementations/42282354356')
+        expected_counts = {'improvement71-api26-portrait': (218, 218),
+                           'improvement71-api34-large': (0, 2),
+                           'improvement71-api36-portrait': (0, 1)}
+        for name, counts in expected_counts.items():
+            lane = root / name
+            expected = json.loads((lane / 'refinement-expected.json').read_text())
+            actual = android((lane / 'refinement-native.txt').read_text(), expected)
+            receipt = json.loads((lane / 'refinement-native-verified.json').read_text())
+            self.assertEqual(actual, receipt)
+            self.assertEqual((actual['passed'], actual['expected']), counts)
+        original = json.loads((EVIDENCE / 'summary.json').read_text())
+        self.assertEqual(original['native_executions_passed'], 2671)
+        self.assertEqual(original['workflow_conclusion'], 'failure')
+
+    def test_findings_match_actual_original_failed_methods(self):
+        data = json.loads((EVIDENCE.parent / 'findings.json').read_text())
+        failures = json.loads((EVIDENCE / 'summary.json').read_text())['native_lanes']
+        methods = {failure.split(': status ', 1)[0] for row in failures.values() for failure in row.get('failures', [])}
+        self.assertEqual({row['method'] for row in data['findings']}, methods)
+        self.assertEqual(len(methods), 5)
+        for row in data['findings']:
+            self.assertTrue((EVIDENCE.parent / row['source']).is_file())
+            self.assertTrue(row['next_test'])
+            self.assertNotEqual(row['status'], 'fixed_verified')
+
+
+class RecheckBinaryProvenanceTest(unittest.TestCase):
+    def test_rebuild_is_never_misrepresented_as_byte_identical(self):
+        proof = json.loads((EVIDENCE.parent / 'recheck-apk-identity.json').read_text())
+        self.assertTrue(proof['app_test_same_certificate'])
+        self.assertFalse(proof['unsigned_payload_equal'])
+        self.assertNotEqual(proof['original_app']['sha256'], proof['used_app']['sha256'])
+        self.assertNotEqual(proof['original_app']['identity'][3], proof['used_app']['identity'][3])
+        self.assertEqual(set(proof['changed_unsigned_entries']), {
+            'lib/arm64-v8a/libnotes_whisper.so',
+            'lib/armeabi-v7a/libnotes_whisper.so',
+            'lib/x86_64/libnotes_whisper.so'})

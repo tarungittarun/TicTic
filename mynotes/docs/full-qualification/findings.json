@@ -1,0 +1,62 @@
+{
+  "scope": "Actual original broad-run failures. Retests and fixes remain separate evidence. No physical or comparative acceptance.",
+  "findings": [
+    {
+      "id": "FQ-0001",
+      "method": "app.space.notes.RealFolderStorageTest#spreadsheetRotationKeepsViewerQueryAndReturnsToHomeWithoutImport",
+      "profile": "API26 light portrait, shard1",
+      "observation": "After rotation, expected query Needle but observed VisibleNeedle. Original read-only/source-preservation journey failed its query equality check.",
+      "classification": "unresolved state/IME or fixture-interaction failure; exclusive app root cause not established",
+      "status": "not_reproduced_on_full_shard_rerun_original_failure_still_open",
+      "next_test": "Isolate prior Home search text/composition, fixture startup ownership and rotation sequencing on API26. Preserve the original VisibleNeedle observation until its cause is established.",
+      "source": "42277337133/full71-native-api26-light-portrait-s1/refinement-native.txt",
+      "retest": "Corrected-launch run 42282354356: all218 owning-shard methods passed, including this unchanged spreadsheet assertion. No production app code was changed. This is non-reproduction, not proof of an app fix or an exclusive original cause."
+    },
+    {
+      "id": "FQ-0002",
+      "method": "app.space.notes.runtime.PdfViewerInteractionTest#keyboardSearchActionFindsAndHighlightsEmbeddedText",
+      "profile": "API26 light portrait, shard1",
+      "observation": "NoClassDefFoundError: android.view.WindowInsets$Type. The test observer called an API30-only platform class on API26 before completing the actual keyboard/search check.",
+      "classification": "confirmed incompatible test observer, not an app crash",
+      "status": "observer_correction_native_retest_passed_not_an_app_fix",
+      "next_test": "Keep API26 and API30+ observer branches in future whole-inventory qualification; do not count this harness correction as a production UX fix.",
+      "source": "42277337133/full71-native-api26-light-portrait-s1/refinement-native.txt",
+      "retest": "The corrected API26 observer executed the actual composed-keyboard pixels, injected query/Enter, glyph highlighting, outside-tap deselection and original-byte assertions successfully in the 218/218 full-shard rerun. Primary-run NoClassDefFoundError remains preserved."
+    },
+    {
+      "id": "FQ-0003",
+      "method": "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn",
+      "profile": "API36 light portrait, shard1; app animation scale1",
+      "observation": "A repeated actual Doc-to-Notes workspace creation journey could not find the named New document control after a swipe.",
+      "classification": "reproduced workspace creation/navigation failure; exclusive gesture, transition or fixture cause still not isolated",
+      "status": "reproduced_in_isolation_unresolved",
+      "next_test": "Capture the exact failed cycle and actual active workspace/card bounds after each real swipe, then distinguish unacknowledged navigation from a prematurely queried control. Preserve all repeated creation/content/IME assertions and protect fast Back/save safety.",
+      "source": "42277337133/full71-native-api36-light-portrait-s1/refinement-native.txt",
+      "retest": "Run42282354356, isolated unchanged method: 0/1; same Missing named control: New document failure with API36 app motion 1. Not merely explained away as a full-suite-only interaction."
+    },
+    {
+      "id": "FQ-0004",
+      "method": "app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape",
+      "profile": "API34 dark portrait, font scale2.0, shard1",
+      "observation": "The image preview occupied less than the existing required 35 percent of the dialog. A retained large-text screenshot from another selection journey also shows large fixed chrome, a relatively small image and an ellipsized Keep image action.",
+      "classification": "large-text layout regression; screenshot-reviewed, exact exclusive mechanism not isolated",
+      "status": "reproduced_in_isolated_large_text_probe_unfixed",
+      "next_test": "Implement a measured compact/scrollable secondary-control budget preserving system font scaling, both primary actions, all 48dp targets, the same selection/crop/bitmap and real geometry threshold. Require changed-build qualification before claiming fixed.",
+      "source": "42277337133/full71-native-api34-large-dark-s1/refinement-native.txt",
+      "image": "42277337133/full71-native-api34-large-dark-s1/captures/image-text-selection.png",
+      "retest": "Run42282354356: both unchanged large-text assertions failed again in a two-method probe at API34/dark/portrait/font 2.0/motion 0. Original numeric Settings result 168 total/112 visible and image-area 35-percent threshold were retained."
+    },
+    {
+      "id": "FQ-0005",
+      "method": "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
+      "profile": "API34 dark portrait, font scale2.0, shard1",
+      "observation": "The final Settings touch row was only 112 pixels globally visible out of its 168-pixel row height. Settings remains last and Folders penultimate, but the initial large-text Library viewport clips the bottom of the final target.",
+      "classification": "large-text initial-menu layout regression; screenshot-reviewed, not proof Settings is impossible to reach by scrolling",
+      "status": "reproduced_in_isolated_large_text_probe_unfixed",
+      "next_test": "Reconcile actual scaled row/chrome measurement with the Library height cap without shrinking fonts/targets, changing Settings/Folders order, adding duplicate destinations or weakening the assertion.",
+      "source": "42277337133/full71-native-api34-large-dark-s1/refinement-native.txt",
+      "image": "42277337133/full71-native-api34-large-dark-s0/captures/e2e-settings-library.png",
+      "retest": "Run42282354356: both unchanged large-text assertions failed again in a two-method probe at API34/dark/portrait/font 2.0/motion 0. Original numeric Settings result 168 total/112 visible and image-area 35-percent threshold were retained."
+    }
+  ]
+}

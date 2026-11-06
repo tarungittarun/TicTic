@@ -28,6 +28,14 @@ block('Method','Fresh scripted interactions on one disposable Actions emulator, 
 block('Known measurement limits','Activity launch TotalTime is not interactive-ready time. Host command elapsed durations include inspection/adb overhead, not touch latency or human efficiency. Gfx/memory dumps are diagnostics, not a cross-engine smoothness rank. Animations, frame jank, battery and physical playback are not accepted without separate experiments.')
 block('Implementation phase',phase)
 block('Scope still outstanding',', '.join(data['untested_aspects']))
+if data.get('broader_qualification'):
+ q=data['broader_qualification'];section('Expanded qualification — completed, not all green',True)
+ block('Original full native inventory',str(q['passed_native_executions'])+'/'+str(q['expected_native_executions'])+' passed across '+str(q['profiles'])+' profiles; '+str(q['failed_native_executions'])+' actual failures. Fresh JVM '+str(q['jvm_passed'])+' passed; debug/release build and lint passed; signed 69-to71 public-rich retention passed API26/34.')
+ block('Completed recheck',str(q['recheck_passed'])+'/'+str(q['recheck_selected'])+' selected executions passed. API26 owning shard 218/218 after API-compatible instrumentation observer correction. Three unchanged navigation/large-text assertions fail again in isolation. Original spreadsheet discrepancy not reproduced; not an app fix.')
+ block('Scope remains open',q['scope'])
+ for url in [q['url'],q['recheck_url']]:
+  flow.append(Paragraph('<link href="'+escape(url,quote=True)+'" color="#195E91">'+escape(url)+'</link>',styles['SmallLedger']));md.extend(['['+url+']('+url+')',''])
+ md.extend(['[Detailed full qualification and actual failed checks]('+q['report']+')',''])
 section('Actual runs and provenance',True)
 rows=[['Run','Execution / scope']]
 for run in data['executions']:

@@ -1012,6 +1012,18 @@
       "status": "candidate71_original_evidence_retained",
       "meaning": "Original four-profile receipts, public screenshots, new JVM XML and exact source pins retained after root gate. Screenshots inspected separately; retention/job success alone does not supply acceptance.",
       "url": "https://github.com/tarungittarun/TicTic/actions/runs/42231725611"
+    },
+    {
+      "run": "42277337133",
+      "status": "completed_failure",
+      "meaning": "Fresh 366 JVM/build/debug+release lint/audit passed; 446 native methods across 6 profiles: 2671/2676 passed, 5 actual failures. Signed release69-to71 public-rich install-over passed API26/34. Not a release approval.",
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133"
+    },
+    {
+      "run": "42282354356",
+      "status": "completed_failure",
+      "meaning": "Corrected internally consistent debug pair; API26 owning shard 218/218, including fixed API26 test observer. Three unchanged navigation/large-text checks fail again in isolation. The original spreadsheet mismatch is not reproduced, not marked fixed. Original full-run score is unchanged.",
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42282354356"
     }
   ],
   "paired_observations": [
@@ -1401,7 +1413,7 @@
       ]
     }
   ],
-  "phase_summary": "Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.",
+  "phase_summary": "Two production changes implemented and focused checks passed on candidate71 (0.71.0/code71). Expanded native qualification completed: 2671/2676 passed originally; API26 full-shard recheck 218/218; three navigation/large-text failures reproduced in isolation. Broader acceptance and exhaustive 37-module paired comparison remain incomplete.",
   "implementation_authorization": "2026-11-06: user explicitly requested applying fixes/changes as well as completing testing.",
   "candidate_qualification": {
     "run": "42231478498",
@@ -1446,5 +1458,29 @@
       }
     ],
     "scope": "Focused functional/geometry checks plus separate screenshot review. Public seeded repository fixtures, not participant note-creation/typing-time tests. Baseline comparison remains MyNotes69 versus pinned Obsidian; no new competitor speed ranking. No migration/install-over or physical acceptance; no release published."
+  },
+  "broader_qualification": {
+    "run": "42277337133",
+    "source_revision": "3c1478b8c8b09d077d97b5481603387cbc47b06a",
+    "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133",
+    "expected_native_executions": 2676,
+    "passed_native_executions": 2671,
+    "failed_native_executions": 5,
+    "unique_native_methods": 446,
+    "profiles": 6,
+    "jvm_passed": 366,
+    "signed_update_69_to_71_apis": [
+      26,
+      34
+    ],
+    "recheck_run": "42282354356",
+    "recheck_url": "https://github.com/tarungittarun/TicTic/actions/runs/42282354356",
+    "recheck_selected": 221,
+    "recheck_passed": 218,
+    "scope": "Completed full discovered native inventory, not whole-app UX acceptance. API26 full shard 218/218 after instrumentation observer correction; original spreadsheet mismatch not reproduced, not fixed. Three unchanged navigation/large-text checks reproduce in isolated rechecks. Original failures retained; no release approval.",
+    "whole_app_acceptance": false,
+    "physical_acceptance": false,
+    "paired_comparison_complete": false,
+    "report": "../full-qualification/Full_Qualification.md"
   }
 }

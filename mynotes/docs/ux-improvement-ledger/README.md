@@ -4,6 +4,17 @@
 
 **This is a living execution record, not a claim that the whole app has been tested.** The previous comparison PDFs are historical visual/source audits. They are hypothesis inputs, not fresh paired-task results. Creating the initial ledger did not authorise app fixes. On 2026-11-06 the user explicitly authorised starting implementation; candidate70 changes now require separate changed-build qualification.
 
+## Latest expanded check — completed, not all green
+
+The full candidate71 run [42277337133](https://github.com/tarungittarun/TicTic/actions/runs/42277337133) executed all **446 discovered native methods across six profiles: 2,671 passed / 2,676 executions, five failures**. Fresh domain JVM **366/366**, debug/release build and lint, offline/size/signing audit, and signed **69→71** public-rich install-over checks on API26/34 passed.
+
+The completed [recheck 42282354356](https://github.com/tarungittarun/TicTic/actions/runs/42282354356) passed the entire **218-method API26 owning shard** after correcting an API30-only instrumentation observer. The original spreadsheet query mismatch did not reproduce; it is **not called fixed**. Three unchanged navigation/large-text assertions failed again in isolation. This is not a production fix, all-profile pass, public release approval, physical acceptance or completed Obsidian comparison.
+
+- [Detailed full check PDF](../full-qualification/Full_Qualification.pdf)
+- [Full check and five-failure triage](../full-qualification/Full_Qualification.md)
+- [Original full-run receipts and SHA256 manifest](../full-qualification/42277337133/summary.json)
+- [Stable native-failure IDs, classifications and next tests](../full-qualification/findings.json)
+
 ## Main document and machine-readable record
 
 - [Improvement execution document](Improvement_Execution_Ledger.md)

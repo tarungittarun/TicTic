@@ -87,6 +87,50 @@ def render(evidence, evidence_commit, root_count, notes_count):
         link('Original signed install-over proof', base + str(proof.relative_to(evidence)))
     paragraph('Install-over probes use a disposable public generated rich library, signed release69 followed by release71 with adb install -r. They check old-writer snapshots, private folders, installation identity and candidate write/readback. They do not prove physical SAF providers, real microphone files, every user-library history or UI rendering fidelity. Internal CI APK artifacts are not a public release.')
 
+    rechecks_file = evidence.parent / 'rechecks.json'
+    if rechecks_file.exists():
+        rechecks = json.loads(rechecks_file.read_text())
+        section('Completed corrections and isolated rechecks — original score unchanged', True)
+        paragraph(rechecks['conclusion'])
+        table([['Recheck profile / scope', 'Passed / selected', 'Observed outcome']]+[[row['profile'], str(row['passed'])+'/'+str(row['expected']), row['meaning']] for row in rechecks['native']], [190, 85, 240])
+        for row in rechecks['native']:
+            link('Original rerun assertions: ' + row['profile'], row['log_url'])
+            link('Exact independently checked receipt', row['receipt_url'])
+        paragraph('Do not add these rerun counts to the original six-profile result as new unique coverage. No production implementation changed in this check phase. The PDF observer correction is instrumentation-only; it is not a new app UX fix. Three unresolved checks reproduce in isolation; the original spreadsheet discrepancy is not reproduced, not explained away or marked fixed.')
+        for attempt in rechecks['attempts']:
+            paragraph(attempt['run'] + ': ' + attempt['meaning'])
+            link('Preserved attempt', attempt['url'])
+        identity = evidence.parent / 'recheck-apk-identity.json'
+        if identity.exists():
+            proof = json.loads(identity.read_text())
+            paragraph('Debug-pair provenance: original app SHA256 ' + proof['original_app']['sha256'] + '; used app SHA256 ' + proof['used_app']['sha256'] + '. App/test certificate matches=' + str(proof['app_test_same_certificate']) + '; all unsigned ZIP payload entries equal=' + str(proof['unsigned_payload_equal']) + '. Changed unsigned entries: ' + str(proof['changed_unsigned_entries']) + '. Different signatures are not byte-identical APKs. User release signing and release APKs were not changed.')
+            link('Actual debug payload and certificate proof', base.rstrip('/').rsplit('/', 1)[0] + '/recheck-apk-identity.json')
+            paragraph('These are source-equivalent rebuilds, not exact original-APK retests. The entry comparison finds three differing native Whisper shared libraries; it does not justify pooling cross-build speech speed/accuracy or declaring the binaries identical. No production source or model weights changed in this check phase.')
+
+    section('Five actual failed checks — triage, not waived', True)
+    findings_file = evidence.parent / 'findings.json'
+    if findings_file.exists():
+        findings = json.loads(findings_file.read_text())['findings']
+        for finding in findings:
+            paragraph(finding['id'] + ' | ' + finding['profile'] + ' | ' + finding['observation'])
+            paragraph('Classification: ' + finding['classification'] + '. Status: ' + finding['status'] + '.')
+            if finding.get('retest'):
+                paragraph('Completed recheck: ' + finding['retest'])
+            paragraph('Next discriminating check: ' + finding['next_test'])
+            link('Original failed method: ' + finding['method'], base.rstrip('/').rsplit('/', 1)[0] + '/' + finding['source'])
+        for finding in findings:
+            if 'image' not in finding:
+                continue
+            from PIL import Image as PILImage
+            from reportlab.platypus import Image
+            section(finding['id'] + ' — reviewed large-text capture', True)
+            path = evidence.parent / finding['image']
+            with PILImage.open(path) as image:
+                w, h = image.size
+            flow.append(Image(str(path), width=490*w/h, height=490))
+            paragraph('Actual retained screenshot from another journey on this same large-text profile; not a failure-instant capture or changed-build proof. Original pixels are unaltered. ' + finding['observation'])
+            link('Open original screenshot', base.rstrip('/').rsplit('/', 1)[0] + '/' + finding['image'])
+
     section('Every native profile and exact method results', True)
     table([['Profile shard', 'Passed / expected', 'Exact native result']]+[
         [name.removeprefix('full71-native-'), str(row.get('passed', 0)) + '/' + str(row.get('expected', '?')), str(row.get('ok', False))]
@@ -98,7 +142,7 @@ def render(evidence, evidence_commit, root_count, notes_count):
         for failure in row.get('failures', []):
             paragraph('FAILED: ' + failure[:2500])
         if row.get('missing'):
-            paragraph('Missing outcomes: ' + ', '.join(row['missing'])[:3500])
+            paragraph('Methods not passed (including recorded failures): ' + ', '.join(row['missing'])[:3500])
 
     section('Functional automation inventory, not UX ratings', True)
     planned = cases(build_plan()['android'])

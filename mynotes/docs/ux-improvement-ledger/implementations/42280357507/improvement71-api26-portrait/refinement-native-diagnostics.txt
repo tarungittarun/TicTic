@@ -1,0 +1,1163 @@
+Instrumentation exit 1; synthetic debug host only. Assertions are validated separately.
+TASK null id=4 userId=0
+  ACTIVITY com.android.launcher3/.Launcher 7a4d70b pid=2262
+    Local Activity c7b9fca State:
+      mResumed=true mStopped=false mFinished=false
+      mChangingConfigurations=false
+      mCurrentConfig={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+      mLoadersStarted=true
+      Active Fragments in 4d317fa:
+        #0: QsbFragment{48b91ab #0 id=0xffffffff qsb_view}
+          mFragmentId=#ffffffff mContainerId=#7f0a0037 mTag=qsb_view
+          mState=5 mIndex=0 mWho=android:fragment:0 mBackStackNesting=0
+          mAdded=true mRemoving=false mFromLayout=true mInLayout=true
+          mHidden=false mDetached=false mMenuVisible=true mHasMenu=false
+          mRetainInstance=false mRetaining=false mUserVisibleHint=true
+          mFragmentManager=FragmentManager{4d317fa in HostCallbacks{b115008}}
+          mHost=android.app.Activity$HostCallbacks@b115008
+          mView=android.widget.FrameLayout{af1b3a1 V.E...... .......D 0,0-1080,330}
+          Child FragmentManager{d2ab9c6 in QsbFragment{48b91ab}}:
+            FragmentManager misc state:
+              mHost=android.app.Activity$HostCallbacks@b115008
+              mContainer=android.app.Fragment$1@4ef9d87
+              mParent=QsbFragment{48b91ab #0 id=0xffffffff qsb_view}
+              mCurState=5 mStateSaved=false mDestroyed=false
+      Added Fragments:
+        #0: QsbFragment{48b91ab #0 id=0xffffffff qsb_view}
+      FragmentManager misc state:
+        mHost=android.app.Activity$HostCallbacks@b115008
+        mContainer=android.app.Activity$HostCallbacks@b115008
+        mCurState=5 mStateSaved=false mDestroyed=false
+    ViewRoot:
+      mAdded=true mRemoved=false
+      mConsumeBatchedInputScheduled=false
+      mConsumeBatchedInputImmediatelyScheduled=false
+      mPendingInputEventCount=0
+      mProcessInputEventsScheduled=false
+      mTraversalScheduled=false      mIsAmbientMode=false
+      android.view.ViewRootImpl$NativePreImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$ImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$NativePostImeInputStage: mQueueLength=0
+    Choreographer:
+      mFrameScheduled=false
+      mLastFrameTime=36429 (1954 ms ago)
+    View Hierarchy:
+      DecorView@96f64b4[Launcher]
+        android.widget.LinearLayout{c54e8dd V.E...... ......I. 0,0-1080,1920}
+          android.view.ViewStub{708ac52 G.E...... ......I. 0,0-0,0 #1020187 android:id/action_mode_bar_stub}
+          android.widget.FrameLayout{c9e8b23 V.E...... ......I. 0,0-1080,1920 #1020002 android:id/content}
+            com.android.launcher3.LauncherRootView{df81820 V.E...... ......I. 0,0-1080,1920 #7f0a0032 app:id/launcher}
+              com.android.launcher3.dragndrop.DragLayer{2bc35d9 V.E...... ......I. 0,0-1080,1920 #7f0a0033 app:id/drag_layer}
+                com.android.launcher3.Workspace{f5610a7 V.ED...L. ........ -2305,-1885-3386,3806 #7f0a0015 app:id/workspace}
+                  com.android.launcher3.CellLayout{1613b9e VFED..CL. ........ 2329,1993-3361,3313}
+                    com.android.launcher3.ClickShadowView{c4b67f V.ED..... ........ 0,0-294,366}
+                    com.android.launcher3.ShortcutAndWidgetContainer{896964c V.E...... ........ 0,0-1032,1320}
+                      com.android.launcher3.qsb.QsbBlockerView{4b15695 V.ED..... ........ 0,0-1032,330 #7f0a0003 app:id/workspace_blocked_row}
+                      com.android.launcher3.BubbleTextView{42173aa VFED..CL. ........ 0,990-258,1320 #5}
+                      com.android.launcher3.BubbleTextView{2f83b9b VFED..CL. ........ 258,990-516,1320 #6}
+                android.widget.LinearLayout{61b873 V.E...... ........ 105,1436-975,1920 #7f0a0035 app:id/overview_panel}
+                  android.widget.TextView{bdb60fd VFED..CL. .F...... 0,0-290,205 #7f0a0044 app:id/wallpaper_button}
+                  android.widget.TextView{4a391f2 VFED..CL. ........ 290,0-580,205 #7f0a0045 app:id/widget_button}
+                  android.widget.TextView{3491043 VFED..CL. ........ 580,0-870,205 #7f0a0046 app:id/settings_button}
+                com.android.launcher3.pageindicators.PageIndicatorLineCaret{fb7052e I.ED..... ......I. 0,1428-1080,1512 #7f0a0034 app:id/page_indicator}
+                  android.widget.ImageView{abccb38 VFED..CL. ........ 468,0-612,84 #7f0a0047 app:id/all_apps_handle}
+                com.android.launcher3.DropTargetBar{8e22954 V.E...... ........ 0,96-1080,240 #7f0a0036 app:id/drop_target_bar}
+                  android.widget.FrameLayout{fe286c0 V.E...... ........ 0,0-360,144}
+                    com.android.launcher3.DeleteDropTarget{d9dc711 V.ED..... ........ 4,0-355,144 #7f0a002d app:id/delete_target_text}
+                  android.widget.FrameLayout{1020ff9 V.E...... ........ 360,0-720,144}
+                    com.android.launcher3.InfoDropTarget{6fb2076 V.ED..... ........ 0,0-359,144 #7f0a002e app:id/info_target_text}
+                  android.widget.FrameLayout{254db3e V.E...... ........ 720,0-1080,144}
+                    com.android.launcher3.UninstallDropTarget{e14f677 V.ED..... ........ 0,0-360,144 #7f0a002f app:id/uninstall_target_text}
+                com.android.launcher3.qsb.QsbContainerView{bc0c330 I.E...... ......ID 0,108-1080,438 #7f0a0037 app:id/qsb_container}
+                  android.widget.FrameLayout{af1b3a1 V.E...... .......D 0,0-1080,330}
+                    com.android.launcher3.qsb.QsbWidgetHostView{90f62e4 V.E...... R......D 0,0-1080,330 #7f0a0002 app:id/qsb_widget}
+                      android.widget.RelativeLayout{c06c34d V.E...... .......D 0,0-1080,330}
+                        android.widget.LinearLayout{8f0ce02 V.E...... ......ID 0,54-1080,276 #7f0f0013 app:id/search_plate}
+                          android.widget.ImageView{4d88313 V.ED..C.. ........ 28,39-172,183 #7f0f0014 app:id/search_icon}
+                          android.widget.TextView{bd1c950 VFED..C.. ......ID 172,46-1038,176 #7f0f0015 app:id/search_widget_text}
+                          android.widget.LinearLayout{7894749 G.E...... ......I. 0,0-0,0 #7f0f0016 app:id/voice_search_hint_container}
+                            android.widget.ImageView{4a1c84e VFED..C.. ......ID 0,0-0,0 #7f0f001c app:id/voice_search_hint_close_button}
+                            android.widget.LinearLayout{e3e3d6f VFE...C.. ......I. 0,0-0,0 #7f0f001d app:id/voice_search_hint}
+                              android.widget.TextView{a122a7c V.ED..... ......I. 0,0-0,0}
+                              android.widget.TextView{a960f05 V.ED..... ......ID 0,0-0,0 #7f0f001e app:id/voice_search_hint_text}
+                          android.widget.ImageButton{d561b5a GFED..C.. ......I. 0,0-0,0 #7f0f0017 app:id/search_widget_voice_btn}
+                com.android.launcher3.widget.WidgetsContainerView{b9b418b I.E...... ......I. 0,72-1080,1776 #7f0a0038 app:id/widgets_view}
+                  android.view.View{b957268 I.ED..... ......I. 0,0-1080,1704 #7f0a0019 app:id/reveal_view}
+                  android.widget.FrameLayout{bed9681 G.E...... ......I. 0,0-0,0 #7f0a001a app:id/main_content}
+                    com.android.launcher3.widget.WidgetsRecyclerView{ca9326 VFED..... ......I. 0,0-0,0 #7f0a005a app:id/widgets_list_view}, adapter:com.android.launcher3.widget.WidgetsListAdapter@47a6b67, layout:android.support.v7.widget.LinearLayoutManager@d834d14, context:android.view.ContextThemeWrapper@3dc19bd
+                    android.widget.TextView{9bcbbb2 V.ED..... ......ID 0,0-0,0 #7f0a001d app:id/fast_scroller_popup}
+                com.android.launcher3.allapps.AllAppsContainerView{4385703 I.E...... ......ID 0,0-1080,1920 #7f0a0018 app:id/apps_view}
+                  android.view.View{5d22680 V.ED..... ......ID 0,0-1080,1920 #7f0a0019 app:id/reveal_view}
+                  com.android.launcher3.allapps.AllAppsRecyclerViewContainerView{93594b9 VFE...... ......ID 0,0-1080,1920 #7f0a001a app:id/main_content}
+                    com.android.launcher3.ClickShadowView{f36e0fe V.ED..... ......ID 0,0-216,216}
+                    com.android.launcher3.allapps.AllAppsRecyclerView{55f605f VFED..... ......ID 0,252-1080,1920 #7f0a001b app:id/apps_list_view}, adapter:com.android.launcher3.allapps.AllAppsGridAdapter@1732aac, layout:com.android.launcher3.allapps.AllAppsGridAdapter$AppsGridLayoutManager@211c375, context:com.android.launcher3.Launcher@c7b9fca
+                      android.widget.ImageView{c9c0f0a V.ED..... ......ID 27,0-1053,27}
+                      com.android.launcher3.BubbleTextView{6c3a37b VFED..CL. ......ID 27,27-283,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{93e4598 VFED..CL. ......ID 283,27-540,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{44821f1 VFED..CL. ......ID 540,27-796,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{e7411d6 VFED..CL. ......ID 796,27-1053,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{65efc57 VFED..CL. ......ID 27,357-283,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{99e2344 VFED..CL. ......ID 283,357-540,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{1abec2d VFED..CL. ......ID 540,357-796,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{ff77562 VFED..CL. ......ID 796,357-1053,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{ded06f3 VFED..CL. ......ID 27,687-283,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{8fc2fb0 VFED..CL. ......ID 283,687-540,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{c081e29 VFED..CL. ......ID 540,687-796,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{55b85ae VFED..CL. ......ID 796,687-1053,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d471f4f VFED..CL. ......ID 27,1017-283,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{8ec96dc VFED..CL. ......ID 283,1017-540,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{cdb73e5 VFED..CL. ......ID 540,1017-796,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{ede4eba VFED..CL. ......ID 796,1017-1053,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{e80616b VFED..CL. ......ID 27,1347-283,1677 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{e1a44c8 VFED..CL. ......ID 283,1347-540,1677 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{cd46961 VFED..CL. ......ID 540,1347-796,1677 #7f0a0029 app:id/icon}
+                    android.widget.TextView{929c86 V.ED..... ......ID 810,252-1026,468 #7f0a001d app:id/fast_scroller_popup}
+                    android.widget.FrameLayout{fc1a947 V.E...... ......ID 0,0-1080,252 #7f0a001c app:id/search_container}
+                      com.android.launcher3.ExtendedEditText{af2e574 VFED..CL. ......ID 0,108-1080,252 #7f0a001e app:id/search_box_input}
+                  android.view.View{70d3a9d V.ED..... ......ID 0,1776-1080,1920 #7f0a001f app:id/nav_bar_bg}
+                com.android.launcher3.Hotseat{3abeba9 I.E...... ......ID 0,1512-1080,1920 #7f0a0016 app:id/hotseat}
+                  com.android.launcher3.CellLayout{aebfb12 V.ED...L. ......ID 0,0-1080,408 #7f0a0031 app:id/layout}
+                    com.android.launcher3.ClickShadowView{ee592e3 V.ED..... ........ 53,24-284,300}
+                    com.android.launcher3.ShortcutAndWidgetContainer{912e4e0 V.E...... ......ID 53,24-1027,264}
+                      com.android.launcher3.BubbleTextView{407e399 VFED..CL. ......ID 0,0-195,240 #1}
+                      com.android.launcher3.BubbleTextView{ab65e VFED..CL. ......ID 195,0-390,240 #2}
+                      com.android.launcher3.BubbleTextView{2d47a3f VFED..CL. ......ID 585,0-780,240 #3}
+    Looper (main, tid 2) {d716f0c}
+      (Total messages: 0, polling=false, quitting=false)
+    Misc:
+    	mWorkspaceLoading=false mPendingRequestArgs=null mPendingActivityResult=null
+    Data Model:
+     ---- workspace screens:  0
+     ---- workspace items 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messaging)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=WebView Browser Tester)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Email)
+    	ShortcutInfo(id=6 type=0 container=-100 screen=0 cellX=1 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gallery)
+     ---- appwidget items 
+     ---- folder items 
+     ---- items id map 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messaging)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=WebView Browser Tester)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Email)
+    	ShortcutInfo(id=6 type=0 container=-100 screen=0 cellX=1 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gallery)
+WINDOW MANAGER WINDOWS (dumpsys window windows)
+  Window #0 Window{1899cd2 u0 NavigationBar}:
+    mDisplayId=0 stackId=0 mSession=Session{d229df0 1797:u0a10023} mClient=android.os.BinderProxy@2b5c134
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) sim=#20 ty=2019 fl=#21840068 fmt=-3 colorMode=0}
+    Requested w=1080 h=144 mLayoutSeq=72
+    mBaseLayer=231000 mSubLayer=0 mAnimLayer=231000+0=231000 mLastLayer=231000
+    mToken=WindowToken{b27ea73 android.os.BinderProxy@a794b5d}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x0
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,1776] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,1776][1080,1920] last=[0,1776][1080,1920]
+    Frames: containing=[0,1776][1080,1920] parent=[0,1776][1080,1920]
+        display=[0,1776][1080,1920] overscan=[0,1776][1080,1920]
+        content=[0,1776][1080,1920] visible=[0,1776][1080,1920]
+        decor=[0,0][0,0]
+        outset=[0,1776][1080,1920]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{1dd3b56 NavigationBar}:
+      mSurface=Surface(name=NavigationBar)
+      Surface: shown=true layer=231000 alpha=1.0 rect=(0.0,1776.0) 1080.0 x 144.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,144] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,144]
+    mLastFreezeDuration=+347ms
+  Window #1 Window{7b82f3a u0 StatusBar}:
+    mDisplayId=0 stackId=0 mSession=Session{d229df0 1797:u0a10023} mClient=android.os.BinderProxy@f46635c
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx72) gr=#30 sim=#10 ty=2000 fl=#81840048 fmt=-3 vsysui=0x600 colorMode=0}
+    Requested w=1080 h=72 mLayoutSeq=72
+    mBaseLayer=181000 mSubLayer=0 mAnimLayer=181000+0=181000 mLastLayer=181000
+    mToken=WindowToken{e89b6e2 android.os.BinderProxy@8668665}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x600
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,72] last=[0,0][1080,72]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1776]
+        content=[0,0][1080,72] visible=[0,0][1080,72]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1776]
+    Cur insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{35e0171 StatusBar}:
+      mSurface=Surface(name=StatusBar)
+      Surface: shown=true layer=181000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 72.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,72] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,72]
+    mLastFreezeDuration=+205ms
+  Window #2 Window{7ed2581 u0 AssistPreviewPanel}:
+    mDisplayId=0 stackId=0 mSession=Session{d229df0 1797:u0a10023} mClient=android.os.BinderProxy@976788b
+    mOwnerUid=10023 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx750) gr=#800053 sim=#31 ty=2033 fl=#1000118 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=0 h=0 mLayoutSeq=11
+    mBaseLayer=41000 mSubLayer=0 mAnimLayer=41000+0=41000 mLastLayer=0
+    mToken=WindowToken{1600d30 android.os.BinderProxy@6addd68}
+    mViewVisibility=0x8 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,1920][1080,1920] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,1920][1080,1920] visible=[0,1920][1080,1920]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{489f318 AssistPreviewPanel}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #3 Window{f9a35ad u0 DockedStackDivider}:
+    mDisplayId=0 stackId=0 mSession=Session{d229df0 1797:u0a10023} mClient=android.os.BinderProxy@822c9d7
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx144) sim=#20 ty=2034 fl=#21840028 pfl=0x40 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=1080 h=144 mLayoutSeq=72
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21005+0=21005 mLastLayer=0
+    mToken=WindowToken{a0cbacf android.os.BinderProxy@399a2c4}
+    mViewVisibility=0x4 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mPolicyVisibility=false mPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mForceHideNonSystemOverlayWindow=false
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mTouchableInsets=3 mGivenInsetsPending=false
+    touchable region=SkRegion((-144,0,144,144))
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][0,0] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,0][0,0] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,72][0,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{56396fb DockedStackDivider}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #4 Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}:
+    mDisplayId=0 stackId=0 mSession=Session{ee36023 2262:u0a10014} mClient=android.os.BinderProxy@977d49e
+    mOwnerUid=10014 mShowToOwnerOnly=true package=com.android.launcher3 appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) sim=#121 ty=1 fl=#81910100 fmt=-2 wanim=0x10302f6 vsysui=0x700 needsMenuKey=2 colorMode=0}
+    Requested w=1080 h=1704 mLayoutSeq=72
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21000+0=21000 mLastLayer=21000
+    mToken=AppWindowToken{4e52732 token=Token{83719e8 ActivityRecord{7a4d70b u0 com.android.launcher3/.Launcher t4}}}
+    mAppToken=AppWindowToken{4e52732 token=Token{83719e8 ActivityRecord{7a4d70b u0 com.android.launcher3/.Launcher t4}}}
+     isAnimatingWithSavedSurface()=false mAppDied=false
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,1920] last=[0,0][1080,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,72][1080,1776] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{dbda08a com.android.launcher3/com.android.launcher3.Launcher}:
+      mSurface=Surface(name=com.android.launcher3/com.android.launcher3.Launcher)
+      Surface: shown=true layer=21000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,1920] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,1920]
+    mLastFreezeDuration=+857ms
+    mWallpaperX=0.0 mWallpaperY=0.5
+  Window #5 Window{80df65f u0 com.android.systemui.ImageWallpaper}:
+    mDisplayId=0 stackId=0 mSession=Session{d229df0 1797:u0a10023} mClient=android.os.BinderProxy@7ca0efe
+    mOwnerUid=10023 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(1243x1920) gr=#800033 ty=2013 fl=#10318 fmt=2 wanim=0x1030306 colorMode=0}
+    Requested w=1243 h=1920 mLayoutSeq=72
+    mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true mWallpaperVisible=true
+    mBaseLayer=11000 mSubLayer=0 mAnimLayer=11000+0=11000 mLastLayer=11000
+    mToken=WallpaperWindowToken{4905f2e token=android.os.Binder@e912a2b}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x0
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1243,1920] last=[0,0][1243,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[-10000,-10000][10000,10000] overscan=[0,0][1080,1920]
+        content=[0,0][1080,1920] visible=[0,72][1080,1776]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1920]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{a60aaf5 com.android.systemui.ImageWallpaper}:
+      mSurface=Surface(name=com.android.systemui.ImageWallpaper)
+      Surface: shown=true layer=11000 alpha=1.0 rect=(0.0,0.0) 1243.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+    mLastFreezeDuration=+743ms
+    mWallpaperX=0.0 mWallpaperY=0.5
+
+  mGlobalConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+  mHasPermanentDpad=false
+  mCurrentFocus=Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}
+  mFocusedApp=AppWindowToken{4e52732 token=Token{83719e8 ActivityRecord{7a4d70b u0 com.android.launcher3/.Launcher t4}}}
+  mInTouchMode=false mLayoutSeq=72
+  mLastDisplayFreezeDuration=+876ms due to Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}
+  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=null
+  InputConsumers:
+    name=pip_input_consumer
+  SnapshotCache
+  mSystemDecorLayer=181000 mScreenRect=[0,0][1080,1920]
+  mLastStatusBarVisibility=0x8708
+  mTraversalScheduled=false
+  mHoldScreenWindow=null
+  mObscuringWindow=Window{80df65f u0 com.android.systemui.ImageWallpaper}
+  mWallpaperTarget=Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}
+  mLastWallpaperX=0.0 mLastWallpaperY=0.5
+  mSystemBooted=true mDisplayEnabled=true
+  mTransactionSequence=95
+  mDisplayFrozen=false windows=0 client=false apps=0 waitingForConfig=false
+  mRotation=0 mAltOrientation=false
+  mLastWindowForcedOrientation=-1 mLastOrientation=5
+  mDeferredRotationPauseCount=0
+  Animation settings: disabled=false window=0.0 transition=0.0 animator=0.0
+  mSkipAppTransitionAnimation=false
+  mLayoutToAnim:
+    mNextAppTransition=TRANSIT_UNSET
+    mAppTransitionState=APP_STATE_IDLE
+    mLastUsedAppTransition=TRANSIT_ACTIVITY_OPEN
+    mLastOpeningApp=null
+    mLastClosingApp=null
+  mAutoLowPowerModeSnoozing=false
+  mMinimumScreenOffTimeoutConfig=10000
+  mMaximumScreenDimDurationConfig=7000
+  mMaximumScreenDimRatioConfig=0.20000005
+  mScreenOffTimeoutSetting=1800000
+  mSleepTimeoutSetting=-1
+  mMaximumScreenOffTimeoutFromDeviceAdmin=2147483647 (enforced=false)
+  mStayOnWhilePluggedInSetting=7
+  mScreenBrightnessSetting=102
+  mScreenAutoBrightnessAdjustmentSetting=0.0
+  mScreenBrightnessModeSetting=0
+  mScreenBrightnessOverrideFromWindowManager=-1
+  mUserActivityTimeoutOverrideFromWindowManager=-1
+  mUserInactiveOverrideFromWindowManager=false
+  mTemporaryScreenBrightnessSettingOverride=-1
+  mTemporaryScreenAutoBrightnessAdjustmentSettingOverride=NaN
+  mDozeScreenStateOverrideFromDreamManager=0
+  mDozeScreenBrightnessOverrideFromDreamManager=-1
+  mScreenBrightnessSettingMinimum=10
+  mScreenBrightnessSettingMaximum=255
+  mScreenBrightnessSettingDefault=102
+  mScreenBrightnessForVrSettingDefault=86
+  mScreenBrightnessForVrSetting=86
+  mDoubleTapWakeEnabled=false
+  mIsVrModeEnabled=false
+
+Sleep timeout: -1 ms
+Screen off timeout: 1800000 ms
+Screen dim duration: 7000 ms
+
+UID states (changing=false changed=false):
+  UID 1000:   ACTIVE  count=2 state=17
+  UID 1001:   ACTIVE  count=0 state=17
+  UID u0a1:   ACTIVE  count=0 state=17
+  UID u0a2:   ACTIVE  count=0 state=14
+  UID u0a3:   ACTIVE  count=0 state=17
+  UID u0a5:   ACTIVE  count=0 state=14
+  UID u0a6:   ACTIVE  count=0 state=17
+  UID u0a7:   ACTIVE  count=0 state=14
+  UID u0a8:   ACTIVE  count=0 state=17
+  UID u0a13:   ACTIVE  count=0 state=8
+  UID u0a14:   ACTIVE  count=0 state=17
+  UID u0a15:   ACTIVE  count=0 state=17
+  UID u0a17:   ACTIVE  count=0 state=17
+  UID u0a18:   ACTIVE  count=0 state=17
+  UID u0a23:   ACTIVE  count=0 state=17
+  UID u0a28:   ACTIVE  count=0 state=11
+  UID u0a33:   ACTIVE  count=0 state=17
+  UID u0a37:   ACTIVE  count=0 state=17
+  UID u0a40:   ACTIVE  count=0 state=17
+  UID u0a45:   ACTIVE  count=0 state=17
+  UID u0a47:   ACTIVE  count=0 state=17
+  UID u0a51:   ACTIVE  count=0 state=17
+  UID u0a54:   ACTIVE  count=0 state=3
+  UID u0a57:   ACTIVE  count=0 state=17
+
+Looper state:
+  Looper (PowerManagerService, tid 29) {86c5248}
+    Message 0: { when=+45s120ms what=4 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    Message 1: { when=+29m41s199ms what=1 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    (Total messages: 2, polling=true, quitting=false)
+
+Wake Locks: size=2
+  PARTIAL_WAKE_LOCK              '*job*/com.android.dialer/com.android.voicemail.impl.scheduling.TaskSchedulerJobService' ACQ=-12s308ms (uid=1000 pid=1648 ws=WorkSource{10013})
+  PARTIAL_WAKE_LOCK              'ConnectivityService' ACQ=-9s772ms (uid=1000 pid=1648)
+
+Suspend Blockers: size=4
+  PowerManagerService.WakeLocks: ref count=1
+  PowerManagerService.Display: ref count=1
+  PowerManagerService.Broadcasts: ref count=0
+  PowerManagerService.WirelessChargerDetector: ref count=0
+
+Display Power: state=ON
+
+Battery saver policy
+  Settings battery_saver_constants
+  value: null
+
+  vibration_disabled=true
+  animation_disabled=true
+  fullbackup_deferred=true
+  keyvaluebackup_deferred=true
+  firewall_disabled=false
+  datasaver_disabled=true
+  adjust_brightness_disabled=false
+  adjust_brightness_factor=0.5
+  gps_mode=1
+
+Wireless Charger Detector State:
+  mGravitySensor={Sensor name="Gravity Sensor", vendor="AOSP", version=3, type=9, maxRange=19.6133, resolution=2.480159E-4, power=12.7, minDelay=10000}
+  mPoweredWirelessly=false
+  mAtRest=false
+  mRestX=0.0, mRestY=0.0, mRestZ=0.0
+  mDetectionInProgress=false
+  mDetectionStartTime=0 (never)
+  mMustUpdateRestPosition=false
+  mTotalSamples=0
+  mMovingSamples=0
+  mFirstSampleX=0.0, mFirstSampleY=0.0, mFirstSampleZ=0.0
+  mLastSampleX=0.0, mLastSampleY=0.0, mLastSampleZ=0.0
+  FocusedWindow: name='Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}'
+  TouchStates: <no displays touched>
+  Windows:
+    0: name='Window{1899cd2 u0 NavigationBar}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x21840068, type=0x000007e3, layer=231000, frame=[0,1776][1080,1920], scale=1.000000, touchableRegion=[0,1776][1080,1920], inputFeatures=0x00000000, ownerPid=1797, ownerUid=10023, dispatchingTimeout=5000.000ms
+    1: name='Window{7b82f3a u0 StatusBar}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x81840048, type=0x000007d0, layer=181000, frame=[0,0][1080,72], scale=1.000000, touchableRegion=[0,0][1080,72], inputFeatures=0x00000000, ownerPid=1797, ownerUid=10023, dispatchingTimeout=5000.000ms
+    2: name='Window{7ed2581 u0 AssistPreviewPanel}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=false, canReceiveKeys=false, flags=0x01000118, type=0x000007f1, layer=41000, frame=[0,1920][1080,1920], scale=1.000000, touchableRegion=<empty>, inputFeatures=0x00000000, ownerPid=1797, ownerUid=10023, dispatchingTimeout=5000.000ms
+    3: name='Window{f9a35ad u0 DockedStackDivider}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=false, canReceiveKeys=false, flags=0x21840028, type=0x000007f2, layer=21005, frame=[0,0][0,0], scale=1.000000, touchableRegion=[-144,0][144,144], inputFeatures=0x00000000, ownerPid=1797, ownerUid=10023, dispatchingTimeout=5000.000ms
+    4: name='Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}', displayId=0, paused=false, hasFocus=true, hasWallpaper=true, visible=true, canReceiveKeys=true, flags=0x81910120, type=0x00000001, layer=21000, frame=[0,0][1080,1920], scale=1.000000, touchableRegion=[0,0][1080,1920], inputFeatures=0x00000000, ownerPid=2262, ownerUid=10014, dispatchingTimeout=5000.000ms
+    5: name='Window{80df65f u0 com.android.systemui.ImageWallpaper}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x00010318, type=0x000007dd, layer=11000, frame=[0,0][1243,1920], scale=1.000000, touchableRegion=[0,0][1243,1920], inputFeatures=0x00000000, ownerPid=1797, ownerUid=10023, dispatchingTimeout=5000.000ms
+  MonitoringChannels:
+    0: 'WindowManager (server)'
+  RecentQueue: length=10
+    DeviceResetEvent(deviceId=-1), policyFlags=0x00000000, age=16305.5ms
+    DeviceResetEvent(deviceId=0), policyFlags=0x00000000, age=16305.5ms
+    DeviceResetEvent(deviceId=2), policyFlags=0x00000000, age=16305.5ms
+    DeviceResetEvent(deviceId=1), policyFlags=0x00000000, age=16305.5ms
+    , age=16305.5ms
+    DeviceResetEvent(deviceId=0), policyFlags=0x00000000, age=16101.2ms
+    KeyEvent(deviceId=-1, source=0x00000101, action=0, flags=0x00000000, keyCode=82, scanCode=0, metaState=0x00000000, repeatCount=0), policyFlags=0x6b000000, age=11811.7ms
+    KeyEvent(deviceId=-1, source=0x00000101, action=1, flags=0x00000000, keyCode=82, scanCode=0, metaState=0x00000000, repeatCount=0), policyFlags=0x6b000000, age=11811.7ms
+    KeyEvent(deviceId=-1, source=0x00000101, action=0, flags=0x00000000, keyCode=224, scanCode=0, metaState=0x00000000, repeatCount=0), policyFlags=0x2b000000, age=580.7ms
+    KeyEvent(deviceId=-1, source=0x00000101, action=1, flags=0x00000000, keyCode=224, scanCode=0, metaState=0x00000000, repeatCount=0), policyFlags=0x2b000000, age=580.7ms
+  PendingEvent: <none>
+  InboundQueue: <empty>
+  ReplacedKeys: <empty>
+  Connections:
+    0: channelName='WindowManager (server)', windowName='monitor', status=NORMAL, monitor=true, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    1: channelName='7ed2581 AssistPreviewPanel (server)', windowName='Window{7ed2581 u0 AssistPreviewPanel}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    2: channelName='7b82f3a StatusBar (server)', windowName='Window{7b82f3a u0 StatusBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    3: channelName='80df65f com.android.systemui.ImageWallpaper (server)', windowName='Window{80df65f u0 com.android.systemui.ImageWallpaper}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    4: channelName='1899cd2 NavigationBar (server)', windowName='Window{1899cd2 u0 NavigationBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    5: channelName='pip_input_consumer (server)', windowName='?', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    6: channelName='b01db7f com.android.launcher3/com.android.launcher3.Launcher (server)', windowName='Window{b01db7f u0 com.android.launcher3/com.android.launcher3.Launcher}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    7: channelName='f9a35ad DockedStackDivider (server)', windowName='Window{f9a35ad u0 DockedStackDivider}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+  AppSwitch: not pending
+  Configuration:
+    KeyRepeatDelay: 50.0ms
+    KeyRepeatTimeout: 500.0ms
+
+
+  Keyboard Layouts:
+    "English (UK) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_uk
+    "English (US) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us
+    "English (US), International style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_intl
+    "English (US), Colemak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_colemak
+    "English (US), Dvorak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_dvorak
+    "English (US), Workman style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_workman
+    "German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_german
+    "French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french
+    "French (Canada) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french_ca
+    "Russian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian
+    "Russian, Mac style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian_mac
+    "Spanish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish
+    "Swiss French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_french
+    "Swiss German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_german
+    "Belgian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_belgian
+    "Bulgarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_bulgarian
+    "Italian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_italian
+    "Danish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_danish
+    "Norwegian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_norwegian
+    "Swedish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swedish
+    "Finnish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_finnish
+    "Croatian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_croatian
+    "Czech - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_czech
+    "Estonian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_estonian
+    "Hungarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hungarian
+    "Icelandic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_icelandic
+    "Brazilian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_brazilian
+    "Portuguese - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_portuguese
+    "Slovak - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovak
+    "Slovenian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovenian
+    "Turkish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_turkish
+    "Ukrainian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_ukrainian
+    "Arabic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_arabic
+    "Greek - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_greek
+    "Hebrew - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hebrew
+    "Lithuanian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_lithuanian
+    "Spanish (Latin) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish_latin
+    "Latvian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_latvian
+
+  PersistentDataStore
+    mLoaded=true
+    mDirty=false
+    InputDeviceStates:
+--------- beginning of main
+11-06 19:39:43.842  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/KzurbSonar.ogg; assuming invalid
+11-06 19:39:43.843  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Lalande.ogg; assuming invalid
+11-06 19:39:43.844  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Merope.ogg; assuming invalid
+11-06 19:39:43.844  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Mira.ogg; assuming invalid
+11-06 19:39:43.847  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/OnTheHunt.ogg; assuming invalid
+11-06 19:39:43.852  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Palladium.ogg since build fingerprint changed
+11-06 19:39:43.856  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Plastic_Pipe.ogg since build fingerprint changed
+11-06 19:39:43.863  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Polaris.ogg since build fingerprint changed
+11-06 19:39:43.866  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Pollux.ogg since build fingerprint changed
+11-06 19:39:43.870  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Procyon.ogg since build fingerprint changed
+11-06 19:39:43.874  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Proxima.ogg since build fingerprint changed
+11-06 19:39:43.878  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Radon.ogg since build fingerprint changed
+11-06 19:39:43.882  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Rubidium.ogg since build fingerprint changed
+11-06 19:39:43.886  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Selenium.ogg since build fingerprint changed
+11-06 19:39:43.889  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Shaula.ogg since build fingerprint changed
+11-06 19:39:43.893  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Sirrah.ogg since build fingerprint changed
+11-06 19:39:43.897  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/SpaceSeed.ogg since build fingerprint changed
+11-06 19:39:43.901  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Spica.ogg since build fingerprint changed
+11-06 19:39:43.905  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Strontium.ogg since build fingerprint changed
+11-06 19:39:43.909  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Syrma.ogg since build fingerprint changed
+11-06 19:39:43.913  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/TaDa.ogg since build fingerprint changed
+11-06 19:39:43.917  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Talitha.ogg since build fingerprint changed
+11-06 19:39:43.919  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Tejat.ogg since build fingerprint changed
+11-06 19:39:43.920  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Thallium.ogg since build fingerprint changed
+11-06 19:39:43.922  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Tinkerbell.ogg since build fingerprint changed
+11-06 19:39:43.924  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Upsilon.ogg since build fingerprint changed
+11-06 19:39:43.925  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Vega.ogg since build fingerprint changed
+11-06 19:39:43.927  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Voila.ogg since build fingerprint changed
+11-06 19:39:43.929  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Xenon.ogg since build fingerprint changed
+11-06 19:39:43.931  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/Zirconium.ogg since build fingerprint changed
+11-06 19:39:43.932  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/arcturus.ogg since build fingerprint changed
+11-06 19:39:43.935  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/moonbeam.ogg since build fingerprint changed
+11-06 19:39:43.937  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/pixiedust.ogg since build fingerprint changed
+11-06 19:39:43.938  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/pizzicato.ogg since build fingerprint changed
+11-06 19:39:43.940  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/regulus.ogg since build fingerprint changed
+11-06 19:39:43.942  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/sirius.ogg since build fingerprint changed
+11-06 19:39:43.943  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/tweeters.ogg since build fingerprint changed
+11-06 19:39:43.945  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/notifications/vega.ogg since build fingerprint changed
+11-06 19:39:43.947  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/ANDROMEDA.ogg since build fingerprint changed
+11-06 19:39:43.949  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones; assuming invalid
+11-06 19:39:43.951  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Palladium.ogg; assuming invalid
+11-06 19:39:43.951  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Plastic_Pipe.ogg; assuming invalid
+11-06 19:39:43.952  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Polaris.ogg; assuming invalid
+11-06 19:39:43.954  1516  2852 E MetadataRetrieverClient: failed to extract an album art
+11-06 19:39:43.954  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Pollux.ogg; assuming invalid
+11-06 19:39:43.956  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Procyon.ogg; assuming invalid
+11-06 19:39:43.957  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Proxima.ogg; assuming invalid
+11-06 19:39:43.957  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Radon.ogg; assuming invalid
+11-06 19:39:43.958  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Rubidium.ogg; assuming invalid
+11-06 19:39:43.959  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Selenium.ogg; assuming invalid
+11-06 19:39:43.959  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Shaula.ogg; assuming invalid
+11-06 19:39:43.960  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Sirrah.ogg; assuming invalid
+11-06 19:39:43.960  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/SpaceSeed.ogg; assuming invalid
+11-06 19:39:43.961  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Spica.ogg; assuming invalid
+11-06 19:39:43.961  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Strontium.ogg; assuming invalid
+11-06 19:39:43.965  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Syrma.ogg; assuming invalid
+11-06 19:39:43.966  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/TaDa.ogg; assuming invalid
+11-06 19:39:43.966  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Talitha.ogg; assuming invalid
+11-06 19:39:43.967  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Tejat.ogg; assuming invalid
+11-06 19:39:43.967  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Thallium.ogg; assuming invalid
+11-06 19:39:43.968  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Tinkerbell.ogg; assuming invalid
+11-06 19:39:43.969  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Upsilon.ogg; assuming invalid
+11-06 19:39:43.969  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Vega.ogg; assuming invalid
+11-06 19:39:43.970  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Voila.ogg; assuming invalid
+11-06 19:39:43.970  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Xenon.ogg; assuming invalid
+11-06 19:39:43.971  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/Zirconium.ogg; assuming invalid
+11-06 19:39:43.972  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/moonbeam.ogg; assuming invalid
+11-06 19:39:43.973  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/pixiedust.ogg; assuming invalid
+11-06 19:39:43.973  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/pizzicato.ogg; assuming invalid
+11-06 19:39:43.974  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/regulus.ogg; assuming invalid
+11-06 19:39:43.974  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/sirius.ogg; assuming invalid
+11-06 19:39:43.975  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/tweeters.ogg; assuming invalid
+11-06 19:39:43.975  2441  2841 W MediaProvider: Missing volume for /system/media/audio/notifications/vega.ogg; assuming invalid
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: Error inserting title_key=S15) parent=10 is_music=false title=Vega _size=29476 duration=4383 bucket_id=-1608219629 is_alarm=false album_artist=null media_type=2 storage_id=0 is_notification=true track=0 bucket_display_name=notifications _data=/system/media/audio/notifications/vega.ogg is_drm=false _display_name=vega.ogg composer=null format=47362 is_ringtone=false artist_id=2 is_podcast=false date_added=1793993983 date_modified=1533322091 mime_type=application/ogg album_id=3
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: files._data (code 2067)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:782)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:788)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:86)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insertWithOnConflict(SQLiteDatabase.java:1474)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insert(SQLiteDatabase.java:1343)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertFile(MediaProvider.java:2261)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertInternal(MediaProvider.java:2494)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.bulkInsert(MediaProvider.java:1867)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.content.ContentProvider$Transport.bulkInsert(ContentProvider.java:282)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.content.ContentProviderClient.bulkInsert(ContentProviderClient.java:290)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flush(MediaInserter.java:91)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flushAll(MediaInserter.java:74)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner$MyMediaScannerClient.endFile(MediaScanner.java:1051)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner$MyMediaScannerClient.doScanFile(MediaScanner.java:651)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner$MyMediaScannerClient.scanFile(MediaScanner.java:578)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.processDirectory(Native Method)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.scanDirectories(MediaScanner.java:1351)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.scan(MediaScannerService.java:82)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.-wrap1(Unknown Source:0)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService$ServiceHandler.handleMessage(MediaScannerService.java:252)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.os.Handler.dispatchMessage(Handler.java:105)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at android.os.Looper.loop(Looper.java:164)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.run(MediaScannerService.java:161)
+11-06 19:39:43.975  2441  2841 E SQLiteDatabase: 	at java.lang.Thread.run(Thread.java:764)
+11-06 19:39:43.979  1516  2852 E MetadataRetrieverClient: failed to extract an album art
+11-06 19:39:43.980  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/ANDROMEDA.ogg; assuming invalid
+11-06 19:39:43.987  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Andromeda.ogg since build fingerprint changed
+11-06 19:39:43.996  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Aquila.ogg since build fingerprint changed
+11-06 19:39:44.002  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/ArgoNavis.ogg since build fingerprint changed
+11-06 19:39:44.017  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Atria.ogg since build fingerprint changed
+11-06 19:39:44.029  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/BOOTES.ogg since build fingerprint changed
+11-06 19:39:44.038  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Backroad.ogg since build fingerprint changed
+11-06 19:39:44.057  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/BeatPlucker.ogg since build fingerprint changed
+11-06 19:39:44.060  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/BentleyDubs.ogg since build fingerprint changed
+11-06 19:39:44.061  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Big_Easy.ogg since build fingerprint changed
+11-06 19:39:44.063  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/BirdLoop.ogg since build fingerprint changed
+11-06 19:39:44.066  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Bollywood.ogg since build fingerprint changed
+11-06 19:39:44.068  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/BussaMove.ogg since build fingerprint changed
+11-06 19:39:44.078  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CANISMAJOR.ogg since build fingerprint changed
+11-06 19:39:44.080  1648  1891 D WificondControl: Scan result ready event
+--------- beginning of system
+11-06 19:39:44.080  1519  1519 I wificond: Unexpected empty scan result!
+11-06 19:39:44.081  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CASSIOPEIA.ogg since build fingerprint changed
+11-06 19:39:44.090  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Cairo.ogg since build fingerprint changed
+11-06 19:39:44.100  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Calypso_Steel.ogg since build fingerprint changed
+11-06 19:39:44.107  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CanisMajor.ogg since build fingerprint changed
+11-06 19:39:44.115  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CaribbeanIce.ogg since build fingerprint changed
+11-06 19:39:44.117  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Carina.ogg since build fingerprint changed
+11-06 19:39:44.121  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Centaurus.ogg since build fingerprint changed
+11-06 19:39:44.126  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Champagne_Edition.ogg since build fingerprint changed
+11-06 19:39:44.128  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Club_Cubano.ogg since build fingerprint changed
+11-06 19:39:44.130  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CrayonRock.ogg since build fingerprint changed
+11-06 19:39:44.133  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CrazyDream.ogg since build fingerprint changed
+11-06 19:39:44.136  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/CurveBall.ogg since build fingerprint changed
+11-06 19:39:44.139  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Cygnus.ogg since build fingerprint changed
+11-06 19:39:44.146  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/DancinFool.ogg since build fingerprint changed
+11-06 19:39:44.148  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Ding.ogg since build fingerprint changed
+11-06 19:39:44.153  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/DonMessWivIt.ogg since build fingerprint changed
+11-06 19:39:44.155  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Draco.ogg since build fingerprint changed
+11-06 19:39:44.162  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/DreamTheme.ogg since build fingerprint changed
+11-06 19:39:44.166  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Eastern_Sky.ogg since build fingerprint changed
+11-06 19:39:44.175  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Enter_the_Nexus.ogg since build fingerprint changed
+11-06 19:39:44.184  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Eridani.ogg since build fingerprint changed
+11-06 19:39:44.192  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/EtherShake.ogg since build fingerprint changed
+11-06 19:39:44.199  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/FreeFlight.ogg since build fingerprint changed
+11-06 19:39:44.212  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/FriendlyGhost.ogg since build fingerprint changed
+11-06 19:39:44.220  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Funk_Yall.ogg since build fingerprint changed
+11-06 19:39:44.230  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/GameOverGuitar.ogg since build fingerprint changed
+11-06 19:39:44.241  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Gimme_Mo_Town.ogg since build fingerprint changed
+11-06 19:39:44.252  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Girtab.ogg since build fingerprint changed
+11-06 19:39:44.260  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Glacial_Groove.ogg since build fingerprint changed
+11-06 19:39:44.269  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Growl.ogg since build fingerprint changed
+11-06 19:39:44.277  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/HalfwayHome.ogg since build fingerprint changed
+11-06 19:39:44.287  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Hydra.ogg since build fingerprint changed
+11-06 19:39:44.293  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/InsertCoin.ogg since build fingerprint changed
+11-06 19:39:44.299  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Kuma.ogg since build fingerprint changed
+11-06 19:39:44.314  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/LoopyLounge.ogg since build fingerprint changed
+11-06 19:39:44.321  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/LoveFlute.ogg since build fingerprint changed
+11-06 19:39:44.323  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Lyra.ogg since build fingerprint changed
+11-06 19:39:44.325  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Machina.ogg since build fingerprint changed
+11-06 19:39:44.327  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/MidEvilJaunt.ogg since build fingerprint changed
+11-06 19:39:44.328  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/MildlyAlarming.ogg since build fingerprint changed
+11-06 19:39:44.330  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Nairobi.ogg since build fingerprint changed
+11-06 19:39:44.332  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Nassau.ogg since build fingerprint changed
+11-06 19:39:44.339  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/NewPlayer.ogg since build fingerprint changed
+11-06 19:39:44.344  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/No_Limits.ogg since build fingerprint changed
+11-06 19:39:44.346  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Noises1.ogg since build fingerprint changed
+11-06 19:39:44.348  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Noises2.ogg since build fingerprint changed
+11-06 19:39:44.356  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Noises3.ogg since build fingerprint changed
+11-06 19:39:44.358  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/OrganDub.ogg since build fingerprint changed
+11-06 19:39:44.366  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Orion.ogg since build fingerprint changed
+11-06 19:39:44.369  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/PERSEUS.ogg since build fingerprint changed
+11-06 19:39:44.372  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Paradise_Island.ogg since build fingerprint changed
+11-06 19:39:44.374  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Pegasus.ogg since build fingerprint changed
+11-06 19:39:44.376  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Perseus.ogg since build fingerprint changed
+11-06 19:39:44.379  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Playa.ogg since build fingerprint changed
+11-06 19:39:44.381  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Pyxis.ogg since build fingerprint changed
+11-06 19:39:44.383  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Rasalas.ogg since build fingerprint changed
+11-06 19:39:44.386  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Revelation.ogg since build fingerprint changed
+11-06 19:39:44.387  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Rigel.ogg since build fingerprint changed
+11-06 19:39:44.390  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Ring_Classic_02.ogg since build fingerprint changed
+11-06 19:39:44.392  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Ring_Digital_02.ogg since build fingerprint changed
+11-06 19:39:44.393  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Ring_Synth_02.ogg since build fingerprint changed
+11-06 19:39:44.395  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Ring_Synth_04.ogg since build fingerprint changed
+11-06 19:39:44.403  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Road_Trip.ogg since build fingerprint changed
+11-06 19:39:44.407  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/RomancingTheTone.ogg since build fingerprint changed
+11-06 19:39:44.410  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Safari.ogg since build fingerprint changed
+11-06 19:39:44.420  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Savannah.ogg since build fingerprint changed
+11-06 19:39:44.422  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Scarabaeus.ogg since build fingerprint changed
+11-06 19:39:44.427  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Sceptrum.ogg since build fingerprint changed
+11-06 19:39:44.432  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Seville.ogg since build fingerprint changed
+11-06 19:39:44.434  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Shes_All_That.ogg since build fingerprint changed
+11-06 19:39:44.438  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/SilkyWay.ogg since build fingerprint changed
+11-06 19:39:44.441  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/SitarVsSitar.ogg since build fingerprint changed
+11-06 19:39:44.455  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Solarium.ogg since build fingerprint changed
+11-06 19:39:44.460  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/SpringyJalopy.ogg since build fingerprint changed
+11-06 19:39:44.461  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Steppin_Out.ogg since build fingerprint changed
+11-06 19:39:44.466  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Terminated.ogg since build fingerprint changed
+11-06 19:39:44.468  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Testudo.ogg since build fingerprint changed
+11-06 19:39:44.473  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Themos.ogg since build fingerprint changed
+11-06 19:39:44.475  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Third_Eye.ogg since build fingerprint changed
+11-06 19:39:44.477  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Thunderfoot.ogg since build fingerprint changed
+11-06 19:39:44.479  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/TwirlAway.ogg since build fingerprint changed
+11-06 19:39:44.488  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/URSAMINOR.ogg since build fingerprint changed
+11-06 19:39:44.493  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/UrsaMinor.ogg since build fingerprint changed
+11-06 19:39:44.498  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/VeryAlarmed.ogg since build fingerprint changed
+11-06 19:39:44.502  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Vespa.ogg since build fingerprint changed
+11-06 19:39:44.505  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/World.ogg since build fingerprint changed
+11-06 19:39:44.518  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/Zeta.ogg since build fingerprint changed
+11-06 19:39:44.525  2441  2841 I MediaScanner: forcing rescan of /system/media/audio/ringtones/hydra.ogg since build fingerprint changed
+11-06 19:39:44.531  1648  1648 D WifiService: resetting country code because Airplane mode is ON
+11-06 19:39:44.532  1648  1762 E WifiVendorHal: resetLogHandler(l.1601) failed {.code = ERROR_NOT_SUPPORTED, .description = }
+11-06 19:39:44.532  1648  1762 W WifiDiags: Fail to reset log handler
+11-06 19:39:44.532  1648  1762 E WifiVendorHal: stopRssiMonitoring(l.2115) failed {.code = ERROR_NOT_AVAILABLE, .description = }
+11-06 19:39:44.532  1648  1762 W WifiConfigManager: Looking up network with invalid networkId -1
+11-06 19:39:44.532  1908  1908 I PhoneApp: Turning radio off - airplane
+11-06 19:39:44.533  1648  1648 D RttService: SCAN_AVAILABLE : 1
+11-06 19:39:44.533  1648  1765 D RttService: EnabledState got{ when=0 what=160513 target=com.android.internal.util.StateMachine$SmHandler }
+11-06 19:39:44.533  1648  1764 I WifiScanningService: wifi driver unloaded
+11-06 19:39:44.533  1648  1764 W AlarmManager: Unrecognized alarm listener com.android.server.wifi.scanner.WificondScannerImpl$2@daf3962
+11-06 19:39:44.080  1519  1519 I wificond: Unexpected empty scan result!
+11-06 19:39:44.534  1519  1519 I wificond: Unregister interface event callback
+11-06 19:39:44.535  1648  1762 D WifiStateMachine: SupplicantStoppingState: disableSupplicant  init.svc.wpa_supplicant=unknown
+11-06 19:39:44.537  1648  1959 W SupplicantStaIfaceHal: ISupplicant/ISupplicantStaIface died: cookie=0
+11-06 19:39:44.537  1648  1958 W SupplicantStaIfaceHal: ISupplicant/ISupplicantStaIface died: cookie=0
+11-06 19:39:44.539  1648  1766 D ConnectivityService: NetworkAgentInfo [MOBILE (LTE) - 100] EVENT_NETWORK_INFO_CHANGED, going from CONNECTED to DISCONNECTED
+11-06 19:39:44.539  1648  1766 D ConnectivityService: NetworkAgentInfo [MOBILE (LTE) - 100] got DISCONNECTED, was satisfying 5
+11-06 19:39:44.540  1908  2079 D DcNetworkAgent: NetworkAgent: NetworkAgent channel lost
+11-06 19:39:44.540  1908  2079 D DcNetworkAgent: NetworkAgent: DcNetworkAgent: unwanted found mNetworkAgent=null, which isn't me.  Aborting unwanted
+11-06 19:39:44.550  1517  1593 V IdletimerController: runCmd(/system/bin/ip6tables -w -t raw -D idletimer_raw_PREROUTING -i radio0 -j IDLETIMER --timeout 10 --label 0 --send_nl_msg 1) res_ipv4=0, res_ipv6=0
+11-06 19:39:44.557  1517  1593 V IdletimerController: runCmd(/system/bin/ip6tables -w -t mangle -D idletimer_mangle_POSTROUTING -o radio0 -j IDLETIMER --timeout 10 --label 0 --send_nl_msg 1) res_ipv4=0, res_ipv6=0
+11-06 19:39:44.560  1648  1766 D ConnectivityService: Sending DISCONNECTED broadcast for type 0 NetworkAgentInfo [MOBILE (LTE) - 100] isDefaultNetwork=true
+11-06 19:39:44.629  2441  2841 W MediaScanner: Error opening directory '/oem/media/', skipping: No such file or directory.
+11-06 19:39:44.631  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui; assuming invalid
+11-06 19:39:44.642  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Aquila.ogg; assuming invalid
+11-06 19:39:44.643  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/ArgoNavis.ogg; assuming invalid
+11-06 19:39:44.644  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Atria.ogg; assuming invalid
+11-06 19:39:44.645  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/BOOTES.ogg; assuming invalid
+11-06 19:39:44.646  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Backroad.ogg; assuming invalid
+11-06 19:39:44.647  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/BeatPlucker.ogg; assuming invalid
+11-06 19:39:44.648  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/BentleyDubs.ogg; assuming invalid
+11-06 19:39:44.648  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Big_Easy.ogg; assuming invalid
+11-06 19:39:44.649  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/BirdLoop.ogg; assuming invalid
+11-06 19:39:44.651  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Bollywood.ogg; assuming invalid
+11-06 19:39:44.652  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/BussaMove.ogg; assuming invalid
+11-06 19:39:44.653  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CANISMAJOR.ogg; assuming invalid
+11-06 19:39:44.659  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CASSIOPEIA.ogg; assuming invalid
+11-06 19:39:44.661  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Cairo.ogg; assuming invalid
+11-06 19:39:44.662  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Calypso_Steel.ogg; assuming invalid
+11-06 19:39:44.662  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CanisMajor.ogg; assuming invalid
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: Error inserting title_key=-)C9MA);EK parent=71 is_music=false title=Canis Major _size=31133 duration=3498 bucket_id=293500348 is_alarm=false album_artist=null media_type=2 storage_id=0 is_notification=false track=0 bucket_display_name=ringtones _data=/system/media/audio/ringtones/CanisMajor.ogg is_drm=false _display_name=CanisMajor.ogg composer=null format=47362 is_ringtone=true artist_id=1 is_podcast=false date_added=1793993984 date_modified=1533322091 mime_type=application/ogg album_id=4
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: files._data (code 2067)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:782)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:788)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:86)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insertWithOnConflict(SQLiteDatabase.java:1474)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insert(SQLiteDatabase.java:1343)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertFile(MediaProvider.java:2261)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertInternal(MediaProvider.java:2494)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.bulkInsert(MediaProvider.java:1867)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.content.ContentProvider$Transport.bulkInsert(ContentProvider.java:282)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.content.ContentProviderClient.bulkInsert(ContentProviderClient.java:290)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flush(MediaInserter.java:91)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flushAll(MediaInserter.java:74)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.scanDirectories(MediaScanner.java:1356)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.scan(MediaScannerService.java:82)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.-wrap1(Unknown Source:0)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService$ServiceHandler.handleMessage(MediaScannerService.java:252)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.os.Handler.dispatchMessage(Handler.java:105)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at android.os.Looper.loop(Looper.java:164)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.run(MediaScannerService.java:161)
+11-06 19:39:44.663  2441  2841 E SQLiteDatabase: 	at java.lang.Thread.run(Thread.java:764)
+11-06 19:39:44.663  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CaribbeanIce.ogg; assuming invalid
+11-06 19:39:44.664  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Carina.ogg; assuming invalid
+11-06 19:39:44.665  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Centaurus.ogg; assuming invalid
+11-06 19:39:44.666  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Champagne_Edition.ogg; assuming invalid
+11-06 19:39:44.666  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Club_Cubano.ogg; assuming invalid
+11-06 19:39:44.667  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CrayonRock.ogg; assuming invalid
+11-06 19:39:44.668  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CrazyDream.ogg; assuming invalid
+11-06 19:39:44.668  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/CurveBall.ogg; assuming invalid
+11-06 19:39:44.670  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Cygnus.ogg; assuming invalid
+11-06 19:39:44.675  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/DancinFool.ogg; assuming invalid
+11-06 19:39:44.680  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Ding.ogg; assuming invalid
+11-06 19:39:44.685  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/DonMessWivIt.ogg; assuming invalid
+11-06 19:39:44.689  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Draco.ogg; assuming invalid
+11-06 19:39:44.690  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/DreamTheme.ogg; assuming invalid
+11-06 19:39:44.691  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Eastern_Sky.ogg; assuming invalid
+11-06 19:39:44.691  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Enter_the_Nexus.ogg; assuming invalid
+11-06 19:39:44.692  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Eridani.ogg; assuming invalid
+11-06 19:39:44.693  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/EtherShake.ogg; assuming invalid
+11-06 19:39:44.693  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/FreeFlight.ogg; assuming invalid
+11-06 19:39:44.694  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/FriendlyGhost.ogg; assuming invalid
+11-06 19:39:44.695  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Funk_Yall.ogg; assuming invalid
+11-06 19:39:44.696  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/GameOverGuitar.ogg; assuming invalid
+11-06 19:39:44.696  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Gimme_Mo_Town.ogg; assuming invalid
+11-06 19:39:44.697  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Girtab.ogg; assuming invalid
+11-06 19:39:44.698  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Glacial_Groove.ogg; assuming invalid
+11-06 19:39:44.698  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Growl.ogg; assuming invalid
+11-06 19:39:44.699  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/HalfwayHome.ogg; assuming invalid
+11-06 19:39:44.700  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Hydra.ogg; assuming invalid
+11-06 19:39:44.701  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/InsertCoin.ogg; assuming invalid
+11-06 19:39:44.701  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Kuma.ogg; assuming invalid
+11-06 19:39:44.702  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/LoopyLounge.ogg; assuming invalid
+11-06 19:39:44.703  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/LoveFlute.ogg; assuming invalid
+11-06 19:39:44.704  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Lyra.ogg; assuming invalid
+11-06 19:39:44.704  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Machina.ogg; assuming invalid
+11-06 19:39:44.705  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/MidEvilJaunt.ogg; assuming invalid
+11-06 19:39:44.706  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/MildlyAlarming.ogg; assuming invalid
+11-06 19:39:44.706  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Nairobi.ogg; assuming invalid
+11-06 19:39:44.707  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Nassau.ogg; assuming invalid
+11-06 19:39:44.708  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/NewPlayer.ogg; assuming invalid
+11-06 19:39:44.709  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/No_Limits.ogg; assuming invalid
+11-06 19:39:44.709  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Noises1.ogg; assuming invalid
+11-06 19:39:44.710  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Noises2.ogg; assuming invalid
+11-06 19:39:44.711  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Noises3.ogg; assuming invalid
+11-06 19:39:44.712  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/OrganDub.ogg; assuming invalid
+11-06 19:39:44.713  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Orion.ogg; assuming invalid
+11-06 19:39:44.714  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/PERSEUS.ogg; assuming invalid
+11-06 19:39:44.715  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Paradise_Island.ogg; assuming invalid
+11-06 19:39:44.716  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Pegasus.ogg; assuming invalid
+11-06 19:39:44.719  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Perseus.ogg; assuming invalid
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: Error inserting title_key=G1KM1QM parent=71 is_music=false title=Perseus _size=236343 duration=10170 bucket_id=293500348 is_alarm=false album_artist=null media_type=2 storage_id=0 is_notification=false track=0 bucket_display_name=ringtones _data=/system/media/audio/ringtones/Perseus.ogg is_drm=false _display_name=Perseus.ogg composer=null format=47362 is_ringtone=true artist_id=1 is_podcast=false date_added=1793993984 date_modified=1533322091 mime_type=application/ogg album_id=4
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: files._data (code 2067)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:782)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:788)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:86)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insertWithOnConflict(SQLiteDatabase.java:1474)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insert(SQLiteDatabase.java:1343)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertFile(MediaProvider.java:2261)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertInternal(MediaProvider.java:2494)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.bulkInsert(MediaProvider.java:1867)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.content.ContentProvider$Transport.bulkInsert(ContentProvider.java:282)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.content.ContentProviderClient.bulkInsert(ContentProviderClient.java:290)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flush(MediaInserter.java:91)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flushAll(MediaInserter.java:74)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.scanDirectories(MediaScanner.java:1356)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.scan(MediaScannerService.java:82)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.-wrap1(Unknown Source:0)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService$ServiceHandler.handleMessage(MediaScannerService.java:252)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.os.Handler.dispatchMessage(Handler.java:105)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at android.os.Looper.loop(Looper.java:164)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.run(MediaScannerService.java:161)
+11-06 19:39:44.720  2441  2841 E SQLiteDatabase: 	at java.lang.Thread.run(Thread.java:764)
+11-06 19:39:44.720  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Playa.ogg; assuming invalid
+11-06 19:39:44.721  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Pyxis.ogg; assuming invalid
+11-06 19:39:44.722  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Rasalas.ogg; assuming invalid
+11-06 19:39:44.723  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Revelation.ogg; assuming invalid
+11-06 19:39:44.724  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Rigel.ogg; assuming invalid
+11-06 19:39:44.724  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Ring_Classic_02.ogg; assuming invalid
+11-06 19:39:44.725  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Ring_Digital_02.ogg; assuming invalid
+11-06 19:39:44.726  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Ring_Synth_02.ogg; assuming invalid
+11-06 19:39:44.727  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Ring_Synth_04.ogg; assuming invalid
+11-06 19:39:44.728  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Road_Trip.ogg; assuming invalid
+11-06 19:39:44.728  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/RomancingTheTone.ogg; assuming invalid
+11-06 19:39:44.729  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Safari.ogg; assuming invalid
+11-06 19:39:44.730  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Savannah.ogg; assuming invalid
+11-06 19:39:44.730  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Scarabaeus.ogg; assuming invalid
+11-06 19:39:44.731  1516  1516 E MetadataRetrieverClient: failed to extract an album art
+11-06 19:39:44.731  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Sceptrum.ogg; assuming invalid
+11-06 19:39:44.732  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Seville.ogg; assuming invalid
+11-06 19:39:44.733  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Shes_All_That.ogg; assuming invalid
+11-06 19:39:44.734  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/SilkyWay.ogg; assuming invalid
+11-06 19:39:44.734  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/SitarVsSitar.ogg; assuming invalid
+11-06 19:39:44.735  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Solarium.ogg; assuming invalid
+11-06 19:39:44.736  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/SpringyJalopy.ogg; assuming invalid
+11-06 19:39:44.737  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Steppin_Out.ogg; assuming invalid
+11-06 19:39:44.737  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Terminated.ogg; assuming invalid
+11-06 19:39:44.739  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Testudo.ogg; assuming invalid
+11-06 19:39:44.740  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Themos.ogg; assuming invalid
+11-06 19:39:44.740  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Third_Eye.ogg; assuming invalid
+11-06 19:39:44.741  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Thunderfoot.ogg; assuming invalid
+11-06 19:39:44.742  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/TwirlAway.ogg; assuming invalid
+11-06 19:39:44.742  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/URSAMINOR.ogg; assuming invalid
+11-06 19:39:44.743  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/UrsaMinor.ogg; assuming invalid
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: Error inserting title_key=QKM)A9CEK parent=71 is_music=false title=UrsaMinor _size=185005 duration=12800 bucket_id=293500348 is_alarm=false album_artist=null media_type=2 storage_id=0 is_notification=false track=0 bucket_display_name=ringtones _data=/system/media/audio/ringtones/UrsaMinor.ogg is_drm=false _display_name=UrsaMinor.ogg composer=null format=47362 is_ringtone=true artist_id=1 is_podcast=false date_added=1793993984 date_modified=1533322091 mime_type=application/ogg album_id=4
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: files._data (code 2067)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:782)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:788)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:86)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insertWithOnConflict(SQLiteDatabase.java:1474)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insert(SQLiteDatabase.java:1343)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertFile(MediaProvider.java:2261)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertInternal(MediaProvider.java:2494)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.bulkInsert(MediaProvider.java:1867)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.content.ContentProvider$Transport.bulkInsert(ContentProvider.java:282)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.content.ContentProviderClient.bulkInsert(ContentProviderClient.java:290)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flush(MediaInserter.java:91)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flushAll(MediaInserter.java:74)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.scanDirectories(MediaScanner.java:1356)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.scan(MediaScannerService.java:82)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.-wrap1(Unknown Source:0)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService$ServiceHandler.handleMessage(MediaScannerService.java:252)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.os.Handler.dispatchMessage(Handler.java:105)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at android.os.Looper.loop(Looper.java:164)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.run(MediaScannerService.java:161)
+11-06 19:39:44.743  2441  2841 E SQLiteDatabase: 	at java.lang.Thread.run(Thread.java:764)
+11-06 19:39:44.744  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/VeryAlarmed.ogg; assuming invalid
+11-06 19:39:44.745  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Vespa.ogg; assuming invalid
+11-06 19:39:44.745  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/World.ogg; assuming invalid
+11-06 19:39:44.746  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/Zeta.ogg; assuming invalid
+11-06 19:39:44.747  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ringtones/hydra.ogg; assuming invalid
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: Error inserting title_key=7Y/K) parent=71 is_music=false title=Hydra _size=22962 duration=5000 bucket_id=293500348 is_alarm=false album_artist=null media_type=2 storage_id=0 is_notification=false track=2 bucket_display_name=ringtones _data=/system/media/audio/ringtones/hydra.ogg is_drm=false _display_name=hydra.ogg composer=null format=47362 is_ringtone=true artist_id=2 is_podcast=false date_added=1793993984 date_modified=1533322091 mime_type=application/ogg album_id=4
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: files._data (code 2067)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:782)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:788)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:86)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insertWithOnConflict(SQLiteDatabase.java:1474)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.database.sqlite.SQLiteDatabase.insert(SQLiteDatabase.java:1343)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertFile(MediaProvider.java:2261)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.insertInternal(MediaProvider.java:2494)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaProvider.bulkInsert(MediaProvider.java:1867)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.content.ContentProvider$Transport.bulkInsert(ContentProvider.java:282)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.content.ContentProviderClient.bulkInsert(ContentProviderClient.java:290)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flush(MediaInserter.java:91)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.media.MediaInserter.flushAll(MediaInserter.java:74)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.media.MediaScanner.scanDirectories(MediaScanner.java:1356)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.scan(MediaScannerService.java:82)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.-wrap1(Unknown Source:0)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService$ServiceHandler.handleMessage(MediaScannerService.java:252)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.os.Handler.dispatchMessage(Handler.java:105)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at android.os.Looper.loop(Looper.java:164)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at com.android.providers.media.MediaScannerService.run(MediaScannerService.java:161)
+11-06 19:39:44.747  2441  2841 E SQLiteDatabase: 	at java.lang.Thread.run(Thread.java:764)
+11-06 19:39:44.748  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Dock.ogg; assuming invalid
+11-06 19:39:44.749  1516  1516 E MetadataRetrieverClient: failed to extract an album art
+11-06 19:39:44.750  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Effect_Tick.ogg; assuming invalid
+11-06 19:39:44.754  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/KeypressDelete.ogg; assuming invalid
+11-06 19:39:44.755  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/KeypressInvalid.ogg; assuming invalid
+11-06 19:39:44.756  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/KeypressReturn.ogg; assuming invalid
+11-06 19:39:44.756  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/KeypressSpacebar.ogg; assuming invalid
+11-06 19:39:44.757  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/KeypressStandard.ogg; assuming invalid
+11-06 19:39:44.758  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Lock.ogg; assuming invalid
+11-06 19:39:44.759  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/LowBattery.ogg; assuming invalid
+11-06 19:39:44.760  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Trusted.ogg; assuming invalid
+11-06 19:39:44.760  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Undock.ogg; assuming invalid
+11-06 19:39:44.761  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/Unlock.ogg; assuming invalid
+11-06 19:39:44.762  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/VideoRecord.ogg; assuming invalid
+11-06 19:39:44.763  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/VideoStop.ogg; assuming invalid
+11-06 19:39:44.764  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/WirelessChargingStarted.ogg; assuming invalid
+11-06 19:39:44.765  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/camera_click.ogg; assuming invalid
+11-06 19:39:44.765  2441  2841 W MediaProvider: Missing volume for /system/media/audio/ui/camera_focus.ogg; assuming invalid
+11-06 19:39:44.769  2441  2841 V MediaProvider: pruneThumbnails 
+11-06 19:39:44.769  2441  2841 V MediaProvider: /pruneDeadThumbnailFiles... 
+11-06 19:39:44.772  1648  1762 D WificondControl: tearing down interfaces in wificond
+11-06 19:39:44.772  1519  1519 I wificond: Unsubscribe scan result for interface with index: 3
+11-06 19:39:44.790  2441  2841 V MediaProvider: pruneThumbnails 
+11-06 19:39:44.791  2441  2841 V MediaProvider: /pruneDeadThumbnailFiles... 
+11-06 19:39:44.975  1391  1391 I android.hardware.wifi@1.0-service: Wifi HAL stopped
+11-06 19:39:44.975  1391  1391 E hw-IPCThreadState: binder thread pool (1 threads) starved for 201 ms
+11-06 19:39:44.975  1648  1762 I WifiVendorHal: Vendor Hal stopped
+11-06 19:39:44.975  1648  1762 E HalDeviceManager: Should have at least 1 chip!
+11-06 19:39:44.975  1648  1762 E HalDeviceManager: getSupportedIfaceTypesInternal: no chip info found
+11-06 19:39:44.976  1648  1667 E BatteryStatsService: no controller energy info supplied
+11-06 19:39:44.976  1648  1762 E HalDeviceManager: Should have at least 1 chip!
+11-06 19:39:44.976  1648  1762 E HalDeviceManager: getSupportedIfaceTypesInternal: no chip info found
+11-06 19:39:44.977  1648  1667 E BatteryStatsService: no controller energy info supplied
+11-06 19:39:44.978  1648  1667 E BatteryStatsService: modem info is invalid: ModemActivityInfo{ mTimestamp=0 mSleepTimeMs=0 mIdleTimeMs=0 mTxTimeMs[]=[0, 0, 0, 0, 0] mRxTimeMs=0 mEnergyUsed=0}
+11-06 19:39:46.091  2350  2365 I zygote64: Waiting for a blocking GC ProfileSaver
+11-06 19:39:46.373  2820  2827 W zygote64: Receiving file descriptor from ADB failed (socket 28): Connection reset by peer
+11-06 19:39:46.373  2171  2178 W zygote64: Receiving file descriptor from ADB failed (socket 28): Connection reset by peer
+11-06 19:39:46.373  2782  2789 W zygote64: Receiving file descriptor from ADB failed (socket 28): Connection reset by peer
+11-06 19:39:46.373  1908  1915 W zygote64: Receiving file descriptor from ADB failed (socket 28): Connection reset by peer
+11-06 19:39:46.373  2798  2805 W zygote64: Receiving file descriptor from ADB failed (socket 28): Connection reset by peer
+11-06 19:39:46.412  1648  2846 I ActivityManager: Killing 2171:android.ext.services/u0a10 (adj 906): empty #17
+11-06 19:39:46.907  2564  2579 I zygote64: Waiting for a blocking GC ProfileSaver
+11-06 19:39:49.561  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:49.570  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFQ
+11-06 19:39:49.569  1648  1727 I chatty  : uid=1000(system) InputReader identical 1 line
+11-06 19:39:49.572  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:49.572  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:49.572  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.messaging
+11-06 19:39:49.576  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:49.581  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFU
+11-06 19:39:49.587  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFY
+11-06 19:39:49.589  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFc
+11-06 19:39:49.590  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFg
+11-06 19:39:49.592  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFk
+11-06 19:39:49.595  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFo
+11-06 19:39:49.598  1648  1663 W VoiceInteractionManagerService: no available voice interaction services found for user 0
+11-06 19:39:49.582  1648  1727 I chatty  : uid=1000(system) InputReader identical 1 line
+11-06 19:39:49.585  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:49.601  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:49.618  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:49.618  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.camera2
+11-06 19:39:49.626  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:49.648  1908  1908 I chatty  : uid=1001(radio) com.android.phone identical 2 lines
+11-06 19:39:49.655  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:49.655  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.calendar
+11-06 19:39:49.656  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.gallery3d
+11-06 19:39:49.656  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.inputmethod.latin
+11-06 19:39:49.656  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.settings
+11-06 19:39:49.656  1908  1908 D ImsResolver: maybeAddedImsService, packageName: com.android.email
+11-06 19:39:49.676  2262  2272 I zygote64: Do partial code cache collection, code=28KB, data=30KB
+11-06 19:39:49.676  2262  2272 I zygote64: After code cache collection, code=23KB, data=28KB
+11-06 19:39:49.676  2262  2272 I zygote64: Increasing code cache capacity to 128KB
+11-06 19:39:49.710  1787  1787 I InputAttributes: InputType.TYPE_NULL is specified
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f080128
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f120dcc
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f080127
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f1203c5
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f080126
+11-06 19:39:49.720  1648  1663 W ResourceType: No known package when getting value for resource number 0x7f12084e
+11-06 19:39:49.800  2262  2272 I zygote64: Do partial code cache collection, code=56KB, data=51KB
+11-06 19:39:49.800  2262  2272 I zygote64: After code cache collection, code=56KB, data=51KB
+11-06 19:39:49.800  2262  2272 I zygote64: Increasing code cache capacity to 256KB
+11-06 19:39:50.139  2979  2979 W zygote64: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:49.722  1648  1663 I chatty  : uid=1000(system) android.bg identical 5 lines
+11-06 19:39:49.723  1648  1663 W VoiceInteractionManagerService: no available voice interaction services found for user 0
+11-06 19:39:50.145  1648  1689 I ActivityManager: Start proc 2979:com.android.defcontainer/u0a6 for service com.android.defcontainer/.DefaultContainerService
+11-06 19:39:50.203  1648  1689 I PackageManager.DexOptimizer: Running dexopt (dexoptNeeded=1) on: /data/app/vmdl74127433.tmp/base.apk pkg=app.space.notes.debug isa=x86_64 dexoptFlags=boot_complete,debuggable,public target-filter=quicken oatDir=/data/app/vmdl74127433.tmp/oat sharedLibraries=null
+11-06 19:39:50.208  2997  2997 W dex2oat : Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:50.208  2997  2997 I dex2oat : /system/bin/dex2oat --input-vdex-fd=-1 --output-vdex-fd=10 --compiler-filter=quicken --debuggable --classpath-dir=/data/app/vmdl74127433.tmp
+11-06 19:39:51.713  1787  1787 I LatinIME: Timeout waiting for dictionary load
+11-06 19:39:52.132  2997  2997 I dex2oat : dex2oat took 1.923s (3.272s cpu) (threads: 2) arena alloc=548KB (561720B) java alloc=7MB (7414752B) native alloc=12MB (13274944B) free=3MB (3502272B)
+11-06 19:39:52.156  1510  2187 D installd: Applied hard quotas for 10065
+11-06 19:39:52.157  1648  1689 D PackageManager: Ephemeral installer not found with new action; try old one
+11-06 19:39:52.157  1648  1689 D PackageManager: Clear ephemeral installer activity
+11-06 19:39:52.159  1510  2187 E         : Couldn't opendir /data/app/vmdl74127433.tmp: No such file or directory
+11-06 19:39:52.159  1510  2187 E installd: Failed to delete /data/app/vmdl74127433.tmp: No such file or directory
+11-06 19:39:52.165  1648  1663 E memtrack: Couldn't load memtrack module
+11-06 19:39:52.165  1648  1663 W android.os.Debug: failed to get memory consumption info: -1
+11-06 19:39:52.169  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:52.175  1648  2965 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:app.space.notes.debug flg=0x4000010 (has extras) } to com.svox.pico/.VoiceDataInstallerReceiver
+11-06 19:39:52.176  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AFs
+11-06 19:39:52.189  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:52.195  1908  1908 D ImsResolver: maybeAddedImsService, packageName: app.space.notes.debug
+11-06 19:39:52.195  1908  1908 D CarrierConfigLoader: mHandler: 9 phoneId: 0
+11-06 19:39:52.237  1648  1663 W VoiceInteractionManagerService: no available voice recognition services found for user 0
+11-06 19:39:52.290  1648  1689 W PackageParser: Unknown element under <manifest>: queries at /data/app/vmdl312096315.tmp/base.apk Binary XML file line #16
+11-06 19:39:52.290  1648  1689 W PackageParser: No actions in intent filter at /data/app/vmdl312096315.tmp/base.apk Binary XML file line #33
+11-06 19:39:52.290  1648  1689 W PackageParser: No actions in intent filter at /data/app/vmdl312096315.tmp/base.apk Binary XML file line #41
+11-06 19:39:52.290  1648  1689 W PackageParser: No actions in intent filter at /data/app/vmdl312096315.tmp/base.apk Binary XML file line #49
+11-06 19:39:52.290  1648  1689 I PackageManager.DexOptimizer: Running dexopt (dexoptNeeded=1) on: /data/app/vmdl312096315.tmp/base.apk pkg=app.space.notes.debug.test isa=x86_64 dexoptFlags=boot_complete,debuggable,public target-filter=quicken oatDir=/data/app/vmdl312096315.tmp/oat sharedLibraries=/system/framework/android.test.runner.jar
+11-06 19:39:52.297  3015  3015 W dex2oat : Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:52.297  3015  3015 I dex2oat : /system/bin/dex2oat --input-vdex-fd=-1 --output-vdex-fd=10 --compiler-filter=quicken --debuggable --classpath-dir=/data/app/vmdl312096315.tmp
+11-06 19:39:52.323  2262  2272 I zygote64: Do full code cache collection, code=118KB, data=91KB
+11-06 19:39:52.323  2262  2272 I zygote64: After code cache collection, code=110KB, data=72KB
+11-06 19:39:52.613  3015  3015 I dex2oat : dex2oat took 315.897ms (508.259ms cpu) (threads: 2) arena alloc=6KB (6776B) java alloc=1396KB (1430384B) native alloc=2MB (3089808B) free=2MB (2153072B)
+11-06 19:39:52.631  1510  2187 D installd: Applied hard quotas for 10066
+11-06 19:39:52.631  1648  1689 D PackageManager: Ephemeral installer not found with new action; try old one
+11-06 19:39:52.631  1648  1689 D PackageManager: Clear ephemeral installer activity
+11-06 19:39:52.631  1648  1689 V BackupManagerService: restoreAtInstall pkg=app.space.notes.debug.test token=2 restoreSet=0
+11-06 19:39:52.631  1648  1689 V BackupManagerService: Finishing install immediately
+11-06 19:39:52.632  1510  2187 E         : Couldn't opendir /data/app/vmdl312096315.tmp: No such file or directory
+11-06 19:39:52.632  1510  2187 E installd: Failed to delete /data/app/vmdl312096315.tmp: No such file or directory
+11-06 19:39:52.638  1648  1727 I InputReader: Reconfiguring input devices.  changes=0x00000010
+11-06 19:39:52.642  1648  1648 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AF8
+11-06 19:39:52.646  1648  1891 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:app.space.notes.debug.test flg=0x4000010 (has extras) } to com.svox.pico/.VoiceDataInstallerReceiver
+11-06 19:39:52.655  1908  1908 D ImsResolver: maybeAddedImsService, packageName: app.space.notes.debug.test
+11-06 19:39:52.656  1908  1908 D CarrierSvcBindHelper: No carrier app for: 0
+11-06 19:39:52.661  1908  1908 D CarrierConfigLoader: mHandler: 9 phoneId: 0
+11-06 19:39:52.662  1648  1663 W VoiceInteractionManagerService: no available voice recognition services found for user 0
+11-06 19:39:52.811  3031  3031 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:52.833  3031  3031 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:52.843  3031  3031 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:52.845  3031  3031 D AndroidRuntime: Shutting down VM
+11-06 19:39:52.935  3041  3041 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:52.955  3041  3041 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:52.964  3041  3041 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:52.965  3041  3041 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.114  3060  3060 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.136  3060  3060 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.146  3060  3060 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:53.146  3060  3060 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.148  3060  3068 W app_process: Thread attaching while runtime is shutting down: Binder:3060_1
+11-06 19:39:53.148  3060  3068 I AndroidRuntime: NOTE: attach of thread 'Binder:3060_1' failed
+11-06 19:39:53.309  3079  3079 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.330  3079  3079 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.338  3079  3079 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:53.340  3079  3079 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.432  3089  3089 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.453  3089  3089 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.461  3089  3089 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:53.463  3089  3089 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.593  3110  3110 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.614  3110  3110 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.623  3110  3110 D AndroidRuntime: Calling main entry com.android.commands.svc.Svc
+11-06 19:39:53.625  3110  3110 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.732  3125  3125 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.753  3125  3125 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.761  3125  3125 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-06 19:39:53.762  3125  3125 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_WAKEUP, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=37872, downTime=37872, deviceId=-1, source=0x101 }
+11-06 19:39:53.763  3125  3125 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_WAKEUP, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=37872, downTime=37872, deviceId=-1, source=0x101 }
+11-06 19:39:53.763  3125  3125 D AndroidRuntime: Shutting down VM
+11-06 19:39:53.860  3135  3135 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:53.880  3135  3135 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:53.889  3135  3135 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-06 19:39:53.890  1648  1891 W WindowManager: Permission Denial: dismissKeyguard from pid=3135, uid=2000 requires android.permission.CONTROL_KEYGUARD
+11-06 19:39:53.890  3135  3135 D AndroidRuntime: Shutting down VM
+11-06 19:39:54.009  3147  3147 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-06 19:39:54.030  3147  3147 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 19:39:54.038  3147  3147 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-06 19:39:54.041  1648  1891 W ActivityManager: Permission Denial: starting instrumentation ComponentInfo{app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner} from pid=3147, uid=3147 not allowed because package app.space.notes.debug.test does not have a signature matching the target app.space.notes.debug
+11-06 19:39:54.042  1648  3156 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-06 19:39:54.042  1648  3156 W Binder  : java.lang.Throwable
+11-06 19:39:54.042  1648  3156 W Binder  : 	at android.os.BinderProxy.transact(Binder.java:736)
+11-06 19:39:54.042  1648  3156 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationStatus(IInstrumentationWatcher.java:131)
+11-06 19:39:54.042  1648  3156 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:80)
+11-06 19:39:54.043  3147  3147 I app_process: System.exit called, status: 1
+11-06 19:39:54.043  3147  3147 I AndroidRuntime: VM exiting with result code 1.
+11-06 19:39:54.208  3163  3163 W run-as  : type=1400 audit(0.0:37): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.208  3163  3163 I chatty  : uid=1036(auditd) identical 1 line
+11-06 19:39:54.208  3163  3163 W run-as  : type=1400 audit(0.0:39): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.208  3163  3163 W run-as  : type=1400 audit(0.0:40): avc: granted { use } for path="socket:[25662]" dev="sockfs" ino=25662 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.208  3163  3163 W run-as  : type=1400 audit(0.0:41): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=80 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.208  3163  3163 W run-as  : type=1400 audit(0.0:42): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=80 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:43): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.218  3163  3163 I chatty  : uid=1036(auditd) identical 1 line
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:45): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:46): avc: granted { read } for name="packages.list" dev="dm-0" ino=225410 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:47): avc: granted { read } for path="/data/system/packages.list" dev="dm-0" ino=225410 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:48): avc: granted { getattr } for path="/data/system/packages.list" dev="dm-0" ino=225410 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:49): avc: granted { getattr } for path="/data/user/0" dev="dm-0" ino=232322 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=lnk_file
+11-06 19:39:54.218  3163  3163 W run-as  : type=1400 audit(0.0:50): avc: granted { read } for name="0" dev="dm-0" ino=232322 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=lnk_file
+11-06 19:39:54.238  3166  3166 W run-as  : type=1400 audit(0.0:51): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.238  3166  3166 I chatty  : uid=1036(auditd) identical 1 line
+11-06 19:39:54.238  3166  3166 W run-as  : type=1400 audit(0.0:53): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.238  3166  3166 W run-as  : type=1400 audit(0.0:54): avc: granted { use } for path="socket:[25662]" dev="sockfs" ino=25662 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 19:39:54.238  3166  3166 W run-as  : type=1400 audit(0.0:55): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=80 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd

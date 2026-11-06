@@ -1,6 +1,6 @@
 # MyNotes — improvement execution ledger
 
-**Status: ongoing, incomplete. No whole-app or physical-device acceptance. No app fixes implemented.**
+**Status: ongoing, incomplete. No whole-app or physical-device acceptance. Two candidate changes implemented; changed-build acceptance incomplete. All-module comparison remains incomplete.**
 
 This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.
 
@@ -13,6 +13,8 @@ This document records fresh bounded tests in both apps before a comparative impr
 **Method:** Fresh scripted interactions on one disposable Actions emulator, followed by visual evidence review and source tracing. This is not a human participant study. UI inspection and command/API setup shortcuts are identified separately. No E2E pass total is interpreted as UX quality.
 
 **Known measurement limits:** Activity launch TotalTime is not interactive-ready time. Host command elapsed durations include inspection/adb overhead, not touch latency or human efficiency. Gfx/memory dumps are diagnostics, not a cross-engine smoothness rank. Animations, frame jank, battery and physical playback are not accepted without separate experiments.
+
+**Implementation phase:** Two candidate changes implemented; changed-build acceptance incomplete. All-module comparison remains incomplete.
 
 **Scope still outstanding:** physical devices, participant usability, precise touch latency, animation quality, frame jank, battery, all unexecuted plan tasks
 
@@ -35,6 +37,8 @@ This document records fresh bounded tests in both apps before a comparative impr
 - [42220127426](https://github.com/tarungittarun/TicTic/actions/runs/42220127426): fresh_session_retained_and_visually_reviewed — Third session completed. Offline bootstrap verified three consecutive disabled-WiFi/no-default checks before APK installation, then returned shell UID2000. Initial/final network receipts none. MyNotes W01/S01 visible outcomes, W02/P01 interactions observed. Obsidian W01 independently passed exact editor/vault body readback BEFORE separate explicit API fixture setup; downstream S01 visible result-passage/title checks passed and native screenshot confirms one highlighted result. W02 B activation observed, not formatted persistence. Earlier blockers/invalidated pass remain retained.
 
 - [42220747328](https://github.com/tarungittarun/TicTic/actions/runs/42220747328): evidence_retained_after_root_gate — Third session originals, pre-install offline proof, final connectivity receipt and CDP trace saved unchanged after root gate. No app build, fix, or physical acceptance.
+
+- [42227937679](https://github.com/tarungittarun/TicTic/actions/runs/42227937679): candidate70_qualification_started — Actions compiles changed app, runs JVM/lint and focused native assertions on API36 portrait, API34 large text/landscape dark, API26 portrait. Pending results are not passes or physical usability acceptance. No local Android build and no release publication.
 
 **OBS-0001 / W01 / create a note containing the shared agenda:** Wave one created the agenda words in both apps, but Obsidian saved source had an extra leading #. MyNotes accessibility body and home title versus Obsidian editor/vault readback are unequal checks, not crash-recovery proof. Wave two did NOT correct the fixture: its exact Obsidian body assertion blocked on empty readback. No creation success or data-loss conclusion is drawn from that wave.
 
@@ -148,11 +152,11 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 ### IMP-0001 — Show why a body-search result matched
 
-**Status:** proposed_not_implemented
+**Status:** implemented_pending_native_retest
 
-**Owner / implementation not started:** Arena coding agent; implementation not started
+**Owner / implementation not started:** Arena coding agent; candidate70 implementation committed
 
-**Acceptance on changed build:** not_run_on_changed_build
+**Acceptance on changed build:** pending_changed_build_native_results
 
 **Bounded task / expected result:** Find UX Meeting using cobalt42, a term present only in the body, and identify the relevant passage without opening candidate notes.
 
@@ -172,13 +176,17 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 **Alternative explanations / limits:** The single-match corpus does not measure relevance, search speed, task failure, or user burden at scale. A future configured view could differ. Leading # and default typography differ between fixtures. The installed source/byte identity and raw results are retained; no blanket claim about every search surface is made.
 
-**Proposed change — not implemented:** Build bounded match metadata on the existing search worker, preserving the current matching semantics: note identity, matched source (title/body/label/content name/diagram), and a short passage/range where available. Render a readable snippet/highlight for body hits and an honest source label for other hits. Reuse the query-generation guard; do not scan full bodies again on the UI thread. Keep grouped Saved notes & Docs, Viewed files and Settings and the 200-result disclosure.
+**Original proposal:** Build bounded match metadata on the existing search worker, preserving the current matching semantics: note identity, matched source (title/body/label/content name/diagram), and a short passage/range where available. Render a readable snippet/highlight for body hits and an honest source label for other hits. Reuse the query-generation guard; do not scan full bodies again on the UI thread. Keep grouped Saved notes & Docs, Viewed files and Settings and the 200-result disclosure.
 
 **Protected requirements / risks:** Preserve archive/global-scope behavior until explicitly redesigned, plain/rich note identity, native accessible labels, Unicode correctness and the user-required floating New note. Do not introduce stale snippets, reveal private content in logs, or silently change search ranking/scope. Position mapping across case-normalised Unicode needs explicit tests.
 
 **Acceptance task:** Retest the same body-only marker on both apps; add same/similar titles, two body occurrences, rich tables/checklists, label-only hits and multilingual/emoji boundaries. Each returned body hit must show an accurate bounded passage and visible accessible match treatment. No false source label, stale-query result or data mutation. Measure correction/navigation effort separately before claiming an efficiency gain.
 
-**Next discriminating test:** Repeat with two similarly named notes matching different body passages, inspect actual differentiation and opening. The exact wave-three fixture and result-container checks are now recorded, not pending. Implementation only later after approval; compare the changed exact signed build, preserve search scope and test large corpora/cancellation without claiming current latency results.
+**Next discriminating test:** Inspect candidate70 native search screenshot and actual substring spans; verify persistence/opening and unchanged query scope. Continue two-similarly-named-note ambiguity, cancellation/large corpora, rich-content and Unicode acceptance beyond the focused regression. No efficiency or latency gain is accepted from source code.
+
+**Candidate implementation:** Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes.
+
+**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42227937679
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:398 filterNow | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -192,11 +200,11 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 ### IMP-0002 — Reserve writing context when the Format panel opens with the keyboard
 
-**Status:** proposed_not_implemented
+**Status:** implemented_pending_native_retest
 
-**Owner / implementation not started:** Arena coding agent; implementation not started
+**Owner / implementation not started:** Arena coding agent; candidate70 implementation committed
 
-**Acceptance on changed build:** not_run_on_changed_build
+**Acceptance on changed build:** pending_changed_build_native_results
 
 **Bounded task / expected result:** Keep nearby note prose visible while choosing inline formatting with the keyboard open. This item concerns viewport allocation, not whether bold formatting saves correctly.
 
@@ -216,13 +224,17 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 **Alternative explanations / limits:** Caret/scroll, IME height, window insets, font and title visibility affect context. UI tree bounds are not rendered glyph counts. The larger Obsidian visible region does not prove its whole formatting workflow is better; the first activation attempt was blocked. Landscape rails and large text were not tested in this pair.
 
-**Proposed change — not implemented:** Prototype an IME/inset-aware portrait layout that reserves a defined readable body area before allocating panel height. Keep the common five inline controls compact and advanced controls reachable through scroll/progressive disclosure; use an explicit large-text/very-short-viewport fallback rather than silently shrinking targets. Treat the three-readable-lines idea as a proposed normal-font target to validate, not an existing measurement or universal promise.
+**Original proposal:** Prototype an IME/inset-aware portrait layout that reserves a defined readable body area before allocating panel height. Keep the common five inline controls compact and advanced controls reachable through scroll/progressive disclosure; use an explicit large-text/very-short-viewport fallback rather than silently shrinking targets. Treat the three-readable-lines idea as a proposed normal-font target to validate, not an existing measurement or universal promise.
 
 **Protected requirements / risks:** Keep single A Format, fifth inline Clear, selected-text/new-typing semantics, accessible selected state, 48dp targets, Undo/Redo and safe Back. Do not remove fonts/size/paragraphs, steal typing focus, reopen a dismissed keyboard or undo existing landscape rails. Preserve the actual selected text and caret.
 
 **Acceptance task:** Repeat the same before/after task with fixed caret and equalised note content; record viewport and actual task success. Exercise selected text/new typing, keyboard show/hide, portrait/landscape and font1.0/1.5. Verify reachability, focus, correct formatting, persistence and unchanged note content. Measure interaction time/jank separately before claiming a smoothness improvement.
 
-**Next discriminating test:** Wave-three exact downstream fixture and SVG B activation are now recorded. Next equalise caret/font/scroll and verify actual selected-text/new-typing output, save/reopen, portrait/landscape/large text and keyboard transitions. Later approved prototype must isolate our panel/header budget contributions; interaction assertions alone cannot close this item.
+**Next discriminating test:** Inspect candidate70 IME/selection/persisted-bold results on all four profiles. Require three visible writing lines in normal-font portrait; inspect explicit large-text/landscape constraints separately. Continue manual font/caret/scroll-matched paired visual review and keyboard-transition/persistence regressions. Do not close the item from a build pass.
+
+**Candidate implementation:** Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these are explicitly included in pending native qualification, not accepted by source inspection.
+
+**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42227937679
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:554 buildFormatting | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 

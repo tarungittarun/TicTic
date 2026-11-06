@@ -9,7 +9,8 @@ from PIL import Image as PILImage
 ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'mynotes/docs/ux-improvement-ledger'
 data=json.loads((OUT/'ledger.json').read_text());styles=getSampleStyleSheet()
 styles.add(ParagraphStyle(name='BodyLedger',fontSize=9,leading=12,spaceAfter=4));styles.add(ParagraphStyle(name='SmallLedger',fontSize=7.5,leading=9.5,spaceAfter=5));styles.add(ParagraphStyle(name='HeadLedger',keepWithNext=True,fontName='Helvetica-Bold',fontSize=15,leading=19,spaceAfter=10,textColor=colors.HexColor('#142B43')))
-flow=[];md=['# MyNotes — improvement execution ledger','', '**Status: ongoing, incomplete. No whole-app or physical-device acceptance. No app fixes implemented.**','', 'This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.','']
+phase=data.get('phase_summary','No app fixes implemented.')
+flow=[];md=['# MyNotes — improvement execution ledger','', '**Status: ongoing, incomplete. No whole-app or physical-device acceptance. '+phase+'**','', 'This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.','']
 def p(text,style='BodyLedger'):return Paragraph(escape(str(text)),styles[style])
 def para(text):flow.append(p(text))
 def section(title,new=False):
@@ -20,11 +21,12 @@ def block(label,text,style="BodyLedger"):
 def table(rows,widths):
  t=Table([[p(x,'SmallLedger') for x in row] for row in rows],colWidths=widths,repeatRows=1);t.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#E7F1F4')),('LINEBELOW',(0,0),(-1,-1),.3,colors.HexColor('#D6DFE6')),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5)]));flow.append(t)
 section('Improvement execution ledger')
-para('ONGOING / INCOMPLETE — fresh bounded installed-app probes, not whole-app acceptance. No implementation fixes. Native evidence and raw traces are retained in this repository; no user library was accessed.')
+para('ONGOING / INCOMPLETE — fresh bounded installed-app probes, not whole-app acceptance. '+phase+'  Native evidence and raw traces are retained in this repository; no user library was accessed.')
 block('Document contract','Do not treat this document as a completed comparison of every control. Untested pages/features/aspects stay not tested. Knowing our source helps form a mechanism hypothesis; it does not prove the exclusive root cause or that a proposed fix works.')
 block('Pinned apps','MyNotes 0.69.0/code69, signed development APK SHA256 03d839d58b828ac72e211b69a1904e00e5f44f9f5c2b37704d4312501431d167; official Obsidian 1.15.0/code396 SHA256 2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d.')
 block('Method','Fresh scripted interactions on one disposable Actions emulator, followed by visual evidence review and source tracing. This is not a human participant study. UI inspection and command/API setup shortcuts are identified separately. No E2E pass total is interpreted as UX quality.')
 block('Known measurement limits','Activity launch TotalTime is not interactive-ready time. Host command elapsed durations include inspection/adb overhead, not touch latency or human efficiency. Gfx/memory dumps are diagnostics, not a cross-engine smoothness rank. Animations, frame jank, battery and physical playback are not accepted without separate experiments.')
+block('Implementation phase',phase)
 block('Scope still outstanding',', '.join(data['untested_aspects']))
 section('Actual runs and provenance',True)
 rows=[['Run','Execution / scope']]
@@ -47,7 +49,7 @@ if not data['work_items']:block('No promoted item yet','Wait for both-app eviden
 for idx,item in enumerate(data['work_items']):
  if idx:flow.append(PageBreak())
  flow.append(p(item['id']+' | '+item['title'],'HeadLedger'));md.extend(['### '+item['id']+' — '+item['title'],''])
- for label,key in [('Status','status'),('Owner / implementation not started','owner'),('Acceptance on changed build','acceptance_status'),('Bounded task / expected result','task'),('Preconditions and exact actions','reproduction'),('MyNotes actual result','ours'),('Obsidian actual result','obsidian'),('User consequence','impact'),('Reproduction and severity','severity'),('Root-cause confidence','cause_confidence'),('Source-supported mechanism','cause'),('Alternative explanations / limits','alternatives'),('Proposed change — not implemented','proposal'),('Protected requirements / risks','risks'),('Acceptance task','acceptance'),('Next discriminating test','next_test')]:block(label,item[key])
+ for label,key in [('Status','status'),('Owner / implementation not started','owner'),('Acceptance on changed build','acceptance_status'),('Bounded task / expected result','task'),('Preconditions and exact actions','reproduction'),('MyNotes actual result','ours'),('Obsidian actual result','obsidian'),('User consequence','impact'),('Reproduction and severity','severity'),('Root-cause confidence','cause_confidence'),('Source-supported mechanism','cause'),('Alternative explanations / limits','alternatives'),('Original proposal','proposal'),('Protected requirements / risks','risks'),('Acceptance task','acceptance'),('Next discriminating test','next_test'),('Candidate implementation','implementation_summary'),('Qualification run','qualification_run')]:block(label,item[key])
  source_start=len(flow)
  for s in item['source_refs']:
   block('Source reference',s['path']+':'+str(s['line'])+' '+s['symbol']+' | sha256='+s['sha256'],'SmallLedger')
@@ -59,7 +61,7 @@ for idx,item in enumerate(data['work_items']):
  images=[OUT/r for r in item['evidence'] if r.endswith('.png')][:2]
  if images:
   flow.append(PageBreak());flow.append(p(item['id']+' | Paired native evidence','HeadLedger'))
-  para('Left: MyNotes. Right: Obsidian. This pair illustrates only the bounded state described in the work item; it is not a global speed or functionality ranking.')
+  para('BASELINE MyNotes 0.69.0 (left) / Obsidian 1.15.0 (right), NOT the candidate70 changed build. This pair illustrates only the bounded state described in the work item; it is not a global speed or functionality ranking.')
   cells=[];captions=[]
   for path in images:
    with PILImage.open(path) as image:w,h=image.size
@@ -80,7 +82,7 @@ for label,text in [('Stable IDs','Do not renumber or delete items to make the re
 md.extend(['## Supporting records','- [Machine-readable ledger](ledger.json)','- [Literal source-surface inventory](source-surfaces.json)','- [Status and confidence definitions](README.md)',''])
 (OUT/'Improvement_Execution_Ledger.md').write_text('\n'.join(md))
 def footer(c,d):
- c.setFont('Helvetica',7);c.setFillColor(colors.HexColor('#526279'));c.drawString(40,23,'MyNotes improvement ledger | ongoing, not whole-app acceptance | no fixes implemented');c.drawRightString(555,23,str(d.page))
+ c.setFont('Helvetica',7);c.setFillColor(colors.HexColor('#526279'));c.drawString(40,23,'MyNotes improvement ledger | ongoing | candidate changes, acceptance incomplete');c.drawRightString(555,23,str(d.page))
 class LedgerDoc(SimpleDocTemplate):
  def afterFlowable(self,item):
   if isinstance(item,Paragraph) and item.style.name=='HeadLedger':

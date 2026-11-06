@@ -2,7 +2,7 @@
 
 **Owner request:** test the relevant thing in **both installed apps** before recording a comparative improvement. Cover pages, features, icons, presentation, layout, animation, efficiency, smoothness, timing and failure/recovery. Keep the evidence and use these stable items for later fixes.
 
-**This is a living execution record, not a claim that the whole app has been tested.** The previous comparison PDFs are historical visual/source audits. They are hypothesis inputs, not fresh paired-task results. No app fixes are authorised or implemented by creating this ledger.
+**This is a living execution record, not a claim that the whole app has been tested.** The previous comparison PDFs are historical visual/source audits. They are hypothesis inputs, not fresh paired-task results. Creating the initial ledger did not authorise app fixes. On 2026-11-06 the user explicitly authorised starting implementation; candidate70 changes now require separate changed-build qualification.
 
 ## Main document and machine-readable record
 
@@ -42,7 +42,7 @@ Do not write a cause/fix into the findings section merely to fill a template. Un
 - Scripted live interactions are **not participant usability research or physical-device acceptance**. They can supply actual outcome evidence, followed by visual review; E2E pass totals do not supply UX quality.
 - `am start -W TotalTime` is an Android activity-start milestone, **not time to an interactive app**. ADB/inspection elapsed durations include harness overhead and are **not touch latency or human efficiency**.
 - Keep raw `gfxinfo`/memory diagnostics as diagnostic samples, not a cross-engine smoothness ranking. No animation, jank or battery claim without an appropriate measured trace and defined interpretation.
-- Baseline app code remains unchanged. Future fixes must refer to a stable work-item ID and repeat its acceptance task.
+- Historical baseline source bytes remain pinned under `source-baselines/`. Current implementation refers to stable work-item IDs; earlier screenshots cannot verify the changed build.
 
 ## Current run bookkeeping
 
@@ -56,3 +56,7 @@ The ledger records failed provisioning separately from actual app sessions. The 
 - No private libraries, sync credentials or intentional upload actions were used. Absence of background transfer has not been measured. See the document's evidence-review section.
 
 - **Wave three (42220127426):** offline bootstrap verified before installation (three consecutive checks; shell unrooted to UID2000); initial/final default network `none`. Obsidian W01 independently passed exact editor/vault readback **before** the separate explicit API fixture setup. Visible S01 result title/passage assertions and native screenshot agree. No continuous packet capture or reliability guarantee; the earlier input failure remains unisolated. All three sessions' originals remain retained.
+
+## Implementation authorised — candidate70
+
+User requested applying fixes on 2026-11-06. IMP-0001 and IMP-0002 are implemented in `be8643bb9967ff5f3cda0093fdf89e5736703609`, **not yet accepted as fixed**. Changed-build JVM/lint and four-profile native results are tracked separately. No production APK is being published by this nonpublishing qualification. Existing baseline frames/source hashes and all failed attempts remain unchanged.

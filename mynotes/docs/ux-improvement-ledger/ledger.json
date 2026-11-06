@@ -958,6 +958,12 @@
       "status": "evidence_retained_after_root_gate",
       "meaning": "Third session originals, pre-install offline proof, final connectivity receipt and CDP trace saved unchanged after root gate. No app build, fix, or physical acceptance.",
       "url": "https://github.com/tarungittarun/TicTic/actions/runs/42220747328"
+    },
+    {
+      "run": "42227937679",
+      "status": "candidate70_qualification_started",
+      "meaning": "Actions compiles changed app, runs JVM/lint and focused native assertions on API36 portrait, API34 large text/landscape dark, API26 portrait. Pending results are not passes or physical usability acceptance. No local Android build and no release publication.",
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679"
     }
   ],
   "paired_observations": [
@@ -1026,7 +1032,7 @@
     {
       "id": "IMP-0001",
       "title": "Show why a body-search result matched",
-      "status": "proposed_not_implemented",
+      "status": "implemented_pending_native_retest",
       "task": "Find UX Meeting using cobalt42, a term present only in the body, and identify the relevant passage without opening candidate notes.",
       "reproduction": "Use UX Meeting with body-only marker cobalt42. MyNotes: touch home search, type marker, inspect actual result row. Obsidian: open built-in search pane by command API, type marker, inspect result title and visible passage, not background document text. Wave one used typed body words with an extra # in Obsidian. Wave three independently passed exact UI-entry/readback, then used disclosed exact public API fixture preparation before downstream probes. Wave-two empty fixture / false search pass is excluded.",
       "ours": "One result is returned: UX Meeting followed by Note. No body passage or in-result highlighting of cobalt42 is shown in the captured result. The query field/keyboard containing cobalt42 are not a result snippet.",
@@ -1039,7 +1045,7 @@
       "proposal": "Build bounded match metadata on the existing search worker, preserving the current matching semantics: note identity, matched source (title/body/label/content name/diagram), and a short passage/range where available. Render a readable snippet/highlight for body hits and an honest source label for other hits. Reuse the query-generation guard; do not scan full bodies again on the UI thread. Keep grouped Saved notes & Docs, Viewed files and Settings and the 200-result disclosure.",
       "risks": "Preserve archive/global-scope behavior until explicitly redesigned, plain/rich note identity, native accessible labels, Unicode correctness and the user-required floating New note. Do not introduce stale snippets, reveal private content in logs, or silently change search ranking/scope. Position mapping across case-normalised Unicode needs explicit tests.",
       "acceptance": "Retest the same body-only marker on both apps; add same/similar titles, two body occurrences, rich tables/checklists, label-only hits and multilingual/emoji boundaries. Each returned body hit must show an accurate bounded passage and visible accessible match treatment. No false source label, stale-query result or data mutation. Measure correction/navigation effort separately before claiming an efficiency gain.",
-      "next_test": "Repeat with two similarly named notes matching different body passages, inspect actual differentiation and opening. The exact wave-three fixture and result-container checks are now recorded, not pending. Implementation only later after approval; compare the changed exact signed build, preserve search scope and test large corpora/cancellation without claiming current latency results.",
+      "next_test": "Inspect candidate70 native search screenshot and actual substring spans; verify persistence/opening and unchanged query scope. Continue two-similarly-named-note ambiguity, cancellation/large corpora, rich-content and Unicode acceptance beyond the focused regression. No efficiency or latency gain is accepted from source code.",
       "evidence": [
         "sessions/42220127426/mynotes-S01-body-match-results.png",
         "sessions/42220127426/obsidian-S01-body-match-results.png",
@@ -1069,15 +1075,18 @@
           "immutable_url": "https://github.com/tarungittarun/TicTic/blob/a014e015731103a041b092a0e3c2802ac2805d3a/mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java#L424"
         }
       ],
-      "owner": "Arena coding agent; implementation not started",
-      "implementation_commit": null,
+      "owner": "Arena coding agent; candidate70 implementation committed",
+      "implementation_commit": "be8643bb9967ff5f3cda0093fdf89e5736703609",
       "retest_evidence": [],
-      "acceptance_status": "not_run_on_changed_build"
+      "acceptance_status": "pending_changed_build_native_results",
+      "candidate_build": "0.70.0/code70; Actions-only qualification; not a published or physically accepted release",
+      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679",
+      "implementation_summary": "Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes."
     },
     {
       "id": "IMP-0002",
       "title": "Reserve writing context when the Format panel opens with the keyboard",
-      "status": "proposed_not_implemented",
+      "status": "implemented_pending_native_retest",
       "task": "Keep nearby note prose visible while choosing inline formatting with the keyboard open. This item concerns viewport allocation, not whether bold formatting saves correctly.",
       "reproduction": "Recorded public agenda in the same portrait emulator configuration. MyNotes: reopen note, focus body, capture keyboard, open Format, capture, activate Bold and inspect state. Obsidian: focus editor, inspect compact B toolbar, activate its visible SVG target. Wave-one B selector blocked; wave-two target worked on an empty fixture and is not a paired prose trial; wave-three exact API-prepared body and B activation are retained. Caret, default font and scroll remain unmatched.",
       "ours": "Fresh screenshots show only a short strip of prose above the Format panel. Body node bounds change from [60,277][1020,783] (506px high) to [60,264][1020,440] (176px); panel bounds are [60,476][1020,999]. Bold control selected state changes false to true. These are geometry/state observations, not a failed formatting assertion.",
@@ -1090,7 +1099,7 @@
       "proposal": "Prototype an IME/inset-aware portrait layout that reserves a defined readable body area before allocating panel height. Keep the common five inline controls compact and advanced controls reachable through scroll/progressive disclosure; use an explicit large-text/very-short-viewport fallback rather than silently shrinking targets. Treat the three-readable-lines idea as a proposed normal-font target to validate, not an existing measurement or universal promise.",
       "risks": "Keep single A Format, fifth inline Clear, selected-text/new-typing semantics, accessible selected state, 48dp targets, Undo/Redo and safe Back. Do not remove fonts/size/paragraphs, steal typing focus, reopen a dismissed keyboard or undo existing landscape rails. Preserve the actual selected text and caret.",
       "acceptance": "Repeat the same before/after task with fixed caret and equalised note content; record viewport and actual task success. Exercise selected text/new typing, keyboard show/hide, portrait/landscape and font1.0/1.5. Verify reachability, focus, correct formatting, persistence and unchanged note content. Measure interaction time/jank separately before claiming a smoothness improvement.",
-      "next_test": "Wave-three exact downstream fixture and SVG B activation are now recorded. Next equalise caret/font/scroll and verify actual selected-text/new-typing output, save/reopen, portrait/landscape/large text and keyboard transitions. Later approved prototype must isolate our panel/header budget contributions; interaction assertions alone cannot close this item.",
+      "next_test": "Inspect candidate70 IME/selection/persisted-bold results on all four profiles. Require three visible writing lines in normal-font portrait; inspect explicit large-text/landscape constraints separately. Continue manual font/caret/scroll-matched paired visual review and keyboard-transition/persistence regressions. Do not close the item from a build pass.",
       "evidence": [
         "sessions/42220127426/mynotes-W02-format-keyboard.png",
         "sessions/42220127426/obsidian-W02-keyboard-before-format.png",
@@ -1130,10 +1139,13 @@
           "immutable_url": "https://github.com/tarungittarun/TicTic/blob/a014e015731103a041b092a0e3c2802ac2805d3a/mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java#L587"
         }
       ],
-      "owner": "Arena coding agent; implementation not started",
-      "implementation_commit": null,
+      "owner": "Arena coding agent; candidate70 implementation committed",
+      "implementation_commit": "be8643bb9967ff5f3cda0093fdf89e5736703609",
       "retest_evidence": [],
-      "acceptance_status": "not_run_on_changed_build"
+      "acceptance_status": "pending_changed_build_native_results",
+      "candidate_build": "0.70.0/code70; Actions-only qualification; not a published or physically accepted release",
+      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679",
+      "implementation_summary": "Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these are explicitly included in pending native qualification, not accepted by source inspection."
     }
   ],
   "measurements": [
@@ -1261,7 +1273,7 @@
     "battery",
     "all unexecuted plan tasks"
   ],
-  "fixes_implemented": false,
+  "fixes_implemented": true,
   "recording_notes": [
     "Wave one body words match but Obsidian has a leading #; wave two exact-body assertion blocked on empty readback, not corrected.",
     "Wave-two Obsidian S01 raw pass is invalidated after native screenshot/DOM review; background title is not a search result.",
@@ -1269,7 +1281,8 @@
     "A blocked harness selector/input/Back sequence is not classified as an app defect.",
     "IMP-0002 is a paired viewport-state observation, not a successfully completed paired Bold workflow.",
     "No module fully accepted; screenshot/entry evidence is not whole-feature or performance acceptance.",
-    "Third-session exact Obsidian W01 readback passed independently before explicit downstream fixture API setup. Prior input failure remains unisolated. Third search visibly succeeds; this does not erase wave-two invalidated raw pass. Offline provisioning/checkpoints in wave three do not establish continuous no-traffic behavior."
+    "Third-session exact Obsidian W01 readback passed independently before explicit downstream fixture API setup. Prior input failure remains unisolated. Third search visibly succeeds; this does not erase wave-two invalidated raw pass. Offline provisioning/checkpoints in wave three do not establish continuous no-traffic behavior.",
+    "Historical baseline source bytes are now retained under source-baselines/<sha256>.java so authorised implementation cannot rewrite source proof or claim new-build acceptance from old screenshots. Version70 changes do not update historical 0.69.0 screenshots."
   ],
   "evidence_commits": {
     "42217122419": "5ba420cc",
@@ -1308,5 +1321,7 @@
         "sessions/42220127426/session.json"
       ]
     }
-  ]
+  ],
+  "phase_summary": "Two candidate changes implemented; changed-build acceptance incomplete. All-module comparison remains incomplete.",
+  "implementation_authorization": "2026-11-06: user explicitly requested applying fixes/changes as well as completing testing."
 }

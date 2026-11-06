@@ -20,9 +20,12 @@ class ImprovementLedgerTests(unittest.TestCase):
   for p in self.data['plan']:
    self.assertEqual(p['aspects']['animation'],'not_tested');self.assertEqual(p['aspects']['smoothness'],'not_tested')
  def test_no_fix_claim_without_implementation_and_retest(self):
-  self.assertFalse(self.data['fixes_implemented'])
+  self.assertEqual(self.data['fixes_implemented'],any(i['status']!='proposed_not_implemented' for i in self.data['work_items']))
   for item in self.data['work_items']:
-   self.assertEqual(item['status'],'proposed_not_implemented')
+   self.assertIn(item['status'],['proposed_not_implemented','implemented_pending_native_retest','fixed_verified'])
+   if item['status']!='proposed_not_implemented':
+    self.assertRegex(item['implementation_commit'],r'^[0-9a-f]{40}$')
+   if item['status']=='fixed_verified':self.assertTrue(item['retest_evidence'])
    self.assertTrue(item['next_test']);self.assertTrue(item['alternatives'])
  def test_literal_source_inventory_is_not_runtime_execution(self):
   definitions=json.loads((OUT/'source-surfaces.json').read_text())['controls']

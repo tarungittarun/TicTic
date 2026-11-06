@@ -37,7 +37,20 @@ def main():
   if edits and not any('Audit Vault' in n.get('text','') for n in edits):
    n=edits[0];nums=list(map(int,re.findall(r'\d+',n['bounds'])));adb('shell','input','tap',str((nums[0]+nums[2])//2),str((nums[1]+nums[3])//2));adb('shell','input','text','Audit%sVault');adb('shell','input','keyevent','KEYCODE_BACK');nodes=capture(f'vault-name-{idx}');continue
   break
- sockets=adb('shell','cat','/proc/net/unix').decode(errors='replace');(OUT/'webview-sockets.txt').write_text('\n'.join(x for x in sockets.splitlines() if 'devtools' in x))
+ from obsidian_cdp import Device
+ d=Device()
+ for idx in range(8):
+  body=d.js('document.body.innerText');print('DOM',body,flush=True)
+  if d.text_button('Create a vault') or d.text_button('Create new vault'):
+   capture(f'cdp-vault-dialog-{idx}');continue
+  if d.js('!!document.querySelector("input[type=text]")') and ('Vault name' in body or 'Name' in body or 'vault' in body.lower()):
+   d.tap('input[type=text]');d.type('Audit Vault');adb('shell','input','keyevent','KEYCODE_BACK');capture(f'cdp-vault-name-{idx}')
+   if d.text_button('Create vault') or d.text_button('Create'):
+    time.sleep(4);capture(f'cdp-created-vault-{idx}');break
+  if d.text_button('Skip') or d.text_button('Continue'):continue
+  break
+ (OUT/'runtime-discovery.json').write_text(json.dumps(d.js("({body:document.body.innerText,html:document.body.innerHTML,globals:Object.keys(window).filter(k=>/app|obsidian/i.test(k)),hasApp:!!window.app,commands:window.app?.commands?.listCommands?.().map(x=>({id:x.id,name:x.name})),plugins:window.app?.internalPlugins?Object.entries(window.app.internalPlugins.plugins).map(([id,p])=>({id,enabled:p.enabled,manifest:p.instance?.manifest})):null})"),indent=2))
+ sockets=adb('shell','cat' ,'/proc/net/unix').decode(errors='replace');(OUT/'webview-sockets.txt').write_text('\n'.join(x for x in sockets.splitlines() if 'devtools' in x))
  (OUT/'installed-package.txt').write_bytes(adb('shell','dumpsys','package','md.obsidian'))
  (OUT/'logcat.txt').write_bytes(adb('logcat','-d','-t','300'))
  capture('discovery-end-state')

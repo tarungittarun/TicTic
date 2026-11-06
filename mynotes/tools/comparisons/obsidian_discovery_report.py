@@ -14,6 +14,6 @@ for r in rows:
  pdf.showPage()
  shutil.copyfile(src/(r['id']+'.xml'),out/(r['id']+'.xml'))
 pdf.save()
-for name in ['observations.json','installed-package.txt','webview-sockets.txt','apk-identity.json']:
+for name in ['observations.json','installed-package.txt','webview-sockets.txt','apk-identity.json','runtime-discovery.json']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
 (out/'README.md').write_text('# Obsidian official Android discovery\n\nThis first-run pilot discovers the actual installed mobile interface. It is not 100% coverage or a completed comparative feature audit. Screens are actual adb captures, not generated imagery. No personal data or account was used.\n')

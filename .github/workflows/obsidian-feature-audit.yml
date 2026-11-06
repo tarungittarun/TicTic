@@ -1,4 +1,4 @@
-name: Official Obsidian Android feature discovery
+name: Official Obsidian Android runtime inventory
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3
+      - run: pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3 websocket-client==1.8.0
       - name: Download only official pinned APK and verify publisher digest
         env:
           GH_TOKEN: ${{ github.token }}

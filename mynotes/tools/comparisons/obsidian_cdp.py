@@ -43,3 +43,16 @@ class Device:
   if selector:return self.tap(selector)
   return False
  def type(self,text):self.call('Input.insertText',{'text':text})
+ def settle(self):
+  """Fence WebView painting before a separate, unmodified Android screencap.
+
+  The CDP bitmap is discarded: evidence always comes from adb screencap,
+  including native bars, keyboard and system dialogs.
+  """
+  frames=self.js('new Promise(resolve=>{const t=setTimeout(()=>resolve("timeout"),2000);requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(t);resolve("two-frames")}))})')
+  try:
+   snapshot=self.call('Page.captureScreenshot',{'format':'png','fromSurface':True,'captureBeyondViewport':False})
+   painted=bool(snapshot.get('data'))
+  except RuntimeError:painted=False
+  time.sleep(.35)
+  return {'animation_frames':frames,'compositor_fence':painted,'evidence_source':'adb exec-out screencap -p; CDP bitmap discarded'}

@@ -21,7 +21,12 @@ y=lines('Captured feature entries: '+str(len(rows))+'; status counts: '+str(dict
 y=lines('Full per-feature briefs, actions/observations and screenshots follow. Successful harness execution is not a claim that every feature passed.',y-14)
 y=lines('Source: github.com/obsidianmd/obsidian-releases/releases/tag/v1.15.0. Obsidian is a third-party product; no affiliation or endorsement is implied.',y-14)
 c.showPage()
+last_group=None
 for i,r in enumerate(rows):
+ group=r.get('session','inspection')
+ if group!=last_group:
+  key='group-'+group;c.bookmarkPage(key);c.addOutlineEntry(group.title()+' — actual screenshots',key,level=0,closed=True);last_group=group
+ key='feature-'+str(i);c.bookmarkPage(key);c.addOutlineEntry(r['feature'],key,level=1)
  c.setFont('Helvetica-Bold',13);y=lines(str(i+1)+'. '+r['feature'],805,13,73)
  y=lines('Coverage: '+r['status'],y-4,10)
  cid=re.search(r'(?:Command=|^)([\w:-]+);',r['observed'])

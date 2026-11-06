@@ -9,15 +9,17 @@ def main():
  assert d.js('!!window.app?.vault'), 'Vault onboarding did not finish; no feature coverage claim'
  def capture(feature,brief,level='screen_inspected',observed='',check=None,text_override=None):
   idx=len(rows);stem=f'feature-{idx:03d}'
+  sync=d.settle()
   text=(d.js('document.body.innerText') or '') if text_override is None else text_override
   if check is not None:level='functional_pass' if check else 'failed'
   # Native screenshot only, never reconstruct or restyle the target app.
   (OUT/(stem+'.png')).write_bytes(adb('exec-out','screencap','-p'))
-  rows.append({'feature':feature,'brief':brief,'status':level,'observed':observed,'screenshot':stem+'.png','visible_text':text[:16000]})
+  rows.append({'feature':feature,'brief':brief,'status':level,'observed':observed,'screenshot':stem+'.png','visible_text':text[:16000],'visual_sync':sync})
   (OUT/'feature-results.json').write_text(json.dumps(rows,indent=2));print(feature,level,flush=True)
  def close():
   for _ in range(3):
    d.call('Input.dispatchKeyEvent',{'type':'keyDown','key':'Escape','code':'Escape','windowsVirtualKeyCode':27});d.call('Input.dispatchKeyEvent',{'type':'keyUp','key':'Escape','code':'Escape','windowsVirtualKeyCode':27})
+  d.call('Input.dispatchMouseEvent',{'type':'mouseMoved','x':0,'y':0})
   d.js('app.setting?.close();void 0');time.sleep(.15)
  def restart():
   nonlocal d
@@ -111,7 +113,10 @@ Content under a heading can be folded.
  if PHASE=='walkthrough':
   for mode in ['source','preview']:
    d.js('(async()=>{await app.workspace.activeLeaf.setViewState({type:"markdown",state:{file:"Feature Audit/Playground.md",mode:'+json.dumps(mode)+'}})})()');time.sleep(1)
-   capture('Markdown '+mode+' mode','Same dummy note shown in an editor or rendered reading view.','screen_inspected')
+   actual=d.js('app.workspace.activeLeaf.view.getMode()')
+   if actual!=mode:
+    d.js('app.commands.executeCommandById("markdown:toggle-preview")');time.sleep(1);actual=d.js('app.workspace.activeLeaf.view.getMode()')
+   capture('Markdown '+mode+' mode','Same dummy note shown in an editor or rendered reading view.','screen_inspected' if actual==mode else 'blocked','Requested='+mode+'; actual='+str(actual))
   for title,selector,brief in [
    ('Properties','.metadata-container','Structured fields, tags, aliases, a number and a checkbox in note frontmatter.'),
    ('Rich Markdown formatting','strong','Bold/italic/strike/highlight, lists, code and task syntax in a real rendered note.'),
@@ -120,13 +125,13 @@ Content under a heading can be folded.
    ('Code blocks','pre','A fenced code sample rendered without executing its code.'),
    ('Internal links and embeds','.internal-embed','An internal note link and an embedded second note.'),
    ('Math','.math','Inline mathematical notation rendered by the app.'),
-   ('Footnotes','.footnotes','Footnote references and their note body.')]:
-   found=d.js('(()=>{const e=document.querySelector('+json.dumps(selector)+');if(e){e.scrollIntoView({block:"center"});return true}return false})()');time.sleep(.35)
+   ('Footnotes','.footnotes, .footnote-ref, .footnote-link','Footnote references and their note body.')]:
+   found=d.js('(()=>{const e=[...app.workspace.activeLeaf.view.containerEl.querySelectorAll('+json.dumps(selector)+')].find(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.left<innerWidth&&r.right>0&&getComputedStyle(e).visibility!=="hidden"});if(e){e.scrollIntoView({block:"center"});return true}return false})()');time.sleep(.35)
    capture(title,brief,'screen_inspected' if found else 'blocked','Rendered selector found='+str(found))
   openfile('Feature Audit/Board.canvas');capture('Canvas','A real canvas document with a text card, a linked-file card and a connecting edge.')
   openfile('Feature Audit/Notes.base');capture('Bases','A local .base document opened by the app; no database account is used.')
   openfile('Feature Audit/Playground.md')
-  for name,pattern in [('File explorer','show file explorer'),('Quick switcher','quick switcher.*open|open quick switcher'),('Vault search','search.*all files|search.*search in all'),('Command palette','command palette.*open|open command palette'),('Global graph','open graph view'),('Local graph','open local graph'),('Backlinks','backlinks.*open'),('Outgoing links','outgoing links.*open'),('Outline','outline.*show'),('Tags view','tags.*show|tags.*open'),('Bookmarks','bookmarks.*show|bookmarks.*open'),('Daily notes','daily notes.*open today'),('File recovery','recovery.*open|open saved snapshots')]:
+  for name,pattern in [('File explorer','show file explorer'),('Quick switcher','quick switcher.*open|open quick switcher'),('Vault search','search.*all files|search.*search in all'),('Command palette','command palette.*open|open command palette'),('Global graph','open graph view'),('Local graph','open local graph'),('Backlinks','backlinks.*show'),('Outgoing links','outgoing links.*show'),('Outline','outline.*show'),('Tags view','tags.*show|tags.*open'),('Bookmarks','bookmarks.*show|bookmarks.*open'),('Daily notes','daily notes.*open today'),('File recovery','recovery.*open|open saved snapshots')]:
    command(name,pattern)
   # Exercise the finite installed editor formatting family on a disposable scratch note.
   scratch='Feature Audit/Command scratch.md'
@@ -134,6 +139,7 @@ Content under a heading can be folded.
   formats += [('set-heading-'+str(i),'#'*i) for i in range(1,7)]
   formats += [('toggle-highlight-'+color,None) for color in ['red','orange','yellow','green','blue','purple']]
   for suffix,expected in formats:
+   scratch='Feature Audit/Editor case '+suffix+'.md'
    cid='editor:'+suffix
    if not d.js('!!app.commands.commands['+json.dumps(cid)+']'):continue
    original='Audit selection'
@@ -156,6 +162,7 @@ Content under a heading can be folded.
           'app:switch-vault':'Switching vaults unloads this inspection context.'}
   for entry in inventory['commands']:
    cid=entry['id']
+   scratch='Feature Audit/Command case '+str(inventory['commands'].index(entry))+'.md'
    already=any(cid+';' in r['observed'] or 'Command='+cid+';' in r['observed'] for r in rows)
    if already:continue
    try:

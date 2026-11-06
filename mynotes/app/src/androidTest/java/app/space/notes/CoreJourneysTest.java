@@ -36,9 +36,9 @@ public class CoreJourneysTest {
     @Test public void formattingBudgetPreservesWritingAndSelection()throws Exception{
         Note seed=note("UX Meeting").edit("UX Meeting","Shared agenda. Compare editor controls while the keyboard is open. Decision marker cobalt42 belongs near the middle. Keep this sentence readable after formatting.",3);start(Arrays.asList(seed));main(()->controller.openNote(seed.id));await(()->input("Write your note…")!=null);
         main(()->{EditText field=input("Write your note…");field.requestFocus();field.setSelection(0,6);((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(field,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});await(this::keyboardVisibleForTest);
-        tap("Text formatting");await(()->UiActions.named(controller.view(),"Close formatting")!=null);
+        tap("Text formatting");await(()->UiActions.named(controller.view(),"Close formatting")!=null);screenshot("imp0002-keyboard-format",false);
         await(()->{EditText field=input("Write your note…");android.graphics.Rect bounds=new android.graphics.Rect();return field.getGlobalVisibleRect(bounds) && bounds.height()>=field.getLineHeight()*(context.getResources().getConfiguration().fontScale<1.5f && context.getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_PORTRAIT?3:1);});
-        main(()->{EditText field=input("Write your note…");assertEquals(0,field.getSelectionStart());assertEquals(6,field.getSelectionEnd());assertEquals(seed.body,field.getText().toString());});screenshot("imp0002-keyboard-format",false);
+        main(()->{EditText field=input("Write your note…");assertEquals(0,field.getSelectionStart());assertEquals(6,field.getSelectionEnd());assertEquals(seed.body,field.getText().toString());});
         tap("Bold");tap("Close formatting");saved();Note stored=new NotesRepository(context).load().get(0);assertEquals(seed.body,stored.body);assertTrue(stored.marks.stream().anyMatch(m->m.type.equals("bold") && m.start==0 && m.end==6));
     }
     @Test public void wholeAppLibraryTraversalRecordsEachVisitedPage()throws Exception{

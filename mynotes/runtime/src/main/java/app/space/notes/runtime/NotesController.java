@@ -572,8 +572,8 @@ public final class NotesController {
     }
     private void showNoteFind(){if(formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE)toggleFormatting();sheets.close();NoteFindDialog.show(design,noteScroll,searchWorker);}
     private void buildFormatting(Button launcher){
-        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);GradientDrawable raised=design.shape(design.background,20);raised.setStroke(dp(1),design.outline);formattingPanel.setBackground(raised);formattingPanel.setElevation(dp(12));formattingPanel.setPadding(dp(8),dp(8),dp(8),dp(4));formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);
-        LinearLayout header=tools(formattingPanel);TextView scope=text("Format",18);header.addView(scope,new LinearLayout.LayoutParams(0,-2,1));Button close=icon("Close formatting","close",this::toggleFormatting);header.addView(close,new LinearLayout.LayoutParams(dp(48),dp(48)));writingDock.setTag(close);
+        formattingPanel=new LinearLayout(context);formattingPanel.setOrientation(LinearLayout.VERTICAL);GradientDrawable raised=design.shape(design.background,20);raised.setStroke(dp(1),design.outline);formattingPanel.setBackground(raised);formattingPanel.setElevation(dp(12));formattingPanel.setPadding(dp(8),0,dp(8),0);formattingPanel.setVisibility(View.GONE);formattingPanel.setContentDescription("Text formatting panel");formattingPanel.setTag(launcher);
+        LinearLayout header=tools(formattingPanel);header.setPadding(0,0,0,0);TextView scope=text("Format",18);header.addView(scope,new LinearLayout.LayoutParams(0,-2,1));Button close=icon("Close formatting","close",this::toggleFormatting);header.addView(close,new LinearLayout.LayoutParams(dp(48),dp(48)));writingDock.setTag(close);
         noteFormatControls=new FormatControls(context,design,new FormatControls.Host(){
             public TypingStyle style(){return noteTypingStyle();}
             public void apply(String type,String value){formatNoteValue(type,value);}
@@ -582,6 +582,7 @@ public final class NotesController {
             public void size(){EditText input=new EditText(context);design.entry(input,16);input.setContentDescription("Size in sp (8–72)");input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);input.setText(noteTypingStyle().values.getOrDefault("size","18"));android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(context).setTitle("Size in sp (8–72)").setView(input).setPositiveButton("Apply",null).setNegativeButton("Cancel",null).create();dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{formatNoteValue("size",input.getText().toString());dialog.dismiss();}catch(IllegalArgumentException invalid){input.setError(invalid.getMessage());}}));design.showEditorSheet(dialog);}
             public void number(){numberNoteParagraphs();}
         });
+        noteFormatControls.panel.setPadding(dp(12),dp(4),dp(12),dp(8));
         ScrollView options=new ScrollView(context);options.setContentDescription("Formatting options");options.addView(noteFormatControls.panel);formattingPanel.addView(options,new LinearLayout.LayoutParams(-1,0,1));LinearLayout.LayoutParams width=new LinearLayout.LayoutParams(-1,dp(300));width.topMargin=dp(12);root.addView(formattingPanel,width);
     }
     private Note.Mark noteLink(EditText field,int at){for(Note.Mark mark:TextStyles.read(field.getText()))if(mark.type.equals("link") && mark.start<=at && mark.end>at)return mark;return null;}
@@ -630,7 +631,7 @@ public final class NotesController {
             View row=noteFormatControls.panel.getChildAt(i);if(!(row instanceof LinearLayout))break;inline+=row.getMeasuredHeight();
         }
         int header=formattingPanel.getChildAt(0).getMeasuredHeight();
-        int minimum=Math.max(dp(144),header+inline+dp(32));
+        int minimum=Math.max(dp(104),header+inline+dp(8));
         int reserve=Math.max(dp(96),body.getLineHeight()*3+body.getCompoundPaddingTop()+body.getCompoundPaddingBottom());
         int height=app.space.notes.domain.FormattingViewport.height(Math.max(0,available),reserve,minimum,Math.max(minimum,dp(320)));
         if(lp.height!=height){lp.height=height;formattingPanel.setLayoutParams(lp);}

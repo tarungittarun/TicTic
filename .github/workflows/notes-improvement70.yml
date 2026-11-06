@@ -1,5 +1,6 @@
+# Candidate71: retain API26 three-line failure; compact actual header/scroll padding instead of lowering the assertion.
 # Qualification correction: existing OfflineOcrTest imports require the opt-in instrumentation dependency; no assertion was run or weakened in first build.
-name: Candidate70 evidence-led search and formatting qualification
+name: Candidate71 compact Format follow-up and search and formatting qualification
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -8,7 +9,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: improvement70-${{ github.ref }}
+  group: improvement71-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   build:
@@ -21,14 +22,14 @@ jobs:
         working-directory: mynotes
         run: |
           set -o pipefail
-          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/improvement70-build.log
+          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/improvement71-build.log
       - name: Surface bounded compiler diagnostics
         if: failure()
-        run: python3 -m mynotes.tools.ci.results build --path /tmp/improvement70-build.log
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/improvement71-build.log
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: improvement70-build-evidence
+          name: improvement71-build-evidence
           path: |
             mynotes/domain/build/test-results
             mynotes/app/build/reports
@@ -36,7 +37,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: improvement70-test-apks
+          name: improvement71-test-apks
           path: |
             mynotes/app/build/outputs/apk/debug/notes-debug.apk
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
@@ -64,7 +65,7 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: improvement70-test-apks
+          name: improvement71-test-apks
           path: improvement-apks
       - name: Prepare emulator
         run: |
@@ -95,7 +96,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: improvement70-${{ matrix.id }}
+          name: improvement71-${{ matrix.id }}
           path: |
             refinement-native*
             refinement-captures.tar

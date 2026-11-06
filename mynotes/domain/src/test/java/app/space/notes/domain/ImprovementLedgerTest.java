@@ -31,6 +31,9 @@ public class ImprovementLedgerTest {
   Note legacy=note("","cobalt42");Note canonical=legacy.withContent(DocumentContent.fromLegacy(legacy),3);assertTrue(canonical.matches("cobalt42"));assertEquals("Body",SearchPreview.forNote(canonical,"cobalt42").source);
   Note list=note("","cobalt42").convert(3);assertEquals("Body",SearchPreview.forNote(list,"cobalt42").source);
  }
+ @Test public void compactControlsLeaveThreeNormalLinesInSmallerBudget(){
+  int panel=FormattingViewport.height(186,96,104,320);assertEquals(104,panel);assertTrue(186-panel>=26*3);
+ }
  @Test public void formattingReservesBodyAndCapsGrowth(){
   assertEquals(150,FormattingViewport.height(250,100,144,320));assertEquals(320,FormattingViewport.height(900,100,144,320));
   assertEquals(144,FormattingViewport.height(200,100,144,320));assertEquals(60,FormattingViewport.height(60,100,144,320));assertEquals(0,FormattingViewport.height(0,100,144,320));

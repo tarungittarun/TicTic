@@ -1,0 +1,161 @@
+# Correct cross-build debug certificate mismatch without touching any production inputs.
+name: Candidate71 corrected debug-pair API26 shard and isolated findings
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-full71-recheck.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native:
+    if: github.ref == 'refs/heads/arena/3caca636-tictic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: api26-portrait, api: 26, font: '1.0', night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 1, group: all, probe: ''}
+          - {id: api36-portrait, api: 36, font: '1.0', night: 'no', orientation: portrait, profile: 'Nexus 5', motion: 1, shard: 1, group: all, probe: 'app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn'}
+          - {id: api34-large, api: 34, font: '2.0', night: 'yes', orientation: portrait, profile: 'Nexus 5', motion: 0, shard: 1, group: all, probe: 'app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape'}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42280357507
+          name: supplement71-test-apks
+          path: refinement-apks
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42277337133
+          name: full71-test-apks
+          path: original-target
+      - name: Verify source equivalence and record both debug payload identities
+        run: |
+          git fetch origin 3c1478b8c8b09d077d97b5481603387cbc47b06a
+          python3 - <<'PYIDENTITY'
+          import hashlib,json
+          from pathlib import Path
+          from mynotes.tools.ci.audit import assert_source_equivalent
+          from mynotes.tools.ci.resign_public_benchmark_apks import payload
+          assert_source_equivalent('3c1478b8c8b09d077d97b5481603387cbc47b06a')
+          original=Path('original-target/debug/notes-debug.apk');current=Path('refinement-apks/debug/notes-debug.apk')
+          a,b=payload(original),payload(current)
+          proof={'original_run':'42277337133','target_and_test_build_run':'42280357507','original_sha256':hashlib.sha256(original.read_bytes()).hexdigest(),'target_sha256':hashlib.sha256(current.read_bytes()).hexdigest(),'unsigned_payload_equal':a==b,'changed_payload_entries':sorted(k for k in set(a)|set(b) if a.get(k)!=b.get(k)),'production_source_equivalent':True,'scope':'Fresh synthetic guest; internally consistent debug app/test pair, not a re-signed user release. Different debug signatures are not byte-identical APKs.'}
+          Path('refinement-native-target-identity.json').write_text(json.dumps(proof,indent=2)+'\n')
+          PYIDENTITY
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare exact selected execution inventory
+        env:
+          REVIEW_GROUP: ${{ matrix.group }}
+          REVIEW_SHARD: ${{ matrix.shard }}
+          PROBE_CASES: ${{ matrix.probe }}
+        run: |
+          python3 - <<'PYPLAN'
+          import json,os
+          from pathlib import Path
+          from mynotes.tools.ci.test_plan import build_plan
+          from mynotes.tools.ci.refinement_plan import selected_cases
+          plan=build_plan()
+          selected=os.environ['PROBE_CASES'].split(',') if os.environ.get('PROBE_CASES') else selected_cases(plan,os.environ['REVIEW_GROUP'],int(os.environ['REVIEW_SHARD']))
+          assert selected and set(selected)<=set(selected_cases(plan,'all'))
+          Path('refinement-expected.json').write_text(json.dumps(selected))
+          with open(os.environ['GITHUB_ENV'],'a') as out:out.write('REVIEW_CLASSES='+','.join(selected)+'\n')
+          PYPLAN
+      - name: Install Linux audio loader dependency before emulator version preflight
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+      - name: Use verified installed emulator
+        run: bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: ${{ matrix.api == 26 && 'default' || 'google_apis' }}
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disk-size: 4G
+          disable-animations: true
+          # AVDs are recreated per job; do not spend shutdown time saving unused snapshots.
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -noaudio -no-boot-anim -no-snapshot-save -camera-back none
+          script: |
+            python3 -m mynotes.tools.ci.offline_guest
+            adb install -r refinement-apks/debug/notes-debug.apk
+            adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk
+            if test '${{ matrix.api }}' = 36; then adb shell pm grant app.space.notes.debug android.permission.RECORD_AUDIO; fi
+            adb shell settings put system font_scale ${{ matrix.font }}
+            # Enable app-owned motion on API36; retain OS window-transition determinism.
+            adb shell settings put global animator_duration_scale ${{ matrix.motion }}
+            adb shell cmd uimode night ${{ matrix.night }}
+            python3 -m mynotes.tools.ci.native_environment --snapshot before
+            python3 -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            if test '${{ matrix.api }}' = 34; then python3 -m mynotes.tools.ci.native_environment --stop-pixel-launcher --settle-home; fi
+            python3 -m mynotes.tools.ci.native_environment --snapshot configured
+            adb logcat -G 8M || true # Synthetic CI observer only; retain CPU timings beyond the final 500 lines.
+            adb shell svc power stayon true
+            adb shell settings put system screen_off_timeout 1800000
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            bash mynotes/tools/ci/run_refinement_instrumentation.sh -e timeout_msec 180000 -e expectedFont ${{ matrix.font }} -e expectedNight ${{ matrix.night }} -e expectedOrientation ${{ matrix.orientation }} -e expectedMotion ${{ matrix.motion }} -e expectedMic ${{ matrix.api == 36 && 'granted' || 'denied' }} -e class "$REVIEW_CLASSES"
+            python3 -m mynotes.tools.ci.native_environment --snapshot after
+            adb exec-out run-as app.space.notes.debug tar -C files -cf - ux-review > refinement-captures.tar
+            if test '${{ matrix.shard }}' != 1; then adb exec-out run-as app.space.notes.debug tar -C files -cf - pdf-review > refinement-pdf-captures.tar; fi
+            for report in ocr-common-text-report.json speech-degradation-report.json core-focus-failure.txt; do if adb shell run-as app.space.notes.debug ls "files/$report" >/dev/null 2>&1; then adb exec-out run-as app.space.notes.debug cat "files/$report" > "refinement-quality-$report"; fi; done
+      - name: Verify selected quantitative reports are complete and independently scored
+        if: always()
+        run: python3 -m mynotes.tools.ci.quality_reports --expected refinement-expected.json
+      - name: Independently validate actual exported PDF URI annotations and page geometry
+        if: always() && matrix.shard != 1
+        run: |
+          python3 -m pip install 'pypdf==6.1.1'
+          python3 -m mynotes.tools.ci.verify_pdf_features --archive refinement-pdf-captures.tar --output refinement-pdf-results.json
+      - name: Require every selected method once, without skipped or duplicate outcomes
+        if: always()
+        run: |
+          python3 - <<'PYRESULT'
+          from pathlib import Path
+          import json,sys,re
+          from mynotes.tools.ci.results import android,write_report
+          expected=json.loads(Path('refinement-expected.json').read_text())
+          path=Path('refinement-native.txt')
+          result=android(path.read_text(errors='replace') if path.exists() else '',expected)
+          write_report(result,'refinement-native.json')
+          write_report(result,'refinement-native-verified.json')
+          cpu=Path('refinement-native-cpu-phases.txt')
+          phases=cpu.read_text(errors='replace') if cpu.exists() else ''
+          if path.exists():
+              for observation in set(re.findall(r'trained_cpu_elapsed_ms=\d+',path.read_text(errors='replace'))):
+                  if observation not in phases:phases+='\n'+observation+' (public fixture end-to-end, not physical-device timing)'
+          if 'NotesCpuPhase' in phases or 'trained_cpu_elapsed_ms=' in phases:
+              print('::notice title=Observed native CPU phases and elapsed time::'+json.dumps(phases[-4000:]))
+          if not result['ok']:
+              progress=Path('refinement-native-test-progress.txt')
+              if progress.exists():print('::notice title=Last observed native method::'+json.dumps(progress.read_text(errors='replace')[-2000:]))
+              sys.exit(1)
+          print('::notice title=Native refinement coverage::'+str(result['passed'])+'/'+str(result['expected'])+' methods passed, exact inventory')
+          PYRESULT
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: improvement71-api26-portrait
+          overwrite: true
+          path: |
+            refinement-native.*
+            refinement-native*.txt
+            refinement-expected.json
+            offline-guest-proof.json
+            refinement-environment-*
+            refinement-captures.tar
+            refinement-pdf-*
+            refinement-quality-*
+          retention-days: 7
+          if-no-files-found: warn

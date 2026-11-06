@@ -412,20 +412,40 @@ public final class NotesController {
             result.sort(filterState.comparator(orderSnapshot));
             List<ViewedFiles.Entry> files=new ArrayList<>();if(global)try(ViewedFiles index=new ViewedFiles(context)){files=index.search(query);}catch(Exception error){Diagnostics.failure("viewed.search.failure",error);}
             final List<ViewedFiles.Entry> fileMatches=files;
+            // IMP-0001: provenance extraction stays on the existing cancellable search worker.
+            final Map<String,app.space.notes.domain.SearchPreview> previews=new HashMap<>();
+            if(global)for(Note match:result.subList(0,Math.min(200,result.size()))){
+                if(closed || ticket!=querySequence)return;
+                previews.put(match.id,app.space.notes.domain.SearchPreview.forNote(match,query));
+            }
             main.post(()->{
                 if(closed || editing!=null || ticket!=querySequence)return;
                 visible.clear();visible.addAll(result);
-                if(global && globalSearchResults!=null){board.setVisibility(View.GONE);emptyHint.setVisibility(View.GONE);globalSearchResults.setVisibility(View.VISIBLE);renderUniversalResults(result,fileMatches,query);return;}
+                if(global && globalSearchResults!=null){board.setVisibility(View.GONE);emptyHint.setVisibility(View.GONE);globalSearchResults.setVisibility(View.VISIBLE);renderUniversalResults(result,fileMatches,query,previews);return;}
                 if(globalSearchResults!=null)globalSearchResults.setVisibility(View.GONE);board.setVisibility(View.VISIBLE);board.show(result,selectedIds,!currentPage.equals("Trash"));
                 if(emptyHint!=null)emptyHint.setVisibility(result.isEmpty()?View.VISIBLE:View.GONE);
             });
         });
     }
-    private void renderUniversalResults(List<Note> matches,List<ViewedFiles.Entry> files,String query){
+    private void renderUniversalResults(List<Note> matches,List<ViewedFiles.Entry> files,String query,Map<String,app.space.notes.domain.SearchPreview> previews){
         if(globalSearchResults==null)return;globalSearchResults.removeAllViews();LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);globalSearchResults.addView(content);
         content.addView(design.heading("Saved notes & Docs · "+matches.size()));
         if(matches.isEmpty())content.addView(text("No matching saved content",14));
-        for(Note note:matches.subList(0,Math.min(200,matches.size()))){content.addView(button(note.title.isEmpty()?"Untitled":note.title,()->openNote(note.id)));content.addView(text((app.space.notes.domain.Workspace.isDocument(note)?"Doc":"Note")+(note.archived?" · archived":"")+(note.folder.isEmpty()?"":" · "+note.folder),12));}
+        for(Note note:matches.subList(0,Math.min(200,matches.size()))){content.addView(button(note.title.isEmpty()?"Untitled":note.title,()->openNote(note.id)));content.addView(text((app.space.notes.domain.Workspace.isDocument(note)?"Doc":"Note")+(note.archived?" · archived":"")+(note.folder.isEmpty()?"":" · "+note.folder),12));
+            app.space.notes.domain.SearchPreview preview=previews.get(note.id);
+            if(preview!=null){
+                TextView passage=text(preview.source+": "+preview.text,14);
+                if(preview.start>=0){
+                    android.text.SpannableString marked=new android.text.SpannableString(passage.getText());
+                    int offset=preview.source.length()+2;
+                    marked.setSpan(new android.text.style.StyleSpan(Typeface.BOLD),offset+preview.start,offset+preview.end,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    marked.setSpan(new android.text.style.UnderlineSpan(),offset+preview.start,offset+preview.end,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    passage.setText(marked);
+                }
+                // Text remains real accessible text; no colour-only indication or content logging.
+                content.addView(passage);
+            }
+        }
         if(matches.size()>200)content.addView(text("Showing the first 200 matches. Refine search for the rest.",13));
         content.addView(design.heading("Viewed files · "+files.size()));for(ViewedFiles.Entry file:files)content.addView(button(file.name,()->openFile(file.uri)));
         content.addView(text("Viewed files stay separate from saved notes. Search covers the last 32 files and up to 2 Mi characters indexed per file when viewed; changed files refresh when reopened.",12));
@@ -585,8 +605,8 @@ public final class NotesController {
     private boolean keyboardVisible(){if(android.os.Build.VERSION.SDK_INT>=30){android.view.WindowInsets insets=shell.getRootWindowInsets();return insets!=null && insets.isVisible(android.view.WindowInsets.Type.ime());}android.graphics.Rect frame=new android.graphics.Rect();shell.getWindowVisibleDisplayFrame(frame);return shell.getRootView().getHeight()-frame.height()>dp(120);}
     /** Keep an actual writing viewport above a landscape IME; Back remains an Android system action. */
     private void adaptEditorViewport(){
-        if(closed || shell.getHeight()<=0)return;if(noteRails!=null){boolean finding=NoteFindDialog.open(noteScroll);if(title!=null)title.setVisibility(shell.getHeight()<dp(240) && !title.hasFocus()?View.GONE:View.VISIBLE);editorTopChrome.setVisibility(finding?View.GONE:View.VISIBLE);writingDock.setVisibility(finding || formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);if(noteScroll!=null)noteScroll.postOnAnimation(()->revealWritingCaret(noteScroll));return;}boolean compact=shell.getHeight()<dp(240),changed=false;
-        if(editorTopChrome!=null && body!=null && writingDock!=null && (body.hasFocus() || lastWritingFocus==body)){int controls=formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?formattingPanel.getMeasuredHeight():writingDock.getMeasuredHeight()-writingDock.getPaddingTop()-writingDock.getPaddingBottom()+dp(12),titleSpace=title==null?0:title.getMeasuredHeight();compact|=shell.getHeight()-Math.max(dp(48),editorTopChrome.getMeasuredHeight())-controls-titleSpace<Math.max(dp(80),body.getLineHeight()*2);}
+        if(closed || shell.getHeight()<=0)return;if(noteRails!=null){boolean finding=NoteFindDialog.open(noteScroll);if(title!=null)title.setVisibility(shell.getHeight()<dp(240) && !title.hasFocus()?View.GONE:View.VISIBLE);editorTopChrome.setVisibility(finding?View.GONE:View.VISIBLE);writingDock.setVisibility(finding || formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);if(noteScroll!=null)noteScroll.postOnAnimation(()->revealWritingCaret(noteScroll));return;}sizePortraitFormatting();boolean compact=shell.getHeight()<dp(240),changed=false;
+        if(editorTopChrome!=null && body!=null && writingDock!=null && (body.hasFocus() || lastWritingFocus==body)){int controls=formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE?formattingPanel.getMeasuredHeight():writingDock.getMeasuredHeight()-writingDock.getPaddingTop()-writingDock.getPaddingBottom()+dp(12),titleSpace=title==null?0:title.getMeasuredHeight();compact|=shell.getHeight()-Math.max(dp(48),editorTopChrome.getMeasuredHeight())-controls-titleSpace<Math.max(dp(96),body.getLineHeight()*3+body.getCompoundPaddingTop()+body.getCompoundPaddingBottom());}
         if(editorTopChrome!=null){int height=shell.getHeight();boolean shrank=lastEditorViewportHeight>0 && height<lastEditorViewportHeight;lastEditorViewportHeight=height;EditText remembered=lastWritingFocus;
             // A zero-height intermediate ScrollView during IME resize can drop its focused child.
             // Recover focus once for this measured shrink, never force or rewrite a native selection.
@@ -596,8 +616,27 @@ public final class NotesController {
         // A size/insets callback may run during traversal: schedule the changed child measurements afterwards.
         if(changed)root.post(()->{if(!closed){root.forceLayout();root.requestLayout();}});
     }
+    private void sizePortraitFormatting(){
+        if(noteRails!=null || formattingPanel==null || formattingPanel.getVisibility()!=View.VISIBLE || body==null || root.getHeight()<=0)return;
+        int available=root.getHeight()-root.getPaddingTop()-root.getPaddingBottom();
+        for(int i=0;i<root.getChildCount();i++){
+            View child=root.getChildAt(i);if(child==formattingPanel || child==noteScroll || child.getVisibility()==View.GONE)continue;
+            available-=child.getMeasuredHeight();
+            if(child.getLayoutParams() instanceof LinearLayout.LayoutParams){LinearLayout.LayoutParams p=(LinearLayout.LayoutParams)child.getLayoutParams();available-=p.topMargin+p.bottomMargin;}
+        }
+        LinearLayout.LayoutParams lp=(LinearLayout.LayoutParams)formattingPanel.getLayoutParams();available-=lp.topMargin+lp.bottomMargin;
+        int inline=0;
+        if(noteFormatControls!=null)for(int i=0;i<noteFormatControls.panel.getChildCount();i++){
+            View row=noteFormatControls.panel.getChildAt(i);if(!(row instanceof LinearLayout))break;inline+=row.getMeasuredHeight();
+        }
+        int header=formattingPanel.getChildAt(0).getMeasuredHeight();
+        int minimum=Math.max(dp(144),header+inline+dp(32));
+        int reserve=Math.max(dp(96),body.getLineHeight()*3+body.getCompoundPaddingTop()+body.getCompoundPaddingBottom());
+        int height=app.space.notes.domain.FormattingViewport.height(Math.max(0,available),reserve,minimum,Math.max(minimum,dp(320)));
+        if(lp.height!=height){lp.height=height;formattingPanel.setLayoutParams(lp);}
+    }
     private boolean viewportVisibility(View view,int visibility){if(view.getVisibility()==visibility)return false;view.setVisibility(visibility);return true;}
-    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(noteRails!=null){if(show)noteRails.showPanel(formattingPanel);else{noteRails.hidePanel();root.addView(formattingPanel,new LinearLayout.LayoutParams(-1,dp(300)));}}else{LinearLayout.LayoutParams lp=(LinearLayout.LayoutParams)formattingPanel.getLayoutParams();lp.height=Math.max(dp(112),Math.min(dp(360),(int)(shell.getHeight()*.55f)));formattingPanel.setLayoutParams(lp);}if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(240))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}updateFormatting();}
+    private void toggleFormatting(){if(formattingPanel==null)return;boolean show=formattingPanel.getVisibility()!=View.VISIBLE;formattingPanel.setVisibility(show?View.VISIBLE:View.GONE);if(noteRails!=null){if(show)noteRails.showPanel(formattingPanel);else{noteRails.hidePanel();root.addView(formattingPanel,new LinearLayout.LayoutParams(-1,dp(300)));}}if(writingDock!=null)writingDock.setVisibility(show?View.GONE:View.VISIBLE);if(body!=null){body.requestFocus();if(show && shell.getHeight()<dp(240))((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(body.getWindowToken(),0);}sizePortraitFormatting();root.post(this::adaptEditorViewport);updateFormatting();}
     private void updateFormatting(){if(!binding && body!=null && noteFormatControls!=null && formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE)noteFormatControls.refresh();}
     private TextWatcher paragraphWatcher(){return new TextWatcher(){String numberAtEdit;int nextNumber=-1,nextNumberAt=-1;int newlineFrom=-1,newlineTo,changedAt,changedCount;app.space.notes.domain.AutoListContinuation.Edit erasePrefix;boolean wasHeading;
         public void beforeTextChanged(CharSequence value,int start,int count,int after){if(binding)return;numberAtEdit=null;for(Note.Mark mark:TextStyles.read(body.getText()))if(mark.type.equals("number") && mark.start<=start && mark.end>=start)numberAtEdit=mark.value;if(start<nextNumberAt){nextNumber=-1;nextNumberAt=-1;}erasePrefix=count==1 && after==0 && body.getSelectionStart()==body.getSelectionEnd() && body.getSelectionEnd()==start+count?app.space.notes.domain.AutoListContinuation.beforeBackspace(value.toString(),start+count):null;wasHeading=false;for(Note.Mark mark:TextStyles.read(body.getText()))if((mark.type.equals("h1") || mark.type.equals("h2")) && mark.start<=start && mark.end>=start)wasHeading=true;}

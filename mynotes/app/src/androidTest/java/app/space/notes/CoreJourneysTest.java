@@ -27,6 +27,20 @@ import static org.junit.Assert.assertSame;
 /** Real editor/controller journeys, isolated files/prefs. dispatch-first, no shell gestures. */
 @RunWith(AndroidJUnit4.class)
 public class CoreJourneysTest {
+    @Test public void searchPassageShowsBodyMatchWithoutChangingNote()throws Exception{
+        Note seed=note("UX Meeting").edit("UX Meeting","Agenda cobalt42 decision",3);start(Arrays.asList(seed));
+        main(()->input("Search all content & settings").setText("cobalt42"));await(()->text("Body: Agenda cobalt42 decision")!=null);
+        main(()->{TextView passage=(TextView)text("Body: Agenda cobalt42 decision");assertTrue(passage.getText() instanceof android.text.Spanned);android.text.Spanned spans=(android.text.Spanned)passage.getText();android.text.style.StyleSpan[] styles=spans.getSpans(0,spans.length(),android.text.style.StyleSpan.class);assertEquals(1,styles.length);assertEquals("cobalt42",spans.subSequence(spans.getSpanStart(styles[0]),spans.getSpanEnd(styles[0])).toString());});
+        screenshot("imp0001-search-passage");tap("UX Meeting");await(()->input("Write your note…")!=null);main(()->assertEquals(seed.body,input("Write your note…").getText().toString()));saved();assertEquals(seed.body,new NotesRepository(context).load().get(0).body);
+    }
+    @Test public void formattingBudgetPreservesWritingAndSelection()throws Exception{
+        Note seed=note("UX Meeting").edit("UX Meeting","Shared agenda. Compare editor controls while the keyboard is open. Decision marker cobalt42 belongs near the middle. Keep this sentence readable after formatting.",3);start(Arrays.asList(seed));main(()->controller.openNote(seed.id));await(()->input("Write your note…")!=null);
+        main(()->{EditText field=input("Write your note…");field.requestFocus();field.setSelection(0,6);((android.view.inputmethod.InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(field,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});await(this::keyboardVisibleForTest);
+        tap("Text formatting");await(()->UiActions.named(controller.view(),"Close formatting")!=null);
+        await(()->{EditText field=input("Write your note…");android.graphics.Rect bounds=new android.graphics.Rect();return field.getGlobalVisibleRect(bounds) && bounds.height()>=field.getLineHeight()*(context.getResources().getConfiguration().fontScale<1.5f?3:1);});
+        main(()->{EditText field=input("Write your note…");assertEquals(0,field.getSelectionStart());assertEquals(6,field.getSelectionEnd());assertEquals(seed.body,field.getText().toString());});screenshot("imp0002-keyboard-format",false);
+        tap("Bold");tap("Close formatting");saved();Note stored=new NotesRepository(context).load().get(0);assertEquals(seed.body,stored.body);assertTrue(stored.marks.stream().anyMatch(m->m.type.equals("bold") && m.start==0 && m.end==6));
+    }
     @Test public void wholeAppLibraryTraversalRecordsEachVisitedPage()throws Exception{
         start(Arrays.asList(note("Workflow note")));main(()->{View create=controller.view().findViewWithTag("home-create-row"),board=controller.view().findViewWithTag("home-board");assertNotNull(create);assertTrue("Create actions float in the content frame, not a separate plain Home band",create.getParent() instanceof FrameLayout);assertSame(board.getParent(),create.getParent());});screenshot("e2e-home-notes");
         for(String destination:Arrays.asList("Archive","Trash","Folders","Voice inbox","Viewed files")){

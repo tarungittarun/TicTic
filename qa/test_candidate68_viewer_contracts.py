@@ -53,7 +53,7 @@ class Candidate68ViewerContracts(unittest.TestCase):
  def test_new_native_cases_are_registered_without_dropping_previous_inventory(self):
   from mynotes.tools.build_e2e_report import methods
   from mynotes.tools.ci.run_ordered_modules import plan
-  native=methods();self.assertEqual(444,len(native));self.assertEqual(set(native),{n for names in plan().values() for n in names})
+  native=methods();self.assertEqual(446,len(native));self.assertEqual(set(native),{n for names in plan().values() for n in names})
   self.assertEqual(7,sum(n.startswith('app.space.notes.runtime.PdfViewerInteractionTest#') for n in native))
 
  def test_shared_metadata_uses_provider_values_and_marks_absent_fields(self):

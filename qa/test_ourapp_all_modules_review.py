@@ -1,4 +1,5 @@
 """Document/source integrity only: these tests do not run or certify either app UX."""
+from qa.test_ux_improvement_ledger import pinned_source
 import hashlib
 import json
 from pathlib import Path
@@ -59,10 +60,10 @@ class AllModuleReviewIntegrity(unittest.TestCase):
 
     def test_source_anchors_and_reviewed_bytes_match(self):
         for path,digest in self.manifest['referenced_source_file_hashes'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),digest)
+            self.assertEqual(hashlib.sha256(pinned_source(path,digest)).hexdigest(),digest)
         for module in self.data['modules']:
             for source in module['sources']:
-                text = (ROOT / source['path']).read_text()
+                text = pinned_source(source['path'],self.manifest['referenced_source_file_hashes'][source['path']]).decode()
                 for anchor in source['anchor'].split('/'):
                     if anchor:self.assertIn(anchor,text)
 

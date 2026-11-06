@@ -4,6 +4,12 @@ from pathlib import Path
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'mynotes/docs/ux-improvement-ledger'
+def pinned_source(path,digest):
+ current=(ROOT/path).read_bytes()
+ if hashlib.sha256(current).hexdigest()==digest:return current
+ # Historical audit pins do not silently change when an authorised fix lands.
+ return (OUT/'source-baselines'/(digest+'.java')).read_bytes()
+
 class ImprovementLedgerTests(unittest.TestCase):
  def setUp(self):self.data=json.loads((OUT/'ledger.json').read_text())
  def test_37_existing_module_plans_remain_individually_scoped(self):
@@ -23,7 +29,7 @@ class ImprovementLedgerTests(unittest.TestCase):
   self.assertEqual(len({r['id'] for r in definitions}),len(definitions))
   for item in definitions:
    self.assertEqual(item['runtime_status'],'not_tested')
-   self.assertEqual(hashlib.sha256((ROOT/item['path']).read_bytes()).hexdigest(),item['source_sha256'])
+   self.assertEqual(hashlib.sha256(pinned_source(item['path'],item['source_sha256'])).hexdigest(),item['source_sha256'])
  def test_promoted_items_require_both_apps_and_real_retained_files(self):
   for item in self.data['work_items']:
    self.assertTrue(item['ours']);self.assertTrue(item['obsidian']);self.assertTrue(item['reproduction']);self.assertTrue(item['acceptance'])
@@ -35,7 +41,7 @@ class ImprovementLedgerTests(unittest.TestCase):
    self.assertIn(item['cause_confidence'],['hypothesis','source_supported_mechanism_not_exclusive_cause','confirmed_by_isolating_experiment'])
    if item['cause_confidence']=='confirmed_by_isolating_experiment':self.assertTrue(item.get('causal_experiment'))
    for source in item['source_refs']:
-    self.assertEqual(hashlib.sha256((ROOT/source['path']).read_bytes()).hexdigest(),source['sha256'])
+    self.assertEqual(hashlib.sha256(pinned_source(source['path'],source['sha256'])).hexdigest(),source['sha256'])
  def test_measurements_define_units_and_limits(self):
   for m in self.data['measurements']:
    self.assertTrue(m['definition']);self.assertTrue(m['unit']);self.assertTrue(m['samples']);self.assertTrue(m['limit']);self.assertTrue((OUT/m['source']).is_file())

@@ -1,0 +1,69 @@
+name: Official Obsidian Android feature discovery
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/obsidian-feature-audit.yml']
+permissions:
+  contents: write
+concurrency:
+  group: obsidian-feature-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  discovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3
+      - name: Download only official pinned APK and verify publisher digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p obsidian-evidence /tmp/obsidian-apk
+          gh release download v1.15.0 --repo obsidianmd/obsidian-releases --pattern Obsidian-1.15.0.apk --dir /tmp/obsidian-apk
+          echo '2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d  /tmp/obsidian-apk/Obsidian-1.15.0.apk' | sha256sum --check
+          python - <<'PY'
+          import json,pathlib
+          pathlib.Path('obsidian-evidence/apk-identity.json').write_text(json.dumps({'publisher_repository':'obsidianmd/obsidian-releases','version':'1.15.0','apk_sha256':'2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d','source_sha':'${{ github.sha }}','run':'${{ github.run_id }}','scope':'Android mobile discovery, not desktop parity or full feature acceptance'},indent=2))
+          PY
+      - name: Enable emulator acceleration
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          sudo chmod 666 /dev/kvm
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb install /tmp/obsidian-apk/Obsidian-1.15.0.apk
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 0
+            python mynotes/tools/comparisons/obsidian_probe.py
+      - name: Prepare PDF and preserve actual public dummy-data evidence
+        if: always()
+        run: |
+          test -f obsidian-evidence/observations.json
+          python mynotes/tools/comparisons/obsidian_discovery_report.py
+          python -m unittest discover -s qa
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin arena/3caca636-tictic
+          git add mynotes/docs/comparisons/obsidian/discovery/${{ github.run_id }}
+          git commit -m 'Preserve actual official Obsidian Android discovery screens [skip ci]'
+          git push origin arena/3caca636-tictic
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: obsidian-discovery-evidence
+          path: obsidian-evidence
+          retention-days: 7

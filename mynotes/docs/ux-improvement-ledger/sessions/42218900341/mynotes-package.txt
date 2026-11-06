@@ -1,0 +1,200 @@
+Activity Resolver Table:
+  Full MIME Types:
+      application/vnd.mynotes.document:
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+      application/json:
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+      text/plain:
+        3e4d966 app.space.notes/.NotesActivity filter e46c4fd
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "text/plain"
+
+  Base MIME Types:
+      text:
+        3e4d966 app.space.notes/.NotesActivity filter e46c4fd
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "text/plain"
+      application:
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+
+  Schemes:
+      content:
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        3e4d966 app.space.notes/.NotesActivity filter d91d4a7
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+  MIME Typed Actions:
+      android.intent.action.SEND:
+        3e4d966 app.space.notes/.NotesActivity filter e46c4fd
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "text/plain"
+      android.intent.action.VIEW:
+        3e4d966 app.space.notes/.NotesActivity filter 60c9d54
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          StaticType: "application/json"
+          StaticType: "application/vnd.mynotes.document"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.BOOT_COMPLETED:
+        cd525f2 app.space.notes/.runtime.ReminderReceiver filter 37d1443
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+      android.appwidget.action.APPWIDGET_UPDATE:
+        7403ac0 app.space.notes/.runtime.NotesWidget filter 8bfb3f9
+          Action: "android.appwidget.action.APPWIDGET_UPDATE"
+      android.intent.action.MY_PACKAGE_REPLACED:
+        cd525f2 app.space.notes/.runtime.ReminderReceiver filter 37d1443
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+
+Domain verification status:
+
+Registered ContentProviders:
+  app.space.notes/androidx.core.content.FileProvider:
+    Provider{2f8be23 app.space.notes/androidx.core.content.FileProvider}
+
+ContentProvider Authorities:
+  [app.space.notes.notes.images]:
+    Provider{2f8be23 app.space.notes/androidx.core.content.FileProvider}
+      applicationInfo=ApplicationInfo{fe9cf20 app.space.notes}
+
+Key Set Manager:
+  [app.space.notes]
+      Signing KeySets: 61
+
+Packages:
+  Package [app.space.notes] (5938765):
+    appId=10216
+    pkg=Package{66920d9 app.space.notes}
+    codePath=/data/app/~~Z2eqBawklJhUZM8K1CtZGQ==/app.space.notes-AYqJIKBBKH7puqAzMrWk5Q==
+    resourcePath=/data/app/~~Z2eqBawklJhUZM8K1CtZGQ==/app.space.notes-AYqJIKBBKH7puqAzMrWk5Q==
+    legacyNativeLibraryDir=/data/app/~~Z2eqBawklJhUZM8K1CtZGQ==/app.space.notes-AYqJIKBBKH7puqAzMrWk5Q==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=x86_64
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=69 minSdk=26 targetSdk=34
+    minExtensionVersions=[]
+    versionName=0.69.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-11-06 12:38:08
+    lastUpdateTime=2026-11-06 12:38:37
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{39b4a9e version:2, signatures:[2af023da], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    requested permissions:
+      android.permission.POST_NOTIFICATIONS
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.RECORD_AUDIO
+    install permissions:
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+    User 0: ceDataInode=353158 deDataInode=73926 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/app.space.notes
+      firstInstallTime=2026-11-06 12:38:37
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /data/resource-cache/com.android.systemui-neutral-jHc0.frro
+        /data/resource-cache/com.android.systemui-accent-2qxU.frro
+        /data/resource-cache/com.android.systemui-dynamic-4x0I.frro
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.RECORD_AUDIO: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    com.google.android.settings.intelligence:
+      app.space.notes
+    com.google.android.as:
+      app.space.notes
+    com.google.android.apps.accessibility.voiceaccess:
+      app.space.notes
+    com.google.android.apps.youtube.music:
+      app.space.notes
+    com.google.android.youtube:
+      app.space.notes
+    com.google.android.gm:
+      app.space.notes
+    com.google.android.apps.photos:
+      app.space.notes
+    com.google.android.apps.maps:
+      app.space.notes
+    com.google.android.apps.docs:
+      app.space.notes
+  queryable via interaction:
+    User 0:
+      [android,com.android.inputdevices,com.android.DeviceAsWebcam,com.android.localtransport,com.android.settings,com.android.location.fused,com.android.keychain,com.android.server.telecom,com.android.dynsystem,com.android.emulator.multidisplay,com.android.providers.settings]:
+        app.space.notes
+      com.google.android.inputmethod.latin:
+        app.space.notes
+  queryable via uses-library:
+
+Dexopt state:
+  [app.space.notes]
+    path: /data/app/~~Z2eqBawklJhUZM8K1CtZGQ==/app.space.notes-AYqJIKBBKH7puqAzMrWk5Q==/base.apk
+      x86_64: [status=verify] [reason=install] [primary-abi]
+        [location is /data/app/~~Z2eqBawklJhUZM8K1CtZGQ==/app.space.notes-AYqJIKBBKH7puqAzMrWk5Q==/oat/x86_64/base.odex]
+
+Compiler stats:
+  [app.space.notes]
+     base.apk - 1669

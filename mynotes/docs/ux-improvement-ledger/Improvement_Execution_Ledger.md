@@ -1,6 +1,6 @@
 # MyNotes — improvement execution ledger
 
-**Status: ongoing, incomplete. No whole-app or physical-device acceptance. Two candidate changes implemented; changed-build acceptance incomplete. All-module comparison remains incomplete.**
+**Status: ongoing, incomplete. No whole-app or physical-device acceptance. Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.**
 
 This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.
 
@@ -8,13 +8,13 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 **Document contract:** Do not treat this document as a completed comparison of every control. Untested pages/features/aspects stay not tested. Knowing our source helps form a mechanism hypothesis; it does not prove the exclusive root cause or that a proposed fix works.
 
-**Pinned apps:** MyNotes 0.69.0/code69, signed development APK SHA256 03d839d58b828ac72e211b69a1904e00e5f44f9f5c2b37704d4312501431d167; official Obsidian 1.15.0/code396 SHA256 2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d.
+**Pinned baseline apps:** MyNotes 0.69.0/code69, signed development APK SHA256 03d839d58b828ac72e211b69a1904e00e5f44f9f5c2b37704d4312501431d167; official Obsidian 1.15.0/code396 SHA256 2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d.
 
 **Method:** Fresh scripted interactions on one disposable Actions emulator, followed by visual evidence review and source tracing. This is not a human participant study. UI inspection and command/API setup shortcuts are identified separately. No E2E pass total is interpreted as UX quality.
 
 **Known measurement limits:** Activity launch TotalTime is not interactive-ready time. Host command elapsed durations include inspection/adb overhead, not touch latency or human efficiency. Gfx/memory dumps are diagnostics, not a cross-engine smoothness rank. Animations, frame jank, battery and physical playback are not accepted without separate experiments.
 
-**Implementation phase:** Two candidate changes implemented; changed-build acceptance incomplete. All-module comparison remains incomplete.
+**Implementation phase:** Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.
 
 **Scope still outstanding:** physical devices, participant usability, precise touch latency, animation quality, frame jank, battery, all unexecuted plan tasks
 
@@ -40,7 +40,21 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 - [42227937679](https://github.com/tarungittarun/TicTic/actions/runs/42227937679): candidate70_build_failed_before_native — Initial candidate70 JVM task completed, but instrumentation compilation failed because existing OfflineOcrTest requires the opt-in Tesseract Android-test dependency. No native case executed; not an app UX failure. Corrected qualification enables existing -PmoduleE2E instrumentation setup, without weakening assertions.
 
-- [42228792197](https://github.com/tarungittarun/TicTic/actions/runs/42228792197): candidate70_corrected_qualification_running — Same production changes with required existing instrumentation dependency enabled. Four-profile actual outcomes pending; retain first build failure.
+- [42228792197](https://github.com/tarungittarun/TicTic/actions/runs/42228792197): candidate70_three_profiles_passed_api26_preflight_blocked — Build, lint and 365 JVM tests passed. Three native profiles each passed 8 selected methods (API36 portrait, API34 large text and dark landscape). API26 preflight queried a focus field absent from that API; no native case ran there. Not 32/32, not whole-app acceptance.
+
+- [42228984590](https://github.com/tarungittarun/TicTic/actions/runs/42228984590): original_candidate70_evidence_retained — Original JVM and three passing/one blocked profile receipts retained; capture bytes unchanged. No full acceptance inferred.
+
+- [42230595033](https://github.com/tarungittarun/TicTic/actions/runs/42230595033): api26_supplement_workflow_schema_failed — Supplement workflow used quoted boolean scheduling fields; rejected before jobs/apps. Corrected types without changing assertions.
+
+- [42230660156](https://github.com/tarungittarun/TicTic/actions/runs/42230660156): candidate70_api26_actual_viewport_failure — Exact same candidate70 APK with corrected API26 current-window preflight. 7/8 methods passed; formattingBudgetPreservesWritingAndSelection timed out on the unchanged three-visible-line constraint. Not a successful full profile. This real failing constraint led to candidate71 compact header/padding, not a relaxed assertion.
+
+- [42230835892](https://github.com/tarungittarun/TicTic/actions/runs/42230835892): supplement_retention_incomplete_then_corrected — Single downloaded native artifact was flattened; first retention kept only JVM receipt. Actual source native result was not lost or changed. Parser now requires explicit flat-lane provenance and refuses no-native retention.
+
+- [42231621588](https://github.com/tarungittarun/TicTic/actions/runs/42231621588): supplement_originals_retained_after_parser_correction — Same original API26 7-pass/1-failure receipts now retained with explicit lane/source pins; shared candidate70 JVM count must not be counted twice.
+
+- [42231478498](https://github.com/tarungittarun/TicTic/actions/runs/42231478498): candidate71_focused_qualification_passed — Actions build/lint passed; 366 JVM tests passed, no skipped/failed/error cases. Each of four native profiles passed exactly 8 selected methods (32 executions total), with no missing/duplicate/unexpected/failing cases. This includes normal-font portrait three-line viewport, original selection/body and persisted Bold checks, actual matching substring and open/persistence checks, existing font/numbering/typing/rails regressions and resource checks. This is focused qualification, not all446 native methods or whole-app/physical usability acceptance.
+
+- [42231725611](https://github.com/tarungittarun/TicTic/actions/runs/42231725611): candidate71_original_evidence_retained — Original four-profile receipts, public screenshots, new JVM XML and exact source pins retained after root gate. Screenshots inspected separately; retention/job success alone does not supply acceptance.
 
 **OBS-0001 / W01 / create a note containing the shared agenda:** Wave one created the agenda words in both apps, but Obsidian saved source had an extra leading #. MyNotes accessibility body and home title versus Obsidian editor/vault readback are unequal checks, not crash-recovery proof. Wave two did NOT correct the fixture: its exact Obsidian body assertion blocked on empty readback. No creation success or data-loss conclusion is drawn from that wave.
 
@@ -75,6 +89,40 @@ Evidence: [sessions/42218900341/obsidian-S01-body-match-results.png](sessions/42
 **REVIEW-WAVE3-METHOD:** COMPLETED: third session verified fresh-emulator offline provisioning before installation and visible result-container checks. Obsidian W01 independently passed exact editor/vault body readback before the separate API fixture setup. That later setup seeds/reads the same exact public body for downstream W02/S01 and cannot rescue earlier W01 failures or count as a user creation/typing/durability test. S01 screenshot shows 1 result and a highlighted cobalt42 passage. Our screenshot again shows title/type without passage. No packet capture, continuous network audit, account/physical-device or user-efficiency acceptance.
 
 Evidence: [sessions/42220127426/offline-guest-proof.json](sessions/42220127426/offline-guest-proof.json), [sessions/42220127426/environment.json](sessions/42220127426/environment.json), [sessions/42220127426/connectivity-after-session.txt](sessions/42220127426/connectivity-after-session.txt), [sessions/42220127426/obsidian-W01-typed.png](sessions/42220127426/obsidian-W01-typed.png), [sessions/42220127426/obsidian-FIXTURE-exact-body.png](sessions/42220127426/obsidian-FIXTURE-exact-body.png), [sessions/42220127426/obsidian-S01-body-match-results.png](sessions/42220127426/obsidian-S01-body-match-results.png), [sessions/42220127426/session.json](sessions/42220127426/session.json)
+
+## Changed-build qualification — bounded, not closed
+
+**Current candidate:** Two changes implemented and focused checks passed on candidate71 (0.71.0/code71). Broader feature acceptance and exhaustive 37-module comparison remain incomplete.
+
+**Exact tested source:** 95f5d24f668ac899ef595f2765b491d2c2a6f5dd
+
+**Scope and limits:** Focused functional/geometry checks plus separate screenshot review. Public seeded repository fixtures, not participant note-creation/typing-time tests. Baseline comparison remains MyNotes69 versus pinned Obsidian; no new competitor speed ranking. No migration/install-over or physical acceptance; no release published.
+
+**JVM result:** 366 tests; failures=0; errors=0; skipped=0
+
+**IMP-0001 implementation:** Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes.
+
+**Implementation commits:** be8643bb9967ff5f3cda0093fdf89e5736703609 / b39248606ad6d3a7a119ea70e1c83fb24105b16c
+
+**IMP-0001 candidate result:** Actual Body: Agenda cobalt42 decision text and exact bold substring span verified, note opened through real native input, stored body unchanged, on all four selected profiles. Separate screenshot review confirms a real body passage and bold/underlined marker. Fixture is repository-seeded and differs from the initial paired agenda; not typing efficiency, crash recovery, scale/relevance or all-search-surface acceptance.
+
+**Acceptance still outstanding:** Continue similarly named notes with different matching passages, rich tables/checklists/labels/diagrams, Unicode boundaries, 200-result limit, stale-query cancellation and large corpora. Native focused checks passed, but physical/TalkBack/efficiency/latency and broader acceptance remain open; no global search-quality score.
+
+Retest evidence: [implementations/42231478498/improvement71-api26-portrait/refinement-native-verified.json](implementations/42231478498/improvement71-api26-portrait/refinement-native-verified.json), [implementations/42231478498/improvement71-api36-portrait/refinement-native-verified.json](implementations/42231478498/improvement71-api36-portrait/refinement-native-verified.json), [implementations/42231478498/improvement71-api34-large/refinement-native-verified.json](implementations/42231478498/improvement71-api34-large/refinement-native-verified.json), [implementations/42231478498/improvement71-api34-landscape/refinement-native-verified.json](implementations/42231478498/improvement71-api34-landscape/refinement-native-verified.json), [implementations/42231478498/jvm/TEST-app.space.notes.domain.ImprovementLedgerTest.xml](implementations/42231478498/jvm/TEST-app.space.notes.domain.ImprovementLedgerTest.xml), [implementations/42231478498/improvement71-api26-portrait/captures/imp0001-search-passage.png](implementations/42231478498/improvement71-api26-portrait/captures/imp0001-search-passage.png), [implementations/42231478498/improvement71-api36-portrait/captures/imp0001-search-passage.png](implementations/42231478498/improvement71-api36-portrait/captures/imp0001-search-passage.png)
+
+**IMP-0002 implementation:** Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these were included in focused native qualification, not fully accepted by source inspection. Candidate70 missed the normal-font API26 three-line constraint. Candidate71 removes redundant header/outer vertical padding and reduces the control minimum to measured header+inline rows+8dp (floor104dp), while retaining 48dp actions. It does not lower that assertion. Failure-time screenshot capture is now placed before the viewport assertion.
+
+**Implementation commits:** be8643bb9967ff5f3cda0093fdf89e5736703609 / b39248606ad6d3a7a119ea70e1c83fb24105b16c
+
+**IMP-0002 candidate result:** Unchanged normal-font portrait three-line geometry constraint now passed on API26 and API36. All four selected profiles verified original selection/body, Bold selected-text persistence and protected font/numbering/typing/rails regressions in the tested fixtures. Screenshot review: API26 shows three prose lines above the IME; large text shows fewer lines (approximately two in the retained frame), not a universal three-line guarantee. Landscape frame has no keyboard after the existing short-viewport dismissal, so keyboard-open landscape acceptance remains unestablished.
+
+**Acceptance still outstanding:** Broader acceptance still needs keyboard show/hide transitions, fixed-font/caret/scroll paired comparison, physical and TalkBack reachability, more short/large-text viewports, rotated selection and longer styled notes. Specifically evaluate landscape keyboard retention; current screenshot does not establish it. Do not infer smoothness or task-time gains from focused geometry assertions.
+
+Retest evidence: [implementations/42231478498/improvement71-api26-portrait/refinement-native-verified.json](implementations/42231478498/improvement71-api26-portrait/refinement-native-verified.json), [implementations/42231478498/improvement71-api36-portrait/refinement-native-verified.json](implementations/42231478498/improvement71-api36-portrait/refinement-native-verified.json), [implementations/42231478498/improvement71-api34-large/refinement-native-verified.json](implementations/42231478498/improvement71-api34-large/refinement-native-verified.json), [implementations/42231478498/improvement71-api34-landscape/refinement-native-verified.json](implementations/42231478498/improvement71-api34-landscape/refinement-native-verified.json), [implementations/42231478498/jvm/TEST-app.space.notes.domain.ImprovementLedgerTest.xml](implementations/42231478498/jvm/TEST-app.space.notes.domain.ImprovementLedgerTest.xml), [implementations/42231478498/improvement71-api26-portrait/captures/imp0002-keyboard-format.png](implementations/42231478498/improvement71-api26-portrait/captures/imp0002-keyboard-format.png), [implementations/42231478498/improvement71-api34-large/captures/imp0002-keyboard-format.png](implementations/42231478498/improvement71-api34-large/captures/imp0002-keyboard-format.png)
+
+## IMP-0001 | Candidate71 native evidence
+
+## IMP-0002 | Candidate71 native evidence
 
 ## Measured quantities — narrowly defined
 
@@ -154,11 +202,11 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 ### IMP-0001 — Show why a body-search result matched
 
-**Status:** implemented_pending_native_retest
+**Status:** implemented_partially_verified
 
-**Owner / implementation not started:** Arena coding agent; candidate70 implementation committed
+**Owner / execution status:** Arena coding agent; candidate71 implemented and focused qualification passed; broader acceptance open
 
-**Acceptance on changed build:** pending_changed_build_native_results
+**Acceptance on changed build:** focused_checks_passed_broader_acceptance_pending
 
 **Bounded task / expected result:** Find UX Meeting using cobalt42, a term present only in the body, and identify the relevant passage without opening candidate notes.
 
@@ -174,7 +222,7 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 **Root-cause confidence:** source_supported_mechanism_not_exclusive_cause
 
-**Source-supported mechanism:** NotesController.filterNow uses Note.matches to include body matches, but renderUniversalResults constructs a title button plus type/archive/folder metadata only. It does not create a matched-body passage or highlighted result range. This renderer design is consistent with the fresh visible result; no causal patch experiment has yet been run.
+**Baseline source-supported mechanism:** NotesController.filterNow uses Note.matches to include body matches, but renderUniversalResults constructs a title button plus type/archive/folder metadata only. It does not create a matched-body passage or highlighted result range. This renderer design is consistent with the fresh visible result; no causal patch experiment has yet been run.
 
 **Alternative explanations / limits:** The single-match corpus does not measure relevance, search speed, task failure, or user burden at scale. A future configured view could differ. Leading # and default typography differ between fixtures. The installed source/byte identity and raw results are retained; no blanket claim about every search surface is made.
 
@@ -184,11 +232,7 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 **Acceptance task:** Retest the same body-only marker on both apps; add same/similar titles, two body occurrences, rich tables/checklists, label-only hits and multilingual/emoji boundaries. Each returned body hit must show an accurate bounded passage and visible accessible match treatment. No false source label, stale-query result or data mutation. Measure correction/navigation effort separately before claiming an efficiency gain.
 
-**Next discriminating test:** Inspect candidate70 native search screenshot and actual substring spans; verify persistence/opening and unchanged query scope. Continue two-similarly-named-note ambiguity, cancellation/large corpora, rich-content and Unicode acceptance beyond the focused regression. No efficiency or latency gain is accepted from source code.
-
-**Candidate implementation:** Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes.
-
-**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42228792197
+**Next discriminating test:** Continue similarly named notes with different matching passages, rich tables/checklists/labels/diagrams, Unicode boundaries, 200-result limit, stale-query cancellation and large corpora. Native focused checks passed, but physical/TalkBack/efficiency/latency and broader acceptance remain open; no global search-quality score.
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:398 filterNow | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -202,11 +246,11 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 ### IMP-0002 — Reserve writing context when the Format panel opens with the keyboard
 
-**Status:** implemented_pending_native_retest
+**Status:** implemented_partially_verified
 
-**Owner / implementation not started:** Arena coding agent; candidate70 implementation committed
+**Owner / execution status:** Arena coding agent; candidate71 implemented and focused qualification passed; broader acceptance open
 
-**Acceptance on changed build:** pending_changed_build_native_results
+**Acceptance on changed build:** focused_checks_passed_broader_acceptance_pending
 
 **Bounded task / expected result:** Keep nearby note prose visible while choosing inline formatting with the keyboard open. This item concerns viewport allocation, not whether bold formatting saves correctly.
 
@@ -222,7 +266,7 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 **Root-cause confidence:** source_supported_mechanism_not_exclusive_cause
 
-**Source-supported mechanism:** In portrait toggleFormatting allocates a height clamped between112dp and360dp based on55% of shell height. buildFormatting supplies its own header/options layout; adaptEditorViewport can hide/compact other chrome but does not express an explicit readable-body budget in that allocation. This mechanism is consistent with the observed shrinkage. Which allocation/header contribution dominates has not been isolated by a patch experiment.
+**Baseline source-supported mechanism:** In portrait toggleFormatting allocates a height clamped between112dp and360dp based on55% of shell height. buildFormatting supplies its own header/options layout; adaptEditorViewport can hide/compact other chrome but does not express an explicit readable-body budget in that allocation. This mechanism is consistent with the observed shrinkage. Which allocation/header contribution dominates has not been isolated by a patch experiment.
 
 **Alternative explanations / limits:** Caret/scroll, IME height, window insets, font and title visibility affect context. UI tree bounds are not rendered glyph counts. The larger Obsidian visible region does not prove its whole formatting workflow is better; the first activation attempt was blocked. Landscape rails and large text were not tested in this pair.
 
@@ -232,11 +276,7 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 **Acceptance task:** Repeat the same before/after task with fixed caret and equalised note content; record viewport and actual task success. Exercise selected text/new typing, keyboard show/hide, portrait/landscape and font1.0/1.5. Verify reachability, focus, correct formatting, persistence and unchanged note content. Measure interaction time/jank separately before claiming a smoothness improvement.
 
-**Next discriminating test:** Inspect candidate70 IME/selection/persisted-bold results on all four profiles. Require three visible writing lines in normal-font portrait; inspect explicit large-text/landscape constraints separately. Continue manual font/caret/scroll-matched paired visual review and keyboard-transition/persistence regressions. Do not close the item from a build pass.
-
-**Candidate implementation:** Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these are explicitly included in pending native qualification, not accepted by source inspection.
-
-**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42228792197
+**Next discriminating test:** Broader acceptance still needs keyboard show/hide transitions, fixed-font/caret/scroll paired comparison, physical and TalkBack reachability, more short/large-text viewports, rotated selection and longer styled notes. Specifically evaluate landscape keyboard retention; current screenshot does not establish it. Do not infer smoothness or task-time gains from focused geometry assertions.
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:554 buildFormatting | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -264,7 +304,7 @@ Evidence: [sessions/42220127426/mynotes-W02-format-keyboard.png](sessions/422201
 
 **Acceptance:** Record actual scope, result passage, selected filters and persisted order; repeat list/grid, keyboard and large text. Measure drag continuity only in a new live session.
 
-**Aspect statuses:** page navigation: not_tested; feature outcome: partially_observed: single body-only match in both apps; other search/organisation tasks pending; icon discovery: not_tested; visual hierarchy: partially_reviewed: S01 result-passage presentation only; layout and keyboard: not_tested; animation: not_tested; efficiency: not_tested; smoothness: not_tested; timing: not_tested; accessibility: not_tested; save and recovery: not_tested
+**Aspect statuses:** page navigation: not_tested; feature outcome: partially_verified: candidate71 single-result passage/exact substring/open/body retention on four profiles; broader search/organisation pending; icon discovery: not_tested; visual hierarchy: partially_reviewed: S01 result-passage presentation only; layout and keyboard: not_tested; animation: not_tested; efficiency: not_tested; smoothness: not_tested; timing: not_tested; accessibility: not_tested; save and recovery: not_tested
 
 **PLAN-X02 / Writing, reading and formatting:** partially_probed_not_module_accepted
 
@@ -272,7 +312,7 @@ Evidence: [sessions/42220127426/mynotes-W02-format-keyboard.png](sessions/422201
 
 **Acceptance:** Retain surrounding prose, correct style target, caret and saved result. Repeat with large text; compare actual task completion and mistakes, not assertion counts.
 
-**Aspect statuses:** page navigation: not_tested; feature outcome: not_tested; icon discovery: not_tested; visual hierarchy: not_tested; layout and keyboard: partially_observed: W02 portrait viewport; paired bold activation blocked in wave one; animation: not_tested; efficiency: not_tested; smoothness: not_tested; timing: not_tested; accessibility: not_tested; save and recovery: not_tested
+**Aspect statuses:** page navigation: not_tested; feature outcome: not_tested; icon discovery: not_tested; visual hierarchy: not_tested; layout and keyboard: partially_verified: candidate71 three-line normal portrait geometry and selected-text persistence; large-text/landscape and broad acceptance scoped separately; animation: not_tested; efficiency: not_tested; smoothness: not_tested; timing: not_tested; accessibility: not_tested; save and recovery: not_tested
 
 **PLAN-X03 / Checklists, numbering and list editing:** not_tested_in_fresh_paired_study
 

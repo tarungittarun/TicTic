@@ -57,6 +57,14 @@ The ledger records failed provisioning separately from actual app sessions. The 
 
 - **Wave three (42220127426):** offline bootstrap verified before installation (three consecutive checks; shell unrooted to UID2000); initial/final default network `none`. Obsidian W01 independently passed exact editor/vault readback **before** the separate explicit API fixture setup. Visible S01 result title/passage assertions and native screenshot agree. No continuous packet capture or reliability guarantee; the earlier input failure remains unisolated. All three sessions' originals remain retained.
 
-## Implementation authorised — candidate70
+## Implementation authorised — candidate71 current, candidate70 history
 
 User requested applying fixes on 2026-11-06. IMP-0001 and IMP-0002 are implemented in `be8643bb9967ff5f3cda0093fdf89e5736703609`, **not yet accepted as fixed**. Changed-build JVM/lint and four-profile native results are tracked separately. No production APK is being published by this nonpublishing qualification. Existing baseline frames/source hashes and all failed attempts remain unchanged.
+
+**Current result:** candidate71 passed Actions build/lint, 366 JVM tests and exactly eight focused native methods per four profiles. See `implementations/42231478498/`. Candidate70 API26 failure and preflight/schema/retention corrections remain in the execution history. Both items are `implemented_partially_verified`: not closed or whole-feature/physical accepted. No public APK release or install-over qualification is implied.
+
+| New implementation term | Meaning |
+|---|---|
+| Implemented, partially verified | Code committed and named changed-build checks passed; explicit wider acceptance gaps remain. This is not a closed/fixed whole feature. |
+
+Native qualification screenshots were resized to 540px by the existing instrumentation capture helper; retention did not alter their pixels. They use public seeded fixtures, not the exact paired-session input/caret/scroll state. Do not infer a percentage viewport, speed or usability gain by comparing these frames to baseline screenshots.

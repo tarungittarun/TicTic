@@ -22,10 +22,12 @@ class ImprovementLedgerTests(unittest.TestCase):
  def test_no_fix_claim_without_implementation_and_retest(self):
   self.assertEqual(self.data['fixes_implemented'],any(i['status']!='proposed_not_implemented' for i in self.data['work_items']))
   for item in self.data['work_items']:
-   self.assertIn(item['status'],['proposed_not_implemented','implemented_pending_native_retest','fixed_verified'])
+   self.assertIn(item['status'],['proposed_not_implemented','implemented_pending_native_retest','implemented_partially_verified','fixed_verified'])
    if item['status']!='proposed_not_implemented':
     self.assertRegex(item['implementation_commit'],r'^[0-9a-f]{40}$')
-   if item['status']=='fixed_verified':self.assertTrue(item['retest_evidence'])
+   if item['status'] in ['fixed_verified','implemented_partially_verified']:
+    self.assertTrue(item['retest_evidence'])
+    for ref in item['retest_evidence']:self.assertTrue((OUT/ref).is_file(),ref)
    self.assertTrue(item['next_test']);self.assertTrue(item['alternatives'])
  def test_literal_source_inventory_is_not_runtime_execution(self):
   definitions=json.loads((OUT/'source-surfaces.json').read_text())['controls']
@@ -48,6 +50,19 @@ class ImprovementLedgerTests(unittest.TestCase):
  def test_measurements_define_units_and_limits(self):
   for m in self.data['measurements']:
    self.assertTrue(m['definition']);self.assertTrue(m['unit']);self.assertTrue(m['samples']);self.assertTrue(m['limit']);self.assertTrue((OUT/m['source']).is_file())
+ def test_candidate_summary_matches_original_four_profile_receipts(self):
+  q=self.data['candidate_qualification']
+  self.assertEqual(q['jvm'],json.loads((OUT/q['jvm_source']).read_text()))
+  self.assertEqual((q['jvm']['failures'],q['jvm']['errors'],q['jvm']['skipped']),(0,0,0))
+  self.assertEqual(len(q['profiles']),4)
+  for row in q['profiles']:
+   original=json.loads((OUT/row['source']).read_text())
+   self.assertEqual((row['ok'],row['passed'],row['expected']),(original['ok'],original['passed'],original['expected']))
+   self.assertTrue(original['ok']);self.assertEqual(original['failures'],[])
+ def test_implementation_retention_cannot_succeed_with_only_jvm_receipts(self):
+  for manifest in (OUT/'implementations').glob('*/retention.json'):
+   refs=[row['path'] for row in json.loads(manifest.read_text())['files']]
+   self.assertTrue(any(p.endswith('refinement-native-verified.json') for p in refs),str(manifest))
  def test_retained_files_have_unmodified_source_hashes(self):
   for manifest in list((OUT/'sessions').glob('*/retention.json'))+list((OUT/'implementations').glob('*/retention.json')):
    for f in json.loads(manifest.read_text())['files']:

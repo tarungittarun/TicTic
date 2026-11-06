@@ -13,3 +13,10 @@ class VisibleBlockersTest(unittest.TestCase):
   a=self.row('Properties view','Playground\n2 tabs\nDone');self.assertEqual(m.normalize_visible_blockers([a])[0]['status'],'blocked')
  def test_expected_overview_not_falsely_blocked(self):
   a=self.row('Tab overview','2 tabs\nDone');self.assertEqual(m.normalize_visible_blockers([a])[0]['status'],'screen_inspected')
+
+ def test_paired_permission_denial_blocks_start_in_same_native_segment(self):
+  start=self.row('Command entry: Start recording','Allow recording?','Command=audio-recorder:start; invoked=True');stop=self.row('Command entry: Stop recording','Permission denied','Command=audio-recorder:stop; unavailable');start['capture_run']=stop['capture_run']='same'
+  self.assertEqual(m.normalize_visible_blockers([start,stop])[0]['status'],'blocked')
+ def test_permission_denial_does_not_leak_between_native_segments(self):
+  start=self.row('Command entry: Start recording','Recording','Command=audio-recorder:start; invoked=True');stop=self.row('Command entry: Stop recording','Permission denied','Command=audio-recorder:stop; unavailable');start['capture_run']='one';stop['capture_run']='two'
+  self.assertEqual(m.normalize_visible_blockers([start,stop])[0]['status'],'screen_inspected')

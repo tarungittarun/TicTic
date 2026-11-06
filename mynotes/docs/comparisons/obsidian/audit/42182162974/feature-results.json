@@ -800,8 +800,8 @@
   {
     "feature": "Templates",
     "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
-    "status": "screen_inspected",
-    "observed": "insert-template; invoked=True",
+    "status": "blocked",
+    "observed": "insert-template; invoked=True; Visual review: Template insertion was blocked: the dummy vault has no configured template folder. Settings and the attempted action are captured; insertion is not verified.",
     "screenshot": "walkthrough-feature-057.png",
     "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\nFailed to list templates. No template folder configured.",
     "visual_sync": {
@@ -809,7 +809,8 @@
       "compositor_fence": true,
       "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
     },
-    "session": "walkthrough"
+    "session": "walkthrough",
+    "original_capture_status": "screen_inspected"
   },
   {
     "feature": "Slash commands",
@@ -912,8 +913,8 @@
   {
     "feature": "Properties view",
     "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
-    "status": "screen_inspected",
-    "observed": "properties:open; invoked=True",
+    "status": "blocked",
+    "observed": "properties:open; invoked=True; Visual review: Tab overview obscured this attempted properties-panel capture. See the separate Command entry: Properties view: Show all properties screenshot for the actual property list.",
     "screenshot": "walkthrough-feature-065.png",
     "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n34 files, 2 folders\nAll properties\nFiles\nSearch\nTags\nAll properties\nBookmarks\naliases\n1\naudit_date\n1\ncompleted\n1\ncount\n1\ntags\n1\ntitle\n1\ncssclasses\n0\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\nPlayground\nLocal graph\n2 tabs\nDone",
     "visual_sync": {
@@ -921,7 +922,8 @@
       "compositor_fence": true,
       "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
     },
-    "session": "walkthrough"
+    "session": "walkthrough",
+    "original_capture_status": "screen_inspected"
   },
   {
     "feature": "Local source preservation",
@@ -3445,8 +3447,8 @@
   {
     "feature": "Command entry: Templates: Insert template",
     "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
-    "status": "screen_inspected",
-    "observed": "Command=insert-template; invoked=True; semantic outcome not individually certified.",
+    "status": "blocked",
+    "observed": "Command=insert-template; invoked=True; semantic outcome not individually certified.; Visual review: Template insertion was blocked: the dummy vault has no configured template folder. Settings and the attempted action are captured; insertion is not verified.",
     "screenshot": "commands-segment-0-feature-169.png",
     "visible_text": "Command case 167\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nFailed to list templates. No template folder configured.",
     "visual_sync": {
@@ -3455,7 +3457,8 @@
       "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
     },
     "capture_run": "42179340885",
-    "session": "commands"
+    "session": "commands",
+    "original_capture_status": "screen_inspected"
   },
   {
     "feature": "Command entry: Templates: Insert current date",
@@ -3925,8 +3928,8 @@
   {
     "feature": "Command entry: Audio recorder: Start recording audio",
     "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
-    "status": "screen_inspected",
-    "observed": "Command=audio-recorder:start; invoked=True; semantic outcome not individually certified.",
+    "status": "blocked",
+    "observed": "Command=audio-recorder:start; invoked=True; semantic outcome not individually certified.; Visual review: Audio recording was blocked by permission denial. This is not a recording or microphone-quality pass.",
     "screenshot": "commands-segment-1-feature-009.png",
     "visible_text": "Command case 199\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
     "visual_sync": {
@@ -3935,7 +3938,8 @@
       "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
     },
     "capture_run": "42182162974",
-    "session": "commands"
+    "session": "commands",
+    "original_capture_status": "screen_inspected"
   },
   {
     "feature": "Command entry: Audio recorder: Stop recording audio",

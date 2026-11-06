@@ -72,11 +72,12 @@ def normalize_visible_blockers(features):
  """A visible denial/context error is not successful feature demonstration."""
  import re
  result=[dict(row) for row in features]
+ denied={row.get('capture_run',row.get('session','single-source')) for row in result if 'audio-recorder:' in row.get('observed','') and 'permission denied' in row.get('visible_text','').lower()}
  for row in result:
   text=row.get('visible_text','');observed=row.get('observed','');name=row['feature'];reason=None
   if (name=='Templates' or 'Command=insert-template;' in observed) and 'No template folder configured' in text:
    reason='Template insertion was blocked: the dummy vault has no configured template folder. Settings and the attempted action are captured; insertion is not verified.'
-  if 'Command=audio-recorder:' in observed and 'permission denied' in text.lower():
+  if 'Command=audio-recorder:' in observed and row.get('capture_run',row.get('session','single-source')) in denied:
    reason='Audio recording was blocked by permission denial. This is not a recording or microphone-quality pass.'
   if name=='Properties view' and re.search(r'\b\d+ tabs?\s+Done\b',text):
    reason='Tab overview obscured this attempted properties-panel capture. See the separate Command entry: Properties view: Show all properties screenshot for the actual property list.'

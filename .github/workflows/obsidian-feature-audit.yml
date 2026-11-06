@@ -1,3 +1,4 @@
+# Inspection7: isolate settings-driver timeouts; preserve failed sections; produce a separate conservative coverage matrix.
 # Inspection6: vault manager last (it unloads the app); use actual core-module UI toggles; cold restart and four appearance variants.
 # Inspection5: close actual modal scopes; serialize void UI actions; include core-plugin settings and editor command readback.
 # Inspection4: complete observed sync-choice onboarding before the mobile inventory.
@@ -45,7 +46,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -cores 4 -noaudio -no-boot-anim -no-snapshot
           script: |
             adb install /tmp/obsidian-apk/Obsidian-1.15.0.apk
             adb shell settings put system accelerometer_rotation 0
@@ -57,11 +58,11 @@ jobs:
           test -f obsidian-evidence/observations.json
           python mynotes/tools/comparisons/obsidian_discovery_report.py
           if test -f obsidian-evidence/feature-results.json; then python mynotes/tools/comparisons/obsidian_feature_report.py; fi
+          git pull --ff-only origin arena/3caca636-tictic
           python -m unittest discover -s qa
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git pull --ff-only origin arena/3caca636-tictic
           git add mynotes/docs/comparisons/obsidian
           git commit -m 'Preserve actual official Obsidian Android discovery screens [skip ci]'
           git push origin arena/3caca636-tictic

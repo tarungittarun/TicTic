@@ -7,9 +7,9 @@ OUT=Path('obsidian-evidence');rows=[]
 def main():
  onboard();d=Device()
  assert d.js('!!window.app?.vault'), 'Vault onboarding did not finish; no feature coverage claim'
- def capture(feature,brief,level='screen_inspected',observed='',check=None):
+ def capture(feature,brief,level='screen_inspected',observed='',check=None,text_override=None):
   idx=len(rows);stem=f'feature-{idx:03d}'
-  text=d.js('document.body.innerText') or ''
+  text=(d.js('document.body.innerText') or '') if text_override is None else text_override
   if check is not None:level='functional_pass' if check else 'failed'
   # Native screenshot only, never reconstruct or restyle the target app.
   (OUT/(stem+'.png')).write_bytes(adb('exec-out','screencap','-p'))
@@ -19,6 +19,15 @@ def main():
   for _ in range(3):
    d.call('Input.dispatchKeyEvent',{'type':'keyDown','key':'Escape','code':'Escape','windowsVirtualKeyCode':27});d.call('Input.dispatchKeyEvent',{'type':'keyUp','key':'Escape','code':'Escape','windowsVirtualKeyCode':27})
   d.js('app.setting?.close();void 0');time.sleep(.15)
+ def restart():
+  nonlocal d
+  try:d.ws.close()
+  except Exception:pass
+  adb('shell','am','force-stop','md.obsidian');adb('shell','monkey','-p','md.obsidian','-c','android.intent.category.LAUNCHER','1');time.sleep(5);d=Device()
+  for _ in range(30):
+   if d.js('!!window.app?.vault?.getAbstractFileByPath("Feature Audit/Playground.md")'):return
+   time.sleep(1)
+  raise RuntimeError('Same-data app restart did not return to the existing audit vault')
  def openfile(path):
   close();d.js('(async()=>{const f=app.vault.getAbstractFileByPath('+json.dumps(path)+');await app.workspace.getLeaf(false).openFile(f)})()');time.sleep(.8)
  def command(name,pattern):
@@ -140,22 +149,24 @@ Content under a heading can be folded.
  close();d.js('app.setting.open();void 0');time.sleep(.5)
  tabs=d.js('[...app.setting.settingTabs,...app.setting.pluginTabs].map(t=>({id:t.id,name:t.name}))')
  for tab in tabs:
-  d.js('app.setting.openTabById('+json.dumps(tab['id'])+');void 0');time.sleep(.4)
-  capture('Settings: '+tab['name'],'Installed mobile settings category. Settings are not blindly changed, especially account, sync or security controls.')
-  items=d.js('[...document.querySelectorAll(".vertical-tab-content-container .setting-item")].map((e,i)=>({i,name:e.querySelector(".setting-item-name")?.innerText||"",description:e.querySelector(".setting-item-description")?.innerText||""})).filter(x=>x.name)') or []
-  for item in items:
-   d.js('document.querySelectorAll(".vertical-tab-content-container .setting-item")['+str(item['i'])+']?.scrollIntoView({block:"center"})');time.sleep(.15)
-   capture(tab['name']+': '+item['name'],item['description'] or 'Setting offered by this version of the Android application.','screen_inspected','Control inspected only; not all values/branches functionally verified.')
+  try:
+   d.js('app.setting.openTabById('+json.dumps(tab['id'])+');void 0');time.sleep(.4)
+   capture('Settings: '+tab['name'],'Installed mobile settings category. Settings are not blindly changed, especially account, sync or security controls.')
+   items=d.js('[...document.querySelectorAll(".vertical-tab-content-container .setting-item")].map((e,i)=>({i,name:e.querySelector(".setting-item-name")?.innerText||"",description:e.querySelector(".setting-item-description")?.innerText||""})).filter(x=>x.name)') or []
+   for item in items:
+    d.js('document.querySelectorAll(".vertical-tab-content-container .setting-item")['+str(item['i'])+']?.scrollIntoView({block:"center"})');time.sleep(.15)
+    capture(tab['name']+': '+item['name'],item['description'] or 'Setting offered by this version of the Android application.','screen_inspected','Control inspected only; not all values/branches functionally verified.')
+  except Exception as e:
+   capture('Settings blocked: '+tab['name'],'The inspection driver could not finish this section; this is not an app functional pass.','blocked',str(e)[:500],text_override='DOM inspection interrupted; screenshot shows the actual device at interruption.')
+   (OUT/('settings-error-'+tab['id']+'.txt')).write_text(str(e))
+   restart();d.js('app.setting.open();void 0');time.sleep(.4)
  close();openfile('Feature Audit/Playground.md')
  # Readback and cold restart check local persistence, not cloud sync or power-loss recovery.
  d.js('app.workspace.activeLeaf.view.save?.()');time.sleep(1)
  readback=d.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath("Feature Audit/Playground.md")))()')
  capture('Local source preservation','Read back the seeded Markdown through the official app vault API.',check=readback==seed['Feature Audit/Playground.md'])
  # Real process restart: same installed app and private vault, no clear/uninstall.
- adb('shell','am','force-stop','md.obsidian');adb('shell','monkey','-p','md.obsidian','-c','android.intent.category.LAUNCHER','1');time.sleep(5);d=Device()
- for _ in range(30):
-  if d.js('!!window.app?.vault?.getAbstractFileByPath("Feature Audit/Playground.md")'):break
-  time.sleep(1)
+ restart()
  restored=d.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath("Feature Audit/Playground.md")))()')
  openfile('Feature Audit/Playground.md');capture('Cold restart and retained local note','Force-stop and relaunch the same installed app, then compare the exact original Markdown.',check=restored==seed['Feature Audit/Playground.md'])
  # Representative light/dark and portrait/landscape views, using app commands and Android rotation.
@@ -176,4 +187,7 @@ Content under a heading can be folded.
 if __name__=='__main__':
  try:main()
  except Exception as e:
-  (OUT/'driver-error.txt').write_text(str(e));raise
+  (OUT/'driver-error.txt').write_text(str(e))
+  try:(OUT/'failure-logcat.txt').write_bytes(adb('logcat','-d','-t','200'));(OUT/'driver-failure.png').write_bytes(adb('exec-out','screencap','-p'))
+  except Exception:pass
+  raise

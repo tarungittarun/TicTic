@@ -1,5 +1,6 @@
 """Evidence PDF: per-feature brief + real image + honest coverage classification."""
 import collections,json,os,shutil,textwrap
+from obsidian_coverage import command_coverage
 from pathlib import Path
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
@@ -28,9 +29,23 @@ for i,r in enumerate(rows):
  c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')
  c.setFont('Helvetica',8);c.drawString(30,23,'Real Android emulator capture | Obsidian 1.15.0 | '+os.environ['GITHUB_RUN_ID']);c.showPage()
 c.save()
-for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt','module-enablement.json']:
+for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt','module-enablement.json','last-cdp-request.json','failure-logcat.txt']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
 # Full command census: every offered command is accounted for as inventoried, not automatically passed.
 inv=json.loads((src/'feature-inventory.json').read_text()) if (src/'feature-inventory.json').exists() else {}
-(out/'command-coverage.json').write_text(json.dumps([dict(command,status='inventoried_not_individually_verified') for command in inv.get('commands',[])],indent=2))
+commands=command_coverage(inv.get('commands',[]),rows)
+(out/'command-coverage.json').write_text(json.dumps(commands,indent=2))
+c=Canvas(str(out/'Obsidian-Coverage-Matrix.pdf'),pagesize=A4)
+c.setTitle('Obsidian 1.15.0 Android: command and core-module coverage matrix')
+y=805
+for text in ['Obsidian 1.15.0 - coverage matrix','This is not 100% functional acceptance.', 'Commands offered by the inspected mobile configuration: '+str(len(commands)),str(dict(collections.Counter(x['status'] for x in commands))), 'Paid services, credentials, community add-ons and all value combinations are not fully tested.']:
+ y=lines(text,y,11,86)-8
+for section,data in [('Core module definitions',inv.get('plugins',[])),('Command census',commands)]:
+ y=lines(section,y-12,13,80)
+ for row in data:
+  text=(row.get('name') or row['id'])+' | '+row['id']+' | '+row.get('status','definition inventoried; enabled='+str(row.get('enabled')))
+  wrapped=textwrap.wrap(text,width=103)
+  if y-14*len(wrapped)<38:c.showPage();y=805
+  y=lines(text,y,9,103)-5
+c.save()
 (out/'README.md').write_text('# Actual Obsidian Android feature inspection\n\nRead the PDF cover and per-feature status. This is not 100% functional acceptance. The command census is inventory, not executed-command proof. Screens are compressed copies of actual adb screenshots. APK is not redistributed.\n')

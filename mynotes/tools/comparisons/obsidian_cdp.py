@@ -8,8 +8,10 @@ class Device:
   subprocess.check_call(['adb','forward','tcp:9222','localabstract:'+sock])
   targets=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json'))
   target=next((x for x in targets if x.get('type')=='page'),targets[0])
-  self.ws=websocket.create_connection(target['webSocketDebuggerUrl'],suppress_origin=True,timeout=30);self.seq=0
+  self.ws=websocket.create_connection(target['webSocketDebuggerUrl'],suppress_origin=True,timeout=60);self.seq=0
  def call(self,method,params=None):
+  from pathlib import Path
+  Path('obsidian-evidence/last-cdp-request.json').write_text(json.dumps({'method':method,'params':params or {}},indent=2))
   self.seq+=1;i=self.seq;self.ws.send(json.dumps({'id':i,'method':method,'params':params or {}}))
   while True:
    r=json.loads(self.ws.recv())

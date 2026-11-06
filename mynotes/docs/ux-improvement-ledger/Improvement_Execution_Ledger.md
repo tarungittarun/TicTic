@@ -38,7 +38,9 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 - [42220747328](https://github.com/tarungittarun/TicTic/actions/runs/42220747328): evidence_retained_after_root_gate — Third session originals, pre-install offline proof, final connectivity receipt and CDP trace saved unchanged after root gate. No app build, fix, or physical acceptance.
 
-- [42227937679](https://github.com/tarungittarun/TicTic/actions/runs/42227937679): candidate70_qualification_started — Actions compiles changed app, runs JVM/lint and focused native assertions on API36 portrait, API34 large text/landscape dark, API26 portrait. Pending results are not passes or physical usability acceptance. No local Android build and no release publication.
+- [42227937679](https://github.com/tarungittarun/TicTic/actions/runs/42227937679): candidate70_build_failed_before_native — Initial candidate70 JVM task completed, but instrumentation compilation failed because existing OfflineOcrTest requires the opt-in Tesseract Android-test dependency. No native case executed; not an app UX failure. Corrected qualification enables existing -PmoduleE2E instrumentation setup, without weakening assertions.
+
+- [42228792197](https://github.com/tarungittarun/TicTic/actions/runs/42228792197): candidate70_corrected_qualification_running — Same production changes with required existing instrumentation dependency enabled. Four-profile actual outcomes pending; retain first build failure.
 
 **OBS-0001 / W01 / create a note containing the shared agenda:** Wave one created the agenda words in both apps, but Obsidian saved source had an extra leading #. MyNotes accessibility body and home title versus Obsidian editor/vault readback are unequal checks, not crash-recovery proof. Wave two did NOT correct the fixture: its exact Obsidian body assertion blocked on empty readback. No creation success or data-loss conclusion is drawn from that wave.
 
@@ -162,9 +164,9 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 **Preconditions and exact actions:** Use UX Meeting with body-only marker cobalt42. MyNotes: touch home search, type marker, inspect actual result row. Obsidian: open built-in search pane by command API, type marker, inspect result title and visible passage, not background document text. Wave one used typed body words with an extra # in Obsidian. Wave three independently passed exact UI-entry/readback, then used disclosed exact public API fixture preparation before downstream probes. Wave-two empty fixture / false search pass is excluded.
 
-**MyNotes actual result:** One result is returned: UX Meeting followed by Note. No body passage or in-result highlighting of cobalt42 is shown in the captured result. The query field/keyboard containing cobalt42 are not a result snippet.
+**Baseline MyNotes actual result:** One result is returned: UX Meeting followed by Note. No body passage or in-result highlighting of cobalt42 is shown in the captured result. The query field/keyboard containing cobalt42 are not a result snippet.
 
-**Obsidian actual result:** Reviewed wave-one and wave-three native result panes show UX Meeting with a contextual passage and highlighted cobalt42. Wave-three result-container checks confirm visible marker passage and result title. API search-pane/fixture setup is disclosed; no touch-route efficiency advantage is claimed. Wave-two pane shows zero results and is invalidated, not an app search defect.
+**Baseline Obsidian actual result:** Reviewed wave-one and wave-three native result panes show UX Meeting with a contextual passage and highlighted cobalt42. Wave-three result-container checks confirm visible marker passage and result title. API search-pane/fixture setup is disclosed; no touch-route efficiency advantage is claimed. Wave-two pane shows zero results and is invalidated, not an app search defect.
 
 **User consequence:** Without match context, users must open candidates to understand why they matched. Extra effort with multiple results is an expert inference, not measured user completion time in this one-note case.
 
@@ -186,7 +188,7 @@ Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 **Candidate implementation:** Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes.
 
-**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42227937679
+**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42228792197
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:398 filterNow | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -210,9 +212,9 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 **Preconditions and exact actions:** Recorded public agenda in the same portrait emulator configuration. MyNotes: reopen note, focus body, capture keyboard, open Format, capture, activate Bold and inspect state. Obsidian: focus editor, inspect compact B toolbar, activate its visible SVG target. Wave-one B selector blocked; wave-two target worked on an empty fixture and is not a paired prose trial; wave-three exact API-prepared body and B activation are retained. Caret, default font and scroll remain unmatched.
 
-**MyNotes actual result:** Fresh screenshots show only a short strip of prose above the Format panel. Body node bounds change from [60,277][1020,783] (506px high) to [60,264][1020,440] (176px); panel bounds are [60,476][1020,999]. Bold control selected state changes false to true. These are geometry/state observations, not a failed formatting assertion.
+**Baseline MyNotes actual result:** Fresh screenshots show only a short strip of prose above the Format panel. Body node bounds change from [60,277][1020,783] (506px high) to [60,264][1020,440] (176px); panel bounds are [60,476][1020,999]. Bold control selected state changes false to true. These are geometry/state observations, not a failed formatting assertion.
 
-**Obsidian actual result:** Wave-one and wave-three native keyboard/editor screenshots leave a larger prose region above a compact B toolbar. Text reaches/overlaps the top system-bar area, so this is not a flawless reading layout. Wave-three B interaction observed on known fixture; no persisted styled-text or selection correctness acceptance. Default font/caret/scroll not matched, no productivity ratio. Wave-one selector failure and wave-two empty fixture retained.
+**Baseline Obsidian actual result:** Wave-one and wave-three native keyboard/editor screenshots leave a larger prose region above a compact B toolbar. Text reaches/overlaps the top system-bar area, so this is not a flawless reading layout. Wave-three B interaction observed on known fixture; no persisted styled-text or selection correctness acceptance. Default font/caret/scroll not matched, no productivity ratio. Wave-one selector failure and wave-two empty fixture retained.
 
 **User consequence:** Losing surrounding prose can require closing/reopening controls to retain sentence context. That consequence is an expert inference; no novice task-time or satisfaction study was performed.
 
@@ -234,7 +236,7 @@ Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/422
 
 **Candidate implementation:** Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these are explicitly included in pending native qualification, not accepted by source inspection.
 
-**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42227937679
+**Qualification run:** https://github.com/tarungittarun/TicTic/actions/runs/42228792197
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:554 buildFormatting | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 

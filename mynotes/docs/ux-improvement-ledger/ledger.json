@@ -961,9 +961,15 @@
     },
     {
       "run": "42227937679",
-      "status": "candidate70_qualification_started",
-      "meaning": "Actions compiles changed app, runs JVM/lint and focused native assertions on API36 portrait, API34 large text/landscape dark, API26 portrait. Pending results are not passes or physical usability acceptance. No local Android build and no release publication.",
+      "status": "candidate70_build_failed_before_native",
+      "meaning": "Initial candidate70 JVM task completed, but instrumentation compilation failed because existing OfflineOcrTest requires the opt-in Tesseract Android-test dependency. No native case executed; not an app UX failure. Corrected qualification enables existing -PmoduleE2E instrumentation setup, without weakening assertions.",
       "url": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679"
+    },
+    {
+      "run": "42228792197",
+      "status": "candidate70_corrected_qualification_running",
+      "meaning": "Same production changes with required existing instrumentation dependency enabled. Four-profile actual outcomes pending; retain first build failure.",
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42228792197"
     }
   ],
   "paired_observations": [
@@ -1080,7 +1086,7 @@
       "retest_evidence": [],
       "acceptance_status": "pending_changed_build_native_results",
       "candidate_build": "0.70.0/code70; Actions-only qualification; not a published or physically accepted release",
-      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679",
+      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42228792197",
       "implementation_summary": "Display-only bounded Body/Title/Labels/Content names/Diagram passage computed on existing search worker for at most 200 sorted results. Original Note.matches inclusion semantics, archived/global scope, query generation guard and grouped sections remain unchanged. Unicode case-expansion offsets map to original code points; bold+underline mark the real substring without colour-only dependence. Long matches get an explicit bounded fallback. No note text/index or diagnostics content changes."
     },
     {
@@ -1144,7 +1150,7 @@
       "retest_evidence": [],
       "acceptance_status": "pending_changed_build_native_results",
       "candidate_build": "0.70.0/code70; Actions-only qualification; not a published or physically accepted release",
-      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42227937679",
+      "qualification_run": "https://github.com/tarungittarun/TicTic/actions/runs/42228792197",
       "implementation_summary": "Portrait panel recomputes from the measured root budget minus visible chrome/padding/margins, reserves a three-line/96dp body budget where space permits, and keeps measured inline-control minimums. Existing scrollable advanced controls, Clear fifth, selection/typing semantics and landscape rails remain. Very short/large-text layouts may not fit three lines; these are explicitly included in pending native qualification, not accepted by source inspection."
     }
   ],

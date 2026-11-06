@@ -49,7 +49,7 @@ class ImprovementLedgerTests(unittest.TestCase):
   for m in self.data['measurements']:
    self.assertTrue(m['definition']);self.assertTrue(m['unit']);self.assertTrue(m['samples']);self.assertTrue(m['limit']);self.assertTrue((OUT/m['source']).is_file())
  def test_retained_files_have_unmodified_source_hashes(self):
-  for manifest in (OUT/'sessions').glob('*/retention.json'):
+  for manifest in list((OUT/'sessions').glob('*/retention.json'))+list((OUT/'implementations').glob('*/retention.json')):
    for f in json.loads(manifest.read_text())['files']:
     p=manifest.parent/f['path'];self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(),f['sha256']);self.assertFalse(f['source_bytes_modified'])
 

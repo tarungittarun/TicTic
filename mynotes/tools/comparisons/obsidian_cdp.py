@@ -3,10 +3,19 @@ import json,re,subprocess,time,urllib.request
 import websocket
 class Device:
  def __init__(self):
-  sockets=subprocess.check_output(['adb','shell','cat','/proc/net/unix'],text=True)
-  sock=re.findall(r'@(webview_devtools_remote_\d+)',sockets)[-1]
-  subprocess.check_call(['adb','forward','tcp:9222','localabstract:'+sock])
-  targets=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json'))
+  deadline=time.monotonic()+60;targets=[];last='No debug target yet'
+  while time.monotonic()<deadline:
+   try:
+    pid=subprocess.check_output(['adb','shell','pidof','md.obsidian'],text=True,timeout=10).strip().split()[0]
+    sockets=subprocess.check_output(['adb','shell','cat','/proc/net/unix'],text=True,timeout=10)
+    sock='webview_devtools_remote_'+pid
+    if '@'+sock not in sockets:time.sleep(.5);continue
+    subprocess.check_call(['adb','forward','tcp:9222','localabstract:'+sock])
+    targets=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json',timeout=5))
+    if targets:break
+   except Exception as e:last=str(e)
+   time.sleep(.5)
+  if not targets:raise RuntimeError('Official app debug target not ready within60s: '+last)
   target=next((x for x in targets if x.get('type')=='page'),targets[0])
   self.ws=websocket.create_connection(target['webSocketDebuggerUrl'],suppress_origin=True,timeout=60);self.seq=0
  def call(self,method,params=None):

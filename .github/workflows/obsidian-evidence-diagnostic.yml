@@ -1,0 +1,33 @@
+name: Read completed Obsidian session diagnostic without rerunning checks
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/obsidian-evidence-diagnostic.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42174080714
+          name: obsidian-session-variants
+          path: evidence
+      - name: Surface bounded actual driver diagnostics, no retest or pass relabelling
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          for name in ['driver-error.txt','runtime-error.json','last-cdp-request.json','host-memory.txt','adb-state.txt']:
+              p=Path('evidence')/name
+              if p.exists():
+                  text=p.read_text()[:5000].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+                  print('::notice title=Obsidian '+name+'::'+text)
+          p=Path('evidence/feature-results.json')
+          if p.exists():
+              rows=json.loads(p.read_text()); print('::notice title=Actual captured cases::'+json.dumps([(r['feature'],r['status']) for r in rows]))
+          PY

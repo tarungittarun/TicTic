@@ -88,11 +88,13 @@ Content under a heading can be folded.
  time.sleep(2);openfile('Feature Audit/Playground.md')
  check=d.js('app.vault.getFiles().filter(f=>f.path.startsWith("Feature Audit/")).length')==len(seed)
  capture('Markdown files, folders and local readback','Create a nested dummy vault corpus through the app file API, then open it in the real editor.',check=check)
- # Enable optional local core modules only; never install community code or purchase services.
- for pid in ['footnotes','slash-command','zk-prefixer','random-note','slides','audio-recorder','workspaces']:
-  try:
-   d.js('(async()=>{await app.internalPlugins.enablePluginAndSave('+json.dumps(pid)+');return true})()')
-  except Exception as e:print('Optional module enable blocked',pid,str(e)[:300],flush=True)
+ # Only enable optional local modules actually exposed by this mobile settings UI.
+ close();d.js('app.setting.open();app.setting.openTabById("plugins");void 0');time.sleep(.7)
+ module_results=[]
+ for pid,label in [('footnotes','Footnotes view'),('slash-command','Slash commands'),('zk-prefixer','Unique note creator'),('random-note','Random note'),('slides','Slides'),('audio-recorder','Audio recorder'),('workspaces','Workspaces')]:
+  result=d.js('(()=>{const row=[...document.querySelectorAll(".setting-item")].find(e=>e.querySelector(".setting-item-name")?.innerText.trim()==='+json.dumps(label)+');if(!row)return {exposed:false};row.scrollIntoView({block:"center"});const box=row.querySelector(".checkbox-container");if(box&&!box.classList.contains("is-enabled"))box.click();return {exposed:true}})()')
+  time.sleep(.25);result['id']=pid;result['enabled']=d.js('!!app.internalPlugins.plugins['+json.dumps(pid)+']?.enabled');module_results.append(result)
+ (OUT/'module-enablement.json').write_text(json.dumps(module_results,indent=2));close();openfile('Feature Audit/Playground.md')
  # Preserve every offered command as inventory, not as an executed test.
  inventory=d.js('({commands:Object.values(app.commands.commands).map(c=>({id:c.id,name:c.name})),plugins:Object.entries(app.internalPlugins.plugins).map(([id,p])=>({id,enabled:p.enabled})),settings:app.setting.settingTabs.map(t=>({id:t.id,name:t.name}))})')
  (OUT/'feature-inventory.json').write_text(json.dumps(inventory,indent=2))
@@ -133,7 +135,7 @@ Content under a heading can be folded.
    ok=ran and edited!=original and (expected is None or expected in edited)
    capture('Editor: '+suffix,'Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.','functional_pass' if ok else 'blocked','Command='+cid+'; resulting Markdown='+edited[:300])
   except Exception as e:capture('Editor: '+suffix,'This command needs more manual/context-specific testing.','blocked',str(e)[:400])
- for name,pattern in [('Footnotes view','footnotes.*show|footnotes.*open'),('Unique note creator','unique note'),('Random note','random note'),('Templates','templates.*insert template'),('Slash commands','slash commands'),('Slides','slides.*start'),('Workspaces','workspaces.*manage'),('Mobile toolbar','configure mobile toolbar'),('Mobile quick action','configure mobile quick action'),('Tab overview','show tab overview'),('Vault management','manage vaults'),('Sync sign-in entry','sync.*set up'),('Properties view','properties view.*show all')]:command(name,pattern)
+ for name,pattern in [('Footnotes view','footnotes.*show|footnotes.*open'),('Unique note creator','unique note'),('Random note','random note'),('Templates','templates.*insert template'),('Slash commands','slash commands'),('Slides','slides.*start'),('Workspaces','workspaces.*manage'),('Mobile toolbar','configure mobile toolbar'),('Mobile quick action','configure mobile quick action'),('Tab overview','show tab overview'),('Sync sign-in entry','sync.*set up'),('Properties view','properties view.*show all')]:command(name,pattern)
  # Inspect every mobile settings tab and every setting row, with one real screenshot per row.
  close();d.js('app.setting.open();void 0');time.sleep(.5)
  tabs=d.js('[...app.setting.settingTabs,...app.setting.pluginTabs].map(t=>({id:t.id,name:t.name}))')
@@ -145,10 +147,30 @@ Content under a heading can be folded.
    d.js('document.querySelectorAll(".vertical-tab-content-container .setting-item")['+str(item['i'])+']?.scrollIntoView({block:"center"})');time.sleep(.15)
    capture(tab['name']+': '+item['name'],item['description'] or 'Setting offered by this version of the Android application.','screen_inspected','Control inspected only; not all values/branches functionally verified.')
  close();openfile('Feature Audit/Playground.md')
- # Cold restart verifies the local corpus survived, not account sync or physical storage recovery.
+ # Readback and cold restart check local persistence, not cloud sync or power-loss recovery.
  d.js('app.workspace.activeLeaf.view.save?.()');time.sleep(1)
  readback=d.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath("Feature Audit/Playground.md")))()')
  capture('Local source preservation','Read back the seeded Markdown through the official app vault API.',check=readback==seed['Feature Audit/Playground.md'])
+ # Real process restart: same installed app and private vault, no clear/uninstall.
+ adb('shell','am','force-stop','md.obsidian');adb('shell','monkey','-p','md.obsidian','-c','android.intent.category.LAUNCHER','1');time.sleep(5);d=Device()
+ for _ in range(30):
+  if d.js('!!window.app?.vault?.getAbstractFileByPath("Feature Audit/Playground.md")'):break
+  time.sleep(1)
+ restored=d.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath("Feature Audit/Playground.md")))()')
+ openfile('Feature Audit/Playground.md');capture('Cold restart and retained local note','Force-stop and relaunch the same installed app, then compare the exact original Markdown.',check=restored==seed['Feature Audit/Playground.md'])
+ # Representative light/dark and portrait/landscape views, using app commands and Android rotation.
+ for dark in [False,True]:
+  current=d.js('document.body.classList.contains("theme-dark")')
+  if current!=dark:d.js('app.commands.executeCommandById("theme:toggle-light-dark")');time.sleep(.5)
+  for landscape in [False,True]:
+   adb('shell','settings','put','system','user_rotation','1' if landscape else '0');time.sleep(1.5)
+   openfile('Feature Audit/Playground.md')
+   label=('dark' if dark else 'light')+' '+('landscape' if landscape else 'portrait')
+   actual=d.js('({dark:document.body.classList.contains("theme-dark"),landscape:innerWidth>innerHeight,width:innerWidth,height:innerHeight})')
+   capture('Appearance variant: '+label,'Official app theme-toggle command and actual Android device rotation; no screenshot restyling.','screen_inspected' if actual['dark']==dark and actual['landscape']==landscape else 'blocked',str(actual))
+   openfile('Feature Audit/Board.canvas');capture('Canvas variant: '+label,'Native screenshot of the same real Canvas file under the selected device/theme configuration.')
+ # Managing vaults can intentionally unload the app context, so it is the final action.
+ command('Vault management','manage vaults')
  summary={'version':'1.15.0','features_recorded':len(rows),'functional_passes':sum(r['status']=='functional_pass' for r in rows),'failed':sum(r['status']=='failed' for r in rows),'inventory':inventory,'full_functional_coverage':False,'limitations':['Settings screens are inspected, not every possible value/combination.','Not every command is executed.','Paid Sync/Publish, sign-in and external integrations are not end-to-end verified.','No community plugin is installed or executed.','No physical-device acceptance.','Desktop-only features are not claimed as Android support.']}
  (OUT/'coverage-summary.json').write_text(json.dumps(summary,indent=2))
 if __name__=='__main__':

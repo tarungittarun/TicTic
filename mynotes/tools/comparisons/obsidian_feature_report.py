@@ -24,11 +24,11 @@ for i,r in enumerate(rows):
  y=lines('Coverage: '+r['status'],y-4,10)
  y=lines(r['brief'],y-3,10)
  y=lines('Observed: '+r['observed'],y-3,9)
- im=Image.open(src/r['screenshot']).convert('RGB');name=r['screenshot'].replace('.png','.jpg');im.save(out/name,quality=90)
+ im=Image.open(src/r['screenshot']).convert('RGB');im.thumbnail((1280,1280));name=r['screenshot'].replace('.png','.jpg');im.save(out/name,quality=80,optimize=True)
  c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')
  c.setFont('Helvetica',8);c.drawString(30,23,'Real Android emulator capture | Obsidian 1.15.0 | '+os.environ['GITHUB_RUN_ID']);c.showPage()
 c.save()
-for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt']:
+for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt','module-enablement.json']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
 # Full command census: every offered command is accounted for as inventoried, not automatically passed.
 inv=json.loads((src/'feature-inventory.json').read_text()) if (src/'feature-inventory.json').exists() else {}

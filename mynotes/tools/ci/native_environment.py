@@ -73,10 +73,11 @@ def settle_home() -> None:
 def settle_app() -> None:
     """Require the actual Notes window; never dismiss its error/ANR dialogs."""
     adb("am", "start", "-W", "-n", "app.space.notes.debug/app.space.notes.NotesActivity")
+    api=int(adb("getprop","ro.build.version.sdk").strip())
     stable=0
     external_recovered=False
     for attempt in range(60):
-        windows=adb("dumpsys", "window", "displays")
+        windows=adb("dumpsys", "window", "windows" if api<29 else "displays")
         focused=[line for line in windows.splitlines() if "mCurrentFocus=Window{" in line]
         # Full dumpsys includes historical LAST ANR focus. Read only current
         # displays, and never accept an app window alongside an error overlay.

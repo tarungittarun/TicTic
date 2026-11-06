@@ -43,3 +43,24 @@ class NativeEnvironmentTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'never obtained a stable focused window'):
                 settle_home()
             snapshot.assert_called_once_with('home-failed')
+
+    def test_api26_focus_uses_current_windows_not_missing_displays_field(self):
+        from unittest.mock import patch
+        from mynotes.tools.ci.native_environment import settle_app
+        def reply(*args,**kwargs):
+            if args==('getprop','ro.build.version.sdk'):return '26'
+            if args==('dumpsys','window','windows'):return 'mCurrentFocus=Window{abc u0 app.space.notes.debug/app.space.notes.NotesActivity}'
+            return ''
+        with patch('mynotes.tools.ci.native_environment.adb',side_effect=reply) as adb,patch('mynotes.tools.ci.native_environment.time.sleep'):
+            settle_app()
+        self.assertEqual(3,sum(c.args==('dumpsys','window','windows') for c in adb.call_args_list))
+        self.assertFalse(any(c.args==('dumpsys','window','displays') for c in adb.call_args_list))
+
+    def test_api26_error_overlay_still_blocks_instrumentation(self):
+        from unittest.mock import patch
+        from mynotes.tools.ci.native_environment import settle_app
+        def reply(*args,**kwargs):
+            if args==('getprop','ro.build.version.sdk'):return '26'
+            return 'mCurrentFocus=Window{abc u0 Application Error: app.space.notes.debug}'
+        with patch('mynotes.tools.ci.native_environment.adb',side_effect=reply),patch('mynotes.tools.ci.native_environment.time.sleep'),patch('mynotes.tools.ci.native_environment.snapshot'):
+            with self.assertRaisesRegex(RuntimeError,'never obtained a stable focused window'):settle_app()

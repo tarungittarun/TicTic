@@ -42,5 +42,28 @@ class FullCandidateQualificationTest(unittest.TestCase):
         self.assertNotIn('contents: write', self.text)
 
 
+class FullQualificationRetentionTest(unittest.TestCase):
+    def test_missing_native_data_never_becomes_acceptance(self):
+        import tempfile
+        from mynotes.tools.comparisons.retain_full_qualification import retain
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'source'
+            source.mkdir()
+            summary = retain(source, {'status': 'completed', 'databaseId': 1,
+                                     'headSha': 'fixture', 'url': 'fixture',
+                                     'conclusion': 'failure'}, Path(directory) / 'out')
+            self.assertFalse(summary['all_six_profiles_exact_native_pass'])
+            self.assertEqual(summary['native_executions_passed'], 0)
+            self.assertFalse(summary['whole_app_ux_acceptance'])
+            self.assertFalse(summary['public_release_approval'])
+
+    def test_unfinished_run_is_rejected(self):
+        import tempfile
+        from mynotes.tools.comparisons.retain_full_qualification import retain
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                retain(directory, {'status': 'in_progress'}, Path(directory) / 'out')
+
+
 if __name__ == '__main__':
     unittest.main()

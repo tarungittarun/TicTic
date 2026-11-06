@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      SOURCE_RUN: '42230660156'
-      BUILD_RUN: '42228792197'
-      NATIVE_FLAT_LANE: improvement70-api26-portrait
+      SOURCE_RUN: '42231478498'
+      BUILD_RUN: '42231478498'
+      NATIVE_FLAT_LANE: improvement71-api26-portrait
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v5
@@ -36,13 +36,13 @@ jobs:
         with:
           github-token: ${{ github.token }}
           run-id: ${{ env.SOURCE_RUN }}
-          pattern: improvement70-api*
+          pattern: improvement71-api*
           path: native-originals
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
           run-id: ${{ env.BUILD_RUN }}
-          name: improvement70-build-evidence
+          name: improvement71-build-evidence
           path: build-originals
       - name: Retain bounded public screenshots, exact assertions and new JVM regressions
         run: python mynotes/tools/comparisons/retain_improvement.py native-originals build-originals "$SOURCE_RUN" "$BUILD_RUN"

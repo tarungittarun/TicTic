@@ -1,0 +1,8 @@
+{
+  "method": "Runtime.evaluate",
+  "params": {
+    "expression": "[...document.querySelectorAll(\".vertical-tab-content-container .setting-item\")].map((e,i)=>({i,name:e.querySelector(\".setting-item-name\")?.innerText||\"\",description:e.querySelector(\".setting-item-description\")?.innerText||\"\"})).filter(x=>x.name)",
+    "returnByValue": true,
+    "awaitPromise": true
+  }
+}

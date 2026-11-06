@@ -12,3 +12,9 @@ class ObsidianCoverageTruth(unittest.TestCase):
  def test_blocked_remains_unverified(self):
   x=command_coverage([{'id':'sync:setup','name':'Sync'}],[{'feature':'Sync','observed':'sync:setup; invoked=True','status':'blocked'}])
   self.assertEqual('blocked_or_unverified',x[0]['status'])
+ def test_feature_brief_does_not_certify_color(self):
+  from mynotes.tools.comparisons.obsidian_coverage import command_brief
+  self.assertIn('does not by itself certify',command_brief('editor:toggle-highlight-red','Red highlight'))
+ def test_account_service_limit_stays_in_description(self):
+  from mynotes.tools.comparisons.obsidian_coverage import command_brief
+  self.assertIn('not end-to-end verified',command_brief('sync:setup','Set up Sync'))

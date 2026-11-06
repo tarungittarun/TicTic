@@ -1,3 +1,4 @@
+# Restore interrupted command census only; reuse completed walkthrough/settings and readiness-fixed appearance session with exact-APK identity.
 # Variant repair: bounded post-force-stop WebView readiness; reuse three original exact-APK sessions with their provenance.
 name: Obsidian Android complete command census and screenshot PDFs
 on:
@@ -17,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        phase: [variants]
+        phase: [commands]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -92,7 +93,7 @@ jobs:
         run: |
           python - <<'PYWAIT'
           import json,subprocess,time
-          required={'obsidian-session-walkthrough','obsidian-session-commands','obsidian-session-settings'}
+          required={'obsidian-session-walkthrough','obsidian-session-settings'}
           for attempt in range(90):
               data=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42174080714/artifacts']))
               if required <= {a['name'] for a in data['artifacts']}:break
@@ -105,12 +106,18 @@ jobs:
           run-id: 42174080714
           pattern: obsidian-session-*
           path: obsidian-sessions
-      - name: Replace only the failed variant session; retain other exact-APK original sessions
-        run: rm -rf obsidian-sessions/obsidian-session-variants
+      - name: Replace interrupted command census and old variant; retain completed exact-APK reference sessions
+        run: rm -rf obsidian-sessions/obsidian-session-variants obsidian-sessions/obsidian-session-commands
       - uses: actions/download-artifact@v8.0.2
         with:
+          github-token: ${{ github.token }}
+          run-id: 42175383627
           name: obsidian-session-variants
           path: obsidian-sessions/obsidian-session-variants
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: obsidian-session-commands
+          path: obsidian-sessions/obsidian-session-commands
       - name: Build evidence PDFs without concealing blocked/incomplete sessions
         run: |
           python mynotes/tools/comparisons/obsidian_merge.py

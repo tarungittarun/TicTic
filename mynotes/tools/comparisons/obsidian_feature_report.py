@@ -1,6 +1,7 @@
 """Evidence PDF: per-feature brief + real image + honest coverage classification."""
 import collections,json,os,shutil,textwrap
-from obsidian_coverage import command_coverage
+from obsidian_coverage import command_coverage,command_brief
+import re
 from pathlib import Path
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
@@ -23,7 +24,11 @@ c.showPage()
 for i,r in enumerate(rows):
  c.setFont('Helvetica-Bold',13);y=lines(str(i+1)+'. '+r['feature'],805,13,73)
  y=lines('Coverage: '+r['status'],y-4,10)
- y=lines(r['brief'],y-3,10)
+ cid=re.search(r'(?:Command=|^)([\w:-]+);',r['observed'])
+ if cid:
+  name=r['feature'].removeprefix('Command entry: ').removeprefix('Editor: ')
+  y=lines('About the feature: '+command_brief(cid.group(1),name),y-3,10)
+ y=lines('Check scope: '+r['brief'],y-3,9)
  y=lines('Observed: '+r['observed'],y-3,9)
  im=Image.open(src/r['screenshot']).convert('RGB');im.thumbnail((1280,1280));name=r['screenshot'].replace('.png','.jpg');im.save(out/name,quality=80,optimize=True)
  c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')

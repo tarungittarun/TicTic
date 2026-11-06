@@ -1,0 +1,60 @@
+name: Fresh paired MyNotes and Obsidian UX evidence (not acceptance scores)
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-paired-ux-study.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: paired-ux-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  observe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            mynotes/tools/comparisons
+            mynotes/tools/ci/use_installed_emulator.sh
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install websocket-client==1.8.0
+      - name: Retrieve exact existing signed apps; no Android builds or re-signing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/paired-mynotes /tmp/paired-obsidian paired-ux-evidence
+          gh run download 42021523354 --repo tarungittarun/TicTic --name MyNotes-v0.69.0-69-development.apk --dir /tmp/paired-mynotes
+          gh release download v1.15.0 --repo obsidianmd/obsidian-releases --pattern Obsidian-1.15.0.apk --dir /tmp/paired-obsidian
+          find /tmp/paired-mynotes /tmp/paired-obsidian -name '*.apk' -exec sha256sum {} + | tee paired-ux-evidence/apk-digests.txt
+          echo '03d839d58b828ac72e211b69a1904e00e5f44f9f5c2b37704d4312501431d167  /tmp/paired-mynotes/MyNotes-v0.69.0-69-development.apk' | sha256sum --check
+          echo '2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d  /tmp/paired-obsidian/Obsidian-1.15.0.apk' | sha256sum --check
+      - name: Prepare emulator, preserve normal animations
+        run: |
+          sudo chmod 666 /dev/kvm
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb install /tmp/paired-mynotes/MyNotes-v0.69.0-69-development.apk
+            adb install /tmp/paired-obsidian/Obsidian-1.15.0.apk
+            python mynotes/tools/comparisons/paired_ux_session.py
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: paired-ux-fresh-session
+          path: |
+            paired-ux-evidence
+            obsidian-evidence
+          retention-days: 30

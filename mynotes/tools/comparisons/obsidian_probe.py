@@ -39,17 +39,23 @@ def main():
   break
  from obsidian_cdp import Device
  d=Device()
- for idx in range(8):
+ for idx in range(16):
+  if d.js('!!window.app'):break
   body=d.js('document.body.innerText');print('DOM',body,flush=True)
-  if d.text_button('Create a vault') or d.text_button('Create new vault'):
-   capture(f'cdp-vault-dialog-{idx}');continue
-  if d.js('!!document.querySelector("input[type=text]")') and ('Vault name' in body or 'Name' in body or 'vault' in body.lower()):
-   d.tap('input[type=text]');d.type('Audit Vault');adb('shell','input','keyevent','KEYCODE_BACK');capture(f'cdp-vault-name-{idx}')
-   if d.text_button('Create vault') or d.text_button('Create'):
-    time.sleep(4);capture(f'cdp-created-vault-{idx}');break
-  if d.text_button('Skip') or d.text_button('Continue'):continue
-  break
- (OUT/'runtime-discovery.json').write_text(json.dumps(d.js("({body:document.body.innerText,html:document.body.innerHTML,globals:Object.keys(window).filter(k=>/app|obsidian/i.test(k)),hasApp:!!window.app,commands:window.app?.commands?.listCommands?.().map(x=>({id:x.id,name:x.name})),plugins:window.app?.internalPlugins?Object.entries(window.app.internalPlugins.plugins).map(([id,p])=>({id,enabled:p.enabled,manifest:p.instance?.manifest})):null})"),indent=2))
+  if d.js('!!document.querySelector("input[type=text]")'):
+   current=d.js('document.querySelector("input[type=text]").value')
+   if not current:
+    d.tap('input[type=text]');d.type('Audit Vault');adb('shell','input','keyevent','KEYCODE_BACK');capture(f'cdp-vault-name-{idx}')
+  acted=False
+  for title in ['Continue without sync','Create a vault','Create new vault','Create vault','Create','Start writing','Open vault','Got it','Continue']:
+   if d.text_button(title):
+    acted=True;time.sleep(3);capture(f'cdp-onboarding-{idx}');break
+  if not acted:
+   # Android storage permission, if explicitly requested by the official app.
+   nodes=capture(f'cdp-native-dialog-{idx}')
+   if not click(nodes,'Allow','Use this folder'):break
+ time.sleep(5)
+ (OUT/'runtime-discovery.json').write_text(json.dumps(d.js("({body:document.body.innerText,html:document.body.innerHTML,globals:Object.keys(window).filter(k=>/app|obsidian/i.test(k)),hasApp:!!window.app,commands:window.app?.commands?Object.values(window.app.commands.commands).map(x=>({id:x.id,name:x.name})):null,settingTabs:window.app?.setting?.settingTabs?.map(t=>({id:t.id,name:t.name})),pluginTabs:window.app?.setting?.pluginTabs?.map(t=>({id:t.id,name:t.name})),plugins:window.app?.internalPlugins?Object.entries(window.app.internalPlugins.plugins).map(([id,p])=>({id,enabled:p.enabled,manifest:p.instance?.manifest})):null})"),indent=2))
  sockets=adb('shell','cat' ,'/proc/net/unix').decode(errors='replace');(OUT/'webview-sockets.txt').write_text('\n'.join(x for x in sockets.splitlines() if 'devtools' in x))
  (OUT/'installed-package.txt').write_bytes(adb('shell','dumpsys','package','md.obsidian'))
  (OUT/'logcat.txt').write_bytes(adb('logcat','-d','-t','300'))

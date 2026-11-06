@@ -45,6 +45,22 @@ jobs:
           run-id: ${{ env.BUILD_RUN }}
           name: supplement71-build-evidence
           path: build-originals
+      - name: Verify and alias the original shard receipt when a single artifact is flattened
+        run: |
+          python - <<'PYALIAS'
+          import json,shutil
+          from pathlib import Path
+          from mynotes.tools.ci.results import android
+          root=Path('native-originals')
+          for receipt in root.rglob('refinement-native.json'):
+              alias=receipt.with_name('refinement-native-verified.json')
+              expected=receipt.with_name('refinement-expected.json')
+              if not alias.exists() and expected.exists():
+                  result=android(receipt.with_name('refinement-native.txt').read_text(),json.loads(expected.read_text()))
+                  assert result==json.loads(receipt.read_text())
+                  shutil.copyfile(receipt,alias)
+                  receipt.with_name('receipt-alias-provenance.json').write_text(json.dumps({'alias':alias.name,'original':receipt.name,'bytes_identical':True,'independently_reparsed':True})+'\n')
+          PYALIAS
       - name: Retain bounded public screenshots, exact assertions and new JVM regressions
         run: python mynotes/tools/comparisons/retain_improvement.py native-originals build-originals "$SOURCE_RUN" "$BUILD_RUN"
       - name: Gate evidence and save only on the active session branch

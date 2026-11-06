@@ -28,7 +28,7 @@ for i,r in enumerate(rows):
  c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')
  c.setFont('Helvetica',8);c.drawString(30,23,'Real Android emulator capture | Obsidian 1.15.0 | '+os.environ['GITHUB_RUN_ID']);c.showPage()
 c.save()
-for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt']:
+for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
 # Full command census: every offered command is accounted for as inventoried, not automatically passed.
 inv=json.loads((src/'feature-inventory.json').read_text()) if (src/'feature-inventory.json').exists() else {}

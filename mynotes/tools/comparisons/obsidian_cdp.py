@@ -18,7 +18,10 @@ class Device:
     return r.get('result',{})
  def js(self,expression):
   r=self.call('Runtime.evaluate',{'expression':expression,'returnByValue':True,'awaitPromise':True})
-  if 'exceptionDetails' in r:raise RuntimeError(r['exceptionDetails'])
+  if 'exceptionDetails' in r:
+   from pathlib import Path
+   p=Path('obsidian-evidence/runtime-error.json');p.write_text(json.dumps({'expression':expression,'details':r['exceptionDetails']},indent=2))
+   raise RuntimeError(r['exceptionDetails'])
   return r.get('result',{}).get('value')
  def tap(self,selector):
   box=self.js('(()=>{const e=document.querySelector('+json.dumps(selector)+');if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()')

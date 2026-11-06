@@ -1,0 +1,2914 @@
+[
+  {
+    "feature": "Command entry: Save current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:save-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-002.png",
+    "visible_text": "Command case 0\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Download attachments for current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:download-attachments; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-003.png",
+    "visible_text": "Command case 1\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nThere are no external attachments in this note.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Follow link under cursor",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:follow-link; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-004.png",
+    "visible_text": "Command case 2\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Open link under cursor in new tab",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:open-link-in-new-leaf; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-005.png",
+    "visible_text": "Command case 3\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle pin",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:toggle-pin; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-006.png",
+    "visible_text": "Command case 4\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Rename file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:edit-file-title; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-007.png",
+    "visible_text": "Command case 5\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Copy current file path from vault folder",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:copy-path; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-008.png",
+    "visible_text": "Command case 6\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nCopied to your clipboard",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Copy Obsidian URL for current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:copy-url; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-009.png",
+    "visible_text": "Command case 7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nURL copied to your clipboard",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Undo close tab",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:undo-close-pane; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-010.png",
+    "visible_text": "Command case 8\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Export to PDF...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:export-pdf; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-011.png",
+    "visible_text": "Command case 9\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nExport to PDF\n\nExport \u201cCommand case 9\u201d to PDF with the settings below.\n\nInclude file name as title\nPage size\nA3\nA4\nA5\nLegal\nLetter\nTabloid\nLandscape\nMargin\nDefault\nMinimal\nNone\nDownscale percent\n100\nExport to PDF\nCancel",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Rename this heading...",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:rename-heading; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-012.png",
+    "visible_text": "Command case 10\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to next tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:next-tab; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-013.png",
+    "visible_text": "Command case 0\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #1",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-1; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-014.png",
+    "visible_text": "Command case 12\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #2",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-2; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-015.png",
+    "visible_text": "Command case 13\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #3",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-3; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-016.png",
+    "visible_text": "Command case 14\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #4",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-4; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-017.png",
+    "visible_text": "Command case 15\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #5",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-5; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-018.png",
+    "visible_text": "Command case 16\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #6",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-6; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-019.png",
+    "visible_text": "Command case 17\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #7",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-7; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-020.png",
+    "visible_text": "Command case 18\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to tab #8",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:goto-tab-8; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-021.png",
+    "visible_text": "Command case 19\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to last tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:goto-last-tab; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-022.png",
+    "visible_text": "Command case 20\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to previous tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:previous-tab; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-023.png",
+    "visible_text": "Command case 11\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: New tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:new-tab; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-024.png",
+    "visible_text": "New tab\nNew note\nCtrl + N\nNew base\nNew canvas\nGo to file\nCtrl + O\n4",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Close current tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:close; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-025.png",
+    "visible_text": "Command case 21\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3\nPress back again to exit.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Close all other tabs",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspace:close-others; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-026.png",
+    "visible_text": "Command case 24\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Close this tab group",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:close-tab-group; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-027.png",
+    "visible_text": "Command case 25\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Close others in tab group",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=workspace:close-others-tab-group; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-028.png",
+    "visible_text": "Command case 26\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Configure mobile Quick Action",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=mobile:quick-action; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-029.png",
+    "visible_text": "Command case 27\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nNone\nSave current file\nDownload attachments for current file\nFollow link under cursor\nOpen link under cursor in new tab\nToggle pin\nRename file\nCopy current file path from vault folder\nCopy Obsidian URL for current file\nUndo close tab\nExport to PDF...\nRename this heading...\nGo to next tab\nGo to tab #1\nGo to tab #2\nGo to tab #3\nGo to tab #4\nGo to tab #5\nGo to tab #6\nGo to tab #7\nGo to tab #8\nGo to last tab\nGo to previous tab\nNew tab\nClose current tab\nClose all other tabs\nClose this tab group\nClose others in tab group\nConfigure mobile Quick Action\nNavigate back\nNavigate forward\nManage vaults\nChange vault...\nShow tab overview\nToggle light/dark mode\nChange theme...\nOpen settings\nShow release notes\nToggle reading view\nAdd file property\nAdd alias\nClear file properties\nDelete current file\nToggle ribbon\nToggle readable line length\nToggle line numbers\nToggle left sidebar\nToggle right sidebar\nToggle default mode for new tabs\nOpen help\nReload app without saving\nFormat converter: Frontmatter migration\nShow debug info\nIncrease font size\nDecrease font size\nCreate new note\nCreate new note in current tab\nCreate note to the right\nShare\nMove current file to another folder\nMake a copy of the current file\nToggle Live Preview/Source mode\nSearch current file\nSearch & replace in current file\nFocus on last note\nToggle fold properties in current file\nToggle fold on the current line\nFold all headings and lists\nUnfold all headings and lists\nFold less\nFold more\nAdd internal link\nAdd embed\nInsert Markdown link\nAdd tag\nToggle heading\nRemove heading\nSet as heading 1\nSet as heading 2\nSet as heading 3\nSet as heading 4\nSet as heading 5\nSet as heading 6\nToggle bold\nToggle italic\nToggle strikethrough\nToggle highlight\nToggle red highlight\nToggle orange highlight\nToggle yellow highlight\nToggle green highlight\nToggle blue highlight\nToggle purple highlight\nToggle code\nToggle inline math\nToggle blockquote\nToggle comment\nClear formatting\nToggle bullet list\nToggle numbered list",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Navigate back",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:go-back; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-030.png",
+    "visible_text": "Command case 27\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Navigate forward",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:go-forward; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-031.png",
+    "visible_text": "Command case 29\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Manage vaults",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=app:open-vault; Vault manager is inspected last because it unloads the JS context.",
+    "screenshot": "segment-0-feature-032.png",
+    "visible_text": "Command case 30\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nManage vaults",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Change vault...",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=app:switch-vault; Switching vaults unloads this inspection context.",
+    "screenshot": "segment-0-feature-033.png",
+    "visible_text": "Command case 31\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nChange vault...",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Show tab overview",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:show-tab-switcher; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-034.png",
+    "visible_text": "Command case 32\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nPlayground\nCommand case 32\n2 tabs\nDone",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle light/dark mode",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=theme:toggle-light-dark; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-035.png",
+    "visible_text": "Command case 33\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nPlayground\nCommand case 33\n2 tabs\nDone",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Change theme...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=theme:switch; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-036.png",
+    "visible_text": "Command case 34\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nDefaultACTIVE",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Open settings",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:open-settings; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-037.png",
+    "visible_text": "Command case 35\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nSettings\nOptions\nGeneral\nAppearance\nInterface\nEditor\nFiles and links\nHotkeys\nKeychain\nCore plugins\nCommunity plugins\nCore plugins\nBacklinks\nCanvas\nCommand palette\nDaily notes\nFile recovery\nNote composer\nPage preview\nQuick switcher\nSync\nTemplates\nUnique note creator",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Show release notes",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:show-release-notes; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-038.png",
+    "visible_text": "Release Notes \nWhat's new in 1.15\n\nReleased on November 2, 2026\n\nThis update brings faster Mermaid diagrams that match your theme, reorderable filters in Bases, and new URI and CLI commands for adding content under a heading.\n\nDiagrams and charts\n\nMermaid diagrams and charts are now rendered using our new library Pele, compatible with the latest Mermaid 12.1.0 syntax.\n\nDiagrams now appear faster and use the colors and fonts of your theme.\nDiagrams are now responsive to the width of a note, and can be zoomed and panned when they are scaled down.\nDiagrams are now shown without asking first, since Pele can't run code. The Show Mermaid diagrams in notes setting has been removed.\nImprovements\nURI/CLI: Added commands to append or prepend to a heading, and control for line breaks around appended/prepended content.\nSuggestions now ignore diacritics (accent marks) so cafe matches caf\u00e9 in link suggestions, Quick switcher, Command palette, and Bases search.\nTooltips no longer repeat text that's already fully visible. They only appear when text is cut off.\nDragging items to reorder them now animates the item smoothly into its new position when you drop it.\nVim: Updated Vim mode with new commands and fixes, including g?, :put, search patterns in : ranges (e.g. :/foo/,/bar/d), Vim-style regexes with :set nopcre, <A-\u2026> mappings on macOS, and fixes for gj, :sort, and ;, ,, >, and < in visual mode.\nPerformance\nCommunity plugins now load faster when Obsidian starts.\nBases\nAdded dragging to reorder filters, and a menu on each filter row to add filters or move them between All views and This view.\nSearch now says when a result limit hides matches, e.g. \"Showing 10 of 40\".\nFormula fields can now be resized up to the width of the window.\nEditor\nMoving the caret up or down in Live Preview preserves its position relative to list text, accounting for bullets, numbers, and checkboxes.\nWith Smart lists turned on, indenting, unindenting, or moving a list item up or down now also moves the items nested under it. Pressing Enter at the end of an item with nested items now adds a new first nested item, or a new item below it if the item is folded.\nNo longer broken\nFixed renaming a file opened from outside the vault closing its tab.\nFixed Quick switcher failing to create a note while a file from outside the vault is open.\nFixed Obsidian reopening in a loop, even after quitting, when it's the default app for a file type it can't open (e.g. a .canvas file with Canvas turned off).\nmacOS: Fixed Quick Look previews blocking keyboard navigation for some users (requires latest installer).\nProperties: Fixed Show source on an embedded note with invalid properties opening the note in place of the current one. It now edits the embed in place when possible, or opens the note in a new tab.\nFixed page previews and canvas cards of a heading (e.g. [[Note#Heading]]) hiding text, or showing it as properties, when the section under the heading starts with a --- divider.\nFixed the hints below property value suggestions (e.g. \"Type [[ to link note\") not showing.\nFixed \"Reveal file in navigation\" in the Bookmarks right-click menu doing nothing when the Files core plugin is turned off.\nFixed \"No backlinks found.\" blinking in the Backlinks pane while Obsidian starts.\nBases\nFixed a filter value with a double quote or a backslash saving as a broken filter.\nFixed toolbar menus staying in place when the window is resized.\nEditor\nLive Preview: Fixed selecting bold, italic, or highlighted text sometimes including only one of its hidden **, *, or == marks.\nDevelopers\nprepareFuzzySearch and prepareSimpleSearch now ignore accents on Latin and Greek letters (e.g. cafe matches caf\u00e9).\nClosing formatting tokens now include a formatting-*-end segment in their syntax-tree node names, not just a cm-formatting-*-end class. For example, the closing inline-code backtick is now formatting_formatting-code_formatting-code-end_inline-code. Plugins that match full node names like formatting-code_inline-code will miss closing tokens; match formatting-code instead.\nMermaid diagrams are now drawn using Pele. Added --mermaid-* CSS variables for colors, corner radius, and font weights. Elements inside a diagram have Pele's .pele-* classes. Obsidian no longer includes Mermaid: loadMermaid() and window.mermaid now draw with Pele and support initialize(), render(), parse() and mermaidAPI.getConfig(), setConfig() and render(). Their SVG has Pele's classes, not Mermaid's. New code can use window.pele once loadMermaid() resolves.\nThe PIXI global is now loaded the first time a graph opens, instead of at start-up. Use loadPixi() to load it before then.\n\nA complete list of previous changes can be found on our changelog.\n\n3",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle reading view",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=markdown:toggle-preview; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-039.png",
+    "visible_text": "Command case 37\n\nAudit sample\n\nName\tValue\nOne\tTwo\n\nLinked note\n\n3\nPress back again to exit.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add file property",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=markdown:add-metadata-property; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-040.png",
+    "visible_text": "Command case 38\nProperties\nAdd property\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\naliases\ncssclasses\ntags\ntitle\ncount\ncompleted\naudit_date",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add alias",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=markdown:add-alias; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-041.png",
+    "visible_text": "Command case 39\nProperties\nAdd property\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Clear file properties",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=markdown:clear-metadata-properties; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-042.png",
+    "visible_text": "Command case 40\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Delete current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:delete-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-043.png",
+    "visible_text": "Command case 41\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3\nDelete file\n\nAre you sure you want to delete \u201cCommand case 41.md\u201d?\n\nIt will be moved to your system trash.\n\nCancel\nDelete",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle ribbon",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=app:toggle-ribbon; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-044.png",
+    "visible_text": "Command case 42\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle readable line length",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-readable-line-length; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-045.png",
+    "visible_text": "Command case 43\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle line numbers",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-line-numbers; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-046.png",
+    "visible_text": "Command case 44\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle left sidebar",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:toggle-left-sidebar; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-047.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n51 files, 2 folders\nFiles\nFiles\nSearch\nTags\nAll properties\nBookmarks\nFeature Audit\nCommand case 45\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle right sidebar",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:toggle-right-sidebar; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-048.png",
+    "visible_text": "Command case 46\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nCommand case 46\n1 word, 5 characters\nBacklinks\nBacklinks\nOutgoing links\nOutline\nFootnotes\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n3",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle default mode for new tabs",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:toggle-default-new-pane-mode; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-049.png",
+    "visible_text": "Command case 47\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nSwitched default view mode to reading view.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Open help",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:open-help; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-050.png",
+    "visible_text": "Command case 48\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Reload app without saving",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=app:reload; Reload action is not invoked; the separate process-restart check is not equivalent.",
+    "screenshot": "segment-0-feature-051.png",
+    "visible_text": "Command case 49\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3\nReload app without saving",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Format converter: Frontmatter migration",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=app:migrate-frontmatter; Vault-wide conversion is not run on the preserved reference corpus.",
+    "screenshot": "segment-0-feature-052.png",
+    "visible_text": "Command case 50\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3\nFormat converterFrontmatter migration",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Show debug info",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:show-debug-info; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-053.png",
+    "visible_text": "Command case 51\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n3\nDebug info\nCopy to clipboard\nDone",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Increase font size",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:increase-font-size; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-054.png",
+    "visible_text": "Command case 52\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Decrease font size",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=app:decrease-font-size; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-055.png",
+    "visible_text": "Command case 53\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Create new note",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:new-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-056.png",
+    "visible_text": "Untitled\n1\n\n\n4",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Create new note in current tab",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:new-file-in-current-tab; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-057.png",
+    "visible_text": "Untitled 1\n1\n\n\n4\nPress back again to exit.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Create note to the right",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:new-file-in-new-pane; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-058.png",
+    "visible_text": "Untitled 2\n1\n\n\n5",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Share",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=open-with-default-app:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-059.png",
+    "visible_text": "Command case 57\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nPress back again to exit.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move current file to another folder",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:move-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-060.png",
+    "visible_text": "Command case 58\n1\n2\n3\n6\n7\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n5\n/\nFeature Audit\nFeature Audit/Templates",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Make a copy of the current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:duplicate-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-061.png",
+    "visible_text": "Command case 59 1\n\nAudit sample\n\nName\tValue\nOne\tTwo\n\nLinked note\n\n6\nNote title\nSave\nCancel",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle Live Preview/Source mode",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-source; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-062.png",
+    "visible_text": "Command case 60\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Search current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:open-search; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-063.png",
+    "visible_text": "1 / 1\nCommand case 61\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Search & replace in current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:open-search-replace; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-064.png",
+    "visible_text": "1 / 1\nCommand case 62\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Focus on last note",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:focus; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-065.png",
+    "visible_text": "Command case 63\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle fold properties in current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-fold-properties; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-066.png",
+    "visible_text": "Command case 64\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle fold on the current line",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-fold; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-067.png",
+    "visible_text": "Command case 65\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Fold all headings and lists",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:fold-all; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-068.png",
+    "visible_text": "Command case 66\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Unfold all headings and lists",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:unfold-all; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-069.png",
+    "visible_text": "Command case 67\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Fold less",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:fold-less; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-070.png",
+    "visible_text": "Command case 68\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Fold more",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:fold-more; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-071.png",
+    "visible_text": "Command case 69\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add internal link",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-wikilink; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-072.png",
+    "visible_text": "Command case 70\n1\n2\n3\n4\n5\n6\n7\n[[Audit]] sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nFollow link\nNotes.base\nFeature Audit/\nPlayground\nFeature Audit/\nLinked note\nFeature Audit/\nBoard.canvas\nFeature Audit/\nCommand case 9\nFeature Audit/\nCommand case 8\nFeature Audit/\nCommand case 7\nFeature Audit/\nCommand case 6\nFeature Audit/\nCommand case 5\nFeature Audit/\nCommand case 4\nFeature Audit/\nCommand case 3\nFeature Audit/\nCommand case 2\nFeature Audit/\nCommand case 1\nFeature Audit/\nCommand case 0\nFeature Audit/\nCommand case 70\nFeature Audit/\nCommand case 69\nFeature Audit/\nCommand case 68\nFeature Audit/\nCommand case 67\nFeature Audit/\nCommand case 66\nFeature Audit/\nCommand case 65\nFeature Audit/\nCommand case 64\nFeature Audit/\nCommand case 63\nFeature Audit/\nCommand case 62\nFeature Audit/\nCommand case 61\nFeature Audit/\nCommand case 60\nFeature Audit/\nCommand case 59\nFeature Audit/\nCommand case 58\nFeature Audit/\nCommand case 57\nFeature Audit/\nCommand case 56\nFeature Audit/\nCommand case 55\nFeature Audit/\nCommand case 54\nFeature Audit/\nCommand case 53\nFeature Audit/\nCommand case 52\nFeature Audit/\nCommand case 51\nFeature Audit/\nCommand case 50\nFeature Audit/\nCommand case 49\nFeature Audit/\nCommand case 48\nFeature Audit/\nCommand case 47\nFeature Audit/\nCommand case 46\nFeature Audit/\nCommand case 45\nFeature Audit/\nCommand case 44\nFeature Audit/\nCommand case 43\nFeature Audit/\nCommand case 42\nFeature Audit/\nCommand case 41\nFeature Audit/\nCommand case 40\nFeature Audit/\nCommand case 39\nFeature Audit/\nCommand case 38\nFeature Audit/\nCommand case 37\nFeature Audit/\nCommand case 36\nFeature Audit/\nCommand case 35\nFeature Audit/\nCommand case 34\nFeature Audit/\nCommand case 33\nFeature Audit/\nCommand case 32\nFeature Audit/\nCommand case 31\nFeature Audit/\nCommand case 30\nFeature Audit/\nCommand case 29\nFeature Audit/\nCommand case 28\nFeature Audit/\nCommand case 27\nFeature Audit/\nCommand case 26\nFeature Audit/\nCommand case 25\nFeature Audit/\nCommand case 24\nFeature Audit/\nCommand case 23\nFeature Audit/\nCommand case 22\nFeature Audit/\nCommand case 21\nFeature Audit/\nCommand case 20\nFeature Audit/\nCommand case 19\nFeature Audit/\nCommand case 18\nFeature Audit/\nCommand case 17\nFeature Audit/\nCommand case 16\nFeature Audit/\nCommand case 15\nFeature Audit/\nCommand case 14\nFeature Audit/\nCommand case 13\nFeature Audit/\nCommand case 12\nFeature Audit/\nCommand case 11\nFeature Audit/\nCommand case 10\nFeature Audit/\nDaily\nFeature Audit/Templates/\nCommand case 59 1\nFeature Audit/",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add embed",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-embed; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-073.png",
+    "visible_text": "Command case 71\n1\n2\n3\n4\n5\n6\n7\n![[Audit]] sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nFollow link\nAudit\nNotes.base\nFeature Audit/\nPlayground\nFeature Audit/\nLinked note\nFeature Audit/\nBoard.canvas\nFeature Audit/\nCommand case 9\nFeature Audit/\nCommand case 8\nFeature Audit/\nCommand case 7\nFeature Audit/\nCommand case 6\nFeature Audit/\nCommand case 5\nFeature Audit/\nCommand case 4\nFeature Audit/\nCommand case 3\nFeature Audit/\nCommand case 2\nFeature Audit/\nCommand case 1\nFeature Audit/\nCommand case 0\nFeature Audit/\nCommand case 71\nFeature Audit/\nCommand case 70\nFeature Audit/\nCommand case 69\nFeature Audit/\nCommand case 68\nFeature Audit/\nCommand case 67\nFeature Audit/\nCommand case 66\nFeature Audit/\nCommand case 65\nFeature Audit/\nCommand case 64\nFeature Audit/\nCommand case 63\nFeature Audit/\nCommand case 62\nFeature Audit/\nCommand case 61\nFeature Audit/\nCommand case 60\nFeature Audit/\nCommand case 59\nFeature Audit/\nCommand case 58\nFeature Audit/\nCommand case 57\nFeature Audit/\nCommand case 56\nFeature Audit/\nCommand case 55\nFeature Audit/\nCommand case 54\nFeature Audit/\nCommand case 53\nFeature Audit/\nCommand case 52\nFeature Audit/\nCommand case 51\nFeature Audit/\nCommand case 50\nFeature Audit/\nCommand case 49\nFeature Audit/\nCommand case 48\nFeature Audit/\nCommand case 47\nFeature Audit/\nCommand case 46\nFeature Audit/\nCommand case 45\nFeature Audit/\nCommand case 44\nFeature Audit/\nCommand case 43\nFeature Audit/\nCommand case 42\nFeature Audit/\nCommand case 41\nFeature Audit/\nCommand case 40\nFeature Audit/\nCommand case 39\nFeature Audit/\nCommand case 38\nFeature Audit/\nCommand case 37\nFeature Audit/\nCommand case 36\nFeature Audit/\nCommand case 35\nFeature Audit/\nCommand case 34\nFeature Audit/\nCommand case 33\nFeature Audit/\nCommand case 32\nFeature Audit/\nCommand case 31\nFeature Audit/\nCommand case 30\nFeature Audit/\nCommand case 29\nFeature Audit/\nCommand case 28\nFeature Audit/\nCommand case 27\nFeature Audit/\nCommand case 26\nFeature Audit/\nCommand case 25\nFeature Audit/\nCommand case 24\nFeature Audit/\nCommand case 23\nFeature Audit/\nCommand case 22\nFeature Audit/\nCommand case 21\nFeature Audit/\nCommand case 20\nFeature Audit/\nCommand case 19\nFeature Audit/\nCommand case 18\nFeature Audit/\nCommand case 17\nFeature Audit/\nCommand case 16\nFeature Audit/\nCommand case 15\nFeature Audit/\nCommand case 14\nFeature Audit/\nCommand case 13\nFeature Audit/\nCommand case 12\nFeature Audit/\nCommand case 11\nFeature Audit/\nCommand case 10\nFeature Audit/\nDaily\nFeature Audit/Templates/\nCommand case 59 1\nFeature Audit/",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert Markdown link",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-link; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-074.png",
+    "visible_text": "Command case 72\n1\n2\n3\n4\n5\n6\n7\n[Audit]() sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nFollow link",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add tag",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-tag; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-075.png",
+    "visible_text": "Command case 73\n1\n2\n3\n4\n5\n6\n7\n#Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nSearch tag\naudit\ndemo",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle heading",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-076.png",
+    "visible_text": "Command case 74\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6\nNo heading\nHeading 1\nHeading 2\nHeading 3\nHeading 4\nHeading 5\nHeading 6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Remove heading",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-0; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-077.png",
+    "visible_text": "Command case 75\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 1",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-1; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-078.png",
+    "visible_text": "Command case 76\n1\n2\n3\n4\n5\n6\n7\n# Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 2",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-2; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-079.png",
+    "visible_text": "Command case 77\n1\n2\n3\n4\n5\n6\n7\n## Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 3",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-3; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-080.png",
+    "visible_text": "Command case 78\n1\n2\n3\n4\n5\n6\n7\n### Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 4",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-4; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-081.png",
+    "visible_text": "Command case 79\n1\n2\n3\n4\n5\n6\n7\n#### Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 5",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-5; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-082.png",
+    "visible_text": "Command case 80\n1\n2\n3\n4\n5\n6\n7\n##### Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Set as heading 6",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:set-heading-6; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-083.png",
+    "visible_text": "Command case 81\n1\n2\n3\n4\n5\n6\n7\n###### Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle bold",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-bold; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-084.png",
+    "visible_text": "Command case 82\n1\n2\n3\n4\n5\n6\n7\n**Audit** sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle italic",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-italics; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-085.png",
+    "visible_text": "Command case 83\n1\n2\n3\n4\n5\n6\n7\n*Audit* sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle strikethrough",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-strikethrough; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-086.png",
+    "visible_text": "Command case 84\n1\n2\n3\n4\n5\n6\n7\n~~Audit~~ sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-087.png",
+    "visible_text": "Command case 85\n1\n2\n3\n4\n5\n6\n7\n==Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle red highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-red; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-088.png",
+    "visible_text": "Command case 86\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udd34Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle orange highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-orange; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-089.png",
+    "visible_text": "Command case 87\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udfe0Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle yellow highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-yellow; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-090.png",
+    "visible_text": "Command case 88\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udfe1Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle green highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-green; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-091.png",
+    "visible_text": "Command case 89\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udfe2Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle blue highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-blue; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-092.png",
+    "visible_text": "Command case 90\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udd35Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle purple highlight",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-highlight-purple; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-093.png",
+    "visible_text": "Command case 91\n1\n2\n3\n4\n5\n6\n7\n==\ud83d\udfe3Audit== sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle code",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-code; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-094.png",
+    "visible_text": "Command case 92\n1\n2\n3\n4\n5\n6\n7\n`Audit` sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle inline math",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-inline-math; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-095.png",
+    "visible_text": "Command case 93\n1\n2\n3\n4\n5\n6\n7\n$Audit$ sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle blockquote",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-blockquote; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-096.png",
+    "visible_text": "Command case 94\n1\n2\n3\n4\n5\n6\n7\n> Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle comment",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-comments; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-097.png",
+    "visible_text": "Command case 95\n1\n2\n3\n4\n5\n6\n7\n%%Audit%% sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Clear formatting",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:clear-formatting; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-098.png",
+    "visible_text": "Command case 96\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle bullet list",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-bullet-list; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-099.png",
+    "visible_text": "Command case 97\n1\n2\n3\n4\n5\n6\n7\n- Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle numbered list",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-numbered-list; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-100.png",
+    "visible_text": "Command case 98\n1\n2\n3\n4\n5\n6\n7\n1. Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle checkbox status",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-checklist-status; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-101.png",
+    "visible_text": "Command case 99\n1\n2\n3\n4\n5\n6\n7\n- [ ] Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Cycle bullet/checkbox",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:cycle-list-checklist; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-102.png",
+    "visible_text": "Command case 100\n1\n2\n3\n4\n5\n6\n7\n- Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert callout",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-callout; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-103.png",
+    "visible_text": "Command case 101\n1\n2\n3\n4\n5\n6\n7\n8\n> [!NOTE]\n> Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert code block",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-codeblock; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-104.png",
+    "visible_text": "Command case 102\n1\n2\n3\n4\n5\n6\n7\n8\n9\n```\nAudit sample\n```\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert horizontal rule",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-horizontal-rule; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-105.png",
+    "visible_text": "Command case 103\n1\n2\n3\n4\n5\n6\n7\n8\n9\n\n\n---\n sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert math block",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-mathblock; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-106.png",
+    "visible_text": "Command case 104\n1\n2\n3\n4\n5\n6\n7\n8\n9\n$$\nAudit sample\n$$\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert table",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-table; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-107.png",
+    "visible_text": "Command case 105\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\nAudit sample\n\n\n|     |     |\n| --- | --- |\n|     |     |\n\n\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert footnote",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:insert-footnote; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-108.png",
+    "visible_text": "Command case 106\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n[^1]Audit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n\n\n[^1]: \n\n\n1\n\n",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Indent list item",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:indent-list; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-109.png",
+    "visible_text": "Command case 107\n1\n2\n3\n4\n5\n6\n7\n\tAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Unindent list item",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:unindent-list; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-110.png",
+    "visible_text": "Command case 108\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move line up",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:swap-line-up; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-111.png",
+    "visible_text": "Command case 109\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move line down",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:swap-line-down; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-112.png",
+    "visible_text": "Command case 110\n1\n2\n3\n4\n5\n6\n7\n\n\nAudit sample\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Undo",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:undo; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-113.png",
+    "visible_text": "Command case 111\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Redo",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:redo; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-114.png",
+    "visible_text": "Command case 112\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move caret up",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:move-caret-up; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-115.png",
+    "visible_text": "Command case 113\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move caret down",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:move-caret-down; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-116.png",
+    "visible_text": "Command case 114\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move caret left",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:move-caret-left; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-117.png",
+    "visible_text": "Command case 115\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Move caret right",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:move-caret-right; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-118.png",
+    "visible_text": "Command case 116\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to first line",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:go-start; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-119.png",
+    "visible_text": "Command case 117\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Go to last line",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:go-end; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-120.png",
+    "visible_text": "Command case 118\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nFollow link",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle keyboard",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-keyboard; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-121.png",
+    "visible_text": "Command case 119\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Configure mobile toolbar",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:configure-toolbar; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-122.png",
+    "visible_text": "Command case 120\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6\nConfigure mobile toolbar\nManage toolbar options\nUndo\nRedo\nAdd internal link\nAdd embed\nAdd tag\nInsert attachment\nToggle heading\nToggle bold\nToggle italic\nToggle strikethrough\nToggle highlight\nToggle code\nToggle blockquote\nToggle comment\nInsert Markdown link\nToggle bullet list\nToggle numbered list\nToggle checkbox status\nIndent list item\nUnindent list item\nConfigure mobile toolbar\nAdd a command...\nMore toolbar options\nRename this heading...\nToggle fold on the current line\nFold all headings and lists\nUnfold all headings and lists\nFold less\nFold more\nRemove heading\nSet as heading 1\nSet as heading 2\nSet as heading 3\nSet as heading 4\nSet as heading 5\nSet as heading 6\nToggle red highlight\nToggle orange highlight\nToggle yellow highlight\nToggle green highlight\nToggle blue highlight\nToggle purple highlight\nToggle inline math\nClear formatting\nCycle bullet/checkbox\nInsert callout\nInsert code block\nInsert horizontal rule\nInsert math block\nInsert table\nInsert footnote\nMove line up\nMove line down\nMove caret up\nMove caret down\nMove caret left\nMove caret right\nGo to first line\nGo to last line\nToggle keyboard\nDelete paragraph\nAdd cursor below\nAdd cursor above\nTable: Add row above\nTable: Add row below\nTable: Move row up\nTable: Move row down\nTable: Duplicate row\nTable: Delete row\nTable: Add column to the left\nTable: Add column to the right\nTable: Move column left\nTable: Move column right\nTable: Duplicate column\nTable: Delete column\nTable: Align left\nTable: Align center\nTable: Align right\nCut\nCopy\nPaste\nShow context menu under cursor\nTemplates: Insert current date\nTemplates: Insert current time\nNote composer: Extract current selection...\nNote composer: Extract this heading...\nCommand palette: Open command palette\nBookmarks: Bookmark block under cursor...\nBookmarks: Bookmark heading under cursor...\nBases: Insert new base\nUnique note creator: Add unique internal link",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Insert attachment",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:attach-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-123.png",
+    "visible_text": "Command case 121\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nTake photo\nChoose file",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Delete paragraph",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:delete-paragraph; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-124.png",
+    "visible_text": "Command case 122\n1\n2\n3\n4\n5\n6\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add cursor below",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:add-cursor-below; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-125.png",
+    "visible_text": "Command case 123\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Add cursor above",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:add-cursor-above; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-126.png",
+    "visible_text": "Command case 124\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Toggle spellcheck",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:toggle-spellcheck; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-127.png",
+    "visible_text": "Command case 125\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Add row above",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-before; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-128.png",
+    "visible_text": "Command case 126\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Add row below",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-after; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-129.png",
+    "visible_text": "Command case 127\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Move row up",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-up; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-130.png",
+    "visible_text": "Command case 128\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Move row down",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-down; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-131.png",
+    "visible_text": "Command case 129\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Duplicate row",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-copy; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-132.png",
+    "visible_text": "Command case 130\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Delete row",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-row-delete; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-133.png",
+    "visible_text": "Command case 131\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Add column to the left",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-before; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-134.png",
+    "visible_text": "Command case 132\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Add column to the right",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-after; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-135.png",
+    "visible_text": "Command case 133\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Move column left",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-left; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-136.png",
+    "visible_text": "Command case 134\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Move column right",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-right; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-137.png",
+    "visible_text": "Command case 135\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Duplicate column",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-copy; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-138.png",
+    "visible_text": "Command case 136\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Delete column",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-delete; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-139.png",
+    "visible_text": "Command case 137\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Align left",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-align-left; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-140.png",
+    "visible_text": "Command case 138\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Align center",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-align-center; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-141.png",
+    "visible_text": "Command case 139\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Table: Align right",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=editor:table-col-align-right; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-142.png",
+    "visible_text": "Command case 140\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Cut",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:cut; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-143.png",
+    "visible_text": "Command case 141\n1\n2\n3\n4\n5\n6\n7\n sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Copy",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:copy; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-144.png",
+    "visible_text": "Command case 142\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Paste",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:paste; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-145.png",
+    "visible_text": "Command case 143\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Show context menu under cursor",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=editor:context-menu; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-146.png",
+    "visible_text": "Command case 144\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nSearch for \u201cAudit\u201d\nExtract current selection...\nNew base",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Files: Show file explorer",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-147.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n155 files, 2 folders\nFiles\nFiles\nSearch\nTags\nAll properties\nBookmarks\nFeature Audit\nUntitled\nUntitled 1\nUntitled 2\nCommand case 145\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Files: Reveal current file in navigation",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:reveal-active-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-148.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n156 files, 2 folders\nFiles\nFiles\nSearch\nTags\nAll properties\nBookmarks\nFeature Audit\nTemplates\nBoard\nCANVAS\nCommand case 0\nCommand case 1\nCommand case 2\nCommand case 3\nCommand case 4\nCommand case 5\nCommand case 6\nCommand case 7\nCommand case 8\nCommand case 9\nCommand case 10\nCommand case 11\nCommand case 12\nCommand case 13\nCommand case 14\nCommand case 15\nCommand case 16\nCommand case 17\nCommand case 146\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Files: Create new folder",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-explorer:new-folder; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-149.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n157 files, 3 folders\nFiles\nFiles\nSearch\nTags\nAll properties\nBookmarks\nFeature Audit\nCommand case 130\nCommand case 131\nCommand case 132\nCommand case 133\nCommand case 134\nCommand case 135\nCommand case 136\nCommand case 137\nCommand case 138\nCommand case 139\nCommand case 140\nCommand case 141\nCommand case 142\nCommand case 143\nCommand case 144\nCommand case 145\nCommand case 146\nCommand case 147\nLinked note\nNotes\nBASE\nPlayground\nUntitled\nUntitled\nUntitled 1\nUntitled 2\nCommand case 147\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Search: Search in all files",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=global-search:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-150.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n158 files, 3 folders\nSearch\nFiles\nSearch\nTags\nAll properties\nBookmarks\n151 results\nFile name (A to Z)\nFile name (Z to A)\nModified time (new to old)\nModified time (old to new)\nCreated time (new to old)\nCreated time (old to new)\nCommand case 0\n1\nAudit sample\nCommand case 1\n1\nAudit sample\nCommand case 2\n1\nAudit sample\nCommand case 3\n1\nAudit sample\nCommand case 4\n1\nAudit sample\nCommand case 5\n1\nAudit sample\nCommand case 6\n1\nAudit sample\nCommand case 7\n1\nAudit sample\nCommand case 8\n1\nCommand case 148\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Quick switcher: Open quick switcher",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=switcher:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-151.png",
+    "visible_text": "Command case 149\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\n6\nFeature Audit/Command case 148\nFeature Audit/Command case 149\nFeature Audit/Command case 147\nFeature Audit/Command case 146\nFeature Audit/Command case 145\nFeature Audit/Command case 144\nFeature Audit/Command case 121\nFeature Audit/Command case 143\nFeature Audit/Command case 142",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Graph view: Open graph view",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=graph:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-152.png",
+    "visible_text": "Graph view\nFilters\nGroups\nDisplay\nForces\n6",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Graph view: Open local graph",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=graph:open-local; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-153.png",
+    "visible_text": "Feature Audit\n/\nLocal graph\nFilters\nGroups\nDisplay\nForces\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Graph view: Start graph timelapse animation",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=graph:animate; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-154.png",
+    "visible_text": "Command case 152\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Backlinks: Show backlinks",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=backlink:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-155.png",
+    "visible_text": "Command case 153\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nCommand case 153\n1 word, 5 characters\nBacklinks\nBacklinks\nOutgoing links\nOutline\nFootnotes\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Backlinks: Open backlinks for the current note",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=backlink:open-backlinks; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-156.png",
+    "visible_text": "Command case 154\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Backlinks: Toggle backlinks in document",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=backlink:toggle-backlinks-in-document; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-157.png",
+    "visible_text": "Command case 155\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Canvas: Create new canvas",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=canvas:new-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-158.png",
+    "visible_text": "Untitled\nDrag to pan\nPinch to zoom\nTouch and hold to add / move / select\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Canvas: Jump to group",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=canvas:jump-to-group; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-159.png",
+    "visible_text": "Feature Audit\n/\nBoard\n\nFirst idea\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\nLinked note\nNo groups found",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Canvas: Convert to file...",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=canvas:convert-to-file; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-160.png",
+    "visible_text": "Feature Audit\n/\nBoard\n\nFirst idea\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\nLinked note\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Outgoing links: Show outgoing links",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=outgoing-links:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-161.png",
+    "visible_text": "Command case 159\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nCommand case 159\n1 word, 5 characters\nOutgoing links\nBacklinks\nOutgoing links\nOutline\nFootnotes\nLinks\n1\nLinked note\nFeature Audit\nUnlinked mentions\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Outgoing links: Open outgoing links for the current file",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=outgoing-links:open-for-current; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-162.png",
+    "visible_text": "Command case 160\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Tags view: Show tags",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=tag-pane:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-163.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n172 files, 3 folders\nTags\nFiles\nSearch\nTags\nAll properties\nBookmarks\naudit\n4\ndemo\n1\nCommand case 161\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Properties view: Show all properties",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=properties:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-164.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n173 files, 3 folders\nAll properties\nFiles\nSearch\nTags\nAll properties\nBookmarks\naliases\n2\naudit_date\n1\ncompleted\n1\ncount\n1\ntags\n1\ntitle\n1\ncssclasses\n0\nCommand case 162\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Properties view: Show file properties",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=properties:open-local; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-165.png",
+    "visible_text": "Command case 163\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nCommand case 163\n1 word, 5 characters\nFile properties\nBacklinks\nOutgoing links\nOutline\nFootnotes\nFile properties\nAdd property\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Daily notes: Open today's daily note",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=daily-notes; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-166.png",
+    "visible_text": "2026-11-06\n1\n\n\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Daily notes: Open previous daily note",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=daily-notes:goto-prev; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-167.png",
+    "visible_text": "Command case 165\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Daily notes: Open next daily note",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=daily-notes:goto-next; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-168.png",
+    "visible_text": "Command case 166\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Templates: Insert template",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=insert-template; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-169.png",
+    "visible_text": "Command case 167\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nFailed to list templates. No template folder configured.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Templates: Insert current date",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=insert-current-date; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-170.png",
+    "visible_text": "Command case 168\n1\n2\n3\n4\n5\n6\n7\nAudit2026-11-06 sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Templates: Insert current time",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=insert-current-time; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-171.png",
+    "visible_text": "Command case 169\n1\n2\n3\n4\n5\n6\n7\nAudit07:27 sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Note composer: Merge current file with another file...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=note-composer:merge-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-172.png",
+    "visible_text": "Command case 170\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n2026-11-06\nFeature Audit/Command case 170\nFeature Audit/Command case 169\nFeature Audit/Command case 168\nFeature Audit/Command case 167\nFeature Audit/Command case 166\nFeature Audit/Command case 165\nFeature Audit/Command case 164\nFeature Audit/Command case 163\nFeature Audit/Command case 162",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Note composer: Extract current selection...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=note-composer:split-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-173.png",
+    "visible_text": "Command case 171\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7\nFeature Audit/Command case 170\nFeature Audit/Command case 171\n2026-11-06\nFeature Audit/Command case 169\nFeature Audit/Command case 168\nFeature Audit/Command case 167\nFeature Audit/Command case 166\nFeature Audit/Command case 165\nFeature Audit/Command case 164\nFeature Audit/Command case 163",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Note composer: Extract this heading...",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=note-composer:extract-heading; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-174.png",
+    "visible_text": "Command case 172\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Command palette: Open command palette",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=command-palette:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-175.png",
+    "visible_text": "Command case 173\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nAdd alias\nAdd cursor above\nAdd cursor below\nAdd embed\nAdd file property\nAdd internal link\nAdd tag\nAudio recorderStart recording audio\nBacklinksShow backlinks\nBacklinksToggle backlinks in document\nBasesCreate new base\nBasesInsert new base\nBookmarksBookmark all tabs...\nBookmarksBookmark block under cursor...\nBookmarksBookmark current search...\nBookmarksBookmark heading under cursor...\nBookmarksBookmark...\nBookmarksShow bookmarks\nCanvasCreate new canvas\nChange theme...\nChange vault...\nClear file properties\nClear formatting\nClose all other tabs\nClose current tab\nCommand paletteOpen command palette\nConfigure mobile Quick Action\nConfigure mobile toolbar\nCopy\nCopy current file path from vault folder\nCopy Obsidian URL for current file\nCreate new note\nCreate new note in current tab\nCreate note to the right\nCut\nCycle bullet/checkbox\nDaily notesOpen today's daily note\nDecrease font size\nDelete current file\nDelete paragraph\nDownload attachments for current file\nExport to PDF...\nFile recoveryOpen local history\nFilesCreate new folder\nFilesReveal current file in navigation\nFilesShow file explorer\nFocus on last note\nFold all headings and lists\nFold less\nFold more\nFootnotes viewShow footnotes\nFormat converterFrontmatter migration\nGo to first line\nGo to last line\nGo to last tab\nGo to next tab\nGo to previous tab\nGraph viewOpen graph view\nGraph viewOpen local graph\nIncrease font size\nIndent list item\nInsert attachment\nInsert callout\nInsert code block\nInsert footnote\nInsert horizontal rule\nInsert Markdown link\nInsert math block\nInsert table\nMake a copy of the current file\nManage vaults\nMove caret down\nMove caret left\nMove caret right\nMove caret up\nMove current file to another folder\nMove line down\nMove line up\nNavigate back\nNavigate forward\nNew tab\nNote composerExtract current selection...\nNote composerMerge current file with another file...\nOpen help\nOpen settings\nOutgoing linksShow outgoing links\nOutlineOpen outline of the current file\nOutlineShow outline\nPaste\nProperties viewShow all properties\nProperties viewShow file properties\nQuick switcherOpen quick switcher\nRandom noteOpen random note\nRedo\nReload app without saving\nRemove heading\nRename file\nSave current file\nSearch & replace in current file\nSearch current file",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Show bookmarks",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-176.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n186 files, 3 folders\nBookmarks\nFiles\nSearch\nTags\nAll properties\nBookmarks\nNo bookmarks found\nCommand case 174\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Bookmark...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:bookmark-current-view; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-177.png",
+    "visible_text": "Command case 175\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n7\nAdd bookmark\nPath\nTitle\nBookmark group\nCancel\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Bookmark current search...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:bookmark-current-search; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-178.png",
+    "visible_text": "Command case 176\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nNo search query to bookmark.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Remove bookmark for the current file",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=bookmarks:unbookmark-current-view; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-179.png",
+    "visible_text": "Command case 177\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Bookmark block under cursor...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:bookmark-current-section; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-180.png",
+    "visible_text": "Command case 178\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nAdd bookmark\nPath\nTitle\nBookmark group\nCancel\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Bookmark heading under cursor...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:bookmark-current-heading; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-181.png",
+    "visible_text": "Command case 179\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bookmarks: Bookmark all tabs...",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bookmarks:bookmark-all-tabs; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-182.png",
+    "visible_text": "Command case 180\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nAdd 6 bookmarks\nTitle\nBookmark group\nCancel\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Outline: Show outline",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=outline:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-183.png",
+    "visible_text": "Command case 181\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\nCommand case 181\n1 word, 5 characters\nOutline\nBacklinks\nOutgoing links\nOutline\nFootnotes\nFile properties\nNo headings found.\n7",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Outline: Open outline of the current file",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=outline:open-for-current; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-184.png",
+    "visible_text": "Feature Audit\n/\nOutline\nNo headings found.\n8",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: File recovery: Open local history",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=file-recovery:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-185.png",
+    "visible_text": "Command case 183\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n8\nFeature Audit/Command case 183\nShow changes\nCopy\nRestore",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Sync: Set up Sync",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=sync:setup; Account/cloud operation: entry is inventoried; no login or service operation is performed.",
+    "screenshot": "segment-0-feature-186.png",
+    "visible_text": "Command case 184\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n8\nSyncSet up Sync",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Sync: Open version history for the current file",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=sync:view-version-history; Account/cloud operation: entry is inventoried; no login or service operation is performed.",
+    "screenshot": "segment-0-feature-187.png",
+    "visible_text": "Command case 185\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n8\nNo commands found.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Sync: Show Sync history",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=sync:open-sync-view; Account/cloud operation: entry is inventoried; no login or service operation is performed.",
+    "screenshot": "segment-0-feature-188.png",
+    "visible_text": "Command case 186\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n8\nNo commands found.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Sync: Open activity log",
+    "brief": "The real command entry is documented without completing its sensitive/context-resetting operation.",
+    "status": "blocked",
+    "observed": "Command=sync:open-sync-log; Account/cloud operation: entry is inventoried; no login or service operation is performed.",
+    "screenshot": "segment-0-feature-189.png",
+    "visible_text": "Command case 187\n1\n2\n3\n4\n5\n6\n7\nAudit sample\n\n\n| Name | Value |\n| --- | --- |\n| One | Two |\n\n\n[[Linked note]]\nLinked mentions\n0\nNo backlinks found.\nUnlinked mentions\n8\nNo commands found.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bases: Create new base",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bases:new-file; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-190.png",
+    "visible_text": "Untitled\nView\nfile name\n2026-11-06\nBoard.canvas\nCommand case 0\nCommand case 1\nCommand case 2\nCommand case 3\nCommand case 4\nCommand case 5\nCommand case 6\nCommand case 7\nCommand case 8\nCommand case 9\nCommand case 10\nCommand case 11\nCommand case 12\nCommand case 13\nCommand case 14\n8",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bases: Insert new base",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=bases:insert; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-191.png",
+    "visible_text": "Feature Audit\n/\nNotes\nAudit table\nfile name\n2026-11-06\nBoard.canvas\nCommand case 0\nCommand case 1\nCommand case 2\nCommand case 3\nCommand case 4\nCommand case 5\nCommand case 6\nCommand case 7\nCommand case 8\nCommand case 9\nCommand case 10\nCommand case 11\nCommand case 12\nCommand case 13\nCommand case 14\n8",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bases: Copy table to clipboard",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bases:copy-table; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-0-feature-192.png",
+    "visible_text": "Feature Audit\n/\nNotes\nAudit table\nfile name\n2026-11-06\nBoard.canvas\nCommand case 0\nCommand case 1\nCommand case 2\nCommand case 3\nCommand case 4\nCommand case 5\nCommand case 6\nCommand case 7\nCommand case 8\nCommand case 9\nCommand case 10\nCommand case 11\nCommand case 12\nCommand case 13\nCommand case 14\n8\nUnable to copy to your clipboard",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Command entry: Bases: Switch view...",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=bases:change-view; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-0-feature-193.png",
+    "visible_text": "Feature Audit\n/\nNotes\nAudit table\nfile name\n2026-11-06\nBoard.canvas\nCommand case 0\nCommand case 1\nCommand case 2\nCommand case 3\nCommand case 4\nCommand case 5\nCommand case 6\nCommand case 7\nCommand case 8\nCommand case 9\nCommand case 10\nCommand case 11\nCommand case 12\nCommand case 13\nCommand case 14\n8",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42179340885"
+  },
+  {
+    "feature": "Local private vault",
+    "brief": "Onboarding selected private app storage without an account.",
+    "status": "functional_pass",
+    "observed": "Official application exposed its initialized vault object.",
+    "screenshot": "segment-1-feature-000.png",
+    "visible_text": "New tab\nNew note\nCtrl + N\nNew base\nNew canvas\n1",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Markdown files, folders and local readback",
+    "brief": "Create a nested dummy vault corpus through the app file API, then open it in the real editor.",
+    "status": "functional_pass",
+    "observed": "",
+    "screenshot": "segment-1-feature-001.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Bases: Add view",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bases:add-view; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-002.png",
+    "visible_text": "Feature Audit\n/\nNotes\nAudit table\nfile name\nBoard.canvas\nCommand case 192\nDaily\nLinked note\nNotes.base\nPlayground\nConfigure view\nLayout\nTable\nRow height\nShort\nMedium\nTall\nExtra tall",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Bases: Add item",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=bases:add-item; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-003.png",
+    "visible_text": "Untitled\n\n\n2",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Footnotes view: Show footnotes",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=footnotes:open; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-004.png",
+    "visible_text": "Command case 194\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nCommand case 194\n1 word, 5 characters\nFootnotes\nBacklinks\nOutgoing links\nOutline\nFootnotes\nNo footnotes found.\n2\nPress back again to exit.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Unique note creator: Create new unique note",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=zk-prefixer; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-005.png",
+    "visible_text": "202611060742\n\n\n2",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Unique note creator: Add unique internal link",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=insert-unique-link; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-006.png",
+    "visible_text": "Command case 196\n[[202611060742 Audit]] sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Random note: Open random note",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=random-note; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-007.png",
+    "visible_text": "Command case 196\n[[202611060742 Audit]] sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Slides: Start presentation",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=slides:start; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-008.png",
+    "visible_text": "Command case 198\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n\nAudit sample\n\nName\tValue\nOne\tTwo\n\nLinked note\n\nAudit sample Name Value One Two Linked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Audio recorder: Start recording audio",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=audio-recorder:start; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-009.png",
+    "visible_text": "Command case 199\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Audio recorder: Stop recording audio",
+    "brief": "This registered action needs another selection/context; it was not falsely counted as passed.",
+    "status": "blocked",
+    "observed": "Command=audio-recorder:stop; checkCallback did not permit invocation in the seeded context.",
+    "screenshot": "segment-1-feature-010.png",
+    "visible_text": "Command case 200\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nPermission denied",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Workspaces: Load workspace layout",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspaces:load; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-011.png",
+    "visible_text": "Command case 201\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\nNo saved layout found.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Workspaces: Save layout",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspaces:save; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-012.png",
+    "visible_text": "Command case 202\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nManage workspace layouts\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Workspaces: Save and load another layout",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspaces:save-and-load; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-013.png",
+    "visible_text": "Command case 203\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nNo saved layout found.",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Command entry: Workspaces: Manage workspace layouts",
+    "brief": "Invoke this registered built-in action in a seeded Markdown, Canvas or Bases context. Screenshot documents the resulting entry/state, not every follow-on behavior.",
+    "status": "screen_inspected",
+    "observed": "Command=workspaces:open-modal; invoked=True; semantic outcome not individually certified.",
+    "screenshot": "segment-1-feature-014.png",
+    "visible_text": "Command case 204\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nManage workspace layouts\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  },
+  {
+    "feature": "Local source preservation",
+    "brief": "Read back the seeded Markdown through the official app vault API.",
+    "status": "functional_pass",
+    "observed": "",
+    "screenshot": "segment-1-feature-015.png",
+    "visible_text": "Command case 204\nAudit sample\n\n\nName\n\t\nValue\n\n\nOne\n\t\nTwo\n\n\nLinked note\n2\nManage workspace layouts\nSave",
+    "visual_sync": {
+      "animation_frames": "two-frames",
+      "compositor_fence": true,
+      "evidence_source": "adb exec-out screencap -p; CDP bitmap discarded"
+    },
+    "capture_run": "42182162974"
+  }
+]

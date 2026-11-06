@@ -1,0 +1,610 @@
+[
+  {
+    "feature": "Local private vault",
+    "brief": "Onboarding selected private app storage without an account.",
+    "status": "functional_pass",
+    "observed": "Official application exposed its initialized vault object.",
+    "screenshot": "feature-000.png",
+    "visible_text": "New tab\nNew note\nCtrl + N\nNew base\nNew canvas\n1"
+  },
+  {
+    "feature": "Markdown files, folders and local readback",
+    "brief": "Create a nested dummy vault corpus through the app file API, then open it in the real editor.",
+    "status": "functional_pass",
+    "observed": "",
+    "screenshot": "feature-001.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1"
+  },
+  {
+    "feature": "Markdown source mode",
+    "brief": "Same dummy note shown in an editor or rendered reading view.",
+    "status": "screen_inspected",
+    "observed": "",
+    "screenshot": "feature-002.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting"
+  },
+  {
+    "feature": "Markdown preview mode",
+    "brief": "Same dummy note shown in an editor or rendered reading view.",
+    "status": "screen_inspected",
+    "observed": "",
+    "screenshot": "feature-003.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\n1"
+  },
+  {
+    "feature": "Properties",
+    "brief": "Structured fields, tags, aliases, a number and a checkbox in note frontmatter.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-004.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\n1"
+  },
+  {
+    "feature": "Rich Markdown formatting",
+    "brief": "Bold/italic/strike/highlight, lists, code and task syntax in a real rendered note.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-005.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\n1"
+  },
+  {
+    "feature": "Callouts",
+    "brief": "An admonition with a title and body.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-006.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\n1"
+  },
+  {
+    "feature": "Tables",
+    "brief": "A Markdown table rendered as rows and columns.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-007.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\nMultilingual text\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\n1"
+  },
+  {
+    "feature": "Code blocks",
+    "brief": "A fenced code sample rendered without executing its code.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-008.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\nMultilingual text\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\n1"
+  },
+  {
+    "feature": "Internal links and embeds",
+    "brief": "An internal note link and an embedded second note.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-009.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\n\nA public dummy note; no real user data.\n\nFormatting\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\nMultilingual text\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\n1"
+  },
+  {
+    "feature": "Math",
+    "brief": "Inline mathematical notation rendered by the app.",
+    "status": "screen_inspected",
+    "observed": "Rendered selector found=True",
+    "screenshot": "feature-010.png",
+    "visible_text": "Bold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\nMultilingual text\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\n1"
+  },
+  {
+    "feature": "Footnotes",
+    "brief": "Footnote references and their note body.",
+    "status": "blocked",
+    "observed": "Rendered selector found=False",
+    "screenshot": "feature-011.png",
+    "visible_text": "Bold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\nNumbered item\nSecond item\nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLinking\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMath\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFolding\n\nContent under a heading can be folded.\n\nMultilingual text\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\n1"
+  },
+  {
+    "feature": "Canvas",
+    "brief": "A real canvas document with a text card, a linked-file card and a connecting edge.",
+    "status": "screen_inspected",
+    "observed": "",
+    "screenshot": "feature-012.png",
+    "visible_text": "Feature Audit\n/\nBoard\n\nFirst idea\n\nLinked note\nLinked note\n\nA second note with a return link to Playground. #audit\n\nLinked note\n1"
+  },
+  {
+    "feature": "Bases",
+    "brief": "A local .base document opened by the app; no database account is used.",
+    "status": "screen_inspected",
+    "observed": "",
+    "screenshot": "feature-013.png",
+    "visible_text": "Feature Audit\n/\nNotes\nAudit table\nfile name\nBoard.canvas\nDaily\nLinked note\nNotes.base\nPlayground\n1"
+  },
+  {
+    "feature": "File explorer",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "file-explorer:open; invoked=True",
+    "screenshot": "feature-014.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n5 files, 2 folders\nFiles\nFiles\nSearch\nTags\nAll properties\nBookmarks\nFeature Audit\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1"
+  },
+  {
+    "feature": "Quick switcher",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "switcher:open; invoked=True",
+    "screenshot": "feature-015.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1\nFeature Audit/Notes.base\nFeature Audit/Board.canvas\nFeature Audit/Playground\nFeature Audit/Templates/Daily\nFeature Audit/Linked note"
+  },
+  {
+    "feature": "Vault search",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "global-search:open; invoked=True",
+    "screenshot": "feature-016.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n5 files, 2 folders\nSearch\nFiles\nSearch\nTags\nAll properties\nBookmarks\nNo matches found.\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1"
+  },
+  {
+    "feature": "Command palette",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "command-palette:open; invoked=True",
+    "screenshot": "feature-017.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n1\nAdd alias\nAdd cursor above\nAdd cursor below\nAdd embed\nAdd file property\nAdd internal link\nAdd tag\nAudio recorderStart recording audio\nBacklinksShow backlinks\nBacklinksToggle backlinks in document\nBasesCreate new base\nBasesInsert new base\nBookmarksBookmark all tabs...\nBookmarksBookmark block under cursor...\nBookmarksBookmark current search...\nBookmarksBookmark heading under cursor...\nBookmarksBookmark...\nBookmarksShow bookmarks\nCanvasCreate new canvas\nChange theme...\nChange vault...\nClear file properties\nClose current tab\nCommand paletteOpen command palette\nConfigure mobile Quick Action\nConfigure mobile toolbar\nCopy\nCopy current file path from vault folder\nCopy Obsidian URL for current file\nCreate new note\nCreate new note in current tab\nCreate note to the right\nCut\nCycle bullet/checkbox\nDaily notesOpen today's daily note\nDecrease font size\nDelete current file\nDelete paragraph\nDownload attachments for current file\nExport to PDF...\nFile recoveryOpen local history\nFilesCreate new folder\nFilesReveal current file in navigation\nFilesShow file explorer\nFocus on last note\nFold all headings and lists\nFold less\nFold more\nFootnotes viewShow footnotes\nFormat converterFrontmatter migration\nGo to first line\nGo to last line\nGo to last tab\nGo to next tab\nGo to previous tab\nGraph viewOpen graph view\nGraph viewOpen local graph\nIncrease font size\nIndent list item\nInsert attachment\nInsert callout\nInsert code block\nInsert footnote\nInsert horizontal rule\nInsert Markdown link\nInsert math block\nInsert table\nMake a copy of the current file\nManage vaults\nMove caret down\nMove caret left\nMove caret right\nMove caret up\nMove current file to another folder\nMove line down\nMove line up\nNavigate back\nNavigate forward\nNew tab\nNote composerExtract this heading...\nNote composerMerge current file with another file...\nOpen help\nOpen settings\nOutgoing linksShow outgoing links\nOutlineOpen outline of the current file\nOutlineShow outline\nPaste\nProperties viewShow all properties\nProperties viewShow file properties\nQuick switcherOpen quick switcher\nRandom noteOpen random note\nRedo\nReload app without saving\nRemove heading\nRename file\nRename this heading...\nSave current file\nSearch & replace in current file\nSearch current file\nSearchSearch in all files"
+  },
+  {
+    "feature": "Global graph",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "graph:open; invoked=True",
+    "screenshot": "feature-018.png",
+    "visible_text": "Graph view\nFilters\nGroups\nDisplay\nForces\n1"
+  },
+  {
+    "feature": "Local graph",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "graph:open-local; invoked=True",
+    "screenshot": "feature-019.png",
+    "visible_text": "Feature Audit\n/\nLocal graph\nFilters\nGroups\nDisplay\nForces\n1"
+  },
+  {
+    "feature": "Backlinks",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "backlink:open-backlinks; invoked=True",
+    "screenshot": "feature-020.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit"
+  },
+  {
+    "feature": "Outgoing links",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "outgoing-links:open-for-current; invoked=True",
+    "screenshot": "feature-021.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit"
+  },
+  {
+    "feature": "Outline",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "outline:open; invoked=True",
+    "screenshot": "feature-022.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\nPlayground\n92 words, 651 characters\nOutline\nBacklinks\nOutgoing links\nOutline\nFootnotes\nFeature playground\nFormatting\nLinking\nMath\nFolding\nMultilingual text\n2"
+  },
+  {
+    "feature": "Tags view",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "tag-pane:open; invoked=True",
+    "screenshot": "feature-023.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n5 files, 2 folders\nTags\nFiles\nSearch\nTags\nAll properties\nBookmarks\naudit\n3\ndemo\n1\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2"
+  },
+  {
+    "feature": "Bookmarks",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "bookmarks:open; invoked=True",
+    "screenshot": "feature-024.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n5 files, 2 folders\nBookmarks\nFiles\nSearch\nTags\nAll properties\nBookmarks\nNo bookmarks found\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2"
+  },
+  {
+    "feature": "Daily notes",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "daily-notes; invoked=True",
+    "screenshot": "feature-025.png",
+    "visible_text": "2026-11-06\n\n"
+  },
+  {
+    "feature": "File recovery",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "file-recovery:open; invoked=True",
+    "screenshot": "feature-026.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\nFeature Audit/Playground\nFri, Nov 6, 2026 6:04 AM\n775 B\nShow changes\nCopy\nRestore"
+  },
+  {
+    "feature": "Editor: toggle-bold",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-bold; resulting Markdown=**Audi**t selection",
+    "screenshot": "feature-027.png",
+    "visible_text": "Command scratch\n**Audi**t selection"
+  },
+  {
+    "feature": "Editor: toggle-italics",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-italics; resulting Markdown=*Audi*t selection",
+    "screenshot": "feature-028.png",
+    "visible_text": "Command scratch\n*Audi*t selection"
+  },
+  {
+    "feature": "Editor: toggle-strikethrough",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-strikethrough; resulting Markdown=~~Audi~~t selection",
+    "screenshot": "feature-029.png",
+    "visible_text": "Command scratch\n~~Audi~~t selection"
+  },
+  {
+    "feature": "Editor: toggle-highlight",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight; resulting Markdown===Audi==t selection",
+    "screenshot": "feature-030.png",
+    "visible_text": "Command scratch\n==Audi==t selection"
+  },
+  {
+    "feature": "Editor: toggle-code",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-code; resulting Markdown=`Audi`t selection",
+    "screenshot": "feature-031.png",
+    "visible_text": "Command scratch\n`Audi`t selection"
+  },
+  {
+    "feature": "Editor: toggle-blockquote",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-blockquote; resulting Markdown=> Audit selection",
+    "screenshot": "feature-032.png",
+    "visible_text": "Command scratch\n> Audit selection"
+  },
+  {
+    "feature": "Editor: toggle-bullet-list",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-bullet-list; resulting Markdown=- Audit selection",
+    "screenshot": "feature-033.png",
+    "visible_text": "Command scratch\n- Audit selection"
+  },
+  {
+    "feature": "Editor: toggle-numbered-list",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-numbered-list; resulting Markdown=1. Audit selection",
+    "screenshot": "feature-034.png",
+    "visible_text": "Command scratch\n1. Audit selection"
+  },
+  {
+    "feature": "Editor: toggle-checklist-status",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-checklist-status; resulting Markdown=- [ ] Audit selection",
+    "screenshot": "feature-035.png",
+    "visible_text": "Command scratch\n Audit selection"
+  },
+  {
+    "feature": "Editor: insert-callout",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-callout; resulting Markdown=> [!NOTE]\n> Audit selection",
+    "screenshot": "feature-036.png",
+    "visible_text": "Command scratch\n> [!NOTE]\n> Audit selection"
+  },
+  {
+    "feature": "Editor: insert-codeblock",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-codeblock; resulting Markdown=```\nAudit selection\n```",
+    "screenshot": "feature-037.png",
+    "visible_text": "Command scratch\n```\nAudit selection\n```"
+  },
+  {
+    "feature": "Editor: insert-horizontal-rule",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-horizontal-rule; resulting Markdown=\n---\nt selection",
+    "screenshot": "feature-038.png",
+    "visible_text": "Command scratch\n\n\n\n\nt selection"
+  },
+  {
+    "feature": "Editor: insert-mathblock",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-mathblock; resulting Markdown=$$\nAudit selection\n$$",
+    "screenshot": "feature-039.png",
+    "visible_text": "Command scratch\n$$\nAudit selection\n$$\n\ud835\udc34\ud835\udc62\ud835\udc51\ud835\udc56\ud835\udc61\ud835\udc60\ud835\udc52\ud835\udc59\ud835\udc52\ud835\udc50\ud835\udc61\ud835\udc56\ud835\udc5c\ud835\udc5b"
+  },
+  {
+    "feature": "Editor: insert-table",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-table; resulting Markdown=Audit selection\n\n|     |     |\n| --- | --- |\n|     |     |\n",
+    "screenshot": "feature-040.png",
+    "visible_text": "Command scratch\nAudit selection\n\n\n\n\n\t\n\n\n\n\n\n\n\t\n\n\n\n"
+  },
+  {
+    "feature": "Editor: insert-footnote",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:insert-footnote; resulting Markdown=[^1]Audit selection\n\n[^1]: \n",
+    "screenshot": "feature-041.png",
+    "visible_text": "Command scratch\n[^1]Audit selection\n\n\n1 \n\n\n\n"
+  },
+  {
+    "feature": "Editor: set-heading-1",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-1; resulting Markdown=# [^1]Audit selection\n\n[^1]: \n",
+    "screenshot": "feature-042.png",
+    "visible_text": "Command scratch\n# [^1]Audit selection\n\n\n1 \n\n"
+  },
+  {
+    "feature": "Editor: set-heading-2",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-2; resulting Markdown=## Audit selection",
+    "screenshot": "feature-043.png",
+    "visible_text": "Command scratch\n## Audit selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: set-heading-3",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-3; resulting Markdown=### Audit selection",
+    "screenshot": "feature-044.png",
+    "visible_text": "Command scratch\n### Audit selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: set-heading-4",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-4; resulting Markdown=#### Audit selection",
+    "screenshot": "feature-045.png",
+    "visible_text": "Command scratch\n#### Audit selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: set-heading-5",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-5; resulting Markdown=##### Audit selection",
+    "screenshot": "feature-046.png",
+    "visible_text": "Command scratch\n##### Audit selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: set-heading-6",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:set-heading-6; resulting Markdown=###### Audit selection",
+    "screenshot": "feature-047.png",
+    "visible_text": "Command scratch\n###### Audit selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-red",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-red; resulting Markdown===\ud83d\udd34Audi==t selection",
+    "screenshot": "feature-048.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-orange",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-orange; resulting Markdown===\ud83d\udfe0Audi==t selection",
+    "screenshot": "feature-049.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-yellow",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-yellow; resulting Markdown===\ud83d\udfe1Audi==t selection",
+    "screenshot": "feature-050.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-green",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-green; resulting Markdown===\ud83d\udfe2Audi==t selection",
+    "screenshot": "feature-051.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-blue",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-blue; resulting Markdown===\ud83d\udd35Audi==t selection",
+    "screenshot": "feature-052.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Editor: toggle-highlight-purple",
+    "brief": "Execute the installed editor command on selected dummy text, save through the app and inspect actual Markdown readback.",
+    "status": "functional_pass",
+    "observed": "Command=editor:toggle-highlight-purple; resulting Markdown===\ud83d\udfe3Audi==t selection",
+    "screenshot": "feature-053.png",
+    "visible_text": "Command scratch\n==\u200bAudi==t selection\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Footnotes view",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "footnotes:open; invoked=True",
+    "screenshot": "feature-054.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\nPlayground\n92 words, 651 characters\nFootnotes\nBacklinks\nOutgoing links\nOutline\nFootnotes\nNo footnotes found.\n2\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Unique note creator",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "zk-prefixer; invoked=True",
+    "screenshot": "feature-055.png",
+    "visible_text": "202611060606\n\n\n2\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Random note",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "random-note; invoked=True",
+    "screenshot": "feature-056.png",
+    "visible_text": "Linked note\n# Linked note\nA second note with a return link to Playground. #audit\n\n\n\nFootnote [^1] not found. Click to create."
+  },
+  {
+    "feature": "Templates",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "insert-template; invoked=True",
+    "screenshot": "feature-057.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n\nFootnote [^1] not found. Click to create.\n\nFailed to list templates. No template folder configured."
+  },
+  {
+    "feature": "Slash commands",
+    "brief": "Command not found in the installed mobile command registry.",
+    "status": "blocked",
+    "observed": "Harness found no matching command; not proof the feature is absent",
+    "screenshot": "feature-058.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n\nFootnote [^1] not found. Click to create.\n\nFailed to list templates. No template folder configured."
+  },
+  {
+    "feature": "Slides",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "slides:start; invoked=True",
+    "screenshot": "feature-059.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n\nFootnote [^1] not found. Click to create.\n\nFailed to list templates. No template folder configured.\nFEATURE PLAYGROUND\n\nA public dummy note; no real user data.\n\nFORMATTING\n\nBold, italic, strike, highlight and inline code.\n\nBullet\nNested bullet\n \nNumbered item\nSecond item\n \nPending task\nCompleted task\nCallout\n\nA callout keeps related content together.\n\nFeature\tValue\nTable\tSupported\nprint(\"dummy example\")\n\nLINKING\n\nLinked note and Linked note > Linked note. #audit\n\nLinked note\nLINKED NOTE\n\nA second note with a return link to Playground. #audit\n\n\nA footnote reference.one\none: Footnote text.\n\nMATH\n\n\ud835\udc38 =\ud835\udc5a\ud835\udc502\n\nFOLDING\n\nContent under a heading can be folded.\n\nMULTILINGUAL TEXT\n\n\u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English\n\nFeature playground A public dummy note; no real user data. Formatting Bold , italic , strike , highlight and inline code . Bullet Nested bullet Numbered item Second item Pending task Completed task Callout A callout keeps related content together. Feature Value Table Supported print ( \"dummy example\" ) Linking Linked note and Linked note > Linked note . #audit Linked note A footnote reference.one one: Footnote text. Math \ud835\udc38 = \ud835\udc5a \ud835\udc50 2 Folding Content under a heading can be folded. Multilingual text \u0c95\u0ca8\u0ccd\u0ca8\u0ca1 \u2014 \u0939\u093f\u0928\u094d\u0926\u0940 \u2014 English"
+  },
+  {
+    "feature": "Workspaces",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "workspaces:open-modal; invoked=True",
+    "screenshot": "feature-060.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nManage workspace layouts\nSave"
+  },
+  {
+    "feature": "Mobile toolbar",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "editor:configure-toolbar; invoked=True",
+    "screenshot": "feature-061.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nConfigure mobile toolbar\nManage toolbar options\nUndo\nRedo\nAdd internal link\nAdd embed\nAdd tag\nInsert attachment\nToggle heading\nToggle bold\nToggle italic\nToggle strikethrough\nToggle highlight\nToggle code\nToggle blockquote\nToggle comment\nInsert Markdown link\nToggle bullet list\nToggle numbered list\nToggle checkbox status\nIndent list item\nUnindent list item\nConfigure mobile toolbar\nAdd a command...\nMore toolbar options\nRename this heading...\nToggle fold on the current line\nFold all headings and lists\nUnfold all headings and lists\nFold less\nFold more\nRemove heading\nSet as heading 1\nSet as heading 2\nSet as heading 3\nSet as heading 4\nSet as heading 5\nSet as heading 6\nToggle red highlight\nToggle orange highlight\nToggle yellow highlight\nToggle green highlight\nToggle blue highlight\nToggle purple highlight\nToggle inline math\nClear formatting\nCycle bullet/checkbox\nInsert callout\nInsert code block\nInsert horizontal rule\nInsert math block\nInsert table\nInsert footnote\nMove line up\nMove line down\nMove caret up\nMove caret down\nMove caret left\nMove caret right\nGo to first line\nGo to last line\nToggle keyboard\nDelete paragraph\nAdd cursor below\nAdd cursor above\nTable: Add row above\nTable: Add row below\nTable: Move row up\nTable: Move row down\nTable: Duplicate row\nTable: Delete row\nTable: Add column to the left\nTable: Add column to the right\nTable: Move column left\nTable: Move column right\nTable: Duplicate column\nTable: Delete column\nTable: Align left\nTable: Align center\nTable: Align right\nCut\nCopy\nPaste\nShow context menu under cursor\nTemplates: Insert current date\nTemplates: Insert current time\nNote composer: Extract current selection...\nNote composer: Extract this heading...\nCommand palette: Open command palette\nBookmarks: Bookmark block under cursor...\nBookmarks: Bookmark heading under cursor...\nBases: Insert new base\nUnique note creator: Add unique internal link"
+  },
+  {
+    "feature": "Mobile quick action",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "mobile:quick-action; invoked=True",
+    "screenshot": "feature-062.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nNone\nSave current file\nDownload attachments for current file\nFollow link under cursor\nOpen link under cursor in new tab\nToggle pin\nRename file\nCopy current file path from vault folder\nCopy Obsidian URL for current file\nUndo close tab\nExport to PDF...\nRename this heading...\nGo to next tab\nGo to tab #1\nGo to tab #2\nGo to tab #3\nGo to tab #4\nGo to tab #5\nGo to tab #6\nGo to tab #7\nGo to tab #8\nGo to last tab\nGo to previous tab\nNew tab\nClose current tab\nClose all other tabs\nClose this tab group\nClose others in tab group\nConfigure mobile Quick Action\nNavigate back\nNavigate forward\nManage vaults\nChange vault...\nShow tab overview\nToggle light/dark mode\nChange theme...\nOpen settings\nShow release notes\nToggle reading view\nAdd file property\nAdd alias\nClear file properties\nDelete current file\nToggle ribbon\nToggle readable line length\nToggle line numbers\nToggle left sidebar\nToggle right sidebar\nToggle default mode for new tabs\nOpen help\nReload app without saving\nFormat converter: Frontmatter migration\nShow debug info\nIncrease font size\nDecrease font size\nCreate new note\nCreate new note in current tab\nCreate note to the right\nShare\nMove current file to another folder\nMake a copy of the current file\nToggle Live Preview/Source mode\nSearch current file\nSearch & replace in current file\nFocus on last note\nToggle fold properties in current file\nToggle fold on the current line\nFold all headings and lists\nUnfold all headings and lists\nFold less\nFold more\nAdd internal link\nAdd embed\nInsert Markdown link\nAdd tag\nToggle heading\nRemove heading\nSet as heading 1\nSet as heading 2\nSet as heading 3\nSet as heading 4\nSet as heading 5\nSet as heading 6\nToggle bold\nToggle italic\nToggle strikethrough\nToggle highlight\nToggle red highlight\nToggle orange highlight\nToggle yellow highlight\nToggle green highlight\nToggle blue highlight\nToggle purple highlight\nToggle code\nToggle inline math\nToggle blockquote\nToggle comment\nClear formatting\nToggle bullet list\nToggle numbered list"
+  },
+  {
+    "feature": "Tab overview",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "app:show-tab-switcher; invoked=True",
+    "screenshot": "feature-063.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\n# Feature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone"
+  },
+  {
+    "feature": "Sync sign-in entry",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "sync:setup; invoked=True",
+    "screenshot": "feature-064.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nSync\n\nObsidian Sync is Obsidian's add-on sync service with end-to-end encryption and version history.\n\nTo start syncing, please log in or create a new Obsidian account.\n\nSign up\nLog in"
+  },
+  {
+    "feature": "Properties view",
+    "brief": "Built-in action invoked by the official app command API; screenshot records the resulting real UI.",
+    "status": "screen_inspected",
+    "observed": "properties:open; invoked=True",
+    "screenshot": "feature-065.png",
+    "visible_text": "Audit Vault\nAudit Vault\nManage vaults...\n8 files, 2 folders\nAll properties\nFiles\nSearch\nTags\nAll properties\nBookmarks\naliases\n1\naudit_date\n1\ncompleted\n1\ncount\n1\ntags\n1\ntitle\n1\ncssclasses\n0\nPlayground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone"
+  },
+  {
+    "feature": "Settings: General",
+    "brief": "Installed mobile settings category. Settings are not blindly changed, especially account, sync or security controls.",
+    "status": "screen_inspected",
+    "observed": "",
+    "screenshot": "feature-066.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nOptions\nGeneral\nAppearance\nInterface\nEditor\nFiles and links\nHotkeys\nKeychain\nCore plugins\nCommunity plugins\nCore plugins\nBacklinks\nCanvas\nCommand palette\nDaily notes\nFile recovery\nNote composer\nPage preview\nQuick switcher\nSync\nTemplates\nUnique note creator\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Version 1.15.0 (396)",
+    "brief": "Setting offered by this version of the Android application.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-067.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Language",
+    "brief": "Change the display language.\n",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-068.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Help",
+    "brief": "Learn how to use Obsidian and get help from the community.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-069.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Account",
+    "brief": "Setting offered by this version of the Android application.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-070.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Your account",
+    "brief": "You're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-071.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Catalyst license",
+    "brief": "Setting offered by this version of the Android application.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-072.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Commercial license",
+    "brief": "Help keep Obsidian 100% user-supported.\n",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-073.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Advanced",
+    "brief": "Setting offered by this version of the Android application.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-074.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  },
+  {
+    "feature": "General: Notify if startup takes longer than expected",
+    "brief": "Diagnose issues with your app by seeing what is causing the app to load slowly.",
+    "status": "screen_inspected",
+    "observed": "Control inspected only; not all values/branches functionally verified.",
+    "screenshot": "feature-075.png",
+    "visible_text": "Playground\nProperties\nFeature playground\naudit\ndemo\nDemo note\nAdd property\nFeature playground\nA public dummy note; no real user data.\n\n\nFormatting\nBold, italic, strike, highlight and inline code.\n\n\n- Bullet\n  - Nested bullet\n1. Numbered item\n2. Second item\n Pending task\n Completed task\n\n\nCallout\n\nA callout keeps related content together.\n\n\n\nFeature\n\t\nValue\n\n\nTable\n\t\nSupported\n\n\nPython\nprint(\"dummy example\")\n\n\nLinking\nLinked note and Linked note#Linked note. #audit\n2\n\nFootnote [^1] not found. Click to create.\n\nPlayground\nLocal graph\n2 tabs\nDone\nGeneral\nVersion 1.15.0 (396)\nLanguage\nChange the display language.\n\n\u12a0\u121b\u122d\u129b\n\u0627\u064e\u0644\u0652\u0639\u064e\u0631\u064e\u0628\u0650\u064a\u064e\u0651\u0629\u064f\n\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430\n\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a\n\u09ac\u09be\u0982\u09b2\u09be\ncatal\u00e0\n\u010de\u0161tina\nDansk\nDeutsch\n\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\nEnglish\nEnglish (GB)\nEspa\u00f1ol\n\u0641\u0627\u0631\u0633\u06cc\nsuomi\nFran\u00e7ais\nGaeilge\nGalego\n\u05e2\u05d1\u05e8\u05d9\u05ea\nMagyar\nBahasa Indonesia\nItaliano\n\u65e5\u672c\u8a9e\n\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8\nTaqbaylit\n\u1781\u17d2\u1798\u17c2\u179a\n\ud55c\uad6d\uc5b4\nLatvie\u0161u\nBahasa Melayu\n\u0928\u0947\u092a\u093e\u0932\u0940\nNederlands\nNorsk\nPolski\nPortugu\u00eas\nPortugu\u00eas do Brasil\nRom\u00e2n\u0103\nP\u0443\u0441\u0441\u043a\u0438\u0439\n\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d\n\u0dc3\u0dd2\u0d82\u0dc4\u0dbd\nSloven\u010dina\nShqip\n\u0441\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a\nSvenska\n\u0ba4\u0bae\u0bbf\u0bb4\u0bcd\n\u0e44\u0e17\u0e22\nT\u00fcrk\u00e7e\n\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430\no\u02bbzbekcha\nTi\u1ebfng Vi\u1ec7t\n\u7b80\u4f53\u4e2d\u6587\n\u7e41\u9ad4\u4e2d\u6587\nHelp\nLearn how to use Obsidian and get help from the community.\nOpen\nAccount\nYour account\nYou're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.\nLog in\nSign up\nCommercial license\nHelp keep Obsidian 100% user-supported.\n\nActivate\nAdvanced\nNotify if startup takes longer than expected\nDiagnose issues with your app by seeing what is causing the app to load slowly."
+  }
+]

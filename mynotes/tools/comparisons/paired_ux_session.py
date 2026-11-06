@@ -96,7 +96,7 @@ def ours():
   return {'status':'visible_outcome_verified','title_present':True,'query':MARKER,'result_labels':labels,'setup':'Native home search touched and query typed; UIAutomator inspection overhead is not search latency.'}
  probe('mynotes','S01',search)
  def settings():
-  back();back();tap('Library');tap('Settings');capture('mynotes','P01-settings');tap('Appearance');capture('mynotes','P01-appearance')
+  back();tap('Library');tap('Settings');capture('mynotes','P01-settings');tap('Appearance');capture('mynotes','P01-appearance')
   return {'status':'interaction_observed','verified':'Settings and Appearance entry opened; theme values were not switched, contrast/TalkBack were not tested.'}
  probe('mynotes','P01',settings)
  (OUT/'mynotes-gfxinfo.txt').write_bytes(adb('shell','dumpsys','gfxinfo',pkg,'framestats'))
@@ -107,13 +107,22 @@ def ours():
 def obsidian():
  # Onboarding uses the documented existing discovery helper; no user folders/accounts.
  from obsidian_probe import main as onboard
- from obsidian_cdp import Device
+ from obsidian_cdp import Device as BaseDevice
+ class Device(BaseDevice):
+  def call(self,method,params=None):
+   start=time.monotonic()
+   try:return super().call(method,params)
+   finally:
+    path=OUT/'cdp-commands.json'
+    history=json.loads(path.read_text()) if path.exists() else []
+    history.append({'at':now(),'method':method,'params':params or {},'host_roundtrip_ms':round((time.monotonic()-start)*1000,2),'limit':'Debug transport duration, not input-to-visible latency.'})
+    path.write_text(json.dumps(history,indent=2))
  onboard();d=Device();assert d.js('!!window.app?.vault'),'Private vault not ready';capture('obsidian','first-private-vault',d)
  def launch():
   r=launch_samples('obsidian','md.obsidian');return r
  probe('obsidian','L01',launch);d=Device()
  def dom_touch(expression):
-  selector=d.js('(()=>{const e='+expression+';if(!e)return null;e.setAttribute("data-paired-target","target");return "[data-paired-target=target]"})()')
+  selector=d.js('(()=>{document.querySelectorAll("[data-paired-target]").forEach(x=>x.removeAttribute("data-paired-target"));const e='+expression+';if(!e)return null;e.setAttribute("data-paired-target","target");return "[data-paired-target=target]"})()')
   if not selector or not d.tap(selector):raise RuntimeError('Visible DOM touch target absent: '+expression)
  def ctrl_a():
   d.call('Input.dispatchKeyEvent',{'type':'keyDown','key':'a','code':'KeyA','modifiers':2,'windowsVirtualKeyCode':65});d.call('Input.dispatchKeyEvent',{'type':'keyUp','key':'a','code':'KeyA','modifiers':2,'windowsVirtualKeyCode':65})
@@ -123,17 +132,17 @@ def obsidian():
   if not d.tap('.inline-title'):raise RuntimeError('New note inline title not reachable')
   ctrl_a();d.type(TITLE);d.call('Input.dispatchKeyEvent',{'type':'keyDown','key':'Enter','code':'Enter','windowsVirtualKeyCode':13});d.call('Input.dispatchKeyEvent',{'type':'keyUp','key':'Enter','code':'Enter','windowsVirtualKeyCode':13})
   if not d.tap('.cm-content'):raise RuntimeError('Source editor content not reachable')
-  d.type(BODY);time.sleep(1);capture('obsidian','W01-typed',d)
-  read=d.js('app.workspace.activeLeaf.view.editor?.getValue()');assert read and BODY in read,read
+  ctrl_a();d.type(BODY);time.sleep(1);capture('obsidian','W01-typed',d)
+  read=d.js('app.workspace.activeLeaf.view.editor?.getValue()');assert read==BODY,('Fixture must match exactly after UI select-all/type',read)
   path=d.js('app.workspace.activeLeaf.view.file?.path');time.sleep(2)
   stored=d.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath('+json.dumps(path)+')))()')
-  assert BODY in stored,'No saved body readback';assert TITLE in path,path
+  assert stored==BODY,'Saved body must match fixture exactly';assert TITLE in path,path
   return {'status':'visible_outcome_verified','verified':'UI touch and input created note; live editor and actual vault readback contain the fixture. No forced save API was invoked.','path':path,'saved_text':stored}
  probe('obsidian','W01',create)
  def formatting():
   if not d.tap('.cm-content'):raise RuntimeError('Editor not reachable')
   capture('obsidian','W02-keyboard-before-format',d)
-  dom_touch('[...document.querySelectorAll(".mobile-toolbar-option,.clickable-icon,button")].find(e=>/^(toggle )?bold$/i.test(e.getAttribute("aria-label")||e.getAttribute("title")||""))')
+  dom_touch('document.querySelector(".mobile-toolbar svg.lucide-bold")?.parentElement || [...document.querySelectorAll("[aria-label],button")].find(e=>/^(toggle )?bold(?:$| \()/i.test(e.getAttribute("aria-label")||e.getAttribute("title")||""))')
   capture('obsidian','W02-bold-state',d)
   return {'status':'interaction_observed','verified':'Keyboard/editor and visible bold affordance inspected; no styled-persistence or latency acceptance.'}
  probe('obsidian','W02',formatting)

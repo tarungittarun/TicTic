@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install PyYAML==6.0.3
+      - run: pip install PyYAML==6.0.3 Pillow==11.3.0 reportlab==4.4.4 PyMuPDF==1.26.7
       - name: Wait for the named session without treating workflow success as UX quality
         run: |
           python - <<'PY'
@@ -49,9 +49,12 @@ jobs:
           cat /tmp/paired-retain-root-gate.log
           if [ "$gate" -ne 0 ]; then
             python - <<'PYLOG'
-          import pathlib
-          text=pathlib.Path('/tmp/paired-retain-root-gate.log').read_text()[-12000:]
-          print('::error title=Root gate failure (not app failure)::'+text.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+          import pathlib,re
+          text=pathlib.Path('/tmp/paired-retain-root-gate.log').read_text()
+          blocks=re.findall(r'(?:ERROR|FAIL):[^\n]*\n-+\n.*?(?=\n=+|\n-+\nRan |\Z)',text,re.S)
+          for i,block in enumerate(blocks or [text[-3500:]]):
+              message=block[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+              print('::error title=Root gate detail '+str(i)+' (not app failure)::'+message)
           PYLOG
             exit "$gate"
           fi

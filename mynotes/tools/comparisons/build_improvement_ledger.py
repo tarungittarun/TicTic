@@ -2,21 +2,21 @@
 from pathlib import Path
 import json,hashlib
 from html import escape
-from reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,PageBreak,Table,TableStyle,Image
+from reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,PageBreak,Table,TableStyle,Image,KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib import colors
 from PIL import Image as PILImage
 ROOT=Path(__file__).resolve().parents[3];OUT=ROOT/'mynotes/docs/ux-improvement-ledger'
 data=json.loads((OUT/'ledger.json').read_text());styles=getSampleStyleSheet()
-styles.add(ParagraphStyle(name='BodyLedger',fontSize=9,leading=12,spaceAfter=6));styles.add(ParagraphStyle(name='SmallLedger',fontSize=7.5,leading=9.5,spaceAfter=5));styles.add(ParagraphStyle(name='HeadLedger',fontName='Helvetica-Bold',fontSize=15,leading=19,spaceAfter=10,textColor=colors.HexColor('#142B43')))
+styles.add(ParagraphStyle(name='BodyLedger',fontSize=9,leading=12,spaceAfter=4));styles.add(ParagraphStyle(name='SmallLedger',fontSize=7.5,leading=9.5,spaceAfter=5));styles.add(ParagraphStyle(name='HeadLedger',keepWithNext=True,fontName='Helvetica-Bold',fontSize=15,leading=19,spaceAfter=10,textColor=colors.HexColor('#142B43')))
 flow=[];md=['# MyNotes — improvement execution ledger','', '**Status: ongoing, incomplete. No whole-app or physical-device acceptance. No app fixes implemented.**','', 'This document records fresh bounded tests in both apps before a comparative improvement is promoted. Earlier screenshot/source audits remain hypotheses, not new tests. Each named finding has its own scope, evidence, confidence and proposed acceptance task.','']
 def p(text,style='BodyLedger'):return Paragraph(escape(str(text)),styles[style])
 def para(text):flow.append(p(text))
 def section(title,new=False):
  if new:flow.append(PageBreak())
  flow.append(p(title,'HeadLedger'));md.extend(['## '+title,''])
-def block(label,text):
- text=str(text);flow.append(Paragraph('<b>'+escape(label)+':</b> '+escape(text),styles['BodyLedger']));md.extend(['**'+label+':** '+text,''])
+def block(label,text,style="BodyLedger"):
+ text=str(text);flow.append(Paragraph('<b>'+escape(label)+':</b> '+escape(text),styles[style]));md.extend(['**'+label+':** '+text,''])
 def table(rows,widths):
  t=Table([[p(x,'SmallLedger') for x in row] for row in rows],colWidths=widths,repeatRows=1);t.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#E7F1F4')),('LINEBELOW',(0,0),(-1,-1),.3,colors.HexColor('#D6DFE6')),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5)]));flow.append(t)
 section('Improvement execution ledger')
@@ -48,11 +48,13 @@ for idx,item in enumerate(data['work_items']):
  if idx:flow.append(PageBreak())
  flow.append(p(item['id']+' | '+item['title'],'HeadLedger'));md.extend(['### '+item['id']+' — '+item['title'],''])
  for label,key in [('Status','status'),('Owner / implementation not started','owner'),('Acceptance on changed build','acceptance_status'),('Bounded task / expected result','task'),('Preconditions and exact actions','reproduction'),('MyNotes actual result','ours'),('Obsidian actual result','obsidian'),('User consequence','impact'),('Reproduction and severity','severity'),('Root-cause confidence','cause_confidence'),('Source-supported mechanism','cause'),('Alternative explanations / limits','alternatives'),('Proposed change — not implemented','proposal'),('Protected requirements / risks','risks'),('Acceptance task','acceptance'),('Next discriminating test','next_test')]:block(label,item[key])
+ source_start=len(flow)
  for s in item['source_refs']:
-  block('Source reference',s['path']+':'+str(s['line'])+' '+s['symbol']+' | sha256='+s['sha256'])
+  block('Source reference',s['path']+':'+str(s['line'])+' '+s['symbol']+' | sha256='+s['sha256'],'SmallLedger')
   if s.get('immutable_url'):
    md.extend(['[View immutable source]('+s['immutable_url']+')',''])
    flow.append(Paragraph('<link href="'+escape(s['immutable_url'],quote=True)+'" color="#195E91">View immutable source and exact line</link>',styles['SmallLedger']))
+ source_flow=flow[source_start:];del flow[source_start:]
  md.extend(['Evidence: '+', '.join('['+r+']('+r+')' for r in item['evidence']),''])
  images=[OUT/r for r in item['evidence'] if r.endswith('.png')][:2]
  if images:
@@ -65,11 +67,14 @@ for idx,item in enumerate(data['work_items']):
    url='https://github.com/tarungittarun/TicTic/blob/'+commit+'/mynotes/docs/ux-improvement-ledger/'+str(path.relative_to(OUT)) if commit else None
    captions.append(Paragraph('<link href="'+escape(url,quote=True)+'" color="#195E91">'+escape(path.name)+' | open original</link>',styles['SmallLedger']) if url else p(path.name,'SmallLedger'))
   flow.append(Table([cells,captions],colWidths=[257.5]*len(cells)));flow.append(p('Whole native screenshots; see evidence paths for exact original PNGs. No UI reconstruction.','SmallLedger'))
+ flow.extend(source_flow)
 section('Pending module task inventory — not findings',True)
 block('Coverage rule','A bounded test on one page does not mark its whole module or all its aspects complete. 37 module plans and 231 literal source control definitions are starting inventories, not 268 completed tests or an exhaustive inventory of generated/OS states.')
 block('Per-aspect scope','Pages/navigation, feature outcomes, icon discovery, visual hierarchy, layout/keyboard, animation, efficiency, smoothness, timing, accessibility and save/recovery are tracked separately. A screenshot does not pass any performance/gesture/assistive task.')
 for plan in data['plan']:
+ start=len(flow)
  block(plan['id']+' / '+plan['name'],plan['status']);block('Task still required',plan['task']);block('Acceptance',plan['acceptance']);block('Aspect statuses', '; '.join(k.replace('_',' ')+': '+v for k,v in plan['aspects'].items()))
+ group=flow[start:];del flow[start:];flow.append(KeepTogether(group))
 section('How this ledger must drive later fixes',True)
 for label,text in [('Stable IDs','Do not renumber or delete items to make the record look clean. Add dated evidence, affected builds and changed confidence. Preserve blockers and failed attempts.'),('Before implementation','Confirm actual reproduction and source mechanism, isolate alternatives, define a minimal change and protect earlier requested behavior. Do not copy Obsidian architecture by default.'),('After implementation','Record the implementation commit, run the same task on the new signed app, retain before/after evidence, verify persistence and regressions, then change the item status. Proposed is not fixed.'),('Source inventory','source-surfaces.json inventories literal first-party definitions only. Dynamic names, generated controls, OS/provider dialogs and states not visited are not exhaustively enumerated.'),('No unsupported certainty','Never report general speed, smoothness, reliability, accessibility, user satisfaction or exclusive causality from the current bounded emulator evidence. Unknowns require named next tests, not confident filler.')]:block(label,text)
 md.extend(['## Supporting records','- [Machine-readable ledger](ledger.json)','- [Literal source-surface inventory](source-surfaces.json)','- [Status and confidence definitions](README.md)',''])

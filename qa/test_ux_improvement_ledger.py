@@ -83,3 +83,19 @@ class PairedHarnessEvidenceTests(unittest.TestCase):
  def test_offline_bootstrap_precedes_apk_installation(self):
   workflow=(ROOT/'.github/workflows/notes-paired-ux-study.yml').read_text()
   self.assertLess(workflow.index('python -m mynotes.tools.ci.offline_guest'),workflow.index('adb install'))
+ def test_third_creation_check_precedes_independent_fixture_setup(self):
+  out=ROOT/'mynotes/docs/ux-improvement-ledger/sessions/42220127426'
+  data=json.loads((out/'session.json').read_text())
+  create=next(c for c in data['cases'] if c['app']=='obsidian' and c['case']=='W01')
+  fixture=next(c for c in data['cases'] if c['app']=='obsidian' and c['case']=='FIXTURE')
+  self.assertEqual(create['status'],'visible_outcome_verified')
+  self.assertEqual(create['saved_text'],data['fixtures']['body'])
+  self.assertLess(create['finished'],fixture['started'])
+  self.assertEqual(fixture['status'],'fixture_prepared_not_a_test_pass')
+ def test_third_offline_receipts_have_explicit_bounded_scope(self):
+  out=ROOT/'mynotes/docs/ux-improvement-ledger/sessions/42220127426'
+  proof=json.loads((out/'offline-guest-proof.json').read_text())
+  self.assertFalse(proof['notes_installed']);self.assertEqual(proof['consecutive_checks'],3)
+  self.assertEqual(proof['final_shell_uid'],2000);self.assertFalse(proof['active_default_network'])
+  self.assertIn('Active default network: none',json.loads((out/'environment.json').read_text())['connectivity'])
+  self.assertIn('Active default network: none',(out/'connectivity-after-session.txt').read_text())

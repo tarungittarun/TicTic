@@ -32,6 +32,10 @@ This document records fresh bounded tests in both apps before a comparative impr
 
 - [42219043546](https://github.com/tarungittarun/TicTic/actions/runs/42219043546): evidence_retained_after_root_gate — Second-session original bytes and CDP command trace retained; publication success does not validate the raw false-positive search assertion.
 
+- [42220127426](https://github.com/tarungittarun/TicTic/actions/runs/42220127426): fresh_session_retained_and_visually_reviewed — Third session completed. Offline bootstrap verified three consecutive disabled-WiFi/no-default checks before APK installation, then returned shell UID2000. Initial/final network receipts none. MyNotes W01/S01 visible outcomes, W02/P01 interactions observed. Obsidian W01 independently passed exact editor/vault body readback BEFORE separate explicit API fixture setup; downstream S01 visible result-passage/title checks passed and native screenshot confirms one highlighted result. W02 B activation observed, not formatted persistence. Earlier blockers/invalidated pass remain retained.
+
+- [42220747328](https://github.com/tarungittarun/TicTic/actions/runs/42220747328): evidence_retained_after_root_gate — Third session originals, pre-install offline proof, final connectivity receipt and CDP trace saved unchanged after root gate. No app build, fix, or physical acceptance.
+
 **OBS-0001 / W01 / create a note containing the shared agenda:** Wave one created the agenda words in both apps, but Obsidian saved source had an extra leading #. MyNotes accessibility body and home title versus Obsidian editor/vault readback are unequal checks, not crash-recovery proof. Wave two did NOT correct the fixture: its exact Obsidian body assertion blocked on empty readback. No creation success or data-loss conclusion is drawn from that wave.
 
 Evidence: [sessions/42217122419/mynotes-W01-typed.png](sessions/42217122419/mynotes-W01-typed.png), [sessions/42217122419/mynotes-W01-home-saved.png](sessions/42217122419/mynotes-W01-home-saved.png), [sessions/42217122419/obsidian-W01-typed.png](sessions/42217122419/obsidian-W01-typed.png), [sessions/42217122419/session.json](sessions/42217122419/session.json)
@@ -48,6 +52,10 @@ Evidence: [sessions/42217122419/mynotes-W02-keyboard-before-format.png](sessions
 
 Evidence: [sessions/42217122419/mynotes-P01-blocked.png](sessions/42217122419/mynotes-P01-blocked.png), [sessions/42217122419/obsidian-P01-appearance.png](sessions/42217122419/obsidian-P01-appearance.png), [sessions/42217122419/session.json](sessions/42217122419/session.json), [sessions/42218900341/mynotes-P01-appearance.png](sessions/42218900341/mynotes-P01-appearance.png), [sessions/42218900341/obsidian-P01-appearance.png](sessions/42218900341/obsidian-P01-appearance.png)
 
+**OBS-0005 / Third-session W01/S01/W02/P01 bounded repeat:** Third W01 exact editor and vault body checks passed in Obsidian before API fixture preparation; MyNotes retained accessibility/home-title checks, not equal storage durability. Third S01 native screenshots show actual results in both: our title/type only versus Obsidian highlighted passage; this is a valid bounded repeat after invalidated wave two. Third MyNotes body node again shrank 506px to176px on Format opening. Obsidian B target was activated on the seeded body, not a verified persisted-bold workflow. MyNotes Appearance opened by touch route; Obsidian by API. No module fully accepted. The reason the same W01 input method failed in wave two but passed in wave three is unisolated; reliability is NOT established.
+
+Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/42220127426/mynotes-S01-body-match-results.png), [sessions/42220127426/obsidian-S01-body-match-results.png](sessions/42220127426/obsidian-S01-body-match-results.png), [sessions/42220127426/mynotes-W02-format-keyboard.png](sessions/42220127426/mynotes-W02-format-keyboard.png), [sessions/42220127426/obsidian-W02-keyboard-before-format.png](sessions/42220127426/obsidian-W02-keyboard-before-format.png), [sessions/42220127426/mynotes-P01-appearance.png](sessions/42220127426/mynotes-P01-appearance.png), [sessions/42220127426/obsidian-P01-appearance.png](sessions/42220127426/obsidian-P01-appearance.png), [sessions/42220127426/session.json](sessions/42220127426/session.json)
+
 ## Evidence review and corrected claims
 
 **REVIEW-NETWORK:** Wave one reports Active default network: 100 despite disable commands. Offline was NOT established. Wave two initial receipt reports none, but lacks consecutive pre-install checks. Neither proves absence of background traffic. Public dummy data only; no login, sync credentials or intentional upload actions. Do not infer no network transfer.
@@ -58,9 +66,9 @@ Evidence: [sessions/42217122419/environment.json](sessions/42217122419/environme
 
 Evidence: [sessions/42218900341/obsidian-S01-body-match-results.png](sessions/42218900341/obsidian-S01-body-match-results.png), [sessions/42218900341/obsidian-S01-body-match-results-dom.json](sessions/42218900341/obsidian-S01-body-match-results-dom.json), [sessions/42218900341/obsidian-W01-typed.png](sessions/42218900341/obsidian-W01-typed.png), [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
-**REVIEW-WAVE3-METHOD:** Next bounded repeat requires fresh-emulator offline provisioning before any APK installation, keeping production apps unmodified. Obsidian interactive W01 remains independently tested and may stay blocked. An explicit separate fixture setup uses the official vault/file API to seed/read back exact public body for downstream W02/S01 state comparison; it cannot count as note creation, typing efficiency, durability, or a W01 pass. Search must inspect visible result-passage and result-title containers rather than background text. This is a fixture/harness correction, NOT an app fix.
+**REVIEW-WAVE3-METHOD:** COMPLETED: third session verified fresh-emulator offline provisioning before installation and visible result-container checks. Obsidian W01 independently passed exact editor/vault body readback before the separate API fixture setup. That later setup seeds/reads the same exact public body for downstream W02/S01 and cannot rescue earlier W01 failures or count as a user creation/typing/durability test. S01 screenshot shows 1 result and a highlighted cobalt42 passage. Our screenshot again shows title/type without passage. No packet capture, continuous network audit, account/physical-device or user-efficiency acceptance.
 
-Evidence: 
+Evidence: [sessions/42220127426/offline-guest-proof.json](sessions/42220127426/offline-guest-proof.json), [sessions/42220127426/environment.json](sessions/42220127426/environment.json), [sessions/42220127426/connectivity-after-session.txt](sessions/42220127426/connectivity-after-session.txt), [sessions/42220127426/obsidian-W01-typed.png](sessions/42220127426/obsidian-W01-typed.png), [sessions/42220127426/obsidian-FIXTURE-exact-body.png](sessions/42220127426/obsidian-FIXTURE-exact-body.png), [sessions/42220127426/obsidian-S01-body-match-results.png](sessions/42220127426/obsidian-S01-body-match-results.png), [sessions/42220127426/session.json](sessions/42220127426/session.json)
 
 ## Measured quantities — narrowly defined
 
@@ -104,6 +112,38 @@ Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
 Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
+**MET-L01-MYNOTES-WAVE3:** Android am start -W TotalTime after am force-stop; persistent app data retained, three process-cold launches.
+
+**App / samples / units:** mynotes | [2780, 2267, 2253] | milliseconds
+
+**Interpretation limit:** First Android activity-start milestone, NOT usable editor or touch latency. Three samples, fixed app order, different restored states, software GPU, no phone/user-efficiency claim. This wave has pre-install offline bootstrap and initial/final no-default-network receipts; earlier waves did not have equivalent verified provisioning. No combined speed ranking, significance, p95, APK-size causality or continuous traffic guarantee.
+
+Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
+
+**MET-L01-OBSIDIAN-WAVE3:** Android am start -W TotalTime after am force-stop; persistent app data retained, three process-cold launches.
+
+**App / samples / units:** obsidian | [3442, 3251, 3918] | milliseconds
+
+**Interpretation limit:** First Android activity-start milestone, NOT usable editor or touch latency. Three samples, fixed app order, different restored states, software GPU, no phone/user-efficiency claim. This wave has pre-install offline bootstrap and initial/final no-default-network receipts; earlier waves did not have equivalent verified provisioning. No combined speed ranking, significance, p95, APK-size causality or continuous traffic guarantee.
+
+Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
+
+**MET-W02-MYNOTES-NODE-HEIGHT-WAVE2:** Height of the live body EditText bounds reported by UIAutomator before opening Format and after opening it, with the same keyboard state.
+
+**App / samples / units:** mynotes | [506, 176] | physical pixels in UI tree bounds, before then after
+
+**Interpretation limit:** Same recorded 1080x1920/480dpi/font1.0/keyboard configuration: UI-tree body bounds [60,277][1020,783] then [60,264][1020,440]. Geometry only, not glyph count/readability/productivity or an equivalent cross-engine node measurement. Repeated independent emulator session; still not physical, large-text, landscape or successful persisted-bold acceptance.
+
+Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
+
+**MET-W02-MYNOTES-NODE-HEIGHT-WAVE3:** Height of the live body EditText bounds reported by UIAutomator before opening Format and after opening it, with the same keyboard state.
+
+**App / samples / units:** mynotes | [506, 176] | physical pixels in UI tree bounds, before then after
+
+**Interpretation limit:** Same recorded 1080x1920/480dpi/font1.0/keyboard configuration: UI-tree body bounds [60,277][1020,783] then [60,264][1020,440]. Geometry only, not glyph count/readability/productivity or an equivalent cross-engine node measurement. Repeated independent emulator session; still not physical, large-text, landscape or successful persisted-bold acceptance.
+
+Source: [sessions/42220127426/session.json](sessions/42220127426/session.json)
+
 ## Actionable improvements — evidence-gated
 
 ### IMP-0001 — Show why a body-search result matched
@@ -116,15 +156,15 @@ Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
 **Bounded task / expected result:** Find UX Meeting using cobalt42, a term present only in the body, and identify the relevant passage without opening candidate notes.
 
-**Preconditions and exact actions:** Fresh API36 emulator, 1080x1920/density480, font1.0, same Gboard, animations1.0, offline guest. Create the recorded public agenda. MyNotes: return home, touch global search, type cobalt42. Obsidian: use global-search command only to open its pane, touch its query field, type cobalt42. Inspect result UI. Full action code and traces are retained; pane setup is not an equivalent navigation-efficiency experiment.
+**Preconditions and exact actions:** Use UX Meeting with body-only marker cobalt42. MyNotes: touch home search, type marker, inspect actual result row. Obsidian: open built-in search pane by command API, type marker, inspect result title and visible passage, not background document text. Wave one used typed body words with an extra # in Obsidian. Wave three independently passed exact UI-entry/readback, then used disclosed exact public API fixture preparation before downstream probes. Wave-two empty fixture / false search pass is excluded.
 
 **MyNotes actual result:** One result is returned: UX Meeting followed by Note. No body passage or in-result highlighting of cobalt42 is shown in the captured result. The query field/keyboard containing cobalt42 are not a result snippet.
 
-**Obsidian actual result:** One result is returned with an agenda passage and the cobalt42 occurrence visibly highlighted. Wave-one source has an additional leading #; this does not alter the body-only query criterion. No relevance ranking claim follows from one result.
+**Obsidian actual result:** Reviewed wave-one and wave-three native result panes show UX Meeting with a contextual passage and highlighted cobalt42. Wave-three result-container checks confirm visible marker passage and result title. API search-pane/fixture setup is disclosed; no touch-route efficiency advantage is claimed. Wave-two pane shows zero results and is invalidated, not an app search defect.
 
 **User consequence:** Without match context, users must open candidates to understand why they matched. Extra effort with multiple results is an expert inference, not measured user completion time in this one-note case.
 
-**Reproduction and severity:** P1 expert triage for information retrieval; one independent initial paired session. No crash/data-loss claim, no population incidence estimate.
+**Reproduction and severity:** P2 expert triage: a missing result passage weakens disambiguation in this sampled state; not a measured task failure. Actual single-result presentation reviewed in waves one and three, with different fixture/network setup explicitly recorded. Wave two is not a paired successful reproduction.
 
 **Root-cause confidence:** source_supported_mechanism_not_exclusive_cause
 
@@ -138,7 +178,7 @@ Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
 **Acceptance task:** Retest the same body-only marker on both apps; add same/similar titles, two body occurrences, rich tables/checklists, label-only hits and multilingual/emoji boundaries. Each returned body hit must show an accurate bounded passage and visible accessible match treatment. No false source label, stale-query result or data mutation. Measure correction/navigation effort separately before claiming an efficiency gain.
 
-**Next discriminating test:** Require exact downstream fixture independent of W01 input test, and visible result-container assertions; retain prior failed runs. Then repeat with two similarly named notes matching different passages, inspect differentiation and opening. Implementation only later after approval; retest on changed signed build.
+**Next discriminating test:** Repeat with two similarly named notes matching different body passages, inspect actual differentiation and opening. The exact wave-three fixture and result-container checks are now recorded, not pending. Implementation only later after approval; compare the changed exact signed build, preserve search scope and test large corpora/cancellation without claiming current latency results.
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:398 filterNow | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -148,7 +188,7 @@ Source: [sessions/42218900341/session.json](sessions/42218900341/session.json)
 
 [View immutable source](https://github.com/tarungittarun/TicTic/blob/a014e015731103a041b092a0e3c2802ac2805d3a/mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java#L424)
 
-Evidence: [sessions/42217122419/mynotes-S01-body-match-results.png](sessions/42217122419/mynotes-S01-body-match-results.png), [sessions/42217122419/obsidian-S01-body-match-results.png](sessions/42217122419/obsidian-S01-body-match-results.png), [sessions/42217122419/mynotes-S01-body-match-results.xml](sessions/42217122419/mynotes-S01-body-match-results.xml), [sessions/42217122419/obsidian-S01-body-match-results-dom.json](sessions/42217122419/obsidian-S01-body-match-results-dom.json), [sessions/42217122419/session.json](sessions/42217122419/session.json)
+Evidence: [sessions/42220127426/mynotes-S01-body-match-results.png](sessions/42220127426/mynotes-S01-body-match-results.png), [sessions/42220127426/obsidian-S01-body-match-results.png](sessions/42220127426/obsidian-S01-body-match-results.png), [sessions/42220127426/session.json](sessions/42220127426/session.json), [sessions/42220127426/offline-guest-proof.json](sessions/42220127426/offline-guest-proof.json), [sessions/42217122419/mynotes-S01-body-match-results.png](sessions/42217122419/mynotes-S01-body-match-results.png), [sessions/42217122419/obsidian-S01-body-match-results.png](sessions/42217122419/obsidian-S01-body-match-results.png), [sessions/42217122419/mynotes-S01-body-match-results.xml](sessions/42217122419/mynotes-S01-body-match-results.xml), [sessions/42217122419/obsidian-S01-body-match-results-dom.json](sessions/42217122419/obsidian-S01-body-match-results-dom.json), [sessions/42217122419/session.json](sessions/42217122419/session.json)
 
 ### IMP-0002 — Reserve writing context when the Format panel opens with the keyboard
 
@@ -160,15 +200,15 @@ Evidence: [sessions/42217122419/mynotes-S01-body-match-results.png](sessions/422
 
 **Bounded task / expected result:** Keep nearby note prose visible while choosing inline formatting with the keyboard open. This item concerns viewport allocation, not whether bold formatting saves correctly.
 
-**Preconditions and exact actions:** Use the same recorded agenda on the same portrait emulator. MyNotes: reopen UX Meeting, focus its body, capture keyboard state, open Format, capture again, activate Bold and inspect selected state. Obsidian: focus the recorded editor and inspect its keyboard/B toolbar state; its first-run Bold selector failed, so activation correctness is not compared.
+**Preconditions and exact actions:** Recorded public agenda in the same portrait emulator configuration. MyNotes: reopen note, focus body, capture keyboard, open Format, capture, activate Bold and inspect state. Obsidian: focus editor, inspect compact B toolbar, activate its visible SVG target. Wave-one B selector blocked; wave-two target worked on an empty fixture and is not a paired prose trial; wave-three exact API-prepared body and B activation are retained. Caret, default font and scroll remain unmatched.
 
 **MyNotes actual result:** Fresh screenshots show only a short strip of prose above the Format panel. Body node bounds change from [60,277][1020,783] (506px high) to [60,264][1020,440] (176px); panel bounds are [60,476][1020,999]. Bold control selected state changes false to true. These are geometry/state observations, not a failed formatting assertion.
 
-**Obsidian actual result:** The captured keyboard/editor state leaves a larger visible prose region above a compact B/other-action toolbar. Its content reaches the top system-bar area, so it is not treated as a flawless reading layout. Default font, caret and scroll position are not matched; no productivity ratio is inferred. Actual Bold activation remained blocked by the first-run harness.
+**Obsidian actual result:** Wave-one and wave-three native keyboard/editor screenshots leave a larger prose region above a compact B toolbar. Text reaches/overlaps the top system-bar area, so this is not a flawless reading layout. Wave-three B interaction observed on known fixture; no persisted styled-text or selection correctness acceptance. Default font/caret/scroll not matched, no productivity ratio. Wave-one selector failure and wave-two empty fixture retained.
 
 **User consequence:** Losing surrounding prose can require closing/reopening controls to retain sentence context. That consequence is an expert inference; no novice task-time or satisfaction study was performed.
 
-**Reproduction and severity:** P1 expert triage for a core writing state; one independent initial paired-state inspection and one MyNotes before/after activation. Not an established incidence rate or font-size-independent defect.
+**Reproduction and severity:** P1 expert triage for a core writing state. Our 506px to176px body-node geometry repeated in all three fresh scripted sessions, but equal-prose comparison uses only waves one/three with fixture caveats. Not incidence, physical readability, large-text or complete-formatting acceptance.
 
 **Root-cause confidence:** source_supported_mechanism_not_exclusive_cause
 
@@ -182,7 +222,7 @@ Evidence: [sessions/42217122419/mynotes-S01-body-match-results.png](sessions/422
 
 **Acceptance task:** Repeat the same before/after task with fixed caret and equalised note content; record viewport and actual task success. Exercise selected text/new typing, keyboard show/hide, portrait/landscape and font1.0/1.5. Verify reachability, focus, correct formatting, persistence and unchanged note content. Measure interaction time/jank separately before claiming a smoothness improvement.
 
-**Next discriminating test:** Wave-two SVG Bold target worked but body fixture was empty, so it cannot establish paired prose/formatting acceptance. Repeat on a known exact downstream fixture, disclose API setup, then test selection/new typing and persisted formatting. Isolate our panel budget/header contributions only in a later approved prototype.
+**Next discriminating test:** Wave-three exact downstream fixture and SVG B activation are now recorded. Next equalise caret/font/scroll and verify actual selected-text/new-typing output, save/reopen, portrait/landscape/large text and keyboard transitions. Later approved prototype must isolate our panel/header budget contributions; interaction assertions alone cannot close this item.
 
 **Source reference:** mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java:554 buildFormatting | sha256=4fb7c955f8f2bc9477e3d7f0415253652fb1509e48fb7816f68321241fdfb3a9
 
@@ -196,7 +236,7 @@ Evidence: [sessions/42217122419/mynotes-S01-body-match-results.png](sessions/422
 
 [View immutable source](https://github.com/tarungittarun/TicTic/blob/a014e015731103a041b092a0e3c2802ac2805d3a/mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java#L587)
 
-Evidence: [sessions/42217122419/mynotes-W02-format-keyboard.png](sessions/42217122419/mynotes-W02-format-keyboard.png), [sessions/42217122419/obsidian-W02-keyboard-before-format.png](sessions/42217122419/obsidian-W02-keyboard-before-format.png), [sessions/42217122419/mynotes-W02-keyboard-before-format.png](sessions/42217122419/mynotes-W02-keyboard-before-format.png), [sessions/42217122419/mynotes-W02-bold-state.xml](sessions/42217122419/mynotes-W02-bold-state.xml), [sessions/42217122419/obsidian-W02-blocked.png](sessions/42217122419/obsidian-W02-blocked.png), [sessions/42217122419/session.json](sessions/42217122419/session.json)
+Evidence: [sessions/42220127426/mynotes-W02-format-keyboard.png](sessions/42220127426/mynotes-W02-format-keyboard.png), [sessions/42220127426/obsidian-W02-keyboard-before-format.png](sessions/42220127426/obsidian-W02-keyboard-before-format.png), [sessions/42220127426/mynotes-W02-keyboard-before-format.png](sessions/42220127426/mynotes-W02-keyboard-before-format.png), [sessions/42220127426/obsidian-W02-bold-state.png](sessions/42220127426/obsidian-W02-bold-state.png), [sessions/42220127426/session.json](sessions/42220127426/session.json), [sessions/42217122419/mynotes-W02-format-keyboard.png](sessions/42217122419/mynotes-W02-format-keyboard.png), [sessions/42217122419/obsidian-W02-keyboard-before-format.png](sessions/42217122419/obsidian-W02-keyboard-before-format.png), [sessions/42217122419/mynotes-W02-keyboard-before-format.png](sessions/42217122419/mynotes-W02-keyboard-before-format.png), [sessions/42217122419/mynotes-W02-bold-state.xml](sessions/42217122419/mynotes-W02-bold-state.xml), [sessions/42217122419/obsidian-W02-blocked.png](sessions/42217122419/obsidian-W02-blocked.png), [sessions/42217122419/session.json](sessions/42217122419/session.json)
 
 ## Pending module task inventory — not findings
 

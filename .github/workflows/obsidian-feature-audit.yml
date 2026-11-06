@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        phase: [walkthrough, commands, settings, variants]
+        phase: [commands]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -48,6 +48,7 @@ jobs:
       - uses: ReactiveCircus/android-emulator-runner@v2
         env:
           OBSIDIAN_PHASE: ${{ matrix.phase }}
+          OBSIDIAN_COMMAND_START: 192
         with:
           api-level: 36
           target: google_apis
@@ -87,8 +88,19 @@ jobs:
       - run: pip install Pillow==11.3.0 reportlab==4.4.4 PyYAML==6.0.3
       - uses: actions/download-artifact@v8.0.2
         with:
+          github-token: ${{ github.token }}
+          run-id: 42179340885
           pattern: obsidian-session-*
           path: obsidian-sessions
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: obsidian-session-commands
+          path: obsidian-command-tail
+      - name: Validate exact command census and preserve interrupted-run provenance
+        run: |
+          python mynotes/tools/comparisons/obsidian_command_segments.py obsidian-sessions/obsidian-session-commands obsidian-command-tail obsidian-command-complete
+          rm -rf obsidian-sessions/obsidian-session-commands
+          mv obsidian-command-complete obsidian-sessions/obsidian-session-commands
       - name: Build evidence PDFs without concealing blocked/incomplete sessions
         run: |
           python mynotes/tools/comparisons/obsidian_merge.py

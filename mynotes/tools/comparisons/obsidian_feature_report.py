@@ -18,6 +18,8 @@ y=lines('Actual feature screenshots and coverage report',778,13)
 y=lines('Official unmodified APK. Public dummy data only. Native emulator screenshots; no generated UI mockups. Feature inspection uses real app commands, CDP input and the app vault API, not an Obsidian-owned test suite.',y-14)
 y=lines('Important: this is NOT 100% functional feature coverage. A screenshot proves the shown state, not every behavior. Paid/account/cloud services, desktop-only capabilities, community plugins, settings combinations and unexecuted commands are not certified.',y-14)
 y=lines('Captured feature entries: '+str(len(rows))+'; status counts: '+str(dict(collections.Counter(r['status'] for r in rows))),y-14)
+if summary.get('sessions',{}).get('commands',{}).get('segments'):
+ y=lines('Capture provenance: command entries combine 192 preserved paint-fenced captures and 13 independent continuation captures. The earlier native run lost its debug connection and did NOT complete. This is a completed catalogue, not an uninterrupted 205-command execution.',y-14)
 y=lines('Full per-feature briefs, actions/observations and screenshots follow. Successful harness execution is not a claim that every feature passed.',y-14)
 y=lines('Source: github.com/obsidianmd/obsidian-releases/releases/tag/v1.15.0. Obsidian is a third-party product; no affiliation or endorsement is implied.',y-14)
 c.showPage()
@@ -45,6 +47,8 @@ for i,r in enumerate(rows):
 c.save()
 for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt','runtime-error.json','driver-error.txt','module-enablement.json','last-cdp-request.json','failure-logcat.txt']:
  if (src/name).exists():shutil.copyfile(src/name,out/name)
+for receipt in src.iterdir():
+ if receipt.suffix in {'.json','.txt'} and receipt.name.startswith(('walkthrough-','commands-','settings-','variants-')):shutil.copyfile(receipt,out/receipt.name)
 (out/'feature-results.json').write_text(json.dumps(rows,indent=2))
 summary['status_counts']=dict(collections.Counter(r['status'] for r in rows))
 summary['report_review_note']='Requested landscape Canvas captions are blocked when the paired real viewport check remained portrait; no image restyling or new device-test claim.'

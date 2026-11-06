@@ -160,7 +160,8 @@ Content under a heading can be folded.
           'app:migrate-frontmatter':'Vault-wide conversion is not run on the preserved reference corpus.',
           'app:open-vault':'Vault manager is inspected last because it unloads the JS context.',
           'app:switch-vault':'Switching vaults unloads this inspection context.'}
-  for entry in inventory['commands']:
+  start=int(os.environ.get('OBSIDIAN_COMMAND_START','0'))
+  for entry in inventory['commands'][start:]:
    cid=entry['id']
    scratch='Feature Audit/Command case '+str(inventory['commands'].index(entry))+'.md'
    already=any(cid+';' in r['observed'] or 'Command='+cid+';' in r['observed'] for r in rows)

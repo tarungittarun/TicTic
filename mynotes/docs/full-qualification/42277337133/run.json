@@ -1,0 +1,1790 @@
+{
+  "conclusion": "failure",
+  "databaseId": 42277337133,
+  "headSha": "3c1478b8c8b09d077d97b5481603387cbc47b06a",
+  "jobs": [
+    {
+      "completedAt": "2026-11-06T19:18:29Z",
+      "conclusion": "success",
+      "databaseId": 128096962104,
+      "name": "build",
+      "startedAt": "2026-11-06T19:10:52Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:10:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:10:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:11:41Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:10:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:13:14Z",
+          "conclusion": "success",
+          "name": "Run ./.github/actions/setup-mynotes",
+          "number": 3,
+          "startedAt": "2026-11-06T19:11:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:16:52Z",
+          "conclusion": "success",
+          "name": "Compile actual candidate, JVM tests, instrumentation and lint (no publication)",
+          "number": 4,
+          "startedAt": "2026-11-06T19:13:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:16:53Z",
+          "conclusion": "success",
+          "name": "Require every JVM method exactly once",
+          "number": 5,
+          "startedAt": "2026-11-06T19:16:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:11Z",
+          "conclusion": "success",
+          "name": "Compile separate same-signer CI-only migration probe",
+          "number": 6,
+          "startedAt": "2026-11-06T19:16:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:14Z",
+          "conclusion": "success",
+          "name": "Check release identity, offline permissions and size",
+          "number": 7,
+          "startedAt": "2026-11-06T19:17:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:18Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:17:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:18Z",
+          "conclusion": "skipped",
+          "name": "Surface bounded compiler diagnostics",
+          "number": 9,
+          "startedAt": "2026-11-06T19:17:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:19Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 10,
+          "startedAt": "2026-11-06T19:17:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:17:24Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 11,
+          "startedAt": "2026-11-06T19:17:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:18:27Z",
+          "conclusion": "success",
+          "name": "Post Run ./.github/actions/setup-mynotes",
+          "number": 21,
+          "startedAt": "2026-11-06T19:17:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:18:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 22,
+          "startedAt": "2026-11-06T19:18:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:18:27Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-11-06T19:18:27Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128096962104"
+    },
+    {
+      "completedAt": "2026-11-06T19:21:34Z",
+      "conclusion": "success",
+      "databaseId": 128100858946,
+      "name": "update (26, default)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:33Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:21Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:23Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:29Z",
+          "conclusion": "success",
+          "name": "Verify pinned old APK and same signed candidate identity",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:41Z",
+          "conclusion": "success",
+          "name": "Enable KVM and use verified installed emulator",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:21:32Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:21:33Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:21:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:21:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 16,
+          "startedAt": "2026-11-06T19:21:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:21:33Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-11-06T19:21:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100858946"
+    },
+    {
+      "completedAt": "2026-11-06T19:22:19Z",
+      "conclusion": "success",
+      "databaseId": 128100859050,
+      "name": "update (34, google_apis)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:33Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:19Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:24Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:29Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:30Z",
+          "conclusion": "success",
+          "name": "Verify pinned old APK and same signed candidate identity",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:39Z",
+          "conclusion": "success",
+          "name": "Enable KVM and use verified installed emulator",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:22:15Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:22:17Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:22:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:22:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 16,
+          "startedAt": "2026-11-06T19:22:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:22:17Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-11-06T19:22:17Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859050"
+    },
+    {
+      "completedAt": "2026-11-06T19:28:56Z",
+      "conclusion": "success",
+      "databaseId": 128100859201,
+      "name": "native (api26-light-portrait-s0, 26, 1.0, no, portrait, Nexus 5, 0, 0, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:57Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:06Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:06Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:06Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:16Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:16Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:47Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:47Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:28:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:51Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:28:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:51Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:28:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:53Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:28:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:54Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:28:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:28:54Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:28:54Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859201"
+    },
+    {
+      "completedAt": "2026-11-06T19:32:35Z",
+      "conclusion": "success",
+      "databaseId": 128100859237,
+      "name": "native (api34-dark-portrait-s0, 34, 1.0, yes, portrait, Nexus 5, 0, 0, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:30Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:35Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:35Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:35Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:25Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:25Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:27Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:27Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:32:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:29Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:32:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:29Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:32:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:32Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:32:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:32Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:32:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:32Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:32:32Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859237"
+    },
+    {
+      "completedAt": "2026-11-06T19:32:51Z",
+      "conclusion": "failure",
+      "databaseId": 128100859246,
+      "name": "native (api36-light-portrait-s1, 36, 1.0, no, portrait, Nexus 5, 1, 1, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:33Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:33Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:46Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:46Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:49Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:19:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:49Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:32:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:49Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:32:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:49Z",
+          "conclusion": "failure",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:32:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:50Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:32:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:50Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:32:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:50Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:32:50Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859246"
+    },
+    {
+      "completedAt": "2026-11-06T19:32:21Z",
+      "conclusion": "success",
+      "databaseId": 128100859282,
+      "name": "native (api34-large-dark-s0, 34, 2.0, yes, portrait, Nexus 5, 0, 0, all)",
+      "startedAt": "2026-11-06T19:19:07Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:19:09Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:19:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:02Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:19:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:20:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:15Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:15Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:14Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:14Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:32:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:17Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:32:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:18Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:32:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:20Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:32:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:20Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:32:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:32:20Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:32:20Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859282"
+    },
+    {
+      "completedAt": "2026-11-06T19:29:54Z",
+      "conclusion": "success",
+      "databaseId": 128100859311,
+      "name": "native (api34-dark-landscape-s0, 34, 1.0, yes, landscape, Nexus 5, 0, 0, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:20Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:37Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:37Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:49Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:19:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:49Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:29:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:50Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:29:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:50Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:29:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:52Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:29:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:29:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:29:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859311"
+    },
+    {
+      "completedAt": "2026-11-06T19:33:55Z",
+      "conclusion": "success",
+      "databaseId": 128100859358,
+      "name": "native (api34-light-landscape-s0, 34, 1.0, no, landscape, Nexus 5, 0, 0, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:03Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:03Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:03Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:14Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:14Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:47Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:47Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:33:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:50Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:33:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:50Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:33:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:52Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:33:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:53Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:33:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:53Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:33:53Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859358"
+    },
+    {
+      "completedAt": "2026-11-06T19:29:11Z",
+      "conclusion": "success",
+      "databaseId": 128100859378,
+      "name": "native (api34-dark-landscape-s1, 34, 1.0, yes, landscape, Nexus 5, 0, 1, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:30Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:36Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:46Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:46Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:07Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:19:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:07Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:29:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:07Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:29:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:07Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:29:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:09Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:29:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:09Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:29:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:09Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:29:09Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859378"
+    },
+    {
+      "completedAt": "2026-11-06T19:33:16Z",
+      "conclusion": "success",
+      "databaseId": 128100859407,
+      "name": "native (api36-light-portrait-s0, 36, 1.0, no, portrait, Nexus 5, 1, 0, all)",
+      "startedAt": "2026-11-06T19:18:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:18:33Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:18:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:18:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:31Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:31Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:19:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:31Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:19:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:39Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:19:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:39Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:19:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:09Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:19:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:09Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:33:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:12Z",
+          "conclusion": "success",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:33:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:12Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:33:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:14Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:33:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:14Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:33:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:33:14Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:33:14Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859407"
+    },
+    {
+      "completedAt": "2026-11-06T19:31:21Z",
+      "conclusion": "failure",
+      "databaseId": 128100859441,
+      "name": "native (api34-large-dark-s1, 34, 2.0, yes, portrait, Nexus 5, 0, 1, all)",
+      "startedAt": "2026-11-06T19:19:19Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:19:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:19:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:53Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:19:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:11Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:11Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:16Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:16Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:31:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:16Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:31:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:16Z",
+          "conclusion": "failure",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:31:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:18Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:31:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:19Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:31:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:19Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:31:19Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859441"
+    },
+    {
+      "completedAt": "2026-11-06T19:25:38Z",
+      "conclusion": "failure",
+      "databaseId": 128100859525,
+      "name": "native (api26-light-portrait-s1, 26, 1.0, no, portrait, Nexus 5, 0, 1, all)",
+      "startedAt": "2026-11-06T19:19:23Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:19:25Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:19:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:59Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:19:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:14Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:14Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:34Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:34Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:25:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:34Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:25:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:35Z",
+          "conclusion": "failure",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:25:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:36Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:25:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:36Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:25:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:25:36Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:25:36Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859525"
+    },
+    {
+      "completedAt": "2026-11-06T19:30:03Z",
+      "conclusion": "success",
+      "databaseId": 128100859551,
+      "name": "native (api34-light-landscape-s1, 34, 1.0, no, landscape, Nexus 5, 0, 1, all)",
+      "startedAt": "2026-11-06T19:19:28Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:19:30Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:19:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:19:55Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:19:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:19:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:00Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:13Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:13Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:58Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:58Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:58Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:29:58Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:30:00Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:30:00Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:30:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:30:00Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:30:00Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100859551"
+    },
+    {
+      "completedAt": "2026-11-06T19:31:08Z",
+      "conclusion": "success",
+      "databaseId": 128100860332,
+      "name": "native (api34-dark-portrait-s1, 34, 1.0, yes, portrait, Nexus 5, 0, 1, all)",
+      "startedAt": "2026-11-06T19:19:38Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-06T19:19:40Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-06T19:19:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:05Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-06T19:19:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:08Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 3,
+          "startedAt": "2026-11-06T19:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:08Z",
+          "conclusion": "success",
+          "name": "Enable KVM",
+          "number": 4,
+          "startedAt": "2026-11-06T19:20:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:08Z",
+          "conclusion": "success",
+          "name": "Prepare exact selected execution inventory",
+          "number": 5,
+          "startedAt": "2026-11-06T19:20:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:31Z",
+          "conclusion": "success",
+          "name": "Install Linux audio loader dependency before emulator version preflight",
+          "number": 6,
+          "startedAt": "2026-11-06T19:20:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:20:31Z",
+          "conclusion": "success",
+          "name": "Use verified installed emulator",
+          "number": 7,
+          "startedAt": "2026-11-06T19:20:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:05Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-06T19:20:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:05Z",
+          "conclusion": "success",
+          "name": "Verify selected quantitative reports are complete and independently scored",
+          "number": 9,
+          "startedAt": "2026-11-06T19:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:05Z",
+          "conclusion": "skipped",
+          "name": "Independently validate actual exported PDF URI annotations and page geometry",
+          "number": 10,
+          "startedAt": "2026-11-06T19:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:05Z",
+          "conclusion": "success",
+          "name": "Require every selected method once, without skipped or duplicate outcomes",
+          "number": 11,
+          "startedAt": "2026-11-06T19:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:07Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 12,
+          "startedAt": "2026-11-06T19:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:07Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 24,
+          "startedAt": "2026-11-06T19:31:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-06T19:31:07Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-11-06T19:31:07Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133/job/128100860332"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133"
+}

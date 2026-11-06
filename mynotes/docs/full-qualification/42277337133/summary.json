@@ -1,0 +1,149 @@
+{
+  "run": 42277337133,
+  "source": "3c1478b8c8b09d077d97b5481603387cbc47b06a",
+  "url": "https://github.com/tarungittarun/TicTic/actions/runs/42277337133",
+  "workflow_conclusion": "failure",
+  "native_unique_methods": 446,
+  "native_executions_passed": 2671,
+  "native_expected_executions": 2676,
+  "native_profiles": {
+    "full71-native-api26-light-portrait": false,
+    "full71-native-api34-dark-landscape": true,
+    "full71-native-api34-dark-portrait": true,
+    "full71-native-api34-large-dark": false,
+    "full71-native-api34-light-landscape": true,
+    "full71-native-api36-light-portrait": false
+  },
+  "native_lanes": {
+    "full71-native-api26-light-portrait-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api26-light-portrait-s1": {
+      "ok": false,
+      "expected": 218,
+      "passed": 216,
+      "missing": [
+        "app.space.notes.RealFolderStorageTest#spreadsheetRotationKeepsViewerQueryAndReturnsToHomeWithoutImport",
+        "app.space.notes.runtime.PdfViewerInteractionTest#keyboardSearchActionFindsAndHighlightsEmbeddedText"
+      ],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": [
+        "app.space.notes.RealFolderStorageTest#spreadsheetRotationKeepsViewerQueryAndReturnsToHomeWithoutImport: status -2 org.junit.ComparisonFailure: expected:<[]Needle> but was:<[Visible]Needle>\n\tat org.junit.Assert.assertEquals(Assert.java:117)\n\tat org.junit.Assert.assertEquals(Assert.java:146)\n\tat app.space.notes.RealFolderStorageTest.lambda$spreadsheetRotationKeepsViewerQueryAndReturnsToHomeWithoutImport$54$app-space-notes-RealFolderStorageTest(RealFolderStorageTest.java:184)\n\tat app.space.notes.RealFolderStorageTest$$ExternalSyntheticLambda25.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\n",
+        "app.space.notes.runtime.PdfViewerInteractionTest#keyboardSearchActionFindsAndHighlightsEmbeddedText: status -2 java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/WindowInsets$Type;\n\tat app.space.notes.runtime.PdfViewerInteractionTest.lambda$keyboardSearchActionFindsAndHighlightsEmbeddedText$28$app-space-notes-runtime-PdfViewerInteractionTest(PdfViewerInteractionTest.java:78)\n\tat app.space.notes.runtime.PdfViewerInteractionTest$$ExternalSyntheticLambda45.call(D8$$SyntheticClass:0)\n\tat app.space.notes.runtime.PdfViewerInteractionTest.lambda$await$2(PdfViewerInteractionTest.java:29)\n\tat app.space.notes.runtime.PdfViewerInteractionTest$$ExternalSyntheticLambda27.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:457)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2092)\n\tat android.os.Handler.handleCallback(Handler.java:789)\n\tat android.os.Handler.dispatchMessage(Handler.java:98)\n\tat android.os.Looper.loop(Looper.java:164)\n\tat android.app.ActivityThread.main(ActivityThread.java:6541)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)\nCaused by: java.lang.ClassNotFoundException: Didn't find class \"android.view.WindowInsets$Type\" on path: DexPathList[[zip file \"/system/framework/android.test.runner.jar\", zip file \"/data/app/app.space.notes.debug.test-uROFeZx2JiSrbQ9mylOMZQ==/base.apk\", zip file \"/data/app/app.space.notes.debug-Sygniu_kSIGKHAZUzIgSpw==/base.apk\"],nativeLibraryDirectories=[/data/app/app.space.notes.debug.test-uROFeZx2JiSrbQ9mylOMZQ==/lib/x86_64, /data/app/app.space.notes.debug-Sygniu_kSIGKHAZUzIgSpw==/lib/x86_64, /data/app/app.space.notes.debug.test-uROFeZx2JiSrbQ9mylOMZQ==/base.apk!/lib/x86_64, /data/app/app.space.notes.debug-Sygniu_kSIGKHAZUzIgSpw==/base.apk!/lib/x86_64, /system/lib64, /vendor/lib64]]\n\tat dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:93)\n\tat java.lang.ClassLoader.loadClass(ClassLoader.java:379)\n\tat java.lang.ClassLoader.loadClass(ClassLoader.java:312)\n\t... 14 more\n"
+      ]
+    },
+    "full71-native-api34-dark-landscape-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-dark-landscape-s1": {
+      "ok": true,
+      "expected": 218,
+      "passed": 218,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-dark-portrait-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-dark-portrait-s1": {
+      "ok": true,
+      "expected": 218,
+      "passed": 218,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-large-dark-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-large-dark-s1": {
+      "ok": false,
+      "expected": 218,
+      "passed": 216,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
+        "app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape"
+      ],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": [
+        "app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape: status -2 java.lang.AssertionError: Image preview must not be a strip between fixed controls\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.runtime.ImageSelectionTest.lambda$selectionViewportRetainsUsefulAreaInPortraitAndLandscape$49$app-space-notes-runtime-ImageSelectionTest(ImageSelectionTest.java:65)\n\tat app.space.notes.runtime.ImageSelectionTest$$ExternalSyntheticLambda2.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n",
+        "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage: status -2 java.lang.AssertionError: The full final Settings touch row is visible expected:<168> but was:<112>\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.failNotEquals(Assert.java:835)\n\tat org.junit.Assert.assertEquals(Assert.java:647)\n\tat app.space.notes.CoreJourneysTest.lambda$wholeAppLibraryTraversalRecordsEachVisitedPage$13$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:47)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda518.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)\n\tat android.os.Handler.handleCallback(Handler.java:958)\n\tat android.os.Handler.dispatchMessage(Handler.java:99)\n\tat android.os.Looper.loopOnce(Looper.java:205)\n\tat android.os.Looper.loop(Looper.java:294)\n\tat android.app.ActivityThread.main(ActivityThread.java:8177)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)\n"
+      ]
+    },
+    "full71-native-api34-light-landscape-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api34-light-landscape-s1": {
+      "ok": true,
+      "expected": 218,
+      "passed": 218,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api36-light-portrait-s0": {
+      "ok": true,
+      "expected": 228,
+      "passed": 228,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": []
+    },
+    "full71-native-api36-light-portrait-s1": {
+      "ok": false,
+      "expected": 218,
+      "passed": 217,
+      "missing": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn"
+      ],
+      "unexpected": [],
+      "duplicates": [],
+      "failures": [
+        "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn: status -2 java.lang.AssertionError: Missing named control: New document\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertNotNull(Assert.java:713)\n\tat app.space.notes.CoreJourneysTest.lambda$click$94$app-space-notes-CoreJourneysTest(CoreJourneysTest.java:193)\n\tat app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda674.run(D8$$SyntheticClass:0)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:524)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2616)\n\tat android.os.Handler.handleCallback(Handler.java:995)\n\tat android.os.Handler.dispatchMessage(Handler.java:103)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.app.ActivityThread.main(ActivityThread.java:9067)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)\n"
+      ]
+    }
+  },
+  "all_six_profiles_exact_native_pass": false,
+  "whole_app_ux_acceptance": false,
+  "physical_device_acceptance": false,
+  "paired_obsidian_acceptance": false,
+  "public_release_approval": false,
+  "scope": "Full discovered native-test inventory on six synthetic emulator profiles. Not every possible behavior, real-device quality or paired UX acceptance. Original screenshots were resized by the instrumentation helper before retention."
+}

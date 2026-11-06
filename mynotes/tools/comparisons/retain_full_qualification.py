@@ -97,7 +97,7 @@ def retain(source, metadata, output):
         'paired_obsidian_acceptance': False, 'public_release_approval': False,
         'scope': 'Full discovered native-test inventory on six synthetic emulator profiles. '
                  'Not every possible behavior, real-device quality or paired UX acceptance. '
-                 'Original screenshots were resized by the instrumentation helper before retention.'}
+                 'Capture dimensions vary by helper; some fixtures were resized before artifact creation. Original artifact bytes are retained.'}
     (output / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     (output / 'run.json').write_text(json.dumps(metadata, indent=2) + '\n')
     (output / 'retention.json').write_text(json.dumps({'files': manifest, 'bytes': total,

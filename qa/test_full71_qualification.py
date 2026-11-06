@@ -65,5 +65,32 @@ class FullQualificationRetentionTest(unittest.TestCase):
                 retain(directory, {'status': 'in_progress'}, Path(directory) / 'out')
 
 
+class RecheckConfigurationTest(unittest.TestCase):
+    def test_each_profile_keeps_its_own_artifact_without_overwriting_peers(self):
+        text = Path('.github/workflows/notes-full71-recheck.yml').read_text()
+        self.assertIn('name: improvement71-${{ matrix.id }}', text)
+        self.assertNotIn('overwrite: true', text)
+        workflow = yaml.safe_load(text)
+        rows = workflow['jobs']['native']['strategy']['matrix']['include']
+        self.assertEqual(len({row['id'] for row in rows}), 3)
+
+    def test_cross_build_recheck_uses_consistent_pair_and_reports_payload_identity(self):
+        text = Path('.github/workflows/notes-full71-recheck.yml').read_text()
+        self.assertIn('adb install -r refinement-apks/debug/notes-debug.apk', text)
+        self.assertIn('adb install -r refinement-apks/androidTest/debug/notes-debug-androidTest.apk', text)
+        self.assertIn("'unsigned_payload_equal':a==b", text)
+        self.assertIn("'production_source_equivalent':True", text)
+        self.assertNotIn('apksigner sign', text)
+
+    def test_legacy_pdf_observer_keeps_composed_keyboard_and_real_input_assertions(self):
+        text = Path('mynotes/app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
+        self.assertIn('if(android.os.Build.VERSION.SDK_INT>=30 && window!=null)', text)
+        self.assertIn('decor.getWindowVisibleDisplayFrame(frame)', text)
+        self.assertIn('IME insets alone are insufficient', text)
+        self.assertIn('instrument.sendStringSync("needle")', text)
+        self.assertIn('First-page glyph highlight geometry', text)
+        self.assertIn('Viewing/selection/markup never changes original PDF bytes', text)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -47,3 +47,10 @@ Do not write a cause/fix into the findings section merely to fill a template. Un
 ## Current run bookkeeping
 
 The ledger records failed provisioning separately from actual app sessions. The initial CLI retrieval of the raw APK did not reach app interaction; the replacement uses the raw-artifact-aware download action. Neither event is an app crash or UX finding. Refer to the main document for exact run states and the bounded results actually obtained.
+
+## Reviewed corrections — do not count raw harness statuses blindly
+
+- **Wave one (42217122419):** initial connectivity receipt reports `Active default network: 100`. Offline isolation was not established.
+- **Wave two (42218900341):** initial default network `none` is not a pre-install isolation proof or evidence of no background traffic. The exact Obsidian body readback blocked on empty text. Its S01 raw `visible_outcome_verified` is **invalidated**: native screenshot and DOM show **0 results / No matches found**; the harness found a title in the background editor. Original bytes/status are preserved, not rewritten.
+- A separate API-seeded fixture for downstream visual state comparison is setup, not a note-creation, typing-efficiency, save-durability or W01 pass. An input blocker is not proof of app data loss.
+- No private libraries, sync credentials or intentional upload actions were used. Absence of background transfer has not been measured. See the document's evidence-review section.

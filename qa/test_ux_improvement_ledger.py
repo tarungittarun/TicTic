@@ -43,3 +43,43 @@ class ImprovementLedgerTests(unittest.TestCase):
   for manifest in (OUT/'sessions').glob('*/retention.json'):
    for f in json.loads(manifest.read_text())['files']:
     p=manifest.parent/f['path'];self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(),f['sha256']);self.assertFalse(f['source_bytes_modified'])
+
+class PairedHarnessEvidenceTests(unittest.TestCase):
+ def search_function(self,matches,titles):
+  import ast,types
+  tree=ast.parse((ROOT/'mynotes/tools/comparisons/paired_ux_session.py').read_text())
+  obsidian=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='obsidian')
+  search=next(n for n in obsidian.body if isinstance(n,ast.FunctionDef) and n.name=='search')
+  class Device:
+   def tap(self,*args):return True
+   def type(self,*args):pass
+   def js(self,expression):
+    if '.search-result-file-match' in expression:return matches
+    if '.search-result-file-title' in expression:return titles
+    if expression=='document.body.innerText':return '0 results\nNo matches found.\nUX Meeting'
+  namespace={'d':Device(),'time':types.SimpleNamespace(sleep=lambda _:None),'capture':lambda *args:None,'TITLE':'UX Meeting','MARKER':'cobalt42'}
+  exec(compile(ast.Module(body=[search],type_ignores=[]),'<bounded-search-check>','exec'),namespace)
+  return namespace['search']
+ def test_background_editor_title_cannot_pass_search(self):
+  with self.assertRaisesRegex(AssertionError,'No visible result-passage'):
+   self.search_function([],[])()
+ def test_hidden_match_cannot_pass_search(self):
+  with self.assertRaises(AssertionError):self.search_function([{'text':'cobalt42','visible':False}],['UX Meeting'])()
+ def test_result_title_without_marker_cannot_pass(self):
+  with self.assertRaises(AssertionError):self.search_function([{'text':'other body','visible':True}],['UX Meeting'])()
+ def test_visible_marker_without_result_title_cannot_pass(self):
+  with self.assertRaises(AssertionError):self.search_function([{'text':'cobalt42','visible':True}],[])()
+ def test_explicit_result_passage_and_title_can_pass(self):
+  result=self.search_function([{'text':'Decision marker cobalt42 belongs','visible':True}],['UX Meeting'])()
+  self.assertEqual(result['status'],'visible_outcome_verified')
+ def test_prior_raw_false_positive_is_preserved_and_overridden(self):
+  out=ROOT/'mynotes/docs/ux-improvement-ledger'
+  raw=json.loads((out/'sessions/42218900341/session.json').read_text())
+  case=next(c for c in raw['cases'] if c['app']=='obsidian' and c['case']=='S01')
+  self.assertEqual(case['status'],'visible_outcome_verified');self.assertIn('No matches found.',case['result_labels'])
+  ledger=json.loads((out/'ledger.json').read_text())
+  review=next(r for r in ledger['evidence_reviews'] if r['id']=='REVIEW-WAVE2-S01')
+  self.assertIn('invalidated_harness_false_positive',review['conclusion'])
+ def test_offline_bootstrap_precedes_apk_installation(self):
+  workflow=(ROOT/'.github/workflows/notes-paired-ux-study.yml').read_text()
+  self.assertLess(workflow.index('python -m mynotes.tools.ci.offline_guest'),workflow.index('adb install'))

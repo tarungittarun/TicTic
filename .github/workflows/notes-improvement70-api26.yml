@@ -10,13 +10,13 @@ permissions:
   actions: read
 concurrency:
   group: improvement70-api26-${{ github.ref }}
-  cancel-in-progress: 'false'
+  cancel-in-progress: false
 jobs:
   native:
     runs-on: ubuntu-24.04
-    timeout-minutes: '35'
+    timeout-minutes: 35
     strategy:
-      fail-fast: 'false'
+      fail-fast: false
       matrix:
         include:
         - id: api26-portrait

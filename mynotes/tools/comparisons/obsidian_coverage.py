@@ -67,3 +67,19 @@ def normalize_requested_variants(features):
     row['status']='blocked'
     row['observed']='Requested orientation/theme was not achieved: '+blocked[request]+'. Actual screenshot retained; this is not landscape proof.'
  return result
+
+def normalize_visible_blockers(features):
+ """A visible denial/context error is not successful feature demonstration."""
+ import re
+ result=[dict(row) for row in features]
+ for row in result:
+  text=row.get('visible_text','');observed=row.get('observed','');name=row['feature'];reason=None
+  if (name=='Templates' or 'Command=insert-template;' in observed) and 'No template folder configured' in text:
+   reason='Template insertion was blocked: the dummy vault has no configured template folder. Settings and the attempted action are captured; insertion is not verified.'
+  if 'Command=audio-recorder:' in observed and 'permission denied' in text.lower():
+   reason='Audio recording was blocked by permission denial. This is not a recording or microphone-quality pass.'
+  if name=='Properties view' and re.search(r'\b\d+ tabs?\s+Done\b',text):
+   reason='Tab overview obscured this attempted properties-panel capture. See the separate Command entry: Properties view: Show all properties screenshot for the actual property list.'
+  if reason and row['status']=='screen_inspected':
+   row['original_capture_status']=row['status'];row['status']='blocked';row['observed']+='; Visual review: '+reason
+ return result

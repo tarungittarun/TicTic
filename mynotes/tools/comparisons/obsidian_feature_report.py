@@ -1,13 +1,13 @@
 """Evidence PDF: per-feature brief + real image + honest coverage classification."""
 import collections,json,os,shutil,textwrap
-from obsidian_coverage import command_coverage,command_brief,normalize_requested_variants
+from obsidian_coverage import command_coverage,command_brief,normalize_requested_variants,normalize_visible_blockers
 import re
 from pathlib import Path
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.pagesizes import A4
 src=Path(os.environ.get('OBSIDIAN_REPORT_INPUT','obsidian-evidence'));out=Path('mynotes/docs/comparisons/obsidian/audit')/os.environ['GITHUB_RUN_ID'];out.mkdir(parents=True,exist_ok=True)
-rows=normalize_requested_variants(json.loads((src/'feature-results.json').read_text()));summary=json.loads((src/'coverage-summary.json').read_text()) if (src/'coverage-summary.json').exists() else {'full_functional_coverage':False,'interrupted':True}
+rows=normalize_visible_blockers(normalize_requested_variants(json.loads((src/'feature-results.json').read_text())));summary=json.loads((src/'coverage-summary.json').read_text()) if (src/'coverage-summary.json').exists() else {'full_functional_coverage':False,'interrupted':True}
 c=Canvas(str(out/'Obsidian-Features-and-Screenshots.pdf'),pagesize=A4);c.setTitle('Obsidian 1.15.0 Android — feature walkthrough and coverage limits')
 def lines(text,y,size=10,width=95):
  c.setFont('Helvetica',size)

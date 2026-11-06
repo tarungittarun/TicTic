@@ -24,12 +24,17 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install websocket-client==1.8.0
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42021523354
+          name: MyNotes-v0.69.0-69-development.apk
+          path: /tmp/paired-mynotes
       - name: Retrieve exact existing signed apps; no Android builds or re-signing
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/paired-mynotes /tmp/paired-obsidian paired-ux-evidence
-          gh run download 42021523354 --repo tarungittarun/TicTic --name MyNotes-v0.69.0-69-development.apk --dir /tmp/paired-mynotes
           gh release download v1.15.0 --repo obsidianmd/obsidian-releases --pattern Obsidian-1.15.0.apk --dir /tmp/paired-obsidian
           find /tmp/paired-mynotes /tmp/paired-obsidian -name '*.apk' -exec sha256sum {} + | tee paired-ux-evidence/apk-digests.txt
           echo '03d839d58b828ac72e211b69a1904e00e5f44f9f5c2b37704d4312501431d167  /tmp/paired-mynotes/MyNotes-v0.69.0-69-development.apk' | sha256sum --check

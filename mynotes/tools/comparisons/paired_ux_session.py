@@ -139,6 +139,14 @@ def obsidian():
   assert stored==BODY,'Saved body must match fixture exactly';assert TITLE in path,path
   return {'status':'visible_outcome_verified','verified':'UI touch and input created note; live editor and actual vault readback contain the fixture. No forced save API was invoked.','path':path,'saved_text':stored}
  probe('obsidian','W01',create)
+ # Fixture preparation is separate from interactive creation and must never rescue
+ # W01's status. Downstream state comparisons require exact common body content.
+ def prepare_fixture():
+  result=d.js('(async()=>{const p="UX Meeting.md";let f=app.vault.getAbstractFileByPath(p);if(f)await app.vault.modify(f,'+json.dumps(BODY)+');else f=await app.vault.create(p,'+json.dumps(BODY)+');await app.workspace.getLeaf(false).openFile(f);await app.workspace.activeLeaf.setViewState({type:"markdown",state:{file:p,mode:"source"}});return await app.vault.read(f)})()')
+  assert result==BODY,'Fixture setup readback mismatch'
+  capture('obsidian','FIXTURE-exact-body',d)
+  return {'status':'fixture_prepared_not_a_test_pass','method':'Official app vault/file API seeds exact public body for downstream W02/S01; not a user creation, typing-efficiency or durability pass. W01 status remains unchanged.','body_sha256':hashlib.sha256(result.encode()).hexdigest()}
+ probe('obsidian','FIXTURE',prepare_fixture)
  def formatting():
   if not d.tap('.cm-content'):raise RuntimeError('Editor not reachable')
   capture('obsidian','W02-keyboard-before-format',d)
@@ -151,8 +159,12 @@ def obsidian():
   d.js('app.commands.executeCommandById("global-search:open")');time.sleep(1)
   if not d.tap('.search-input-container input'):raise RuntimeError('Global search query field not visible')
   d.type(MARKER);time.sleep(2);capture('obsidian','S01-body-match-results',d)
-  visible=d.js('document.body.innerText');assert TITLE in visible,'Expected body-only matching title absent'
-  return {'status':'visible_outcome_verified','title_present':True,'query':MARKER,'result_labels':visible,'setup':'Built-in global-search command API opens the pane; actual query uses UI input. This is NOT a touch-route efficiency comparison with MyNotes.'}
+  visible=d.js('document.body.innerText')
+  matches=d.js('[...document.querySelectorAll(".search-result-file-match")].map(e=>({text:e.textContent,visible:e.getBoundingClientRect().height>0&&e.getBoundingClientRect().top<innerHeight&&e.getBoundingClientRect().bottom>0}))')
+  assert any(x['visible'] and MARKER in x['text'] for x in matches),'No visible result-passage match; background editor/title is not a search result'
+  titles=d.js('[...document.querySelectorAll(".search-result-file-title")].map(e=>e.textContent)')
+  assert any(TITLE in x for x in titles),'Expected title absent from result title containers'
+  return {'status':'visible_outcome_verified','title_present':True,'visible_match_passages':matches,'result_titles':titles,'query':MARKER,'result_labels':visible,'setup':'Built-in global-search command API opens the pane; actual query uses UI input. This is NOT a touch-route efficiency comparison with MyNotes.'}
  probe('obsidian','S01',search)
  def settings():
   d.js('app.setting.open();app.setting.openTabById("appearance");void 0');time.sleep(1);capture('obsidian','P01-appearance',d)
@@ -172,6 +184,6 @@ def main():
  except Exception as e:CASES.append({'app':'mynotes','case':'session','status':'blocked','error':str(e),'traceback':traceback.format_exc()});save()
  try:obsidian()
  except Exception as e:CASES.append({'app':'obsidian','case':'session','status':'blocked','error':str(e),'traceback':traceback.format_exc()});save()
- (OUT/'logcat.txt').write_bytes(adb('logcat','-d','-t','1500'));save()
+ (OUT/'connectivity-after-session.txt').write_bytes(adb('shell','dumpsys','connectivity'));(OUT/'logcat.txt').write_bytes(adb('logcat','-d','-t','1500'));save()
  print('SESSION FINISHED',[(x['app'],x['case'],x['status']) for x in CASES],flush=True)
 if __name__=='__main__':main()

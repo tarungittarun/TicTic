@@ -1,3 +1,4 @@
+# Wave 3: prove offline before installation; exact API-seeded downstream fixture; inspect result containers, not background titles.
 # Wave 2: exact body fixture, visible SVG bold target, and one Back before Library.
 name: Fresh paired MyNotes and Obsidian UX evidence (not acceptance scores)
 on:
@@ -20,6 +21,8 @@ jobs:
           sparse-checkout: |
             mynotes/tools/comparisons
             mynotes/tools/ci/use_installed_emulator.sh
+            mynotes/tools/ci/offline_guest.py
+            mynotes/tools/ci/adb_state.py
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
@@ -53,6 +56,9 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -memory 2048 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
           script: |
+            python -m mynotes.tools.ci.offline_guest
+            mkdir -p paired-ux-evidence
+            cp offline-guest-proof.json paired-ux-evidence/
             adb install /tmp/paired-mynotes/MyNotes-v0.69.0-69-development.apk
             adb install /tmp/paired-obsidian/Obsidian-1.15.0.apk
             python mynotes/tools/comparisons/paired_ux_session.py

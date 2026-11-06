@@ -46,7 +46,18 @@ def retain(source, metadata, output):
             if not path.is_file():
                 continue
             if path.suffix in {'.json', '.txt'} or path.name.startswith('TEST-') and path.suffix == '.xml':
-                save(path.read_bytes(), str(Path(lane.name) / path.relative_to(lane)))
+                relative = path.relative_to(lane)
+                # Build directories are ignored and excluded from workspace snapshots.
+                # Flatten only build evidence into typed, nonignored destinations.
+                if lane.name == 'full71-build-evidence':
+                    if path.name.startswith('TEST-'):
+                        relative = Path('jvm') / path.name
+                    elif 'lint-results-' in path.name:
+                        module = 'runtime' if 'runtime' in relative.parts else 'app'
+                        relative = Path('lint') / (module + '-' + path.name)
+                    else:
+                        relative = Path('quality') / path.name
+                save(path.read_bytes(), str(Path(lane.name) / relative))
         for archive in lane.glob('refinement-captures.tar'):
             if not archive.stat().st_size:
                 continue

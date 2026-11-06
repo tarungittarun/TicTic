@@ -1,0 +1,36 @@
+"""Evidence PDF: per-feature brief + real image + honest coverage classification."""
+import collections,json,os,shutil,textwrap
+from pathlib import Path
+from PIL import Image
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.pagesizes import A4
+src=Path('obsidian-evidence');out=Path('mynotes/docs/comparisons/obsidian/audit')/os.environ['GITHUB_RUN_ID'];out.mkdir(parents=True,exist_ok=True)
+rows=json.loads((src/'feature-results.json').read_text());summary=json.loads((src/'coverage-summary.json').read_text()) if (src/'coverage-summary.json').exists() else {'full_functional_coverage':False,'interrupted':True}
+c=Canvas(str(out/'Obsidian-Features-and-Screenshots.pdf'),pagesize=A4);c.setTitle('Obsidian 1.15.0 Android — feature walkthrough and coverage limits')
+def lines(text,y,size=10,width=95):
+ c.setFont('Helvetica',size)
+ for line in textwrap.wrap(str(text),width=width):c.drawString(30,y,line);y-=size+4
+ return y
+c.setFont('Helvetica-Bold',18);c.drawString(30,805,'Obsidian 1.15.0 Android')
+y=lines('Actual feature screenshots and coverage report',778,13)
+y=lines('Official unmodified APK. Public dummy data only. Native emulator screenshots; no generated UI mockups. Feature inspection uses real app commands, CDP input and the app vault API, not an Obsidian-owned test suite.',y-14)
+y=lines('Important: this is NOT 100% functional feature coverage. A screenshot proves the shown state, not every behavior. Paid/account/cloud services, desktop-only capabilities, community plugins, settings combinations and unexecuted commands are not certified.',y-14)
+y=lines('Captured feature entries: '+str(len(rows))+'; status counts: '+str(dict(collections.Counter(r['status'] for r in rows))),y-14)
+y=lines('Full per-feature briefs, actions/observations and screenshots follow. Successful harness execution is not a claim that every feature passed.',y-14)
+y=lines('Source: github.com/obsidianmd/obsidian-releases/releases/tag/v1.15.0. Obsidian is a third-party product; no affiliation or endorsement is implied.',y-14)
+c.showPage()
+for i,r in enumerate(rows):
+ c.setFont('Helvetica-Bold',13);y=lines(str(i+1)+'. '+r['feature'],805,13,73)
+ y=lines('Coverage: '+r['status'],y-4,10)
+ y=lines(r['brief'],y-3,10)
+ y=lines('Observed: '+r['observed'],y-3,9)
+ im=Image.open(src/r['screenshot']).convert('RGB');name=r['screenshot'].replace('.png','.jpg');im.save(out/name,quality=90)
+ c.drawImage(str(out/name),30,44,width=535,height=max(200,y-65),preserveAspectRatio=True,anchor='c')
+ c.setFont('Helvetica',8);c.drawString(30,23,'Real Android emulator capture | Obsidian 1.15.0 | '+os.environ['GITHUB_RUN_ID']);c.showPage()
+c.save()
+for name in ['feature-results.json','feature-inventory.json','coverage-summary.json','apk-identity.json','installed-package.txt']:
+ if (src/name).exists():shutil.copyfile(src/name,out/name)
+# Full command census: every offered command is accounted for as inventoried, not automatically passed.
+inv=json.loads((src/'feature-inventory.json').read_text()) if (src/'feature-inventory.json').exists() else {}
+(out/'command-coverage.json').write_text(json.dumps([dict(command,status='inventoried_not_individually_verified') for command in inv.get('commands',[])],indent=2))
+(out/'README.md').write_text('# Actual Obsidian Android feature inspection\n\nRead the PDF cover and per-feature status. This is not 100% functional acceptance. The command census is inventory, not executed-command proof. Screens are compressed copies of actual adb screenshots. APK is not redistributed.\n')

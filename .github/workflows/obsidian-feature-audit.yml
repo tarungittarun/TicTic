@@ -1,5 +1,5 @@
-# Discovery3: complete observed sync-choice onboarding before the mobile inventory.
-name: Official Obsidian Android runtime inventory
+# Inspection4: complete observed sync-choice onboarding before the mobile inventory.
+name: Official Obsidian Android feature screenshots and coverage
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   discovery:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
@@ -48,18 +48,19 @@ jobs:
             adb install /tmp/obsidian-apk/Obsidian-1.15.0.apk
             adb shell settings put system accelerometer_rotation 0
             adb shell settings put system user_rotation 0
-            python mynotes/tools/comparisons/obsidian_probe.py
+            python mynotes/tools/comparisons/obsidian_audit.py
       - name: Prepare PDF and preserve actual public dummy-data evidence
         if: always()
         run: |
           test -f obsidian-evidence/observations.json
           python mynotes/tools/comparisons/obsidian_discovery_report.py
+          if test -f obsidian-evidence/feature-results.json; then python mynotes/tools/comparisons/obsidian_feature_report.py; fi
           python -m unittest discover -s qa
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git pull --ff-only origin arena/3caca636-tictic
-          git add mynotes/docs/comparisons/obsidian/discovery/${{ github.run_id }}
+          git add mynotes/docs/comparisons/obsidian
           git commit -m 'Preserve actual official Obsidian Android discovery screens [skip ci]'
           git push origin arena/3caca636-tictic
       - uses: actions/upload-artifact@v7.0.2

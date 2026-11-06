@@ -46,6 +46,11 @@ def main():
    current=d.js('document.querySelector("input[type=text]").value')
    if not current:
     d.tap('input[type=text]');d.type('Audit Vault');adb('shell','input','keyevent','KEYCODE_BACK');capture(f'cdp-vault-name-{idx}')
+  if 'Configure your new vault' in body:
+   # Explicitly choose disposable private app storage, not access to user folders.
+   d.js("document.querySelectorAll('.mobile-onboarding-radio-option')[1]?.click()")
+   d.js("document.querySelector('button.mod-cta')?.click()")
+   time.sleep(6);capture(f'cdp-private-vault-create-{idx}');continue
   acted=False
   for title in ['Continue without sync','Create a vault','Create new vault','Create vault','Create','Start writing','Open vault','Got it','Continue']:
    if d.text_button(title):

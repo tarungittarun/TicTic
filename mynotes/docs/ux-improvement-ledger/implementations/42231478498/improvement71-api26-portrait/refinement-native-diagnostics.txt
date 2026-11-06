@@ -1,0 +1,1055 @@
+Instrumentation exit 0; synthetic debug host only. Assertions are validated separately.
+TASK null id=4 userId=0
+  ACTIVITY com.android.launcher3/.Launcher e3da63 pid=2288
+    Local Activity 789f1ed State:
+      mResumed=true mStopped=false mFinished=false
+      mChangingConfigurations=false
+      mCurrentConfig={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+      mLoadersStarted=true
+      Active Fragments in 3efc7d9:
+        #0: QsbFragment{6d2659e #0 id=0xffffffff qsb_view}
+          mFragmentId=#ffffffff mContainerId=#7f0a0037 mTag=qsb_view
+          mState=5 mIndex=0 mWho=android:fragment:0 mBackStackNesting=0
+          mAdded=true mRemoving=false mFromLayout=true mInLayout=true
+          mHidden=false mDetached=false mMenuVisible=true mHasMenu=false
+          mRetainInstance=false mRetaining=false mUserVisibleHint=true
+          mFragmentManager=FragmentManager{3efc7d9 in HostCallbacks{8bf987f}}
+          mHost=android.app.Activity$HostCallbacks@8bf987f
+          mView=android.widget.FrameLayout{b44d04c V.E...... ......ID 0,0-1080,330}
+          Child FragmentManager{a8c0895 in QsbFragment{6d2659e}}:
+            FragmentManager misc state:
+              mHost=android.app.Activity$HostCallbacks@8bf987f
+              mContainer=android.app.Fragment$1@7b3daa
+              mParent=QsbFragment{6d2659e #0 id=0xffffffff qsb_view}
+              mCurState=5 mStateSaved=false mDestroyed=false
+      Added Fragments:
+        #0: QsbFragment{6d2659e #0 id=0xffffffff qsb_view}
+      FragmentManager misc state:
+        mHost=android.app.Activity$HostCallbacks@8bf987f
+        mContainer=android.app.Activity$HostCallbacks@8bf987f
+        mCurState=5 mStateSaved=false mDestroyed=false
+    ViewRoot:
+      mAdded=true mRemoved=false
+      mConsumeBatchedInputScheduled=false
+      mConsumeBatchedInputImmediatelyScheduled=false
+      mPendingInputEventCount=0
+      mProcessInputEventsScheduled=false
+      mTraversalScheduled=false      mIsAmbientMode=false
+      android.view.ViewRootImpl$NativePreImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$ImeInputStage: mQueueLength=0
+      android.view.ViewRootImpl$NativePostImeInputStage: mQueueLength=0
+    Choreographer:
+      mFrameScheduled=false
+      mLastFrameTime=57277 (138 ms ago)
+    View Hierarchy:
+      DecorView@cbf3d9b[Launcher]
+        android.widget.LinearLayout{314a538 V.E...... ........ 0,0-1080,1920}
+          android.view.ViewStub{b719911 G.E...... ......I. 0,0-0,0 #1020187 android:id/action_mode_bar_stub}
+          android.widget.FrameLayout{278a76 V.E...... ........ 0,0-1080,1920 #1020002 android:id/content}
+            com.android.launcher3.LauncherRootView{a4a1877 V.E...... ........ 0,0-1080,1920 #7f0a0032 app:id/launcher}
+              com.android.launcher3.dragndrop.DragLayer{80adce4 V.E...... ........ 0,0-1080,1920 #7f0a0033 app:id/drag_layer}
+                com.android.launcher3.Workspace{e07bea V.ED...L. ........ -2305,-1885-3386,3806 #7f0a0015 app:id/workspace}
+                  com.android.launcher3.CellLayout{845b54d VFED..CL. ........ 2329,1993-3361,3313}
+                    com.android.launcher3.ClickShadowView{979d802 V.ED..... ........ 0,0-294,366}
+                    com.android.launcher3.ShortcutAndWidgetContainer{c3dc513 V.E...... ........ 0,0-1032,1320}
+                      com.android.launcher3.qsb.QsbBlockerView{80ae350 V.ED..... ........ 0,0-1032,330 #7f0a0003 app:id/workspace_blocked_row}
+                      com.android.launcher3.BubbleTextView{dc55949 VFED..CL. ........ 0,990-258,1320 #5}
+                      com.android.launcher3.BubbleTextView{5b1724e VFED..CL. ........ 258,990-516,1320 #6}
+                android.widget.LinearLayout{e482bdf V.E...... ........ 105,1436-975,1920 #7f0a0035 app:id/overview_panel}
+                  android.widget.TextView{22bedb7 VFED..CL. ........ 0,0-290,205 #7f0a0044 app:id/wallpaper_button}
+                  android.widget.TextView{1ac2924 VFED..CL. ........ 290,0-580,205 #7f0a0045 app:id/widget_button}
+                  android.widget.TextView{aeac8d VFED..CL. ........ 580,0-870,205 #7f0a0046 app:id/settings_button}
+                com.android.launcher3.pageindicators.PageIndicatorLineCaret{c25f08a I.ED..... ......I. 0,1428-1080,1512 #7f0a0034 app:id/page_indicator}
+                  android.widget.ImageView{3b59f6f VFED..CL. ......I. 468,0-612,84 #7f0a0047 app:id/all_apps_handle}
+                com.android.launcher3.DropTargetBar{6523edb V.E...... ........ 0,96-1080,240 #7f0a0036 app:id/drop_target_bar}
+                  android.widget.FrameLayout{88dad78 V.E...... ........ 0,0-360,144}
+                    com.android.launcher3.DeleteDropTarget{9c2e47c V.ED..... ........ 4,0-355,144 #7f0a002d app:id/delete_target_text}
+                  android.widget.FrameLayout{1fd9c51 V.E...... ........ 360,0-720,144}
+                    com.android.launcher3.InfoDropTarget{d814105 V.ED..... ........ 0,0-359,144 #7f0a002e app:id/info_target_text}
+                  android.widget.FrameLayout{6426cb6 V.E...... ........ 720,0-1080,144}
+                    com.android.launcher3.UninstallDropTarget{b6655a V.ED..... ........ 0,0-360,144 #7f0a002f app:id/uninstall_target_text}
+                com.android.launcher3.qsb.QsbContainerView{f92d02c G.E...... ......ID 0,108-1080,438 #7f0a0037 app:id/qsb_container}
+                  android.widget.FrameLayout{b44d04c V.E...... ......ID 0,0-1080,330}
+                    com.android.launcher3.qsb.QsbWidgetHostView{e26c38b V.E...... R.....ID 0,0-1080,330 #7f0a0002 app:id/qsb_widget}
+                      android.widget.RelativeLayout{e97cc68 V.E...... ......ID 0,0-1080,330}
+                        android.widget.LinearLayout{759e881 V.E...... ......ID 0,54-1080,276 #7f0f0013 app:id/search_plate}
+                          android.widget.ImageView{ae57d26 V.ED..C.. ......ID 28,39-172,183 #7f0f0014 app:id/search_icon}
+                          android.widget.TextView{13c0d67 VFED..C.. ......ID 172,46-1038,176 #7f0f0015 app:id/search_widget_text}
+                          android.widget.LinearLayout{7514714 G.E...... ......I. 0,0-0,0 #7f0f0016 app:id/voice_search_hint_container}
+                            android.widget.ImageView{ebb8bbd VFED..C.. ......ID 0,0-0,0 #7f0f001c app:id/voice_search_hint_close_button}
+                            android.widget.LinearLayout{b9c45b2 VFE...C.. ......I. 0,0-0,0 #7f0f001d app:id/voice_search_hint}
+                              android.widget.TextView{8721903 V.ED..... ......I. 0,0-0,0}
+                              android.widget.TextView{785c080 V.ED..... ......ID 0,0-0,0 #7f0f001e app:id/voice_search_hint_text}
+                          android.widget.ImageButton{79a26b9 GFED..C.. ......I. 0,0-0,0 #7f0f0017 app:id/search_widget_voice_btn}
+                com.android.launcher3.widget.WidgetsContainerView{850afe I.E...... ......I. 0,72-1080,1776 #7f0a0038 app:id/widgets_view}
+                  android.view.View{73425f I.ED..... ......I. 0,0-1080,1704 #7f0a0019 app:id/reveal_view}
+                  android.widget.FrameLayout{3c664ac G.E...... ......I. 0,0-0,0 #7f0a001a app:id/main_content}
+                    com.android.launcher3.widget.WidgetsRecyclerView{72d7575 VFED..... ......I. 0,0-0,0 #7f0a005a app:id/widgets_list_view}, adapter:com.android.launcher3.widget.WidgetsListAdapter@5a2d90a, layout:android.support.v7.widget.LinearLayoutManager@c33a57b, context:android.view.ContextThemeWrapper@68b1f98
+                    android.widget.TextView{46cf3f1 V.ED..... ......ID 0,0-0,0 #7f0a001d app:id/fast_scroller_popup}
+                com.android.launcher3.allapps.AllAppsContainerView{21d7bd6 I.E...... ......ID 0,0-1080,1920 #7f0a0018 app:id/apps_view}
+                  android.view.View{fcd1e57 V.ED..... ......ID 0,0-1080,1920 #7f0a0019 app:id/reveal_view}
+                  com.android.launcher3.allapps.AllAppsRecyclerViewContainerView{7de9d44 VFE...... ......ID 0,0-1080,1920 #7f0a001a app:id/main_content}
+                    com.android.launcher3.ClickShadowView{44bde2d V.ED..... ......ID 0,0-216,216}
+                    com.android.launcher3.allapps.AllAppsRecyclerView{5cd7f62 VFED..... ......ID 0,252-1080,1920 #7f0a001b app:id/apps_list_view}, adapter:com.android.launcher3.allapps.AllAppsGridAdapter@d1b48f3, layout:com.android.launcher3.allapps.AllAppsGridAdapter$AppsGridLayoutManager@3ca49b0, context:com.android.launcher3.Launcher@789f1ed
+                      android.widget.ImageView{db53029 V.ED..... ......I. 27,0-1053,27}
+                      com.android.launcher3.BubbleTextView{3882fae VFED..CL. ......ID 27,27-283,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{e17814f VFED..CL. ......ID 283,27-540,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{b8250dc VFED..CL. ......ID 540,27-796,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{147a5e5 VFED..CL. ......ID 796,27-1053,357 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{42b98ba VFED..CL. ......ID 27,357-283,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{8f4e36b VFED..CL. ......ID 283,357-540,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d519ec8 VFED..CL. ......ID 540,357-796,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{d1bb61 VFED..CL. ......ID 796,357-1053,687 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{e6a8686 VFED..CL. ......ID 27,687-283,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{9fc4b47 VFED..CL. ......ID 283,687-540,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{f45df74 VFED..CL. ......ID 540,687-796,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{28dac9d VFED..CL. ......ID 796,687-1053,1017 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{f588512 VFED..CL. ......ID 27,1017-283,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{f2854e3 VFED..CL. ......ID 283,1017-540,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{89b7ee0 VFED..CL. ......ID 540,1017-796,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{c1d7599 VFED..CL. ......ID 796,1017-1053,1347 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{fb5e05e VFED..CL. ......ID 27,1347-283,1677 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{1815c3f VFED..CL. ......ID 283,1347-540,1677 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{5e9a90c VFED..CL. ......ID 540,1347-796,1677 #7f0a0029 app:id/icon}
+                      com.android.launcher3.BubbleTextView{146d255 VFED..CL. ......ID 796,1347-1053,1677 #7f0a0029 app:id/icon}
+                    android.widget.TextView{1fba46a V.ED..... ......ID 810,252-1026,468 #7f0a001d app:id/fast_scroller_popup}
+                    android.widget.FrameLayout{8397d5b V.E...... ......ID 0,0-1080,252 #7f0a001c app:id/search_container}
+                      com.android.launcher3.ExtendedEditText{40e49f8 VFED..CL. ......ID 0,108-1080,252 #7f0a001e app:id/search_box_input}
+                  android.view.View{26f3ed1 V.ED..... ......ID 0,1776-1080,1920 #7f0a001f app:id/nav_bar_bg}
+                com.android.launcher3.Hotseat{af83af5 I.E...... ......ID 0,1512-1080,1920 #7f0a0016 app:id/hotseat}
+                  com.android.launcher3.CellLayout{5279d36 V.ED...L. ......ID 0,0-1080,408 #7f0a0031 app:id/layout}
+                    com.android.launcher3.ClickShadowView{1889437 V.ED..... ......I. 53,24-284,300}
+                    com.android.launcher3.ShortcutAndWidgetContainer{dda0da4 V.E...... ......ID 53,24-1027,264}
+                      com.android.launcher3.BubbleTextView{6d7f70d VFED..CL. ......ID 0,0-195,240 #1}
+                      com.android.launcher3.BubbleTextView{84856c2 VFED..CL. ......ID 195,0-390,240 #2}
+                      com.android.launcher3.BubbleTextView{d483cd3 VFED..CL. ......ID 585,0-780,240 #3}
+                      com.android.launcher3.BubbleTextView{87c6010 VFED..CL. ......ID 780,0-975,240 #4}
+    Looper (main, tid 2) {e99f709}
+      Message 0: { when=+230ms callback=com.android.launcher3.Launcher$1 target=android.view.ViewRootImpl$ViewRootHandler }
+      (Total messages: 1, polling=false, quitting=false)
+    Misc:
+    	mWorkspaceLoading=false mPendingRequestArgs=null mPendingActivityResult=null
+    Data Model:
+     ---- workspace screens:  0
+     ---- workspace items 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messaging)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=WebView Browser Tester)
+    	ShortcutInfo(id=4 type=0 container=-101 screen=4 cellX=4 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Camera)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Email)
+    	ShortcutInfo(id=6 type=0 container=-100 screen=0 cellX=1 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gallery)
+     ---- appwidget items 
+     ---- folder items 
+     ---- items id map 
+    	ShortcutInfo(id=1 type=0 container=-101 screen=0 cellX=0 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Phone)
+    	ShortcutInfo(id=2 type=0 container=-101 screen=1 cellX=1 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Messaging)
+    	ShortcutInfo(id=3 type=0 container=-101 screen=3 cellX=3 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=WebView Browser Tester)
+    	ShortcutInfo(id=4 type=0 container=-101 screen=4 cellX=4 cellY=0 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Camera)
+    	ShortcutInfo(id=5 type=0 container=-100 screen=0 cellX=0 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Email)
+    	ShortcutInfo(id=6 type=0 container=-100 screen=0 cellX=1 cellY=3 spanX=1 spanY=1 minSpanX=1 minSpanY=1 rank=0 user=UserHandle{0} title=Gallery)
+      mSystemDecorRect=[0,0][1080,1848] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,1848]
+      mShownAlpha=1.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #1 Window{b354be7 u0 NavigationBar}:
+    mDisplayId=0 stackId=0 mSession=Session{980ddd5 1811:u0a10023} mClient=android.os.BinderProxy@b006301
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) sim=#20 ty=2019 fl=#21840068 fmt=-3 colorMode=0}
+    Requested w=1080 h=144 mLayoutSeq=286
+    mBaseLayer=231000 mSubLayer=0 mAnimLayer=231000+0=231000 mLastLayer=231000
+    mToken=WindowToken{e684d54 android.os.BinderProxy@11aa5a6}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x0
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,1776] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,1776][1080,1920] last=[0,1776][1080,1920]
+    Frames: containing=[0,1776][1080,1920] parent=[0,1776][1080,1920]
+        display=[0,1776][1080,1920] overscan=[0,1776][1080,1920]
+        content=[0,1776][1080,1920] visible=[0,1776][1080,1920]
+        decor=[0,0][0,0]
+        outset=[0,1776][1080,1920]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{cf0b4fd NavigationBar}:
+      mSurface=Surface(name=NavigationBar)
+      Surface: shown=true layer=231000 alpha=1.0 rect=(0.0,1776.0) 1080.0 x 144.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,144] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,144]
+    mLastFreezeDuration=+873ms
+  Window #2 Window{9dfa360 u0 StatusBar}:
+    mDisplayId=0 stackId=0 mSession=Session{980ddd5 1811:u0a10023} mClient=android.os.BinderProxy@159f592
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx72) gr=#30 sim=#10 ty=2000 fl=#81840048 fmt=-3 vsysui=0x600 colorMode=0}
+    Requested w=1080 h=72 mLayoutSeq=286
+    mBaseLayer=181000 mSubLayer=0 mAnimLayer=181000+0=181000 mLastLayer=181000
+    mToken=WindowToken{25055f2 android.os.BinderProxy@d0c3b63}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x600
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,72] last=[0,0][1080,72]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1776]
+        content=[0,0][1080,72] visible=[0,0][1080,72]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1776]
+    Cur insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,144] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{1908443 StatusBar}:
+      mSurface=Surface(name=StatusBar)
+      Surface: shown=true layer=181000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 72.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,72] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,72]
+    mLastFreezeDuration=+257ms
+  Window #3 Window{5d6b49b u0 AssistPreviewPanel}:
+    mDisplayId=0 stackId=0 mSession=Session{980ddd5 1811:u0a10023} mClient=android.os.BinderProxy@bb2e795
+    mOwnerUid=10023 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx750) gr=#800053 sim=#31 ty=2033 fl=#1000118 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=0 h=0 mLayoutSeq=11
+    mBaseLayer=41000 mSubLayer=0 mAnimLayer=41000+0=41000 mLastLayer=0
+    mToken=WindowToken{1a6eac0 android.os.BinderProxy@ffa30aa}
+    mViewVisibility=0x8 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,1920][1080,1920] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,1920][1080,1920] visible=[0,1920][1080,1920]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,0][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{18a3f9 AssistPreviewPanel}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #4 Window{62f98bd u0 DockedStackDivider}:
+    mDisplayId=0 stackId=0 mSession=Session{980ddd5 1811:u0a10023} mClient=android.os.BinderProxy@a2c1267
+    mOwnerUid=10023 mShowToOwnerOnly=false package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillx144) sim=#20 ty=2034 fl=#21840028 pfl=0x40 fmt=-3 vsysui=0x700 colorMode=0}
+    Requested w=1080 h=144 mLayoutSeq=286
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21005+0=21005 mLastLayer=0
+    mToken=WindowToken{809df3e android.os.BinderProxy@5096814}
+    mViewVisibility=0x4 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mPolicyVisibility=false mPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mForceHideNonSystemOverlayWindow=false
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mTouchableInsets=3 mGivenInsetsPending=false
+    touchable region=SkRegion((-144,0,144,144))
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/?}
+    mHasSurface=false mShownPosition=[0,0] isReadyForDisplay()=false hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][0,0] last=[0,0][0,0]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,0][0,0] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][0,0] visible=[0,0][0,0] stable=[0,72][0,0] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{62d219f DockedStackDivider}:
+      mDrawState=NO_SURFACE       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+  Window #5 Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher}:
+    mDisplayId=0 stackId=0 mSession=Session{287c2a1 2288:u0a10014} mClient=android.os.BinderProxy@608bde4
+    mOwnerUid=10014 mShowToOwnerOnly=true package=com.android.launcher3 appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(fillxfill) sim=#21 ty=1 fl=#81910100 fmt=-2 wanim=0x10302f6 vsysui=0x700 needsMenuKey=2 colorMode=0}
+    Requested w=1080 h=1920 mLayoutSeq=286
+    mBaseLayer=21000 mSubLayer=0 mAnimLayer=21000+0=21000 mLastLayer=21000
+    mToken=AppWindowToken{17d008d token=Token{9205660 ActivityRecord{e3da63 u0 com.android.launcher3/.Launcher t4}}}
+    mAppToken=AppWindowToken{17d008d token=Token{9205660 ActivityRecord{e3da63 u0 com.android.launcher3/.Launcher t4}}}
+     isAnimatingWithSavedSurface()=false mAppDied=false
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x700
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1080,1920] last=[0,0][1080,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[0,0][1080,1920] overscan=[0,0][1080,1920]
+        content=[0,72][1080,1776] visible=[0,72][1080,1776]
+        decor=[0,0][1080,1920]
+        outset=[0,0][0,0]
+    Cur insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,72][0,144] visible=[0,72][0,144] stable=[0,72][0,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{ecc38bb com.android.launcher3/com.android.launcher3.Launcher}:
+      mSurface=Surface(name=com.android.launcher3/com.android.launcher3.Launcher)
+      Surface: shown=true layer=21000 alpha=1.0 rect=(0.0,0.0) 1080.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][1080,1920] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][1080,1920]
+    mLastFreezeDuration=+655ms
+    mWallpaperX=0.0 mWallpaperY=0.5
+  Window #6 Window{a86d9f1 u0 com.android.systemui.ImageWallpaper}:
+    mDisplayId=0 stackId=0 mSession=Session{980ddd5 1811:u0a10023} mClient=android.os.BinderProxy@ae4dd98
+    mOwnerUid=10023 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
+    mAttrs=WM.LayoutParams{(0,0)(1243x1920) gr=#800033 ty=2013 fl=#10318 fmt=2 wanim=0x1030306 colorMode=0}
+    Requested w=1243 h=1920 mLayoutSeq=286
+    mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true mWallpaperVisible=true
+    mBaseLayer=11000 mSubLayer=0 mAnimLayer=11000+0=11000 mLastLayer=11000
+    mToken=WallpaperWindowToken{1df51d8 token=android.os.Binder@8050d93}
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mSeq=0 mSystemUiVisibility=0x0
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mLastReportedConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+    mHasSurface=true mShownPosition=[0,0] isReadyForDisplay()=true hasSavedSurface()=false mWindowRemovalAllowed=false
+    mFrame=[0,0][1243,1920] last=[0,0][1243,1920]
+    Frames: containing=[0,0][1080,1920] parent=[0,0][1080,1920]
+        display=[-10000,-10000][10000,10000] overscan=[0,0][1080,1920]
+        content=[0,0][1080,1920] visible=[0,72][1080,1776]
+        decor=[0,0][0,0]
+        outset=[0,0][1080,1920]
+    Cur insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] surface=[0,0][0,0] outsets=[0,0][0,0]
+    Lst insets: overscan=[0,0][0,0] content=[0,0][163,0] visible=[0,72][163,144] stable=[0,72][163,144] physical=[0,0][0,0] outset=[0,0][0,0]
+    WindowStateAnimator{c15d931 com.android.systemui.ImageWallpaper}:
+      mSurface=Surface(name=com.android.systemui.ImageWallpaper)
+      Surface: shown=true layer=11000 alpha=1.0 rect=(0.0,0.0) 1243.0 x 1920.0 transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mSystemDecorRect=[0,0][0,0] last=[0,0][0,0] mHasClipRect=false mLastClipRect=[0,0][0,0]
+    mLastFreezeDuration=+749ms
+    mWallpaperX=0.0 mWallpaperY=0.5
+
+  mGlobalConfiguration={1.0 310mcc260mnc [en_US] ldltr sw360dp w360dp h568dp 480dpi nrml port finger -keyb/v/h -nav/h appBounds=Rect(0, 0 - 1080, 1776) s.7}
+  mHasPermanentDpad=false
+  mCurrentFocus=Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher}
+  mFocusedApp=AppWindowToken{17d008d token=Token{9205660 ActivityRecord{e3da63 u0 com.android.launcher3/.Launcher t4}}}
+  mInTouchMode=true mLayoutSeq=286
+  mLastDisplayFreezeDuration=+883ms due to Window{b354be7 u0 NavigationBar}
+  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{a86d9f1 u0 com.android.systemui.ImageWallpaper}
+  InputConsumers:
+    name=pip_input_consumer
+  SnapshotCache
+  mSystemDecorLayer=181000 mScreenRect=[0,0][1080,1920]
+  mLastStatusBarVisibility=0x8708
+  mTraversalScheduled=false
+  mHoldScreenWindow=null
+  mObscuringWindow=Window{a86d9f1 u0 com.android.systemui.ImageWallpaper}
+  mWallpaperTarget=Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher}
+  mLastWallpaperX=0.0 mLastWallpaperY=0.5
+  mSystemBooted=true mDisplayEnabled=true
+  mTransactionSequence=358
+  mDisplayFrozen=false windows=0 client=false apps=0 waitingForConfig=false
+  mRotation=0 mAltOrientation=false
+  mLastWindowForcedOrientation=-1 mLastOrientation=5
+  mDeferredRotationPauseCount=0
+  Animation settings: disabled=false window=1.0 transition=1.0 animator=1.0
+  mSkipAppTransitionAnimation=false
+  mLayoutToAnim:
+    mNextAppTransition=TRANSIT_UNSET
+    mAppTransitionState=APP_STATE_IDLE
+    mLastUsedAppTransition=TRANSIT_WALLPAPER_OPEN
+    mLastOpeningApp=AppWindowToken{17d008d token=Token{9205660 ActivityRecord{e3da63 u0 com.android.launcher3/.Launcher t4}}}
+    mLastClosingApp=AppWindowToken{4d4aa10 token=Token{68f53f8 ActivityRecord{3506f5b u0 app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t12}}}
+  mAutoLowPowerModeSnoozing=false
+  mMinimumScreenOffTimeoutConfig=10000
+  mMaximumScreenDimDurationConfig=7000
+  mMaximumScreenDimRatioConfig=0.20000005
+  mScreenOffTimeoutSetting=2147483647
+  mSleepTimeoutSetting=-1
+  mMaximumScreenOffTimeoutFromDeviceAdmin=2147483647 (enforced=false)
+  mStayOnWhilePluggedInSetting=1
+  mScreenBrightnessSetting=102
+  mScreenAutoBrightnessAdjustmentSetting=0.0
+  mScreenBrightnessModeSetting=0
+  mScreenBrightnessOverrideFromWindowManager=-1
+  mUserActivityTimeoutOverrideFromWindowManager=-1
+  mUserInactiveOverrideFromWindowManager=false
+  mTemporaryScreenBrightnessSettingOverride=-1
+  mTemporaryScreenAutoBrightnessAdjustmentSettingOverride=NaN
+  mDozeScreenStateOverrideFromDreamManager=0
+  mDozeScreenBrightnessOverrideFromDreamManager=-1
+  mScreenBrightnessSettingMinimum=10
+  mScreenBrightnessSettingMaximum=255
+  mScreenBrightnessSettingDefault=102
+  mScreenBrightnessForVrSettingDefault=86
+  mScreenBrightnessForVrSetting=86
+  mDoubleTapWakeEnabled=false
+  mIsVrModeEnabled=false
+
+Sleep timeout: -1 ms
+Screen off timeout: 2147483647 ms
+Screen dim duration: 7000 ms
+
+UID states (changing=false changed=false):
+  UID 1000:   ACTIVE  count=2 state=17
+  UID 1001:   ACTIVE  count=0 state=17
+  UID 1041: INACTIVE  count=1 state=18
+  UID u0a1:   ACTIVE  count=0 state=17
+  UID u0a2:   ACTIVE  count=0 state=14
+  UID u0a3:   ACTIVE  count=0 state=17
+  UID u0a5:   ACTIVE  count=0 state=17
+  UID u0a7:   ACTIVE  count=0 state=17
+  UID u0a8:   ACTIVE  count=0 state=17
+  UID u0a13:   ACTIVE  count=0 state=8
+  UID u0a14:   ACTIVE  count=0 state=2
+  UID u0a15:   ACTIVE  count=0 state=17
+  UID u0a16:   ACTIVE  count=0 state=17
+  UID u0a23:   ACTIVE  count=0 state=17
+  UID u0a28:   ACTIVE  count=0 state=11
+  UID u0a30:   ACTIVE  count=0 state=17
+  UID u0a37:   ACTIVE  count=0 state=17
+  UID u0a39:   ACTIVE  count=0 state=17
+  UID u0a43:   ACTIVE  count=0 state=17
+  UID u0a46:   ACTIVE  count=0 state=7
+  UID u0a52:   ACTIVE  count=0 state=17
+  UID u0a56:   ACTIVE  count=0 state=17
+  UID u0a66:   ACTIVE  count=0 state=17
+
+Looper state:
+  Looper (PowerManagerService, tid 29) {5101822}
+    Message 0: { when=+26s980ms what=4 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    Message 1: { when=+24d20h31m15s137ms what=1 target=com.android.server.power.PowerManagerService$PowerManagerHandler }
+    (Total messages: 2, polling=true, quitting=false)
+
+Wake Locks: size=3
+  PARTIAL_WAKE_LOCK              '*job*/com.android.dialer/com.android.voicemail.impl.scheduling.TaskSchedulerJobService' ACQ=-29s575ms (uid=1000 pid=1604 ws=WorkSource{10013})
+  PARTIAL_WAKE_LOCK              'ConnectivityService' ACQ=-27s839ms (uid=1000 pid=1604)
+  PARTIAL_WAKE_LOCK              'AudioMix' ACQ=-1s318ms (uid=1041)
+
+Suspend Blockers: size=4
+  PowerManagerService.WakeLocks: ref count=1
+  PowerManagerService.Display: ref count=1
+  PowerManagerService.Broadcasts: ref count=0
+  PowerManagerService.WirelessChargerDetector: ref count=0
+
+Display Power: state=ON
+
+Battery saver policy
+  Settings battery_saver_constants
+  value: null
+
+  vibration_disabled=true
+  animation_disabled=true
+  fullbackup_deferred=true
+  keyvaluebackup_deferred=true
+  firewall_disabled=false
+  datasaver_disabled=true
+  adjust_brightness_disabled=false
+  adjust_brightness_factor=0.5
+  gps_mode=1
+
+Wireless Charger Detector State:
+  mGravitySensor={Sensor name="Gravity Sensor", vendor="AOSP", version=3, type=9, maxRange=19.6133, resolution=2.480159E-4, power=12.7, minDelay=10000}
+  mPoweredWirelessly=false
+  mAtRest=false
+  mRestX=0.0, mRestY=0.0, mRestZ=0.0
+  mDetectionInProgress=false
+  mDetectionStartTime=0 (never)
+  mMustUpdateRestPosition=false
+  mTotalSamples=0
+  mMovingSamples=0
+  mFirstSampleX=0.0, mFirstSampleY=0.0, mFirstSampleZ=0.0
+  mLastSampleX=0.0, mLastSampleY=0.0, mLastSampleZ=0.0
+    1: name='Window{b354be7 u0 NavigationBar}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x21840068, type=0x000007e3, layer=231000, frame=[0,1776][1080,1920], scale=1.000000, touchableRegion=[0,1776][1080,1920], inputFeatures=0x00000000, ownerPid=1811, ownerUid=10023, dispatchingTimeout=5000.000ms
+    2: name='Window{9dfa360 u0 StatusBar}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x81840048, type=0x000007d0, layer=181000, frame=[0,0][1080,72], scale=1.000000, touchableRegion=[0,0][1080,72], inputFeatures=0x00000000, ownerPid=1811, ownerUid=10023, dispatchingTimeout=5000.000ms
+    3: name='Window{5d6b49b u0 AssistPreviewPanel}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=false, canReceiveKeys=false, flags=0x01000118, type=0x000007f1, layer=41000, frame=[0,1920][1080,1920], scale=1.000000, touchableRegion=<empty>, inputFeatures=0x00000000, ownerPid=1811, ownerUid=10023, dispatchingTimeout=5000.000ms
+    4: name='Window{62f98bd u0 DockedStackDivider}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=false, canReceiveKeys=false, flags=0x21840028, type=0x000007f2, layer=21005, frame=[0,0][0,0], scale=1.000000, touchableRegion=[-144,0][144,144], inputFeatures=0x00000000, ownerPid=1811, ownerUid=10023, dispatchingTimeout=5000.000ms
+    5: name='Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher}', displayId=0, paused=false, hasFocus=true, hasWallpaper=true, visible=true, canReceiveKeys=true, flags=0x81910120, type=0x00000001, layer=21000, frame=[0,0][1080,1920], scale=1.000000, touchableRegion=[0,0][1080,1920], inputFeatures=0x00000000, ownerPid=2288, ownerUid=10014, dispatchingTimeout=5000.000ms
+    6: name='Window{a86d9f1 u0 com.android.systemui.ImageWallpaper}', displayId=0, paused=false, hasFocus=false, hasWallpaper=false, visible=true, canReceiveKeys=false, flags=0x00010318, type=0x000007dd, layer=11000, frame=[0,0][1243,1920], scale=1.000000, touchableRegion=[0,0][1243,1920], inputFeatures=0x00000000, ownerPid=1811, ownerUid=10023, dispatchingTimeout=5000.000ms
+  MonitoringChannels:
+    0: 'WindowManager (server)'
+  RecentQueue: length=10
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (876.0, 1026.0)]), policyFlags=0x6b000000, age=7882.4ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (876.0, 1026.0)]), policyFlags=0x6b000000, age=7822.5ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (924.0, 864.0)]), policyFlags=0x6b000000, age=7451.4ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (924.0, 864.0)]), policyFlags=0x6b000000, age=7391.5ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (420.0, 854.0)]), policyFlags=0x6b000000, age=3481.4ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (420.0, 854.0)]), policyFlags=0x6b000000, age=3421.4ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (204.0, 822.0)]), policyFlags=0x6b000000, age=2475.5ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (204.0, 822.0)]), policyFlags=0x6b000000, age=2415.5ms
+    MotionEvent(deviceId=0, source=0x00001002, action=0, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (924.0, 660.0)]), policyFlags=0x6b000000, age=1520.5ms
+    MotionEvent(deviceId=0, source=0x00001002, action=1, actionButton=0x00000000, flags=0x00000000, metaState=0x00000000, buttonState=0x00000000, edgeFlags=0x00000000, xPrecision=1.0, yPrecision=1.0, displayId=0, pointers=[0: (924.0, 660.0)]), policyFlags=0x6b000000, age=1460.5ms
+  PendingEvent: <none>
+  InboundQueue: <empty>
+  ReplacedKeys: <empty>
+  Connections:
+    0: channelName='WindowManager (server)', windowName='monitor', status=NORMAL, monitor=true, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    1: channelName='9dfa360 StatusBar (server)', windowName='Window{9dfa360 u0 StatusBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    2: channelName='b354be7 NavigationBar (server)', windowName='Window{b354be7 u0 NavigationBar}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    3: channelName='pip_input_consumer (server)', windowName='?', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    4: channelName='5d6b49b AssistPreviewPanel (server)', windowName='Window{5d6b49b u0 AssistPreviewPanel}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    5: channelName='a86d9f1 com.android.systemui.ImageWallpaper (server)', windowName='Window{a86d9f1 u0 com.android.systemui.ImageWallpaper}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    6: channelName='b7c2a77 InputMethod (server)', windowName='Window{b7c2a77 u0 InputMethod}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    7: channelName='62f98bd DockedStackDivider (server)', windowName='Window{62f98bd u0 DockedStackDivider}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+    8: channelName='dec824d com.android.launcher3/com.android.launcher3.Launcher (server)', windowName='Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher}', status=NORMAL, monitor=false, inputPublisherBlocked=false
+      OutboundQueue: <empty>
+      WaitQueue: <empty>
+  AppSwitch: not pending
+  Configuration:
+    KeyRepeatDelay: 50.0ms
+    KeyRepeatTimeout: 500.0ms
+
+
+  Keyboard Layouts:
+    "English (UK) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_uk
+    "English (US) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us
+    "English (US), International style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_intl
+    "English (US), Colemak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_colemak
+    "English (US), Dvorak style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_dvorak
+    "English (US), Workman style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_english_us_workman
+    "German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_german
+    "French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french
+    "French (Canada) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_french_ca
+    "Russian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian
+    "Russian, Mac style - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_russian_mac
+    "Spanish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish
+    "Swiss French - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_french
+    "Swiss German - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swiss_german
+    "Belgian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_belgian
+    "Bulgarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_bulgarian
+    "Italian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_italian
+    "Danish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_danish
+    "Norwegian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_norwegian
+    "Swedish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_swedish
+    "Finnish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_finnish
+    "Croatian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_croatian
+    "Czech - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_czech
+    "Estonian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_estonian
+    "Hungarian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hungarian
+    "Icelandic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_icelandic
+    "Brazilian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_brazilian
+    "Portuguese - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_portuguese
+    "Slovak - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovak
+    "Slovenian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_slovenian
+    "Turkish - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_turkish
+    "Ukrainian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_ukrainian
+    "Arabic - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_arabic
+    "Greek - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_greek
+    "Hebrew - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_hebrew
+    "Lithuanian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_lithuanian
+    "Spanish (Latin) - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_spanish_latin
+    "Latvian - Android keyboard": com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_latvian
+
+  PersistentDataStore
+    mLoaded=true
+    mDirty=false
+    InputDeviceStates:
+--------- beginning of main
+11-06 14:18:29.578  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{2908665 V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:29.595  3128  3133 I zygote64: Do full code cache collection, code=504KB, data=311KB
+11-06 14:18:29.595  3128  3133 I zygote64: After code cache collection, code=503KB, data=255KB
+11-06 14:18:29.655  3128  3133 I zygote64: Do partial code cache collection, code=504KB, data=262KB
+11-06 14:18:29.655  3128  3133 I zygote64: After code cache collection, code=504KB, data=262KB
+11-06 14:18:29.655  3128  3133 I zygote64: Increasing code cache capacity to 2MB
+11-06 14:18:29.707  1397  1424 E SurfaceFlinger: Failed to find layer (Splash Screen app.space.notes.debug#0) in layer parent (no-parent).
+--------- beginning of system
+11-06 14:18:29.980  1604  1647 I ActivityManager: Waited long enough for: ServiceRecord{a2ea5fa u0 com.android.calendar/.alerts.InitAlarmsService}
+11-06 14:18:30.066  2288  2387 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-06 14:18:30.075  1604  1781 D OpenGLRenderer: HWUI GL Pipeline
+11-06 14:18:30.075  1397  1721 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-06 14:18:30.078  1604  3181 D         : HostConnection::get() New Host Connection established 0x74d310c361e0, tid 3181
+11-06 14:18:30.110  1604  3181 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:30.110  1604  3181 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:30.110  1604  3181 D EGL_emulation: eglCreateContext: 0x74d30a544360: maj 3 min 0 rcv 3
+11-06 14:18:30.111  1604  3181 D EGL_emulation: eglMakeCurrent: 0x74d30a544360: ver 3 0 (tinfo 0x74d30b860060)
+11-06 14:18:30.829  3128  3153 I MyNotes : save outcome=ok revision=1 count=1
+11-06 14:18:31.649  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = spellcheck_userunigram.en_US ; version = 1793974711 ; date = ?
+11-06 14:18:31.681  3128  3153 I MyNotes : save outcome=ok revision=2 count=1
+11-06 14:18:31.752  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = main:en ; version = 54 ; date = 1414726273
+11-06 14:18:32.175  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.178  3119  3169 D         : HostConnection::get() New Host Connection established 0x7a519023f180, tid 3169
+11-06 14:18:32.389  3128  3133 I zygote64: Compiler allocated 6MB to compile void android.view.ViewRootImpl.performTraversals()
+11-06 14:18:32.429  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@c8ec8c in: PAUSED
+11-06 14:18:32.430  3128  3146 I TestRunner: finished: adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering(app.space.notes.CoreJourneysTest)
+11-06 14:18:32.440  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.466  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.467  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:32.468  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.484  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:32.490  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.515  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:32.528  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.541  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.547  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.551  1811  1837 D         : HostConnection::get() New Host Connection established 0x74d31c8fb640, tid 1837
+11-06 14:18:32.557  1811  1838 D         : HostConnection::get() New Host Connection established 0x74d312c252a0, tid 1838
+11-06 14:18:32.564  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.582  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.591  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.603  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.630  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.641  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.646  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.675  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:32.682  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.694  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.699  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.722  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:32.748  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:32.786  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@c8ec8c in: STOPPED
+11-06 14:18:32.786  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@c8ec8c in: DESTROYED
+11-06 14:18:32.800  3128  3146 I TestRunner: started: adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone(app.space.notes.CoreJourneysTest)
+11-06 14:18:32.809  1604  1615 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10065
+11-06 14:18:32.827  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: PRE_ON_CREATE
+11-06 14:18:32.837  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: CREATED
+11-06 14:18:32.837  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: STARTED
+11-06 14:18:32.839  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: RESUMED
+11-06 14:18:32.876  3128  3128 I MyNotes : load outcome=ok count=0
+11-06 14:18:32.941  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.955  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-06 14:18:32.959  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:32.985  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{6919883 V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:32.992  1397  1431 E SurfaceFlinger: Failed to find layer (app.space.notes.debug/app.space.notes.NotesActivity#1) in layer parent (no-parent).
+11-06 14:18:32.996  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:32.997  2288  2387 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-06 14:18:33.016  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:33.016  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:33.076  1604  1656 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +249ms
+11-06 14:18:33.148  3128  3128 I MyNotes : load outcome=ok count=1
+11-06 14:18:33.153  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{e2d7b9f V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:33.166  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:33.676  1604  2301 I ActivityManager: Killing 2274:com.android.sdksetup/u0a18 (adj 906): empty #17
+11-06 14:18:33.192  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:33.271  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:33.756  1604  3181 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:33.757  1604  3181 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:33.757  1604  3181 D EGL_emulation: eglCreateContext: 0x74d30a544680: maj 3 min 0 rcv 3
+11-06 14:18:33.757  1604  3181 D EGL_emulation: eglMakeCurrent: 0x74d30a544680: ver 3 0 (tinfo 0x74d30b860060)
+11-06 14:18:33.770  1604  1612 D         : HostConnection::get() New Host Connection established 0x74d30a6e4860, tid 1612
+11-06 14:18:33.848  1604  1614 I zygote64: NativeAllocBackground concurrent copying GC freed 122(102KB) AllocSpace objects, 0(0B) LOS objects, 42% free, 5MB/9MB, paused 5.482ms total 14.707ms
+11-06 14:18:34.125  1604  1646 E memtrack: Couldn't load memtrack module
+11-06 14:18:34.125  1604  1646 W android.os.Debug: failed to get memory consumption info: -1
+11-06 14:18:34.235  1604  1787 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-06 14:18:34.519  3128  3153 I MyNotes : save outcome=ok revision=1 count=1
+11-06 14:18:34.727  1604  1774 I AudioTrack: AUDIO_OUTPUT_FLAG_FAST successful; frameCount 4512 -> 4512
+11-06 14:18:35.613  3128  3153 I MyNotes : save outcome=ok revision=2 count=1
+11-06 14:18:36.169  3128  3153 I MyNotes : save outcome=ok revision=3 count=1
+11-06 14:18:36.190  3128  3153 I MyNotes : save outcome=ok revision=4 count=1
+11-06 14:18:36.216  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: PAUSED
+11-06 14:18:36.217  1604  2201 I ActivityManager: Killing 2357:com.android.launcher3:wallpaper_chooser/u0a14 (adj 906): empty #17
+11-06 14:18:36.218  1604  2201 I ActivityManager: Killing 2399:com.android.keychain/1000 (adj 906): empty #18
+11-06 14:18:36.218  3128  3146 I TestRunner: finished: adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone(app.space.notes.CoreJourneysTest)
+11-06 14:18:36.221  1604  1646 E memtrack: Couldn't load memtrack module
+11-06 14:18:36.221  1604  1646 W android.os.Debug: failed to get memory consumption info: -1
+11-06 14:18:36.223  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.259  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.261  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:36.262  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.273  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.281  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:36.315  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:36.325  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.328  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.347  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.354  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:36.374  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.376  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.400  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.406  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:36.425  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.427  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.451  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.458  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:36.475  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.477  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.502  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.505  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.528  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:36.528  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.572  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: STOPPED
+11-06 14:18:36.573  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3b776f0 in: DESTROYED
+11-06 14:18:36.582  3128  3146 I TestRunner: started: adaptiveEditorRailsKeepWritingBetweenActualToolColumns(app.space.notes.CoreJourneysTest)
+11-06 14:18:36.590  1604  1615 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10065
+11-06 14:18:36.599  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: PRE_ON_CREATE
+11-06 14:18:36.620  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: CREATED
+11-06 14:18:36.620  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: STARTED
+11-06 14:18:36.621  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: RESUMED
+11-06 14:18:36.634  3128  3128 I MyNotes : load outcome=ok count=0
+11-06 14:18:36.655  1397  1397 D SurfaceFlinger: duplicate layer name: changing app.space.notes.debug/app.space.notes.NotesActivity to app.space.notes.debug/app.space.notes.NotesActivity#1
+11-06 14:18:36.664  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.680  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:36.681  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.705  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{ac76c8b V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:36.721  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:36.725  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:36.772  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:36.784  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.793  1604  1656 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +192ms
+11-06 14:18:36.849  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.856  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.872  3128  3128 I MyNotes : load outcome=ok count=2
+11-06 14:18:36.881  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{116e170 V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:36.944  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:36.954  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:36.974  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:37.007  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = spellcheck_userunigram.en_US ; version = 1793974717 ; date = ?
+11-06 14:18:37.013  3128  3133 I zygote64: Compiler allocated 6MB to compile void app.space.notes.runtime.NotesController.renderEditor()
+11-06 14:18:37.018  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = main:en ; version = 54 ; date = 1414726273
+11-06 14:18:37.498  2288  2387 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-06 14:18:37.505  1604  3181 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:37.505  1604  3181 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:37.505  1604  3181 D EGL_emulation: eglCreateContext: 0x74d30b86e200: maj 3 min 0 rcv 3
+11-06 14:18:37.506  1604  3181 D EGL_emulation: eglMakeCurrent: 0x74d30b86e200: ver 3 0 (tinfo 0x74d30b860060)
+11-06 14:18:37.715  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:37.752  3128  3128 I zygote64: Rejecting re-init on previously-failed class java.lang.Class<app.space.notes.runtime.DocumentEditorView$2>: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/WindowInsetsAnimation$Callback;
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.752  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.752  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.753  3128  3128 I zygote64: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.view.WindowInsetsAnimation$Callback" on path: DexPathList[[zip file "/system/framework/android.test.runner.jar", zip file "/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk", zip file "/data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk"],nativeLibraryDirectories=[/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/lib/x86_64, /data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk!/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk!/lib/x86_64, /system/lib64, /vendor/lib64]]
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class dalvik.system.BaseDexClassLoader.findClass(java.lang.String) (BaseDexClassLoader.java:93)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String, boolean) (ClassLoader.java:379)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String) (ClassLoader.java:312)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.753  3128  3128 I zygote64: 
+11-06 14:18:37.753  3128  3128 I zygote64: Rejecting re-init on previously-failed class java.lang.Class<app.space.notes.runtime.DocumentEditorView$2>: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/WindowInsetsAnimation$Callback;
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.753  3128  3128 I zygote64: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.view.WindowInsetsAnimation$Callback" on path: DexPathList[[zip file "/system/framework/android.test.runner.jar", zip file "/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk", zip file "/data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk"],nativeLibraryDirectories=[/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/lib/x86_64, /data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk!/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk!/lib/x86_64, /system/lib64, /vendor/lib64]]
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class dalvik.system.BaseDexClassLoader.findClass(java.lang.String) (BaseDexClassLoader.java:93)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String, boolean) (ClassLoader.java:379)
+11-06 14:18:37.753  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String) (ClassLoader.java:312)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.753  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.754  3128  3128 I zygote64: 
+11-06 14:18:37.754  3128  3128 I zygote64: Rejecting re-init on previously-failed class java.lang.Class<app.space.notes.runtime.DocumentEditorView$2>: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/WindowInsetsAnimation$Callback;
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.754  3128  3128 I zygote64: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.view.WindowInsetsAnimation$Callback" on path: DexPathList[[zip file "/system/framework/android.test.runner.jar", zip file "/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk", zip file "/data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk"],nativeLibraryDirectories=[/data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/lib/x86_64, /data/app/app.space.notes.debug.test-T68Wpjd_2ua1Mz6pacxFhg==/base.apk!/lib/x86_64, /data/app/app.space.notes.debug-fbR6cWd9_krFhUJ69HyiGw==/base.apk!/lib/x86_64, /system/lib64, /vendor/lib64]]
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Class dalvik.system.BaseDexClassLoader.findClass(java.lang.String) (BaseDexClassLoader.java:93)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String, boolean) (ClassLoader.java:379)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Class java.lang.ClassLoader.loadClass(java.lang.String) (ClassLoader.java:312)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderCanonicalEditor(app.space.notes.domain.Note) (NotesController.java:483)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.renderEditor() (NotesController.java:501)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.lambda$openNote$128$app-space-notes-runtime-NotesController(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController$$ExternalSyntheticLambda65.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.whenReady(java.lang.Runnable) (NotesController.java:228)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.runtime.NotesController.openNote(java.lang.String) (NotesController.java:647)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest.lambda$adaptiveEditorRailsKeepWritingBetweenActualToolColumns$58$app-space-notes-CoreJourneysTest(app.space.notes.domain.Note) (CoreJourneysTest.java:101)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void app.space.notes.CoreJourneysTest$$ExternalSyntheticLambda430.run() (D8$$SyntheticClass:0)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.util.concurrent.Executors$RunnableAdapter.call() (Executors.java:457)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void java.util.concurrent.FutureTask.run() (FutureTask.java:266)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.Instrumentation$SyncRunnable.run() (Instrumentation.java:2092)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.handleCallback(android.os.Message) (Handler.java:789)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Handler.dispatchMessage(android.os.Message) (Handler.java:98)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.os.Looper.loop() (Looper.java:164)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void android.app.ActivityThread.main(java.lang.String[]) (ActivityThread.java:6541)
+11-06 14:18:37.754  3128  3128 I zygote64:   at java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[]) (Method.java:-2)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.Zygote$MethodAndArgsCaller.run() (Zygote.java:240)
+11-06 14:18:37.754  3128  3128 I zygote64:   at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:767)
+11-06 14:18:37.754  3128  3128 I zygote64: 
+11-06 14:18:38.425  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.466  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: PAUSED
+11-06 14:18:38.466  3128  3146 I TestRunner: finished: adaptiveEditorRailsKeepWritingBetweenActualToolColumns(app.space.notes.CoreJourneysTest)
+11-06 14:18:38.476  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.504  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.505  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:38.506  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.526  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:38.527  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.568  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:38.571  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.577  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.586  1811  1961 D         : HostConnection::get() New Host Connection established 0x74d320e39360, tid 1961
+11-06 14:18:38.591  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.598  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 1 line
+11-06 14:18:38.617  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.628  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.664  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.678  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.686  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.714  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.728  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.732  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.751  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:38.788  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:38.822  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: STOPPED
+11-06 14:18:38.822  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@3e5a875 in: DESTROYED
+11-06 14:18:38.838  3128  3146 I TestRunner: started: formattingBudgetPreservesWritingAndSelection(app.space.notes.CoreJourneysTest)
+11-06 14:18:38.846  1604  2301 I ActivityManager: START u0 {flg=0x10000000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10065
+11-06 14:18:38.860  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: PRE_ON_CREATE
+11-06 14:18:38.870  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: CREATED
+11-06 14:18:38.870  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: STARTED
+11-06 14:18:38.873  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: RESUMED
+11-06 14:18:38.907  3128  3128 I MyNotes : load outcome=ok count=0
+11-06 14:18:38.970  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.971  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:38.973  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:38.996  1397  1721 E SurfaceFlinger: Failed to find layer (app.space.notes.debug/app.space.notes.NotesActivity#1) in layer parent (no-parent).
+11-06 14:18:38.998  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:39.002  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{13ce21d V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:39.007  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:39.014  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:39.015  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:39.058  1604  1656 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +208ms
+11-06 14:18:39.121  3128  3128 I MyNotes : load outcome=ok count=1
+11-06 14:18:39.123  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{aa3ded9 V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:39.127  3128  3128 W StaticLayout: maxLineHeight should not be -1.  maxLines:7 lineCount:7
+11-06 14:18:39.167  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:39.173  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:39.205  3128  3133 I zygote64: Do full code cache collection, code=1007KB, data=669KB
+11-06 14:18:39.205  3128  3133 I zygote64: After code cache collection, code=1004KB, data=594KB
+11-06 14:18:39.207  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:39.310  1790  1790 W RichInputMethodSubtype: Can't find emoji subtype
+11-06 14:18:39.310  1790  1790 W RichInputMethodSubtype: No input method subtype found; returning dummy subtype: Multi-lingual subtype: android.view.inputmethod.InputMethodSubtype@d78b2ed0, zz
+11-06 14:18:39.314  1382  1536 W audio_hw_generic: Not supplying enough data to HAL, expected position 1013182 , only wrote 507600
+11-06 14:18:39.391  1790  1795 I zygote64: Do partial code cache collection, code=30KB, data=23KB
+11-06 14:18:39.391  1790  1795 I zygote64: After code cache collection, code=27KB, data=22KB
+11-06 14:18:39.391  1790  1795 I zygote64: Increasing code cache capacity to 128KB
+11-06 14:18:39.427  1790  1790 I EmojiCategory: Last Emoji category id is 8
+11-06 14:18:39.448  1790  1790 W ViewPager: Requested offscreen page limit 0 too small; defaulting to 1
+11-06 14:18:39.465  1790  1790 I LatinIME: Starting input. Cursor position = 0,6
+11-06 14:18:39.513  1790  1795 I zygote64: Do partial code cache collection, code=62KB, data=48KB
+11-06 14:18:39.514  1790  1795 I zygote64: After code cache collection, code=57KB, data=46KB
+11-06 14:18:39.514  1790  1795 I zygote64: Increasing code cache capacity to 256KB
+11-06 14:18:39.543  1397  2004 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-06 14:18:39.543  1790  3212 D OpenGLRenderer: HWUI GL Pipeline
+11-06 14:18:39.581  1790  3212 D         : HostConnection::get() New Host Connection established 0x74d31c8ef8a0, tid 3212
+11-06 14:18:39.582  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 7987200
+11-06 14:18:39.592  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:39.593  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 7987200
+11-06 14:18:39.594  1790  3212 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:39.594  1790  3212 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:39.608  1790  3212 D EGL_emulation: eglCreateContext: 0x74d31c9f41a0: maj 3 min 0 rcv 3
+11-06 14:18:39.608  1790  3212 D EGL_emulation: eglMakeCurrent: 0x74d31c9f41a0: ver 3 0 (tinfo 0x74d313c52c20)
+11-06 14:18:39.667  1790  3212 D EGL_emulation: eglMakeCurrent: 0x74d31c9f41a0: ver 3 0 (tinfo 0x74d313c52c20)
+11-06 14:18:39.696  3128  3133 I zygote64: Do partial code cache collection, code=1006KB, data=598KB
+11-06 14:18:39.696  3128  3133 I zygote64: After code cache collection, code=1006KB, data=598KB
+11-06 14:18:39.696  3128  3133 I zygote64: Increasing code cache capacity to 3MB
+11-06 14:18:39.883  2288  2387 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-06 14:18:39.947  1604  3181 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:39.947  1604  3181 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:39.948  1604  3181 D EGL_emulation: eglCreateContext: 0x74d30b86fce0: maj 3 min 0 rcv 3
+11-06 14:18:39.954  1604  3181 D EGL_emulation: eglMakeCurrent: 0x74d30b86fce0: ver 3 0 (tinfo 0x74d30b860060)
+11-06 14:18:40.081  1382  3173 W audio_hw_generic: Not supplying enough data to HAL, expected position 507770 , only wrote 507600
+11-06 14:18:40.742  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:41.095  1604  1787 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-06 14:18:41.101  1790  1790 I LatinIME: Starting input. Cursor position = 0,6
+11-06 14:18:41.106  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = spellcheck_userunigram.en_US ; version = 1793974721 ; date = ?
+11-06 14:18:41.113  3128  3128 I MyNotes : format outcome=applied type=bold range=0..6
+11-06 14:18:41.128  1790  1866 I LatinIME:LogUtils: Dictionary info: dictionary = main:en ; version = 54 ; date = 1414726273
+11-06 14:18:41.155  3128  3153 I MyNotes : save outcome=ok revision=1 count=1
+11-06 14:18:41.159  3219  3219 W zygote64: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 14:18:41.162  1604  1863 I ActivityManager: Start proc 3219:com.android.keychain/1000 for service com.android.keychain/.KeyChainService
+11-06 14:18:41.201  1604  1844 I ActivityManager: Killing 2245:com.android.carrierconfig/u0a4 (adj 906): empty #17
+11-06 14:18:41.274  1604  1646 E memtrack: Couldn't load memtrack module
+11-06 14:18:41.274  1604  1646 W android.os.Debug: failed to get memory consumption info: -1
+11-06 14:18:42.062  3128  3128 W View    : requestLayout() improperly called by app.space.notes.runtime.NotesController$WritingField{7daf8b6 VFED..CL. ......ID 0,0-960,153} during layout: running second layout pass
+11-06 14:18:42.062  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{670e47d V.E...... ......ID 60,710-1020,890} during layout: running second layout pass
+11-06 14:18:42.121  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: PAUSED
+11-06 14:18:42.122  3128  3146 I TestRunner: finished: formattingBudgetPreservesWritingAndSelection(app.space.notes.CoreJourneysTest)
+11-06 14:18:42.136  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.163  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.164  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:42.165  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.171  1790  1790 I LatinIME: Starting input. Cursor position = -1,-1
+11-06 14:18:42.188  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.191  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:42.223  1790  1790 I InputAttributes: InputType.TYPE_NULL is specified
+11-06 14:18:42.239  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.244  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:42.246  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.261  1604  1646 E memtrack: Couldn't load memtrack module
+11-06 14:18:42.262  1604  1646 W android.os.Debug: failed to get memory consumption info: -1
+11-06 14:18:42.274  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:42.278  1811  2172 D         : HostConnection::get() New Host Connection established 0x74d312d60ac0, tid 2172
+11-06 14:18:42.289  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.294  1790  1795 I zygote64: Do full code cache collection, code=125KB, data=82KB
+11-06 14:18:42.295  1790  1795 I zygote64: After code cache collection, code=101KB, data=60KB
+11-06 14:18:42.339  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.440  3128  3146 I chatty  : uid=10065(u0_a65) app.space.notes.debug identical 2 lines
+11-06 14:18:42.490  3128  3146 I MonitoringInstr: Unstopped activity count: 1
+11-06 14:18:42.516  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: STOPPED
+11-06 14:18:42.520  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@e74c02 in: DESTROYED
+11-06 14:18:42.547  3128  3146 I TestRunner: started: nightResourcesMatchRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:42.552  3128  3146 I TestRunner: finished: nightResourcesMatchRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:42.563  3128  3146 I TestRunner: started: fontScaleMatchesRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:42.565  3128  3146 I TestRunner: finished: fontScaleMatchesRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:42.572  3128  3146 I TestRunner: started: orientationMatchesRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:42.580  3128  3146 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-06 14:18:42.594  1604  1863 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=app.space.notes.debug/app.space.notes.NotesActivity} from uid 10065
+11-06 14:18:42.610  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: PRE_ON_CREATE
+11-06 14:18:42.610  3128  3128 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-06 14:18:42.617  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: CREATED
+11-06 14:18:42.618  3128  3128 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=app.space.notes.NotesActivity@df0d062
+11-06 14:18:42.618  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: STARTED
+11-06 14:18:42.618  3128  3128 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=app.space.notes.NotesActivity@df0d062
+11-06 14:18:42.619  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: RESUMED
+11-06 14:18:42.619  3128  3128 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=app.space.notes.NotesActivity@df0d062
+11-06 14:18:42.654  1397  1397 D SurfaceFlinger: duplicate layer name: changing app.space.notes.debug/app.space.notes.NotesActivity to app.space.notes.debug/app.space.notes.NotesActivity#1
+11-06 14:18:42.678  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.697  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-06 14:18:42.707  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.755  3128  3128 I MyNotes : load outcome=ok count=0
+11-06 14:18:42.766  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{631625 V.E...... ......ID 24,898-960,1060} during layout: running second layout pass
+11-06 14:18:42.774  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:42.782  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:42.807  2288  2387 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-06 14:18:42.807  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:42.818  1604  1656 I ActivityManager: Displayed app.space.notes.debug/app.space.notes.NotesActivity: +216ms
+11-06 14:18:42.833  1790  3212 D EGL_emulation: eglMakeCurrent: 0x74d31c9f41a0: ver 3 0 (tinfo 0x74d313c52c20)
+11-06 14:18:42.850  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:42.897  1811  2037 I chatty  : uid=10023(u0_a23) RenderThread identical 2 lines
+11-06 14:18:42.926  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:42.929  3128  3128 W View    : requestLayout() improperly called by android.widget.LinearLayout{2b28fc7 V.E...... ......ID 48,212-1032,404} during layout: running second layout pass
+11-06 14:18:42.958  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:42.970  1604  1863 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10065
+11-06 14:18:42.973  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: PAUSED
+11-06 14:18:42.973  3128  3128 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=app.space.notes.NotesActivity@df0d062
+11-06 14:18:42.975  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.008  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.009  3241  3241 I zygote64: Late-enabling -Xcheck:jni
+11-06 14:18:43.011  1604  2303 I ActivityManager: Start proc 3241:app.space.notes.debug.test/u0a66 for activity app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity
+11-06 14:18:43.020  3241  3241 W zygote64: Unexpected CPU variant for X86 using defaults: x86_64
+11-06 14:18:43.038  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.071  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.105  3128  3156 D EGL_emulation: eglMakeCurrent: 0x74d32abee420: ver 3 0 (tinfo 0x74d31e2cbfa0)
+11-06 14:18:43.107  1397  1722 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-06 14:18:43.107  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: STOPPED
+11-06 14:18:43.107  3241  3257 D OpenGLRenderer: HWUI GL Pipeline
+11-06 14:18:43.108  3128  3128 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=app.space.notes.NotesActivity@df0d062
+11-06 14:18:43.108  3128  3128 D LifecycleMonitor: Lifecycle status change: app.space.notes.NotesActivity@df0d062 in: DESTROYED
+11-06 14:18:43.108  3128  3128 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-06 14:18:43.112  3128  3146 I TestRunner: finished: orientationMatchesRequestedLane(app.space.notes.EnvironmentQualificationTest)
+11-06 14:18:43.115  3128  3146 I TestRunner: run finished: 8 tests, 0 failed, 0 ignored
+11-06 14:18:43.120  1604  1863 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@44f392d
+11-06 14:18:43.126  1604  2301 I ActivityManager: Force stopping app.space.notes.debug appid=10065 user=0: finished inst
+11-06 14:18:43.126  1604  2301 I ActivityManager: Killing 3128:app.space.notes.debug/u0a65 (adj 0): stop app.space.notes.debug
+11-06 14:18:43.126  1604  3259 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-06 14:18:43.126  1604  3259 W Binder  : java.lang.Throwable
+11-06 14:18:43.126  1604  3259 W Binder  : 	at android.os.BinderProxy.transact(Binder.java:736)
+11-06 14:18:43.126  1604  3259 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:160)
+11-06 14:18:43.126  1604  3259 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-06 14:18:43.126  3119  3119 D AndroidRuntime: Shutting down VM
+11-06 14:18:43.137  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:43.154  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:43.155  3241  3257 D         : HostConnection::get() New Host Connection established 0x74d320e42000, tid 3257
+11-06 14:18:43.162  3241  3257 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:43.162  3241  3257 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:43.163  3241  3257 D EGL_emulation: eglCreateContext: 0x74d320e33320: maj 3 min 0 rcv 3
+11-06 14:18:43.164  3241  3257 D EGL_emulation: eglMakeCurrent: 0x74d320e33320: ver 3 0 (tinfo 0x74d320e182e0)
+11-06 14:18:43.165  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:43.174  1604  1656 W ActivityManager: setHasOverlayUi called on unknown pid: 3128
+11-06 14:18:43.192  1604  2301 D WindowManager: relayoutVisibleWindow: Window{dec824d u0 com.android.launcher3/com.android.launcher3.Launcher EXITING} mAnimatingExit=true, mRemoveOnExit=false, mDestroying=false
+11-06 14:18:43.194  1604  2301 I WindowManager: Failed to capture screenshot of Token{68f53f8 ActivityRecord{3506f5b u0 app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t12 f}} appWin=Window{75eb81f u0 app.space.notes.debug.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} drawState=1
+11-06 14:18:43.199  1387  1387 I chatty  : uid=1000(system) allocator@2.0-s identical 2 lines
+11-06 14:18:43.209  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:43.210  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.216  1387  1387 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-06 14:18:43.219  3241  3257 D EGL_emulation: eglMakeCurrent: 0x74d320e33320: ver 3 0 (tinfo 0x74d320e182e0)
+11-06 14:18:43.224  1811  2037 D EGL_emulation: eglMakeCurrent: 0x74d31361a300: ver 3 0 (tinfo 0x74d31c958020)
+11-06 14:18:43.227  2288  2387 D EGL_emulation: eglMakeCurrent: 0x74d320e39820: ver 3 0 (tinfo 0x74d320e18540)
+11-06 14:18:43.337  1604  3181 I OpenGLRenderer: Initialized EGL, version 1.4
+11-06 14:18:43.337  1604  3181 D OpenGLRenderer: Swap behavior 1
+11-06 14:18:43.353  1604  3181 D EGL_emulation: eglCreateContext: 0x74d320f7dec0: maj 3 min 0 rcv 3
+11-06 14:18:43.370  3241  3257 D EGL_emulation: eglMakeCurrent: 0x74d320e33320: ver 3 0 (tinfo 0x74d320e182e0)
+11-06 14:18:43.371  1604  3181 D EGL_emulation: eglMakeCurrent: 0x74d320f7dec0: ver 3 0 (tinfo 0x74d30b860060)
+11-06 14:18:43.373  1604  2301 I ActivityManager: Killing 2598:com.android.quicksearchbox/u0a54 (adj 906): empty #17
+11-06 14:18:43.376  1604  1646 E memtrack: Couldn't load memtrack module
+11-06 14:18:43.376  1604  1646 W android.os.Debug: failed to get memory consumption info: -1
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:37): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 I chatty  : uid=1036(auditd) identical 1 line
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:39): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:40): avc: granted { use } for path="socket:[24139]" dev="sockfs" ino=24139 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:41): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=5531 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:42): avc: granted { use } for path="/dev/goldfish_pipe" dev="tmpfs" ino=5531 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:43): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 I chatty  : uid=1036(auditd) identical 1 line
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:45): avc: granted { use } for path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:runas:s0 tcontext=u:r:adbd:s0 tclass=fd
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:46): avc: granted { read } for name="packages.list" dev="dm-0" ino=225409 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:47): avc: granted { read } for path="/data/system/packages.list" dev="dm-0" ino=225409 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:48): avc: granted { getattr } for path="/data/system/packages.list" dev="dm-0" ino=225409 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:49): avc: granted { getattr } for path="/data/user/0" dev="dm-0" ino=232322 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=lnk_file
+11-06 14:18:43.438  3266  3266 W run-as  : type=1400 audit(0.0:50): avc: granted { read } for name="0" dev="dm-0" ino=232322 scontext=u:r:runas:s0 tcontext=u:object_r:system_data_file:s0 tclass=lnk_file

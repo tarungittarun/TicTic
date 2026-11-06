@@ -1,0 +1,22 @@
+{
+  "ok": false,
+  "expected": 8,
+  "passed": 7,
+  "missing": [
+    "app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection"
+  ],
+  "unexpected": [],
+  "duplicates": [],
+  "failures": [
+    "app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection: status -2 java.lang.AssertionError: UI condition timed out\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat app.space.notes.CoreJourneysTest.await(CoreJourneysTest.java:183)\n\tat app.space.notes.CoreJourneysTest.formattingBudgetPreservesWritingAndSelection(CoreJourneysTest.java:40)\n"
+  ],
+  "cases": [
+    "app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote",
+    "app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering",
+    "app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone",
+    "app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns",
+    "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
+    "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
+    "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane"
+  ]
+}

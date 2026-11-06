@@ -1,0 +1,157 @@
+Activity Resolver Table:
+  Full MIME Types:
+      application/vnd.mynotes.document:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+      application/json:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+      text/plain:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter 451256d
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          Type: "text/plain"
+
+  Base MIME Types:
+      text:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter 451256d
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          Type: "text/plain"
+      application:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+
+  Schemes:
+      content:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter 5bec397
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+  MIME Typed Actions:
+      android.intent.action.SEND:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter 451256d
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          Type: "text/plain"
+      android.intent.action.VIEW:
+        62f2a03 app.space.notes.debug/app.space.notes.NotesActivity filter f9b7984
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "content"
+          Type: "application/json"
+          Type: "application/vnd.mynotes.document"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.BOOT_COMPLETED:
+        233fd80 app.space.notes.debug/app.space.notes.runtime.ReminderReceiver filter a704731
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+      android.appwidget.action.APPWIDGET_UPDATE:
+        8601fb9 app.space.notes.debug/app.space.notes.runtime.NotesWidget filter 8656e16
+          Action: "android.appwidget.action.APPWIDGET_UPDATE"
+      android.intent.action.MY_PACKAGE_REPLACED:
+        233fd80 app.space.notes.debug/app.space.notes.runtime.ReminderReceiver filter a704731
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+
+Registered ContentProviders:
+  app.space.notes.debug/androidx.core.content.FileProvider:
+    Provider{cae0ffe app.space.notes.debug/androidx.core.content.FileProvider}
+
+ContentProvider Authorities:
+  [app.space.notes.debug.notes.images]:
+    Provider{cae0ffe app.space.notes.debug/androidx.core.content.FileProvider}
+      applicationInfo=ApplicationInfo{b70635f app.space.notes.debug}
+
+Key Set Manager:
+  [app.space.notes.debug]
+      Signing KeySets: 5
+
+Packages:
+  Package [app.space.notes.debug] (79b71ac):
+    userId=10065
+    pkg=Package{d9fe75 app.space.notes.debug}
+    codePath=/data/app/app.space.notes.debug-7jKy96lYgSkOjS4nDytDNg==
+    resourcePath=/data/app/app.space.notes.debug-7jKy96lYgSkOjS4nDytDNg==
+    legacyNativeLibraryDir=/data/app/app.space.notes.debug-7jKy96lYgSkOjS4nDytDNg==/lib
+    primaryCpuAbi=x86_64
+    secondaryCpuAbi=null
+    versionCode=70 minSdk=26 targetSdk=34
+    versionName=0.70.0
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=ApplicationInfo{b70635f app.space.notes.debug}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ]
+    dataDir=/data/user/0/app.space.notes.debug
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-11-06 14:06:44
+    firstInstallTime=2026-11-06 14:06:46
+    lastUpdateTime=2026-11-06 14:06:46
+    signatures=PackageSignatures{bd72e0a [6bcb230]}
+    installPermissionsFixed=true installStatus=1
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    requested permissions:
+      android.permission.RECORD_AUDIO
+      android.permission.POST_NOTIFICATIONS
+      android.permission.RECEIVE_BOOT_COMPLETED
+    install permissions:
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+    User 0: ceDataInode=98984 installed=true hidden=false suspended=false stopped=true notLaunched=true enabled=0 instant=false
+      runtime permissions:
+
+Package Changes:
+  Sequence number=23
+  User 0:
+    seq=1, package=com.android.sdksetup
+    seq=2, package=com.android.settings
+    seq=3, package=com.android.calendar
+    seq=4, package=com.android.camera2
+    seq=13, package=com.android.email
+    seq=14, package=com.android.gallery3d
+    seq=15, package=com.android.inputmethod.latin
+    seq=20, package=com.android.messaging
+    seq=21, package=app.space.notes.debug
+    seq=22, package=app.space.notes.debug.test
+
+
+Dexopt state:
+  [app.space.notes.debug]
+    Instruction Set: x86_64
+      path: /data/app/app.space.notes.debug-7jKy96lYgSkOjS4nDytDNg==/base.apk
+      status: /data/app/app.space.notes.debug-7jKy96lYgSkOjS4nDytDNg==/oat/x86_64/base.odex[status=kOatUpToDate, compila
+      tion_filter=quicken]
+
+
+Compiler stats:
+  [app.space.notes.debug]
+     base.apk - 2066

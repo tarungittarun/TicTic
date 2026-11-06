@@ -38,5 +38,5 @@ for path in build.rglob('TEST-*.xml'):
  for key in ['tests','failures','errors','skipped']:jvm[key]+=int(tree.get(key,'0'))
  if path.name=='TEST-app.space.notes.domain.ImprovementLedgerTest.xml':retain(path.read_bytes(),Path('jvm')/path.name)
 (out/'jvm-summary.json').write_text(json.dumps(jvm,indent=2)+'\n')
-(out/'retention.json').write_text(json.dumps({'run':run,'url':'https://github.com/tarungittarun/TicTic/actions/runs/'+run,'scope':'Original public-fixture qualification artifacts. Instrumentation screenshots were captured/resized to 540px by the existing helper before artifact retention; no reconstruction or retention-time pixel alteration. Counts are not whole-app UX acceptance.','files':files},indent=2)+'\n')
+(out/'retention.json').write_text(json.dumps({'run':run,'url':'https://github.com/tarungittarun/TicTic/actions/runs/'+run,'apk_and_jvm_source_run':sys.argv[4] if len(sys.argv)>4 else run,'scope':'Original public-fixture qualification artifacts. Instrumentation screenshots were captured/resized to 540px by the existing helper before artifact retention; no reconstruction or retention-time pixel alteration. Counts are not whole-app UX acceptance.','files':files},indent=2)+'\n')
 print('Retained',len(files),'files,',total,'bytes;',jvm)

@@ -10,9 +10,19 @@ be described as completion of the original37 functional/UX acceptance tasks.
 | --- | --- | --- |
 | [42342628990](https://github.com/tarungittarun/TicTic/actions/runs/42342628990) | Portrait:74 records per theme, each3 bounded outcomes,16 interactions,1 diagnostic inspection,54 blockers. Landscape:0 module probes; fixture setup failed. | Partial runtime evidence only; many blockers are harness or guest loss, not app findings. |
 | [42343158423](https://github.com/tarungittarun/TicTic/actions/runs/42343158423) | All four profiles:0 module probes; keyboard-observer guard aborts setup. Complete generated Office input bytes and fatal frames retained. | Failed provisioning, no comparison coverage inferred. |
-| [42344599145](https://github.com/tarungittarun/TicTic/actions/runs/42344599145) | Recheck executing at this publication: separate command-ID matching, recognized chooser cancellation, exact Insert/About routes, manager-only keyboard state, full IME dumps and capture-health gating. | Outcome not yet known; not completion or app-fix evidence. |
+| [42344599145](https://github.com/tarungittarun/TicTic/actions/runs/42344599145) | Completed failure. Portrait:44 records each; light landscape:0; dark landscape:74, including37 blocked Obsidian profile assertions. | Original guest-loss/permission/picker/profile failures retained; no whole-task acceptance. |
+| [42345604329](https://github.com/tarungittarun/TicTic/actions/runs/42345604329) | Completed: both landscape jobs green, both portraits failed. Portrait:44 records each; landscape:74 each. All37 Obsidian rows in each landscape profile were blocked because the actual display was portrait. | Green jobs prove capture/attempt completion, not requested-profile or functional acceptance. |
+| [42346486192](https://github.com/tarungittarun/TicTic/actions/runs/42346486192) | Completed:13 green/7 red short-session jobs. Actual records: light portrait60, dark portrait48, light landscape42, dark landscape74. | Five independent guests per profile, not a stable long session; no profile reached whole-task acceptance. |
 
-## Actual report downloads
+## Latest completed-cohort reports
+
+- [Short-session report (PDF)](https://github.com/tarungittarun/TicTic/raw/4b77fb466187663f4804f2fab1ece2014263efbb/mynotes/docs/comparisons/comparison37/42346486192/Comparison37_Runtime_Probes.pdf).
+- [Long-session recheck report (PDF)](https://github.com/tarungittarun/TicTic/raw/4b77fb466187663f4804f2fab1ece2014263efbb/mynotes/docs/comparisons/comparison37/42345604329/Comparison37_Runtime_Probes.pdf).
+- [Short-session original counts and scope (JSON)](https://github.com/tarungittarun/TicTic/blob/4b77fb466187663f4804f2fab1ece2014263efbb/mynotes/docs/comparisons/comparison37/42346486192/summary.json).
+
+Publication run [42348177659](https://github.com/tarungittarun/TicTic/actions/runs/42348177659) completed successfully. Both original cohorts remain separate; their rows are not pooled into a fictional complete execution.
+
+## Earlier report downloads
 
 - [First partial runtime report,77 pages (PDF)](https://github.com/tarungittarun/TicTic/raw/81768402a8c442297e5c7cbb4d158660cd7c2893/mynotes/docs/comparisons/comparison37/Comparison37_Runtime_Probes.pdf).
 - [Second-run provisioning-blocker report (PDF)](https://github.com/tarungittarun/TicTic/raw/260d5e0f282db64d1628d1bd6484f6261db6c180/mynotes/docs/comparisons/comparison37/42343158423/Comparison37_Runtime_Probes.pdf).
@@ -20,14 +30,14 @@ be described as completion of the original37 functional/UX acceptance tasks.
 - [Original second-run results and scope (JSON)](https://github.com/tarungittarun/TicTic/blob/260d5e0f282db64d1628d1bd6484f6261db6c180/mynotes/docs/comparisons/comparison37/42343158423/summary.json).
 
 Raw PNG/XML/DOM/session/fixture evidence is stored in each run directory. Its
-`retention.json` lists exact byte counts and SHA256 values. The originals are not
+`retention.json` lists original byte counts/SHA256 plus retained paths. New large text/XML/JSON files use verified lossless deterministic gzip; decompress before checking their original hashes. Public fixture bytes can be content-addressed across sessions. PNGs and module records remain directly readable. The originals are not
 replaced with clean reruns. Completed-job log retrieval failed; `host-logs/manifest.json`
 retains those retrieval failures. No host-crash/root-cause claim is made from missing logs.
 
 ## Independently reviewed limitations
 
-`reviewed-observations.json` links exact immutable source evidence for seven
-harness/corpus/infrastructure observations. In particular:
+`reviewed-observations.json` links exact immutable source evidence for independently checked
+harness/corpus/infrastructure observations, including the later permission, picker and actual-profile failures. In particular:
 
 - MyNotes X05 left a system image picker on top; subsequent native screenshots
   show DocumentsUI, not the requested note/settings/viewer pages.
@@ -39,6 +49,13 @@ harness/corpus/infrastructure observations. In particular:
   recorded after losing the guest are not executed functional comparisons.
 - The second guard used IME-view state as keyboard visibility and repeatedly
   navigated Back out of the editor. This is an observer failure, not a new app defect.
+
+## Concrete blockers still requiring comparison-harness work
+
+- Native reminder X20 leaves the notification permission request open. Subsequent X21+ captures can belong to PermissionController, not MyNotes. This is not evidence that all those app features fail.
+- PDF/TXT picker captures show Downloads with the Comparison37 folder; selection was not established. The valid DOCX did open and render its public marker, but fidelity/search/selection remain unverified.
+- Actual landscape assertions fail for all Obsidian rows in run4 and many run5 sessions. PNG dimensions and WebView dimensions both confirm portrait; a few run5 light-landscape sessions really are landscape. The reason for that session difference is unproven.
+- Some fresh guests also went offline; shortening sessions did not eliminate loss. Settings targets not visible to exact-label lookup and persistent tool-sheet surfaces need route/scroll investigation, not automatic app-defect labels.
 
 ## Still not accepted
 

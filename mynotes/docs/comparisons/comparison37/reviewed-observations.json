@@ -146,6 +146,71 @@
       ],
       "comparison_harness_change": "Replace the invalid ZIPs using real format libraries; preserve each generated input byte and its hash before device push.",
       "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H08",
+      "category": "permission_surface_contamination",
+      "observation": "Native reminder X20 opens the notification permission dialog. X21 still captures PermissionController with Allow and Don’t allow rather than the requested target page.",
+      "limits": "No denial/allow was performed; subsequent route blockers do not establish app feature defects.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X21.png",
+          "sha256": "c4dc8f54cec4fcca06c513230afacbcd0c0461009a4a153bd5ef7c41e21bbbc0",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X21.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X21.xml",
+          "sha256": "e55cd614dd07d1f2ca990f95d156f20a90f2da67f3e9b3963ecf72921611044a",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X21.xml"
+        }
+      ],
+      "comparison_harness_change": "Not implemented by this observation; preserve original failures and require an independently captured recheck.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H09",
+      "category": "public_picker_and_bounded_word_render",
+      "observation": "PDF/TXT picker snapshots show Downloads and Comparison37 rather than selected originals. Valid DOCX X14 renders the public cobalt42 marker in the reader.",
+      "limits": "A real simple DOCX render is not full fidelity/search/selection acceptance. PDF/TXT selection failures are not proven parser failures.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X13.png",
+          "sha256": "2b2ae2a31a3797cf5f26d9e339027e2cfac58012558de4f433d3754b41ca400f",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X13.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X14.png",
+          "sha256": "62475be6badc345e5b533bf22b33787871a07de32d93e14fa82a478be619ffbb",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X14.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X15.png",
+          "sha256": "cd0668ef99db6ece4094a4a7e1d76b5132005d17e918eaa7f6231ef0ac521783",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X15.png"
+        }
+      ],
+      "comparison_harness_change": "Not implemented by this observation; preserve original failures and require an independently captured recheck.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H10",
+      "category": "actual_profile_not_achieved",
+      "observation": "Dark-landscape Obsidian X01 is actually portrait: WebView360×640 and original PNG1080×1920. All37 Obsidian rows in that profile retain blocked profile assertions.",
+      "limits": "Requested profile names and natural display size do not prove achieved orientation. Later run4 repeats this in both themes; some run5 sessions genuinely achieve landscape. Cause is unknown.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-dark-landscape/comparison37-evidence/obsidian-PLAN-X01.png",
+          "sha256": "2ed4e9b679afca88f7f0476e5cb5fb52f8c9297d4800cb0ace37e9a429a1a456",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-dark-landscape/comparison37-evidence/obsidian-PLAN-X01.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42344599145/comparison37-dark-landscape/comparison37-evidence/modules.json",
+          "sha256": "9cdbd4d3a0820e7d2710ceb850a9ddf1a286aca734e00fc55fcb76bbf66a8f5a",
+          "url": "https://github.com/tarungittarun/TicTic/blob/10efeedc439b2d219a03dcdec1fc811416d4b9d9/mynotes/docs/comparisons/comparison37/42344599145/comparison37-dark-landscape/comparison37-evidence/modules.json"
+        }
+      ],
+      "comparison_harness_change": "Not implemented by this observation; preserve original failures and require an independently captured recheck.",
+      "production_app_changed": false
     }
   ]
 }

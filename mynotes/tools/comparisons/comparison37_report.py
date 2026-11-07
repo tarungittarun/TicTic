@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 import hashlib
+import gzip
 from html import escape
 import json
 from pathlib import Path
@@ -38,14 +39,19 @@ def retain(artifacts, output, metadata):
                 # content-addressed. Original paths and every hash remain in the
                 # receipt; no screenshot, XML or module record is deduplicated.
                 retained=Path('public-fixtures-by-sha256')/(digest+'-'+source.name) if source.parent.name=='public-fixtures' else relative
+                compressed=source.suffix in {'.txt','.json','.xml'} and source.name!='modules.json' and len(data)>65536
+                stored=gzip.compress(data,compresslevel=9,mtime=0) if compressed else data
+                if compressed:
+                    assert gzip.decompress(stored)==data,'Lossless original storage verification failed'
+                    retained=Path(str(retained)+'.gz')
                 destination=output/retained;destination.parent.mkdir(parents=True,exist_ok=True)
                 if retained not in retained_paths:
-                    retained_paths.add(retained);total+=len(data)
+                    retained_paths.add(retained);total+=len(stored)
                     if total>MAX_BYTES:raise ValueError('Original evidence retention exceeds96MiB; do not silently truncate')
                 if destination.exists():
-                    if destination.read_bytes()!=data:raise ValueError('Refuse to overwrite different originals')
-                else:destination.write_bytes(data)
-                manifest.append({'path':str(relative),'retained_path':str(retained),'bytes':len(data),'sha256':digest,'source_bytes_modified':False})
+                    if destination.read_bytes()!=stored:raise ValueError('Refuse to overwrite different originals')
+                else:destination.write_bytes(stored)
+                manifest.append({'path':str(relative),'retained_path':str(retained),'bytes':len(data),'stored_bytes':len(stored),'storage_encoding':'gzip' if compressed else 'identity','sha256':digest,'source_bytes_modified':False})
         keys=[(r['module'],r['app']) for r in rows]
         if len(keys)!=len(set(keys)) or not set(keys)<=expected:raise ValueError('Duplicate/unknown paired result across chunks')
         profiles[profile]={'module_file':module_files[0] if module_files else None,'module_files':module_files,
@@ -65,7 +71,7 @@ def retain(artifacts, output, metadata):
         'scope':'37 task families attempted per profile where provisioning succeeded. Page visits, API shortcuts, functional checks and blockers remain separate. This is NOT completion of the original37 full acceptance tasks.'}
     (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
     (output/'run.json').write_text(json.dumps(metadata,indent=2)+'\n')
-    (output/'retention.json').write_text(json.dumps({'files':manifest,'bytes':total,'source_bytes':source_bytes,'public_fixture_deduplication':'Byte-identical public inputs share a content-addressed retained_path; all original entries/hashes retained.','source_bytes_modified':False},indent=2)+'\n')
+    (output/'retention.json').write_text(json.dumps({'files':manifest,'bytes':total,'source_bytes':source_bytes,'public_fixture_deduplication':'Byte-identical public inputs share a content-addressed retained_path; large text records use verified lossless gzip. All original entries, original byte counts and uncompressed hashes retained.','source_bytes_modified':False},indent=2)+'\n')
     return summary
 
 
@@ -100,7 +106,7 @@ def render(evidence, commit):
     for profile in PROFILES:
         info=summary['profiles'][profile]
         paragraph(profile+' capture health: '+str(info.get('complete_original_snapshot_records',0))+' complete original snapshot records; '+str(info.get('records_with_capture_error',0))+' capture errors. Capture-owner fields exist for '+str(info.get('capture_owner_fields_recorded',0))+' records. Zero owner fields in older originals means unrecorded, not that no app frames exist.')
-    paragraph('Short-session evidence may span several fresh guests per profile. This is disclosed setup isolation, NOT proof that a long session is reliable. Repeated public inputs may share a SHA256-addressed retained_path in the manifest; every original entry and its exact hash is retained, with no screenshot or record deduplication.')
+    paragraph('Short-session evidence may span several fresh guests per profile. This is disclosed setup isolation, NOT proof that a long session is reliable. Repeated public inputs may share a SHA256-addressed retained_path in the manifest; every original entry and its exact uncompressed hash is retained. Large text records may use verified lossless gzip to avoid a huge duplicate dataset. Modules and PNG screenshots remain directly readable; the manifest identifies each stored path and encoding.')
     paragraph('Methods differ and are disclosed: MyNotes public note is entered using native touch/input and reopened after process restart; Obsidian public fixtures are seeded using its official vault API, and command/settings APIs navigate some surfaces. Those shortcuts are not user-route, creation-efficiency or latency evidence. Native screens are real adb captures; no UI reconstruction. Standard font scale1.0; light/dark portrait/landscape at API34, not physical phones or accessibility acceptance.')
     if summary['run']==42342628990:paragraph('Fixture validity warning: this first run generates incomplete DOCX/ODT/PPTX ZIP containers. Any failure on those files is INVALID as an app-format or fidelity finding until standards-valid fixtures are rerun. The PDF is a small synthetic3-page file, not the requested18MB+ varied-document acceptance corpus.')
     else:paragraph('Public synthetic fixture bytes are retained with hashes where generated before the failure. Office packages use real format libraries; these are still small test documents, not complex-layout fidelity or18MB+ PDF acceptance.')

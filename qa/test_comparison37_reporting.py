@@ -87,3 +87,15 @@ class ComparisonRetentionTest(unittest.TestCase):
             self.assertEqual((root/'out'/inputs[0]['retained_path']).read_bytes(),b'Exact public bytes\n'*100)
             report.retain(root/'in',root/'out',metadata)
             self.assertEqual(json.loads((root/'out/retention.json').read_text())['bytes'],receipt['bytes'])
+
+    def test_large_original_text_is_losslessly_compressed_not_truncated(self):
+        import gzip,hashlib
+        report=load('comparison37_report')
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);lane=root/'in/comparison37-light-portrait/comparison37-evidence';lane.mkdir(parents=True)
+            raw=b'Public original diagnostic line\n'*10000;(lane/'public-diagnostic.txt').write_bytes(raw)
+            report.retain(root/'in',root/'out',{'status':'completed','databaseId':1,'headSha':'a'*40,'url':'https://github.com/example/example/actions/runs/1','conclusion':'failure'})
+            entry=json.loads((root/'out/retention.json').read_text())['files'][0]
+            self.assertEqual(entry['storage_encoding'],'gzip')
+            self.assertEqual(gzip.decompress((root/'out'/entry['retained_path']).read_bytes()),raw)
+            self.assertEqual(entry['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(entry['bytes'],len(raw))

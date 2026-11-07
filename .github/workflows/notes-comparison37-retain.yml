@@ -1,4 +1,4 @@
-name: Retain isolated37-family comparison originals and capture-health report
+name: Publish completed long-session and short-session comparison evidence
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUN: '42344599145'
+      SOURCE_RUNS: '42345604329 42346486192'
       GH_TOKEN: ${{ github.token }}
-      EVIDENCE: mynotes/docs/comparisons/comparison37/42344599145
+      EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
       - uses: actions/checkout@v5
         with:
@@ -25,35 +25,44 @@ jobs:
       - name: Read actual completed job outcomes, never infer coverage from workflow conclusion
         run: |
           python - <<'PY'
-          import os,json,subprocess,time,pathlib
-          for _ in range(150):
-              result=json.loads(subprocess.check_output(['gh','run','view',os.environ['SOURCE_RUN'],'--json','databaseId,headSha,status,conclusion,url,jobs']))
-              if result['status']=='completed':
-                  assert result['headSha']=='e58e85f90b812aea7dccfdcfd2e88e88e099d235'
-                  result['artifacts']=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/'+os.environ['SOURCE_RUN']+'/artifacts']))
-                  pathlib.Path('/tmp/comparison37-run.json').write_text(json.dumps(result,indent=2));break
-              time.sleep(10)
-          else:raise SystemExit('Original not complete; no final coverage report')
+          import os,json,subprocess,pathlib
+          pins={'42345604329':'ad366537ac0078c10fb9a0fa827dd882970efd55','42346486192':'fee91a1cec5e169f38aed8ce25c74fe719a2f9b8'}
+          pathlib.Path('/tmp/comparison37-runs').mkdir()
+          for run in os.environ['SOURCE_RUNS'].split():
+              result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
+              assert result['status']=='completed','No pending execution may be published as final evidence'
+              assert result['headSha']==pins[run]
+              result['artifacts']=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/'+run+'/artifacts']))
+              pathlib.Path('/tmp/comparison37-runs',run+'.json').write_text(json.dumps(result,indent=2))
           PY
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: ${{ env.SOURCE_RUN }}
+          run-id: 42345604329
           pattern: comparison37-*
-          path: /tmp/comparison37-originals
+          path: /tmp/comparison37-originals/42345604329
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42346486192
+          pattern: comparison37-*
+          path: /tmp/comparison37-originals/42346486192
       - name: Preserve exact originals, including fatal and partial results
         run: |
-          python mynotes/tools/comparisons/comparison37_report.py retain --source /tmp/comparison37-originals --output "$EVIDENCE" --metadata /tmp/comparison37-run.json
+          for run in $SOURCE_RUNS; do
+            python mynotes/tools/comparisons/comparison37_report.py retain --source "/tmp/comparison37-originals/$run" --output "$EVIDENCE_ROOT/$run" --metadata "/tmp/comparison37-runs/$run.json"
+          done
           python - <<'PY'
           import json,pathlib
           for path in pathlib.Path('/tmp/comparison37-originals').rglob('fatal.json'):
               message=(str(path)+': '+path.read_text())[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice title=Original comparison provisioning blocker::'+message)
           PY
-      - name: Retain original completed job logs including the prior lost-guest diagnostics
+      - name: Preserve log retrieval receipts without attributing missing logs to either app
         run: |
-          python mynotes/tools/comparisons/collect_comparison_logs.py 42342628990 mynotes/docs/comparisons/comparison37/42342628990/host-logs/lookup-${{ github.run_id }}
-          python mynotes/tools/comparisons/collect_comparison_logs.py "$SOURCE_RUN" "$EVIDENCE/host-logs/lookup-${{ github.run_id }}"
+          for run in $SOURCE_RUNS; do
+            python mynotes/tools/comparisons/collect_comparison_logs.py "$run" "$EVIDENCE_ROOT/$run/host-logs/lookup-${{ github.run_id }}"
+          done
       - name: Gate and commit immutable originals locally
         run: |
           git fetch origin arena/3caca636-tictic
@@ -69,14 +78,17 @@ jobs:
           echo "EVIDENCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Generate report with immutable links, not coverage claims
         run: |
-          python mynotes/tools/comparisons/comparison37_report.py render --output "$EVIDENCE" --commit "$EVIDENCE_COMMIT"
+          for run in $SOURCE_RUNS; do
+            python mynotes/tools/comparisons/comparison37_report.py render --output "$EVIDENCE_ROOT/$run" --commit "$EVIDENCE_COMMIT"
+          done
           python - <<'PY'
           import fitz,pathlib,os
-          path=pathlib.Path(os.environ['EVIDENCE'])/'Comparison37_Runtime_Probes.pdf'
-          document=fitz.open(path)
-          assert 'acceptance still open' in ' '.join(document[0].get_text().split())
-          assert sum(len(page.get_links()) for page in document)>2
-          print('PDF pages:',len(document),'linked originals:',sum(len(page.get_links()) for page in document))
+          for run in os.environ['SOURCE_RUNS'].split():
+              path=pathlib.Path(os.environ['EVIDENCE_ROOT'])/run/'Comparison37_Runtime_Probes.pdf'
+              document=fitz.open(path)
+              assert 'acceptance still open' in ' '.join(document[0].get_text().split())
+              assert sum(len(page.get_links()) for page in document)>2
+              print(run,'PDF pages:',len(document),'linked originals:',sum(len(page.get_links()) for page in document))
           PY
       - name: Root gate before publishing only to this active branch
         run: |

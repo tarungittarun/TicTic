@@ -1,0 +1,317 @@
+--------- beginning of main
+11-07 19:12:18.327  1478  1478 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdown():77 shutdown()
+11-07 19:12:18.331  1478  1478 I AndroidIME: AbstractIme.onDeactivate():207 LatinIme.onDeactivate()
+11-07 19:12:18.414  5179  5179 I ImeTracker: md.obsidian:619af9f8: onShown
+11-07 19:12:18.420  5179  5179 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=ImeCallback=ImeOnBackInvokedCallback@212997265 Callback=android.window.IOnBackInvokedCallback$Stub$Proxy@4cec59c
+--------- beginning of system
+11-07 19:12:18.423   520   534 D CoreBackPreview: Window{3918a30 u0 md.obsidian/md.obsidian.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@938d99c, mPriority=0, mIsAnimationCallback=false}
+11-07 19:12:18.534  5403  5403 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 19:12:18.535  5403  5403 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 19:12:18.589   135   135 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-07 19:12:18.589  5403  5404 I Gralloc4: mapper 4.x is not supported
+--------- beginning of kernel
+11-07 19:12:18.778     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-07 19:12:18.662   336  5405 I resolv  : GetAddrInfoHandler::run: {0 0 0 983040 10193 0}
+11-07 19:12:18.700  5179  5196 D EGL_emulation: app_time_stats: avg=38.67ms min=11.53ms max=112.26ms count=24
+11-07 19:12:18.759  5179  5179 I ImeTracker: md.obsidian:77a50c39: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT_BY_INSETS_API
+11-07 19:12:18.761   520  2791 I ImeTracker: md.obsidian:77a50c39: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-07 19:12:18.761  5179  5179 I ImeTracker: md.obsidian:ac7ae9fd: onHidden
+11-07 19:12:18.914  5406  5406 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-07 19:12:18.916  5406  5406 I AndroidRuntime: Using default boot image
+11-07 19:12:18.916  5406  5406 I AndroidRuntime: Leaving lock profiling enabled
+11-07 19:12:18.917  5406  5406 I app_process: Core platform API reporting enabled, enforcing=false
+11-07 19:12:18.917  5406  5406 I app_process: Using CollectorTypeCC GC.
+11-07 19:12:18.952  5406  5406 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-07 19:12:18.957  5406  5406 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-07 19:12:18.957  5406  5406 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-07 19:12:18.961  5406  5406 W app_process: Unexpected CPU variant for x86: x86_64.
+11-07 19:12:18.961  5406  5406 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 19:12:18.962  5406  5406 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[])
+11-07 19:12:18.962  5406  5406 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}#PCL[/system/framework/android.test.base.jar*836642756]} | PCL[/system/framework/android.test.runner.jar*4168958247])
+11-07 19:12:18.970  5406  5406 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-07 19:12:18.971  5406  5406 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-07 19:12:18.971  5406  5406 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-07 19:12:18.972  5406  5406 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-07 19:12:18.974  5406  5406 D UiAutomationConnection: Created on user UserHandle{0}
+11-07 19:12:18.974  5406  5406 I UiAutomation: Initialized for user 0 on display 0
+11-07 19:12:18.974  5406  5406 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-07 19:12:18.969  5406  5406 W main    : type=1400 audit(0.0:83): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:18.975   520   534 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-07 19:12:18.975   520   534 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation) when called by user 0
+11-07 19:12:18.980   520   534 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:18.981  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:18.981  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:18.981  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:18.981  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:18.982  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:18.982  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:18.983  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:18.983  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:18.983  5406  5420 V UiAutomation: Init UiAutomation@fe89479[id=17, displayId=0, flags=0]
+11-07 19:12:18.984  1697  2279 I A       : NGA disabled due to not being eligible.
+11-07 19:12:18.985   520   520 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-07 19:12:18.985  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:18.986  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:18.986  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:18.987   520  2791 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:18.969  5406  5406 W main    : type=1400 audit(0.0:84): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:18.991   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:18.993  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:18.994  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:18.994  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:18.969  5406  5406 W main    : type=1400 audit(0.0:85): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:18.997   520  1694 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-07 19:12:18.999   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:19.068   336  5422 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-07 19:12:19.068  1397  4471 W enyb    : [{0}] Failed to resolve name. status={1}
+11-07 19:12:19.230   520   609 D ActivityManager: freezing 2149 com.google.android.as.oss
+11-07 19:12:20.001  5406  5406 W AccessibilityNodeInfoDumper: Fetch time: 1ms
+11-07 19:12:20.002   520  2792 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:20.002   520  2792 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-07 19:12:20.002   520   520 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-07 19:12:20.002  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:20.003  1697  2282 I A       : NGA disabled due to not being eligible.
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:20.003  5406  5406 D AndroidRuntime: Shutting down VM
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:20.003  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:20.004  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:20.004  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:20.005   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:20.187  5179  5196 D EGL_emulation: app_time_stats: avg=210.41ms min=19.11ms max=500.23ms count=7
+11-07 19:12:20.859  5179  5179 I ImeTracker: md.obsidian:7e3f12ee: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT
+11-07 19:12:20.859   520   534 I ImeTracker: md.obsidian:7e3f12ee: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-07 19:12:20.860  1478  1478 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x12000000 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=md.obsidian fieldId=0 fieldName=null extras=null}, true)
+11-07 19:12:20.860  1478  1478 I GoogleInputMethodService: GoogleInputMethodService.shouldHideHeaderOnInitialState():4008 ShouldHideHeaderOnInitialState = false
+11-07 19:12:20.860  1478  1478 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 2, unlocked = true
+11-07 19:12:20.861  1478  1478 W SessionManager: SessionManager.beginSession():53 Try to begin an already begun session [INPUT_SESSION], end it first
+11-07 19:12:20.964   520   548 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+11-07 19:12:20.973   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:20.973   520   548 E ShortcutService: Failed to report usage via AppSearch. Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:21.043   520   534 D CompatibilityChangeReporter: Compat change id reported: 197654537; UID 10193; state: ENABLED
+11-07 19:12:21.199  5179  5196 D EGL_emulation: app_time_stats: avg=202.41ms min=12.72ms max=499.12ms count=5
+11-07 19:12:21.269   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:21.269   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Failed to find DocumentId by key: android$md.obsidian/md.obsidian, app:new;Key not found 3196254702292314469 in DynamicTrieKeyMapper /data/system_ce/0/appsearch/icing/document_dir/key_mapper_dir/key_mapper.
+11-07 19:12:21.270   520   548 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+11-07 19:12:21.270   520   548 E ShortcutService: Failed to report usage via AppSearch. Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:21.270   520   548 E ShortcutService: Failed to report usage via AppSearch. Failed to find DocumentId by key: android$md.obsidian/md.obsidian, app:new;Key not found 3196254702292314469 in DynamicTrieKeyMapper /data/system_ce/0/appsearch/icing/document_dir/key_mapper_dir/key_mapper.
+11-07 19:12:21.518   520   548 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+11-07 19:12:21.519   520   548 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+11-07 19:12:21.519   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:21.520   520   548 E ShortcutService: Failed to report usage via AppSearch. Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:close-vault')
+11-07 19:12:21.521   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:new')
+11-07 19:12:21.521   520   548 E ShortcutService: Failed to report usage via AppSearch. Couldn't report usage on a nonexistent document: (namespace: 'android$md.obsidian/md.obsidian', uri: 'app:new')
+11-07 19:12:21.522   520  1600 W AppSearchIcing: icing-search-engine.cc:283: Error: 5, Message: Failed to find DocumentId by key: android$md.obsidian/md.obsidian, app:daily;Key not found 9466188881008463116 in DynamicTrieKeyMapper /data/system_ce/0/appsearch/icing/document_dir/key_mapper_dir/key_mapper.
+11-07 19:12:21.522   520   548 E ShortcutService: Failed to report usage via AppSearch. Failed to find DocumentId by key: android$md.obsidian/md.obsidian, app:daily;Key not found 9466188881008463116 in DynamicTrieKeyMapper /data/system_ce/0/appsearch/icing/document_dir/key_mapper_dir/key_mapper.
+11-07 19:12:22.200  5179  5196 D EGL_emulation: app_time_stats: avg=17.98ms min=8.66ms max=29.23ms count=44
+11-07 19:12:22.427   336  5430 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-07 19:12:22.427  1422  4273 W enyb    : [{0}] Failed to resolve name. status={1}
+11-07 19:12:22.535   520   609 D ActivityManager: freezing 835 com.google.android.permissioncontroller
+11-07 19:12:22.939   520   534 W FillRequestEventLogger: Couldn't find packageName: com.google.android.inputmethod.latin
+11-07 19:12:22.939   520   520 D AutofillInlineSuggestionsRequestSession: onCreateInlineSuggestionsRequestLocked called: 1073741824:131072@1023376911
+11-07 19:12:22.940   520   534 D AutofillInlineSuggestionsRequestSession: onInlineSuggestionsSessionInvalidated() called.
+11-07 19:12:22.943  5179  5179 I Choreographer: Skipped 35 frames!  The application may be doing too much work on its main thread.
+11-07 19:12:22.944   336  5431 I resolv  : GetAddrInfoHandler::run: {0 0 0 983040 10193 0}
+11-07 19:12:22.945  5179  5179 I AssistStructure: Flattened final assist data: 3320 bytes, containing 1 windows, 7 views
+11-07 19:12:22.945   520   534 D AutofillSession: createPendingIntent for request 4
+11-07 19:12:22.945   520   534 D ContentCapturePerUserService: Notified activity assist data for activity: Token{f742075 ActivityRecord{9e1355f u0 md.obsidian/.MainActivity t10}} without a session Id
+11-07 19:12:24.204   336  5432 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-07 19:12:24.204  1422  4273 W enyb    : [{0}] Failed to resolve name. status={1}
+11-07 19:12:25.778   336  5433 I resolv  : GetAddrInfoHandler::run: {0 0 0 983040 10193 0}
+11-07 19:12:26.881  5436  5436 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 19:12:26.881  5436  5436 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 19:12:27.078     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-07 19:12:26.890   135   135 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-07 19:12:26.890  5436  5437 I Gralloc4: mapper 4.x is not supported
+11-07 19:12:27.040  5438  5438 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-07 19:12:27.042  5438  5438 I AndroidRuntime: Using default boot image
+11-07 19:12:27.042  5438  5438 I AndroidRuntime: Leaving lock profiling enabled
+11-07 19:12:27.043  5438  5438 I app_process: Core platform API reporting enabled, enforcing=false
+11-07 19:12:27.043  5438  5438 I app_process: Using CollectorTypeCC GC.
+11-07 19:12:27.077  5438  5438 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-07 19:12:27.083  5438  5438 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-07 19:12:27.083  5438  5438 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-07 19:12:27.086  5438  5438 W app_process: Unexpected CPU variant for x86: x86_64.
+11-07 19:12:27.086  5438  5438 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 19:12:27.087  5438  5438 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[])
+11-07 19:12:27.087  5438  5438 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}#PCL[/system/framework/android.test.base.jar*836642756]} | PCL[/system/framework/android.test.runner.jar*4168958247])
+11-07 19:12:27.095  5438  5438 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-07 19:12:27.095  5438  5438 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-07 19:12:27.096  5438  5438 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-07 19:12:27.096  5438  5438 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-07 19:12:27.093  5438  5438 W main    : type=1400 audit(0.0:86): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:27.102  5438  5438 D UiAutomationConnection: Created on user UserHandle{0}
+11-07 19:12:27.102  5438  5438 I UiAutomation: Initialized for user 0 on display 0
+11-07 19:12:27.102  5438  5438 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-07 19:12:27.093  5438  5438 W main    : type=1400 audit(0.0:87): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:27.103   520   534 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-07 19:12:27.103   520   534 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation) when called by user 0
+11-07 19:12:27.104   520   534 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:27.104   520   520 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-07 19:12:27.093  5438  5438 W main    : type=1400 audit(0.0:88): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 19:12:27.106  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:27.106   520  2791 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:27.106  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:27.106  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:27.107  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:27.107  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:27.107  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:27.107  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:27.107  5438  5452 V UiAutomation: Init UiAutomation@645e81b[id=18, displayId=0, flags=0]
+11-07 19:12:27.109   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:27.109   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:27.111  1697  2235 I A       : NGA disabled due to not being eligible.
+11-07 19:12:27.935   520   549 D ActivityManager: sync unfroze 2485 com.google.android.apps.wallpaper for 3
+11-07 19:12:27.935   520   549 D OomAdjuster: Not killing cached processes
+11-07 19:12:27.938   520   613 W ProcessStats: Tracking association SourceState{546413a com.google.android.gms.persistent/10131 BFgs #5855} whose proc state 4 is better than process ProcessState{73e88b1 com.google.android.gms/10131 pkg=com.google.android.gms} proc state 14 (29 skipped)
+11-07 19:12:27.941  2485  5454 W DiskBasedLogger: Disk-based log buffer doesn't exist, so there's nothing to clean up.
+11-07 19:12:28.110  1397  2048 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-07 19:12:28.112  1397  2048 I FontLog : Query [Noto Color Emoji Compat] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-07 19:12:28.112  5438  5438 W AccessibilityNodeInfoDumper: Fetch time: 4ms
+11-07 19:12:28.113   520  2147 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-07 19:12:28.114  1590  2396 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-07 19:12:28.114   520  2147 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-07 19:12:28.115  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:28.115  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:28.115  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:28.115  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:28.115  1590  1966 I AiAiEcho: Predicting[0]: 
+11-07 19:12:28.116   520   520 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-07 19:12:28.116  1697  2282 I A       : NGA disabled due to not being eligible.
+11-07 19:12:28.117  5438  5438 D AndroidRuntime: Shutting down VM
+11-07 19:12:28.119   336  5457 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-07 19:12:28.117  1590  1966 I AiAiEcho: EchoTargets: 
+11-07 19:12:28.117  1590  1966 I AiAiEcho: Filtered by AiAi flag check: 
+11-07 19:12:28.119  1397  1438 W FontLog : Connection failure for https://fonts.gstatic.com/s/a/directory025.pb [CONTEXT service_id=132 ]
+11-07 19:12:28.119  1397  1438 W FontLog : No resolver, short-circuit {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} for com.google.android.inputmethod.latin to failure [CONTEXT service_id=132 ]
+11-07 19:12:28.120  1590  1966 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-07 19:12:28.120  1397  2048 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=Unavailable, resolution=null} [CONTEXT service_id=132 ]
+11-07 19:12:28.120  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-07 19:12:28.120  1590  1966 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-07 19:12:28.120   834   834 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-07 19:12:28.759  5179  5179 E FrameTracker: force finish cuj, time out: J<IME_INSETS_ANIMATION::0@1@md.obsidian>
+11-07 19:12:29.000  5179  5179 E FrameTracker: force finish cuj, time out: J<IME_INSETS_ANIMATION::1@1@md.obsidian>
+11-07 19:12:32.181   336  5461 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-07 19:12:32.182  1397  4471 W enyb    : [{0}] Failed to resolve name. status={1}
+11-07 19:12:32.982   520  2288 D OomAdjuster: Not killing cached processes
+11-07 19:12:32.983  1422  1422 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.api.phone.service.SmsRetrieverApiService.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService }
+11-07 19:12:32.983  1422  1422 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.mdd.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-07 19:12:33.433   520   613 W ActivityManager: Unable to start service Intent { act=com.google.android.gms.drive.ApiService.RESET_AFTER_BOOT flg=0x4 cmp=com.google.android.gms/.drive.api.ApiService (has extras) } U=0: not found
+11-07 19:12:33.436  1697  1697 I BgTaskExecutorImpl: Starting EXCLUSIVE background task INTERNAL_PERIODIC_TASK_SYNC.
+11-07 19:12:33.441  1697  2324 I A       : Using proto config with mendel
+11-07 19:12:33.441  1697  2324 I A       : Proto config empty. Exit merge.
+11-07 19:12:33.442  1697  2324 I MicroDetectionState: Should stop hotword detection immediately - false
+11-07 19:12:33.444  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task ACTIVITY_LEVEL_TASK.
+11-07 19:12:33.445  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task AWARE_TIP_WORKER_PROCESS_TIPS.
+11-07 19:12:33.447  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.447  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.447  1697  2324 E A       : Failed to set up tips. Flag that holds aware tips is null.
+11-07 19:12:33.449  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task CHROME_EXPERIMENT_SYNC.
+11-07 19:12:33.449  1697  2324 E A       : Failed to set up tips. Flag that holds aware tips is null.
+11-07 19:12:33.450  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.450  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.453  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.468  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task CLEAR_DATA_DETECTOR.
+11-07 19:12:33.469  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task CONTACT_AFFINITY_MODEL_CONTACTS_CHANGE_REFRESH.
+11-07 19:12:33.469  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task CONTACT_AFFINITY_MODEL_PERIODIC_REFRESH.
+11-07 19:12:33.471  1697  5462 W CAMPeriodicRefresh: Refreshing not complete, unable to upload top contacts.
+11-07 19:12:33.471  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.471  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.471  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.472  1697  5464 I FirstRunClassifier: First run of com.google.android.googlequicksearchbox on this device detected
+11-07 19:12:33.473   520  2288 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-07 19:12:33.473   520  2288 D PackageManager: Clear ephemeral installer activity
+11-07 19:12:33.474  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.474  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.478  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task FETCH_ADVERTISING_INFO.
+11-07 19:12:33.485  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.485  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.489  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.489  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task GELLER_PKG_ENTITIES_REFRESH_TASK.
+11-07 19:12:33.493  1697  5463 I A       : No accounts found for [PKG_ENTITIES], not syncing anything.
+11-07 19:12:33.494  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task MDD_CHARGING_TASK.
+11-07 19:12:33.495  1697  1759 I earchbox:search: JIT allocated 69KB for compiled code of com.google.android.apps.gsa.s.h com.google.android.apps.gsa.s.h.a(int)
+11-07 19:12:33.495  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task MDD_MAINTENANCE_TASK.
+11-07 19:12:33.496  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.498  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task MDH_WIPEOUT.
+11-07 19:12:33.500  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task NGA_READ_ONLY_LOGS_BASED_TOP_CONTACTS_NGA_PUSH.
+11-07 19:12:33.506  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.506  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.506  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.507  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.512  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task SYNC_TAPAS_ZERO_PREFIX_CACHE.
+11-07 19:12:33.514  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.514  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.514  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.514  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.520  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.520  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.520  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.521   520  2789 W JobScheduler: Job didn't exist in JobStore: ba7089 #u0a132/-49 com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService
+11-07 19:12:33.521  1697  5485 I MDH     : [Storage] Creating database v2
+11-07 19:12:33.521  1697  5485 I MDH     : Creating MDH wipeout table.
+11-07 19:12:33.521  1697  5485 I MDH     : Creating MDH subscription table.
+11-07 19:12:33.522  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task UPDATE_GSERVICES_CONFIG.
+11-07 19:12:33.522  1697  5476 I A       : Updating Gservices keys
+11-07 19:12:33.523  1697  5485 V MDH     : Opening MDH wipeout table.
+11-07 19:12:33.523  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.523  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.523  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.525  1697  1697 I BgTaskExecutorImpl: Starting PERIODIC background task UPDATE_LAUNCHER_SHORTCUT.
+11-07 19:12:33.527  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.527  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.527  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.531  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.531  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.538  1697  5478 E SingleDataFileGroupPop: Failed to add file group 
+11-07 19:12:33.543  1697  5478 I A       : Download file group for language pack: en-US
+11-07 19:12:33.543  1697  5478 W A       : Locale en-US is not compatible, please check manifest exists
+11-07 19:12:33.543  1697  5478 I A       : Using proto config with mendel
+11-07 19:12:33.544  1697  5478 I A       : Proto config empty. Exit merge.
+11-07 19:12:33.544  1697  5478 E HotwordModelPopulator: HotwordLocaleConfig does not have a valid URL for model en-US, type OK_GOOGLE: en-US/hotword.data! This model will not be downloaded or updated
+11-07 19:12:33.544  1697  5478 I A       : New OK_HEY model config map hash: reinitializing config map.
+11-07 19:12:33.544  1697  5478 I A       : Using proto config with mendel
+11-07 19:12:33.544  1697  5478 I A       : Proto config empty. Exit merge.
+11-07 19:12:33.544  1697  5478 I HotwordModelPopulator: #updateHotwordFileGroup group name: hotword_model_en-US_okhey, raw locale: en-US, locale: en-US
+11-07 19:12:33.545  1697  5464 I A       : Starting new batch; batchId=1 corpus=1004
+11-07 19:12:33.552  1697  5469 W MDD     : MDDManager Failed to init shared file metadata.
+11-07 19:12:33.557  1697  2309 I A       : NGA Sync: MDD Task: MDD.MAINTENANCE.PERIODIC.GCM.TASK done.
+11-07 19:12:33.557  1697  2309 I A       : NGA Sync: isNgaSyncEnabled: false; enableFileGroupPopulator: false; requiresMddAssets: false
+11-07 19:12:33.557  1697  2235 I A       : Refresh account policy.
+11-07 19:12:33.557  1697  2324 W SearchServiceCore: Abort, client detached.
+11-07 19:12:33.562  1697  2279 E HotwordModelPopulator: Failed to add hotword file group for 'hotword_model_en-US_okhey' from location: https://www.gstatic.com/android-search/hotword/x_google/7db96c566dbd33b2218d5799ec330d22/hotword.data
+11-07 19:12:34.173     0     0 I servicemanager: Since 'artd' could not be found, trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+11-07 19:12:34.176     0     0 I init    : starting service 'artd'...
+11-07 19:12:34.188     0     0 I init    : ... started service 'artd' has pid 5500
+11-07 19:12:34.189     0     0 I init    : Control message: Processed ctl.interface_start for 'aidl/artd' from pid: 134 (/system/bin/servicemanager)
+11-07 19:12:34.007  5500  5500 I artd    : Starting artd
+11-07 19:12:34.007  5500  5500 I AidlLazyServiceRegistrar: Registering service artd
+11-07 19:12:34.199     0     0 I BpBinder: onLastStrongRef automatically unlinking death recipients:

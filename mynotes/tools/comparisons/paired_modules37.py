@@ -39,7 +39,7 @@ def save():
         'schema': 1, 'source': os.environ.get('GITHUB_SHA'), 'run': os.environ.get('GITHUB_RUN_ID'),
         'profile': os.environ.get('COMPARISON_PROFILE'), 'results': RESULTS,
         'whole_module_acceptance': False, 'physical_acceptance': False,
-        'paired_task_families_planned': 37,
+        'paired_task_families_planned': 37, 'selected_range':os.environ.get('COMPARISON_RANGE','1-37'),
         'scope': 'Bounded live probes; functional readback, UI inspection, unavailable routes and blockers remain distinct. '
                  'Command/vault APIs are disclosed setup/navigation shortcuts, not human efficiency evidence. '
                  'No accounts, external services, community plugins, private data or production fixes.'}, indent=2))
@@ -362,6 +362,9 @@ def prepare_obsidian():
 
 
 def main():
+    start,end=map(int,os.environ.get('COMPARISON_RANGE','1-37').split('-'))
+    assert 1<=start<=end<=37,'Invalid explicit probe range'
+    selected=[p for p in PLANS if start<=int(p['id'].split('X')[1])<=end]
     make_fixtures();setup_errors={}
     for app,prepare in [('mynotes',prepare_native),('obsidian',prepare_obsidian)]:
         try:prepare()
@@ -372,15 +375,15 @@ def main():
             print('::error title=Original per-app fixture setup failed; other app may still be inspected::'+message,flush=True)
             try:h.capture('foreground',app+'-setup-failed')
             except Exception as capture_error:setup_errors[app]['capture_error']=str(capture_error)
-    for plan in PLANS:
+    for plan in selected:
         for app,function in [('mynotes',ours_task),('obsidian',obs_task)]:
             if app in setup_errors:continue  # NOT EXECUTED, never37 fabricated blocked attempts.
             assert h.adb('get-state').decode().strip()=='device','Guest unavailable; remaining cases are NOT executed'
             run_case(plan,app,function)
     save()
     assert not setup_errors,('Incomplete paired setup; successful app probes retained, not paired acceptance',setup_errors)
-    assert len(RESULTS)==74 and {r['module'] for r in RESULTS}=={p['id'] for p in PLANS}, 'Missing paired task attempts'
-    (OUT/'execution-complete.json').write_text(json.dumps({'all37_families_attempted_in_both_apps':True,'whole_module_acceptance':False,'blocked':sum(r['status']=='blocked' for r in RESULTS),'bounded_outcomes_verified':sum(r['status']=='bounded_outcome_verified' for r in RESULTS),'probes':len(RESULTS)},indent=2))
+    assert len(RESULTS)==2*len(selected) and {r['module'] for r in RESULTS}=={p['id'] for p in selected}, 'Missing paired task attempts'
+    (OUT/'execution-complete.json').write_text(json.dumps({'all_selected_families_attempted_in_both_apps':True,'all37_families_attempted_in_both_apps':len(selected)==37,'fresh_guest_chunk_not_long_session_reliability':True,'whole_module_acceptance':False,'blocked':sum(r['status']=='blocked' for r in RESULTS),'bounded_outcomes_verified':sum(r['status']=='bounded_outcome_verified' for r in RESULTS),'probes':len(RESULTS)},indent=2))
 
 
 if __name__=='__main__':

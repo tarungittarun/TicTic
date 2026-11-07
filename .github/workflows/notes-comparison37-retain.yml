@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42345604329 42346486192'
+      SOURCE_RUNS: '42404795321'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -26,7 +26,7 @@ jobs:
         run: |
           python - <<'PY'
           import os,json,subprocess,pathlib
-          pins={'42345604329':'ad366537ac0078c10fb9a0fa827dd882970efd55','42346486192':'fee91a1cec5e169f38aed8ce25c74fe719a2f9b8'}
+          pins={'42404795321':'a58755d66b8574e334e8e4b4f59752b2ea4565e6'}
           pathlib.Path('/tmp/comparison37-runs').mkdir()
           for run in os.environ['SOURCE_RUNS'].split():
               result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
@@ -38,15 +38,9 @@ jobs:
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
-          run-id: 42345604329
+          run-id: 42404795321
           pattern: comparison37-*
-          path: /tmp/comparison37-originals/42345604329
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          github-token: ${{ github.token }}
-          run-id: 42346486192
-          pattern: comparison37-*
-          path: /tmp/comparison37-originals/42346486192
+          path: /tmp/comparison37-originals/42404795321
       - name: Preserve exact originals, including fatal and partial results
         run: |
           for run in $SOURCE_RUNS; do

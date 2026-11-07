@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "source": "fee91a1cec5e169f38aed8ce25c74fe719a2f9b8",
+  "run": "42346486192",
+  "profile": "light-portrait",
+  "results": [
+    {
+      "module": "PLAN-X31",
+      "name": "Local summary and text assistance",
+      "requested_task": "Summarize varied notes with negation, dates and multilingual sentences; check the retained source and decide whether the result is useful.",
+      "app": "mynotes",
+      "status": "interaction_observed",
+      "aspect_status": {
+        "functional_outcome": "not_verified",
+        "layout": "captured_not_reviewed",
+        "icons": "captured_not_reviewed",
+        "animation": "not_measured",
+        "efficiency": "not_measured",
+        "smoothness": "not_measured",
+        "human_task_time": "not_measured",
+        "accessibility": "not_tested",
+        "physical_acceptance": false
+      },
+      "prior_external_surface_cleanup": {
+        "cancelled": false
+      },
+      "requested_task_acceptance": false,
+      "bounded_probe_not_original_task_acceptance": true,
+      "check": "Local summary surface only; no saving or summary accuracy acceptance.",
+      "snapshot": "mynotes-PLAN-X31",
+      "captured_packages": [
+        "app.space.notes"
+      ],
+      "capture_contains_target_app": true,
+      "external_surface_cleanup_after_capture": {
+        "cancelled": false
+      }
+    },
+    {
+      "module": "PLAN-X31",
+      "name": "Local summary and text assistance",
+      "requested_task": "Summarize varied notes with negation, dates and multilingual sentences; check the retained source and decide whether the result is useful.",
+      "app": "obsidian",
+      "status": "blocked",
+      "aspect_status": {
+        "functional_outcome": "not_verified",
+        "layout": "captured_not_reviewed",
+        "icons": "captured_not_reviewed",
+        "animation": "not_measured",
+        "efficiency": "not_measured",
+        "smoothness": "not_measured",
+        "human_task_time": "not_measured",
+        "accessibility": "not_tested",
+        "physical_acceptance": false
+      },
+      "prior_external_surface_cleanup": {
+        "cancelled": false
+      },
+      "observed_profile": {
+        "dark": false,
+        "landscape": false,
+        "width": 360,
+        "height": 640
+      },
+      "requested_task_acceptance": false,
+      "bounded_probe_not_original_task_acceptance": true,
+      "error": "No matching installed core command established for summari; not proof of feature absence",
+      "snapshot": "obsidian-PLAN-X31",
+      "captured_packages": [
+        "md.obsidian"
+      ],
+      "capture_contains_target_app": true,
+      "external_surface_cleanup_after_capture": {
+        "cancelled": false
+      }
+    },
+    {
+      "module": "PLAN-X32",
+      "name": "Privacy, permission boundaries and diagnostic logs",
+      "requested_task": "Deny microphone, use notes normally, enable logs for a dummy issue, filter/export/delete and inspect the resulting local file.",
+      "app": "mynotes",
+      "status": "blocked",
+      "aspect_status": {
+        "functional_outcome": "not_verified",
+        "layout": "captured_not_reviewed",
+        "icons": "captured_not_reviewed",
+        "animation": "not_measured",
+        "efficiency": "not_measured",
+        "smoothness": "not_measured",
+        "human_task_time": "not_measured",
+        "accessibility": "not_tested",
+        "physical_acceptance": false
+      },
+      "prior_external_surface_cleanup": {
+        "cancelled": false
+      },
+      "requested_task_acceptance": false,
+      "bounded_probe_not_original_task_acceptance": true,
+      "error": "No visible enabled exact-label control: ('Diagnostics',); labels=['', '', '', '', '', '', 'Back', 'Settings', '', '', 'Make it yours', '', '', '', 'Appearance', 'Choose System, Light or Dark', '', '', '', '', 'Speech engine', 'Standard offline English \u00b7 existing engine', '', '', '', '', 'Home widget', 'Pinned and recent notes on your home screen', '', 'Your notes & files', '', '', '', 'Storage & recovery', 'Choose where files live and manage backups', '', 'Help & privacy', '', '']",
+      "snapshot": "mynotes-PLAN-X32",
+      "captured_packages": [
+        "app.space.notes"
+      ],
+      "capture_contains_target_app": true,
+      "external_surface_cleanup_after_capture": {
+        "cancelled": false
+      }
+    },
+    {
+      "module": "PLAN-X32",
+      "name": "Privacy, permission boundaries and diagnostic logs",
+      "requested_task": "Deny microphone, use notes normally, enable logs for a dummy issue, filter/export/delete and inspect the resulting local file.",
+      "app": "obsidian",
+      "status": "interaction_observed",
+      "aspect_status": {
+        "functional_outcome": "not_verified",
+        "layout": "captured_not_reviewed",
+        "icons": "captured_not_reviewed",
+        "animation": "not_measured",
+        "efficiency": "not_measured",
+        "smoothness": "not_measured",
+        "human_task_time": "not_measured",
+        "accessibility": "not_tested",
+        "physical_acceptance": false
+      },
+      "prior_external_surface_cleanup": {
+        "cancelled": false
+      },
+      "observed_profile": {
+        "dark": false,
+        "landscape": false,
+        "width": 360,
+        "height": 640
+      },
+      "requested_task_acceptance": false,
+      "bounded_probe_not_original_task_acceptance": true,
+      "tab_requested": "file",
+      "check": "Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.",
+      "capture_error": "Command '['adb', 'shell', 'uiautomator', 'dump', '/sdcard/paired-window.xml']' timed out after 35 seconds",
+      "cleanup_error": "('shell', 'uiautomator', 'dump', '/sdcard/paired-window.xml'): error: closed\n"
+    }
+  ],
+  "whole_module_acceptance": false,
+  "physical_acceptance": false,
+  "paired_task_families_planned": 37,
+  "selected_range": "31-37",
+  "scope": "Bounded live probes; functional readback, UI inspection, unavailable routes and blockers remain distinct. Command/vault APIs are disclosed setup/navigation shortcuts, not human efficiency evidence. No accounts, external services, community plugins, private data or production fixes."
+}

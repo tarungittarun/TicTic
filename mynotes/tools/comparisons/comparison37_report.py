@@ -132,6 +132,7 @@ def render(evidence, commit):
                 row=records.get((plan['id'],app))
                 if row is None:paragraph(app+': NOT EXECUTED — no original record.');screenshots.append(p('No original capture','Small37'));continue
                 paragraph(app+' — '+row['status']+'. Actual bounded check: '+row.get('check',row.get('error','No verified outcome'))[:800])
+                if row.get('captured_image_profile'):paragraph('Original PNG profile: '+json.dumps(row['captured_image_profile'])+'; planned orientation is not accepted when the original image disagrees.')
                 if row.get('observed_profile'):paragraph('Actual WebView profile observation: '+json.dumps(row['observed_profile'])+'; failed profile assertions remain blocked, never a landscape/theme pass.')
                 if row.get('capture_error'):paragraph('Capture blocker: '+row['capture_error'])
                 module_file=origins[(plan['id'],app)]

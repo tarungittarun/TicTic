@@ -1,4 +1,4 @@
-# Installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
+# Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
 name: Paired37-area short-session evidence; long-session reliability unresolved
 on:
   push:
@@ -56,11 +56,18 @@ jobs:
           python-version: '3.11'
       - run: pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1
       - uses: actions/download-artifact@v8.0.2
+        id: pinned-apks
+        continue-on-error: true
         with:
           github-token: ${{ github.token }}
           run-id: 42277337133
           name: full71-internal-release-and-probe
           path: /tmp/comparison37-apks
+      - name: Retry only a failed pinned-artifact transport
+        if: steps.pinned-apks.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 42277337133 --name full71-internal-release-and-probe --dir /tmp/comparison37-apks
       - name: Pin exact signed apps; no build, re-signing or public release
         env:
           GH_TOKEN: ${{ github.token }}

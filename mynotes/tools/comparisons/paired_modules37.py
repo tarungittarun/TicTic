@@ -12,6 +12,7 @@ from pathlib import Path
 import time
 import re
 import shutil
+import subprocess
 
 import paired_ux_session as h
 from obsidian_cdp import Device
@@ -42,6 +43,7 @@ def save():
         'paired_task_families_planned': 37, 'selected_range':os.environ.get('COMPARISON_RANGE','1-37'),
         'scope': 'Bounded live probes; functional readback, UI inspection, unavailable routes and blockers remain distinct. '
                  'Command/vault APIs are disclosed setup/navigation shortcuts, not human efficiency evidence. '
+                 'Native exact-label routes may scroll one unambiguous public ScrollView; not unaided discoverability evidence. '
                  'No accounts, external services, community plugins, private data or production fixes.'}, indent=2))
 
 
@@ -210,6 +212,41 @@ def make_fixtures():
         h.adb('push',str(p),'/sdcard/Download/Comparison37/'+p.name)
 
 
+def picker_click_target(nodes,label):
+    # DocumentsUI labels are children of the actual clickable item. Use the
+    # smallest containing item_root, never a header or a guessed coordinate.
+    bounds=list(map(int,re.findall(r'\d+',label.get('bounds',''))))
+    if len(bounds)!=4:return label
+    containers=[]
+    for n in nodes:
+        if n.get('package')!=label.get('package') or n.get('enabled')=='false' or n.get('clickable')!='true':continue
+        if not n.get('resource-id','').endswith(':id/item_root'):continue
+        box=list(map(int,re.findall(r'\d+',n.get('bounds',''))))
+        if len(box)==4 and box[0]<=bounds[0]<bounds[2]<=box[2] and box[1]<=bounds[1]<bounds[3]<=box[3]:
+            containers.append(((box[2]-box[0])*(box[3]-box[1]),n))
+    return min(containers,key=lambda item:item[0])[1] if containers else label
+
+
+def tap_with_public_scroll(*labels):
+    for attempt in range(6):
+        try:return ORIGINAL_TAP(*labels)
+        except RuntimeError as error:
+            if not str(error).startswith('No visible enabled exact-label control:') or attempt==5:raise
+            nodes=h.tree()[1]
+            # Only one unambiguous native vertical scroll container. Never
+            # swipe a permission/error dialog or dismiss it to force progress.
+            scrolls=[n for n in nodes if n.get('package')=='app.space.notes'
+                     and n.get('class')=='android.widget.ScrollView' and n.get('scrollable')=='true']
+            if len(scrolls)!=1:raise
+            box=list(map(int,re.findall(r'\d+',scrolls[0].get('bounds',''))))
+            if len(box)!=4:raise
+            left,top,right,bottom=box
+            if right<=left or bottom-top<60:raise
+            x=(left+right)//2
+            h.adb('shell','input','swipe',str(x),str(top+(bottom-top)*3//4),str(x),str(top+(bottom-top)//4),'350')
+            time.sleep(.5)
+
+
 def picker_target(nodes,name):
     providers={'com.google.android.documentsui','com.android.documentsui'}
     visible=[n for n in nodes if n.get('package') in providers and n.get('enabled')!='false']
@@ -238,10 +275,10 @@ def native_file(name):
     for _ in range(24):
         nodes=h.tree()[1]
         action,target=picker_target(nodes,name)
-        if action=='file':h.tap_node(target);break
+        if action=='file':h.tap_node(picker_click_target(nodes,target));break
         key=(action,target.get('text'),target.get('content-desc')) if target else None
         if target and key not in navigated:
-            h.tap_node(target);navigated.add(key)
+            h.tap_node(picker_click_target(nodes,target));navigated.add(key)
         # Let provider navigation finish before interpreting an old breadcrumb
         # or tapping the same folder a second time.
         time.sleep(1)
@@ -427,6 +464,8 @@ def prepare_obsidian():
 
 
 def main():
+    globals()['ORIGINAL_TAP']=h.tap
+    h.tap=tap_with_public_scroll
     start,end=map(int,os.environ.get('COMPARISON_RANGE','1-37').split('-'))
     assert 1<=start<=end<=37,'Invalid explicit probe range'
     selected=[p for p in PLANS if start<=int(p['id'].split('X')[1])<=end]
@@ -455,6 +494,18 @@ if __name__=='__main__':
     try:main()
     except Exception as error:
         failure={'error':str(error),'module_attempts_completed':len(RESULTS),'all37_families_attempted_in_both_apps':False}
+        # Host diagnostics before the runner performs normal emulator cleanup.
+        # No environment dump, credentials, private library or destructive reset.
+        diagnostics={}
+        for name,command in {'memory':['cat','/proc/meminfo'], 'memory_pressure':['cat','/proc/pressure/memory'],
+                             'processes':['ps','-eo','pid,comm,rss'], 'kernel':['dmesg','--ctime'],
+                             'disk':['df','-h']}.items():
+            try:
+                result=subprocess.run(command,capture_output=True,text=True,timeout=10)
+                diagnostics[name]={'returncode':result.returncode,'stdout':result.stdout[-40000:],'stderr':result.stderr[:1000]}
+            except Exception as diagnostic_error:diagnostics[name]={'error':str(diagnostic_error)}
+        (OUT/'host-before-runner-cleanup.json').write_text(json.dumps(diagnostics,indent=2))
+
         print('::error title=Comparison harness fatal; not an app finding::'+str(error)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A'),flush=True)
         try:h.capture('foreground','fatal')
         except Exception as capture_error:failure['capture_error']=str(capture_error)

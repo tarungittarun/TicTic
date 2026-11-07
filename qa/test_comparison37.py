@@ -172,3 +172,43 @@ class PickerNavigationTest(unittest.TestCase):
             exec(compile(ast.Module(body=[fn],type_ignores=[]),'rotation-reapplication','exec'),namespace)
             self.assertEqual(namespace['restore_requested_orientation']()['rotation'],expected)
             self.assertIn(('shell','wm','user-rotation','lock',str(expected)),commands)
+
+
+class PublicRouteRecoveryTest(unittest.TestCase):
+    def function(self,name,namespace):
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name==name)
+        exec(compile(ast.Module(body=[fn],type_ignores=[]),'public-route','exec'),namespace)
+        return namespace[name]
+
+    def test_picker_uses_smallest_actual_clickable_containing_item(self):
+        import re
+        target=self.function('picker_click_target',{'re':re})
+        label={'package':'com.google.android.documentsui','bounds':'[213,739][489,796]'}
+        parent={'package':label['package'],'bounds':'[72,696][528,840]','resource-id':label['package']+':id/item_root','clickable':'true','enabled':'true'}
+        wrong=dict(parent,bounds='[600,696][900,840]')
+        self.assertIs(target([wrong,parent],label),parent)
+        self.assertIs(target([wrong],label),label)
+
+    def test_scroll_is_bounded_to_one_native_container(self):
+        import re
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        control={'text':'Settings'}
+        tap=Mock(side_effect=[RuntimeError('No visible enabled exact-label control: Settings'),control])
+        commands=[]
+        node={'package':'app.space.notes','class':'android.widget.ScrollView','scrollable':'true','bounds':'[168,511][1752,960]'}
+        h=SimpleNamespace(tree=lambda:(b'',[node]),adb=lambda *args:commands.append(args))
+        fn=self.function('tap_with_public_scroll',{'ORIGINAL_TAP':tap,'h':h,'re':re,'time':SimpleNamespace(sleep=lambda _:None)})
+        self.assertIs(fn('Settings'),control)
+        self.assertEqual(commands,[('shell','input','swipe','960','847','960','623','350')])
+
+    def test_errors_and_permission_surfaces_are_never_swiped_away(self):
+        import re
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        for message in ['device offline','No visible enabled exact-label control: Settings']:
+            tap=Mock(side_effect=RuntimeError(message));commands=[]
+            h=SimpleNamespace(tree=lambda:(b'',[{'package':'com.google.android.permissioncontroller','class':'android.widget.ScrollView','scrollable':'true','bounds':'[0,0][1080,1920]'}]),adb=lambda *a:commands.append(a))
+            fn=self.function('tap_with_public_scroll',{'ORIGINAL_TAP':tap,'h':h,'re':re,'time':SimpleNamespace(sleep=lambda _:None)})
+            with self.assertRaises(RuntimeError):fn('Settings')
+            self.assertEqual(commands,[])

@@ -87,6 +87,21 @@ def cancel_public_session_picker():
     # suppress app error/ANR dialogs, delete a file, or accept a permission.
     nodes=h.tree()[1];packages={n.get('package') for n in nodes}
     labels={n.get('text') for n in nodes}
+    # Deny only the exact notification prompt observed in this public fixture
+    # session. Capture it first; do not grant permissions or dismiss other
+    # permission requests, errors or ANRs. This is cleanup, not delivery proof.
+    permission_packages={'com.google.android.permissioncontroller','com.android.permissioncontroller'}
+    notification_prompt='Allow MyNotes to send you notifications?'
+    deny=[n for n in nodes if n.get('package') in permission_packages
+          and n.get('resource-id','').endswith(':id/permission_deny_button')
+          and n.get('enabled')=='true' and n.get('clickable')=='true']
+    if packages and packages <= permission_packages and notification_prompt in labels and len(deny)==1:
+        snapshot='notification-permission-before-denial-'+str(len(h.SNAPSHOTS))
+        h.capture('mynotes',snapshot)
+        h.tap_node(deny[0]);time.sleep(.5)
+        assert not any(n.get('text')==notification_prompt for n in h.tree()[1]), 'Notification denial did not dismiss the known prompt'
+        return {'cancelled':True,'surface':'system_notification_permission','decision':'denied',
+                'original_prompt_snapshot':snapshot,'purpose':'Public-session isolation; not reminder delivery or permission-allow acceptance'}
     document_picker=bool(packages & {'com.google.android.documentsui','com.android.documentsui'})
     share_chooser=packages=={'android'} and {'Share','Just once','Always'} <= labels
     if document_picker or share_chooser:

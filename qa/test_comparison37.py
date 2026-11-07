@@ -101,3 +101,38 @@ class PairedModuleComparisonTest(unittest.TestCase):
             self.assertEqual(sorted(numbers),list(range(1,38)))
             self.assertEqual(len(numbers),len(set(numbers)))
         self.assertIn('fresh_guest_chunk_not_long_session_reliability',SCRIPT.read_text())
+
+
+class NotificationIsolationTest(unittest.TestCase):
+    def test_only_exact_notification_request_is_denied_after_original_capture(self):
+        from types import SimpleNamespace
+        function=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='cancel_public_session_picker')
+        package='com.google.android.permissioncontroller'
+        nodes=[];events=[]
+        def capture(*args):events.append(('capture',args))
+        def tap(node):events.append(('deny',node));nodes.clear()
+        helper=SimpleNamespace(tree=lambda:(b'',nodes),SNAPSHOTS=[],capture=capture,tap_node=tap,back=lambda:events.append(('back',)))
+        namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None)}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),'notification-isolation','exec'),namespace)
+        cleanup=namespace['cancel_public_session_picker']
+        button={'package':package,'resource-id':'com.android.permissioncontroller:id/permission_deny_button','enabled':'true','clickable':'true'}
+        for message in ['Allow MyNotes to access your camera?','Allow Obsidian to send you notifications?','MyNotes is not responding']:
+            nodes[:]=[{'package':package,'text':message},button]
+            self.assertFalse(cleanup()['cancelled']);self.assertEqual(events,[])
+        nodes[:]=[{'package':package,'text':'Allow MyNotes to send you notifications?'},button]
+        result=cleanup()
+        self.assertEqual(result['decision'],'denied')
+        self.assertEqual([e[0] for e in events],['capture','deny'])
+        self.assertIn('not reminder delivery',result['purpose'])
+
+    def test_failed_original_capture_must_not_consume_the_prompt(self):
+        from types import SimpleNamespace
+        function=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='cancel_public_session_picker')
+        package='com.google.android.permissioncontroller';actions=[]
+        nodes=[{'package':package,'text':'Allow MyNotes to send you notifications?'},{'package':package,'resource-id':'com.android.permissioncontroller:id/permission_deny_button','enabled':'true','clickable':'true'}]
+        def capture(*args):raise RuntimeError('capture failed')
+        helper=SimpleNamespace(tree=lambda:(b'',nodes),SNAPSHOTS=[],capture=capture,tap_node=lambda _:actions.append('deny'),back=lambda:actions.append('back'))
+        namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None)}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),'notification-isolation','exec'),namespace)
+        with self.assertRaisesRegex(RuntimeError,'capture failed'):namespace['cancel_public_session_picker']()
+        self.assertEqual(actions,[])

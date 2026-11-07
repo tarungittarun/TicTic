@@ -10,8 +10,8 @@ import json
 import os
 from pathlib import Path
 import time
-import zipfile
-import io
+import re
+import shutil
 
 import paired_ux_session as h
 from obsidian_cdp import Device
@@ -45,16 +45,28 @@ def save():
                  'No accounts, external services, community plugins, private data or production fixes.'}, indent=2))
 
 
+def hide_ime():
+    # Never send Back unless the system explicitly reports a shown keyboard.
+    # Landscape extract-mode IME fields must not be mistaken for app fields.
+    for _ in range(2):
+        state=h.adb('shell','dumpsys','input_method').decode(errors='replace')
+        if not re.search(r'(?:mInputShown|mIsInputViewShown)=true',state):return
+        h.back()
+    state=h.adb('shell','dumpsys','input_method').decode(errors='replace')
+    assert not re.search(r'(?:mInputShown|mIsInputViewShown)=true',state),'Keyboard did not dismiss; do not navigate or type blindly'
+
+
 def node_input(hint, value):
+    hide_ime()
     nodes = h.tree()[1]
-    candidates = [n for n in nodes if n.get('class') == 'android.widget.EditText' and
-                  (n.get('hint') == hint or n.get('text') == hint or n.get('content-desc') == hint)]
-    if not candidates:
-        candidates = [n for n in nodes if n.get('class') == 'android.widget.EditText']
-        if hint == 'Title': candidates = candidates[:1]
-        elif hint == 'Write your note…': candidates = candidates[-1:]
-    assert len(candidates) == 1, ('Exact editable field not established', hint, candidates)
-    h.tap_node(candidates[0]); h.type_native(value)
+    candidates = [n for n in nodes if n.get('package')=='app.space.notes' and
+                  n.get('class') == 'android.widget.EditText' and
+                  hint in (n.get('hint'),n.get('text'),n.get('content-desc'))]
+    assert len(candidates) == 1, ('Exact app editable field not established; no positional/IME fallback', hint, candidates)
+    h.tap_node(candidates[0]); h.type_native(value);hide_ime()
+    fields=[n for n in h.tree()[1] if n.get('package')=='app.space.notes' and n.get('class')=='android.widget.EditText']
+    assert sum(n.get('text')==value for n in fields)==1,('Typed value not read back in the intended visible editor',hint,fields)
+    h.capture('mynotes','fixture-'+('title' if hint=='Title' else 'body'))
 
 
 def home():
@@ -91,7 +103,6 @@ def functional(check, **extra):
 
 def command(pattern):
     commands = D.js('Object.values(app.commands.commands).map(c=>({id:c.id,name:c.name}))')
-    import re
     match = next((c for c in commands if re.search(pattern, c['id']+' '+c['name'], re.I)), None)
     if not match: raise RuntimeError('No matching installed core command established for '+pattern+'; not proof of feature absence')
     ran = D.js('app.commands.executeCommandById('+json.dumps(match['id'])+')')
@@ -126,15 +137,15 @@ def make_fixtures():
     (FIXTURES/'Comparison.md').write_text('# Public cobalt42\n\nOriginal body.\n')
     (FIXTURES/'Comparison.html').write_text('<h1>Public cobalt42</h1><p>Original body.</p>')
     (FIXTURES/'Comparison.rtf').write_text(r'{\rtf1\ansi Public cobalt42\par Original body.}')
-    for name, content_name, content in [
-        ('Comparison.docx', 'word/document.xml', '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Public cobalt42 Word original</w:t></w:r></w:p></w:body></w:document>'),
-        ('Comparison.odt', 'content.xml', '<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"><office:body><office:text><text:p>Public cobalt42 ODT original</text:p></office:text></office:body></office:document-content>'),
-        ('Comparison.pptx', 'ppt/slides/slide1.xml', '<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree><p:sp><p:txBody><a:p><a:r><a:t>Public cobalt42 slide</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:sld>')]:
-        with zipfile.ZipFile(FIXTURES/name, 'w') as z: z.writestr(content_name, content)
+    from office_fixtures import write_office
+    write_office(FIXTURES)
     manifest = [{'name':p.name,'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(FIXTURES.iterdir())]
     (OUT/'fixture-manifest.json').write_text(json.dumps(manifest, indent=2))
     h.adb('shell','mkdir','-p','/sdcard/Download/Comparison37')
-    for p in FIXTURES.iterdir(): h.adb('push',str(p),'/sdcard/Download/Comparison37/'+p.name)
+    (OUT/'public-fixtures').mkdir(exist_ok=True)
+    for p in FIXTURES.iterdir():
+        shutil.copyfile(p,OUT/'public-fixtures'/p.name)
+        h.adb('push',str(p),'/sdcard/Download/Comparison37/'+p.name)
 
 
 def native_file(name):
@@ -296,8 +307,8 @@ def main():
     global D
     make_fixtures()
     h.adb('shell','am','start','-W','-n',h.resolve('app.space.notes'));time.sleep(1)
-    h.tap('New text note');node_input('Title',TITLE);node_input('Write your note…',BODY)
-    h.back();h.tap('Back');home();h.tap(TITLE)
+    h.tap('New text note');h.capture('mynotes','fixture-empty');node_input('Title',TITLE);node_input('Write your note…',BODY)
+    h.tap('Back');home();h.tap(TITLE)
     assert any(n.get('text')==BODY for n in h.edits()), 'Typed public note not retained; no downstream MyNotes fixture claimed'
     (OUT/'mynotes-fixture.json').write_text(json.dumps({'method':'Actual native touch/input then Back and force-stop/relaunch editor readback','title':TITLE,'body_sha256':hashlib.sha256(BODY.encode()).hexdigest()}))
     onboard();D=Device();assert D.js('!!app.vault'),'Private vault unavailable'
@@ -317,4 +328,8 @@ def main():
 if __name__=='__main__':
     try:main()
     except Exception as error:
-        (OUT/'fatal.json').write_text(json.dumps({'error':str(error),'module_attempts_completed':len(RESULTS),'all37_families_attempted_in_both_apps':False},indent=2));save();raise
+        failure={'error':str(error),'module_attempts_completed':len(RESULTS),'all37_families_attempted_in_both_apps':False}
+        print('::error title=Comparison harness fatal; not an app finding::'+str(error)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A'),flush=True)
+        try:h.capture('mynotes' if D is None else 'obsidian','fatal',D)
+        except Exception as capture_error:failure['capture_error']=str(capture_error)
+        (OUT/'fatal.json').write_text(json.dumps(failure,indent=2));save();raise

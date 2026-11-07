@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4
+      - run: pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}

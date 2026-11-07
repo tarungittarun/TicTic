@@ -42,3 +42,12 @@ class PairedModuleComparisonTest(unittest.TestCase):
         self.assertIn("h.resolve('md.obsidian')",text)
         self.assertIn('document.querySelectorAll(".search-result-file-match")',text)
         self.assertNotIn("row['status']='passed'",text)
+
+    def test_landscape_input_cannot_fall_back_to_the_ime_or_another_field(self):
+        text=SCRIPT.read_text()
+        self.assertIn("n.get('package')=='app.space.notes'",text)
+        self.assertIn('no positional/IME fallback',text)
+        self.assertNotIn('candidates[:1]',text)
+        self.assertIn('Typed value not read back in the intended visible editor',text)
+        self.assertIn('from office_fixtures import write_office',text)
+        self.assertIn("OUT/'public-fixtures'",text)

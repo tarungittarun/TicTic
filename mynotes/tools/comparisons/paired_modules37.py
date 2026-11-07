@@ -343,25 +343,42 @@ def run_case(plan, app, function):
     save();print('MODULE RESULT',app,plan['id'],row['status'],flush=True)
 
 
-def main():
-    global D
-    make_fixtures()
+def prepare_native():
     h.adb('shell','am','start','-W','-n',h.resolve('app.space.notes'));time.sleep(1)
     h.tap('New text note');h.capture('mynotes','fixture-empty');node_input('Title',TITLE);node_input('Write your note…',BODY)
     h.tap('Back');home();h.tap(TITLE)
     assert any(n.get('text')==BODY for n in h.edits()), 'Typed public note not retained; no downstream MyNotes fixture claimed'
     (OUT/'mynotes-fixture.json').write_text(json.dumps({'method':'Actual native touch/input then Back and force-stop/relaunch editor readback','title':TITLE,'body_sha256':hashlib.sha256(BODY.encode()).hexdigest()}))
-    onboard();D=Device();assert D.js('!!app.vault'),'Private vault unavailable'
+
+
+def prepare_obsidian():
+    global D
+    onboard();D=Device();assert D.js('!!window.app?.vault'),'Private vault unavailable'
     D.js('(async()=>{if(!app.vault.getAbstractFileByPath("Comparison37"))await app.vault.createFolder("Comparison37");const p='+json.dumps(PATH)+',f=app.vault.getAbstractFileByPath(p);if(f)await app.vault.modify(f,'+json.dumps(BODY)+');else await app.vault.create(p,'+json.dumps(BODY)+')})()')
     for file in FIXTURES.iterdir():
         encoded=base64.b64encode(file.read_bytes()).decode();path='Comparison37/'+file.name
         D.js('(async()=>{const b=Uint8Array.from(atob('+json.dumps(encoded)+'),c=>c.charCodeAt(0));const p='+json.dumps(path)+';if(!app.vault.getAbstractFileByPath(p))await app.vault.createBinary(p,b.buffer)})()')
     (OUT/'obsidian-fixture.json').write_text(json.dumps({'method':'Official vault API seeds public fixtures; NOT UI creation or file-picker import acceptance','path':PATH,'body_sha256':hashlib.sha256(BODY.encode()).hexdigest()}))
+
+
+def main():
+    make_fixtures();setup_errors={}
+    for app,prepare in [('mynotes',prepare_native),('obsidian',prepare_obsidian)]:
+        try:prepare()
+        except Exception as error:
+            setup_errors[app]={'error':str(error),'module_probes_executed':0,'acceptance':False}
+            (OUT/'setup-failures.json').write_text(json.dumps(setup_errors,indent=2))
+            message=(app+': '+str(error))[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+            print('::error title=Original per-app fixture setup failed; other app may still be inspected::'+message,flush=True)
+            try:h.capture('foreground',app+'-setup-failed')
+            except Exception as capture_error:setup_errors[app]['capture_error']=str(capture_error)
     for plan in PLANS:
         for app,function in [('mynotes',ours_task),('obsidian',obs_task)]:
+            if app in setup_errors:continue  # NOT EXECUTED, never37 fabricated blocked attempts.
             assert h.adb('get-state').decode().strip()=='device','Guest unavailable; remaining cases are NOT executed'
             run_case(plan,app,function)
     save()
+    assert not setup_errors,('Incomplete paired setup; successful app probes retained, not paired acceptance',setup_errors)
     assert len(RESULTS)==74 and {r['module'] for r in RESULTS}=={p['id'] for p in PLANS}, 'Missing paired task attempts'
     (OUT/'execution-complete.json').write_text(json.dumps({'all37_families_attempted_in_both_apps':True,'whole_module_acceptance':False,'blocked':sum(r['status']=='blocked' for r in RESULTS),'bounded_outcomes_verified':sum(r['status']=='bounded_outcome_verified' for r in RESULTS),'probes':len(RESULTS)},indent=2))
 
@@ -371,6 +388,6 @@ if __name__=='__main__':
     except Exception as error:
         failure={'error':str(error),'module_attempts_completed':len(RESULTS),'all37_families_attempted_in_both_apps':False}
         print('::error title=Comparison harness fatal; not an app finding::'+str(error)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A'),flush=True)
-        try:h.capture('mynotes' if D is None else 'obsidian','fatal',D)
+        try:h.capture('foreground','fatal')
         except Exception as capture_error:failure['capture_error']=str(capture_error)
         (OUT/'fatal.json').write_text(json.dumps(failure,indent=2));save();raise

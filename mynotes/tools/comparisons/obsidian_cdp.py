@@ -35,11 +35,13 @@ class Device:
    raise RuntimeError(r['exceptionDetails'])
   return r.get('result',{}).get('value')
  def tap(self,selector):
-  box=self.js('(()=>{const e=document.querySelector('+json.dumps(selector)+');if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height}})()')
+  # Scroll API-assisted selectors into the visible viewport before actual touch.
+  # This helper is not a measurement of unaided discoverability or touch efficiency.
+  box=self.js('(()=>{const e=document.querySelector('+json.dumps(selector)+');if(!e)return null;e.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"});const r=e.getBoundingClientRect(),left=Math.max(0,r.left),right=Math.min(innerWidth,r.right),top=Math.max(0,r.top),bottom=Math.min(innerHeight,r.bottom);if(right<=left||bottom<=top)return null;return {x:(left+right)/2,y:(top+bottom)/2,w:right-left,h:bottom-top}})()')
   if not box or box['w']<=0 or box['h']<=0:return False
   p={k:box[k] for k in ['x','y']};self.call('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[p]});self.call('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});time.sleep(.5);return True
  def text_button(self,text):
-  selector=self.js('(()=>{const e=[...document.querySelectorAll("button,a,.clickable-icon")].find(e=>e.textContent.trim()==='+json.dumps(text)+');if(!e)return null;e.setAttribute("data-audit-target","button");return "[data-audit-target=button]"})()')
+  selector=self.js('(()=>{const e=[...document.querySelectorAll("button,a,.clickable-icon")].find(e=>e.textContent.trim()==='+json.dumps(text)+');if(!e)return null;document.querySelectorAll("[data-audit-target]").forEach(x=>x.removeAttribute("data-audit-target"));e.setAttribute("data-audit-target","button");return "[data-audit-target=button]"})()')
   if selector:return self.tap(selector)
   return False
  def type(self,text):self.call('Input.insertText',{'text':text})

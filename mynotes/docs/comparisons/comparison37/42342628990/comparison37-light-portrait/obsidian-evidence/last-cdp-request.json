@@ -1,0 +1,8 @@
+{
+  "method": "Runtime.evaluate",
+  "params": {
+    "expression": "new Promise(resolve=>{const t=setTimeout(()=>resolve(\"timeout\"),2000);requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(t);resolve(\"two-frames\")}))})",
+    "returnByValue": true,
+    "awaitPromise": true
+  }
+}

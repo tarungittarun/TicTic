@@ -17,6 +17,13 @@ def collect(run, output):
         receipt={'job':job['databaseId'],'name':job['name'],'endpoint':'https://api.github.com/'+endpoint}
         try:
             response=subprocess.run(['gh','api',endpoint],capture_output=True,timeout=120)
+            # New gh versions reject raw ANSI-bearing job logs, even when
+            # captured to a pipe. Opt in only for this exact refusal; save the
+            # bytes to a file, never replay raw terminal controls.
+            if response.returncode and b'pass --allow-escape-sequences' in response.stderr:
+                response=subprocess.run(['gh','api',endpoint,'--allow-escape-sequences'],capture_output=True,timeout=120)
+                receipt['raw_escape_preserving_retry']=True
+
             if response.returncode:
                 detail=re.sub(r'(https?://[^?\s]+)\?\S+',r'\1?[signed-query-redacted]',response.stderr.decode(errors='replace'))[:1500]
                 receipt.update(retained=False,returncode=response.returncode,error=detail)
@@ -27,6 +34,7 @@ def collect(run, output):
             lines=[line for line in data.decode(errors='replace').splitlines() if re.search(r'Out of memory|Killed process|SIGSEGV|Segmentation fault|Fatal signal|emulator.*(?:exit|kill|crash)|Keyboard did not dismiss|mInputShown|mIsInputViewShown',line,re.I)]
             if lines:
                 text=('run'+str(run)+' '+job['name']+'\n'+'\n'.join(lines[-12:]))[:3500]
+                text=re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]','?',text)
                 print('::notice title=Original log diagnostic (not app fault attribution)::'+text.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
         except Exception as error:receipt.update(error=str(error),retained=False)
         files.append(receipt)

@@ -1,0 +1,105 @@
+# Installed signed apps only. Runtime probes != exhaustive UX/physical acceptance.
+name: Paired candidate71 and official Obsidian 37-area runtime comparison
+on:
+  push:
+    branches: ['arena/3caca636-tictic']
+    paths: ['.github/workflows/notes-comparison37.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: comparison37-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: light-portrait, night: 'no', orientation: portrait}
+          - {id: dark-portrait, night: 'yes', orientation: portrait}
+          - {id: light-landscape, night: 'no', orientation: landscape}
+          - {id: dark-landscape, night: 'yes', orientation: landscape}
+    env:
+      COMPARISON_PROFILE: ${{ matrix.id }}
+      COMPARISON_NIGHT: ${{ matrix.night }}
+      COMPARISON_ORIENTATION: ${{ matrix.orientation }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            mynotes/tools/comparisons
+            mynotes/tools/ci
+            mynotes/docs/ux-improvement-ledger/ledger.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42277337133
+          name: full71-internal-release-and-probe
+          path: /tmp/comparison37-apks
+      - name: Pin exact signed apps; no build, re-signing or public release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/comparison37-official comparison37-evidence
+          gh release download v1.15.0 --repo obsidianmd/obsidian-releases --pattern Obsidian-1.15.0.apk --dir /tmp/comparison37-official
+          echo 'a7d6f685992c68fe4ffc7f3a5705d0514986c9d9fd82ca67c6f68d392ca41de3  /tmp/comparison37-apks/release/notes-release.apk' | sha256sum --check
+          echo '2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d  /tmp/comparison37-official/Obsidian-1.15.0.apk' | sha256sum --check
+          sha256sum /tmp/comparison37-apks/release/notes-release.apk /tmp/comparison37-official/Obsidian-1.15.0.apk > comparison37-evidence/apk-digests.txt
+      - name: Prepare emulator only
+        run: |
+          sudo chmod 666 /dev/kvm
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpulse0
+          bash mynotes/tools/ci/use_installed_emulator.sh
+      - uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          script: |
+            python -m mynotes.tools.ci.offline_guest
+            cp offline-guest-proof.json comparison37-evidence/
+            adb install /tmp/comparison37-apks/release/notes-release.apk
+            adb install /tmp/comparison37-official/Obsidian-1.15.0.apk
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night ${{ matrix.night }}
+            python -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
+            python -m mynotes.tools.ci.native_environment --snapshot configured
+            python mynotes/tools/comparisons/paired_modules37.py
+            python -m mynotes.tools.ci.native_environment --snapshot after
+      - name: Require original module records instead of assuming a green process means coverage
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('comparison37-evidence/modules.json')
+          if not p.exists():raise SystemExit('No app probe results; no comparison coverage claim')
+          d=json.loads(p.read_text());rows=d['results'];expected={('PLAN-X%02d'%i,a) for i in range(1,38) for a in ['mynotes','obsidian']}
+          actual=[(r['module'],r['app']) for r in rows]
+          assert len(actual)==len(set(actual))==74 and set(actual)==expected,'Incomplete paired attempts; retain partial records'
+          assert all(r['status']!='running' for r in rows)
+          assert not d['whole_module_acceptance'] and not d['physical_acceptance']
+          print('Completed bounded attempts:',len(rows),'Blocked:',sum(r['status']=='blocked' for r in rows),'NOT full module acceptance')
+          PY
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: comparison37-${{ matrix.id }}
+          path: |
+            comparison37-evidence
+            obsidian-evidence
+            refinement-environment-*
+          retention-days: 30
+          if-no-files-found: error

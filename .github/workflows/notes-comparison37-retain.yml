@@ -51,12 +51,16 @@ jobs:
           PY
       - name: Gate and commit immutable originals locally
         run: |
+          git fetch origin arena/3caca636-tictic
+          git merge --ff-only origin/arena/3caca636-tictic
           python -m unittest discover -s qa
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mynotes/docs/comparisons/comparison37
-          git commit -m 'Retain original37-family paired attempts, including failures [skip ci]'
+          if ! git diff --cached --quiet; then
+            git commit -m 'Retain original37-family paired attempts, including failures [skip ci]'
+          fi
           echo "EVIDENCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Generate report with immutable links, not coverage claims
         run: |
@@ -71,6 +75,8 @@ jobs:
           PY
       - name: Root gate before publishing only to this active branch
         run: |
+          git fetch origin arena/3caca636-tictic
+          git merge --no-edit origin/arena/3caca636-tictic
           python -m unittest discover -s qa && git diff --check && git add mynotes/docs/comparisons/comparison37 && git commit -m 'Publish actual paired-probe coverage and remaining acceptance gaps [skip ci]' && git push origin arena/3caca636-tictic
       - uses: actions/upload-artifact@v7.0.2
         if: always()

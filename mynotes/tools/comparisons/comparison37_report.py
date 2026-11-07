@@ -33,7 +33,7 @@ def retain(artifacts, output, metadata):
         else:profiles[profile]={'attempts':0,'all74_attempt_records_present':False,'error':'No original modules.json; no app coverage inferred'}
         if not lane.exists():continue
         for source in sorted(lane.rglob('*')):
-            if not source.is_file() or source.suffix not in {'.json','.png','.xml','.txt'}:continue
+            if not source.is_file() or source.suffix not in {'.json','.png','.xml','.txt','.pdf','.docx','.pptx','.odt','.rtf','.html','.md','.csv'}:continue
             data=source.read_bytes();total+=len(data)
             if total>MAX_BYTES:raise ValueError('Original evidence retention exceeds96MiB; do not silently truncate')
             relative=Path(lane.name)/source.relative_to(lane)

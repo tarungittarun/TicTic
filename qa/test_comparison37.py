@@ -51,3 +51,25 @@ class PairedModuleComparisonTest(unittest.TestCase):
         self.assertIn('Typed value not read back in the intended visible editor',text)
         self.assertIn('from office_fixtures import write_office',text)
         self.assertIn("OUT/'public-fixtures'",text)
+
+    def test_anchored_command_id_matches_without_appending_the_human_name(self):
+        import re
+        from types import SimpleNamespace
+        tree=ast.parse(SCRIPT.read_text());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='command')
+        commands=[{'id':'global-search:open','name':'Search: Search in all files'}]
+        device=SimpleNamespace(js=lambda expression:commands if expression.startswith('Object.values') else True)
+        namespace={'D':device,'re':re,'json':__import__('json'),'time':SimpleNamespace(sleep=lambda _:None)}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),'command-unit','exec'),namespace)
+        self.assertEqual(namespace['command']('^global-search:open$'),commands[0])
+
+    def test_cleanup_cancels_only_known_external_choosers_not_app_errors(self):
+        from types import SimpleNamespace
+        tree=ast.parse(SCRIPT.read_text());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='cancel_public_session_picker')
+        back=[];nodes=[{'package':'android','text':'Obsidian is not responding'},{'package':'android','text':'Close app'}]
+        namespace={'h':SimpleNamespace(tree=lambda:(b'',nodes),back=lambda:back.append(True))}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),'cleanup-unit','exec'),namespace)
+        self.assertFalse(namespace['cancel_public_session_picker']()['cancelled']);self.assertFalse(back)
+        nodes[:]=[{'package':'com.google.android.documentsui','text':'Recent images'}]
+        self.assertTrue(namespace['cancel_public_session_picker']()['cancelled']);self.assertEqual(len(back),1)
+        nodes[:]=[{'package':'android','text':text} for text in ['Share','Just once','Always']]
+        self.assertTrue(namespace['cancel_public_session_picker']()['cancelled']);self.assertEqual(len(back),2)

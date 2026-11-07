@@ -8,7 +8,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: comparison37-${{ github.ref }}
+  group: comparison37-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   compare:
@@ -90,6 +90,7 @@ jobs:
           actual=[(r['module'],r['app']) for r in rows]
           assert len(actual)==len(set(actual))==74 and set(actual)==expected,'Incomplete paired attempts; retain partial records'
           assert all(r['status']!='running' for r in rows)
+          assert not any(r.get('capture_error') for r in rows),'Incomplete original captures are infrastructure/observer blockers, not completed coverage'
           assert not d['whole_module_acceptance'] and not d['physical_acceptance']
           print('Completed bounded attempts:',len(rows),'Blocked:',sum(r['status']=='blocked' for r in rows),'NOT full module acceptance')
           PY

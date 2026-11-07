@@ -46,14 +46,18 @@ def save():
 
 
 def hide_ime():
-    # Never send Back unless the system explicitly reports a shown keyboard.
-    # Landscape extract-mode IME fields must not be mistaken for app fields.
+    # mIsInputViewShown can remain true for a hidden IME view. It is not a
+    # keyboard-window visibility assertion and must never trigger repeated Back.
     for _ in range(2):
         state=h.adb('shell','dumpsys','input_method').decode(errors='replace')
-        if not re.search(r'(?:mInputShown|mIsInputViewShown)=true',state):return
+        (OUT/('input-method-'+str(len(h.COMMANDS))+'.txt')).write_text(state)
+        shown=re.findall(r'\bmInputShown=(true|false)\b',state)
+        assert shown and len(set(shown))==1, 'Live keyboard-manager state unavailable/ambiguous'
+        if shown[0]=='false':return
         h.back()
     state=h.adb('shell','dumpsys','input_method').decode(errors='replace')
-    assert not re.search(r'(?:mInputShown|mIsInputViewShown)=true',state),'Keyboard did not dismiss; do not navigate or type blindly'
+    (OUT/('input-method-'+str(len(h.COMMANDS))+'.txt')).write_text(state)
+    assert re.findall(r'\bmInputShown=(true|false)\b',state)==['false'],'Keyboard still requested; no blind typing or navigation'
 
 
 def node_input(hint, value):
@@ -62,6 +66,15 @@ def node_input(hint, value):
     candidates = [n for n in nodes if n.get('package')=='app.space.notes' and
                   n.get('class') == 'android.widget.EditText' and
                   hint in (n.get('hint'),n.get('text'),n.get('content-desc'))]
+    if not candidates:
+        hide_ime();nodes=h.tree()[1]
+        scrolls=[n for n in nodes if n.get('package')=='app.space.notes' and n.get('class')=='android.widget.ScrollView' and n.get('scrollable')=='true' and not n.get('content-desc')]
+        if len(scrolls)==1:
+            left,top,right,bottom=map(int,re.findall(r'\d+',scrolls[0]['bounds']))
+            x=(left+right)//2;y1=top+(bottom-top)*2//3;y2=top+(bottom-top)//3
+            if hint=='Title':y1,y2=y2,y1
+            h.adb('shell','input','swipe',str(x),str(y1),str(x),str(y2),'350');time.sleep(.5)
+        candidates=[n for n in h.tree()[1] if n.get('package')=='app.space.notes' and n.get('class')=='android.widget.EditText' and hint in (n.get('hint'),n.get('text'),n.get('content-desc'))]
     assert len(candidates) == 1, ('Exact app editable field not established; no positional/IME fallback', hint, candidates)
     h.tap_node(candidates[0]); h.type_native(value);hide_ime()
     fields=[n for n in h.tree()[1] if n.get('package')=='app.space.notes' and n.get('class')=='android.widget.EditText']
@@ -69,7 +82,21 @@ def node_input(hint, value):
     h.capture('mynotes','fixture-'+('title' if hint=='Title' else 'body'))
 
 
+def cancel_public_session_picker():
+    # Only cancel known disposable-session external chooser surfaces. Never
+    # suppress app error/ANR dialogs, delete a file, or accept a permission.
+    nodes=h.tree()[1];packages={n.get('package') for n in nodes}
+    labels={n.get('text') for n in nodes}
+    document_picker=bool(packages & {'com.google.android.documentsui','com.android.documentsui'})
+    share_chooser=packages=={'android'} and {'Share','Just once','Always'} <= labels
+    if document_picker or share_chooser:
+        h.back()
+        return {'cancelled':True,'surface':'system_document_picker' if document_picker else 'system_share_chooser','purpose':'Cancel external surface opened by this public test session, not an application error'}
+    return {'cancelled':False}
+
+
 def home():
+    cancel_public_session_picker()
     h.adb('shell', 'am', 'force-stop', 'app.space.notes')
     h.adb('shell', 'am', 'start', '-W', '-n', h.resolve('app.space.notes'))
     time.sleep(1)
@@ -103,7 +130,7 @@ def functional(check, **extra):
 
 def command(pattern):
     commands = D.js('Object.values(app.commands.commands).map(c=>({id:c.id,name:c.name}))')
-    match = next((c for c in commands if re.search(pattern, c['id']+' '+c['name'], re.I)), None)
+    match = next((c for c in commands if (re.search(pattern,c['id'],re.I) or re.search(pattern,c['name'],re.I))), None)
     if not match: raise RuntimeError('No matching installed core command established for '+pattern+'; not proof of feature absence')
     ran = D.js('app.commands.executeCommandById('+json.dumps(match['id'])+')')
     assert ran, ('Installed command did not acknowledge invocation', match)
@@ -153,8 +180,10 @@ def native_file(name):
     # The system picker is exercised, not replaced by a private app import API.
     for _ in range(8):
         labels = native_labels()
-        if name in labels:
-            h.tap(name); break
+        nodes=h.tree()[1]
+        files=[n for n in nodes if n.get('package') in {'com.google.android.documentsui','com.android.documentsui'} and n.get('enabled')=='true' and (n.get('text')==name or n.get('content-desc','').startswith(name+','))]
+        if files:
+            target=next((n for n in files if n.get('clickable')=='true'),files[0]);h.tap_node(target);break
         if 'Comparison37' in labels: h.tap('Comparison37'); continue
         if 'Downloads' in labels: h.tap('Downloads'); continue
         if 'Show roots' in labels: h.tap('Show roots'); continue
@@ -188,7 +217,7 @@ def ours_task(number):
     if number == 2:
         note(); return functional('Exact public body read back after force-stop/relaunch and opening the saved note; bounded plain-note persistence only.')
     if number == 3: return route('Library','+ Checklist')
-    if number == 4: return route('Doc','New document','Add to document','Table')
+    if number == 4: return route('Doc','New document','Insert','Table')
     if number == 5:
         note(); h.tap('Add to note'); h.tap('Image'); return {'status':'interaction_observed','check':'Image insertion/picker entry, not image-import success.'}
     if number == 6:
@@ -196,7 +225,9 @@ def ours_task(number):
     if number in {7,9,34,35,36}:
         r = route('Library','Settings'); r.update(status='counterpart_not_established', check='Requested counterpart not established in the visited first-party settings surface. This is NOT proof of app-wide absence or a comparative score.'); return r
     if number == 8:
-        note(); h.tap('More actions'); h.tap('Count'); return {'status':'interaction_observed','check':'Actual note count surface; numeric count comparison remains unverified.'}
+        note();h.tap('Find in note');h.type_native('cobalt42');time.sleep(.7)
+        nodes=h.tree()[1];assert any('Find result' in n.get('content-desc','') and 'cobalt42' in n.get('content-desc','') for n in nodes),'In-note result passage not verified'
+        return functional('Actual in-note query produces the marker result passage; not a long-note heading/footnote or reading-location acceptance.')
     if number == 10: return route('New text note')
     if number == 11:
         note(); h.tap('Add to note'); h.tap('Drawing'); return {'status':'interaction_observed','check':'Actual drawing entry, not a shared Canvas capability or saved drawing pass.'}
@@ -235,7 +266,7 @@ def ours_task(number):
     if number == 32: return route('Library','Settings','Diagnostics')
     if number == 33:
         start=h.launch_samples('mynotes','app.space.notes'); start['status']='diagnostic_only'; return start
-    if number == 37: return route('Library','Settings','About')
+    if number == 37: return route('Library','Settings','About & offline models')
     raise ValueError(number)
 
 
@@ -259,7 +290,9 @@ def obs_task(number):
             except Exception as error: outcomes.append({'fixture':name,'status':'blocked','error':str(error)})
         return {'status':'interaction_observed','subtasks':outcomes,'check':'Each real attachment attempted independently; view type is not import fidelity.'}
     if number in {22,23,29,32,34,35,37}:
-        tab={22:'appearance',23:'file',29:'options',32:'file',34:'core-plugins',35:'sync',37:'about'}[number]
+        tab={22:'appearance',23:'file',29:'interface',32:'file',34:'plugins',35:'sync',37:'about'}[number]
+        tabs=D.js('[...app.setting.settingTabs,...app.setting.pluginTabs].map(t=>({id:t.id,name:t.name}))')
+        assert any(t['id']==tab for t in tabs),('Requested installed settings tab not present',tab,tabs)
         D.js('app.setting.open();app.setting.openTabById('+json.dumps(tab)+');void 0'); time.sleep(.5)
         return {'status':'interaction_observed','tab_requested':tab,'check':'Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.'}
     if number == 21:
@@ -279,6 +312,7 @@ def run_case(plan, app, function):
     number=int(plan['id'].split('X')[1]);row={'module':plan['id'],'name':plan['name'],'requested_task':plan['task'],'app':app,'status':'running','aspect_status':{'functional_outcome':'not_verified','layout':'captured_not_reviewed','icons':'captured_not_reviewed','animation':'not_measured','efficiency':'not_measured','smoothness':'not_measured','human_task_time':'not_measured','accessibility':'not_tested','physical_acceptance':False}}
     RESULTS.append(row);save()
     try:
+        row['prior_external_surface_cleanup']=cancel_public_session_picker()
         if app=='obsidian':
             h.adb('shell','am','start','-W','-n',h.resolve('md.obsidian'))
             try:D.js('!!app.vault')
@@ -296,10 +330,16 @@ def run_case(plan, app, function):
     except Exception as error:
         row.update(status='blocked',error=str(error));print('BLOCKED',app,plan['id'],str(error),flush=True)
     try:
+        row['prior_external_surface_cleanup']=cancel_public_session_picker()
         if app=='obsidian':D.settle()
         h.capture(app,plan['id'],D if app=='obsidian' else None)
         row['snapshot']=h.SNAPSHOTS[-1]['id']
+        packages=sorted({n.get('package','') for n in h.SNAPSHOTS[-1]['nodes']})
+        row['captured_packages']=packages
+        row['capture_contains_target_app']=('app.space.notes' if app=='mynotes' else 'md.obsidian') in packages
     except Exception as error:row['capture_error']=str(error)
+    try:row['external_surface_cleanup_after_capture']=cancel_public_session_picker()
+    except Exception as error:row['cleanup_error']=str(error)
     save();print('MODULE RESULT',app,plan['id'],row['status'],flush=True)
 
 
@@ -318,8 +358,9 @@ def main():
         D.js('(async()=>{const b=Uint8Array.from(atob('+json.dumps(encoded)+'),c=>c.charCodeAt(0));const p='+json.dumps(path)+';if(!app.vault.getAbstractFileByPath(p))await app.vault.createBinary(p,b.buffer)})()')
     (OUT/'obsidian-fixture.json').write_text(json.dumps({'method':'Official vault API seeds public fixtures; NOT UI creation or file-picker import acceptance','path':PATH,'body_sha256':hashlib.sha256(BODY.encode()).hexdigest()}))
     for plan in PLANS:
-        run_case(plan,'mynotes',ours_task)
-        run_case(plan,'obsidian',obs_task)
+        for app,function in [('mynotes',ours_task),('obsidian',obs_task)]:
+            assert h.adb('get-state').decode().strip()=='device','Guest unavailable; remaining cases are NOT executed'
+            run_case(plan,app,function)
     save()
     assert len(RESULTS)==74 and {r['module'] for r in RESULTS}=={p['id'] for p in PLANS}, 'Missing paired task attempts'
     (OUT/'execution-complete.json').write_text(json.dumps({'all37_families_attempted_in_both_apps':True,'whole_module_acceptance':False,'blocked':sum(r['status']=='blocked' for r in RESULTS),'bounded_outcomes_verified':sum(r['status']=='bounded_outcome_verified' for r in RESULTS),'probes':len(RESULTS)},indent=2))

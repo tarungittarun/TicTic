@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      SOURCE_RUN: '42342628990'
+      SOURCE_RUN: '42343158423'
       GH_TOKEN: ${{ github.token }}
-      EVIDENCE: mynotes/docs/comparisons/comparison37/42342628990
+      EVIDENCE: mynotes/docs/comparisons/comparison37/42343158423
     steps:
       - uses: actions/checkout@v5
         with:
@@ -29,7 +29,8 @@ jobs:
           for _ in range(90):
               result=json.loads(subprocess.check_output(['gh','run','view',os.environ['SOURCE_RUN'],'--json','databaseId,headSha,status,conclusion,url,jobs']))
               if result['status']=='completed':
-                  assert result['headSha']=='6094276c10b1359131cddf38e1d971cbe41e2415'
+                  assert result['headSha']=='2014f5d890b3cb73df851883d0eec065965b261b'
+                  result['artifacts']=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/'+os.environ['SOURCE_RUN']+'/artifacts']))
                   pathlib.Path('/tmp/comparison37-run.json').write_text(json.dumps(result,indent=2));break
               time.sleep(10)
           else:raise SystemExit('Original not complete; no final coverage report')
@@ -49,6 +50,10 @@ jobs:
               message=(str(path)+': '+path.read_text())[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice title=Original comparison provisioning blocker::'+message)
           PY
+      - name: Retain original completed job logs including the prior lost-guest diagnostics
+        run: |
+          python mynotes/tools/comparisons/collect_comparison_logs.py 42342628990 mynotes/docs/comparisons/comparison37/42342628990/host-logs
+          python mynotes/tools/comparisons/collect_comparison_logs.py "$SOURCE_RUN" "$EVIDENCE/host-logs"
       - name: Gate and commit immutable originals locally
         run: |
           git fetch origin arena/3caca636-tictic
@@ -66,8 +71,8 @@ jobs:
         run: |
           python mynotes/tools/comparisons/comparison37_report.py render --output "$EVIDENCE" --commit "$EVIDENCE_COMMIT"
           python - <<'PY'
-          import fitz,pathlib
-          path=pathlib.Path('mynotes/docs/comparisons/comparison37/Comparison37_Runtime_Probes.pdf')
+          import fitz,pathlib,os
+          path=pathlib.Path(os.environ['EVIDENCE'])/'Comparison37_Runtime_Probes.pdf'
           document=fitz.open(path)
           assert 'acceptance still open' in ' '.join(document[0].get_text().split())
           assert sum(len(page.get_links()) for page in document)>2

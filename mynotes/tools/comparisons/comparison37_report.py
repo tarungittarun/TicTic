@@ -82,7 +82,8 @@ def render(evidence, commit):
     table=Table([[p(c,'Small37') for c in row] for row in rows],colWidths=[120,75,320],repeatRows=1)
     table.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#E7F1F4')),('LINEBELOW',(0,0),(-1,-1),.3,colors.lightgrey)]));flow.append(table)
     paragraph('Methods differ and are disclosed: MyNotes public note is entered using native touch/input and reopened after process restart; Obsidian public fixtures are seeded using its official vault API, and command/settings APIs navigate some surfaces. Those shortcuts are not user-route, creation-efficiency or latency evidence. Native screens are real adb captures; no UI reconstruction. Standard font scale1.0; light/dark portrait/landscape at API34, not physical phones or accessibility acceptance.')
-    paragraph('Fixture validity warning: this first run generates incomplete DOCX/ODT/PPTX ZIP containers. Any failure on those files is INVALID as an app-format or fidelity finding until standards-valid fixtures are rerun. The PDF is a small synthetic3-page file, not the requested18MB+ varied-document acceptance corpus.')
+    if summary['run']==42342628990:paragraph('Fixture validity warning: this first run generates incomplete DOCX/ODT/PPTX ZIP containers. Any failure on those files is INVALID as an app-format or fidelity finding until standards-valid fixtures are rerun. The PDF is a small synthetic3-page file, not the requested18MB+ varied-document acceptance corpus.')
+    else:paragraph('Public synthetic fixture bytes are retained with hashes where generated before the failure. Office packages use real format libraries; these are still small test documents, not complex-layout fidelity or18MB+ PDF acceptance.')
     paragraph('Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.')
     for profile in PROFILES:
         info=summary['profiles'][profile]
@@ -111,11 +112,11 @@ def render(evidence, commit):
                     paragraph('Format subtasks: '+'; '.join(r.get('fixture','')+':'+r['status'] for r in row['subtasks']))
             flow.append(Table([screenshots],colWidths=[257.5,257.5]));link('Both original records, exact checks, errors and profile observations',base+info['module_file'])
             paragraph('No whole-family acceptance. Remaining: '+plan['acceptance'])
-    (evidence.parent/'Comparison37_Runtime_Probes.md').write_text('\n'.join(md))
+    (evidence/'Comparison37_Runtime_Probes.md').write_text('\n'.join(md))
     def footer(canvas,doc):
         canvas.setFont('Helvetica',7);canvas.drawString(40,23,'Paired runtime probes | not whole-module or physical acceptance');canvas.drawRightString(555,23,str(doc.page))
-    destination=evidence.parent/'Comparison37_Runtime_Probes.pdf'
-    SimpleDocTemplate(str(destination),pagesize=(595.276,841.89),leftMargin=40,rightMargin=40,topMargin=36,bottomMargin=42,title='MyNotes71 and Obsidian15 Runtime Comparison Probes').build(flow,onFirstPage=footer,onLaterPages=footer)
+    destination=evidence/'Comparison37_Runtime_Probes.pdf'
+    SimpleDocTemplate(str(destination),pagesize=(595.276,841.89),leftMargin=40,rightMargin=40,topMargin=36,bottomMargin=42,title='MyNotes71 and Obsidian1.15 Runtime Comparison Probes').build(flow,onFirstPage=footer,onLaterPages=footer)
     return destination
 
 

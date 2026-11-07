@@ -58,7 +58,7 @@ def render(evidence, commit):
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
     from PIL import Image as PILImage
-    evidence=Path(evidence);root=Path(__file__).resolve().parents[3]
+    evidence=Path(evidence).resolve();root=Path(__file__).resolve().parents[3]
     summary=json.loads((evidence/'summary.json').read_text())
     plans=json.loads((root/'mynotes/docs/ux-improvement-ledger/ledger.json').read_text())['plan']
     base='https://github.com/tarungittarun/TicTic/blob/'+commit+'/'+str(evidence.relative_to(root))+'/'

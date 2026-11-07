@@ -50,3 +50,21 @@ class ComparisonRetentionTest(unittest.TestCase):
                 self.assertEqual(archive.infolist()[0].filename,'mimetype');self.assertEqual(archive.infolist()[0].compress_type,zipfile.ZIP_STORED)
                 self.assertEqual(archive.read('mimetype'),b'application/vnd.oasis.opendocument.text')
                 self.assertIn('META-INF/manifest.xml',archive.namelist())
+
+    def test_relative_evidence_path_renders_a_linked_blocker_report(self):
+        try:
+            import fitz
+            import reportlab
+        except ImportError:self.skipTest('Optional report packages not installed')
+        report=load('comparison37_report')
+        with tempfile.TemporaryDirectory(prefix='comparison37-report-test-',dir=Path.cwd()/'mynotes/docs') as temporary:
+            root=Path(temporary);lane=root/'in/comparison37-light-portrait/comparison37-evidence';lane.mkdir(parents=True)
+            (lane/'modules.json').write_text(json.dumps({'results':[],'whole_module_acceptance':False,'physical_acceptance':False}))
+            (lane/'fatal.json').write_text(json.dumps({'error':'Public fixture unavailable; no coverage inferred'}))
+            report.retain(root/'in',root/'evidence',{'status':'completed','databaseId':1,'headSha':'a'*40,'url':'https://github.com/example/example/actions/runs/1','conclusion':'failure'})
+            path=report.render((root/'evidence').relative_to(Path.cwd()),'b'*40)
+            with fitz.open(path) as document:
+                self.assertEqual(len(document),5)
+                self.assertIn('acceptance still open',' '.join(document[0].get_text().split()))
+                self.assertGreater(sum(len(page.get_links()) for page in document),2)
+                self.assertIn('Public fixture unavailable',document[1].get_text())

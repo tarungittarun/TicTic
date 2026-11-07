@@ -110,11 +110,31 @@ def cancel_public_session_picker():
     return {'cancelled':False}
 
 
+def restore_requested_orientation():
+    orientation=os.environ['COMPARISON_ORIENTATION']
+    assert orientation in {'portrait','landscape'}
+    size=h.adb('shell','wm','size').decode(errors='replace')
+    match=re.search(r'Physical size:\s*(\d+)x(\d+)',size)
+    assert match, 'Natural display size unavailable; do not guess rotation'
+    width,height=map(int,match.groups())
+    rotation=int((width>height)!=(orientation=='landscape'))
+    # Same explicit CI rotation policy as provisioning, reapplied after launch.
+    # This is controlled-emulator setup, not proof of normal phone rotation.
+    h.adb('shell','settings','put','system','accelerometer_rotation','0')
+    h.adb('shell','settings','put','system','user_rotation',str(rotation))
+    h.adb('shell','wm','set-ignore-orientation-request','true')
+    h.adb('shell','wm','fixed-to-user-rotation','enabled')
+    h.adb('shell','wm','user-rotation','lock',str(rotation))
+    time.sleep(1)
+    return {'requested':orientation,'natural_size':[width,height],'rotation':rotation,
+            'policy':'Explicit emulator rotation reapplied after launch; achieved profile independently checked'}
+
+
 def home():
     cancel_public_session_picker()
     h.adb('shell', 'am', 'force-stop', 'app.space.notes')
     h.adb('shell', 'am', 'start', '-W', '-n', h.resolve('app.space.notes'))
-    time.sleep(1)
+    restore_requested_orientation()
     # Loading is allowed to settle; never dismiss an application error dialog.
     for _ in range(12):
         nodes = h.tree()[1]
@@ -190,21 +210,42 @@ def make_fixtures():
         h.adb('push',str(p),'/sdcard/Download/Comparison37/'+p.name)
 
 
+def picker_target(nodes,name):
+    providers={'com.google.android.documentsui','com.android.documentsui'}
+    visible=[n for n in nodes if n.get('package') in providers and n.get('enabled')!='false']
+    # A breadcrumb is navigation state, never a file/directory list entry.
+    entries=[n for n in visible if not n.get('resource-id','').endswith(':id/breadcrumb_text')]
+    for n in entries:
+        if n.get('text')==name or n.get('content-desc','').startswith(name+','):
+            return 'file',n
+    for n in entries:
+        if n.get('text')=='Comparison37' and n.get('resource-id')=='android:id/title':
+            return 'folder',n
+    if any(n.get('resource-id','').endswith(':id/breadcrumb_text') and n.get('text') in {'Comparison37','Downloads','Download'} for n in visible):
+        return 'wait',None
+    for n in entries:
+        if n.get('text') in {'Downloads','Download'} and n.get('resource-id')=='android:id/title':
+            return 'downloads',n
+    for n in entries:
+        if n.get('content-desc')=='Show roots':return 'roots',n
+    return 'wait',None
+
+
 def native_file(name):
     home(); h.tap('Library'); h.tap('Open file')
     # The system picker is exercised, not replaced by a private app import API.
-    for _ in range(8):
-        labels = native_labels()
+    navigated=set()
+    for _ in range(24):
         nodes=h.tree()[1]
-        files=[n for n in nodes if n.get('package') in {'com.google.android.documentsui','com.android.documentsui'} and n.get('enabled')=='true' and (n.get('text')==name or n.get('content-desc','').startswith(name+','))]
-        if files:
-            target=next((n for n in files if n.get('clickable')=='true'),files[0]);h.tap_node(target);break
-        if 'Comparison37' in labels: h.tap('Comparison37'); continue
-        if 'Downloads' in labels: h.tap('Downloads'); continue
-        if 'Show roots' in labels: h.tap('Show roots'); continue
-        if 'Download' in labels: h.tap('Download'); continue
-        raise RuntimeError('Public fixture not reachable through actual picker: '+name+'; '+labels[:900])
-    else: raise RuntimeError('Picker did not expose public fixture '+name)
+        action,target=picker_target(nodes,name)
+        if action=='file':h.tap_node(target);break
+        key=(action,target.get('text'),target.get('content-desc')) if target else None
+        if target and key not in navigated:
+            h.tap_node(target);navigated.add(key)
+        # Let provider navigation finish before interpreting an old breadcrumb
+        # or tapping the same folder a second time.
+        time.sleep(1)
+    else: raise RuntimeError('Picker did not expose public fixture '+name+'; '+native_labels()[:900])
     time.sleep(1)
     labels = native_labels()
     if 'MyNotes pages' in labels: h.tap('MyNotes pages'); time.sleep(1); labels = native_labels()
@@ -330,6 +371,7 @@ def run_case(plan, app, function):
         row['prior_external_surface_cleanup']=cancel_public_session_picker()
         if app=='obsidian':
             h.adb('shell','am','start','-W','-n',h.resolve('md.obsidian'))
+            row['rotation_setup']=restore_requested_orientation()
             try:D.js('!!app.vault')
             except Exception:globals()['D']=Device()
             expected_dark=os.environ.get('COMPARISON_NIGHT')=='yes'
@@ -349,6 +391,14 @@ def run_case(plan, app, function):
         if app=='obsidian':D.settle()
         h.capture(app,plan['id'],D if app=='obsidian' else None)
         row['snapshot']=h.SNAPSHOTS[-1]['id']
+        png=(OUT/h.SNAPSHOTS[-1]['image']).read_bytes()
+        assert png[:8]==b'\x89PNG\r\n\x1a\n', 'Original capture is not PNG'
+        width,height=int.from_bytes(png[16:20],'big'),int.from_bytes(png[20:24],'big')
+        row['captured_image_profile']={'width':width,'height':height,'landscape':width>height}
+        if (width>height)!=(os.environ['COMPARISON_ORIENTATION']=='landscape'):
+            row['probe_status_before_profile_failure']=row['status']
+            row.update(status='blocked',error='Original PNG orientation does not match requested profile')
+
         packages=sorted({n.get('package','') for n in h.SNAPSHOTS[-1]['nodes']})
         row['captured_packages']=packages
         row['capture_contains_target_app']=('app.space.notes' if app=='mynotes' else 'md.obsidian') in packages

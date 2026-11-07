@@ -136,3 +136,39 @@ class NotificationIsolationTest(unittest.TestCase):
         exec(compile(ast.Module(body=[function],type_ignores=[]),'notification-isolation','exec'),namespace)
         with self.assertRaisesRegex(RuntimeError,'capture failed'):namespace['cancel_public_session_picker']()
         self.assertEqual(actions,[])
+
+
+class PickerNavigationTest(unittest.TestCase):
+    def helper(self):
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='picker_target')
+        namespace={};exec(compile(ast.Module(body=[fn],type_ignores=[]),'picker-navigation','exec'),namespace)
+        return namespace['picker_target']
+
+    def test_breadcrumb_is_not_a_folder_or_file_target(self):
+        target=self.helper();package='com.google.android.documentsui'
+        breadcrumb={'package':package,'text':'Comparison37','resource-id':package+':id/breadcrumb_text'}
+        self.assertEqual(target([breadcrumb],'Comparison.pdf'),('wait',None))
+        folder={'package':package,'text':'Comparison37','resource-id':'android:id/title'}
+        self.assertEqual(target([breadcrumb,folder],'Comparison.pdf'),('folder',folder))
+        file={'package':package,'text':'Comparison.pdf','resource-id':'android:id/title'}
+        self.assertEqual(target([breadcrumb,folder,file],'Comparison.pdf'),('file',file))
+        file['enabled']='false'
+        self.assertEqual(target([breadcrumb,file],'Comparison.pdf'),('wait',None))
+
+    def test_nonprovider_and_toolbar_titles_are_not_download_navigation(self):
+        target=self.helper()
+        self.assertEqual(target([{'package':'app.space.notes','text':'Comparison.pdf'}],'Comparison.pdf'),('wait',None))
+        self.assertEqual(target([{'package':'com.google.android.documentsui','text':'Downloads','resource-id':''}],'Comparison.pdf'),('wait',None))
+
+    def test_rotation_uses_natural_display_not_override_size(self):
+        import re
+        from types import SimpleNamespace
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='restore_requested_orientation')
+        for size,orientation,expected in [('1080x1920','landscape',1),('1080x1920','portrait',0),('1920x1080','portrait',1)]:
+            commands=[]
+            def adb(*args):
+                commands.append(args);return ('Physical size: '+size+'\nOverride size: 200x100').encode()
+            namespace={'h':SimpleNamespace(adb=adb),'os':SimpleNamespace(environ={'COMPARISON_ORIENTATION':orientation}),'re':re,'time':SimpleNamespace(sleep=lambda _:None)}
+            exec(compile(ast.Module(body=[fn],type_ignores=[]),'rotation-reapplication','exec'),namespace)
+            self.assertEqual(namespace['restore_requested_orientation']()['rotation'],expected)
+            self.assertIn(('shell','wm','user-rotation','lock',str(expected)),commands)

@@ -26,8 +26,8 @@ jobs:
               data=json.loads(path.read_text())
               message=(str(path)+': '+json.dumps(data))[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice title=Original fatal comparison record::'+message)
-          PY
           for path in pathlib.Path('original').rglob('runtime-discovery.json'):
               data=json.loads(path.read_text())
               message=('Observed onboarding body: '+str(data.get('body'))+';hasApp='+str(data.get('hasApp')))[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice title=Original onboarding state, not an app defect::'+message)
+          PY

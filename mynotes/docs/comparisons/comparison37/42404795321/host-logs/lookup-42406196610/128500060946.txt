@@ -1,0 +1,310 @@
+﻿2026-11-07T19:09:08.6796691Z Current runner version: '2.338.2'
+2026-11-07T19:09:08.6817574Z ##[group]Runner Image Provisioner
+2026-11-07T19:09:08.6818749Z Hosted Compute Agent
+2026-11-07T19:09:08.6819387Z Version: 20261028.624
+2026-11-07T19:09:08.6819929Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-07T19:09:08.6820582Z Build Date: 2026-10-28T21:51:42Z
+2026-11-07T19:09:08.6821192Z Worker ID: {de167726-4688-45ec-a388-bd1e6ad645db}
+2026-11-07T19:09:08.6821775Z Region: westus3
+2026-11-07T19:09:08.6822307Z Cloud: Azure
+2026-11-07T19:09:08.6822777Z ##[endgroup]
+2026-11-07T19:09:08.6824004Z ##[group]Operating System
+2026-11-07T19:09:08.6824576Z Ubuntu
+2026-11-07T19:09:08.6825022Z 24.04.5
+2026-11-07T19:09:08.6825544Z LTS
+2026-11-07T19:09:08.6825994Z ##[endgroup]
+2026-11-07T19:09:08.6826483Z ##[group]Runner Image
+2026-11-07T19:09:08.6827029Z Image: ubuntu-24.04
+2026-11-07T19:09:08.6827512Z Version: 20261101.360.1
+2026-11-07T19:09:08.6828865Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-07T19:09:08.6830251Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-07T19:09:08.6831090Z ##[endgroup]
+2026-11-07T19:09:08.6832114Z ##[group]GITHUB_TOKEN Permissions
+2026-11-07T19:09:08.6833687Z Actions: read
+2026-11-07T19:09:08.6834190Z Contents: read
+2026-11-07T19:09:08.6834766Z Metadata: read
+2026-11-07T19:09:08.6835241Z ##[endgroup]
+2026-11-07T19:09:08.6837238Z Secret source: Actions
+2026-11-07T19:09:08.6838138Z Cache mode: write
+2026-11-07T19:09:08.6838866Z Prepare workflow directory
+2026-11-07T19:09:08.7284730Z Prepare all required actions
+2026-11-07T19:09:08.7323544Z Getting action download info
+2026-11-07T19:09:09.0536624Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-07T19:09:09.1747753Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-07T19:09:09.2701295Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+2026-11-07T19:09:09.8703838Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-07T19:09:10.3843588Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-07T19:09:10.5881931Z Complete job name: compare (light-portrait, no, portrait, chunk05, 31-37)
+2026-11-07T19:09:10.6667343Z ##[group]Run actions/checkout@v5
+2026-11-07T19:09:10.6668630Z with:
+2026-11-07T19:09:10.6670056Z   sparse-checkout: mynotes/tools/comparisons
+mynotes/tools/ci
+mynotes/docs/ux-improvement-ledger/ledger.json
+
+2026-11-07T19:09:10.6671747Z   sparse-checkout-cone-mode: false
+2026-11-07T19:09:10.6672710Z   repository: tarungittarun/TicTic
+2026-11-07T19:09:10.6680505Z   token: ***
+2026-11-07T19:09:10.6681250Z   ssh-strict: true
+2026-11-07T19:09:10.6681997Z   ssh-user: git
+2026-11-07T19:09:10.6682768Z   persist-credentials: true
+2026-11-07T19:09:10.6683636Z   clean: true
+2026-11-07T19:09:10.6684347Z   fetch-depth: 1
+2026-11-07T19:09:10.6685084Z   fetch-tags: false
+2026-11-07T19:09:10.6685854Z   show-progress: true
+2026-11-07T19:09:10.6686616Z   lfs: false
+2026-11-07T19:09:10.6687321Z   submodules: false
+2026-11-07T19:09:10.6688089Z   set-safe-directory: true
+2026-11-07T19:09:10.6689034Z   allow-unsafe-pr-checkout: false
+2026-11-07T19:09:10.6690093Z env:
+2026-11-07T19:09:10.6690831Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:10.6691683Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:10.6692590Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:10.6693400Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:10.6694287Z ##[endgroup]
+2026-11-07T19:09:10.8987445Z Syncing repository: tarungittarun/TicTic
+2026-11-07T19:09:10.8991223Z ##[group]Getting Git version info
+2026-11-07T19:09:10.8992863Z Working directory is '/home/runner/work/TicTic/TicTic'
+2026-11-07T19:09:10.8995365Z [command]/usr/bin/git version
+2026-11-07T19:09:10.9064714Z git version 2.56.0
+2026-11-07T19:09:10.9084341Z ##[endgroup]
+2026-11-07T19:09:10.9095506Z Temporarily overriding HOME='/home/runner/work/_temp/e1949f81-6f30-40fe-88c6-9aa76c50c91a' before making global git config changes
+2026-11-07T19:09:10.9099512Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-07T19:09:10.9102804Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-07T19:09:10.9149956Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+2026-11-07T19:09:10.9159176Z ##[group]Initializing the repository
+2026-11-07T19:09:10.9162837Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+2026-11-07T19:09:10.9265632Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-07T19:09:10.9268057Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-07T19:09:10.9270485Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-07T19:09:10.9272336Z hint: call:
+2026-11-07T19:09:10.9273337Z hint:
+2026-11-07T19:09:10.9274517Z hint: 	git config --global init.defaultBranch <name>
+2026-11-07T19:09:10.9275950Z hint:
+2026-11-07T19:09:10.9277370Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-07T19:09:10.9279777Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-07T19:09:10.9281586Z hint:
+2026-11-07T19:09:10.9282600Z hint: 	git branch -m <name>
+2026-11-07T19:09:10.9283742Z hint:
+2026-11-07T19:09:10.9285248Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-07T19:09:10.9287623Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+2026-11-07T19:09:10.9291860Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+2026-11-07T19:09:10.9341374Z ##[endgroup]
+2026-11-07T19:09:10.9343552Z ##[group]Disabling automatic garbage collection
+2026-11-07T19:09:10.9345318Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-07T19:09:10.9388761Z ##[endgroup]
+2026-11-07T19:09:10.9390538Z ##[group]Setting up auth
+2026-11-07T19:09:10.9394417Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-07T19:09:10.9427235Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-07T19:09:10.9766259Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-07T19:09:10.9807525Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-07T19:09:11.0015265Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-07T19:09:11.0057858Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-07T19:09:11.0266709Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-07T19:09:11.0307679Z ##[endgroup]
+2026-11-07T19:09:11.0309210Z ##[group]Fetching the repository
+2026-11-07T19:09:11.0318938Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +a58755d66b8574e334e8e4b4f59752b2ea4565e6:refs/remotes/origin/arena/3caca636-tictic
+2026-11-07T19:09:11.7410069Z From https://github.com/tarungittarun/TicTic
+2026-11-07T19:09:11.7410767Z  * [new ref]         a58755d66b8574e334e8e4b4f59752b2ea4565e6 -> origin/arena/3caca636-tictic
+2026-11-07T19:09:11.7423272Z ##[endgroup]
+2026-11-07T19:09:11.7423617Z ##[group]Determining the checkout info
+2026-11-07T19:09:11.7423969Z ##[endgroup]
+2026-11-07T19:09:11.7424288Z ##[group]Setting up sparse checkout
+2026-11-07T19:09:11.7424603Z [command]/usr/bin/git config core.sparseCheckout true
+2026-11-07T19:09:11.7451442Z [command]/usr/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-07T19:09:11.7478045Z .git/info/sparse-checkout
+2026-11-07T19:09:11.7492135Z ##[endgroup]
+2026-11-07T19:09:11.7492598Z ##[group]Checking out the ref
+2026-11-07T19:09:11.7495631Z [command]/usr/bin/git checkout --progress --force -B arena/3caca636-tictic refs/remotes/origin/arena/3caca636-tictic
+2026-11-07T19:09:12.6883296Z Switched to a new branch 'arena/3caca636-tictic'
+2026-11-07T19:09:12.6886474Z branch 'arena/3caca636-tictic' set up to track 'origin/arena/3caca636-tictic'.
+2026-11-07T19:09:12.6901902Z ##[endgroup]
+2026-11-07T19:09:12.6950089Z [command]/usr/bin/git log -1 --format=%H
+2026-11-07T19:09:12.6979061Z a58755d66b8574e334e8e4b4f59752b2ea4565e6
+2026-11-07T19:09:12.8339090Z ##[group]Run actions/setup-python@v5
+2026-11-07T19:09:12.8339358Z with:
+2026-11-07T19:09:12.8339527Z   python-version: 3.11
+2026-11-07T19:09:12.8339717Z   check-latest: false
+2026-11-07T19:09:12.8341785Z   token: ***
+2026-11-07T19:09:12.8341979Z   update-environment: true
+2026-11-07T19:09:12.8342184Z   allow-prereleases: false
+2026-11-07T19:09:12.8342377Z   freethreaded: false
+2026-11-07T19:09:12.8342547Z env:
+2026-11-07T19:09:12.8342718Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:12.8342939Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:12.8343162Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:12.8343350Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:12.8343559Z ##[endgroup]
+2026-11-07T19:09:12.9429544Z ##[group]Installed versions
+2026-11-07T19:09:12.9502388Z (node:2210) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-07T19:09:12.9503015Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-07T19:09:12.9503552Z Successfully set up CPython (3.11.18)
+2026-11-07T19:09:12.9504061Z ##[endgroup]
+2026-11-07T19:09:12.9650184Z ##[group]Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1
+2026-11-07T19:09:12.9651375Z [36;1mpip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1[0m
+2026-11-07T19:09:12.9689807Z shell: /usr/bin/bash -e {0}
+2026-11-07T19:09:12.9690129Z env:
+2026-11-07T19:09:12.9690378Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:12.9690739Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:12.9691136Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:12.9691439Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:12.9691857Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:12.9692424Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-07T19:09:12.9692983Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:12.9693466Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:12.9694002Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:12.9694502Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-07T19:09:12.9694920Z ##[endgroup]
+2026-11-07T19:09:13.7765784Z Collecting websocket-client==1.8.0
+2026-11-07T19:09:13.8166821Z   Downloading websocket_client-1.8.0-py3-none-any.whl.metadata (8.0 kB)
+2026-11-07T19:09:13.9845137Z Collecting Pillow==11.3.0
+2026-11-07T19:09:13.9880411Z   Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+2026-11-07T19:09:14.0740840Z Collecting reportlab==4.4.4
+2026-11-07T19:09:14.0777269Z   Downloading reportlab-4.4.4-py3-none-any.whl.metadata (1.7 kB)
+2026-11-07T19:09:14.2653892Z Collecting python-docx==1.2.0
+2026-11-07T19:09:14.2687932Z   Downloading python_docx-1.2.0-py3-none-any.whl.metadata (2.0 kB)
+2026-11-07T19:09:14.2854492Z Collecting python-pptx==1.0.2
+2026-11-07T19:09:14.2884719Z   Downloading python_pptx-1.0.2-py3-none-any.whl.metadata (2.5 kB)
+2026-11-07T19:09:14.3043774Z Collecting odfpy==1.4.1
+2026-11-07T19:09:14.3077490Z   Downloading odfpy-1.4.1.tar.gz (717 kB)
+2026-11-07T19:09:14.3294542Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 717.0/717.0 kB 58.8 MB/s  0:00:00
+2026-11-07T19:09:14.3898752Z   Installing build dependencies: started
+2026-11-07T19:09:15.0330604Z   Installing build dependencies: finished with status 'done'
+2026-11-07T19:09:15.0335187Z   Getting requirements to build wheel: started
+2026-11-07T19:09:15.3426229Z   Getting requirements to build wheel: finished with status 'done'
+2026-11-07T19:09:15.3433436Z   Preparing metadata (pyproject.toml): started
+2026-11-07T19:09:15.4932956Z   Preparing metadata (pyproject.toml): finished with status 'done'
+2026-11-07T19:09:15.5930706Z Collecting charset-normalizer (from reportlab==4.4.4)
+2026-11-07T19:09:15.5969214Z   Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+2026-11-07T19:09:15.8787816Z Collecting lxml>=3.1.0 (from python-docx==1.2.0)
+2026-11-07T19:09:15.8821985Z   Downloading lxml-6.1.3-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (3.3 kB)
+2026-11-07T19:09:15.9006705Z Collecting typing_extensions>=4.9.0 (from python-docx==1.2.0)
+2026-11-07T19:09:15.9037347Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-07T19:09:15.9339361Z Collecting XlsxWriter>=0.5.7 (from python-pptx==1.0.2)
+2026-11-07T19:09:15.9375799Z   Downloading xlsxwriter-3.3.1-py3-none-any.whl.metadata (2.9 kB)
+2026-11-07T19:09:15.9539459Z Collecting defusedxml (from odfpy==1.4.1)
+2026-11-07T19:09:15.9571148Z   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+2026-11-07T19:09:15.9647385Z Downloading websocket_client-1.8.0-py3-none-any.whl (58 kB)
+2026-11-07T19:09:15.9694640Z Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+2026-11-07T19:09:16.0452917Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 91.6 MB/s  0:00:00
+2026-11-07T19:09:16.0486928Z Downloading reportlab-4.4.4-py3-none-any.whl (2.0 MB)
+2026-11-07T19:09:16.0627819Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 164.2 MB/s  0:00:00
+2026-11-07T19:09:16.0667240Z Downloading python_docx-1.2.0-py3-none-any.whl (252 kB)
+2026-11-07T19:09:16.0724807Z Downloading python_pptx-1.0.2-py3-none-any.whl (472 kB)
+2026-11-07T19:09:16.0783232Z Downloading lxml-6.1.3-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+2026-11-07T19:09:16.1146532Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 144.5 MB/s  0:00:00
+2026-11-07T19:09:16.1180256Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-07T19:09:16.1227512Z Downloading xlsxwriter-3.3.1-py3-none-any.whl (180 kB)
+2026-11-07T19:09:16.1276256Z Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+2026-11-07T19:09:16.1325257Z Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+2026-11-07T19:09:16.1624978Z Building wheels for collected packages: odfpy
+2026-11-07T19:09:16.1631412Z   Building wheel for odfpy (pyproject.toml): started
+2026-11-07T19:09:16.3776629Z   Building wheel for odfpy (pyproject.toml): finished with status 'done'
+2026-11-07T19:09:16.3782444Z   Created wheel for odfpy: filename=odfpy-1.4.1-py2.py3-none-any.whl size=160717 sha256=d504568e73d1159997e694508d7aecf92de652d72e2d593412a1a687b6b30af8
+2026-11-07T19:09:16.3783585Z   Stored in directory: /home/runner/.cache/pip/wheels/d6/1d/c8/8c29be1d73ca42d15977c75193d9f39a98499413c2838ac54c
+2026-11-07T19:09:16.3798453Z Successfully built odfpy
+2026-11-07T19:09:16.4027320Z Installing collected packages: XlsxWriter, websocket-client, typing_extensions, Pillow, lxml, defusedxml, charset-normalizer, reportlab, python-pptx, python-docx, odfpy
+2026-11-07T19:09:17.7869898Z 
+2026-11-07T19:09:17.7879194Z Successfully installed Pillow-11.3.0 XlsxWriter-3.3.1 charset-normalizer-3.5.2 defusedxml-0.7.1 lxml-6.1.3 odfpy-1.4.1 python-docx-1.2.0 python-pptx-1.0.2 reportlab-4.4.4 typing_extensions-4.16.0 websocket-client-1.8.0
+2026-11-07T19:09:17.7886997Z 
+2026-11-07T19:09:17.7887212Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-07T19:09:17.7887937Z [notice] To update, run: pip install --upgrade pip
+2026-11-07T19:09:17.9395449Z ##[group]Run actions/download-artifact@v8.0.2
+2026-11-07T19:09:17.9395700Z with:
+2026-11-07T19:09:17.9397983Z   github-token: ***
+2026-11-07T19:09:17.9398176Z   run-id: 42277337133
+2026-11-07T19:09:17.9398386Z   name: full71-internal-release-and-probe
+2026-11-07T19:09:17.9398803Z   path: /tmp/comparison37-apks
+2026-11-07T19:09:17.9399010Z   merge-multiple: false
+2026-11-07T19:09:17.9399206Z   repository: tarungittarun/TicTic
+2026-11-07T19:09:17.9399413Z   skip-decompress: false
+2026-11-07T19:09:17.9399614Z   digest-mismatch: error
+2026-11-07T19:09:17.9399790Z env:
+2026-11-07T19:09:17.9399949Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:17.9400149Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:17.9400361Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:17.9400547Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:17.9400791Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:17.9401176Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-07T19:09:17.9401504Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:17.9401801Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:17.9402092Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:17.9402383Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-07T19:09:17.9402637Z ##[endgroup]
+2026-11-07T19:09:18.0590887Z Downloading single artifact
+2026-11-07T19:09:18.3868100Z Preparing to download the following artifacts:
+2026-11-07T19:09:18.3868910Z - full71-internal-release-and-probe (ID: 13533388155, Size: 157507683, Expected Digest: sha256:382e7797119859d89eb29969156b11109d392bc7461ae42d28a80543e7f7017b)
+2026-11-07T19:09:18.3879592Z Downloading artifact '13533388155' from 'tarungittarun/TicTic'
+2026-11-07T19:09:18.4511056Z ##[error]Unable to download artifact(s): other side closed
+2026-11-07T19:09:18.4657162Z ##[group]Run python - <<'PY'
+2026-11-07T19:09:18.4657447Z [36;1mpython - <<'PY'[0m
+2026-11-07T19:09:18.4657658Z [36;1mimport json[0m
+2026-11-07T19:09:18.4657854Z [36;1mfrom pathlib import Path[0m
+2026-11-07T19:09:18.4658107Z [36;1mp=Path('comparison37-evidence/modules.json')[0m
+2026-11-07T19:09:18.4658640Z [36;1mif not p.exists():raise SystemExit('No app probe results; no comparison coverage claim')[0m
+2026-11-07T19:09:18.4659411Z [36;1md=json.loads(p.read_text());rows=d['results'];expected={('PLAN-X%02d'%i,a) for i in range(int('31-37'.split('-')[0]),int('31-37'.split('-')[1])+1) for a in ['mynotes','obsidian']}[0m
+2026-11-07T19:09:18.4660063Z [36;1mactual=[(r['module'],r['app']) for r in rows][0m
+2026-11-07T19:09:18.4660579Z [36;1massert len(actual)==len(set(actual))==len(expected) and set(actual)==expected,'Incomplete paired attempts; retain partial records'[0m
+2026-11-07T19:09:18.4680715Z [36;1massert all(r['status']!='running' for r in rows)[0m
+2026-11-07T19:09:18.4681561Z [36;1massert not any(r.get('capture_error') for r in rows),'Incomplete original captures are infrastructure/observer blockers, not completed coverage'[0m
+2026-11-07T19:09:18.4682447Z [36;1massert not d['whole_module_acceptance'] and not d['physical_acceptance'][0m
+2026-11-07T19:09:18.4683287Z [36;1mprint('Completed bounded attempts:',len(rows),'Blocked:',sum(r['status']=='blocked' for r in rows),'NOT full module acceptance')[0m
+2026-11-07T19:09:18.4683927Z [36;1mPY[0m
+2026-11-07T19:09:18.4703843Z shell: /usr/bin/bash -e {0}
+2026-11-07T19:09:18.4704050Z env:
+2026-11-07T19:09:18.4704225Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:18.4704438Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:18.4704660Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:18.4704852Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:18.4705108Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4705439Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-07T19:09:18.4705922Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4706218Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4706495Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4706792Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-07T19:09:18.4707050Z ##[endgroup]
+2026-11-07T19:09:18.4915535Z No app probe results; no comparison coverage claim
+2026-11-07T19:09:18.4951298Z ##[error]Process completed with exit code 1.
+2026-11-07T19:09:18.4992166Z ##[group]Run actions/upload-artifact@v7.0.2
+2026-11-07T19:09:18.4992405Z with:
+2026-11-07T19:09:18.4992601Z   name: comparison37-light-portrait-chunk05
+2026-11-07T19:09:18.4993100Z   path: comparison37-evidence
+obsidian-evidence
+refinement-environment-*
+
+2026-11-07T19:09:18.4993424Z   retention-days: 30
+2026-11-07T19:09:18.4993607Z   if-no-files-found: error
+2026-11-07T19:09:18.4993797Z   compression-level: 6
+2026-11-07T19:09:18.4993974Z   overwrite: false
+2026-11-07T19:09:18.4994161Z   include-hidden-files: false
+2026-11-07T19:09:18.4994354Z   archive: true
+2026-11-07T19:09:18.4994511Z env:
+2026-11-07T19:09:18.4994670Z   COMPARISON_RANGE: 31-37
+2026-11-07T19:09:18.4994867Z   COMPARISON_PROFILE: light-portrait
+2026-11-07T19:09:18.4995088Z   COMPARISON_NIGHT: no
+2026-11-07T19:09:18.4995273Z   COMPARISON_ORIENTATION: portrait
+2026-11-07T19:09:18.4995525Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4995881Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-07T19:09:18.4996202Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4996498Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4996786Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-07T19:09:18.4997074Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-07T19:09:18.4997326Z ##[endgroup]
+2026-11-07T19:09:18.6153636Z ##[error]No files were found with the provided path: comparison37-evidence
+obsidian-evidence
+refinement-environment-*. No artifacts will be uploaded.
+2026-11-07T19:09:18.6332618Z Post job cleanup.
+2026-11-07T19:09:18.7109074Z [command]/usr/bin/git version
+2026-11-07T19:09:18.7144302Z git version 2.56.0
+2026-11-07T19:09:18.7178697Z Temporarily overriding HOME='/home/runner/work/_temp/4c0900e5-9a8b-4482-8ddd-b1b5fc1f765e' before making global git config changes
+2026-11-07T19:09:18.7179614Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-07T19:09:18.7183852Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-07T19:09:18.7223932Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-07T19:09:18.7256539Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-07T19:09:18.7578367Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-07T19:09:18.7600077Z http.https://github.com/.extraheader
+2026-11-07T19:09:18.7610802Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-07T19:09:18.7646050Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-07T19:09:18.7949110Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-07T19:09:18.7987537Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-07T19:09:18.8395395Z Cleaning up orphan processes
+2026-11-07T19:09:18.8690417Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,4 +1,4 @@
-name: Retain first37-family comparison originals and honest coverage report
+name: Retain isolated37-family comparison originals and capture-health report
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -9,11 +9,11 @@ permissions:
 jobs:
   retain:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
-      SOURCE_RUN: '42343158423'
+      SOURCE_RUN: '42344599145'
       GH_TOKEN: ${{ github.token }}
-      EVIDENCE: mynotes/docs/comparisons/comparison37/42343158423
+      EVIDENCE: mynotes/docs/comparisons/comparison37/42344599145
     steps:
       - uses: actions/checkout@v5
         with:
@@ -26,10 +26,10 @@ jobs:
         run: |
           python - <<'PY'
           import os,json,subprocess,time,pathlib
-          for _ in range(90):
+          for _ in range(150):
               result=json.loads(subprocess.check_output(['gh','run','view',os.environ['SOURCE_RUN'],'--json','databaseId,headSha,status,conclusion,url,jobs']))
               if result['status']=='completed':
-                  assert result['headSha']=='2014f5d890b3cb73df851883d0eec065965b261b'
+                  assert result['headSha']=='e58e85f90b812aea7dccfdcfd2e88e88e099d235'
                   result['artifacts']=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/'+os.environ['SOURCE_RUN']+'/artifacts']))
                   pathlib.Path('/tmp/comparison37-run.json').write_text(json.dumps(result,indent=2));break
               time.sleep(10)
@@ -52,8 +52,8 @@ jobs:
           PY
       - name: Retain original completed job logs including the prior lost-guest diagnostics
         run: |
-          python mynotes/tools/comparisons/collect_comparison_logs.py 42342628990 mynotes/docs/comparisons/comparison37/42342628990/host-logs
-          python mynotes/tools/comparisons/collect_comparison_logs.py "$SOURCE_RUN" "$EVIDENCE/host-logs"
+          python mynotes/tools/comparisons/collect_comparison_logs.py 42342628990 mynotes/docs/comparisons/comparison37/42342628990/host-logs/lookup-${{ github.run_id }}
+          python mynotes/tools/comparisons/collect_comparison_logs.py "$SOURCE_RUN" "$EVIDENCE/host-logs/lookup-${{ github.run_id }}"
       - name: Gate and commit immutable originals locally
         run: |
           git fetch origin arena/3caca636-tictic

@@ -16,7 +16,12 @@ def collect(run, output):
         endpoint='repos/tarungittarun/TicTic/actions/jobs/'+str(job['databaseId'])+'/logs'
         receipt={'job':job['databaseId'],'name':job['name'],'endpoint':'https://api.github.com/'+endpoint}
         try:
-            data=subprocess.check_output(['gh','api',endpoint],timeout=120)
+            response=subprocess.run(['gh','api',endpoint],capture_output=True,timeout=120)
+            if response.returncode:
+                detail=re.sub(r'(https?://[^?\s]+)\?\S+',r'\1?[signed-query-redacted]',response.stderr.decode(errors='replace'))[:1500]
+                receipt.update(retained=False,returncode=response.returncode,error=detail)
+                files.append(receipt);continue
+            data=response.stdout
             path=output/(str(job['databaseId'])+'.txt');path.write_bytes(data)
             receipt.update(path=path.name,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),source_bytes_modified=False)
             lines=[line for line in data.decode(errors='replace').splitlines() if re.search(r'Out of memory|Killed process|SIGSEGV|Segmentation fault|Fatal signal|emulator.*(?:exit|kill|crash)|Keyboard did not dismiss|mInputShown|mIsInputViewShown',line,re.I)]

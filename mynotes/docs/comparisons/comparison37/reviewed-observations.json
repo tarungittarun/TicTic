@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "scope": "Independent review of original records and frames; harness/corpus/infrastructure findings, not new app defect claims. All original task and physical acceptance remain open.",
+  "observations": [
+    {
+      "id": "CMP37-H01",
+      "category": "cross-case_surface_contamination",
+      "observation": "Native X05 opens the Android image picker. X06 onward captures the DocumentsUI picker rather than the requested MyNotes surfaces. Relaunch alone did not dismiss the external activity.",
+      "limits": "These downstream route blockers are not app feature failures. No UX ranking may use them.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X05.xml",
+          "sha256": "fef55bcf36a7762b181f6918194dcb1c57919f34e6eafe1baea8bbc85c9d70af",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X05.xml"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X06.xml",
+          "sha256": "b561c2e79cb23ccc99c95af03842170ac655c3d0af4064fc18e1fa52b15f4a76",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X06.xml"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X22.xml",
+          "sha256": "fef55bcf36a7762b181f6918194dcb1c57919f34e6eafe1baea8bbc85c9d70af",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X22.xml"
+        }
+      ],
+      "comparison_harness_change": "Cancel only explicitly recognized public-session DocumentsUI/share choosers; retain app errors and capture owner packages. Runtime recheck run42344599145 pending at observation time.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H02",
+      "category": "command_lookup",
+      "observation": "Installed Obsidian command inventory includes global-search:open. The original helper anchored a regex against ID plus space plus human name, preventing its exact-ID match.",
+      "limits": "A missing-command error here does not establish absence of vault search. New unit test reproduces and guards the lookup correction.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/obsidian-evidence/runtime-discovery.json",
+          "sha256": "1c63746bfc8257b5d09f7bc88cd5e407435173f01bf48917d904f68950d245ce",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/obsidian-evidence/runtime-discovery.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/modules.json",
+          "sha256": "fa287a87c15aa0fd7e672492dfab4b20df0fceb6585ce69a12650e82f9c1e54a",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/modules.json"
+        }
+      ],
+      "comparison_harness_change": "Match ID and human name separately; actual result-container assertions remain unchanged.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H03",
+      "category": "route_label",
+      "observation": "The native X04 tree exposes Insert, not the requested Add to document.",
+      "limits": "This is a harness label mismatch, not evidence that tables cannot be inserted.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X04.xml",
+          "sha256": "876667c7b877b8fa23b52254337616bae14bfb2cb59fd80ceb6a13e12656c1ae",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/mynotes-PLAN-X04.xml"
+        }
+      ],
+      "comparison_harness_change": "Use the actual Insert control; do not waive table or capture assertions.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H04",
+      "category": "external_handoff",
+      "observation": "Obsidian DOCX probe opens an Android Share chooser, with Bluetooth/Drive/Gmail/Messages and Just once/Always.",
+      "limits": "The initial DOCX fixture is invalid. This screenshot is only an external-handoff observation, not DOCX support/fidelity acceptance or app-wide absence.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/obsidian-PLAN-X14.xml",
+          "sha256": "3dbdde114f633fc519a06d2ce7d5a8ca92258a17d578ee60dcdd0d112893a825",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/obsidian-PLAN-X14.xml"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/obsidian-PLAN-X14.png",
+          "sha256": "21b51d2fb3652c4851dd84f1cf22b400c8e3d39cc94f32211fa726d40430aaa3",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/obsidian-PLAN-X14.png"
+        }
+      ],
+      "comparison_harness_change": "Cancel the public-session chooser between probes; retain it as the original boundary observation.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H05",
+      "category": "guest_unavailable",
+      "observation": "Original portrait rows from X23 report adb device offline/not found and closed CDP. Later records have no complete captures.",
+      "limits": "Cause of guest loss is unknown. Attempts to retrieve completed job logs failed and their receipts are retained. Do not attribute guest loss to either app or call post-loss records executed functional comparisons.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/modules.json",
+          "sha256": "fa287a87c15aa0fd7e672492dfab4b20df0fceb6585ce69a12650e82f9c1e54a",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/modules.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/host-logs/manifest.json",
+          "sha256": "33680688afbd78c4ec0949b526e151cf3c1de3faf15b01a89a0e6cbff8f4db75",
+          "url": "https://github.com/tarungittarun/TicTic/blob/f7bd6425f2cec18ce26d6fa2e9051f614ca482a9/mynotes/docs/comparisons/comparison37/42342628990/host-logs/manifest.json"
+        }
+      ],
+      "comparison_harness_change": "Preflight live adb before each dispatch; fail capture-health gate and retain partial/fatal evidence rather than manufacturing remaining attempts.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H06",
+      "category": "keyboard_observer",
+      "observation": "All four second-run guests abort with Keyboard did not dismiss. The landscape fatal frame is already the home screen; repeated Back has left the editor. No module probe was executed in that run.",
+      "limits": "The keyboard observer used mInputShown OR mIsInputViewShown. The exact full dumps were not preserved in that run, so which stale flag fired cannot be independently proved from the truncated command prefix. This is not a production keyboard defect finding.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/fatal.json",
+          "sha256": "6147cf944ec9f92b0dc3c1bc86448b71f8db589e3d73d50cc8ff0b3cb8263fe6",
+          "url": "https://github.com/tarungittarun/TicTic/blob/f7bd6425f2cec18ce26d6fa2e9051f614ca482a9/mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/fatal.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/mynotes-fatal.png",
+          "sha256": "5e0b75e1b51eed514135c98d8991abee17fe54e5bacfb065d2b673c07dbb7728",
+          "url": "https://github.com/tarungittarun/TicTic/blob/f7bd6425f2cec18ce26d6fa2e9051f614ca482a9/mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/mynotes-fatal.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/session.json",
+          "sha256": "e07ec14338ca0f484cc4c6d2162bbd58775516786982bf3a9a3c439d1ab0d90b",
+          "url": "https://github.com/tarungittarun/TicTic/blob/f7bd6425f2cec18ce26d6fa2e9051f614ca482a9/mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/session.json"
+        }
+      ],
+      "comparison_harness_change": "Use the manager state only, never the IME view flag; retain full dumps and require an exact app-owned input plus typed-value readback. Unit test guards a hidden IME view producing no Back.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H07",
+      "category": "invalid_initial_format_corpus",
+      "observation": "First-run DOCX/ODT/PPTX contain only one XML ZIP member and are not complete Office packages. Second-run input bytes use python-docx/python-pptx/odfpy and are retained.",
+      "limits": "Library packaging/roundtrip checks are not formal schema validation or realistic-document fidelity. PDF is still a small synthetic3-page fixture, not18MB+ acceptance.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/fixture-manifest.json",
+          "sha256": "a5b203f8c82bf3828b2791a58fdf02f3bf6a2e4c186a62445e1a4247e39befdc",
+          "url": "https://github.com/tarungittarun/TicTic/blob/9f65a6f31fc1613c1319b28b4c29cfe25392394a/mynotes/docs/comparisons/comparison37/42342628990/comparison37-light-portrait/comparison37-evidence/fixture-manifest.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/fixture-manifest.json",
+          "sha256": "7c8c4f2e08b6f219ce7a8dde3b9443b848a8844ab634c01748addef9b2e8de98",
+          "url": "https://github.com/tarungittarun/TicTic/blob/f7bd6425f2cec18ce26d6fa2e9051f614ca482a9/mynotes/docs/comparisons/comparison37/42343158423/comparison37-light-landscape/comparison37-evidence/fixture-manifest.json"
+        }
+      ],
+      "comparison_harness_change": "Replace the invalid ZIPs using real format libraries; preserve each generated input byte and its hash before device push.",
+      "production_app_changed": false
+    }
+  ]
+}

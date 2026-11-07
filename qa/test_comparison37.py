@@ -73,3 +73,18 @@ class PairedModuleComparisonTest(unittest.TestCase):
         self.assertTrue(namespace['cancel_public_session_picker']()['cancelled']);self.assertEqual(len(back),1)
         nodes[:]=[{'package':'android','text':text} for text in ['Share','Just once','Always']]
         self.assertTrue(namespace['cancel_public_session_picker']()['cancelled']);self.assertEqual(len(back),2)
+
+    def test_hidden_ime_view_does_not_generate_a_back_press(self):
+        from types import SimpleNamespace
+        import re,tempfile
+        tree=ast.parse(SCRIPT.read_text());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='hide_ime')
+        back=[];commands=[]
+        def adb(*args):
+            commands.append(args)
+            return b'mInputShown=false\nmIsInputViewShown=true\n'
+        with tempfile.TemporaryDirectory() as directory:
+            namespace={'h':SimpleNamespace(adb=adb,back=lambda:back.append(True),COMMANDS=commands),'OUT':Path(directory),'re':re}
+            exec(compile(ast.Module(body=[function],type_ignores=[]),'ime-unit','exec'),namespace)
+            namespace['hide_ime']()
+            self.assertEqual(back,[])
+            self.assertEqual(len(list(Path(directory).glob('input-method-*.txt'))),1)

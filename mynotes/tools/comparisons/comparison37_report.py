@@ -107,7 +107,7 @@ def render(evidence, commit):
         info=summary['profiles'][profile]
         paragraph(profile+' capture health: '+str(info.get('complete_original_snapshot_records',0))+' complete original snapshot records; '+str(info.get('records_with_capture_error',0))+' capture errors. Capture-owner fields exist for '+str(info.get('capture_owner_fields_recorded',0))+' records. Zero owner fields in older originals means unrecorded, not that no app frames exist.')
     paragraph('Short-session evidence may span several fresh guests per profile. This is disclosed setup isolation, NOT proof that a long session is reliable. Repeated public inputs may share a SHA256-addressed retained_path in the manifest; every original entry and its exact uncompressed hash is retained. Large text records may use verified lossless gzip to avoid a huge duplicate dataset. Modules and PNG screenshots remain directly readable; the manifest identifies each stored path and encoding.')
-    paragraph('Methods differ and are disclosed: MyNotes public note is entered using native touch/input and reopened after process restart; Obsidian public fixtures are seeded using its official vault API, and command/settings APIs navigate some surfaces. Those shortcuts are not user-route, creation-efficiency or latency evidence. Native screens are real adb captures; no UI reconstruction. Standard font scale1.0; light/dark portrait/landscape at API34, not physical phones or accessibility acceptance.')
+    paragraph('Methods differ and are disclosed: MyNotes public note is entered using native touch/input and reopened after process restart; Obsidian public fixtures are seeded using its official vault API, and command/settings APIs navigate some surfaces. Offscreen selector targets may be scrolled into view by the harness before touch. Those shortcuts are not user-route, unaided discoverability, creation-efficiency or latency evidence. Native screens are real adb captures; no UI reconstruction. Standard font scale1.0; light/dark portrait/landscape at API34, not physical phones or accessibility acceptance.')
     if summary['run']==42342628990:paragraph('Fixture validity warning: this first run generates incomplete DOCX/ODT/PPTX ZIP containers. Any failure on those files is INVALID as an app-format or fidelity finding until standards-valid fixtures are rerun. The PDF is a small synthetic3-page file, not the requested18MB+ varied-document acceptance corpus.')
     else:paragraph('Public synthetic fixture bytes are retained with hashes where generated before the failure. Office packages use real format libraries; these are still small test documents, not complex-layout fidelity or18MB+ PDF acceptance.')
     paragraph('Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.')
@@ -125,13 +125,14 @@ def render(evidence, commit):
             for row in data['results']:
                 key=(row['module'],row['app']);records[key]=row;origins[key]=module_file
         for plan in plans:
-            heading(plan['id']+' | '+plan['name']+' | '+profile,True)
+            heading(plan['id']+' | '+plan['name']+' | planned '+profile,True)
             paragraph('Original acceptance task (NOT automatically accepted): '+plan['task'])
             screenshots=[]
             for app in ['mynotes','obsidian']:
                 row=records.get((plan['id'],app))
                 if row is None:paragraph(app+': NOT EXECUTED — no original record.');screenshots.append(p('No original capture','Small37'));continue
                 paragraph(app+' — '+row['status']+'. Actual bounded check: '+row.get('check',row.get('error','No verified outcome'))[:800])
+                if row.get('observed_profile'):paragraph('Actual WebView profile observation: '+json.dumps(row['observed_profile'])+'; failed profile assertions remain blocked, never a landscape/theme pass.')
                 if row.get('capture_error'):paragraph('Capture blocker: '+row['capture_error'])
                 module_file=origins[(plan['id'],app)]
                 link(app+' original exact result record',base+str(module_file.relative_to(evidence)))

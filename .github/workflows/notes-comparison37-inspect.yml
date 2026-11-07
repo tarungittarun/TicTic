@@ -1,4 +1,4 @@
-name: Inspect isolated light-landscape onboarding blocker
+name: Inspect original portrait guest-loss and UI-probe blockers
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -14,20 +14,22 @@ jobs:
         with:
           github-token: ${{ github.token }}
           run-id: 42344599145
-          name: comparison37-light-landscape
+          pattern: comparison37-*-portrait
           path: original
       - name: Surface exact original errors without editing or rescuing assertions
         run: |
           python - <<'PY'
           import pathlib,json
           files=list(pathlib.Path('original').rglob('fatal.json'))
-          assert len(files)==1,'Expected original light-landscape fatal record'
+          assert len(files)==2,'Expected both original portrait fatal records'
           for path in files:
               data=json.loads(path.read_text())
               message=(str(path)+': '+json.dumps(data))[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice title=Original fatal comparison record::'+message)
-          for path in pathlib.Path('original').rglob('runtime-discovery.json'):
-              data=json.loads(path.read_text())
-              message=('Observed onboarding body: '+str(data.get('body'))+';hasApp='+str(data.get('hasApp')))[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
-              print('::notice title=Original onboarding state, not an app defect::'+message)
+          for path in pathlib.Path('original').rglob('modules.json'):
+              data=json.loads(path.read_text());rows=data['results']
+              summary=[{'module':r['module'],'app':r['app'],'status':r['status'],'packages':r.get('captured_packages'),'error':r.get('error','')[:250],'capture_error':r.get('capture_error','')[:150]} for r in rows]
+              for i in range(0,len(summary),8):
+                  message=(str(path)+' '+json.dumps(summary[i:i+8]))[:3500].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+                  print('::notice title=Actual original probe progress before guest loss::'+message)
           PY

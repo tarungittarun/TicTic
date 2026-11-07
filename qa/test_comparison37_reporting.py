@@ -68,3 +68,22 @@ class ComparisonRetentionTest(unittest.TestCase):
                 self.assertIn('acceptance still open',' '.join(document[0].get_text().split()))
                 self.assertGreater(sum(len(page.get_links()) for page in document),2)
                 self.assertIn('Public fixture unavailable',' '.join(page.get_text() for page in document))
+
+    def test_chunk_records_merge_without_double_counting_and_inputs_keep_exact_bytes(self):
+        report=load('comparison37_report')
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            for i in [1,2]:
+                lane=root/'in'/('comparison37-light-portrait-chunk%02d'%i)/'comparison37-evidence';lane.mkdir(parents=True)
+                (lane/'modules.json').write_text(json.dumps({'results':[{'module':'PLAN-X%02d'%i,'app':'mynotes','status':'inspection_only','requested_task_acceptance':False}], 'whole_module_acceptance':False,'physical_acceptance':False}))
+                fixtures=lane/'public-fixtures';fixtures.mkdir();(fixtures/'Public.txt').write_bytes(b'Exact public bytes\n'*100)
+            metadata={'status':'completed','databaseId':1,'headSha':'a'*40,'url':'https://github.com/example/example/actions/runs/1','conclusion':'failure'}
+            result=report.retain(root/'in',root/'out',metadata)
+            self.assertEqual(result['profiles']['light-portrait']['attempts'],2)
+            self.assertEqual(len(result['profiles']['light-portrait']['module_files']),2)
+            self.assertFalse(result['all_profiles_have74_attempt_records'])
+            receipt=json.loads((root/'out/retention.json').read_text());inputs=[r for r in receipt['files'] if r['path'].endswith('Public.txt')]
+            self.assertEqual(len(inputs),2);self.assertEqual(inputs[0]['retained_path'],inputs[1]['retained_path'])
+            self.assertEqual((root/'out'/inputs[0]['retained_path']).read_bytes(),b'Exact public bytes\n'*100)
+            report.retain(root/'in',root/'out',metadata)
+            self.assertEqual(json.loads((root/'out/retention.json').read_text())['bytes'],receipt['bytes'])

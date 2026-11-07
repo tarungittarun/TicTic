@@ -88,3 +88,16 @@ class PairedModuleComparisonTest(unittest.TestCase):
             namespace['hide_ime']()
             self.assertEqual(back,[])
             self.assertEqual(len(list(Path(directory).glob('input-method-*.txt'))),1)
+
+    def test_short_sessions_cover_exactly37_families_without_overlap(self):
+        workflow=yaml.safe_load(Path('.github/workflows/notes-comparison37-shards.yml').read_text())
+        rows=workflow['jobs']['compare']['strategy']['matrix']['include']
+        self.assertEqual(len(rows),20)
+        for profile in {r['id'] for r in rows}:
+            numbers=[]
+            for row in rows:
+                if row['id']==profile:
+                    first,last=map(int,row['range'].split('-'));numbers.extend(range(first,last+1))
+            self.assertEqual(sorted(numbers),list(range(1,38)))
+            self.assertEqual(len(numbers),len(set(numbers)))
+        self.assertIn('fresh_guest_chunk_not_long_session_reliability',SCRIPT.read_text())

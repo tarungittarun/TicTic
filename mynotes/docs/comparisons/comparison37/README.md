@@ -14,6 +14,20 @@ be described as completion of the original37 functional/UX acceptance tasks.
 | [42345604329](https://github.com/tarungittarun/TicTic/actions/runs/42345604329) | Completed: both landscape jobs green, both portraits failed. Portrait:44 records each; landscape:74 each. All37 Obsidian rows in each landscape profile were blocked because the actual display was portrait. | Green jobs prove capture/attempt completion, not requested-profile or functional acceptance. |
 | [42346486192](https://github.com/tarungittarun/TicTic/actions/runs/42346486192) | Completed:13 green/7 red short-session jobs. Actual records: light portrait60, dark portrait48, light landscape42, dark landscape74. | Five independent guests per profile, not a stable long session; no profile reached whole-task acceptance. |
 
+## Latest recheck:42404795321
+
+The notification isolation, provider settling and per-launch rotation changes were tested in20 jobs on the pinned installed apps. **10 jobs succeeded and10 failed; the comparison is not complete.** Retained records per profile are56 light portrait,56 dark portrait,44 light landscape and44 dark landscape. No whole requested task is marked accepted.
+
+- [Latest recheck PDF](https://github.com/tarungittarun/TicTic/raw/d773e3e32200034b0d0c9483ac8e018369eb000a/mynotes/docs/comparisons/comparison37/42404795321/Comparison37_Runtime_Probes.pdf).
+- [Actual counts and scope](https://github.com/tarungittarun/TicTic/blob/d773e3e32200034b0d0c9483ac8e018369eb000a/mynotes/docs/comparisons/comparison37/42404795321/summary.json).
+- [Recovered original host-log manifest](https://github.com/tarungittarun/TicTic/blob/d773e3e32200034b0d0c9483ac8e018369eb000a/mynotes/docs/comparisons/comparison37/42404795321/host-logs/lookup-42406196610/manifest.json).
+
+Verified improvements:44 Obsidian records achieve landscape, with WebView and PNG dimensions retained. Native X21 captures belong to MyNotes in all four profiles rather than the earlier notification prompt. Neither observation proves complete landscape workflows or widget placement.
+
+Remaining failures: one job could not download the pinned artifact (`other side closed`); others lost the guest connection. PDF/TXT selection still failed, despite the provider-settling change. Landscape library/tools sheets expose only part of their actions; exact-label lookup did not reach several offscreen controls. These remain comparison route blockers, not automatically new app defects.
+
+All20 original host logs were recovered after fixing the GitHub CLI escape-sequence refusal. Some failed guests show graphics ColorBuffer errors and the emulator console port is refused during subsequent cleanup. This does **not** establish graphics as the cause, nor OOM, nor an app crash; cleanup termination must not be mislabelled the initiating failure. Both publication runs completed; no emulator retry is running.
+
 ## Latest completed-cohort reports
 
 - [Short-session report (PDF)](https://github.com/tarungittarun/TicTic/raw/4b77fb466187663f4804f2fab1ece2014263efbb/mynotes/docs/comparisons/comparison37/42346486192/Comparison37_Runtime_Probes.pdf).

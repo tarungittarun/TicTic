@@ -1,0 +1,554 @@
+{
+  "conclusion": "failure",
+  "databaseId": 42344599145,
+  "headSha": "e58e85f90b812aea7dccfdcfd2e88e88e099d235",
+  "jobs": [
+    {
+      "completedAt": "2026-11-07T06:15:21Z",
+      "conclusion": "failure",
+      "databaseId": 128319488103,
+      "name": "compare (dark-portrait, yes, portrait)",
+      "startedAt": "2026-11-07T05:53:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-07T05:53:24Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-07T05:53:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-07T05:53:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:26Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-11-07T05:53:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:32Z",
+          "conclusion": "success",
+          "name": "Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1",
+          "number": 4,
+          "startedAt": "2026-11-07T05:53:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:40Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 5,
+          "startedAt": "2026-11-07T05:53:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:41Z",
+          "conclusion": "success",
+          "name": "Pin exact signed apps; no build, re-signing or public release",
+          "number": 6,
+          "startedAt": "2026-11-07T05:53:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:51Z",
+          "conclusion": "success",
+          "name": "Prepare emulator only",
+          "number": 7,
+          "startedAt": "2026-11-07T05:53:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:16Z",
+          "conclusion": "failure",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-07T05:53:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:16Z",
+          "conclusion": "failure",
+          "name": "Require original module records instead of assuming a green process means coverage",
+          "number": 9,
+          "startedAt": "2026-11-07T06:15:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:18Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 10,
+          "startedAt": "2026-11-07T06:15:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:18Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 19,
+          "startedAt": "2026-11-07T06:15:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:19Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 20,
+          "startedAt": "2026-11-07T06:15:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:19Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-11-07T06:15:19Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42344599145/job/128319488103"
+    },
+    {
+      "completedAt": "2026-11-07T06:15:11Z",
+      "conclusion": "failure",
+      "databaseId": 128319488212,
+      "name": "compare (light-portrait, no, portrait)",
+      "startedAt": "2026-11-07T05:53:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-07T05:53:24Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-07T05:53:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-07T05:53:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:25Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-11-07T05:53:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:33Z",
+          "conclusion": "success",
+          "name": "Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1",
+          "number": 4,
+          "startedAt": "2026-11-07T05:53:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:40Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 5,
+          "startedAt": "2026-11-07T05:53:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:41Z",
+          "conclusion": "success",
+          "name": "Pin exact signed apps; no build, re-signing or public release",
+          "number": 6,
+          "startedAt": "2026-11-07T05:53:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:51Z",
+          "conclusion": "success",
+          "name": "Prepare emulator only",
+          "number": 7,
+          "startedAt": "2026-11-07T05:53:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:06Z",
+          "conclusion": "failure",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-07T05:53:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:06Z",
+          "conclusion": "failure",
+          "name": "Require original module records instead of assuming a green process means coverage",
+          "number": 9,
+          "startedAt": "2026-11-07T06:15:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:09Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 10,
+          "startedAt": "2026-11-07T06:15:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:09Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 19,
+          "startedAt": "2026-11-07T06:15:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:09Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 20,
+          "startedAt": "2026-11-07T06:15:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:15:09Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-11-07T06:15:09Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42344599145/job/128319488212"
+    },
+    {
+      "completedAt": "2026-11-07T05:58:35Z",
+      "conclusion": "failure",
+      "databaseId": 128319488238,
+      "name": "compare (light-landscape, no, landscape)",
+      "startedAt": "2026-11-07T05:53:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-07T05:53:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-07T05:53:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:24Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-07T05:53:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:24Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-11-07T05:53:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:31Z",
+          "conclusion": "success",
+          "name": "Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1",
+          "number": 4,
+          "startedAt": "2026-11-07T05:53:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:34Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 5,
+          "startedAt": "2026-11-07T05:53:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:36Z",
+          "conclusion": "success",
+          "name": "Pin exact signed apps; no build, re-signing or public release",
+          "number": 6,
+          "startedAt": "2026-11-07T05:53:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:50Z",
+          "conclusion": "success",
+          "name": "Prepare emulator only",
+          "number": 7,
+          "startedAt": "2026-11-07T05:53:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:32Z",
+          "conclusion": "failure",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-07T05:53:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:32Z",
+          "conclusion": "failure",
+          "name": "Require original module records instead of assuming a green process means coverage",
+          "number": 9,
+          "startedAt": "2026-11-07T05:58:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:34Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 10,
+          "startedAt": "2026-11-07T05:58:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:34Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 19,
+          "startedAt": "2026-11-07T05:58:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 20,
+          "startedAt": "2026-11-07T05:58:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:58:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-11-07T05:58:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42344599145/job/128319488238"
+    },
+    {
+      "completedAt": "2026-11-07T06:27:11Z",
+      "conclusion": "success",
+      "databaseId": 128319488287,
+      "name": "compare (dark-landscape, yes, landscape)",
+      "startedAt": "2026-11-07T05:53:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-07T05:53:24Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-07T05:53:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-07T05:53:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:26Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-11-07T05:53:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:35Z",
+          "conclusion": "success",
+          "name": "Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1",
+          "number": 4,
+          "startedAt": "2026-11-07T05:53:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:43Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 5,
+          "startedAt": "2026-11-07T05:53:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:44Z",
+          "conclusion": "success",
+          "name": "Pin exact signed apps; no build, re-signing or public release",
+          "number": 6,
+          "startedAt": "2026-11-07T05:53:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T05:53:54Z",
+          "conclusion": "success",
+          "name": "Prepare emulator only",
+          "number": 7,
+          "startedAt": "2026-11-07T05:53:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:05Z",
+          "conclusion": "success",
+          "name": "Run ReactiveCircus/android-emulator-runner@v2",
+          "number": 8,
+          "startedAt": "2026-11-07T05:53:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:06Z",
+          "conclusion": "success",
+          "name": "Require original module records instead of assuming a green process means coverage",
+          "number": 9,
+          "startedAt": "2026-11-07T06:27:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:08Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 10,
+          "startedAt": "2026-11-07T06:27:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:08Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 19,
+          "startedAt": "2026-11-07T06:27:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:09Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 20,
+          "startedAt": "2026-11-07T06:27:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-07T06:27:09Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-11-07T06:27:09Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/42344599145/job/128319488287"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/tarungittarun/TicTic/actions/runs/42344599145",
+  "artifacts": {
+    "total_count": 4,
+    "artifacts": [
+      {
+        "id": 13564080781,
+        "node_id": "MDg6QXJ0aWZhY3QxMzU2NDA4MDc4MQ==",
+        "name": "comparison37-dark-portrait",
+        "size_in_bytes": 5119061,
+        "url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13564080781",
+        "archive_download_url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13564080781/zip",
+        "expired": false,
+        "digest": "sha256:cbb44fe0e0873cc74a01a7b4ea5f2d0dd1e1583b9535c9935a182a0025cce8de",
+        "created_at": "2026-11-07T06:15:18Z",
+        "updated_at": "2026-11-07T06:15:18Z",
+        "expires_at": "2026-12-07T06:15:16Z",
+        "workflow_run": {
+          "id": 42344599145,
+          "repository_id": 1419770802,
+          "head_repository_id": 1419770802,
+          "head_branch": "arena/3caca636-tictic",
+          "head_sha": "e58e85f90b812aea7dccfdcfd2e88e88e099d235"
+        }
+      },
+      {
+        "id": 13563308444,
+        "node_id": "MDg6QXJ0aWZhY3QxMzU2MzMwODQ0NA==",
+        "name": "comparison37-light-portrait",
+        "size_in_bytes": 5304613,
+        "url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13563308444",
+        "archive_download_url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13563308444/zip",
+        "expired": false,
+        "digest": "sha256:e70e81c6302c9e211a8264dfbdb4b63163d3f99c773050898a25f2bd347aa6f5",
+        "created_at": "2026-11-07T06:15:08Z",
+        "updated_at": "2026-11-07T06:15:08Z",
+        "expires_at": "2026-12-07T06:15:06Z",
+        "workflow_run": {
+          "id": 42344599145,
+          "repository_id": 1419770802,
+          "head_repository_id": 1419770802,
+          "head_branch": "arena/3caca636-tictic",
+          "head_sha": "e58e85f90b812aea7dccfdcfd2e88e88e099d235"
+        }
+      },
+      {
+        "id": 13563054239,
+        "node_id": "MDg6QXJ0aWZhY3QxMzU2MzA1NDIzOQ==",
+        "name": "comparison37-dark-landscape",
+        "size_in_bytes": 6991547,
+        "url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13563054239",
+        "archive_download_url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13563054239/zip",
+        "expired": false,
+        "digest": "sha256:8031fe219b33fe01d92532ebd96fbebe346b00aca254582345bd3145a4d88c7f",
+        "created_at": "2026-11-07T06:27:08Z",
+        "updated_at": "2026-11-07T06:27:08Z",
+        "expires_at": "2026-12-07T06:27:06Z",
+        "workflow_run": {
+          "id": 42344599145,
+          "repository_id": 1419770802,
+          "head_repository_id": 1419770802,
+          "head_branch": "arena/3caca636-tictic",
+          "head_sha": "e58e85f90b812aea7dccfdcfd2e88e88e099d235"
+        }
+      },
+      {
+        "id": 13562019681,
+        "node_id": "MDg6QXJ0aWZhY3QxMzU2MjAxOTY4MQ==",
+        "name": "comparison37-light-landscape",
+        "size_in_bytes": 2488439,
+        "url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13562019681",
+        "archive_download_url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13562019681/zip",
+        "expired": false,
+        "digest": "sha256:6f1ae4e5006b96af0de35a99aca6a3a593005e986491b53ebf8e93717f335de9",
+        "created_at": "2026-11-07T05:58:33Z",
+        "updated_at": "2026-11-07T05:58:33Z",
+        "expires_at": "2026-12-07T05:58:33Z",
+        "workflow_run": {
+          "id": 42344599145,
+          "repository_id": 1419770802,
+          "head_repository_id": 1419770802,
+          "head_branch": "arena/3caca636-tictic",
+          "head_sha": "e58e85f90b812aea7dccfdcfd2e88e88e099d235"
+        }
+      }
+    ]
+  }
+}

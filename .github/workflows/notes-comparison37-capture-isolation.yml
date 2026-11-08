@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Isolate observer capture on previously blocked final comparison modules
+name: Recheck blocked comparison modules with direct software renderer and host diagnostics
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -75,7 +75,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu swiftshader -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
           script: |
             python -m mynotes.tools.ci.offline_guest
             cp offline-guest-proof.json comparison37-evidence/
@@ -85,8 +85,22 @@ jobs:
             adb shell cmd uimode night ${{ matrix.night }}
             python -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             python -m mynotes.tools.ci.native_environment --snapshot configured
-            python mynotes/tools/comparisons/paired_modules37.py
-            python -m mynotes.tools.ci.native_environment --snapshot after
+            result=0
+            python mynotes/tools/comparisons/paired_modules37.py || result=$?
+            python - <<'PYHOST'
+            import json,pathlib,subprocess
+            data={'scope':'Public CI host resource/process diagnostics, not an app fault attribution','proc':{}}
+            for name in ['meminfo','pressure/memory','pressure/io']:
+                p=pathlib.Path('/proc')/name
+                data['proc'][name]=p.read_text() if p.exists() else 'unavailable'
+            for name,command in [('processes',['ps','-eo','pid,comm,rss,stat']),('disk',['df','-h']),('kernel',['sudo','-n','dmesg','--level=err,warn'])]:
+                try:
+                    r=subprocess.run(command,capture_output=True,text=True,timeout=15)
+                    data[name]={'returncode':r.returncode,'stdout':r.stdout[-30000:],'stderr':r.stderr[-2000:]}
+                except Exception as e:data[name]={'error':str(e)}
+            pathlib.Path('comparison37-evidence/host-after.json').write_text(json.dumps(data,indent=2))
+            PYHOST
+            exit "$result"
       - name: Require original module records instead of assuming a green process means coverage
         if: always()
         run: |

@@ -268,25 +268,50 @@ def picker_target(nodes,name):
     return 'wait',None
 
 
+def search_public_picker(name):
+    providers={'com.google.android.documentsui','com.android.documentsui'}
+    nodes=h.tree()[1]
+    search=[n for n in nodes if n.get('package') in providers and n.get('enabled')!='false'
+            and n.get('content-desc')=='Search']
+    assert len(search)==1, 'A unique enabled DocumentsUI search control was not established'
+    h.tap_node(search[0])
+    nodes=h.tree()[1]
+    fields=[n for n in nodes if n.get('package') in providers and n.get('class')=='android.widget.EditText'
+            and n.get('enabled')!='false']
+    assert len(fields)==1, 'A unique DocumentsUI query editor was not established'
+    h.tap_node(fields[0]);h.type_native(name)
+    h.adb('shell','input','keyevent','KEYCODE_ENTER');time.sleep(1)
+    return {'method':'Actual DocumentsUI search input and touch; independent fallback, not original folder-route success',
+            'query':name}
+
+
 def native_file(name):
     home(); h.tap('Library'); h.tap('Open file')
     # The system picker is exercised, not replaced by a private app import API.
-    navigated=set()
-    for _ in range(24):
+    navigated=set();selected=False;search_route=None
+    for _ in range(8):
         nodes=h.tree()[1]
         action,target=picker_target(nodes,name)
-        if action=='file':h.tap_node(picker_click_target(nodes,target));break
+        if action=='file':h.tap_node(picker_click_target(nodes,target));selected=True;break
         key=(action,target.get('text'),target.get('content-desc')) if target else None
         if target and key not in navigated:
             h.tap_node(picker_click_target(nodes,target));navigated.add(key)
-        # Let provider navigation finish before interpreting an old breadcrumb
-        # or tapping the same folder a second time.
         time.sleep(1)
-    else: raise RuntimeError('Picker did not expose public fixture '+name+'; '+native_labels()[:900])
+    if not selected:
+        # Preserve the unsuccessful directory route before trying a distinct,
+        # real system-picker search route. Never relabel the first as passed.
+        h.capture('mynotes','unresolved-picker-'+name)
+        search_route=search_public_picker(name)
+        for _ in range(12):
+            nodes=h.tree()[1];action,target=picker_target(nodes,name)
+            if action=='file':h.tap_node(picker_click_target(nodes,target));selected=True;break
+            time.sleep(1)
+    assert selected, 'Neither directory navigation nor real picker search exposed '+name+'; '+native_labels()[:900]
     time.sleep(1)
     labels = native_labels()
     if 'MyNotes pages' in labels: h.tap('MyNotes pages'); time.sleep(1); labels = native_labels()
-    return {'status':'interaction_observed','check':'Actual system picker selected the specified original; viewer/reader state inspected, not complete fidelity/search acceptance.','fixture':name,'visible_labels':labels,
+    return {'status':'interaction_observed','check':'Actual system picker selected the specified original; viewer/reader state inspected, not complete fidelity/search acceptance.','fixture':name,'visible_labels':labels,'independent_picker_search':search_route,
+            'original_directory_route':'not_established' if search_route else 'selected',
             'public_source_sha256_after':h.adb('shell','sha256sum','/sdcard/Download/Comparison37/'+name).decode().split()[0]}
 
 

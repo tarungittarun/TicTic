@@ -212,3 +212,28 @@ class PublicRouteRecoveryTest(unittest.TestCase):
             fn=self.function('tap_with_public_scroll',{'ORIGINAL_TAP':tap,'h':h,'re':re,'time':SimpleNamespace(sleep=lambda _:None)})
             with self.assertRaises(RuntimeError):fn('Settings')
             self.assertEqual(commands,[])
+
+
+class PublicPickerSearchTest(unittest.TestCase):
+    def test_search_uses_only_provider_controls_and_keeps_route_disclosure(self):
+        from types import SimpleNamespace
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='search_public_picker')
+        package='com.google.android.documentsui';events=[]
+        search={'package':package,'content-desc':'Search','enabled':'true'}
+        field={'package':package,'class':'android.widget.EditText','enabled':'true'}
+        states=iter([(b'',[search]),(b'',[field])])
+        helper=SimpleNamespace(tree=lambda:next(states),tap_node=lambda n:events.append(('tap',n)),type_native=lambda s:events.append(('type',s)),adb=lambda *a:events.append(('adb',a)))
+        namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None)}
+        exec(compile(ast.Module(body=[fn],type_ignores=[]),'picker-search','exec'),namespace)
+        result=namespace['search_public_picker']('Comparison.pdf')
+        self.assertEqual([x[0] for x in events],['tap','tap','type','adb'])
+        self.assertIn('not original folder-route success',result['method'])
+        self.assertEqual(result['query'],'Comparison.pdf')
+
+    def test_does_not_type_into_another_apps_search(self):
+        from types import SimpleNamespace
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='search_public_picker')
+        helper=SimpleNamespace(tree=lambda:(b'',[{'package':'app.space.notes','content-desc':'Search'}]))
+        namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None)}
+        exec(compile(ast.Module(body=[fn],type_ignores=[]),'picker-search','exec'),namespace)
+        with self.assertRaisesRegex(AssertionError,'DocumentsUI search'):namespace['search_public_picker']('Comparison.pdf')

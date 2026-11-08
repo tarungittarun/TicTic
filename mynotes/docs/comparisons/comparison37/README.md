@@ -14,6 +14,17 @@ be described as completion of the original37 functional/UX acceptance tasks.
 | [42345604329](https://github.com/tarungittarun/TicTic/actions/runs/42345604329) | Completed: both landscape jobs green, both portraits failed. Portrait:44 records each; landscape:74 each. All37 Obsidian rows in each landscape profile were blocked because the actual display was portrait. | Green jobs prove capture/attempt completion, not requested-profile or functional acceptance. |
 | [42346486192](https://github.com/tarungittarun/TicTic/actions/runs/42346486192) | Completed:13 green/7 red short-session jobs. Actual records: light portrait60, dark portrait48, light landscape42, dark landscape74. | Five independent guests per profile, not a stable long session; no profile reached whole-task acceptance. |
 
+## Current audited deliverable
+
+[Reviewed comparison PDF:150 pages,373 clickable links](https://github.com/tarungittarun/TicTic/raw/b4b747b0a1db89f298eec6cb3fb75dd64102f430/mynotes/docs/comparisons/comparison37/42408161677/Comparison37_Runtime_Probes.pdf). This report includes independently reviewed search frames, not just automated outcome counts. It is explicitly **not completion of the original37 full workflows**.
+
+- Native light/dark landscape search frames show the query and header above the software keyboard, without a visible result card. Obsidian's corresponding retained frame has no keyboard, so no controlled comparative win is assigned. A matched-keyboard query helper is unit-tested but still awaits a live recheck.
+- Singleton recovery correctly retains four rows and the real host snapshot from [42485530023](https://github.com/tarungittarun/TicTic/actions/runs/42485530023), rather than the previous empty observer report. The emulator process was absent after failure; the retained kernel excerpt supplies no OOM/segfault attribution. After-failure free memory does not establish conditions before failure.
+- [42486608340](https://github.com/tarungittarun/TicTic/actions/runs/42486608340) actually used emulator37.2.12.0/build16428233, compared with37.2.13.0/build16740729. The pinned prior build also lost the guest after four records. This environment change did not establish a fix.
+- [Pinned-build original report](https://github.com/tarungittarun/TicTic/raw/b4b747b0a1db89f298eec6cb3fb75dd64102f430/mynotes/docs/comparisons/comparison37/42486608340/Comparison37_Runtime_Probes.pdf).
+
+All launched jobs and publications have completed. No background test or automatic retry is running. Remaining work includes a stable test target, actual full-workflow assertions beyond surface-opening probes, matched keyboard/file-route rechecks, and explicitly separate physical/human/novice tasks. No production app fix or new APK was introduced. Root QA passed1126 tests with report and Office dependencies installed, no skips.
+
 ## Later comparison-route and guest-loss studies
 
 The full comparison is **still incomplete**; none of these small studies establishes whole-task acceptance.

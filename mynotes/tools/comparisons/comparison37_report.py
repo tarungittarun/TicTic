@@ -19,21 +19,33 @@ def retain(artifacts, output, metadata):
     manifest, profiles, total = [], {}, 0
     expected = {('PLAN-X%02d'%i, app) for i in range(1,38) for app in ['mynotes','obsidian']}
     source_bytes=0;retained_paths=set()
+    singleton_name=None
+    if (artifacts/'comparison37-evidence').is_dir():
+        names=[item['name'] for item in metadata.get('artifacts',{}).get('artifacts',[])
+               if item.get('name','').startswith('comparison37-')]
+        if len(names)!=1 or '/' in names[0] or '\\' in names[0]:
+            raise ValueError('Flat artifact layout requires exactly one original named comparison artifact')
+        singleton_name=names[0]
+        if not any(singleton_name=='comparison37-'+p or singleton_name.startswith('comparison37-'+p+'-chunk') for p in PROFILES):
+            raise ValueError('Unknown singleton comparison profile')
+
     for profile in PROFILES:
         prefix='comparison37-'+profile
         lanes=sorted(lane for lane in artifacts.glob(prefix+'*') if lane.is_dir() and (lane.name==prefix or lane.name.startswith(prefix+'-chunk')))
+        if singleton_name and (singleton_name==prefix or singleton_name.startswith(prefix+'-chunk')):lanes.append(artifacts)
         rows=[];module_files=[]
         for lane in lanes:
+            lane_name=singleton_name if lane==artifacts else lane.name
             records=list(lane.rglob('modules.json'))
             if len(records)>1:raise ValueError('Ambiguous original module record')
             if records:
                 data=json.loads(records[0].read_text())
                 if data.get('whole_module_acceptance') is not False or data.get('physical_acceptance') is not False:raise ValueError('Unsupported acceptance claim')
-                rows.extend(data['results']);module_files.append(str(Path(lane.name)/records[0].relative_to(lane)))
+                rows.extend(data['results']);module_files.append(str(Path(lane_name)/records[0].relative_to(lane)))
             for source in sorted(lane.rglob('*')):
                 if not source.is_file() or source.suffix not in {'.json','.png','.xml','.txt','.pdf','.docx','.pptx','.odt','.rtf','.html','.md','.csv'}:continue
                 data=source.read_bytes();source_bytes+=len(data);digest=hashlib.sha256(data).hexdigest()
-                relative=Path(lane.name)/source.relative_to(lane)
+                relative=Path(lane_name)/source.relative_to(lane)
                 if 'build' in relative.parts:raise ValueError('Ignored build directory would lose evidence')
                 # Repeated public input bytes across fresh guests are kept once,
                 # content-addressed. Original paths and every hash remain in the

@@ -99,3 +99,21 @@ class ComparisonRetentionTest(unittest.TestCase):
             self.assertEqual(entry['storage_encoding'],'gzip')
             self.assertEqual(gzip.decompress((root/'out'/entry['retained_path']).read_bytes()),raw)
             self.assertEqual(entry['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(entry['bytes'],len(raw))
+
+class SingletonArtifactRetentionTest(unittest.TestCase):
+    def test_single_download_flat_layout_keeps_original_profile_and_host_snapshot(self):
+        report=load('comparison37_report')
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source=root/'input';lane=source/'comparison37-evidence';lane.mkdir(parents=True)
+            original={'results':[{'module':'PLAN-X31','app':'mynotes','status':'blocked','requested_task_acceptance':False}],'whole_module_acceptance':False,'physical_acceptance':False}
+            raw=json.dumps(original).encode();(lane/'modules.json').write_bytes(raw)
+            host=b'{"scope":"unit fixture only"}';(lane/'host-after.json').write_bytes(host)
+            metadata={'status':'completed','databaseId':123,'headSha':'abc','url':'https://github.com/test/run/123','conclusion':'failure','artifacts':{'artifacts':[{'name':'comparison37-light-portrait-chunk05'}]}}
+            summary=report.retain(source,root/'out',metadata)
+            retained=root/'out/comparison37-light-portrait-chunk05/comparison37-evidence'
+            self.assertEqual((retained/'modules.json').read_bytes(),raw)
+            self.assertEqual((retained/'host-after.json').read_bytes(),host)
+            self.assertEqual(summary['profiles']['light-portrait']['attempts'],1)
+            self.assertFalse(summary['whole_module_acceptance'])
+            metadata['artifacts']['artifacts'].append({'name':'comparison37-dark-portrait-chunk05'})
+            with self.assertRaisesRegex(ValueError,'exactly one'):report.retain(source,root/'ambiguous',metadata)

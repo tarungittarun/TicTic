@@ -236,6 +236,46 @@
       ],
       "comparison_harness_change": "Exact notification prompt captured then denied; provider navigation settled; rotation reapplied after app launch and actual PNG dimensions checked. Runtime recheck retained including failures.",
       "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H12",
+      "category": "landscape_search_keyboard_condition_mismatch",
+      "observation": "Visually reviewed light and dark landscape native X01 frames show the large Saved notes & Docs header and query above the software keyboard, without a visible result card. The retained Obsidian X01 frame shows a result but no software keyboard.",
+      "limits": "Native result visibility is a bounded original-frame observation. Keyboard conditions differ, so these frames do not establish a controlled cross-app layout advantage, human completion time or a full search-task result. The new matched Android IME query helper is unit-tested but not yet device-verified.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42408161677/comparison37-light-landscape-chunk01/comparison37-evidence/mynotes-PLAN-X01.png",
+          "sha256": "0291139bdb8096dc95109271602b4a144df9a7add53deedec346a09668fcfcfc",
+          "url": "https://github.com/tarungittarun/TicTic/blob/64488c4752c0ab48f0d7201eb574b7bdaec1a2d8/mynotes/docs/comparisons/comparison37/42408161677/comparison37-light-landscape-chunk01/comparison37-evidence/mynotes-PLAN-X01.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42408161677/comparison37-dark-landscape-chunk01/comparison37-evidence/mynotes-PLAN-X01.png",
+          "sha256": "a06891a4bf27f9723c597dea51c0955f85aa873377a50f06618f0ca55be90174",
+          "url": "https://github.com/tarungittarun/TicTic/blob/64488c4752c0ab48f0d7201eb574b7bdaec1a2d8/mynotes/docs/comparisons/comparison37/42408161677/comparison37-dark-landscape-chunk01/comparison37-evidence/mynotes-PLAN-X01.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42408161677/comparison37-light-landscape-chunk01/comparison37-evidence/obsidian-PLAN-X01.png",
+          "sha256": "41b0d5fac4c6a3b9d83ad72edd7e1d21dc0ae4f234e14d68fded3a6a30d38879",
+          "url": "https://github.com/tarungittarun/TicTic/blob/64488c4752c0ab48f0d7201eb574b7bdaec1a2d8/mynotes/docs/comparisons/comparison37/42408161677/comparison37-light-landscape-chunk01/comparison37-evidence/obsidian-PLAN-X01.png"
+        }
+      ],
+      "comparison_harness_change": "Require a unique focused official-app Android editable field and confirmed open Android keyboard before typing the Obsidian comparison query. Do not use CDP insertText alone to imply matched keyboard conditions.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H13",
+      "category": "actual_host_snapshot_and_singleton_retention",
+      "observation": "Process-scoped collection did produce a host snapshot. Recovery of the single-artifact download layout retains it and four original light-portrait rows. After guest loss, the host snapshot lists no emulator/qemu process, MemAvailable15296848kB and a successful kernel-log command without a captured OOM/segfault attribution.",
+      "limits": "One after-failure snapshot is not continuous resource monitoring and does not prove the initiating cause. Absence of a captured kernel event does not rule out all resource failures or prove an app crash. The earlier empty report reflected an artifact-layout observer bug, not zero executed rows.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json",
+          "sha256": "92fcde953438c629f8cfb3e016d8cb5941c5753d3724de2f7d1c167aa8f51eb0",
+          "url": "https://github.com/tarungittarun/TicTic/blob/64488c4752c0ab48f0d7201eb574b7bdaec1a2d8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json"
+        }
+      ],
+      "comparison_harness_change": "Retain flat singleton downloads only under the unique original artifact name from Actions metadata; reject ambiguous attribution. Preserve all original byte hashes.",
+      "production_app_changed": false
     }
   ]
 }

@@ -80,7 +80,7 @@ def retain(artifacts, output, metadata):
         'workflow_conclusion':metadata['conclusion'],'profiles':profiles,
         'all_profiles_have74_attempt_records':all(p['all74_attempt_records_present'] for p in profiles.values()),
         'whole_module_acceptance':False,'physical_acceptance':False,'fix_phase_authorized_by_results':False,
-        'scope':'37 task families attempted per profile where provisioning succeeded. Page visits, API shortcuts, functional checks and blockers remain separate. This is NOT completion of the original37 full acceptance tasks.'}
+        'scope':'Declared selected task-family ranges attempted per profile where provisioning succeeded; partial ranges are not full37 coverage. Page visits, API shortcuts, functional checks and blockers remain separate. This is NOT completion of the original37 full acceptance tasks.'}
     (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
     (output/'run.json').write_text(json.dumps(metadata,indent=2)+'\n')
     (output/'retention.json').write_text(json.dumps({'files':manifest,'bytes':total,'source_bytes':source_bytes,'public_fixture_deduplication':'Byte-identical public inputs share a content-addressed retained_path; large text records use verified lossless gzip. All original entries, original byte counts and uncompressed hashes retained.','source_bytes_modified':False},indent=2)+'\n')
@@ -123,6 +123,16 @@ def render(evidence, commit):
     if summary['run']==42342628990:paragraph('Fixture validity warning: this first run generates incomplete DOCX/ODT/PPTX ZIP containers. Any failure on those files is INVALID as an app-format or fidelity finding until standards-valid fixtures are rerun. The PDF is a small synthetic3-page file, not the requested18MB+ varied-document acceptance corpus.')
     else:paragraph('Public synthetic fixture bytes are retained with hashes where generated before the failure. Office packages use real format libraries; these are still small test documents, not complex-layout fidelity or18MB+ PDF acceptance.')
     paragraph('Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.')
+    reviewed=root/'mynotes/docs/comparisons/comparison37/reviewed-observations.json'
+    if reviewed.exists():
+        observations=[item for item in json.loads(reviewed.read_text())['observations']
+                      if any('/'+str(summary['run'])+'/' in entry['path'] for entry in item.get('evidence',[]))]
+        if observations:
+            heading('Independent frame review and comparability limits',True)
+            for item in observations:
+                paragraph(item['id']+' — '+item['observation'])
+                paragraph('Limits: '+item['limits'])
+                for entry in item['evidence']:link('Immutable reviewed original: '+entry['path'].split('/')[-1],entry['url'])
     for profile in PROFILES:
         info=summary['profiles'][profile]
         if not info.get('module_file') or not info['attempts']:

@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Recheck blocked comparison modules with direct software renderer and host diagnostics
+name: Diagnose retained final-module guest loss with process-scoped host capture
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -19,9 +19,6 @@ jobs:
       matrix:
         include:
           - {id: light-portrait, night: 'no', orientation: portrait, chunk: chunk05, range: '31-37'}
-          - {id: dark-portrait, night: 'yes', orientation: portrait, chunk: chunk05, range: '31-37'}
-          - {id: light-landscape, night: 'no', orientation: landscape, chunk: chunk05, range: '31-37'}
-          - {id: dark-landscape, night: 'yes', orientation: landscape, chunk: chunk05, range: '31-37'}
     env:
       COMPARISON_CAPTURE_POLICY: adb_only
       COMPARISON_RANGE: ${{ matrix.range }}
@@ -85,22 +82,7 @@ jobs:
             adb shell cmd uimode night ${{ matrix.night }}
             python -m mynotes.tools.ci.native_environment --orientation ${{ matrix.orientation }}
             python -m mynotes.tools.ci.native_environment --snapshot configured
-            result=0
-            python mynotes/tools/comparisons/paired_modules37.py || result=$?
-            python - <<'PYHOST'
-            import json,pathlib,subprocess
-            data={'scope':'Public CI host resource/process diagnostics, not an app fault attribution','proc':{}}
-            for name in ['meminfo','pressure/memory','pressure/io']:
-                p=pathlib.Path('/proc')/name
-                data['proc'][name]=p.read_text() if p.exists() else 'unavailable'
-            for name,command in [('processes',['ps','-eo','pid,comm,rss,stat']),('disk',['df','-h']),('kernel',['sudo','-n','dmesg','--level=err,warn'])]:
-                try:
-                    r=subprocess.run(command,capture_output=True,text=True,timeout=15)
-                    data[name]={'returncode':r.returncode,'stdout':r.stdout[-30000:],'stderr':r.stderr[-2000:]}
-                except Exception as e:data[name]={'error':str(e)}
-            pathlib.Path('comparison37-evidence/host-after.json').write_text(json.dumps(data,indent=2))
-            PYHOST
-            exit "$result"
+            python mynotes/tools/comparisons/run_with_host_diagnostics.py
       - name: Require original module records instead of assuming a green process means coverage
         if: always()
         run: |

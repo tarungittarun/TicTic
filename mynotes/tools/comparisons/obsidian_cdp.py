@@ -1,5 +1,5 @@
 """Use official app's exposed debug endpoint; never patch or re-sign its APK."""
-import json,re,subprocess,time,urllib.request
+import json,re,subprocess,time,urllib.request,os
 import websocket
 class Device:
  def __init__(self):
@@ -52,6 +52,11 @@ class Device:
   including native bars, keyboard and system dialogs.
   """
   frames=self.js('new Promise(resolve=>{const t=setTimeout(()=>resolve("timeout"),2000);requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(t);resolve("two-frames")}))})')
+  if os.environ.get('COMPARISON_CAPTURE_POLICY')=='adb_only':
+   time.sleep(.35)
+   return {'animation_frames':frames,'compositor_fence':False,
+           'policy':'Observer-isolation recheck: no extra CDP screenshot; not a proven guest-loss fix',
+           'evidence_source':'adb exec-out screencap -p; no substituted CDP bitmap'}
   try:
    snapshot=self.call('Page.captureScreenshot',{'format':'png','fromSurface':True,'captureBeyondViewport':False})
    painted=bool(snapshot.get('data'))

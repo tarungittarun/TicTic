@@ -43,3 +43,13 @@ class ObsidianCaptureFenceTest(unittest.TestCase):
         self.assertEqual(result['animation_frames'], 'timeout')
         self.assertIn('setTimeout', device.js.call_args.args[0])
         self.assertIn('2000', device.js.call_args.args[0])
+
+
+    def test_observer_isolation_keeps_adb_evidence_without_extra_gpu_capture(self):
+        module, device = self.device()
+        with patch.dict(module.os.environ, {'COMPARISON_CAPTURE_POLICY':'adb_only'}), patch.object(module.time,'sleep'):
+            result=device.settle()
+        device.call.assert_not_called()
+        self.assertFalse(result['compositor_fence'])
+        self.assertIn('not a proven guest-loss fix',result['policy'])
+        self.assertIn('adb exec-out screencap',result['evidence_source'])

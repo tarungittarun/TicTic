@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Diagnose retained final-module guest loss with process-scoped host capture
+name: Recheck blocked comparison on explicitly pinned emulator build
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -67,6 +67,9 @@ jobs:
           bash mynotes/tools/ci/use_installed_emulator.sh
       - uses: ReactiveCircus/android-emulator-runner@v2
         with:
+          # Prior build independently published in LedgerHQ/ledger-live avd.env at b8d68ef11def7dbe993d20a852294e4cf30d3915.
+          # Controlled environment change, not a proven app or emulator fix.
+          emulator-build: 16428233
           api-level: 34
           target: google_apis
           arch: x86_64

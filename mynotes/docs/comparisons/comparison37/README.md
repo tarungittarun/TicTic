@@ -14,7 +14,23 @@ be described as completion of the original37 functional/UX acceptance tasks.
 | [42345604329](https://github.com/tarungittarun/TicTic/actions/runs/42345604329) | Completed: both landscape jobs green, both portraits failed. Portrait:44 records each; landscape:74 each. All37 Obsidian rows in each landscape profile were blocked because the actual display was portrait. | Green jobs prove capture/attempt completion, not requested-profile or functional acceptance. |
 | [42346486192](https://github.com/tarungittarun/TicTic/actions/runs/42346486192) | Completed:13 green/7 red short-session jobs. Actual records: light portrait60, dark portrait48, light landscape42, dark landscape74. | Five independent guests per profile, not a stable long session; no profile reached whole-task acceptance. |
 
-## Latest recheck:42404795321
+## Later comparison-route and guest-loss studies
+
+The full comparison is **still incomplete**; none of these small studies establishes whole-task acceptance.
+
+| Run | Actual evidence | Interpretation |
+| --- | --- | --- |
+| [42408161677](https://github.com/tarungittarun/TicTic/actions/runs/42408161677) | Scroll-aware recheck:9 green/11 red jobs; retained records56/60/54/16 for light portrait/dark portrait/light landscape/dark landscape. | Several native landscape tools became reachable through actual scrolling. PDF/TXT directory selection and guest losses remain unresolved. |
+| [42484167089](https://github.com/tarungittarun/TicTic/actions/runs/42484167089) | Extra CDP screenshot fence disabled; four final-module jobs all failed. Retained records4/4/0/0. | Removing that extra observer operation did not eliminate guest loss. Not a proven fix or cause. |
+| [42484719290](https://github.com/tarungittarun/TicTic/actions/runs/42484719290) | Direct software-renderer recheck:four jobs failed;4 retained records in every profile. | Renderer change did not establish stability. The host-diagnostic heredoc also failed because the emulator action runs each line in its own shell; `import: not found` was a harness error, not an app error. No host resource snapshot was produced by that attempt. |
+
+- [Scroll-aware recheck PDF](https://github.com/tarungittarun/TicTic/raw/1c3ffb916cad6d3c5b230b7961492dea9c4a7ec4/mynotes/docs/comparisons/comparison37/42408161677/Comparison37_Runtime_Probes.pdf)
+- [Observer-isolation PDF](https://github.com/tarungittarun/TicTic/raw/1c3ffb916cad6d3c5b230b7961492dea9c4a7ec4/mynotes/docs/comparisons/comparison37/42484167089/Comparison37_Runtime_Probes.pdf)
+- [Direct-renderer recheck PDF](https://github.com/tarungittarun/TicTic/raw/1c3ffb916cad6d3c5b230b7961492dea9c4a7ec4/mynotes/docs/comparisons/comparison37/42484719290/Comparison37_Runtime_Probes.pdf)
+
+The diagnostic runner is now a single Python process with host collection in `finally`, preserving the comparison's original failure exit code. A separate DocumentsUI search fallback retains the unsuccessful directory-route frame and labels search as an independent route; it has unit coverage but is **not yet device-verified**. Original failed records and reports remain unchanged.
+
+## Earlier recheck:42404795321
 
 The notification isolation, provider settling and per-launch rotation changes were tested in20 jobs on the pinned installed apps. **10 jobs succeeded and10 failed; the comparison is not complete.** Retained records per profile are56 light portrait,56 dark portrait,44 light landscape and44 dark landscape. No whole requested task is marked accepted.
 

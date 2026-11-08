@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/42485530023)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/retention.json)
 
 light-portrait capture health: 3 complete original snapshot records; 1 capture errors. Capture-owner fields exist for 3 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -27,6 +27,14 @@ Methods differ and are disclosed: MyNotes public note is entered using native to
 Public synthetic fixture bytes are retained with hashes where generated before the failure. Office packages use real format libraries; these are still small test documents, not complex-layout fidelity or18MB+ PDF acceptance.
 
 Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.
+
+## Independent frame review and comparability limits
+
+CMP37-H13 — Process-scoped collection did produce a host snapshot. Recovery of the single-artifact download layout retains it and four original light-portrait rows. After guest loss, the host snapshot lists no emulator/qemu process, MemAvailable15296848kB and a successful kernel-log command without a captured OOM/segfault attribution.
+
+Limits: One after-failure snapshot is not continuous resource monitoring and does not prove the initiating cause. Absence of a captured kernel event does not rule out all resource failures or prove an app crash. The earlier empty report reflected an artifact-layout observer bug, not zero executed rows.
+
+[Immutable reviewed original: host-after.json](https://github.com/tarungittarun/TicTic/blob/64488c4752c0ab48f0d7201eb574b7bdaec1a2d8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json)
 
 ## PLAN-X01 | Find, organise, label and reorder | planned light-portrait
 
@@ -336,9 +344,9 @@ mynotes — interaction_observed. Actual bounded check: Local summary surface on
 
 Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X31.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X31.png)
 
 obsidian — blocked. Actual bounded check: No matching installed core command established for summari; not proof of feature absence
 
@@ -346,9 +354,9 @@ Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; plann
 
 Actual WebView profile observation: {"dark": false, "landscape": false, "width": 360, "height": 640}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/obsidian-PLAN-X31.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/obsidian-PLAN-X31.png)
 
 No whole-family acceptance. Remaining: Verify each sentence comes from the source, essential cautions are not lost and limits are clear. No summary-quality test was executed in this report.
 
@@ -360,9 +368,9 @@ mynotes — interaction_observed. Actual bounded check: Named native controls op
 
 Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X32.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X32.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -370,7 +378,7 @@ Actual WebView profile observation: {"dark": false, "landscape": false, "width":
 
 Capture blocker: Command '['adb', 'shell', 'uiautomator', 'dump', '/sdcard/paired-window.xml']' timed out after 35 seconds
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/1ac02ecea11165d6321a4280892e8fe5cbff2bf8/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/f2b9f80939613cb3764bf70a12487f9c8b7040b9/mynotes/docs/comparisons/comparison37/42485530023/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
 No whole-family acceptance. Remaining: Verify opt-out, readable levels/time range, explicit delete confirmation and exported content minimisation. Security of all native dependencies was not certified here.
 

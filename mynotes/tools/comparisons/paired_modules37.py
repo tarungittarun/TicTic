@@ -388,15 +388,32 @@ def ours_task(number):
     raise ValueError(number)
 
 
+def type_obsidian_query_with_android_ime(value):
+    # CDP insertText alone can leave Android's keyboard closed. Use the actual
+    # focused official-app accessibility field and keep keyboard conditions
+    # explicit rather than comparing IME-open native UI with IME-closed WebView.
+    fields=[n for n in h.tree()[1] if n.get('package')=='md.obsidian'
+            and n.get('class')=='android.widget.EditText' and n.get('focused')=='true'
+            and n.get('enabled')!='false']
+    assert len(fields)==1, 'Unique focused official-app query field not established; no positional fallback'
+    h.tap_node(fields[0]);time.sleep(.5)
+    state=h.adb('shell','dumpsys','input_method').decode(errors='replace')
+    (OUT/'obsidian-search-input-method.txt').write_text(state)
+    assert re.findall(r'\bmInputShown=(true|false)\b',state)==['true'], 'Matched Android keyboard-open condition not established'
+    h.type_native(value)
+    return {'method':'Native Android tap and text into confirmed focused official-app field',
+            'android_keyboard_requested':True,'cdp_insert_text_used':False}
+
+
 def obs_task(number):
     if number == 1:
         obs_note(); command('^global-search:open$')
         assert D.tap('.search-input-container input'), 'Visible vault-search field unavailable'
-        D.type('cobalt42'); time.sleep(1.5)
+        query_input=type_obsidian_query_with_android_ime('cobalt42'); time.sleep(1.5)
         matches=D.js('[...document.querySelectorAll(".search-result-file-match")].filter(e=>e.getBoundingClientRect().height>0&&e.getBoundingClientRect().top<innerHeight&&e.getBoundingClientRect().bottom>0).map(e=>e.textContent)')
         titles=D.js('[...document.querySelectorAll(".search-result-file-title")].map(e=>e.textContent)')
         assert any('cobalt42' in x for x in matches) and any('Meeting' in x for x in titles), 'Visible search result containers did not verify fixture'
-        return functional('Actual query input yields marker passage and target file title in visible result containers; command API opened pane, not touch-route efficiency.',matches=matches,titles=titles)
+        return functional('Actual query input yields marker passage and target file title in visible result containers; command API opened pane, not touch-route efficiency.',matches=matches,titles=titles,query_input=query_input)
     if number == 2:
         obs_note(); value=D.js('(async()=>await app.vault.read(app.vault.getAbstractFileByPath('+json.dumps(PATH)+')))()')
         assert value==BODY; return functional('Official vault readback retains exact API-seeded public body. Fixture setup is not a UI creation or cross-app typing-efficiency pass.')

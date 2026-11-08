@@ -237,3 +237,20 @@ class PublicPickerSearchTest(unittest.TestCase):
         namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None)}
         exec(compile(ast.Module(body=[fn],type_ignores=[]),'picker-search','exec'),namespace)
         with self.assertRaisesRegex(AssertionError,'DocumentsUI search'):namespace['search_public_picker']('Comparison.pdf')
+
+class MatchedKeyboardQueryTest(unittest.TestCase):
+    def test_requires_a_unique_focused_official_field_and_an_open_android_ime(self):
+        from types import SimpleNamespace
+        import tempfile,re
+        fn=next(n for n in ast.parse(SCRIPT.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='type_obsidian_query_with_android_ime')
+        events=[];nodes=[{'package':'md.obsidian','class':'android.widget.EditText','focused':'true','enabled':'true'}]
+        with tempfile.TemporaryDirectory() as directory:
+            helper=SimpleNamespace(tree=lambda:(b'',nodes),tap_node=lambda _:events.append('tap'),adb=lambda *a:b'mInputShown=true\n',type_native=lambda value:events.append(value))
+            namespace={'h':helper,'time':SimpleNamespace(sleep=lambda _:None),'re':re,'OUT':Path(directory)}
+            exec(compile(ast.Module(body=[fn],type_ignores=[]),'matched-keyboard','exec'),namespace)
+            result=namespace['type_obsidian_query_with_android_ime']('cobalt42')
+            self.assertEqual(events,['tap','cobalt42']);self.assertFalse(result['cdp_insert_text_used'])
+            helper.adb=lambda *a:b'mInputShown=false\n'
+            with self.assertRaisesRegex(AssertionError,'keyboard-open'):namespace['type_obsidian_query_with_android_ime']('cobalt42')
+            nodes.append(dict(nodes[0]))
+            with self.assertRaisesRegex(AssertionError,'Unique focused'):namespace['type_obsidian_query_with_android_ime']('cobalt42')

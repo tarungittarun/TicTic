@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/42608740772)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/retention.json)
 
 light-portrait capture health: 3 complete original snapshot records; 1 capture errors. Capture-owner fields exist for 3 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -346,9 +346,9 @@ mynotes — interaction_observed. Actual bounded check: Local summary surface on
 
 Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X31.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X31.png)
 
 obsidian — blocked. Actual bounded check: No matching installed core command established for summari; not proof of feature absence
 
@@ -356,9 +356,9 @@ Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; plann
 
 Actual WebView profile observation: {"dark": false, "landscape": false, "width": 360, "height": 640}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/obsidian-PLAN-X31.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/obsidian-PLAN-X31.png)
 
 No whole-family acceptance. Remaining: Verify each sentence comes from the source, essential cautions are not lost and limits are clear. No summary-quality test was executed in this report.
 
@@ -370,9 +370,9 @@ mynotes — interaction_observed. Actual bounded check: Named native controls op
 
 Original PNG profile: {"width": 1080, "height": 1920, "landscape": false}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X32.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/mynotes-PLAN-X32.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -380,7 +380,7 @@ Actual WebView profile observation: {"dark": false, "landscape": false, "width":
 
 Capture blocker: Command '['adb', 'shell', 'uiautomator', 'dump', '/sdcard/paired-window.xml']' timed out after 35 seconds
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/modules.json)
 
 No whole-family acceptance. Remaining: Verify opt-out, readable levels/time range, explicit delete confirmation and exported content minimisation. Security of all native dependencies was not certified here.
 

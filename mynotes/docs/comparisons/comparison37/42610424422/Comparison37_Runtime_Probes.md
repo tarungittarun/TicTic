@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/42610424422)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42610424422/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42610424422/retention.json)
 
 light-portrait capture health: 0 complete original snapshot records; 0 capture errors. Capture-owner fields exist for 0 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -28,6 +28,16 @@ Public synthetic fixture bytes are retained with hashes where generated before t
 
 Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.
 
+## Independent frame review and comparability limits
+
+CMP37-H15 — Code-only strace-k recheck42610424422 also observed SIGSEGV/SEGV_MAPERR in QEMU PID3336. At the fatal signal the unwinder emitted only > [heap]() [0xc60], with no named module or caller. Receipt reports returncode_before_harness_stop0 and stopped_by_harness false.
+
+Limits: No usable fault-component attribution was obtained. Heap frame is not proof of a graphics, app, memory-pressure or specific QEMU code defect. This instrumented recheck failed during comparator setup/capture and supplies no completed original module records. It does not constitute a functional comparison or timing result.
+
+[Immutable reviewed original: emulator-exit-trace.txt](https://github.com/tarungittarun/TicTic/raw/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace.txt)
+
+[Immutable reviewed original: emulator-exit-trace-receipt.json](https://github.com/tarungittarun/TicTic/raw/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json)
+
 ## light-portrait — provisioning blocked
 
 Zero paired attempts; provisioning failed.
@@ -39,7 +49,7 @@ Zero paired attempts; provisioning failed.
   "capture_error": "('exec-out', 'screencap', '-p'): error: device offline\n"
 }
 
-[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/fatal.json)
+[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/fatal.json)
 
 ## dark-portrait — provisioning blocked
 

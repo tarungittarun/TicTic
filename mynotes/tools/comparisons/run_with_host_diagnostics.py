@@ -14,7 +14,9 @@ import traceback
 def collect_host(output):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    data = {'scope': 'Public CI host diagnostics; not app fault attribution', 'proc': {}}
+    from emulator_crash_metadata import collect
+    data = {'scope': 'Public CI host diagnostics; not app fault attribution', 'proc': {},
+            'emulator_crash_metadata': collect()}
     for name in ['meminfo', 'pressure/memory', 'pressure/io']:
         try:
             data['proc'][name] = (Path('/proc') / name).read_text()

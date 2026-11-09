@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/42611730935)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42611730935/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/dd141d9f047c18ecb4d4bf173875488737506892/mynotes/docs/comparisons/comparison37/42611730935/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42611730935/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/dd141d9f047c18ecb4d4bf173875488737506892/mynotes/docs/comparisons/comparison37/42611730935/retention.json)
 
 light-portrait capture health: 0 complete original snapshot records; 0 capture errors. Capture-owner fields exist for 0 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -28,6 +28,18 @@ Public synthetic fixture bytes are retained with hashes where generated before t
 
 Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.
 
+## Independent frame review and comparability limits
+
+CMP37-H16 — Run42611730935 requested -gpu off with exit/stack tracing disabled. Startup explicitly warned that this image does not support guest rendering and fell back to lavapipe; initialization selected vulkan_mode_selected:lavapipe and gles_mode_selected:swangle. Adapter/API output reported Google SwiftShader. Capture subsequently failed with device offline; summary has0 original module attempts and postfailure host process snapshot lists no QEMU.
+
+Limits: This was not a successful independent in-guest rendering test. Do not claim all host graphics paths were bypassed, rule graphics out, or attribute this untraced termination specifically to SIGSEGV. It did not restore a usable comparison run and provides no app acceptance or performance result.
+
+[Immutable reviewed original: summary.json](https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/summary.json)
+
+[Immutable reviewed original: host-after.json](https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json)
+
+[Immutable reviewed original: 129141570645.txt](https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/host-logs/lookup-42612322227/129141570645.txt)
+
 ## light-portrait — provisioning blocked
 
 Zero paired attempts; provisioning failed.
@@ -39,7 +51,7 @@ Zero paired attempts; provisioning failed.
   "capture_error": "('exec-out', 'screencap', '-p'): error: device offline\n"
 }
 
-[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/8e8be694f1c6b376f741ac019900e8e5a2715e59/mynotes/docs/comparisons/comparison37/42611730935/comparison37-light-portrait-chunk05/comparison37-evidence/fatal.json)
+[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/dd141d9f047c18ecb4d4bf173875488737506892/mynotes/docs/comparisons/comparison37/42611730935/comparison37-light-portrait-chunk05/comparison37-evidence/fatal.json)
 
 ## dark-portrait — provisioning blocked
 

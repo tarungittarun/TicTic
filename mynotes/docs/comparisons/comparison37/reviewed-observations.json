@@ -276,6 +276,27 @@
       ],
       "comparison_harness_change": "Retain flat singleton downloads only under the unique original artifact name from Actions metadata; reject ambiguous attribution. Preserve all original byte hashes.",
       "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H14",
+      "category": "confirmed_host_emulator_sigsegv",
+      "observation": "Exit/signal trace in run42608740772 attached to the single current-user QEMU PID3296. A thread received SIGSEGV/SEGV_MAPERR and the traced emulator process terminated with SIGSEGV. The tracer had already returned0 before harness cleanup; stopped_by_harness is false.",
+      "limits": "This identifies a host-emulator failure mode in the traced reproducer, not the underlying code defect, not an Android app crash, and not a causal attribution for every earlier disconnection. No OOM, graphics-component cause or app fault is inferred. Raw memory, environment and process I/O were not recorded.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace.txt.gz",
+          "sha256": "19c390679b195c12e3c9424d34d8842181d01be404e2c25bd6792a953c6242d7",
+          "url": "https://github.com/tarungittarun/TicTic/blob/dff600dfe44f939eb010c5039093f5ac4a67f927/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace.txt.gz",
+          "original_uncompressed_sha256": "da13107db126edcdcc9a0397aebb595e86616b9468eef3d7efbbbb05fbc99513"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json",
+          "sha256": "e6e27e754b790d483e1545dbe19a40eba58fa79e1dedc9a742072aa7edad458d",
+          "url": "https://github.com/tarungittarun/TicTic/blob/dff600dfe44f939eb010c5039093f5ac4a67f927/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json"
+        }
+      ],
+      "comparison_harness_change": "Optional filtered strace exits/signals, attached only to one current-user QEMU process; tracer owns a separate process group and never intentionally signals QEMU. Code-only stack diagnosis is a separate pending recheck.",
+      "production_app_changed": false
     }
   ]
 }

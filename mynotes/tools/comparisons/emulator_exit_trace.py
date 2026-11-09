@@ -30,6 +30,7 @@ class ExitTracer:
         self.receipt = {'scope': 'Host emulator exit/signal diagnostics only; not app fault attribution',
                         'enabled': os.environ.get('COMPARISON_TRACE_EMULATOR_EXIT') == 'yes',
                         'syscalls': ['exit', 'exit_group', 'kill', 'tgkill'],
+                        'symbolic_code_stacks_only': os.environ.get('COMPARISON_TRACE_CODE_STACKS') == 'yes',
                         'raw_memory_dumped': False, 'environment_collected': False}
 
     def start(self):
@@ -47,9 +48,17 @@ class ExitTracer:
                 return
             self.receipt['pid'] = pids[0]
             self.stderr = (self.output / 'emulator-exit-tracer-status.txt').open('w')
-            self.process = subprocess.Popen(
-                ['sudo', '-n', 'strace', '-f', '-ttt', '-e', 'trace=exit,exit_group,kill,tgkill',
-                 '-e', 'signal=all', '-o', str(self.output / 'emulator-exit-trace.txt'), '-p', str(pids[0])],
+            command=['sudo', '-n', 'strace', '-f', '-ttt']
+            if self.receipt['symbolic_code_stacks_only']:
+                # strace -k emits module/function/code offsets, not arguments or
+                # local variables. Avoid frequent SIGUSR1/tgkill kick stacks.
+                command+=['-k','-e','trace=exit,exit_group','-e',
+                          'signal=SIGSEGV,SIGABRT,SIGBUS,SIGILL,SIGFPE,SIGKILL,SIGTERM,SIGINT']
+                self.receipt['syscalls']=['exit','exit_group']
+            else:
+                command+=['-e','trace=exit,exit_group,kill,tgkill','-e','signal=all']
+            command+=['-o',str(self.output/'emulator-exit-trace.txt'),'-p',str(pids[0])]
+            self.process = subprocess.Popen(command,
                 stdin=subprocess.DEVNULL, stdout=self.stderr, stderr=self.stderr, start_new_session=True)
             time.sleep(.3)
             self.receipt['tracer_early_returncode'] = self.process.poll()

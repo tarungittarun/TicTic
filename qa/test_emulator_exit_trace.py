@@ -46,3 +46,14 @@ class EmulatorExitTraceTest(unittest.TestCase):
         module=load()
         with tempfile.TemporaryDirectory() as directory,patch.dict(module.os.environ,{'COMPARISON_TRACE_EMULATOR_EXIT':'no'}),patch.object(module.subprocess,'Popen') as spawn:
             tracer=module.ExitTracer(directory);tracer.start();tracer.stop();spawn.assert_not_called()
+
+    def test_code_stack_mode_excludes_frequent_kick_syscalls_and_value_dumps(self):
+        module=load()
+        with tempfile.TemporaryDirectory() as directory,patch.dict(module.os.environ,{'COMPARISON_TRACE_EMULATOR_EXIT':'yes','COMPARISON_TRACE_CODE_STACKS':'yes'}),patch.object(module.os,'getuid',return_value=1001),patch.object(module.time,'sleep'):
+            process=Mock(pid=99);process.poll.return_value=0
+            with patch.object(module.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'41 1001 qemu-system-x86\n','')),patch.object(module.subprocess,'Popen',return_value=process) as spawn:
+                tracer=module.ExitTracer(directory);tracer.start();tracer.stop()
+            arguments=spawn.call_args.args[0]
+            self.assertIn('-k',arguments);self.assertIn('trace=exit,exit_group',arguments)
+            self.assertNotIn('trace=all',arguments);self.assertNotIn('tgkill',str(arguments))
+            self.assertFalse(tracer.receipt['raw_memory_dumped'])

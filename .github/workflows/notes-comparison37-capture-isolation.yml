@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Trace emulator exit and signal events in retained guest-loss case
+name: Locate emulator SIGSEGV using code-only stack traces
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -21,6 +21,7 @@ jobs:
           - {id: light-portrait, night: 'no', orientation: portrait, chunk: chunk05, range: '31-37'}
     env:
       COMPARISON_TRACE_EMULATOR_EXIT: 'yes'
+      COMPARISON_TRACE_CODE_STACKS: 'yes'
       COMPARISON_CAPTURE_POLICY: adb_only
       COMPARISON_RANGE: ${{ matrix.range }}
       COMPARISON_PROFILE: ${{ matrix.id }}

@@ -316,6 +316,30 @@
         }
       ],
       "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H16",
+      "category": "unsupported_guest_renderer_control",
+      "observation": "Run42611730935 requested -gpu off with exit/stack tracing disabled. Startup explicitly warned that this image does not support guest rendering and fell back to lavapipe; initialization selected vulkan_mode_selected:lavapipe and gles_mode_selected:swangle. Adapter/API output reported Google SwiftShader. Capture subsequently failed with device offline; summary has0 original module attempts and postfailure host process snapshot lists no QEMU.",
+      "limits": "This was not a successful independent in-guest rendering test. Do not claim all host graphics paths were bypassed, rule graphics out, or attribute this untraced termination specifically to SIGSEGV. It did not restore a usable comparison run and provides no app acceptance or performance result.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42611730935/summary.json",
+          "sha256": "f4f8c3bee5be8d172e82d5c2003725cff3fbd788370b8a36a257e0ca67c8533b",
+          "url": "https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/summary.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42611730935/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json",
+          "sha256": "6cfa4093acb5a316360b84d37559b044605419beeb929100aa7c631644cbdd07",
+          "url": "https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/comparison37-light-portrait-chunk05/comparison37-evidence/host-after.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42611730935/host-logs/lookup-42612322227/129141570645.txt",
+          "sha256": "4609b744e9a8367a32f274b1431220c953d28abeaabbc81520076a465e2e44b4",
+          "url": "https://github.com/tarungittarun/TicTic/raw/e47bf9c997b8eb1bd9e5e46af077db318b2357c4/mynotes/docs/comparisons/comparison37/42611730935/host-logs/lookup-42612322227/129141570645.txt"
+        }
+      ],
+      "production_app_changed": false
     }
   ]
 }

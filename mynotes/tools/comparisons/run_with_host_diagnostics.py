@@ -5,6 +5,7 @@ handling and diagnostics in this process, not a multiline shell/heredoc input.
 No process arguments, environment, credentials, private library or host home files.
 """
 import json
+import os
 from pathlib import Path
 import runpy
 import subprocess
@@ -36,7 +37,12 @@ def collect_host(output):
 
 
 def main():
+    tracer = None
     try:
+        if os.environ.get('COMPARISON_TRACE_EMULATOR_EXIT') == 'yes':
+            from emulator_exit_trace import ExitTracer
+            tracer = ExitTracer(Path('comparison37-evidence'))
+            tracer.start()
         runpy.run_path(str(Path(__file__).with_name('paired_modules37.py')), run_name='__main__')
         return 0
     except SystemExit as error:
@@ -45,7 +51,11 @@ def main():
         traceback.print_exc()
         return 1
     finally:
-        collect_host(Path('comparison37-evidence'))
+        try:
+            if tracer is not None:
+                tracer.stop()
+        finally:
+            collect_host(Path('comparison37-evidence'))
 
 
 if __name__ == '__main__':

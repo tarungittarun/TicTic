@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Check guest-software graphics after confirmed host emulator SIGSEGV
+name: Check host Mesa OpenGL after unsupported guest-renderer fallback
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -22,6 +22,7 @@ jobs:
     env:
       COMPARISON_TRACE_EMULATOR_EXIT: 'no'
       COMPARISON_TRACE_CODE_STACKS: 'no'
+      LIBGL_ALWAYS_SOFTWARE: '1'
       COMPARISON_CAPTURE_POLICY: adb_only
       COMPARISON_RANGE: ${{ matrix.range }}
       COMPARISON_PROFILE: ${{ matrix.id }}
@@ -67,6 +68,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libpulse0
           bash mynotes/tools/ci/use_installed_emulator.sh
+      - name: Prepare and identify host software OpenGL
+        run: |
+          if ! command -v Xvfb >/dev/null || ! command -v glxinfo >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb libgl1-mesa-dri mesa-utils
+          fi
+          Xvfb :99 -screen 0 1280x1024x24 > "$RUNNER_TEMP/comparison-xvfb.log" 2>&1 &
+          echo 'DISPLAY=:99' >> "$GITHUB_ENV"
+          for attempt in $(seq 1 30); do
+            if DISPLAY=:99 glxinfo -B > "$RUNNER_TEMP/comparison-glxinfo.txt" 2>&1; then break; fi
+            sleep 1
+          done
+          DISPLAY=:99 glxinfo -B
       - name: Prepare exit-only process tracer
         run: command -v strace >/dev/null || { sudo apt-get update; sudo apt-get install -y strace; }
       - uses: ReactiveCircus/android-emulator-runner@v2
@@ -79,7 +93,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: false
-          emulator-options: -no-window -gpu off -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu host -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
           script: |
             python -m mynotes.tools.ci.offline_guest
             cp offline-guest-proof.json comparison37-evidence/

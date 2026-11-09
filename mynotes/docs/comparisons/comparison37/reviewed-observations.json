@@ -295,7 +295,26 @@
           "url": "https://github.com/tarungittarun/TicTic/blob/dff600dfe44f939eb010c5039093f5ac4a67f927/mynotes/docs/comparisons/comparison37/42608740772/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json"
         }
       ],
-      "comparison_harness_change": "Optional filtered strace exits/signals, attached only to one current-user QEMU process; tracer owns a separate process group and never intentionally signals QEMU. Code-only stack diagnosis is a separate pending recheck.",
+      "comparison_harness_change": "Optional filtered strace exits/signals, attached only to one current-user QEMU process; tracer owns a separate process group and never intentionally signals QEMU. Code-only stack recheck is independently retained as run42610424422; it did not identify a named faulting module.",
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H15",
+      "category": "code_stack_diagnostic_limit",
+      "observation": "Code-only strace-k recheck42610424422 also observed SIGSEGV/SEGV_MAPERR in QEMU PID3336. At the fatal signal the unwinder emitted only > [heap]() [0xc60], with no named module or caller. Receipt reports returncode_before_harness_stop0 and stopped_by_harness false.",
+      "limits": "No usable fault-component attribution was obtained. Heap frame is not proof of a graphics, app, memory-pressure or specific QEMU code defect. This instrumented recheck failed during comparator setup/capture and supplies no completed original module records. It does not constitute a functional comparison or timing result.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace.txt",
+          "sha256": "218eeaa2cf20a0acd83f8d32b441a20d13db18807524a594fc2203dbcc596a6b",
+          "url": "https://github.com/tarungittarun/TicTic/raw/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace.txt"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json",
+          "sha256": "5941712164d5cadf353cd251226b6d99cde2257f137acc44e8b299d65988ddfd",
+          "url": "https://github.com/tarungittarun/TicTic/raw/d2966df8fb774d5139a3c7bb47317632b85f878a/mynotes/docs/comparisons/comparison37/42610424422/comparison37-light-portrait-chunk05/comparison37-evidence/emulator-exit-trace-receipt.json"
+        }
+      ],
       "production_app_changed": false
     }
   ]

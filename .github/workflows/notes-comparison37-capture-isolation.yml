@@ -1,5 +1,5 @@
 # Scroll-aware native routes and clickable picker items; installed signed apps only; capture-before-denial isolation, provider settling and per-launch rotation reapplication. Runtime probes != exhaustive UX/physical acceptance.
-name: Locate emulator SIGSEGV using code-only stack traces
+name: Check guest-software graphics after confirmed host emulator SIGSEGV
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -20,8 +20,8 @@ jobs:
         include:
           - {id: light-portrait, night: 'no', orientation: portrait, chunk: chunk05, range: '31-37'}
     env:
-      COMPARISON_TRACE_EMULATOR_EXIT: 'yes'
-      COMPARISON_TRACE_CODE_STACKS: 'yes'
+      COMPARISON_TRACE_EMULATOR_EXIT: 'no'
+      COMPARISON_TRACE_CODE_STACKS: 'no'
       COMPARISON_CAPTURE_POLICY: adb_only
       COMPARISON_RANGE: ${{ matrix.range }}
       COMPARISON_PROFILE: ${{ matrix.id }}
@@ -79,7 +79,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: false
-          emulator-options: -no-window -gpu swiftshader -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu off -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
           script: |
             python -m mynotes.tools.ci.offline_guest
             cp offline-guest-proof.json comparison37-evidence/

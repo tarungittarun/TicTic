@@ -1,0 +1,905 @@
+﻿2026-11-09T11:24:07.4558554Z Current runner version: '2.338.2'
+2026-11-09T11:24:07.4585475Z ##[group]Runner Image Provisioner
+2026-11-09T11:24:07.4586363Z Hosted Compute Agent
+2026-11-09T11:24:07.4587051Z Version: 20261028.624
+2026-11-09T11:24:07.4587767Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-09T11:24:07.4588527Z Build Date: 2026-10-28T21:51:42Z
+2026-11-09T11:24:07.4589303Z Worker ID: {fb656af9-c9cf-45d3-b3b5-69dffd7eaf6d}
+2026-11-09T11:24:07.4590043Z Region: westus
+2026-11-09T11:24:07.4590630Z Cloud: Azure
+2026-11-09T11:24:07.4591198Z ##[endgroup]
+2026-11-09T11:24:07.4592737Z ##[group]Operating System
+2026-11-09T11:24:07.4593490Z Ubuntu
+2026-11-09T11:24:07.4594033Z 24.04.5
+2026-11-09T11:24:07.4594766Z LTS
+2026-11-09T11:24:07.4595435Z ##[endgroup]
+2026-11-09T11:24:07.4596049Z ##[group]Runner Image
+2026-11-09T11:24:07.4596720Z Image: ubuntu-24.04
+2026-11-09T11:24:07.4597321Z Version: 20261101.360.1
+2026-11-09T11:24:07.4598659Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-09T11:24:07.4600285Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-09T11:24:07.4601324Z ##[endgroup]
+2026-11-09T11:24:07.4602513Z ##[group]GITHUB_TOKEN Permissions
+2026-11-09T11:24:07.4604839Z Actions: read
+2026-11-09T11:24:07.4605492Z Contents: read
+2026-11-09T11:24:07.4606095Z Metadata: read
+2026-11-09T11:24:07.4606758Z ##[endgroup]
+2026-11-09T11:24:07.4608946Z Secret source: Actions
+2026-11-09T11:24:07.4610106Z Cache mode: write
+2026-11-09T11:24:07.4610882Z Prepare workflow directory
+2026-11-09T11:24:07.5209045Z Prepare all required actions
+2026-11-09T11:24:07.5260003Z Getting action download info
+2026-11-09T11:24:07.9156452Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-09T11:24:08.3857800Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-09T11:24:08.5446045Z Download action repository 'actions/download-artifact@v8.0.2' (SHA:9000827ccba6bdab643e8b6fd33ac0654aef8333)
+2026-11-09T11:24:08.9618034Z Download action repository 'ReactiveCircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-09T11:24:09.2848174Z Download action repository 'actions/upload-artifact@v7.0.2' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-09T11:24:09.5295912Z Complete job name: compare (light-portrait, no, portrait, chunk05, 31-37)
+2026-11-09T11:24:09.6222744Z ##[group]Run actions/checkout@v5
+2026-11-09T11:24:09.6224015Z with:
+2026-11-09T11:24:09.6225179Z   sparse-checkout: mynotes/tools/comparisons
+mynotes/tools/ci
+mynotes/docs/ux-improvement-ledger/ledger.json
+
+2026-11-09T11:24:09.6226013Z   sparse-checkout-cone-mode: false
+2026-11-09T11:24:09.6226379Z   repository: tarungittarun/TicTic
+2026-11-09T11:24:09.6229348Z   token: ***
+2026-11-09T11:24:09.6229616Z   ssh-strict: true
+2026-11-09T11:24:09.6229900Z   ssh-user: git
+2026-11-09T11:24:09.6230171Z   persist-credentials: true
+2026-11-09T11:24:09.6230500Z   clean: true
+2026-11-09T11:24:09.6230774Z   fetch-depth: 1
+2026-11-09T11:24:09.6231028Z   fetch-tags: false
+2026-11-09T11:24:09.6231292Z   show-progress: true
+2026-11-09T11:24:09.6231554Z   lfs: false
+2026-11-09T11:24:09.6231797Z   submodules: false
+2026-11-09T11:24:09.6232068Z   set-safe-directory: true
+2026-11-09T11:24:09.6232514Z   allow-unsafe-pr-checkout: false
+2026-11-09T11:24:09.6233551Z env:
+2026-11-09T11:24:09.6234104Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:09.6234943Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:09.6235493Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:09.6235864Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:09.6236212Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:09.6236509Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:09.6236845Z ##[endgroup]
+2026-11-09T11:24:12.2723123Z Syncing repository: tarungittarun/TicTic
+2026-11-09T11:24:12.2725614Z ##[group]Getting Git version info
+2026-11-09T11:24:12.2726360Z Working directory is '/home/runner/work/TicTic/TicTic'
+2026-11-09T11:24:12.2794389Z [command]/usr/bin/git version
+2026-11-09T11:24:12.4452142Z git version 2.56.0
+2026-11-09T11:24:12.4476079Z ##[endgroup]
+2026-11-09T11:24:12.4492409Z Temporarily overriding HOME='/home/runner/work/_temp/98e8a864-95a8-43bf-ac0d-4d6841f730c5' before making global git config changes
+2026-11-09T11:24:12.4493913Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-09T11:24:12.4500127Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-09T11:24:12.4798863Z Deleting the contents of '/home/runner/work/TicTic/TicTic'
+2026-11-09T11:24:12.4803255Z ##[group]Initializing the repository
+2026-11-09T11:24:12.4808308Z [command]/usr/bin/git init /home/runner/work/TicTic/TicTic
+2026-11-09T11:24:12.5397442Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-09T11:24:12.5398491Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-09T11:24:12.5399266Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-09T11:24:12.5399801Z hint: call:
+2026-11-09T11:24:12.5400046Z hint:
+2026-11-09T11:24:12.5400407Z hint: 	git config --global init.defaultBranch <name>
+2026-11-09T11:24:12.5400823Z hint:
+2026-11-09T11:24:12.5401216Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-09T11:24:12.5401897Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-09T11:24:12.5402416Z hint:
+2026-11-09T11:24:12.5402680Z hint: 	git branch -m <name>
+2026-11-09T11:24:12.5403005Z hint:
+2026-11-09T11:24:12.5403407Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-09T11:24:12.5686745Z Initialized empty Git repository in /home/runner/work/TicTic/TicTic/.git/
+2026-11-09T11:24:12.5700964Z [command]/usr/bin/git remote add origin https://github.com/tarungittarun/TicTic
+2026-11-09T11:24:12.5969826Z ##[endgroup]
+2026-11-09T11:24:12.5970781Z ##[group]Disabling automatic garbage collection
+2026-11-09T11:24:12.5976369Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-09T11:24:12.6021021Z ##[endgroup]
+2026-11-09T11:24:12.6021420Z ##[group]Setting up auth
+2026-11-09T11:24:12.6029340Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-09T11:24:12.6077468Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-09T11:24:12.8323547Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-09T11:24:12.8374016Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-09T11:24:12.8655802Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-09T11:24:12.8709693Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-09T11:24:12.8984874Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-09T11:24:12.9038787Z ##[endgroup]
+2026-11-09T11:24:12.9039442Z ##[group]Fetching the repository
+2026-11-09T11:24:12.9052182Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +1e3583fcea2aba3a365678ee84d18619a6d51c51:refs/remotes/origin/arena/3caca636-tictic
+2026-11-09T11:24:13.5289629Z From https://github.com/tarungittarun/TicTic
+2026-11-09T11:24:13.5290557Z  * [new ref]         1e3583fcea2aba3a365678ee84d18619a6d51c51 -> origin/arena/3caca636-tictic
+2026-11-09T11:24:13.5296301Z ##[endgroup]
+2026-11-09T11:24:13.5297124Z ##[group]Determining the checkout info
+2026-11-09T11:24:13.5299048Z ##[endgroup]
+2026-11-09T11:24:13.5300610Z ##[group]Setting up sparse checkout
+2026-11-09T11:24:13.5306767Z [command]/usr/bin/git config core.sparseCheckout true
+2026-11-09T11:24:13.5370066Z [command]/usr/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-09T11:24:13.5413677Z .git/info/sparse-checkout
+2026-11-09T11:24:13.5424033Z ##[endgroup]
+2026-11-09T11:24:13.5425140Z ##[group]Checking out the ref
+2026-11-09T11:24:13.5430647Z [command]/usr/bin/git checkout --progress --force -B arena/3caca636-tictic refs/remotes/origin/arena/3caca636-tictic
+2026-11-09T11:24:14.3960385Z Switched to a new branch 'arena/3caca636-tictic'
+2026-11-09T11:24:14.4026390Z branch 'arena/3caca636-tictic' set up to track 'origin/arena/3caca636-tictic'.
+2026-11-09T11:24:14.4042251Z ##[endgroup]
+2026-11-09T11:24:14.4139572Z [command]/usr/bin/git log -1 --format=%H
+2026-11-09T11:24:14.4180282Z 1e3583fcea2aba3a365678ee84d18619a6d51c51
+2026-11-09T11:24:14.4533409Z ##[group]Run actions/setup-python@v5
+2026-11-09T11:24:14.4533731Z with:
+2026-11-09T11:24:14.4533931Z   python-version: 3.11
+2026-11-09T11:24:14.4534188Z   check-latest: false
+2026-11-09T11:24:14.4537277Z   token: ***
+2026-11-09T11:24:14.4537501Z   update-environment: true
+2026-11-09T11:24:14.4537745Z   allow-prereleases: false
+2026-11-09T11:24:14.4537981Z   freethreaded: false
+2026-11-09T11:24:14.4538188Z env:
+2026-11-09T11:24:14.4538379Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:14.4538655Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:14.4538910Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:14.4539146Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:14.4539401Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:14.4539624Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:14.4539862Z ##[endgroup]
+2026-11-09T11:24:14.6164288Z ##[group]Installed versions
+2026-11-09T11:24:14.6749800Z (node:2385) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-09T11:24:14.6751024Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-09T11:24:14.6751728Z Successfully set up CPython (3.11.18)
+2026-11-09T11:24:14.6752521Z ##[endgroup]
+2026-11-09T11:24:14.6941997Z ##[group]Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1
+2026-11-09T11:24:14.6942968Z [36;1mpip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1[0m
+2026-11-09T11:24:14.7028694Z shell: /usr/bin/bash -e {0}
+2026-11-09T11:24:14.7028993Z env:
+2026-11-09T11:24:14.7029214Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:14.7029511Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:14.7029789Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:14.7030047Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:14.7030333Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:14.7030569Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:14.7030897Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:14.7031344Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:14.7031863Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:14.7032302Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:14.7032690Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:14.7033086Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:14.7033441Z ##[endgroup]
+2026-11-09T11:24:17.9981533Z Collecting websocket-client==1.8.0
+2026-11-09T11:24:18.0442385Z   Downloading websocket_client-1.8.0-py3-none-any.whl.metadata (8.0 kB)
+2026-11-09T11:24:18.2228613Z Collecting Pillow==11.3.0
+2026-11-09T11:24:18.2263715Z   Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+2026-11-09T11:24:18.3188328Z Collecting reportlab==4.4.4
+2026-11-09T11:24:18.3233387Z   Downloading reportlab-4.4.4-py3-none-any.whl.metadata (1.7 kB)
+2026-11-09T11:24:18.3348527Z Collecting python-docx==1.2.0
+2026-11-09T11:24:18.3385294Z   Downloading python_docx-1.2.0-py3-none-any.whl.metadata (2.0 kB)
+2026-11-09T11:24:18.3550119Z Collecting python-pptx==1.0.2
+2026-11-09T11:24:18.3579472Z   Downloading python_pptx-1.0.2-py3-none-any.whl.metadata (2.5 kB)
+2026-11-09T11:24:18.3683387Z Collecting odfpy==1.4.1
+2026-11-09T11:24:18.3740174Z   Downloading odfpy-1.4.1.tar.gz (717 kB)
+2026-11-09T11:24:18.3936944Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 717.0/717.0 kB 93.6 MB/s  0:00:00
+2026-11-09T11:24:18.4911047Z   Installing build dependencies: started
+2026-11-09T11:24:19.8338670Z   Installing build dependencies: finished with status 'done'
+2026-11-09T11:24:19.8344917Z   Getting requirements to build wheel: started
+2026-11-09T11:24:20.2776394Z   Getting requirements to build wheel: finished with status 'done'
+2026-11-09T11:24:20.2785603Z   Preparing metadata (pyproject.toml): started
+2026-11-09T11:24:20.4847509Z   Preparing metadata (pyproject.toml): finished with status 'done'
+2026-11-09T11:24:20.6006195Z Collecting charset-normalizer (from reportlab==4.4.4)
+2026-11-09T11:24:20.6045502Z   Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+2026-11-09T11:24:20.8401388Z Collecting lxml>=3.1.0 (from python-docx==1.2.0)
+2026-11-09T11:24:20.8433996Z   Downloading lxml-6.1.3-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (3.3 kB)
+2026-11-09T11:24:20.8591058Z Collecting typing_extensions>=4.9.0 (from python-docx==1.2.0)
+2026-11-09T11:24:20.8624090Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-09T11:24:20.8891661Z Collecting XlsxWriter>=0.5.7 (from python-pptx==1.0.2)
+2026-11-09T11:24:20.8925525Z   Downloading xlsxwriter-3.3.1-py3-none-any.whl.metadata (2.9 kB)
+2026-11-09T11:24:20.9032151Z Collecting defusedxml (from odfpy==1.4.1)
+2026-11-09T11:24:20.9065453Z   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+2026-11-09T11:24:20.9158867Z Downloading websocket_client-1.8.0-py3-none-any.whl (58 kB)
+2026-11-09T11:24:20.9215507Z Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+2026-11-09T11:24:20.9509102Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 239.5 MB/s  0:00:00
+2026-11-09T11:24:20.9568158Z Downloading reportlab-4.4.4-py3-none-any.whl (2.0 MB)
+2026-11-09T11:24:20.9663654Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 240.2 MB/s  0:00:00
+2026-11-09T11:24:20.9699604Z Downloading python_docx-1.2.0-py3-none-any.whl (252 kB)
+2026-11-09T11:24:20.9765219Z Downloading python_pptx-1.0.2-py3-none-any.whl (472 kB)
+2026-11-09T11:24:20.9855212Z Downloading lxml-6.1.3-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+2026-11-09T11:24:21.0045498Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 311.3 MB/s  0:00:00
+2026-11-09T11:24:21.0077780Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-09T11:24:21.0132966Z Downloading xlsxwriter-3.3.1-py3-none-any.whl (180 kB)
+2026-11-09T11:24:21.0194951Z Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+2026-11-09T11:24:21.0257176Z Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+2026-11-09T11:24:21.0644909Z Building wheels for collected packages: odfpy
+2026-11-09T11:24:21.0653787Z   Building wheel for odfpy (pyproject.toml): started
+2026-11-09T11:24:21.3407831Z   Building wheel for odfpy (pyproject.toml): finished with status 'done'
+2026-11-09T11:24:21.3414799Z   Created wheel for odfpy: filename=odfpy-1.4.1-py2.py3-none-any.whl size=160717 sha256=e07814c10c19aa9d5056262e6b7c71384ddb93260e5c5409c68872f1c67ff70a
+2026-11-09T11:24:21.3416541Z   Stored in directory: /home/runner/.cache/pip/wheels/d6/1d/c8/8c29be1d73ca42d15977c75193d9f39a98499413c2838ac54c
+2026-11-09T11:24:21.3433442Z Successfully built odfpy
+2026-11-09T11:24:21.3742052Z Installing collected packages: XlsxWriter, websocket-client, typing_extensions, Pillow, lxml, defusedxml, charset-normalizer, reportlab, python-pptx, python-docx, odfpy
+2026-11-09T11:24:22.9662846Z 
+2026-11-09T11:24:22.9676038Z Successfully installed Pillow-11.3.0 XlsxWriter-3.3.1 charset-normalizer-3.5.2 defusedxml-0.7.1 lxml-6.1.3 odfpy-1.4.1 python-docx-1.2.0 python-pptx-1.0.2 reportlab-4.4.4 typing_extensions-4.16.0 websocket-client-1.8.0
+2026-11-09T11:24:22.9684079Z 
+2026-11-09T11:24:22.9684689Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-09T11:24:22.9685402Z [notice] To update, run: pip install --upgrade pip
+2026-11-09T11:24:23.0892160Z ##[group]Run actions/download-artifact@v8.0.2
+2026-11-09T11:24:23.0892499Z with:
+2026-11-09T11:24:23.0895814Z   github-token: ***
+2026-11-09T11:24:23.0896059Z   run-id: 42277337133
+2026-11-09T11:24:23.0896318Z   name: full71-internal-release-and-probe
+2026-11-09T11:24:23.0896625Z   path: /tmp/comparison37-apks
+2026-11-09T11:24:23.0896890Z   merge-multiple: false
+2026-11-09T11:24:23.0897131Z   repository: tarungittarun/TicTic
+2026-11-09T11:24:23.0897390Z   skip-decompress: false
+2026-11-09T11:24:23.0897645Z   digest-mismatch: error
+2026-11-09T11:24:23.0897864Z env:
+2026-11-09T11:24:23.0898066Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:23.0898341Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:23.0898602Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:23.0898849Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:23.0899108Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:23.0899339Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:23.0899699Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:23.0900132Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:23.0900566Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:23.0900950Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:23.0901332Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:23.0901718Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:23.0902054Z ##[endgroup]
+2026-11-09T11:24:23.2860730Z Downloading single artifact
+2026-11-09T11:24:23.6666669Z Preparing to download the following artifacts:
+2026-11-09T11:24:23.6668075Z - full71-internal-release-and-probe (ID: 13533388155, Size: 157507683, Expected Digest: sha256:382e7797119859d89eb29969156b11109d392bc7461ae42d28a80543e7f7017b)
+2026-11-09T11:24:23.6682806Z Downloading artifact '13533388155' from 'tarungittarun/TicTic'
+2026-11-09T11:24:23.8988137Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/fd80951a-a3ec-858a-9804-368a0ba5f972/workflow-job-run-5c260b36-72c0-5ac3-9834-7a9288658353/artifacts/ef787b248260199237a53eaaf5819fe46ce2c02167cd306c58e3113107191244.zip
+2026-11-09T11:24:23.8989811Z Starting download of artifact to: /tmp/comparison37-apks
+2026-11-09T11:24:24.2091915Z (node:2449) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-09T11:24:24.2093132Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-09T11:24:30.3685004Z SHA256 digest of downloaded artifact is 382e7797119859d89eb29969156b11109d392bc7461ae42d28a80543e7f7017b
+2026-11-09T11:24:30.3686456Z Artifact download completed successfully.
+2026-11-09T11:24:30.3686973Z Total of 1 artifact(s) downloaded
+2026-11-09T11:24:30.3693258Z Download artifact has finished successfully
+2026-11-09T11:24:30.3891410Z ##[group]Run mkdir -p /tmp/comparison37-official comparison37-evidence
+2026-11-09T11:24:30.3892015Z [36;1mmkdir -p /tmp/comparison37-official comparison37-evidence[0m
+2026-11-09T11:24:30.3892753Z [36;1mgh release download v1.15.0 --repo obsidianmd/obsidian-releases --pattern Obsidian-1.15.0.apk --dir /tmp/comparison37-official[0m
+2026-11-09T11:24:30.3893750Z [36;1mecho 'a7d6f685992c68fe4ffc7f3a5705d0514986c9d9fd82ca67c6f68d392ca41de3  /tmp/comparison37-apks/release/notes-release.apk' | sha256sum --check[0m
+2026-11-09T11:24:30.3895235Z [36;1mecho '2d92966fba5441a8976ae86b39cf138c0a845d3dcd318e6f0d29d304950bca5d  /tmp/comparison37-official/Obsidian-1.15.0.apk' | sha256sum --check[0m
+2026-11-09T11:24:30.3896290Z [36;1msha256sum /tmp/comparison37-apks/release/notes-release.apk /tmp/comparison37-official/Obsidian-1.15.0.apk > comparison37-evidence/apk-digests.txt[0m
+2026-11-09T11:24:30.3916740Z shell: /usr/bin/bash -e {0}
+2026-11-09T11:24:30.3916988Z env:
+2026-11-09T11:24:30.3917223Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:30.3917517Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:30.3917787Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:30.3918037Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:30.3918300Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:30.3918525Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:30.3918844Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:30.3919266Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:30.3919697Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:30.3920075Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:30.3920445Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:30.3920818Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:30.3923831Z   GH_TOKEN: ***
+2026-11-09T11:24:30.3924052Z ##[endgroup]
+2026-11-09T11:24:33.4434756Z /tmp/comparison37-apks/release/notes-release.apk: OK
+2026-11-09T11:24:33.4563269Z /tmp/comparison37-official/Obsidian-1.15.0.apk: OK
+2026-11-09T11:24:33.5870078Z ##[group]Run sudo chmod 666 /dev/kvm
+2026-11-09T11:24:33.5870431Z [36;1msudo chmod 666 /dev/kvm[0m
+2026-11-09T11:24:33.5870695Z [36;1msudo apt-get update[0m
+2026-11-09T11:24:33.5871042Z [36;1msudo apt-get install -y --no-install-recommends libpulse0[0m
+2026-11-09T11:24:33.5871464Z [36;1mbash mynotes/tools/ci/use_installed_emulator.sh[0m
+2026-11-09T11:24:33.5891927Z shell: /usr/bin/bash -e {0}
+2026-11-09T11:24:33.5892196Z env:
+2026-11-09T11:24:33.5892493Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:33.5892857Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:33.5893123Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:33.5893363Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:33.5893626Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:33.5893860Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:33.5894189Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:33.5895008Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:33.5895438Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:33.5895814Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:33.5896196Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:33.5896571Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:33.5896888Z ##[endgroup]
+2026-11-09T11:24:33.7236130Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-09T11:24:33.7475175Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-09T11:24:33.7732886Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-09T11:24:33.7791995Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-09T11:24:33.7855751Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-09T11:24:33.8046635Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-09T11:24:33.9720889Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [743 kB]
+2026-11-09T11:24:33.9863068Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [675 kB]
+2026-11-09T11:24:34.0290727Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1425 kB]
+2026-11-09T11:24:34.0360211Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [313 kB]
+2026-11-09T11:24:34.0377885Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+2026-11-09T11:24:34.0455702Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+2026-11-09T11:24:34.0496585Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1839 kB]
+2026-11-09T11:24:34.0560356Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [420 kB]
+2026-11-09T11:24:34.0590462Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+2026-11-09T11:24:34.0596238Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-11-09T11:24:34.1502535Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1157 kB]
+2026-11-09T11:24:34.1552907Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+2026-11-09T11:24:34.2056461Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+2026-11-09T11:24:34.2109557Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-09T11:24:34.2130275Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+2026-11-09T11:24:34.2204284Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+2026-11-09T11:24:34.2225246Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+2026-11-09T11:24:34.2232969Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-11-09T11:24:40.5609543Z Fetched 13.0 MB in 1s (9352 kB/s)
+2026-11-09T11:24:41.7891791Z Reading package lists...
+2026-11-09T11:24:41.8281698Z Reading package lists...
+2026-11-09T11:24:42.0927991Z Building dependency tree...
+2026-11-09T11:24:42.0936120Z Reading state information...
+2026-11-09T11:24:42.3028477Z The following additional packages will be installed:
+2026-11-09T11:24:42.3030986Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libsndfile1
+2026-11-09T11:24:42.3034923Z   libvorbisenc2
+2026-11-09T11:24:42.3040882Z Suggested packages:
+2026-11-09T11:24:42.3041266Z   opus-tools pulseaudio
+2026-11-09T11:24:42.3339399Z The following NEW packages will be installed:
+2026-11-09T11:24:42.3344847Z   libasyncns0 libflac12t64 libmp3lame0 libmpg123-0t64 libopus0 libpulse0
+2026-11-09T11:24:42.3351601Z   libsndfile1 libvorbisenc2
+2026-11-09T11:24:42.3577398Z 0 upgraded, 8 newly installed, 0 to remove and 27 not upgraded.
+2026-11-09T11:24:42.3578091Z Need to get 1310 kB of archives.
+2026-11-09T11:24:42.3578689Z After this operation, 3874 kB of additional disk space will be used.
+2026-11-09T11:24:42.3579312Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-09T11:24:42.4348757Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+2026-11-09T11:24:42.4959193Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libflac12t64 amd64 1.4.3+ds-2.1ubuntu2 [197 kB]
+2026-11-09T11:24:42.5752495Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmp3lame0 amd64 3.100-6build1 [142 kB]
+2026-11-09T11:24:42.6447508Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
+2026-11-09T11:24:42.7161594Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopus0 amd64 1.4-1build1 [208 kB]
+2026-11-09T11:24:42.7904323Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libvorbisenc2 amd64 1.3.7-1build3 [80.8 kB]
+2026-11-09T11:24:42.8558890Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libsndfile1 amd64 1.2.2-1ubuntu5.24.04.1 [209 kB]
+2026-11-09T11:24:42.9300095Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpulse0 amd64 1:16.1+dfsg1-2ubuntu10.1 [292 kB]
+2026-11-09T11:24:43.2837040Z Fetched 1310 kB in 1s (2018 kB/s)
+2026-11-09T11:24:43.3133813Z Selecting previously unselected package libasyncns0:amd64.
+2026-11-09T11:24:43.3729757Z (Reading database ... 
+2026-11-09T11:24:43.3730333Z (Reading database ... 5%
+2026-11-09T11:24:43.3730809Z (Reading database ... 10%
+2026-11-09T11:24:43.3731290Z (Reading database ... 15%
+2026-11-09T11:24:43.3731807Z (Reading database ... 20%
+2026-11-09T11:24:43.3732300Z (Reading database ... 25%
+2026-11-09T11:24:43.3732754Z (Reading database ... 30%
+2026-11-09T11:24:43.3733165Z (Reading database ... 35%
+2026-11-09T11:24:43.3733608Z (Reading database ... 40%
+2026-11-09T11:24:43.3733914Z (Reading database ... 45%
+2026-11-09T11:24:43.3734177Z (Reading database ... 50%
+2026-11-09T11:24:43.4337334Z (Reading database ... 55%
+2026-11-09T11:24:43.7730173Z (Reading database ... 60%
+2026-11-09T11:24:44.0870263Z (Reading database ... 65%
+2026-11-09T11:24:44.3584042Z (Reading database ... 70%
+2026-11-09T11:24:44.6047659Z (Reading database ... 75%
+2026-11-09T11:24:45.2152706Z (Reading database ... 80%
+2026-11-09T11:24:45.9027102Z (Reading database ... 85%
+2026-11-09T11:24:46.6067526Z (Reading database ... 90%
+2026-11-09T11:24:47.3408656Z (Reading database ... 95%
+2026-11-09T11:24:47.3409074Z (Reading database ... 100%
+2026-11-09T11:24:47.3409543Z (Reading database ... 215960 files and directories currently installed.)
+2026-11-09T11:24:47.3455102Z Preparing to unpack .../0-libasyncns0_0.8-6build4_amd64.deb ...
+2026-11-09T11:24:47.3503155Z Unpacking libasyncns0:amd64 (0.8-6build4) ...
+2026-11-09T11:24:47.3816820Z Selecting previously unselected package libflac12t64:amd64.
+2026-11-09T11:24:47.3965498Z Preparing to unpack .../1-libflac12t64_1.4.3+ds-2.1ubuntu2_amd64.deb ...
+2026-11-09T11:24:47.3975727Z Unpacking libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-09T11:24:47.4329150Z Selecting previously unselected package libmp3lame0:amd64.
+2026-11-09T11:24:47.4476918Z Preparing to unpack .../2-libmp3lame0_3.100-6build1_amd64.deb ...
+2026-11-09T11:24:47.4493317Z Unpacking libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-09T11:24:47.4815659Z Selecting previously unselected package libmpg123-0t64:amd64.
+2026-11-09T11:24:47.4961367Z Preparing to unpack .../3-libmpg123-0t64_1.32.5-1ubuntu1.1_amd64.deb ...
+2026-11-09T11:24:47.4969995Z Unpacking libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-09T11:24:47.5258328Z Selecting previously unselected package libopus0:amd64.
+2026-11-09T11:24:47.5405089Z Preparing to unpack .../4-libopus0_1.4-1build1_amd64.deb ...
+2026-11-09T11:24:47.5415237Z Unpacking libopus0:amd64 (1.4-1build1) ...
+2026-11-09T11:24:47.5710875Z Selecting previously unselected package libvorbisenc2:amd64.
+2026-11-09T11:24:47.5859361Z Preparing to unpack .../5-libvorbisenc2_1.3.7-1build3_amd64.deb ...
+2026-11-09T11:24:47.5869496Z Unpacking libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-09T11:24:47.6205480Z Selecting previously unselected package libsndfile1:amd64.
+2026-11-09T11:24:47.6358839Z Preparing to unpack .../6-libsndfile1_1.2.2-1ubuntu5.24.04.1_amd64.deb ...
+2026-11-09T11:24:47.6370420Z Unpacking libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-09T11:24:47.6659963Z Selecting previously unselected package libpulse0:amd64.
+2026-11-09T11:24:47.6804296Z Preparing to unpack .../7-libpulse0_1%3a16.1+dfsg1-2ubuntu10.1_amd64.deb ...
+2026-11-09T11:24:47.6893140Z Unpacking libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-09T11:24:47.7438513Z Setting up libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-09T11:24:47.7466053Z Setting up libopus0:amd64 (1.4-1build1) ...
+2026-11-09T11:24:47.7489250Z Setting up libasyncns0:amd64 (0.8-6build4) ...
+2026-11-09T11:24:47.7511155Z Setting up libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-09T11:24:47.7535050Z Setting up libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-09T11:24:47.7559193Z Setting up libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-09T11:24:47.7580589Z Setting up libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-09T11:24:47.7601749Z Setting up libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-09T11:24:47.7699666Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-11-09T11:24:49.0434764Z 
+2026-11-09T11:24:49.0435869Z Running kernel seems to be up-to-date.
+2026-11-09T11:24:49.0436183Z 
+2026-11-09T11:24:49.0436336Z No services need to be restarted.
+2026-11-09T11:24:49.0436559Z 
+2026-11-09T11:24:49.0436698Z No containers need to be restarted.
+2026-11-09T11:24:49.0436919Z 
+2026-11-09T11:24:49.0437069Z No user sessions are running outdated binaries.
+2026-11-09T11:24:49.0437344Z 
+2026-11-09T11:24:49.0437602Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-09T11:24:50.1907531Z No preinstalled emulator; retain normal SDK installation.
+2026-11-09T11:24:50.1941801Z ##[group]Run command -v strace >/dev/null || { sudo apt-get update; sudo apt-get install -y strace; }
+2026-11-09T11:24:50.1942497Z [36;1mcommand -v strace >/dev/null || { sudo apt-get update; sudo apt-get install -y strace; }[0m
+2026-11-09T11:24:50.1962592Z shell: /usr/bin/bash -e {0}
+2026-11-09T11:24:50.1962847Z env:
+2026-11-09T11:24:50.1963048Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:50.1963323Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:50.1963587Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:50.1963823Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:50.1964092Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:50.1964323Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:50.1965011Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.1965447Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:50.1965872Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.1966285Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.1966660Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.1967036Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:50.1967353Z ##[endgroup]
+2026-11-09T11:24:50.2096091Z ##[group]Run ReactiveCircus/android-emulator-runner@v2
+2026-11-09T11:24:50.2096463Z with:
+2026-11-09T11:24:50.2096661Z   emulator-build: 16428233
+2026-11-09T11:24:50.2096890Z   api-level: 34
+2026-11-09T11:24:50.2097088Z   target: google_apis
+2026-11-09T11:24:50.2097302Z   arch: x86_64
+2026-11-09T11:24:50.2097501Z   profile: Nexus 5
+2026-11-09T11:24:50.2097719Z   disable-animations: false
+2026-11-09T11:24:50.2098269Z   emulator-options: -no-window -gpu swiftshader -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+2026-11-09T11:24:50.2100475Z   script: python -m mynotes.tools.ci.offline_guest
+cp offline-guest-proof.json comparison37-evidence/
+adb install /tmp/comparison37-apks/release/notes-release.apk
+adb install /tmp/comparison37-official/Obsidian-1.15.0.apk
+adb shell settings put system font_scale 1.0
+adb shell cmd uimode night no
+python -m mynotes.tools.ci.native_environment --orientation portrait
+python -m mynotes.tools.ci.native_environment --snapshot configured
+python mynotes/tools/comparisons/run_with_host_diagnostics.py
+
+2026-11-09T11:24:50.2102347Z   cores: 2
+2026-11-09T11:24:50.2102531Z   avd-name: test
+2026-11-09T11:24:50.2102737Z   force-avd-creation: true
+2026-11-09T11:24:50.2102978Z   emulator-boot-timeout: 600
+2026-11-09T11:24:50.2103221Z   emulator-port: 5554
+2026-11-09T11:24:50.2103592Z   disable-spellchecker: false
+2026-11-09T11:24:50.2103875Z   disable-linux-hw-accel: auto
+2026-11-09T11:24:50.2104124Z   enable-hw-keyboard: false
+2026-11-09T11:24:50.2104348Z   channel: stable
+2026-11-09T11:24:50.2104834Z env:
+2026-11-09T11:24:50.2105053Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:24:50.2105341Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:24:50.2105623Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:24:50.2105866Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:24:50.2106122Z   COMPARISON_NIGHT: no
+2026-11-09T11:24:50.2106348Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:24:50.2106681Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.2107131Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:24:50.2107811Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.2108203Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.2108588Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:24:50.2108975Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:24:50.2109303Z ##[endgroup]
+2026-11-09T11:24:50.2710179Z ##[group]Configure emulator
+2026-11-09T11:24:50.2712970Z API level: 34
+2026-11-09T11:24:50.2713311Z System image API level: 34
+2026-11-09T11:24:50.2713752Z target: google_apis
+2026-11-09T11:24:50.2714928Z CPU architecture: x86_64
+2026-11-09T11:24:50.2715437Z Hardware profile: Nexus 5
+2026-11-09T11:24:50.2717738Z Cores: 2
+2026-11-09T11:24:50.2718091Z RAM size: 
+2026-11-09T11:24:50.2718441Z Heap size: 
+2026-11-09T11:24:50.2718826Z SD card path or size: 
+2026-11-09T11:24:50.2719499Z Disk size: 
+2026-11-09T11:24:50.2720143Z AVD name: test
+2026-11-09T11:24:50.2720578Z force avd creation: true
+2026-11-09T11:24:50.2721038Z Emulator boot timeout: 600
+2026-11-09T11:24:50.2721685Z emulator port: 5554
+2026-11-09T11:24:50.2722785Z emulator options: -no-window -gpu swiftshader -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+2026-11-09T11:24:50.2724018Z disable animations: false
+2026-11-09T11:24:50.2724944Z disable spellchecker: false
+2026-11-09T11:24:50.2725528Z disable Linux hardware acceleration: false
+2026-11-09T11:24:50.2726137Z enable hardware keyboard: false
+2026-11-09T11:24:50.2726768Z using emulator build: 16428233
+2026-11-09T11:24:50.2727381Z Channel: 0 (stable)
+2026-11-09T11:24:50.2727876Z Script:
+2026-11-09T11:24:50.2728390Z python -m mynotes.tools.ci.offline_guest
+2026-11-09T11:24:50.2729155Z cp offline-guest-proof.json comparison37-evidence/
+2026-11-09T11:24:50.2729964Z adb install /tmp/comparison37-apks/release/notes-release.apk
+2026-11-09T11:24:50.2731242Z adb install /tmp/comparison37-official/Obsidian-1.15.0.apk
+2026-11-09T11:24:50.2731991Z adb shell settings put system font_scale 1.0
+2026-11-09T11:24:50.2732547Z adb shell cmd uimode night no
+2026-11-09T11:24:50.2733211Z python -m mynotes.tools.ci.native_environment --orientation portrait
+2026-11-09T11:24:50.2734122Z python -m mynotes.tools.ci.native_environment --snapshot configured
+2026-11-09T11:24:50.2735257Z python mynotes/tools/comparisons/run_with_host_diagnostics.py
+2026-11-09T11:24:50.2735921Z Pre emulator launch script:
+2026-11-09T11:24:50.2736657Z ##[endgroup]
+2026-11-09T11:24:50.2737320Z ##[group]Install Android SDK
+2026-11-09T11:24:50.2850817Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-11-09T11:24:58.5416940Z Installing latest build tools, platform tools, and platform.
+2026-11-09T11:24:58.5433967Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'> /dev/null
+2026-11-09T11:25:00.3235261Z Installing latest emulator.
+2026-11-09T11:25:00.3251065Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-11-09T11:25:08.7920686Z Installing emulator build 16428233.
+2026-11-09T11:25:08.7939965Z [command]/usr/bin/curl -fo emulator.zip https://dl.google.com/android/repository/emulator-linux_x64-16428233.zip
+2026-11-09T11:25:08.8040597Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2026-11-09T11:25:08.8041600Z                                  Dload  Upload   Total   Spent    Left  Speed
+2026-11-09T11:25:08.8042145Z 
+2026-11-09T11:25:08.9139640Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-11-09T11:25:09.9145205Z   5  333M    5 17.6M    0     0   159M      0  0:00:02 --:--:--  0:00:02  159M
+2026-11-09T11:25:10.1889063Z  79  333M   79  265M    0     0   239M      0  0:00:01  0:00:01 --:--:--  238M
+2026-11-09T11:25:10.1889907Z 100  333M  100  333M    0     0   240M      0  0:00:01  0:00:01 --:--:--  240M
+2026-11-09T11:25:10.1946123Z [command]/usr/bin/unzip -o -q emulator.zip -d /usr/local/lib/android/sdk
+2026-11-09T11:25:16.6061859Z Installing system images.
+2026-11-09T11:25:16.6079001Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-34;google_apis;x86_64' --channel=0 > /dev/null
+2026-11-09T11:25:45.3511403Z ##[endgroup]
+2026-11-09T11:25:45.3512512Z ##[group]Create AVD
+2026-11-09T11:25:45.3513121Z Creating AVD.
+2026-11-09T11:25:45.3531794Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-34;google_apis;x86_64' --device 'Nexus 5'
+2026-11-09T11:25:46.1991794Z Loading local repository...                                                     
+2026-11-09T11:25:46.2025875Z [=========                              ] 25% Loading local repository...       
+2026-11-09T11:25:46.2031513Z [=========                              ] 25% Fetch remote repository...        
+2026-11-09T11:25:46.2052192Z [=======================================] 100% Fetch remote repository...       
+2026-11-09T11:25:46.4554227Z Auto-selecting single ABI x86_64
+2026-11-09T11:25:46.9309712Z [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-11-09T11:25:46.9335767Z ##[endgroup]
+2026-11-09T11:25:46.9338571Z ##[group]Launch Emulator
+2026-11-09T11:25:46.9339027Z Starting emulator.
+2026-11-09T11:25:46.9355976Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot &
+2026-11-09T11:25:46.9479792Z INFO         | Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)
+2026-11-09T11:25:46.9480557Z INFO         | Graphics backend: gfxstream
+2026-11-09T11:25:46.9481393Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/
+2026-11-09T11:25:47.6011159Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-11-09T11:25:47.6012193Z INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+2026-11-09T11:25:47.6012661Z ##############################################################################
+2026-11-09T11:25:47.6013092Z ##                        WARNING - ACTION REQUIRED                         ##
+2026-11-09T11:25:47.6013594Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+2026-11-09T11:25:47.6014149Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+2026-11-09T11:25:47.6015044Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+2026-11-09T11:25:47.6015602Z ##  In a future release this warning will turn into a one-time blocking     ##
+2026-11-09T11:25:47.6016159Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+2026-11-09T11:25:47.6016632Z ##                                                                          ##
+2026-11-09T11:25:47.6017109Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+2026-11-09T11:25:47.6017679Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+2026-11-09T11:25:47.6018240Z ##  data is being collected by emulator as part of usage statistics.        ##
+2026-11-09T11:25:47.6018727Z ##############################################################################
+2026-11-09T11:25:47.6019134Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-11-09T11:25:47.6019709Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-11-09T11:25:47.6020281Z INFO         | Checking system compatibility:
+2026-11-09T11:25:47.6020669Z INFO         |   Checking: hasSufficientDiskSpace
+2026-11-09T11:25:47.6021115Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-11-09T11:25:47.6021556Z INFO         |   Checking: hasSufficientHwGpu
+2026-11-09T11:25:47.6021979Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-11-09T11:25:47.6022426Z INFO         |   Checking: hasSufficientSystem
+2026-11-09T11:25:47.6022841Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-11-09T11:25:47.6024056Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-11-09T11:25:47.6025615Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-11-09T11:25:47.6036886Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.12.db, detection is enabled for process: 3296
+2026-11-09T11:25:47.6037857Z INFO         | Initializing gfxstream backend
+2026-11-09T11:25:47.6049979Z INFO         | startOpenglesRendererImpl: gpu info
+2026-11-09T11:25:47.6050483Z INFO         | 
+2026-11-09T11:25:47.6087337Z INFO         | SharedLibrary::open for [libX11]
+2026-11-09T11:25:47.6089503Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-11-09T11:25:47.6090024Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-11-09T11:25:47.6090395Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-11-09T11:25:47.6091303Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-11-09T11:25:47.6091836Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-11-09T11:25:47.6223425Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-11-09T11:25:47.6225069Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-11-09T11:25:47.6226364Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-11-09T11:25:47.6230396Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-11-09T11:25:47.6232991Z INFO         | Graphics Device Extensions N/A
+2026-11-09T11:25:47.6299853Z INFO         | Sending adb public key [QAAAAH11UhUrlEJZI7vT/k9KSrgPVR6PcW9B0KcYNBavHsElE4hNmwBIdMJ5aS/tdu6/djjcxMvmAFyPHPRgZSjZzQ/ukKVIfHGZ6kxXL5QdfLsqFkKN9YtUJCjj2GJ6ueKcXo+JtX1/CADb+sp5hL37kOrlYr0HmIsYhFE4Xd6uaJfnpN6vrECh0Eh4mVG4OPXt8qJT/mTOHhnz8udWl8vOqr9V3Gwhc0W0aA6Lda/tyryP2Snpqgjwi64Vb+i+Q47E9+Ii5Qzqocko1ijTjq3Ve1w+IS7+inmklH9cC1Mh6UgVh9FgJX+0CBkijZ/ErkUWV4at/GQXbdI9og7JO8MMLyzFEjvI67vbGNu31XryJ7c6bHwtLLBBM7zmsmPZm5R7dTL0DHbyp5uUm+pCbaCi9h/Fl+U824BzW7IGtdmXlamKAbEm2/i+mjipDs4UGxQrr4iaAhBwpGFN4kvuqSJ2qRLGs4wqH1pucBv9Bj/FvGVIZBnfPfxSdzKJCJm4UqXyj1nPZMtHxJOXl7KKczBzJ9tMZTuwOlxulz4cJZFZjr5xxF5QJDgR9B/KX5oUBQxdDX3nIaUtfNLEtURD+9hcZZ+GKtZwFs44VBy9lPoPGYBgfIL+wieWn8DlTb74N84Mq4UZEZfxPkK9zXFvJztFXgbXpYSZFiFD/hQJRRtuvrH1HAJcZQEAAQA= runner@unknown]
+2026-11-09T11:25:47.6305769Z INFO         | Userspace boot properties:
+2026-11-09T11:25:47.6306589Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-11-09T11:25:47.6307260Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-11-09T11:25:47.6308028Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-11-09T11:25:47.6308666Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-11-09T11:25:47.6309249Z INFO         |   androidboot.hardware=ranchu
+2026-11-09T11:25:47.6309874Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-11-09T11:25:47.6310426Z INFO         |   androidboot.logcat=*:V
+2026-11-09T11:25:47.6311007Z INFO         |   androidboot.opengles.version=196608
+2026-11-09T11:25:47.6311559Z INFO         |   androidboot.qemu=1
+2026-11-09T11:25:47.6316333Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAH11UhUrlEJZI7vT/k9KSrgPVR6PcW9B0KcYNBavHsElE4hNmwBIdMJ5aS/tdu6/djjcxMvmAFyPHPRgZSjZzQ/ukKVIfHGZ6kxXL5QdfLsqFkKN9YtUJCjj2GJ6ueKcXo+JtX1/CADb+sp5hL37kOrlYr0HmIsYhFE4Xd6uaJfnpN6vrECh0Eh4mVG4OPXt8qJT/mTOHhnz8udWl8vOqr9V3Gwhc0W0aA6Lda/tyryP2Snpqgjwi64Vb+i+Q47E9+Ii5Qzqocko1ijTjq3Ve1w+IS7+inmklH9cC1Mh6UgVh9FgJX+0CBkijZ/ErkUWV4at/GQXbdI9og7JO8MMLyzFEjvI67vbGNu31XryJ7c6bHwtLLBBM7zmsmPZm5R7dTL0DHbyp5uUm+pCbaCi9h/Fl+U824BzW7IGtdmXlamKAbEm2/i+mjipDs4UGxQrr4iaAhBwpGFN4kvuqSJ2qRLGs4wqH1pucBv9Bj/FvGVIZBnfPfxSdzKJCJm4UqXyj1nPZMtHxJOXl7KKczBzJ9tMZTuwOlxulz4cJZFZjr5xxF5QJDgR9B/KX5oUBQxdDX3nIaUtfNLEtURD+9hcZZ+GKtZwFs44VBy9lPoPGYBgfIL+wieWn8DlTb74N84Mq4UZEZfxPkK9zXFvJztFXgbXpYSZFiFD/hQJRRtuvrH1HAJcZQEAAQA= runner@unknown
+2026-11-09T11:25:47.6320742Z INFO         |   androidboot.qemu.avd_name=test
+2026-11-09T11:25:47.6321119Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-11-09T11:25:47.6321495Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-11-09T11:25:47.6321852Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-11-09T11:25:47.6322258Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-11-09T11:25:47.6322661Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-11-09T11:25:47.6323008Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-11-09T11:25:47.6323341Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-11-09T11:25:47.6323666Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-11-09T11:25:47.6324115Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-11-09T11:25:47.6325110Z INFO         |   androidboot.qemu.skin=1080x1920
+2026-11-09T11:25:47.6325583Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-11-09T11:25:47.6326067Z INFO         |   androidboot.qemu.vsync=60
+2026-11-09T11:25:47.6326639Z INFO         |   androidboot.serialno=EMULATOR37X2X12X0
+2026-11-09T11:25:47.6327424Z INFO         |   androidboot.vbmeta.digest=451e57ed688ff746d2c636d52169ade253e2bc5bb30a5c3ff23679ca15d3bcd3
+2026-11-09T11:25:47.6327944Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-11-09T11:25:47.6328461Z INFO         |   androidboot.vbmeta.size=6656
+2026-11-09T11:25:47.6328790Z INFO         |   androidboot.veritymode=enforcing
+2026-11-09T11:25:47.6505106Z WARNING: cannnot unmap ptr 0x7f6702e01000 as it is in the protected range from 0x7f6642e00000 to 0x7f6703000000
+2026-11-09T11:25:47.6835435Z INFO         | Monitoring duration of emulator setup.
+2026-11-09T11:25:48.6731387Z INFO         | Activated packet streamer for bluetooth emulation
+2026-11-09T11:25:48.6745271Z INFO         | Successfully initialized netsim WiFi
+2026-11-09T11:25:48.6792791Z INFO         | Setting display: 0 configuration to: 1080x1920, dpi: 480x480 
+2026-11-09T11:25:48.6793408Z INFO         | setDisplayActiveConfig: id:0, 1080x1920
+2026-11-09T11:25:48.6793882Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-11-09T11:25:48.6870934Z USER_INFO    | Emulator is performing a full startup. This may take upto two minutes, or more.
+2026-11-09T11:25:48.6875893Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-09T11:25:48.8355297Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-09T11:25:56.9423621Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:25:56.9463946Z * daemon not running; starting now at tcp:5037
+2026-11-09T11:25:57.0369624Z * daemon started successfully
+2026-11-09T11:25:57.0370668Z adb: device offline
+2026-11-09T11:25:57.0376071Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-09T11:25:59.0418771Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:25:59.0454205Z adb: device offline
+2026-11-09T11:25:59.0459912Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-09T11:26:01.0508443Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:01.1472614Z 
+2026-11-09T11:26:03.1679644Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:03.1934216Z 
+2026-11-09T11:26:05.2030275Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:05.2234021Z 
+2026-11-09T11:26:07.2298032Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:07.2560735Z 
+2026-11-09T11:26:09.2663973Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:09.2841752Z 
+2026-11-09T11:26:11.2911943Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:11.3250694Z 
+2026-11-09T11:26:13.3309475Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:13.3512458Z 
+2026-11-09T11:26:15.3564304Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:15.3800297Z 
+2026-11-09T11:26:17.3855015Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:17.4129082Z 
+2026-11-09T11:26:19.4170895Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:19.4531833Z 
+2026-11-09T11:26:21.4576336Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:21.4759660Z 
+2026-11-09T11:26:23.4808767Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:23.4984074Z 
+2026-11-09T11:26:25.5086971Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:25.5361970Z 
+2026-11-09T11:26:26.5748219Z INFO         | Boot completed in 39598 ms
+2026-11-09T11:26:26.5749152Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-11-09T11:26:27.5393900Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-09T11:26:27.6180588Z 1
+2026-11-09T11:26:27.6198404Z Emulator booted.
+2026-11-09T11:26:27.6231835Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-11-09T11:26:32.1636582Z ##[endgroup]
+2026-11-09T11:26:32.1715463Z [command]/usr/bin/sh -c python -m mynotes.tools.ci.offline_guest
+2026-11-09T11:26:46.2280073Z ##[notice]{"emulator_only": true, "notes_installed": false, "airplane_mode": true, "wifi_disabled": true, "active_default_network": false, "consecutive_checks": 3, "uninstall_or_clear_data": false, "scope": "Fresh public CI guest offline provisioning; not a physical-device result.", "final_shell_uid": 2000}
+2026-11-09T11:26:46.2407334Z [command]/usr/bin/sh -c cp offline-guest-proof.json comparison37-evidence/
+2026-11-09T11:26:46.2484978Z [command]/usr/bin/sh -c adb install /tmp/comparison37-apks/release/notes-release.apk
+2026-11-09T11:26:51.9556972Z Performing Streamed Install
+2026-11-09T11:26:51.9558248Z Success
+2026-11-09T11:26:51.9593993Z [command]/usr/bin/sh -c adb install /tmp/comparison37-official/Obsidian-1.15.0.apk
+2026-11-09T11:26:54.6650792Z Performing Streamed Install
+2026-11-09T11:26:54.6651688Z Success
+2026-11-09T11:26:54.6701500Z [command]/usr/bin/sh -c adb shell settings put system font_scale 1.0
+2026-11-09T11:26:54.7655775Z [command]/usr/bin/sh -c adb shell cmd uimode night no
+2026-11-09T11:26:54.8166240Z Night mode: no
+2026-11-09T11:26:54.8212200Z [command]/usr/bin/sh -c python -m mynotes.tools.ci.native_environment --orientation portrait
+2026-11-09T11:26:55.4554211Z Natural display (1080, 1920); requested portrait; rotation=0
+2026-11-09T11:26:55.4726584Z [command]/usr/bin/sh -c python -m mynotes.tools.ci.native_environment --snapshot configured
+2026-11-09T11:26:56.3489359Z [command]/usr/bin/sh -c python mynotes/tools/comparisons/run_with_host_diagnostics.py
+2026-11-09T11:27:09.1295221Z SNAPSHOT mynotes-fixture-empty ['Back', 'Find in note', 'Undo', 'Redo text', 'More actions', 'Title', 'Write your note…', 'Editor tools', 'Insert', 'Format', 'Voice', 'Background']
+2026-11-09T11:27:22.6537205Z SNAPSHOT mynotes-fixture-title ['Back', 'Find in note', 'Undo', 'Redo text', 'More actions', 'Comparison37 Meeting', 'Write your note…', 'Editor tools', 'Insert', 'Format', 'Voice', 'Background']
+2026-11-09T11:27:37.2936673Z SNAPSHOT mynotes-fixture-body ['Back', 'Find in note', 'Undo', 'Redo text', 'More actions', 'Comparison37 Meeting', 'Public comparison fixture. Decision marker cobalt42 belongs here. Keep the original text unchanged.', 'Editor tools', 'Insert', 'Format', 'Voice', 'Background']
+2026-11-09T11:27:53.5893938Z args: [-p, md.obsidian, -c, android.intent.category.LAUNCHER, 1]
+2026-11-09T11:27:53.5897493Z  arg: "-p"
+2026-11-09T11:27:53.5897872Z  arg: "md.obsidian"
+2026-11-09T11:27:53.5898313Z  arg: "-c"
+2026-11-09T11:27:53.5898730Z  arg: "android.intent.category.LAUNCHER"
+2026-11-09T11:27:53.5899050Z  arg: "1"
+2026-11-09T11:27:53.5899345Z data="md.obsidian"
+2026-11-09T11:27:53.5899787Z data="android.intent.category.LAUNCHER"
+2026-11-09T11:28:04.0375081Z 00-official-app-first-launch []
+2026-11-09T11:28:04.0771754Z 9222
+2026-11-09T11:28:04.0968145Z DOM Your thoughts are yours.
+2026-11-09T11:28:04.0969171Z 
+2026-11-09T11:28:04.0969918Z Obsidian stores notes on your device, so you can access them quickly and privately, even offline.
+2026-11-09T11:28:04.0970608Z 
+2026-11-09T11:28:04.0970885Z Your data is stored in a secure local folder called a vault.
+2026-11-09T11:28:04.0971295Z 
+2026-11-09T11:28:04.0971544Z አማርኛ
+2026-11-09T11:28:04.0972007Z اَلْعَرَبِيَّةُ
+2026-11-09T11:28:04.0972386Z беларуская мова
+2026-11-09T11:28:04.0972775Z български език
+2026-11-09T11:28:04.0973112Z বাংলা
+2026-11-09T11:28:04.0973414Z català
+2026-11-09T11:28:04.0973797Z čeština
+2026-11-09T11:28:04.0974095Z Dansk
+2026-11-09T11:28:04.0974948Z Deutsch
+2026-11-09T11:28:04.0975235Z Ελληνικά
+2026-11-09T11:28:04.0975437Z English
+2026-11-09T11:28:04.0975610Z English (GB)
+2026-11-09T11:28:04.0975818Z Español
+2026-11-09T11:28:04.0976007Z فارسی
+2026-11-09T11:28:04.0976170Z suomi
+2026-11-09T11:28:04.0976358Z Français
+2026-11-09T11:28:04.0976525Z Gaeilge
+2026-11-09T11:28:04.0976687Z Galego
+2026-11-09T11:28:04.0976868Z עברית
+2026-11-09T11:28:04.0977026Z Magyar
+2026-11-09T11:28:04.0977198Z Bahasa Indonesia
+2026-11-09T11:28:04.0977394Z Italiano
+2026-11-09T11:28:04.0977588Z 日本語
+2026-11-09T11:28:04.0977775Z ქართული
+2026-11-09T11:28:04.0977944Z Taqbaylit
+2026-11-09T11:28:04.0978134Z ខ្មែរ
+2026-11-09T11:28:04.0978325Z 한국어
+2026-11-09T11:28:04.0978513Z Latviešu
+2026-11-09T11:28:04.0978682Z Bahasa Melayu
+2026-11-09T11:28:04.0978882Z नेपाली
+2026-11-09T11:28:04.0979053Z Nederlands
+2026-11-09T11:28:04.0979221Z Norsk
+2026-11-09T11:28:04.0979387Z Polski
+2026-11-09T11:28:04.0979591Z Português
+2026-11-09T11:28:04.0979950Z Português do Brasil
+2026-11-09T11:28:04.0980195Z Română
+2026-11-09T11:28:04.0980391Z Pусский
+2026-11-09T11:28:04.0980595Z संस्कृतम्
+2026-11-09T11:28:04.0980783Z සිංහල
+2026-11-09T11:28:04.0980993Z Slovenčina
+2026-11-09T11:28:04.0981167Z Shqip
+2026-11-09T11:28:04.0981356Z српски језик
+2026-11-09T11:28:04.0981536Z Svenska
+2026-11-09T11:28:04.0981722Z தமிழ்
+2026-11-09T11:28:04.0981911Z ไทย
+2026-11-09T11:28:04.0982092Z Türkçe
+2026-11-09T11:28:04.0982283Z Українська
+2026-11-09T11:28:04.0982472Z oʻzbekcha
+2026-11-09T11:28:04.0982667Z Tiếng Việt
+2026-11-09T11:28:04.0982882Z 简体中文
+2026-11-09T11:28:04.0983065Z 繁體中文
+2026-11-09T11:28:04.0983221Z 1.15.0
+2026-11-09T11:28:04.0983390Z Create a vault
+2026-11-09T11:28:04.0983585Z Use my existing vault
+2026-11-09T11:28:09.9463846Z 01-cdp-onboarding-0 ['Obsidian', 'Back', 'To access your notes on other devices you need to set up sync.', "Because Obsidian stores your notes on your devices, you'll need to set up sync if you want to access your notes on another phone or computer.", 'You can set up sync now, or just start writing and set it up later.', '1.15.0', 'Continue without sync', 'Set up sync']
+2026-11-09T11:28:09.9510590Z DOM Back
+2026-11-09T11:28:09.9511151Z To access your notes on other devices you need to set up sync.
+2026-11-09T11:28:09.9511505Z 
+2026-11-09T11:28:09.9511933Z Because Obsidian stores your notes on your devices, you'll need to set up sync if you want to access your notes on another phone or computer.
+2026-11-09T11:28:09.9512447Z 
+2026-11-09T11:28:09.9512625Z You can set up sync now, or just start writing and set it up later.
+2026-11-09T11:28:09.9512901Z 
+2026-11-09T11:28:09.9512993Z 1.15.0
+2026-11-09T11:28:09.9513191Z Continue without sync
+2026-11-09T11:28:09.9513406Z Set up sync
+2026-11-09T11:28:15.8007399Z 02-cdp-onboarding-1 ['Obsidian', 'Back', 'Configure your new vault.', 'Vault name', 'Vault location', 'Device storage RECOMMENDED Allows Obsidian data to be accessed by other apps. Requires additional permissions.', 'App storage Your data will not be accessible to other apps. Android will delete your data if you uninstall Obsidian.', '1.15.0', 'Create a vault']
+2026-11-09T11:28:15.8067568Z DOM Back
+2026-11-09T11:28:15.8068014Z Configure your new vault.
+2026-11-09T11:28:15.8068322Z 
+2026-11-09T11:28:15.8068462Z Vault name
+2026-11-09T11:28:15.8068650Z 
+2026-11-09T11:28:15.8068792Z Vault location
+2026-11-09T11:28:15.8069151Z Device storage
+2026-11-09T11:28:15.8069496Z RECOMMENDED
+2026-11-09T11:28:15.8069878Z Allows Obsidian data to be accessed by other apps.
+2026-11-09T11:28:15.8070529Z Requires additional permissions.
+2026-11-09T11:28:15.8070972Z App storage
+2026-11-09T11:28:15.8071397Z Your data will not be accessible to other apps.
+2026-11-09T11:28:15.8072007Z Android will delete your data if you uninstall Obsidian.
+2026-11-09T11:28:15.8072394Z 
+2026-11-09T11:28:15.8072526Z 1.15.0
+2026-11-09T11:28:15.8072872Z Create a vault
+2026-11-09T11:28:20.1500822Z 03-cdp-vault-name-2 ['Obsidian', 'Back', 'Configure your new vault.', 'Vault name', 'Audit Vault', 'Vault location', 'Device storage RECOMMENDED Allows Obsidian data to be accessed by other apps. Requires additional permissions.', 'App storage Your data will not be accessible to other apps. Android will delete your data if you uninstall Obsidian.', '1.15.0', 'Create a vault']
+2026-11-09T11:28:29.0228096Z 04-cdp-private-vault-create-2 ['New tab - Obsidian', 'Expand', 'New tab', 'More options', 'New note', 'New base', 'New canvas', 'Navigate back', 'Navigate forward', '1']
+2026-11-09T11:28:36.6204815Z 05-discovery-end-state ['New tab - Obsidian', 'Expand', 'New tab', 'More options', 'New note', 'New base', 'New canvas', 'Navigate back', 'Navigate forward', '1']
+2026-11-09T11:29:02.6815438Z SNAPSHOT mynotes-PLAN-X31 ['Quick summary · on device', 'Selects sentences from your note using local word-frequency ranking. Not a generative language model; may miss important details. Nothing is uploaded or changed automatically.', 'Public comparison fixture.\n\nDecision marker cobalt42 belongs here.\n\nKeep the original text unchanged.', 'Close', 'Save as new note']
+2026-11-09T11:29:04.7162647Z MODULE RESULT mynotes PLAN-X31 interaction_observed
+2026-11-09T11:29:09.6215805Z BLOCKED obsidian PLAN-X31 No matching installed core command established for summari; not proof of feature absence
+2026-11-09T11:29:14.3793079Z SNAPSHOT obsidian-PLAN-X31 ['Meeting - Obsidian', 'Expand', 'Current view: editing Click to read Ctrl+Click to open to the right', 'More options', 'Meeting', 'Public comparison fixture. Decision marker cobalt42 belongs here. Keep the original text unchanged.', 'Navigate back', 'Navigate forward', '1']
+2026-11-09T11:29:16.4185136Z MODULE RESULT obsidian PLAN-X31 blocked
+2026-11-09T11:29:45.7363624Z SNAPSHOT mynotes-PLAN-X32 ['Back', 'Diagnostics', 'Local diagnostics', 'Collect diagnostic logs', 'Enable before reproducing a problem. App events and device context stay on this device until you choose to export.', 'Local logs: 0 bytes · rotates at 1 MiB per file; latest two files retained (up to 2 MiB)', 'View & filter logs', 'Read records on-device, filter time/level and save the selected view.', 'Save diagnostic log as a file', 'Choose a local folder and filename. Saving does not send it anywhere. Review before sharing.', 'Delete diagnostic logs']
+2026-11-09T11:29:47.7656754Z MODULE RESULT mynotes PLAN-X32 interaction_observed
+2026-11-09T11:30:34.9082488Z MODULE RESULT obsidian PLAN-X32 interaction_observed
+2026-11-09T11:30:34.9684674Z ##[error]('get-state',): error: device offline
+
+2026-11-09T11:30:34.9733993Z Traceback (most recent call last):
+2026-11-09T11:30:34.9756614Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/comparisons/run_with_host_diagnostics.py", line 46, in main
+2026-11-09T11:30:34.9757453Z     runpy.run_path(str(Path(__file__).with_name('paired_modules37.py')), run_name='__main__')
+2026-11-09T11:30:34.9757990Z   File "<frozen runpy>", line 291, in run_path
+2026-11-09T11:30:34.9758366Z   File "<frozen runpy>", line 98, in _run_module_code
+2026-11-09T11:30:34.9758716Z   File "<frozen runpy>", line 88, in _run_code
+2026-11-09T11:30:34.9759305Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/comparisons/paired_modules37.py", line 536, in <module>
+2026-11-09T11:30:34.9759832Z     try:main()
+2026-11-09T11:30:34.9760019Z         ^^^^^^
+2026-11-09T11:30:34.9760459Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/comparisons/paired_modules37.py", line 527, in main
+2026-11-09T11:30:34.9761165Z     assert h.adb('get-state').decode().strip()=='device','Guest unavailable; remaining cases are NOT executed'
+2026-11-09T11:30:34.9761638Z            ^^^^^^^^^^^^^^^^^^
+2026-11-09T11:30:34.9762164Z   File "/home/runner/work/TicTic/TicTic/mynotes/tools/comparisons/paired_ux_session.py", line 23, in adb
+2026-11-09T11:30:34.9763005Z     if check and r.returncode:raise RuntimeError(str(args)+': '+r.stderr.decode(errors='replace')[:500])
+2026-11-09T11:30:34.9763529Z                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-09T11:30:34.9763894Z RuntimeError: ('get-state',): error: device offline
+2026-11-09T11:30:34.9764391Z 
+2026-11-09T11:30:35.0468832Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+2026-11-09T11:30:35.0470695Z ##[group]Terminate Emulator
+2026-11-09T11:30:35.0483573Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-11-09T11:30:35.0518401Z error: could not connect to TCP port 5554: Connection refused
+2026-11-09T11:30:35.0523249Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-09T11:30:35.0524291Z ##[endgroup]
+2026-11-09T11:30:35.0690817Z ##[group]Run python - <<'PY'
+2026-11-09T11:30:35.0691146Z [36;1mpython - <<'PY'[0m
+2026-11-09T11:30:35.0691380Z [36;1mimport json[0m
+2026-11-09T11:30:35.0691620Z [36;1mfrom pathlib import Path[0m
+2026-11-09T11:30:35.0691945Z [36;1mp=Path('comparison37-evidence/modules.json')[0m
+2026-11-09T11:30:35.0692457Z [36;1mif not p.exists():raise SystemExit('No app probe results; no comparison coverage claim')[0m
+2026-11-09T11:30:35.0693327Z [36;1md=json.loads(p.read_text());rows=d['results'];expected={('PLAN-X%02d'%i,a) for i in range(int('31-37'.split('-')[0]),int('31-37'.split('-')[1])+1) for a in ['mynotes','obsidian']}[0m
+2026-11-09T11:30:35.0694058Z [36;1mactual=[(r['module'],r['app']) for r in rows][0m
+2026-11-09T11:30:35.0695182Z [36;1massert len(actual)==len(set(actual))==len(expected) and set(actual)==expected,'Incomplete paired attempts; retain partial records'[0m
+2026-11-09T11:30:35.0696036Z [36;1massert all(r['status']!='running' for r in rows)[0m
+2026-11-09T11:30:35.0696777Z [36;1massert not any(r.get('capture_error') for r in rows),'Incomplete original captures are infrastructure/observer blockers, not completed coverage'[0m
+2026-11-09T11:30:35.0697534Z [36;1massert not d['whole_module_acceptance'] and not d['physical_acceptance'][0m
+2026-11-09T11:30:35.0698228Z [36;1mprint('Completed bounded attempts:',len(rows),'Blocked:',sum(r['status']=='blocked' for r in rows),'NOT full module acceptance')[0m
+2026-11-09T11:30:35.0698828Z [36;1mPY[0m
+2026-11-09T11:30:35.0724145Z shell: /usr/bin/bash -e {0}
+2026-11-09T11:30:35.0724798Z env:
+2026-11-09T11:30:35.0725006Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:30:35.0725300Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:30:35.0725560Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:30:35.0725809Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:30:35.0726079Z   COMPARISON_NIGHT: no
+2026-11-09T11:30:35.0726306Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:30:35.0726632Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.0727067Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:30:35.0727509Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.0727885Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.0728260Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.0728649Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:30:35.0729007Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-09T11:30:35.0729468Z ##[endgroup]
+2026-11-09T11:30:35.1012817Z Traceback (most recent call last):
+2026-11-09T11:30:35.1013557Z   File "<stdin>", line 7, in <module>
+2026-11-09T11:30:35.1014252Z AssertionError: Incomplete paired attempts; retain partial records
+2026-11-09T11:30:35.1057862Z ##[error]Process completed with exit code 1.
+2026-11-09T11:30:35.1112193Z ##[group]Run actions/upload-artifact@v7.0.2
+2026-11-09T11:30:35.1112511Z with:
+2026-11-09T11:30:35.1112772Z   name: comparison37-light-portrait-chunk05
+2026-11-09T11:30:35.1113199Z   path: comparison37-evidence
+obsidian-evidence
+refinement-environment-*
+
+2026-11-09T11:30:35.1113602Z   retention-days: 30
+2026-11-09T11:30:35.1113825Z   if-no-files-found: error
+2026-11-09T11:30:35.1114055Z   compression-level: 6
+2026-11-09T11:30:35.1114273Z   overwrite: false
+2026-11-09T11:30:35.1114784Z   include-hidden-files: false
+2026-11-09T11:30:35.1115040Z   archive: true
+2026-11-09T11:30:35.1115232Z env:
+2026-11-09T11:30:35.1115435Z   COMPARISON_TRACE_EMULATOR_EXIT: yes
+2026-11-09T11:30:35.1115730Z   COMPARISON_CAPTURE_POLICY: adb_only
+2026-11-09T11:30:35.1115988Z   COMPARISON_RANGE: 31-37
+2026-11-09T11:30:35.1116231Z   COMPARISON_PROFILE: light-portrait
+2026-11-09T11:30:35.1116491Z   COMPARISON_NIGHT: no
+2026-11-09T11:30:35.1116719Z   COMPARISON_ORIENTATION: portrait
+2026-11-09T11:30:35.1117076Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.1117509Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+2026-11-09T11:30:35.1117939Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.1118323Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.1118696Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+2026-11-09T11:30:35.1119081Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+2026-11-09T11:30:35.1119435Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-09T11:30:35.1119708Z ##[endgroup]
+2026-11-09T11:30:35.2900672Z With the provided path, there will be 63 files uploaded
+2026-11-09T11:30:35.2901597Z Artifact name is valid!
+2026-11-09T11:30:35.2902016Z Root directory input is valid!
+2026-11-09T11:30:35.7452091Z Uploading artifact: comparison37-light-portrait-chunk05.zip
+2026-11-09T11:30:35.7491197Z Beginning upload of artifact content to blob storage
+2026-11-09T11:30:36.7183967Z Uploaded bytes 2022896
+2026-11-09T11:30:36.7890539Z Finished uploading artifact content to blob storage!
+2026-11-09T11:30:36.7891754Z SHA256 digest of uploaded artifact is 4023bcdd027e7f59eb76cc079f9fab998d7b4d33d6c84ff203b261f6bbbd9cdf
+2026-11-09T11:30:36.7892456Z Finalizing artifact upload
+2026-11-09T11:30:37.4109285Z Artifact comparison37-light-portrait-chunk05 successfully finalized. Artifact ID 13668559279
+2026-11-09T11:30:37.4111011Z Artifact comparison37-light-portrait-chunk05 has been successfully uploaded! Final size is 2022896 bytes. Artifact ID is 13668559279
+2026-11-09T11:30:37.4112794Z Artifact download URL: https://github.com/tarungittarun/TicTic/actions/runs/42608740772/artifacts/13668559279
+2026-11-09T11:30:37.4330662Z Post job cleanup.
+2026-11-09T11:30:37.5268083Z [command]/usr/bin/git version
+2026-11-09T11:30:37.5311772Z git version 2.56.0
+2026-11-09T11:30:37.5356638Z Temporarily overriding HOME='/home/runner/work/_temp/9cc69fb3-dc82-4ab6-b4d2-58b969e6996b' before making global git config changes
+2026-11-09T11:30:37.5358011Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-09T11:30:37.5362187Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/TicTic/TicTic
+2026-11-09T11:30:37.5407650Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-09T11:30:37.5448642Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-09T11:30:37.6019189Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-09T11:30:37.6061694Z http.https://github.com/.extraheader
+2026-11-09T11:30:37.6076567Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-09T11:30:37.6131165Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-09T11:30:37.6511790Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-09T11:30:37.6563581Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-09T11:30:37.7105943Z Cleaning up orphan processes
+2026-11-09T11:30:37.7637892Z Terminate orphan process: pid (3396) (adb)
+2026-11-09T11:30:37.7800750Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -405,6 +405,31 @@ def type_obsidian_query_with_android_ime(value):
             'android_keyboard_requested':True,'cdp_insert_text_used':False}
 
 
+def obsidian_launch_samples_reconnecting():
+    """Reacquire the observer after restart sampling, including a failed sample.
+
+    A recovered observer supplies only postfailure evidence; the original
+    sampling exception still blocks that diagnostic and is never a timing pass.
+    """
+    try:
+        D.ws.close()
+        result=h.launch_samples('obsidian','md.obsidian')
+    except Exception:
+        try:
+            globals()['D']=Device()
+        except Exception as reconnect_error:
+            # Preserve the original sampling exception even if reconnect fails.
+            # No endpoint, arguments, environment or exception payload is saved.
+            try:
+                (OUT/'obsidian-reconnect-after-diagnostic-error.json').write_text(
+                    json.dumps({'reconnected':False,'error_type':type(reconnect_error).__name__}))
+            except OSError:
+                pass  # Evidence-write failure must not replace the sample error.
+        raise
+    globals()['D']=Device()
+    return result
+
+
 def obs_task(number):
     if number == 1:
         obs_note(); command('^global-search:open$')
@@ -434,8 +459,8 @@ def obs_task(number):
         value=h.adb('shell','dumpsys','appwidget').decode(errors='replace');(OUT/'obsidian-widget-providers.txt').write_text(value)
         return {'status':'inspection_only','check':'Android provider diagnostic, not placement, usability or proof of all entry points.'}
     if number == 33:
-        D.ws.close(); result=h.launch_samples('obsidian','md.obsidian')
-        globals()['D']=Device();result['status']='diagnostic_only';return result
+        result=obsidian_launch_samples_reconnecting()
+        result['status']='diagnostic_only';return result
     patterns={3:'editor:toggle-checklist-status',4:'editor:insert-table',5:'attachment',6:'editor:insert-link',7:'backlink|outgoing',8:'outline|word-count',9:'properties|bases',10:'daily-notes',11:'canvas',12:'canvas',18:'ocr|recogniz',19:'audio-recorder',20:'reminder',24:'backup|file-recovery',25:'file-recovery',26:'bookmarks',27:'editor:undo',28:'workspace:show-tab|workspace:new-tab',30:'workspace:share',31:'summari',36:'slides'}
     result=obs_inspect(patterns[number])
     if number in {11,12,18,20,24,25,26,31}:

@@ -4,6 +4,30 @@
 74 attempt records, native inventory totals or a green observer process must not
 be described as completion of the original37 functional/UX acceptance tasks.
 
+## Latest audited cohort: comparison still incomplete
+
+[Download latest reviewed PDF: 150 pages, 584 clickable links](https://github.com/tarungittarun/TicTic/raw/e74e5a609ce6d18ab1ac217a9e2e2997145298f1/mynotes/docs/comparisons/comparison37/42617793054/Comparison37_Runtime_Probes.pdf).
+[Original latest run42617793054](https://github.com/tarungittarun/TicTic/actions/runs/42617793054).
+
+| Profile | Attempt records (planned74) | Complete original snapshot records | Capture errors | Target app present in capture |
+| --- | ---: | ---: | ---: | ---: |
+| Light portrait | 74 | 74 | 0 | 67 |
+| Dark portrait | 74 | 74 | 0 | 69 |
+| Light landscape | 74 | 74 | 0 | 68 |
+| Dark landscape | 66 | 65 | 1 | 58 |
+
+This cohort contains **288 attempts and287 complete original captures**, not296 clean comparisons. Each profile spans5 fresh guests. Snapshot completeness is not functional acceptance: **original requested tasks accepted remains0**. External/system surfaces and blocked routes remain distinguishable from app-owned UI; no feature-absence or comparative score is inferred.
+
+- **Host failure mode established in one traced reproducer:** run42608740772 attached to QEMU PID3296, observed SIGSEGV/SEGV_MAPERR and process death before tracer cleanup. It does not establish an Android app fault or the underlying emulator code defect. Code-only recheck42610424422 returned only an unnamed heap frame; no usable component attribution. No raw memory or environment collected/uploaded by these diagnostic tools.
+- **Requested guest rendering was not applied:** run42611730935 explicitly fell back to host lavapipe/swangle because this image does not support in-guest rendering. It was not a successful bypass of the host graphics path.
+- **Host Mesa/Xvfb improved usable coverage, not proven stability:** run42612858441 completed14/14 captures for areas31–37 in light portrait, and logs verified actual Mesa llvmpipe. The first broad cohort42614548550 had296 attempts/295 complete captures and one observer failure with QEMU still alive. A CDP reconnect-on-error cleanup fix preserves the original sampling error;6 unit tests cover its failure paths.
+- **Latest verification still loses a guest:** in42617793054 dark-landscape Obsidian X33, an adb force-stop command timed out and capture later reported emulator-5554 missing. QEMU was absent in the postfailure snapshot. Areas34–37 in that shard were not executed in either app. This untraced run supplies no termination signal or app fault attribution. Older successful frames are not used to fill these missing originals.
+- **Search fairness is not uniformly resolved:** earlier cohort42614548550 supplied a live keyboard-open pair, but latest light-landscape Obsidian X01 has an empty query and no keyboard while MyNotes has cobalt42 and its keyboard open. Both original rows are blocked. Latest frames cannot establish a comparative search win; CMP37-H21 documents the exact mismatch.
+
+[Separate earlier broader-coverage report](https://github.com/tarungittarun/TicTic/raw/a2d9431a953e774007f86df6205877364cc29a9d/mynotes/docs/comparisons/comparison37/42614548550/Comparison37_Runtime_Probes.pdf) —296 attempts/295 captures, never pooled into the latest cohort. All originals, failures and hashes remain in their run-specific directories. Reviewed observations CMP37-H14–H21 explain the diagnostic and visual limits.
+
+All launched runtime and publication jobs have completed; no automatic retry is running. **1144 root QA tests passed**, with report/Office dependencies installed. No production app changes or new APK. Comparison-first ordering remains: app fixes are still parked. Remaining work includes reliable complete capture, matched user routes, full-workflow outcome assertions, actual OCR/audio/document fidelity, animation/efficiency/time measurements and separately disclosed physical/human/novice verification. This PDF is evidence and shortcomings, not acceptance of those tasks.
+
 ## Retained executions
 
 | Run | What actually happened | Scope |
@@ -14,16 +38,16 @@ be described as completion of the original37 functional/UX acceptance tasks.
 | [42345604329](https://github.com/tarungittarun/TicTic/actions/runs/42345604329) | Completed: both landscape jobs green, both portraits failed. Portrait:44 records each; landscape:74 each. All37 Obsidian rows in each landscape profile were blocked because the actual display was portrait. | Green jobs prove capture/attempt completion, not requested-profile or functional acceptance. |
 | [42346486192](https://github.com/tarungittarun/TicTic/actions/runs/42346486192) | Completed:13 green/7 red short-session jobs. Actual records: light portrait60, dark portrait48, light landscape42, dark landscape74. | Five independent guests per profile, not a stable long session; no profile reached whole-task acceptance. |
 
-## Current audited deliverable
+## Earlier audited deliverable (before host-Mesa studies)
 
 [Reviewed comparison PDF:150 pages,373 clickable links](https://github.com/tarungittarun/TicTic/raw/b4b747b0a1db89f298eec6cb3fb75dd64102f430/mynotes/docs/comparisons/comparison37/42408161677/Comparison37_Runtime_Probes.pdf). This report includes independently reviewed search frames, not just automated outcome counts. It is explicitly **not completion of the original37 full workflows**.
 
-- Native light/dark landscape search frames show the query and header above the software keyboard, without a visible result card. Obsidian's corresponding retained frame has no keyboard, so no controlled comparative win is assigned. A matched-keyboard query helper is unit-tested but still awaits a live recheck.
+- Native light/dark landscape search frames show the query and header above the software keyboard, without a visible result card. Obsidian's corresponding retained frame has no keyboard, so no controlled comparative win is assigned. The later live helper rechecks are reviewed separately as CMP37-H19 and CMP37-H21; their outcomes must not be substituted into this older cohort.
 - Singleton recovery correctly retains four rows and the real host snapshot from [42485530023](https://github.com/tarungittarun/TicTic/actions/runs/42485530023), rather than the previous empty observer report. The emulator process was absent after failure; the retained kernel excerpt supplies no OOM/segfault attribution. After-failure free memory does not establish conditions before failure.
 - [42486608340](https://github.com/tarungittarun/TicTic/actions/runs/42486608340) actually used emulator37.2.12.0/build16428233, compared with37.2.13.0/build16740729. The pinned prior build also lost the guest after four records. This environment change did not establish a fix.
 - [Pinned-build original report](https://github.com/tarungittarun/TicTic/raw/b4b747b0a1db89f298eec6cb3fb75dd64102f430/mynotes/docs/comparisons/comparison37/42486608340/Comparison37_Runtime_Probes.pdf).
 
-All launched jobs and publications have completed. No background test or automatic retry is running. Remaining work includes a stable test target, actual full-workflow assertions beyond surface-opening probes, matched keyboard/file-route rechecks, and explicitly separate physical/human/novice tasks. No production app fix or new APK was introduced. Root QA passed1126 tests with report and Office dependencies installed, no skips.
+At that earlier publication, launched jobs had completed and root QA passed1126 tests. The later studies and current QA total are reported above. Original full-workflow, physical/human/novice requirements remain open; no production fix or new APK was introduced.
 
 ## Later comparison-route and guest-loss studies
 

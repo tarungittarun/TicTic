@@ -1,6 +1,6 @@
-# One fresh dark-landscape reproduction with bounded QEMU signal/exit tracing.
-# Host-only diagnostic, no Android app fault attribution or acceptance claim.
-name: Comparison37 dark-landscape guest-loss diagnosis; bounded QEMU code-stack trace only
+# Repeat the observed dark-landscape X33 cold-start sequence on one fresh guest.
+# Captures bounded QEMU signals and sanitized Apport stack metadata; not acceptance.
+name: Comparison37 guest-loss lifecycle replay; bounded QEMU and Apport metadata only
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -24,6 +24,10 @@ jobs:
       COMPARISON_ORIENTATION: landscape
       COMPARISON_TRACE_EMULATOR_EXIT: 'yes'
       COMPARISON_TRACE_CODE_STACKS: 'yes'
+      COMPARISON_GUEST_LOSS_REPLAY: 'yes'
+      COMPARISON_GUEST_LOSS_REPLAY_CYCLES: '20'
+      COMPARISON_WAIT_FOR_CRASH_REPORT: 'yes'
+      COMPARISON_CRASH_REPORT_WAIT_SECONDS: '120'
     steps:
       - uses: actions/checkout@v5
         with:
@@ -97,14 +101,14 @@ jobs:
             python -m mynotes.tools.ci.native_environment --orientation landscape
             python -m mynotes.tools.ci.native_environment --snapshot configured
             python mynotes/tools/comparisons/run_with_host_diagnostics.py
-      - name: Summarize trace and original attempts without reclassifying a failure
+      - name: Summarize trace, replay, and original attempts without reclassifying a failure
         if: always()
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           root=Path('comparison37-evidence')
-          for name in ['emulator-exit-trace-receipt.json','fatal.json','modules.json','host-after.json']:
+          for name in ['emulator-exit-trace-receipt.json','fatal.json','modules.json','host-after.json','guest-loss-lifecycle-replay.json']:
               path=root/name
               if not path.exists():
                   print(name,'not produced')
@@ -114,7 +118,10 @@ jobs:
                   print(name,'records=',len(rows),'capture_errors=',sum(bool(r.get('capture_error')) for r in rows),'whole_module_acceptance=',data.get('whole_module_acceptance'))
               elif name=='host-after.json':
                   data=json.loads(path.read_text()); procs=data.get('processes',{}).get('stdout','')
-                  print(name,'qemu_visible_after=',any('qemu-system' in line for line in procs.splitlines()),'crash_metadata=',data.get('emulator_crash_metadata'))
+                  print(name,'qemu_visible_after=',any('qemu-system' in line for line in procs.splitlines()),
+                        'qemu_process=',data.get('qemu_process'),
+                        'crash_metadata=',data.get('emulator_crash_metadata'),
+                        'apport_crash_metadata=',data.get('apport_crash_metadata'))
               else:
                   print(name,json.dumps(json.loads(path.read_text()),sort_keys=True)[:3000])
           PY

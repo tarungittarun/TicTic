@@ -451,6 +451,84 @@
         }
       ],
       "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H22",
+      "category": "targeted_guest_loss_not_reproduced",
+      "observation": "A fresh host-Mesa/Xvfb dark-landscape run43083262273 targeted areas31–37 with the opt-in symbolic code-stack QEMU exit tracer. All14 paired attempts produced complete original snapshots; no capture errors. Tracer attached to exactly one QEMU leader (PID4191). Its receipt shows the leader still running when the harness stopped the separate tracer; host-after also records qemu-system-x86 alive. The trace contains normal worker-thread exit(0) entries but no terminating signal or exit_group; bounded host metadata found no minidump and the retained kernel excerpt has no OOM/killed-QEMU line.",
+      "limits": "The prior guest loss was NOT reproduced, so this supplies no cause or stability fix. It is one short fresh guest, one profile, and the host tracer can affect timing. The targeted diagnostic does not fill any missing records in run42617793054 or prove long-session stability. Whole requested task acceptance remains0; blocked/interactions are not acceptance. No app fault attribution.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/summary.json",
+          "sha256": "c2c7dbbceee69319debb3cda8349ddf8a1c6fa6d8318b8f4131dd3c1f9a69cbb",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/summary.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/run.json",
+          "sha256": "190de9196657e133dcef9ac9edf51abaccadfc023db5bf921040c8c461065638",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/run.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/retention.json",
+          "sha256": "46c2f43c09b8d45c21121a3487e152eb527fe99b7591f4a039ab667c43348249",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/retention.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json",
+          "sha256": "d2ec6a35c9c0f07894395388fe62af0b82cb0ee52ed2d98e402032f091faa8f7",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json",
+          "sha256": "031d57f6a8ef9a7e9b91a6a42f99975d34387b4fc81b5c82084e6cf57730cd59",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace.txt",
+          "sha256": "029e61281741ed569bc544c5eed2c7437936d39d177460f5f649e24c4d8bf4b0",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace.txt"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/host-after.json",
+          "sha256": "ca5a624d919b5069c7bd5fb89199b98450c83dfc51cedcab7481d8a68c735ac7",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/host-after.json"
+        }
+      ],
+      "production_app_changed": false
+    },
+    {
+      "id": "CMP37-H23",
+      "category": "dark_landscape_frames_are_not_task_matched",
+      "observation": "Manual review of the diagnostic run’s X33 pair shows MyNotes on the notes-list home with one note card and a New note button, while official Obsidian has the same fixture open in its note-reading view with navigation controls. X34 shows MyNotes Settings > Make it yours (Appearance and Speech engine) while Obsidian shows Core plugins (Audio recorder, Backlinks, Bases). These are actual dark-landscape captures but not matched task states or equivalent surfaces.",
+      "limits": "Do not rank the layouts or infer app-wide feature presence/absence from these unmatched views. X33 is a launch-sampling diagnostic, not time-to-ready/usability evidence; X34’s counterpart remains not established for this specific probe. The exact per-app statuses and requested-task wording stay in modules.json.",
+      "evidence": [
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X33.png",
+          "sha256": "48b291dc168ffacbd6471f1ddf1fe65695172888cc5283ddfb01946c7f9eb884",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X33.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X33.png",
+          "sha256": "bd7d66fc3ed284395a0da88ab7c0ebe4c7fa8f20bf06c09d37545535a4b807ef",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X33.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X34.png",
+          "sha256": "44d45f4ac92bebad6d7a50db555859629d1616c858bb4c677b1e393d6a993010",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X34.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X34.png",
+          "sha256": "78d7b52addc281239fafd28bfad78c45994b246e0dcbb8d7fbcd573b55cfb8a1",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X34.png"
+        },
+        {
+          "path": "mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json",
+          "sha256": "d2ec6a35c9c0f07894395388fe62af0b82cb0ee52ed2d98e402032f091faa8f7",
+          "url": "https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json"
+        }
+      ],
+      "production_app_changed": false
     }
   ]
 }

@@ -100,6 +100,18 @@ class ComparisonRetentionTest(unittest.TestCase):
             self.assertEqual(gzip.decompress((root/'out'/entry['retained_path']).read_bytes()),raw)
             self.assertEqual(entry['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(entry['bytes'],len(raw))
 
+    def test_targeted_manual_review_hashes_match_retained_originals(self):
+        import hashlib
+        observations=json.loads(Path('mynotes/docs/comparisons/comparison37/reviewed-observations.json').read_text())['observations']
+        selected=[item for item in observations if item['id'] in {'CMP37-H22','CMP37-H23'}]
+        self.assertEqual({item['id'] for item in selected},{'CMP37-H22','CMP37-H23'})
+        for item in selected:
+            for evidence in item['evidence']:
+                original=Path(evidence['path'])
+                self.assertTrue(original.is_file(),evidence['path'])
+                self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),evidence['sha256'],evidence['path'])
+                self.assertIn('/raw/',evidence['url'])
+
 class SingletonArtifactRetentionTest(unittest.TestCase):
     def test_single_download_flat_layout_keeps_original_profile_and_host_snapshot(self):
         report=load('comparison37_report')

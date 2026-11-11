@@ -28,6 +28,40 @@ Public synthetic fixture bytes are retained with hashes where generated before t
 
 Activity launch milestones and gfx/memory diagnostics, if present, are NOT time-to-ready, touch latency, human completion time, animation quality, battery or a cross-engine performance ranking. Accounts, Sync/Publish service operation and community-plugin execution are not performed. Original task text and actual smaller probe are printed separately on every page.
 
+## Independent frame review and comparability limits
+
+CMP37-H22 — A fresh host-Mesa/Xvfb dark-landscape run43083262273 targeted areas31–37 with the opt-in symbolic code-stack QEMU exit tracer. All14 paired attempts produced complete original snapshots; no capture errors. Tracer attached to exactly one QEMU leader (PID4191). Its receipt shows the leader still running when the harness stopped the separate tracer; host-after also records qemu-system-x86 alive. The trace contains normal worker-thread exit(0) entries but no terminating signal or exit_group; bounded host metadata found no minidump and the retained kernel excerpt has no OOM/killed-QEMU line.
+
+Limits: The prior guest loss was NOT reproduced, so this supplies no cause or stability fix. It is one short fresh guest, one profile, and the host tracer can affect timing. The targeted diagnostic does not fill any missing records in run42617793054 or prove long-session stability. Whole requested task acceptance remains0; blocked/interactions are not acceptance. No app fault attribution.
+
+[Immutable reviewed original: summary.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/summary.json)
+
+[Immutable reviewed original: run.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/run.json)
+
+[Immutable reviewed original: retention.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/retention.json)
+
+[Immutable reviewed original: modules.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+
+[Immutable reviewed original: emulator-exit-trace-receipt.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json)
+
+[Immutable reviewed original: emulator-exit-trace.txt](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace.txt)
+
+[Immutable reviewed original: host-after.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/host-after.json)
+
+CMP37-H23 — Manual review of the diagnostic run’s X33 pair shows MyNotes on the notes-list home with one note card and a New note button, while official Obsidian has the same fixture open in its note-reading view with navigation controls. X34 shows MyNotes Settings > Make it yours (Appearance and Speech engine) while Obsidian shows Core plugins (Audio recorder, Backlinks, Bases). These are actual dark-landscape captures but not matched task states or equivalent surfaces.
+
+Limits: Do not rank the layouts or infer app-wide feature presence/absence from these unmatched views. X33 is a launch-sampling diagnostic, not time-to-ready/usability evidence; X34’s counterpart remains not established for this specific probe. The exact per-app statuses and requested-task wording stay in modules.json.
+
+[Immutable reviewed original: mynotes-PLAN-X33.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X33.png)
+
+[Immutable reviewed original: obsidian-PLAN-X33.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X33.png)
+
+[Immutable reviewed original: mynotes-PLAN-X34.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X34.png)
+
+[Immutable reviewed original: obsidian-PLAN-X34.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X34.png)
+
+[Immutable reviewed original: modules.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+
 ## light-portrait — provisioning blocked
 
 No original modules.json; no app coverage inferred

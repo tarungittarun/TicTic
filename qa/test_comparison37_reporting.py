@@ -103,8 +103,8 @@ class ComparisonRetentionTest(unittest.TestCase):
     def test_targeted_manual_review_hashes_match_retained_originals(self):
         import hashlib
         observations=json.loads(Path('mynotes/docs/comparisons/comparison37/reviewed-observations.json').read_text())['observations']
-        selected=[item for item in observations if item['id'] in {'CMP37-H22','CMP37-H23'}]
-        self.assertEqual({item['id'] for item in selected},{'CMP37-H22','CMP37-H23'})
+        selected=[item for item in observations if item['id'] in {'CMP37-H22','CMP37-H23','CMP37-H24'}]
+        self.assertEqual({item['id'] for item in selected},{'CMP37-H22','CMP37-H23','CMP37-H24'})
         for item in selected:
             for evidence in item['evidence']:
                 original=Path(evidence['path'])

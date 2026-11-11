@@ -62,6 +62,24 @@ Limits: Do not rank the layouts or infer app-wide feature presence/absence from 
 
 [Immutable reviewed original: modules.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
+CMP37-H24 — Manual review of dark-landscape X35–X37: X35 MyNotes shows its general Appearance/Speech-engine settings while Obsidian shows Sync onboarding stating that Sync is an add-on service and requires sign-in; no account was created or service contacted. X36 again shows MyNotes general settings while Obsidian displays the fixture in ordinary note view, not a demonstrated slide presentation. X37 MyNotes About & offline models visibly shows version0.71.0 (71), a no-account/no-Internet-permission statement and guidance that original voice recordings remain in Voice inbox and are exported separately from note backups; Obsidian General shows version1.15.0 (396), language and Help.
+
+Limits: These are surface captures only. They do not establish novice comprehension, audio backup/export/reinstall safety, service usability, slide capability, feature absence or a comparative winner. No login, network, purchase or public sharing was performed. The visible MyNotes audio/backups sentence was not validated against an actual backup/recovery task.
+
+[Immutable reviewed original: mynotes-PLAN-X35.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X35.png)
+
+[Immutable reviewed original: obsidian-PLAN-X35.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X35.png)
+
+[Immutable reviewed original: mynotes-PLAN-X36.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X36.png)
+
+[Immutable reviewed original: obsidian-PLAN-X36.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X36.png)
+
+[Immutable reviewed original: mynotes-PLAN-X37.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X37.png)
+
+[Immutable reviewed original: obsidian-PLAN-X37.png](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X37.png)
+
+[Immutable reviewed original: modules.json](https://github.com/tarungittarun/TicTic/raw/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+
 ## light-portrait — provisioning blocked
 
 No original modules.json; no app coverage inferred

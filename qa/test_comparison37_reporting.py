@@ -117,3 +117,22 @@ class SingletonArtifactRetentionTest(unittest.TestCase):
             self.assertFalse(summary['whole_module_acceptance'])
             metadata['artifacts']['artifacts'].append({'name':'comparison37-dark-portrait-chunk05'})
             with self.assertRaisesRegex(ValueError,'exactly one'):report.retain(source,root/'ambiguous',metadata)
+
+    def test_explicit_single_profile_diagnostic_alias_preserves_its_original_artifact_name(self):
+        report=load('comparison37_report')
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source=root/'input';lane=source/'comparison37-evidence';lane.mkdir(parents=True)
+            original={'results':[{'module':'PLAN-X31','app':'mynotes','status':'interaction_observed','requested_task_acceptance':False},{'module':'PLAN-X31','app':'obsidian','status':'blocked','requested_task_acceptance':False}],'whole_module_acceptance':False,'physical_acceptance':False}
+            raw=json.dumps(original).encode();(lane/'modules.json').write_bytes(raw)
+            (lane/'emulator-exit-trace.txt').write_bytes(b'bounded public signal trace fixture')
+            metadata={'status':'completed','databaseId':43083262273,'headSha':'abc','url':'https://github.com/test/run/43083262273','conclusion':'success','artifacts':{'artifacts':[{'name':'comparison37-dark-landscape-guest-loss-diagnostic'}]}}
+            summary=report.retain(source,root/'out',metadata)
+            retained=root/'out/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence'
+            self.assertEqual((retained/'modules.json').read_bytes(),raw)
+            self.assertEqual((retained/'emulator-exit-trace.txt').read_bytes(),b'bounded public signal trace fixture')
+            self.assertEqual(summary['profiles']['dark-landscape']['attempts'],2)
+            self.assertIn('comparison37-dark-landscape-guest-loss-diagnostic',summary['profiles']['dark-landscape']['module_file'])
+            self.assertEqual(summary['profiles']['light-portrait']['attempts'],0)
+            self.assertFalse(summary['whole_module_acceptance'])
+            metadata['artifacts']['artifacts'][0]['name']='comparison37-unknown-diagnostic'
+            with self.assertRaisesRegex(ValueError,'Unknown singleton'):report.retain(source,root/'unknown',metadata)

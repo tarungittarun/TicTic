@@ -8,6 +8,11 @@ import json
 from pathlib import Path
 
 PROFILES = ['light-portrait', 'dark-portrait', 'light-landscape', 'dark-landscape']
+# Explicit one-shard diagnostic artifact. Its original name remains in retained
+# evidence paths; this mapping only associates it with its declared profile.
+DIAGNOSTIC_SINGLETON_PROFILES = {
+    'comparison37-dark-landscape-guest-loss-diagnostic': 'dark-landscape',
+}
 MAX_BYTES = 96 * 1024 * 1024
 
 
@@ -20,19 +25,24 @@ def retain(artifacts, output, metadata):
     expected = {('PLAN-X%02d'%i, app) for i in range(1,38) for app in ['mynotes','obsidian']}
     source_bytes=0;retained_paths=set()
     singleton_name=None
+    singleton_profile=None
     if (artifacts/'comparison37-evidence').is_dir():
         names=[item['name'] for item in metadata.get('artifacts',{}).get('artifacts',[])
                if item.get('name','').startswith('comparison37-')]
         if len(names)!=1 or '/' in names[0] or '\\' in names[0]:
             raise ValueError('Flat artifact layout requires exactly one original named comparison artifact')
         singleton_name=names[0]
-        if not any(singleton_name=='comparison37-'+p or singleton_name.startswith('comparison37-'+p+'-chunk') for p in PROFILES):
+        singleton_profile=DIAGNOSTIC_SINGLETON_PROFILES.get(singleton_name)
+        if singleton_profile is None:
+            singleton_profile=next((p for p in PROFILES if singleton_name=='comparison37-'+p
+                                    or singleton_name.startswith('comparison37-'+p+'-chunk')),None)
+        if singleton_profile is None:
             raise ValueError('Unknown singleton comparison profile')
 
     for profile in PROFILES:
         prefix='comparison37-'+profile
         lanes=sorted(lane for lane in artifacts.glob(prefix+'*') if lane.is_dir() and (lane.name==prefix or lane.name.startswith(prefix+'-chunk')))
-        if singleton_name and (singleton_name==prefix or singleton_name.startswith(prefix+'-chunk')):lanes.append(artifacts)
+        if singleton_name and singleton_profile==profile:lanes.append(artifacts)
         rows=[];module_files=[]
         for lane in lanes:
             lane_name=singleton_name if lane==artifacts else lane.name

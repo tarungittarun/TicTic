@@ -103,14 +103,43 @@ class ComparisonRetentionTest(unittest.TestCase):
     def test_targeted_manual_review_hashes_match_retained_originals(self):
         import hashlib
         observations=json.loads(Path('mynotes/docs/comparisons/comparison37/reviewed-observations.json').read_text())['observations']
-        selected=[item for item in observations if item['id'] in {'CMP37-H22','CMP37-H23','CMP37-H24'}]
-        self.assertEqual({item['id'] for item in selected},{'CMP37-H22','CMP37-H23','CMP37-H24'})
+        selected=[item for item in observations if item['id'] in {'CMP37-H22','CMP37-H23','CMP37-H24','CMP37-H25'}]
+        self.assertEqual({item['id'] for item in selected},{'CMP37-H22','CMP37-H23','CMP37-H24','CMP37-H25'})
         for item in selected:
             for evidence in item['evidence']:
                 original=Path(evidence['path'])
                 self.assertTrue(original.is_file(),evidence['path'])
                 self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),evidence['sha256'],evidence['path'])
                 self.assertIn('/raw/',evidence['url'])
+
+class FullGridMatrixTest(unittest.TestCase):
+    def test_all_37_families_four_profiles_and_296_result_frame_links_are_preserved(self):
+        import re
+        run=Path('mynotes/docs/comparisons/comparison37/43086479017')
+        matrix=(run/'FullGrid_37Family_Observation_Matrix.md').read_text()
+        source_sha=re.search(r'blob/([0-9a-f]{40})/mynotes/docs/comparisons/comparison37/43086479017/summary.json',matrix).group(1)
+        prefix=f'https://github.com/tarungittarun/TicTic/blob/{source_sha}/'
+        expected_frames=set();expected_records=set();n=0
+        for path in sorted(run.glob('comparison37-*-chunk*/comparison37-evidence/modules.json')):
+            raw=path.read_text();data=json.loads(raw);lines=raw.splitlines();starts={}
+            for i,line in enumerate(lines):
+                match=re.search(r'"module"\s*:\s*"(PLAN-X\d{2})"',line)
+                if not match:continue
+                app=next((found.group(1) for candidate in lines[i+1:i+8] if (found:=re.search(r'"app"\s*:\s*"(mynotes|obsidian)"',candidate))),None)
+                if app:starts[(match.group(1),app)]=i+1
+            for result in data['results']:
+                n+=1;self.assertFalse(result.get('requested_task_acceptance',False))
+                expected_records.add(prefix+path.as_posix()+f'#L{starts[(result["module"],result["app"])]}')
+                expected_frames.add(prefix+(path.parent/(result['snapshot']+'.png')).as_posix())
+        self.assertEqual(n,296)
+        self.assertEqual(len(expected_records),296);self.assertEqual(len(expected_frames),296)
+        self.assertEqual(set(re.findall(r'\((https://[^)]+modules\.json#L\d+)\)',matrix)),expected_records)
+        self.assertEqual(set(re.findall(r'\((https://[^)]+\.png)\)',matrix)),expected_frames)
+        family_rows=[line for line in matrix.splitlines() if re.match(r'\| \*\*PLAN-X\d{2}',line)]
+        self.assertEqual(len(family_rows),37)
+        self.assertIn('20/20 GitHub Actions jobs',matrix);self.assertIn('0 capture errors',matrix)
+        self.assertIn('not a 600-minute soak',matrix);self.assertNotIn('/home/user/',matrix)
+
 
 class SingletonArtifactRetentionTest(unittest.TestCase):
     def test_single_download_flat_layout_keeps_original_profile_and_host_snapshot(self):

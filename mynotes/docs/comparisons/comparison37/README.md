@@ -4,6 +4,27 @@
 74 attempt records, native inventory totals or a green observer process must not
 be described as completion of the original37 functional/UX acceptance tasks.
 
+## Fresh 37-family full grid: complete short-session records, no task acceptance
+
+- [Actions run43086479017: 20/20 jobs succeeded](https://github.com/tarungittarun/TicTic/actions/runs/43086479017)
+- [Detailed shortcomings PDF: 150 pages, 623 clickable links](./43086479017/Comparison37_Runtime_Probes.pdf)
+- [All 37 families × four-profile paired result and screenshot matrix](./43086479017/FullGrid_37Family_Observation_Matrix.md)
+- [Run summary JSON](https://github.com/tarungittarun/TicTic/blob/212a678961e0cc8e88d037d4ae1653a5e11a2e0f/mynotes/docs/comparisons/comparison37/43086479017/summary.json)
+- [Original-byte retention manifest](https://github.com/tarungittarun/TicTic/blob/212a678961e0cc8e88d037d4ae1653a5e11a2e0f/mynotes/docs/comparisons/comparison37/43086479017/retention.json)
+
+This is a **fresh cohort**, not pooled with failed run42617793054 or the targeted diagnostic below. All four profiles have 74/74 planned app-probe records, yielding 296 individual result records and 296 complete original PNG captures with 0 capture errors. The 37 families were attempted for both installed apps in light portrait, dark portrait, light landscape and dark landscape. The PDF details actual bounded checks and shortcomings; the matrix directly links each app/family/profile JSON record and PNG.
+
+| Profile | MyNotes target-app frames | Obsidian target-app frames |
+| --- | ---: | ---: |
+| Light portrait | 33/37 | 35/37 |
+| Dark portrait | 32/37 | 35/37 |
+| Light landscape | 33/37 | 35/37 |
+| Dark landscape | 33/37 | 35/37 |
+
+Independent review CMP37-H25 covered all 24 original X35–X37 screenshots (both apps in all four profiles). MyNotes shows general Settings for X35/X36 and About & offline models for X37; visible guidance says voice recordings stay in Voice inbox and must be exported separately from note backups. Obsidian shows Sync account onboarding, then an ordinary note rather than a slide presentation, and General settings. This is not a sync/service run, novice interview, slide-absence finding or verified backup/recovery result. [Evidence and hash-pinned frames](./reviewed-observations.json).
+
+Across 296 rows there are 14 bounded outcomes, 186 interactions, 20 counterpart-not-established rows, 60 blocked rows, 8 inspection-only and 8 diagnostic-only rows. The target app is recorded as capture owner in 271/296 images (MyNotes 131/148; Obsidian 140/148). **Original requested tasks accepted: 0; whole-module and physical acceptance remain false.** These probe statuses are not a winner/score, and missing app-owned captures, API shortcuts, blocked routes and non-established counterparts are not app-failure or feature-absence claims. The jobs used fresh short emulator sessions—not a single long session or a 600-minute reliability/soak test. No human/novice or physical-phone acceptance was performed.
+
 ## Targeted emulator trace: prior guest loss not reproduced
 
 [Reviewed diagnostic PDF:42 pages,50 clickable links](https://github.com/tarungittarun/TicTic/raw/7a08bc129/mynotes/docs/comparisons/comparison37/43083262273/Comparison37_Runtime_Probes.pdf) · [Actions run43083262273](https://github.com/tarungittarun/TicTic/actions/runs/43083262273).
@@ -18,12 +39,12 @@ Manual review (CMP37-H23/H24): X33 is MyNotes’ notes-list home versus Obsidian
 - [Original trace receipt](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json)
 - [Original bounded trace](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace.txt)
 
-A separate fresh **20-job parallel full grid, run43086479017, is currently in progress**. It is a new cohort; pending jobs are not evidence and will not be pooled with either result above.
+The fresh parallel full grid is now complete and independently summarized above. Its complete short-session records do not explain the older guest loss or establish reliability; no cohorts were merged.
 
-## Latest audited cohort: comparison still incomplete
+## Previous broad cohort: comparison still incomplete
 
-[Download latest reviewed PDF: 150 pages, 584 clickable links](https://github.com/tarungittarun/TicTic/raw/2458cad4e07031f544ac8beff730266d9396a208/mynotes/docs/comparisons/comparison37/42617793054/Comparison37_Runtime_Probes.pdf).
-[Original latest run42617793054](https://github.com/tarungittarun/TicTic/actions/runs/42617793054).
+[Previous cohort’s reviewed PDF: 150 pages, 584 clickable links](https://github.com/tarungittarun/TicTic/raw/2458cad4e07031f544ac8beff730266d9396a208/mynotes/docs/comparisons/comparison37/42617793054/Comparison37_Runtime_Probes.pdf).
+[Original run42617793054](https://github.com/tarungittarun/TicTic/actions/runs/42617793054).
 
 | Profile | Attempt records (planned74) | Complete original snapshot records | Capture errors | Target app present in capture |
 | --- | ---: | ---: | ---: | ---: |
@@ -37,12 +58,12 @@ This cohort contains **288 attempts and287 complete original captures**, not296 
 - **Host failure mode established in one traced reproducer:** run42608740772 attached to QEMU PID3296, observed SIGSEGV/SEGV_MAPERR and process death before tracer cleanup. It does not establish an Android app fault or the underlying emulator code defect. Code-only recheck42610424422 returned only an unnamed heap frame; no usable component attribution. No raw memory or environment collected/uploaded by these diagnostic tools.
 - **Requested guest rendering was not applied:** run42611730935 explicitly fell back to host lavapipe/swangle because this image does not support in-guest rendering. It was not a successful bypass of the host graphics path.
 - **Host Mesa/Xvfb improved usable coverage, not proven stability:** run42612858441 completed14/14 captures for areas31–37 in light portrait, and logs verified actual Mesa llvmpipe. The first broad cohort42614548550 had296 attempts/295 complete captures and one observer failure with QEMU still alive. A CDP reconnect-on-error cleanup fix preserves the original sampling error;6 unit tests cover its failure paths.
-- **Latest verification still loses a guest:** in42617793054 dark-landscape Obsidian X33, an adb force-stop command timed out and capture later reported emulator-5554 missing. QEMU was absent in the postfailure snapshot. Areas34–37 in that shard were not executed in either app. This untraced run supplies no termination signal or app fault attribution. Older successful frames are not used to fill these missing originals.
-- **Search fairness is not uniformly resolved:** earlier cohort42614548550 supplied a live keyboard-open pair, but latest light-landscape Obsidian X01 has an empty query and no keyboard while MyNotes has cobalt42 and its keyboard open. Both original rows are blocked. Latest frames cannot establish a comparative search win; CMP37-H21 documents the exact mismatch.
+- **This previous cohort still loses a guest:** in42617793054 dark-landscape Obsidian X33, an adb force-stop command timed out and capture later reported emulator-5554 missing. QEMU was absent in the postfailure snapshot. Areas34–37 in that shard were not executed in either app. This untraced run supplies no termination signal or app fault attribution. Older successful frames are not used to fill these missing originals.
+- **Search fairness was not uniformly resolved in this cohort:** earlier cohort42614548550 supplied a live keyboard-open pair, but this run’s light-landscape Obsidian X01 has an empty query and no keyboard while MyNotes has cobalt42 and its keyboard open. Both original rows are blocked. These frames cannot establish a comparative search win; CMP37-H21 documents the exact mismatch.
 
 [Separate earlier broader-coverage report](https://github.com/tarungittarun/TicTic/raw/a2d9431a953e774007f86df6205877364cc29a9d/mynotes/docs/comparisons/comparison37/42614548550/Comparison37_Runtime_Probes.pdf) —296 attempts/295 captures, never pooled into the latest cohort. All originals, failures and hashes remain in their run-specific directories. Reviewed observations CMP37-H14–H23 explain the diagnostic and visual limits.
 
-The targeted diagnostic and its evidence publication have completed; the separate full parallel grid is pending, not accepted. No automatic retry is running. **1149 root QA tests passed**, with report/Office dependencies installed. No production app changes or new APK. Comparison-first ordering remains: app fixes are still parked. Remaining work includes reliable complete capture, matched user routes, full-workflow outcome assertions, actual OCR/audio/document fidelity, animation/efficiency/time measurements and separately disclosed physical/human/novice verification. This PDF is evidence and shortcomings, not acceptance of those tasks.
+The targeted diagnostic and separate full parallel grid plus evidence publication are complete. No automatic retry is running. **Root QA now passes 1,150 tests**, including a regression test that checks the four-profile matrix retains all 296 direct screenshot/result links. Report/Office dependencies are installed. No production app changes or new APK. Comparison-first ordering remains: app fixes are still parked. Remaining work includes reliable complete capture, matched user routes, full-workflow outcome assertions, actual OCR/audio/document fidelity, animation/efficiency/time measurements and separately disclosed physical/human/novice verification. Neither this PDF nor green CI is acceptance of those tasks.
 
 ## Retained executions
 

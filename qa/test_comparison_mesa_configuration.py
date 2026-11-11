@@ -53,6 +53,15 @@ class MesaConfigurationTests(unittest.TestCase):
         self.assertIn('run_with_host_diagnostics.py', emulator['with']['script'])
         self.assertTrue(any(step.get('if') == 'always()' and step.get('uses', '').startswith('actions/upload-artifact@') for step in job['steps']))
 
+    def test_parallel_grid_is_explicitly_a_followup_not_a_fix_or_acceptance_claim(self):
+        text = (ROOT / '.github/workflows/notes-comparison37-shards.yml').read_text()
+        workflow = yaml.safe_load(text)
+        self.assertIn('parallel-grid recheck after isolated no-reproduction', workflow['name'])
+        job = workflow['jobs']['compare']
+        self.assertEqual(len(job['strategy']['matrix']['include']), 20)
+        self.assertNotIn('COMPARISON_TRACE_EMULATOR_EXIT', job['env'])
+        self.assertIn('not root cause or full-workflow/physical acceptance', text)
+
     def test_broad_grid_covers_each_pair_exactly_once_per_profile(self):
         _, _, job = next(item for item in self.workflows() if item[0].endswith('shards.yml'))
         pairs = []

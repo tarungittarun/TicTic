@@ -15,6 +15,32 @@ def load():
 
 
 class EmulatorExitTraceTest(unittest.TestCase):
+    def test_fatal_signal_is_matched_to_sanitized_owned_process_identity(self):
+        module=load()
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);process=root/'3843';process.mkdir()
+            (process/'comm').write_text('qemu-system-x86_64\n')
+            (process/'stat').write_text('3843 (qemu-system-x86_64 (worker)) t 3296 2 3\n')
+            (process/'status').write_text('Name:\tqemu-system-x86\nTgid:\t3296\nPPid:\t3296\nUid:\t1001\t1001\t1001\t1001\n')
+            executable=root/'qemu-system-x86_64';executable.write_text('')
+            (process/'exe').symlink_to(executable)
+            line='3843  1794224487.379534 --- SIGSEGV {si_signo=SIGSEGV, si_code=SEGV_MAPERR, si_addr=0x563d0b504600} ---'
+            event=module.signal_identity_from_trace_line(line,3296,root,1001)
+        self.assertEqual(event['signal'],'SIGSEGV')
+        self.assertEqual(event['signal_code'],'SEGV_MAPERR')
+        self.assertEqual(event['process_identity']['thread_group_pid'],3296)
+        self.assertTrue(event['process_identity']['in_qemu_thread_group'])
+        self.assertEqual(event['process_identity']['executable_basename'],'qemu-system-x86_64')
+        self.assertNotIn('si_addr',str(event))
+        self.assertNotIn(directory,str(event))
+        self.assertFalse(event['process_identity']['command_line_read'])
+
+    def test_signal_parser_ignores_nonfatal_or_unrecognized_trace_lines(self):
+        module=load()
+        self.assertIsNone(module.signal_identity_from_trace_line(
+            '123 1.0 --- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_TKILL} ---',123))
+        self.assertIsNone(module.signal_identity_from_trace_line('123 exit_group(0) = ?',123))
+
     def test_discovery_ignores_other_users_and_non_qemu_processes(self):
         module=load()
         self.assertEqual(module.owned_qemu_pids('41 1001 qemu-system-x86\n42 0 qemu-system-x86\n43 1001 python\n',1001),[41])

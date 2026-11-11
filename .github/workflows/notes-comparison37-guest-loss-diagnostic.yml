@@ -113,7 +113,14 @@ jobs:
               if not path.exists():
                   print(name,'not produced')
                   continue
-              if name=='modules.json':
+              if name=='emulator-exit-trace-receipt.json':
+                  data=json.loads(path.read_text())
+                  print(name,json.dumps({key:data.get(key) for key in
+                        ['pid','matching_process_count','not_started','tracer_early_returncode',
+                         'returncode_before_harness_stop','returncode_after_harness_stop',
+                         'stopped_by_harness','signal_process_identities',
+                         'signal_process_identity_events_dropped']},sort_keys=True)[:5000])
+              elif name=='modules.json':
                   data=json.loads(path.read_text()); rows=data.get('results',[])
                   print(name,'records=',len(rows),'capture_errors=',sum(bool(r.get('capture_error')) for r in rows),'whole_module_acceptance=',data.get('whole_module_acceptance'))
               elif name=='host-after.json':

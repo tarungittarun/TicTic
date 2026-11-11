@@ -1,6 +1,5 @@
-# Recover singleton download layout using the original artifact name; preserve source bytes.
-# Recover exact completed-job logs after gh ANSI-output refusal; no emulator rerun.
-name: Publish completed long-session and short-session comparison evidence
+# Retain completed matrix and targeted diagnostic cohorts, including exact failures; no emulator rerun.
+name: Publish completed paired comparison cohorts and diagnostic evidence
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42617793054 43083262273'
+      SOURCE_RUNS: '42617793054 43083262273 43086479017'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -28,7 +27,7 @@ jobs:
         run: |
           python - <<'PY'
           import os,json,subprocess,pathlib
-          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264'}
+          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264','43086479017':'ef14395d8e75e9f482b0bfb71a061b75ac5eb8f2'}
           pathlib.Path('/tmp/comparison37-runs').mkdir()
           for run in os.environ['SOURCE_RUNS'].split():
               result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
@@ -49,6 +48,12 @@ jobs:
           run-id: 43083262273
           name: comparison37-dark-landscape-guest-loss-diagnostic
           path: /tmp/comparison37-originals/43083262273
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43086479017
+          pattern: comparison37-*
+          path: /tmp/comparison37-originals/43086479017
       - name: Preserve exact originals, including fatal and partial results
         run: |
           for run in $SOURCE_RUNS; do

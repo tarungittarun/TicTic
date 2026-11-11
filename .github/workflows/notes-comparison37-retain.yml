@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42617793054'
+      SOURCE_RUNS: '42617793054 43083262273'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: |
           python - <<'PY'
           import os,json,subprocess,pathlib
-          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05'}
+          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264'}
           pathlib.Path('/tmp/comparison37-runs').mkdir()
           for run in os.environ['SOURCE_RUNS'].split():
               result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
@@ -43,6 +43,12 @@ jobs:
           run-id: 42617793054
           pattern: comparison37-*
           path: /tmp/comparison37-originals/42617793054
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43083262273
+          name: comparison37-dark-landscape-guest-loss-diagnostic
+          path: /tmp/comparison37-originals/43083262273
       - name: Preserve exact originals, including fatal and partial results
         run: |
           for run in $SOURCE_RUNS; do

@@ -105,11 +105,13 @@ class PairedModuleComparisonTest(unittest.TestCase):
     def test_retainer_pins_and_downloads_the_traced_and_full_parallel_cohorts(self):
         path=Path('.github/workflows/notes-comparison37-retain.yml');text=path.read_text()
         workflow=yaml.safe_load(text);job=workflow['jobs']['retain']
-        self.assertEqual(job['env']['SOURCE_RUNS'],'42617793054 43083262273 43086479017')
+        self.assertEqual(job['env']['SOURCE_RUNS'],'42617793054 43083262273 43086479017 43099110149')
         self.assertIn("'43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264'",text)
         self.assertIn("'43086479017':'ef14395d8e75e9f482b0bfb71a061b75ac5eb8f2'",text)
+        self.assertIn("'43099110149':'8d86e50aff85bad57ccae9da04516fb7dc87ce2e'",text)
         downloads=[step for step in job['steps'] if step.get('uses')=='actions/download-artifact@v8.0.2']
         self.assertTrue(any(step.get('with',{}).get('run-id')==43083262273 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
+        self.assertTrue(any(step.get('with',{}).get('run-id')==43099110149 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
         self.assertTrue(any(step.get('with',{}).get('run-id')==43086479017 and step.get('with',{}).get('pattern')=='comparison37-*' for step in downloads))
 
 

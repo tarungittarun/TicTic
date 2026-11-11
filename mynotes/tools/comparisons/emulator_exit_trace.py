@@ -158,6 +158,10 @@ class ExitTracer:
                 return
             self.receipt['pid'] = pids[0]
             self.stderr = (self.output / 'emulator-exit-tracer-status.txt').open('w')
+            # Pre-create a user-readable trace file. strace runs under sudo;
+            # the concurrent identity watcher must be able to read signal lines.
+            self.trace_path.touch(mode=0o644, exist_ok=True)
+            self.trace_path.chmod(0o644)
             command=['sudo', '-n', 'strace', '-f', '-ttt']
             if self.receipt['symbolic_code_stacks_only']:
                 # strace -k emits module/function/code offsets, not arguments or

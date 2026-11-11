@@ -2,9 +2,11 @@
 
 This is a host/emulator reliability diagnostic, not an app acceptance test. It
 repeats the existing X33 three-launch sequence on the same guest, first for
-MyNotes and then for Obsidian, without editing or deleting fixture content.
+MyNotes and then for Obsidian, and checks both QEMU PID and Android boot-ID
+continuity. It does not edit or delete fixture content.
 """
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -16,6 +18,7 @@ import paired_ux_session as h
 from obsidian_cdp import Device
 
 OUT = Path("comparison37-evidence")
+CAPTURE_OUT = OUT / "guest-loss-replay-captures"
 APPS = [("mynotes", "app.space.notes"), ("obsidian", "md.obsidian")]
 MAX_CYCLES = 30
 START_RE = re.compile(r"TotalTime:\s*(\d+)")
@@ -30,10 +33,18 @@ def qemu_pids():
                             text=True, timeout=5)
     if result.returncode:
         return []
-    return [int(line.split()[0]) for line in result.stdout.splitlines()
-            if len(line.split()) == 3 and line.split()[0].isdigit()
-            and int(line.split()[1]) == os.getuid()
-            and line.split()[2].startswith("qemu-system")]
+    return sorted(int(line.split()[0]) for line in result.stdout.splitlines()
+                  if len(line.split()) == 3 and line.split()[0].isdigit()
+                  and int(line.split()[1]) == os.getuid()
+                  and line.split()[2].startswith("qemu-system"))
+
+
+def guest_identity_change(initial_qemu_pids, current_qemu_pids, initial_boot_id, current_boot_id):
+    if initial_qemu_pids != current_qemu_pids:
+        return "qemu_pid_change"
+    if initial_boot_id != current_boot_id:
+        return "android_guest_reboot"
+    return None
 
 
 def resolve_activity(package):
@@ -62,17 +73,30 @@ def launch_group(app, package, cycle, events):
         event["finished_at"] = now()
         samples.append({key: event[key] for key in ("repeat", "android_total_time_ms", "launch_state")})
         time.sleep(4)
+    # Keep replay captures separate from the paired-module session files; a
+    # focused replay must never overwrite the original comparison transcript.
+    h.COMMANDS.clear()
+    h.CASES.clear()
+    h.SNAPSHOTS.clear()
     h.capture(app, f"REPLAY-{cycle:02d}-{app}")
+    capture = h.SNAPSHOTS[-1]
+    capture_prefix = CAPTURE_OUT.relative_to(OUT)
     return {"app": app, "cycle": cycle, "samples": samples,
-            "capture": "Original adb screenshot and accessibility tree after three cold starts",
+            "capture": {"id": capture["id"],
+                        "image": str(capture_prefix / capture["image"]),
+                        "accessibility_tree": str(capture_prefix / capture["tree"])},
             "requested_task_acceptance": False}
 
 
 def main():
-    # The paired comparison initializes this shared helper's output path, but
-    # keep the replay self-contained so standalone probes retain their evidence.
-    h.OUT = OUT
+    # Keep replay artifacts and helper transcripts separate from the paired
+    # module comparison; no source evidence file should be overwritten.
     OUT.mkdir(parents=True, exist_ok=True)
+    CAPTURE_OUT.mkdir(parents=True, exist_ok=True)
+    h.OUT = CAPTURE_OUT
+    h.COMMANDS.clear()
+    h.CASES.clear()
+    h.SNAPSHOTS.clear()
     try:
         cycles = int(os.environ.get("COMPARISON_GUEST_LOSS_REPLAY_CYCLES", "20"))
     except ValueError as error:
@@ -92,6 +116,9 @@ def main():
         "whole_module_acceptance": False,
         "requested_task_acceptance": False,
         "physical_acceptance": False,
+        "qemu_pid_change_observed": False,
+        "guest_reboot_observed": False,
+        "guest_boot_id_stable": None,
         "samples": [],
         "events": [],
         "qemu_pids_at_start": qemu_pids(),
@@ -102,6 +129,13 @@ def main():
         state = h.adb("get-state", timeout=10).decode(errors="replace").strip()
         if state != "device":
             raise RuntimeError("Android guest not ready before replay")
+        if len(result["qemu_pids_at_start"]) != 1:
+            raise RuntimeError("Could not establish exactly one owned QEMU process at replay start")
+        guest_boot_id = h.adb("shell", "cat", "/proc/sys/kernel/random/boot_id",
+                              timeout=10).decode(errors="replace").strip()
+        if not re.fullmatch(r"[0-9a-f-]{36}", guest_boot_id):
+            raise RuntimeError("Could not establish a valid Android guest boot ID")
+        result["guest_boot_id_sha256"] = hashlib.sha256(guest_boot_id.encode()).hexdigest()
         # Match X33's observer lifecycle: keep Obsidian's official WebView
         # observer available through the MyNotes control, close it before each
         # Obsidian force-stop/restart group, then reacquire after startup.
@@ -122,6 +156,21 @@ def main():
                     if not observer.js("!!window.app?.vault"):
                         raise RuntimeError("Obsidian observer did not reconnect after cold starts")
                 result["current_qemu_pids"] = qemu_pids()
+                if result["current_qemu_pids"] != result["qemu_pids_at_start"]:
+                    identity_change = "qemu_pid_change"
+                else:
+                    current_boot_id = h.adb("shell", "cat", "/proc/sys/kernel/random/boot_id",
+                                            timeout=10).decode(errors="replace").strip()
+                    identity_change = guest_identity_change(
+                        result["qemu_pids_at_start"], result["current_qemu_pids"],
+                        guest_boot_id, current_boot_id)
+                if identity_change == "qemu_pid_change":
+                    result["qemu_pid_change_observed"] = True
+                    raise RuntimeError("Owned QEMU PID set changed during the replay")
+                result["guest_boot_id_stable"] = identity_change is None
+                if identity_change == "android_guest_reboot":
+                    result["guest_reboot_observed"] = True
+                    raise RuntimeError("Android guest boot ID changed during the replay")
                 (OUT / "guest-loss-lifecycle-replay.json").write_text(json.dumps(result, indent=2))
 
         result["status"] = "completed_no_guest_loss_observed"
@@ -149,6 +198,9 @@ def main():
         "completed_groups": result.get("completed_groups", 0),
         "cold_starts_per_app": result["cold_starts_per_app"],
         "wall_elapsed_seconds": result["wall_elapsed_seconds"],
+        "qemu_pid_change_observed": result["qemu_pid_change_observed"],
+        "guest_reboot_observed": result["guest_reboot_observed"],
+        "guest_boot_id_stable": result["guest_boot_id_stable"],
         "whole_module_acceptance": False,
     }, sort_keys=True), flush=True)
 

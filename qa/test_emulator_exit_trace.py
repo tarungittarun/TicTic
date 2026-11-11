@@ -5,6 +5,7 @@ from pathlib import Path
 import signal
 import subprocess
 import tempfile
+import threading
 import unittest
 from unittest.mock import Mock,patch
 
@@ -40,6 +41,26 @@ class EmulatorExitTraceTest(unittest.TestCase):
         self.assertIsNone(module.signal_identity_from_trace_line(
             '123 1.0 --- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_TKILL} ---',123))
         self.assertIsNone(module.signal_identity_from_trace_line('123 exit_group(0) = ?',123))
+
+    def test_live_trace_watcher_records_only_sanitized_fatal_signal_events(self):
+        module=load()
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/'emulator-exit-trace.txt').write_text('123 1.5 --- SIGSEGV {si_code=SEGV_MAPERR} ---\n')
+            tracer=module.ExitTracer(root);tracer.receipt['pid']=123
+            observed=threading.Event()
+            def parse(line,target_pid):
+                observed.set()
+                return {'trace_pid':123,'signal':'SIGSEGV','target_pid':target_pid}
+            with patch.object(module,'signal_identity_from_trace_line',side_effect=parse):
+                watcher=threading.Thread(target=tracer._watch_signal_identities)
+                watcher.start()
+                self.assertTrue(observed.wait(1))
+                tracer.signal_stop.set();watcher.join(timeout=1)
+            self.assertFalse(watcher.is_alive())
+            self.assertEqual(tracer.signal_events,[{'trace_pid':123,'signal':'SIGSEGV',
+                                                    'target_pid':123}])
+            self.assertNotIn('address',str(tracer.signal_events))
 
     def test_discovery_ignores_other_users_and_non_qemu_processes(self):
         module=load()

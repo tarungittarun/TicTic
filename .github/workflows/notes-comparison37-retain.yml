@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42617793054 43083262273 43086479017'
+      SOURCE_RUNS: '42617793054 43083262273 43086479017 43099110149'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -27,7 +27,7 @@ jobs:
         run: |
           python - <<'PY'
           import os,json,subprocess,pathlib
-          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264','43086479017':'ef14395d8e75e9f482b0bfb71a061b75ac5eb8f2'}
+          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264','43086479017':'ef14395d8e75e9f482b0bfb71a061b75ac5eb8f2','43099110149':'8d86e50aff85bad57ccae9da04516fb7dc87ce2e'}
           pathlib.Path('/tmp/comparison37-runs').mkdir()
           for run in os.environ['SOURCE_RUNS'].split():
               result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
@@ -48,6 +48,12 @@ jobs:
           run-id: 43083262273
           name: comparison37-dark-landscape-guest-loss-diagnostic
           path: /tmp/comparison37-originals/43083262273
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43099110149
+          name: comparison37-dark-landscape-guest-loss-diagnostic
+          path: /tmp/comparison37-originals/43099110149
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}

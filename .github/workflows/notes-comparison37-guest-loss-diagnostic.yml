@@ -4,7 +4,12 @@ name: Comparison37 guest-loss lifecycle replay; bounded QEMU and Apport metadata
 on:
   push:
     branches: ['arena/3caca636-tictic']
-    paths: ['.github/workflows/notes-comparison37-guest-loss-diagnostic.yml']
+    paths:
+      - '.github/workflows/notes-comparison37-guest-loss-diagnostic.yml'
+      - 'mynotes/tools/comparisons/apport_crash_metadata.py'
+      - 'mynotes/tools/comparisons/emulator_exit_trace.py'
+      - 'mynotes/tools/comparisons/guest_loss_lifecycle_replay.py'
+      - 'mynotes/tools/comparisons/run_with_host_diagnostics.py'
 permissions:
   contents: read
   actions: read

@@ -6,13 +6,13 @@ be described as completion of the original37 functional/UX acceptance tasks.
 
 ## Targeted emulator trace: prior guest loss not reproduced
 
-[Reviewed diagnostic PDF:42 pages,43 clickable links](https://github.com/tarungittarun/TicTic/raw/c7744955d/mynotes/docs/comparisons/comparison37/43083262273/Comparison37_Runtime_Probes.pdf) · [Actions run43083262273](https://github.com/tarungittarun/TicTic/actions/runs/43083262273).
+[Reviewed diagnostic PDF:42 pages,50 clickable links](https://github.com/tarungittarun/TicTic/raw/7a08bc129/mynotes/docs/comparisons/comparison37/43083262273/Comparison37_Runtime_Probes.pdf) · [Actions run43083262273](https://github.com/tarungittarun/TicTic/actions/runs/43083262273).
 
 This was a **single fresh dark-landscape guest**, restricted to areas31–37 after the failed full-grid run. It produced14/14 attempt records and14/14 complete original captures, with0 capture errors and14 target-app captures. Statuses:7 interaction observations,3 counterpart-not-established,2 blocked and2 diagnostic-only; **whole requested tasks accepted0**. It cannot fill or replace any row in the separate full-grid cohort above.
 
 The bounded symbolic-stack tracer attached to QEMU PID4191. At harness completion the tracer receipt reported the leader still running; the host-after snapshot confirms qemu-system-x86 was alive. The retained244-line trace contains ordinary worker-thread exits only—no terminating signal or exit_group. No minidump or kernel OOM/killed-QEMU line was retained. Therefore this is a **non-reproduction, not an emulator fix or long-session reliability proof**. Trace instrumentation and single-job load may affect timing.
 
-Manual review (CMP37-H23): X33 shows MyNotes’ notes-list home versus Obsidian with the fixture note open; X34 shows MyNotes Appearance/Speech-engine settings versus Obsidian Core plugins. These are real screenshots but unmatched tasks/states, not a visual or feature winner.
+Manual review (CMP37-H23/H24): X33 is MyNotes’ notes-list home versus Obsidian with the fixture note open; X34 contrasts MyNotes Appearance/Speech-engine settings with Obsidian Core plugins; X35 shows an unauthenticated Obsidian Sync prompt; X36 does not demonstrate slide presentation; X37 visibly states MyNotes voice recordings remain in Voice inbox and are exported separately from note backups. These are unmatched surface captures only—not a feature verdict, novice comprehension, service test or verified audio-backup/recovery result.
 
 - [Coverage summary](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/summary.json)
 - [Original trace receipt](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json)

@@ -7,10 +7,10 @@ be described as completion of the original37 functional/UX acceptance tasks.
 ## Fresh 37-family full grid: complete short-session records, no task acceptance
 
 - [Actions run43086479017: 20/20 jobs succeeded](https://github.com/tarungittarun/TicTic/actions/runs/43086479017)
-- [Detailed shortcomings PDF: 150 pages, 623 clickable links](./43086479017/Comparison37_Runtime_Probes.pdf)
-- [All 37 families × four-profile paired result and screenshot matrix](./43086479017/FullGrid_37Family_Observation_Matrix.md)
-- [Run summary JSON](https://github.com/tarungittarun/TicTic/blob/212a678961e0cc8e88d037d4ae1653a5e11a2e0f/mynotes/docs/comparisons/comparison37/43086479017/summary.json)
-- [Original-byte retention manifest](https://github.com/tarungittarun/TicTic/blob/212a678961e0cc8e88d037d4ae1653a5e11a2e0f/mynotes/docs/comparisons/comparison37/43086479017/retention.json)
+- [Download the detailed shortcomings PDF: 150 pages, 623 clickable links](https://github.com/tarungittarun/TicTic/raw/93f5a1ed3f1d1cd81739574394710087b2cbdce9/mynotes/docs/comparisons/comparison37/43086479017/Comparison37_Runtime_Probes.pdf)
+- [All 37 families × four-profile paired result and screenshot matrix](https://github.com/tarungittarun/TicTic/blob/93f5a1ed3f1d1cd81739574394710087b2cbdce9/mynotes/docs/comparisons/comparison37/43086479017/FullGrid_37Family_Observation_Matrix.md)
+- [Run summary JSON](https://github.com/tarungittarun/TicTic/blob/93f5a1ed3f1d1cd81739574394710087b2cbdce9/mynotes/docs/comparisons/comparison37/43086479017/summary.json)
+- [Original-byte retention manifest](https://github.com/tarungittarun/TicTic/blob/93f5a1ed3f1d1cd81739574394710087b2cbdce9/mynotes/docs/comparisons/comparison37/43086479017/retention.json)
 
 This is a **fresh cohort**, not pooled with failed run42617793054 or the targeted diagnostic below. All four profiles have 74/74 planned app-probe records, yielding 296 individual result records and 296 complete original PNG captures with 0 capture errors. The 37 families were attempted for both installed apps in light portrait, dark portrait, light landscape and dark landscape. The PDF details actual bounded checks and shortcomings; the matrix directly links each app/family/profile JSON record and PNG.
 
@@ -21,7 +21,7 @@ This is a **fresh cohort**, not pooled with failed run42617793054 or the targete
 | Light landscape | 33/37 | 35/37 |
 | Dark landscape | 33/37 | 35/37 |
 
-Independent review CMP37-H25 covered all 24 original X35–X37 screenshots (both apps in all four profiles). MyNotes shows general Settings for X35/X36 and About & offline models for X37; visible guidance says voice recordings stay in Voice inbox and must be exported separately from note backups. Obsidian shows Sync account onboarding, then an ordinary note rather than a slide presentation, and General settings. This is not a sync/service run, novice interview, slide-absence finding or verified backup/recovery result. [Evidence and hash-pinned frames](./reviewed-observations.json).
+Independent review CMP37-H25 covered all 24 original X35–X37 screenshots (both apps in all four profiles). MyNotes shows general Settings for X35/X36 and About & offline models for X37; visible guidance says voice recordings stay in Voice inbox and must be exported separately from note backups. Obsidian shows Sync account onboarding, then an ordinary note rather than a slide presentation, and General settings. This is not a sync/service run, novice interview, slide-absence finding or verified backup/recovery result. [Evidence, hashes and reviewed frames](https://github.com/tarungittarun/TicTic/blob/93f5a1ed3f1d1cd81739574394710087b2cbdce9/mynotes/docs/comparisons/comparison37/reviewed-observations.json).
 
 Across 296 rows there are 14 bounded outcomes, 186 interactions, 20 counterpart-not-established rows, 60 blocked rows, 8 inspection-only and 8 diagnostic-only rows. The target app is recorded as capture owner in 271/296 images (MyNotes 131/148; Obsidian 140/148). **Original requested tasks accepted: 0; whole-module and physical acceptance remain false.** These probe statuses are not a winner/score, and missing app-owned captures, API shortcuts, blocked routes and non-established counterparts are not app-failure or feature-absence claims. The jobs used fresh short emulator sessions—not a single long session or a 600-minute reliability/soak test. No human/novice or physical-phone acceptance was performed.
 

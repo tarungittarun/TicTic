@@ -4,9 +4,25 @@
 74 attempt records, native inventory totals or a green observer process must not
 be described as completion of the original37 functional/UX acceptance tasks.
 
+## Targeted emulator trace: prior guest loss not reproduced
+
+[Reviewed diagnostic PDF:42 pages,43 clickable links](https://github.com/tarungittarun/TicTic/raw/c7744955d/mynotes/docs/comparisons/comparison37/43083262273/Comparison37_Runtime_Probes.pdf) · [Actions run43083262273](https://github.com/tarungittarun/TicTic/actions/runs/43083262273).
+
+This was a **single fresh dark-landscape guest**, restricted to areas31–37 after the failed full-grid run. It produced14/14 attempt records and14/14 complete original captures, with0 capture errors and14 target-app captures. Statuses:7 interaction observations,3 counterpart-not-established,2 blocked and2 diagnostic-only; **whole requested tasks accepted0**. It cannot fill or replace any row in the separate full-grid cohort above.
+
+The bounded symbolic-stack tracer attached to QEMU PID4191. At harness completion the tracer receipt reported the leader still running; the host-after snapshot confirms qemu-system-x86 was alive. The retained244-line trace contains ordinary worker-thread exits only—no terminating signal or exit_group. No minidump or kernel OOM/killed-QEMU line was retained. Therefore this is a **non-reproduction, not an emulator fix or long-session reliability proof**. Trace instrumentation and single-job load may affect timing.
+
+Manual review (CMP37-H23): X33 shows MyNotes’ notes-list home versus Obsidian with the fixture note open; X34 shows MyNotes Appearance/Speech-engine settings versus Obsidian Core plugins. These are real screenshots but unmatched tasks/states, not a visual or feature winner.
+
+- [Coverage summary](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/summary.json)
+- [Original trace receipt](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace-receipt.json)
+- [Original bounded trace](https://github.com/tarungittarun/TicTic/blob/f2d00d017612aa18c012ab1fd516693ae29af209/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/emulator-exit-trace.txt)
+
+A separate fresh **20-job parallel full grid, run43086479017, is currently in progress**. It is a new cohort; pending jobs are not evidence and will not be pooled with either result above.
+
 ## Latest audited cohort: comparison still incomplete
 
-[Download latest reviewed PDF: 150 pages, 584 clickable links](https://github.com/tarungittarun/TicTic/raw/e74e5a609ce6d18ab1ac217a9e2e2997145298f1/mynotes/docs/comparisons/comparison37/42617793054/Comparison37_Runtime_Probes.pdf).
+[Download latest reviewed PDF: 150 pages, 584 clickable links](https://github.com/tarungittarun/TicTic/raw/2458cad4e07031f544ac8beff730266d9396a208/mynotes/docs/comparisons/comparison37/42617793054/Comparison37_Runtime_Probes.pdf).
 [Original latest run42617793054](https://github.com/tarungittarun/TicTic/actions/runs/42617793054).
 
 | Profile | Attempt records (planned74) | Complete original snapshot records | Capture errors | Target app present in capture |
@@ -24,9 +40,9 @@ This cohort contains **288 attempts and287 complete original captures**, not296 
 - **Latest verification still loses a guest:** in42617793054 dark-landscape Obsidian X33, an adb force-stop command timed out and capture later reported emulator-5554 missing. QEMU was absent in the postfailure snapshot. Areas34–37 in that shard were not executed in either app. This untraced run supplies no termination signal or app fault attribution. Older successful frames are not used to fill these missing originals.
 - **Search fairness is not uniformly resolved:** earlier cohort42614548550 supplied a live keyboard-open pair, but latest light-landscape Obsidian X01 has an empty query and no keyboard while MyNotes has cobalt42 and its keyboard open. Both original rows are blocked. Latest frames cannot establish a comparative search win; CMP37-H21 documents the exact mismatch.
 
-[Separate earlier broader-coverage report](https://github.com/tarungittarun/TicTic/raw/a2d9431a953e774007f86df6205877364cc29a9d/mynotes/docs/comparisons/comparison37/42614548550/Comparison37_Runtime_Probes.pdf) —296 attempts/295 captures, never pooled into the latest cohort. All originals, failures and hashes remain in their run-specific directories. Reviewed observations CMP37-H14–H21 explain the diagnostic and visual limits.
+[Separate earlier broader-coverage report](https://github.com/tarungittarun/TicTic/raw/a2d9431a953e774007f86df6205877364cc29a9d/mynotes/docs/comparisons/comparison37/42614548550/Comparison37_Runtime_Probes.pdf) —296 attempts/295 captures, never pooled into the latest cohort. All originals, failures and hashes remain in their run-specific directories. Reviewed observations CMP37-H14–H23 explain the diagnostic and visual limits.
 
-All launched runtime and publication jobs have completed; no automatic retry is running. **1144 root QA tests passed**, with report/Office dependencies installed. No production app changes or new APK. Comparison-first ordering remains: app fixes are still parked. Remaining work includes reliable complete capture, matched user routes, full-workflow outcome assertions, actual OCR/audio/document fidelity, animation/efficiency/time measurements and separately disclosed physical/human/novice verification. This PDF is evidence and shortcomings, not acceptance of those tasks.
+The targeted diagnostic and its evidence publication have completed; the separate full parallel grid is pending, not accepted. No automatic retry is running. **1149 root QA tests passed**, with report/Office dependencies installed. No production app changes or new APK. Comparison-first ordering remains: app fixes are still parked. Remaining work includes reliable complete capture, matched user routes, full-workflow outcome assertions, actual OCR/audio/document fidelity, animation/efficiency/time measurements and separately disclosed physical/human/novice verification. This PDF is evidence and shortcomings, not acceptance of those tasks.
 
 ## Retained executions
 

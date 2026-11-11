@@ -1,0 +1,412 @@
+--------- beginning of main
+11-11 19:44:31.873  5149  5357 I OpenGLRenderer: Davey! duration=1041ms; Flags=0, FrameTimelineVsyncId=17302, IntendedVsync=123780525406, Vsync=123780525406, InputEventId=0, HandleInputStart=123780674217, AnimationStart=123780674708, PerformTraversalsStart=123781415458, DrawStart=123781440966, FrameDeadline=123847192070, FrameInterval=123780670872, FrameStartTime=16666666, SyncQueued=123781576587, SyncStart=123823316537, IssueDrawCommandsStart=123844353692, SwapBuffers=124852332442, FrameCompleted=124863994554, DequeueBufferDuration=3045, QueueBufferDuration=535566, GpuCompleted=124863994554, SwapBuffersCompleted=124853734274, DisplayPresentTime=0, CommandSubmissionCompleted=124852332442, 
+11-11 19:44:31.877   336  5388 I resolv  : GetAddrInfoHandler::run: {0 0 0 983040 10193 0}
+--------- beginning of system
+11-11 19:44:32.747   520   550 D ActivityManager: sync unfroze 2512 com.google.android.apps.wallpaper for 3
+11-11 19:44:32.747   520   550 D OomAdjuster: Not killing cached processes
+11-11 19:44:32.748   520   613 W ProcessStats: Tracking association SourceState{c07b46b com.google.android.gms.persistent/10131 BFgs #5321} whose proc state 4 is better than process ProcessState{781e6f0 com.google.android.gms/10131 pkg=com.google.android.gms} proc state 14 (74 skipped)
+11-11 19:44:32.755  2512  5392 W DiskBasedLogger: Disk-based log buffer doesn't exist, so there's nothing to clean up.
+11-11 19:44:34.463  5396  5396 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-11 19:44:34.463  5396  5396 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-11 19:44:34.478   134   134 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 19:44:34.478  5396  5397 I Gralloc4: mapper 4.x is not supported
+--------- beginning of kernel
+11-11 19:44:34.668     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-11 19:44:34.651  5398  5398 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-11 19:44:34.654  5398  5398 I AndroidRuntime: Using default boot image
+11-11 19:44:34.654  5398  5398 I AndroidRuntime: Leaving lock profiling enabled
+11-11 19:44:34.655  5398  5398 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 19:44:34.656  5398  5398 I app_process: Using CollectorTypeCC GC.
+11-11 19:44:34.696  5398  5398 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-11 19:44:34.703  5398  5398 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-11 19:44:34.703  5398  5398 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-11 19:44:34.707  5398  5398 W app_process: Unexpected CPU variant for x86: x86_64.
+11-11 19:44:34.707  5398  5398 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-11 19:44:34.708  5398  5398 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[])
+11-11 19:44:34.708  5398  5398 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}#PCL[/system/framework/android.test.base.jar*836642756]} | PCL[/system/framework/android.test.runner.jar*4168958247])
+11-11 19:44:34.717  5398  5398 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-11 19:44:34.717  5398  5398 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-11 19:44:34.717  5398  5398 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-11 19:44:34.718  5398  5398 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-11 19:44:34.719  5398  5398 D UiAutomationConnection: Created on user UserHandle{0}
+11-11 19:44:34.719  5398  5398 I UiAutomation: Initialized for user 0 on display 0
+11-11 19:44:34.719  5398  5398 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-11 19:44:34.713  5398  5398 W main    : type=1400 audit(0.0:86): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-11 19:44:34.720   520   821 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-11 19:44:34.720   520   821 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation) when called by user 0
+11-11 19:44:34.721   520   821 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 19:44:34.722   520   520 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-11 19:44:34.723  1655  2310 I A       : NGA disabled due to not being eligible.
+11-11 19:44:34.723   520   821 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 19:44:34.724  5398  5412 V UiAutomation: Init UiAutomation@9dfdc8e[id=18, displayId=0, flags=0]
+11-11 19:44:34.724  1620  2947 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-11 19:44:34.724  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:34.724  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:34.724  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:34.713  5398  5398 W main    : type=1400 audit(0.0:87): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-11 19:44:34.727  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:34.727  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:34.727  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:34.727  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:34.727  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:34.727  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 19:44:34.727  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 19:44:34.713  5398  5398 W main    : type=1400 audit(0.0:88): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-11 19:44:34.730  1620  2947 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:34.732  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 19:44:34.733  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 19:44:34.737   832   832 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 19:44:34.737   832   832 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 19:44:35.011  1397  1413 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-11 19:44:35.011  1397  1413 I FontLog : Query [Noto Color Emoji Compat] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-11 19:44:35.015   336  5414 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-11 19:44:35.015  1397  2562 W FontLog : Connection failure for https://fonts.gstatic.com/s/a/directory025.pb [CONTEXT service_id=132 ]
+11-11 19:44:35.015  1397  2562 W FontLog : No resolver, short-circuit {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} for com.google.android.inputmethod.latin to failure [CONTEXT service_id=132 ]
+11-11 19:44:35.015  1397  1413 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=Unavailable, resolution=null} [CONTEXT service_id=132 ]
+11-11 19:44:35.732  5398  5398 W AccessibilityNodeInfoDumper: Fetch time: 3ms
+11-11 19:44:35.733   520  2638 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 19:44:35.733   520  2638 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-11 19:44:35.733  5398  5398 D AndroidRuntime: Shutting down VM
+11-11 19:44:35.734   520   520 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-11 19:44:35.733  1620  2947 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Predicting[0]: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: EchoTargets: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-11 19:44:35.735  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 19:44:35.736  1620  1915 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 19:44:35.736  1655  2300 I A       : NGA disabled due to not being eligible.
+11-11 19:44:35.737   832   832 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 19:44:36.358  5149  5149 E FrameTracker: force finish cuj, time out: J<IME_INSETS_ANIMATION::1@1@md.obsidian>
+11-11 19:44:36.665     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-11 19:44:38.505   520   613 W ActivityManager: Unable to start service Intent { act=com.google.android.gms.drive.ApiService.RESET_AFTER_BOOT flg=0x4 cmp=com.google.android.gms/.drive.api.ApiService (has extras) } U=0: not found
+11-11 19:44:38.506   520   602 D OomAdjuster: Not killing cached processes
+11-11 19:44:38.507  1655  1655 I BgTaskExecutorImpl: Starting EXCLUSIVE background task INTERNAL_PERIODIC_TASK_SYNC.
+11-11 19:44:38.512  1655  2508 I A       : Using proto config with mendel
+11-11 19:44:38.512  1655  2508 I A       : Proto config empty. Exit merge.
+11-11 19:44:38.513  1655  2508 I MicroDetectionState: Should stop hotword detection immediately - false
+11-11 19:44:38.514  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task ACTIVITY_LEVEL_TASK.
+11-11 19:44:38.516  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task AWARE_TIP_WORKER_PROCESS_TIPS.
+11-11 19:44:38.518  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task CHROME_EXPERIMENT_SYNC.
+11-11 19:44:38.521  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task CLEAR_DATA_DETECTOR.
+11-11 19:44:38.522  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task CONTACT_AFFINITY_MODEL_CONTACTS_CHANGE_REFRESH.
+11-11 19:44:38.542  1655  2508 E A       : Failed to set up tips. Flag that holds aware tips is null.
+11-11 19:44:38.544  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task CONTACT_AFFINITY_MODEL_PERIODIC_REFRESH.
+11-11 19:44:38.544  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.544  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.544  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.545  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.545  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.545  1655  2508 E A       : Failed to set up tips. Flag that holds aware tips is null.
+11-11 19:44:38.547  1655  5421 I FirstRunClassifier: First run of com.google.android.googlequicksearchbox on this device detected
+11-11 19:44:38.548   520  1612 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-11 19:44:38.548   520  1612 D PackageManager: Clear ephemeral installer activity
+11-11 19:44:38.549  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.549  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.549  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.549  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.549  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.550  1655  5422 W CAMPeriodicRefresh: Refreshing not complete, unable to upload top contacts.
+11-11 19:44:38.554  1397  1397 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.phenotype.service.START pkg=com.google.android.gms }
+11-11 19:44:38.554  1397  1397 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.phenotype.service.START pkg=com.google.android.gms }
+11-11 19:44:38.557  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task FETCH_ADVERTISING_INFO.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task GELLER_PKG_ENTITIES_REFRESH_TASK.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.560  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.563  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task MDD_CHARGING_TASK.
+11-11 19:44:38.566  1655  2462 I A       : No accounts found for [PKG_ENTITIES], not syncing anything.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.568  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.571  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task MDD_MAINTENANCE_TASK.
+11-11 19:44:38.571  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task MDH_WIPEOUT.
+11-11 19:44:38.576  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task NGA_READ_ONLY_LOGS_BASED_TOP_CONTACTS_NGA_PUSH.
+11-11 19:44:38.578  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.579  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.579  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.579  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.579  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.581  1655  1721 I earchbox:search: JIT allocated 69KB for compiled code of com.google.android.apps.gsa.s.h com.google.android.apps.gsa.s.h.a(int)
+11-11 19:44:38.592  1655  1721 I earchbox:search: JIT allocated 100KB for compiled code of java.lang.Object com.google.android.apps.gsa.binaries.velvet.app.amm.c()
+11-11 19:44:38.592  1655  1721 I earchbox:search: Compiler allocated 5213KB to compile java.lang.Object com.google.android.apps.gsa.binaries.velvet.app.amm.c()
+11-11 19:44:38.594  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.594  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.594  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.594  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.613  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task SYNC_TAPAS_ZERO_PREFIX_CACHE.
+11-11 19:44:38.614  1655  5441 I MDH     : [Storage] Creating database v2
+11-11 19:44:38.614  1655  5441 I MDH     : Creating MDH subscription table.
+11-11 19:44:38.614  1655  5441 I MDH     : Creating MDH wipeout table.
+11-11 19:44:38.616  1655  5441 V MDH     : Opening MDH wipeout table.
+11-11 19:44:38.620  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.620  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.620  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.620  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.620  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task UPDATE_GSERVICES_CONFIG.
+11-11 19:44:38.621  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.621  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.621  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.622  1655  1655 I BgTaskExecutorImpl: Starting PERIODIC background task UPDATE_LAUNCHER_SHORTCUT.
+11-11 19:44:38.623  1655  5446 I A       : Updating Gservices keys
+11-11 19:44:38.631  1655  5421 E SingleDataFileGroupPop: Failed to add file group 
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.631  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.632  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.632  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.632  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.635   520  2248 W JobScheduler: Job didn't exist in JobStore: a4ad828 #u0a132/-49 com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService
+11-11 19:44:38.639  1655  5421 I A       : Download file group for language pack: en-US
+11-11 19:44:38.639  1655  5421 W A       : Locale en-US is not compatible, please check manifest exists
+11-11 19:44:38.640  1655  5435 I A       : Starting new batch; batchId=1 corpus=1004
+11-11 19:44:38.641  1655  5421 I A       : Using proto config with mendel
+11-11 19:44:38.641  1655  5421 I A       : Proto config empty. Exit merge.
+11-11 19:44:38.642  1655  5421 E HotwordModelPopulator: HotwordLocaleConfig does not have a valid URL for model en-US, type OK_GOOGLE: en-US/hotword.data! This model will not be downloaded or updated
+11-11 19:44:38.644  1655  5421 I A       : New OK_HEY model config map hash: reinitializing config map.
+11-11 19:44:38.644  1655  5421 I A       : Using proto config with mendel
+11-11 19:44:38.644  1655  5421 I A       : Proto config empty. Exit merge.
+11-11 19:44:38.644  1655  5421 I HotwordModelPopulator: #updateHotwordFileGroup group name: hotword_model_en-US_okhey, raw locale: en-US, locale: en-US
+11-11 19:44:38.654  1655  5446 W MDD     : MDDManager Failed to init shared file metadata.
+11-11 19:44:38.664  1655  2315 I A       : NGA Sync: MDD Task: MDD.MAINTENANCE.PERIODIC.GCM.TASK done.
+11-11 19:44:38.664  1655  2315 I A       : NGA Sync: isNgaSyncEnabled: false; enableFileGroupPopulator: false; requiresMddAssets: false
+11-11 19:44:38.664  1655  2300 I A       : Refresh account policy.
+11-11 19:44:38.664  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:38.670  1655  2309 E HotwordModelPopulator: Failed to add hotword file group for 'hotword_model_en-US_okhey' from location: https://www.gstatic.com/android-search/hotword/x_google/7db96c566dbd33b2218d5799ec330d22/hotword.data
+11-11 19:44:39.553  1030  1030 D CarrierSvcBindHelper: onPackageModified: com.google.android.googlequicksearchbox
+11-11 19:44:39.554  1030  1030 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 19:44:39.554   520   622 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-11 19:44:39.558   520   817 D ActivityManager: sync unfroze 834 com.google.android.permissioncontroller for 6
+11-11 19:44:39.559   520  2638 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-11 19:44:39.560   834  3759 I PermissionControllerServiceImpl: Updating user sensitive for uid 10132
+11-11 19:44:39.560   832   832 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-11 19:44:39.561   832   875 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-11 19:44:39.561   832   875 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-11 19:44:39.561   832   875 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+11-11 19:44:39.562   520   610 I RoleService: Granting default roles...
+11-11 19:44:39.565   832   875 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-11 19:44:39.565   832   875 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-11 19:44:39.566   832   875 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-11 19:44:39.568   832   875 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-11 19:44:39.568   832   875 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-11 19:44:39.569   520   549 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.SearchWidgetProvider} won't be persisted.
+11-11 19:44:39.569   520   549 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.google.android.googlequicksearchbox/com.google.android.apps.gsa.staticplugins.smartspace.widget.SmartspaceWidgetProvider} won't be persisted.
+11-11 19:44:39.569   832   875 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-11 19:44:39.570   832   875 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-11 19:44:39.571  1030  1360 D ImsResolver: maybeAddedImsService, packageName: com.google.android.googlequicksearchbox
+11-11 19:44:39.571   832   875 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-11 19:44:39.576   834  5458 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION
+11-11 19:44:39.577   834  5458 I Role    : com.google.android.gms not qualified for android.app.role.SYSTEM_CALL_STREAMING due to missing RequiredComponent{mIntentFilterData=IntentFilterData{mAction='android.telecom.CallStreamingService', mCategories='[]', mDataScheme='null', mDataType='null'}, mMinTargetSdkVersion=1, mFlags='0', mPermission='android.permission.BIND_CALL_STREAMING_SERVICE', mQueryFlags=0, mMetaData=[]}
+11-11 19:44:39.577   834  5458 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.SYSTEM_CALL_STREAMING
+11-11 19:44:39.578   834  5458 W Role    : Default holder doesn't have required signing certificate: com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58
+11-11 19:44:39.580  1620  1620 I AiAiEcho: AppFetcherImpl onPackageChanged com.google.android.googlequicksearchbox.
+11-11 19:44:39.580  1620  3481 I AiAiEcho: AppIndexer Package:[com.google.android.googlequicksearchbox] UserProfile:[0] Enabled:[true].
+11-11 19:44:39.581  1620  3481 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.google.android.googlequicksearchbox], userId:[0], reason:[package is updated.].
+11-11 19:44:39.643  1655  1655 I BgTaskExecutorImpl: Starting NONEXCLUSIVE background task MDD_CELLULAR_CHARGING_TASK.
+11-11 19:44:39.643  1655  5428 I A       : Scheduled one-off task for batch; batchId=1 taskId=-1000002 corpora=[1004]
+11-11 19:44:39.643  1655  5428 I A       : Pending callbacks: 1
+11-11 19:44:39.646  1655  2298 I A       : Starting batch sync for corpora: [1004]
+11-11 19:44:39.653  1655  2298 I A       : Setting isLegacySQLite mode to false.
+11-11 19:44:39.672  1655  5429 I DeviceCapHelper: Adding surface identity to the device capabilities for surface OPA_AGSA.
+11-11 19:44:39.680  1655  5429 I A       : The GellerConfig is not present, defaulting isUploadEnabled for corpus GDD_APA_BISTO to true.
+11-11 19:44:39.680  1655  2314 I A       : There are 0 elements to be updated on the server for corpus GDD_APA_BISTO.
+11-11 19:44:39.680  1655  2314 I A       : There are 0 elements to delete from the server for corpus GDD_APA_BISTO.
+11-11 19:44:39.680  1655  5429 I A       : No previous syncToken for corpus GDD_APA_BISTO found.
+11-11 19:44:39.682   336  5462 I resolv  : GetAddrInfoHandler::run: {0 262144 0 983040 10132 0}
+11-11 19:44:39.682  1655  5461 W io.grpc.e.gx: [{0}] Failed to resolve name. status={1}
+11-11 19:44:39.684  1655  2309 E MDD     : GddFileGroupPopulator: GDD Sync failed for corpus: GDD_APA_BISTO, configuration: GddAgsaApaBisto
+11-11 19:44:39.684  1655  2315 I A       : Batch succeeded; batchId=1 taskId=-1000002
+11-11 19:44:39.685  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:39.687   520   821 W JobScheduler: Job didn't exist in JobStore: 63de1c7 #u0a132/-1000002 com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService
+11-11 19:44:39.688  1655  2315 I A       : NGA Sync: MDD Task: MDD.CHARGING.PERIODIC.TASK done.
+11-11 19:44:39.688  1655  2315 I A       : NGA Sync: isNgaSyncEnabled: false; enableFileGroupPopulator: false; requiresMddAssets: false
+11-11 19:44:39.688  1655  2298 I A       : Refresh account policy.
+11-11 19:44:39.926   322   322 E dhcpclient: Unable to send message: Failed to send message: Network is down
+11-11 19:44:40.054  1655  5428 I GsaConfigFlagsSyncer: Flags not sync'ed yet, syncing.
+11-11 19:44:40.060  1655  1655 I BgTaskExecutorImpl: Starting EXCLUSIVE background task SEND_GSA_HOME_REQUEST.
+11-11 19:44:40.062  1397  5469 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-11 19:44:40.064  1397  5465 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2021-02-04T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2021-12-06T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2021-12-09T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2022-02-03T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2022-02-15T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2022-02-22T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2022-03-23T00:00:00Z is out of expected range.
+11-11 19:44:40.065  1655  2298 E ApplicationPropertiesBu: Date 2022-03-25T00:00:00Z is out of expected range.
+11-11 19:44:40.066  1655  2298 W A       : Exception while fetching versionCode for package[com.google.android.apps.tv.dreamx].
+11-11 19:44:40.066  1655  2298 W A       : android.content.pm.PackageManager$NameNotFoundException: com.google.android.apps.tv.dreamx
+11-11 19:44:40.066  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfoAsUser(ApplicationPackageManager.java:256)
+11-11 19:44:40.066  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:216)
+11-11 19:44:40.066  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:210)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.h.d(PG:372)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.h.a(PG:38)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.p.a(PG:1)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.libraries.gsa.k.a.f.a(PG:2)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.common.util.concurrent.dx.a(PG:1)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.common.util.concurrent.cv.run(PG:4)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.common.util.concurrent.dz.run(PG:1)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.libraries.i.ae.run(PG:1)
+11-11 19:44:40.066  1655  2298 W A       : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-11 19:44:40.066  1655  2298 W A       : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.libraries.i.k.run(PG:2)
+11-11 19:44:40.066  1655  2298 W A       : 	at com.google.android.libraries.i.p.run(PG:4)
+11-11 19:44:40.066  1655  2298 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+11-11 19:44:40.066  1655  2298 W A       : Failed to fetch versionCode for package[com.google.android.apps.tv.dreamx].
+11-11 19:44:40.068  1655  2298 W A       : Exception while fetching versionCode for package[com.google.android.apps.tv.launcherx].
+11-11 19:44:40.068  1655  2298 W A       : android.content.pm.PackageManager$NameNotFoundException: com.google.android.apps.tv.launcherx
+11-11 19:44:40.068  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfoAsUser(ApplicationPackageManager.java:256)
+11-11 19:44:40.068  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:216)
+11-11 19:44:40.068  1655  2298 W A       : 	at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:210)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.h.d(PG:372)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.h.a(PG:38)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.apps.gsa.staticplugins.ad.p.a(PG:1)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.libraries.gsa.k.a.f.a(PG:2)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.common.util.concurrent.dx.a(PG:1)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.common.util.concurrent.cv.run(PG:4)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.common.util.concurrent.dz.run(PG:1)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.libraries.i.ae.run(PG:1)
+11-11 19:44:40.068  1655  2298 W A       : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-11 19:44:40.068  1655  2298 W A       : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.libraries.i.k.run(PG:2)
+11-11 19:44:40.068  1655  2298 W A       : 	at com.google.android.libraries.i.p.run(PG:4)
+11-11 19:44:40.068  1655  2298 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+11-11 19:44:40.068  1655  2298 W A       : Failed to fetch versionCode for package[com.google.android.apps.tv.launcherx].
+11-11 19:44:40.074  1655  5429 I A       : getModuleProperties: device does not support SoundTrigger recognition
+11-11 19:44:40.076  1439  1439 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.languageprofile.service.START pkg=com.google.android.gms }
+11-11 19:44:40.076  1439  1439 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.languageprofile.service.START pkg=com.google.android.gms }
+11-11 19:44:40.080  1397  1485 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-11 19:44:40.082  1397  1397 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.scheduler.ACTION_PROXY_SCHEDULE dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.082  1397  1397 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.scheduler.ACTION_PROXY_SCHEDULE dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.083  1397  1485 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-11 19:44:40.085  1397  1485 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-11 19:44:40.095  1439  2754 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36
+11-11 19:44:40.097  1439  1439 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-11 19:44:40.097  1439  1439 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-11 19:44:40.101  1439  2815 W Icing   : No valid account for uploading user actions
+11-11 19:44:40.102  1397  1397 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.icing.LIGHTWEIGHT_INDEX_SERVICE dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.102  1397  1397 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.icing.LIGHTWEIGHT_INDEX_SERVICE dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.106  1439  2815 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+11-11 19:44:40.108  1439  2156 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+11-11 19:44:40.109  1439  2815 W Icing   : No valid account for uploading user actions
+11-11 19:44:40.112  1439  2815 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+11-11 19:44:40.112  1397  1485 I HeterodyneSyncer: Removed 0 invalid users [CONTEXT service_id=51 ]
+11-11 19:44:40.112  1397  1397 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.phenotype.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.112  1397  1397 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.phenotype.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-11 19:44:40.127   336  5486 I resolv  : GetAddrInfoHandler::run: {0 786432 0 983040 10131 0}
+11-11 19:44:40.127  1397  5485 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.languageprofile.GcmTaskService started execution. cause:7 exec_start_elapsed_seconds: 133 [CONTEXT service_id=218 ]
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: Sync failed [CONTEXT service_id=51 ]
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: bwdx: 29504: Network error
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):210)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwhy.p(:com.google.android.gms@231818047@23.18.18 (190800-535401451):61)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwhy.w(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwhy.o(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwgn.g(:com.google.android.gms@231818047@23.18.18 (190800-535401451):13)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwfc.e(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwfc.f(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at avsy.eo(:com.google.android.gms@231818047@23.18.18 (190800-535401451):1)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at avtf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):14)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at dfhf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at java.lang.Thread.run(Thread.java:1012)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: Caused by: java.io.IOException: request causes GmsNetworkException without UrlResponseInfo at execution
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):38)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):166)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	... 15 more
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: Caused by: avvw: Failed to process request
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at avxk.onFailed(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at jf.onFailed(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):0)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at ih.run(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):1)
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	... 6 more
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: Caused by: iq: Exception in CronetUrlRequest: net::ERR_INTERNET_DISCONNECTED, ErrorCode=2, InternalErrorCode=-106, Retryable=false
+11-11 19:44:40.128  1397  1485 W HeterodyneSyncer: 	at org.chromium.net.impl.CronetUrlRequest.onError(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):5)
+11-11 19:44:40.132  1397  1485 E bwfc    : Phenotype API error. Event # edax@c21e9000, EventCode: 17 [CONTEXT service_id=51 ]
+11-11 19:44:40.132  1397  1485 E bwfc    : bwdx: 29504: Network error
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):210)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwhy.p(:com.google.android.gms@231818047@23.18.18 (190800-535401451):61)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwhy.w(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwhy.o(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwgn.g(:com.google.android.gms@231818047@23.18.18 (190800-535401451):13)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwfc.e(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwfc.f(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at avsy.eo(:com.google.android.gms@231818047@23.18.18 (190800-535401451):1)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at avtf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):14)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at dfhf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at java.lang.Thread.run(Thread.java:1012)
+11-11 19:44:40.132  1397  1485 E bwfc    : Caused by: java.io.IOException: request causes GmsNetworkException without UrlResponseInfo at execution
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):38)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):166)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	... 15 more
+11-11 19:44:40.132  1397  1485 E bwfc    : Caused by: avvw: Failed to process request
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at avxk.onFailed(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at jf.onFailed(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):0)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at ih.run(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):1)
+11-11 19:44:40.132  1397  1485 E bwfc    : 	... 6 more
+11-11 19:44:40.132  1397  1485 E bwfc    : Caused by: iq: Exception in CronetUrlRequest: net::ERR_INTERNET_DISCONNECTED, ErrorCode=2, InternalErrorCode=-106, Retryable=false
+11-11 19:44:40.132  1397  1485 E bwfc    : 	at org.chromium.net.impl.CronetUrlRequest.onError(:com.google.android.gms.dynamite_cronetdynamite@231818047@23.18.18 (190800-0):5)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: operation=RegisterSyncOperationCall, opStatusCode=29504 [CONTEXT service_id=51 ]
+11-11 19:44:40.132  1397  1485 W AsyncOperation: OperationException[Status{statusCode=Network error, resolution=null}]
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at bwfc.e(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at bwfc.f(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at avsy.eo(:com.google.android.gms@231818047@23.18.18 (190800-535401451):1)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at avtf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):14)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at dfhf.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+11-11 19:44:40.132  1397  1485 W AsyncOperation: 	at java.lang.Thread.run(Thread.java:1012)
+11-11 19:44:40.133  1655  5428 W A       : Calling registerSyncInternal api failed.
+11-11 19:44:40.134  1655  2508 W SearchServiceCore: Abort, client detached.
+11-11 19:44:40.136   520   821 W JobScheduler: Job didn't exist in JobStore: a362545 #u0a132/-151 com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService
+11-11 19:44:40.140  1397  5485 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.languageprofile.GcmTaskService finished executing. cause:7 result: 1 elapsed_millis: 26 uptime_millis: 26 exec_start_elapsed_seconds: 133 [CONTEXT service_id=218 ]
+11-11 19:44:40.154  1397  1990 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.tapandpay.gcmtask.TapAndPayGcmTaskService started execution. cause:5 exec_start_elapsed_seconds: 133 [CONTEXT service_id=218 ]
+11-11 19:44:40.155  1397  2318 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.tapandpay.gcmtask.TapAndPayGcmTaskService finished executing. cause:5 result: 2 elapsed_millis: 9 uptime_millis: 9 exec_start_elapsed_seconds: 133 [CONTEXT service_id=218 ]
+11-11 19:44:40.172  1439  1439 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.api.phone.service.SmsRetrieverApiService.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService }
+11-11 19:44:40.173  1439  1439 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.mdd.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-11 19:44:41.107  1439  1493 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-11 19:44:41.110  1439  1493 I Icing   : Indexing done com.google.android.gms-apps
+11-11 19:44:41.110  1439  1493 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+11-11 19:44:41.112  1439  1493 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+11-11 19:44:41.801     0     0 I servicemanager: Since 'artd' could not be found, trying to start it as a lazy AIDL service. (if it's not configured to be a lazy service, it may be stuck starting or still starting).
+11-11 19:44:41.805     0     0 I init    : starting service 'artd'...
+11-11 19:44:41.826     0     0 I init    : ... started service 'artd' has pid 5493
+11-11 19:44:41.826     0     0 I init    : Control message: Processed ctl.interface_start for 'aidl/artd' from pid: 133 (/system/bin/servicemanager)
+11-11 19:44:41.641  5493  5493 I artd    : Starting artd
+11-11 19:44:41.641  5493  5493 I AidlLazyServiceRegistrar: Registering service artd
+11-11 19:44:41.834     0     0 I BpBinder: onLastStrongRef automatically unlinking death recipients:

@@ -1,0 +1,8 @@
+{
+  "method": "Runtime.evaluate",
+  "params": {
+    "expression": "({body:document.body.innerText,viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},active:document.activeElement?.outerHTML?.slice(0,1000)})",
+    "returnByValue": true,
+    "awaitPromise": true
+  }
+}

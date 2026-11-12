@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/43130164650)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/5f6cd863abd901d5f1794f773bda306aa610878b/mynotes/docs/comparisons/comparison37/43130164650/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/d13f4cc8db489fb0a7d73e557b172e3df845da58/mynotes/docs/comparisons/comparison37/43130164650/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/5f6cd863abd901d5f1794f773bda306aa610878b/mynotes/docs/comparisons/comparison37/43130164650/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/d13f4cc8db489fb0a7d73e557b172e3df845da58/mynotes/docs/comparisons/comparison37/43130164650/retention.json)
 
 light-portrait capture health: 0 complete original snapshot records; 0 capture errors. Capture-owner fields exist for 0 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -51,4 +51,4 @@ Zero paired attempts; provisioning failed.
   "capture_error": "('exec-out', 'screencap', '-p'): error: device offline\n"
 }
 
-[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/5f6cd863abd901d5f1794f773bda306aa610878b/mynotes/docs/comparisons/comparison37/43130164650/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/fatal.json)
+[Original provisioning failure](https://github.com/tarungittarun/TicTic/blob/d13f4cc8db489fb0a7d73e557b172e3df845da58/mynotes/docs/comparisons/comparison37/43130164650/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/fatal.json)

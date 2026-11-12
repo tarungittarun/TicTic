@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42617793054 43083262273 43086479017 43099110149 43101240889'
+      SOURCE_RUNS: '42617793054 43083262273 43086479017 43099110149 43101240889 43130164650'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -49,6 +49,12 @@ jobs:
           run-id: 43101240889
           name: comparison37-dark-landscape-guest-loss-diagnostic
           path: /tmp/comparison37-originals/43101240889
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43130164650
+          name: comparison37-dark-landscape-guest-loss-diagnostic
+          path: /tmp/comparison37-originals/43130164650
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}

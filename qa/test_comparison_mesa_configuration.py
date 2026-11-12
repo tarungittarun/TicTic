@@ -36,7 +36,7 @@ class MesaConfigurationTests(unittest.TestCase):
                 self.assertIn("echo 'DISPLAY=:99'", step['run'])
                 self.assertIn("assert not d['whole_module_acceptance'] and not d['physical_acceptance']", text)
 
-    def test_guest_loss_control_uses_explicit_swiftshader_without_ptrace_overhead(self):
+    def test_guest_loss_control_matches_software_host_grid_without_ptrace_overhead(self):
         text = (ROOT / '.github/workflows/notes-comparison37-guest-loss-diagnostic.yml').read_text()
         workflow = yaml.safe_load(text)
         job = workflow['jobs']['diagnose']
@@ -44,14 +44,14 @@ class MesaConfigurationTests(unittest.TestCase):
         self.assertEqual(env['COMPARISON_PROFILE'], 'dark-landscape')
         self.assertEqual(env['COMPARISON_RANGE'], '31-37')
         self.assertEqual(env['COMPARISON_ORIENTATION'], 'landscape')
-        self.assertNotIn('LIBGL_ALWAYS_SOFTWARE', env)
+        self.assertEqual(env['LIBGL_ALWAYS_SOFTWARE'], '1')
         self.assertEqual(env['COMPARISON_CAPTURE_POLICY'], 'adb_only')
         self.assertNotIn('COMPARISON_TRACE_EMULATOR_EXIT', env)
         self.assertNotIn('COMPARISON_TRACE_CODE_STACKS', env)
         emulator = next(step for step in job['steps'] if step.get('uses', '').startswith('ReactiveCircus/android-emulator-runner@'))
         self.assertEqual(emulator['with']['emulator-build'], 16428233)
-        self.assertIn('-gpu swiftshader_indirect ', emulator['with']['emulator-options'])
-        self.assertNotIn('-gpu host', emulator['with']['emulator-options'])
+        self.assertIn('-gpu host ', emulator['with']['emulator-options'])
+        self.assertNotIn('-gpu swiftshader_indirect', emulator['with']['emulator-options'])
         self.assertIn('run_with_host_diagnostics.py', emulator['with']['script'])
         self.assertTrue(any(step.get('if') == 'always()' and step.get('uses', '').startswith('actions/upload-artifact@') for step in job['steps']))
         self.assertTrue(any(step.get('if') == 'always()' and step.get('uses', '').startswith('actions/upload-artifact@') for step in job['steps']))

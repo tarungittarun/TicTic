@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      SOURCE_RUNS: '42617793054 43083262273 43086479017 43099110149'
+      SOURCE_RUNS: '42617793054 43083262273 43086479017 43099110149 43101240889'
       GH_TOKEN: ${{ github.token }}
       EVIDENCE_ROOT: mynotes/docs/comparisons/comparison37
     steps:
@@ -23,19 +23,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install PyYAML==6.0.3 Pillow==11.3.0 reportlab==4.4.4 PyMuPDF==1.26.7 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1
-      - name: Read actual completed job outcomes, never infer coverage from workflow conclusion
-        run: |
-          python - <<'PY'
-          import os,json,subprocess,pathlib
-          pins={'42617793054':'e88f4be2343147c8f19f9f4dfc3b769bf76ecf05','43083262273':'e38403dd03e29799cfd8022adb9e5e460f755264','43086479017':'ef14395d8e75e9f482b0bfb71a061b75ac5eb8f2','43099110149':'8d86e50aff85bad57ccae9da04516fb7dc87ce2e'}
-          pathlib.Path('/tmp/comparison37-runs').mkdir()
-          for run in os.environ['SOURCE_RUNS'].split():
-              result=json.loads(subprocess.check_output(['gh','run','view',run,'--json','databaseId,headSha,status,conclusion,url,jobs']))
-              assert result['status']=='completed','No pending execution may be published as final evidence'
-              assert result['headSha']==pins[run]
-              result['artifacts']=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/'+run+'/artifacts']))
-              pathlib.Path('/tmp/comparison37-runs',run+'.json').write_text(json.dumps(result,indent=2))
-          PY
+      - name: Read actual completed job outcomes with bounded GitHub API retries
+        run: python mynotes/tools/comparisons/retained_run_metadata.py --output-dir /tmp/comparison37-runs $SOURCE_RUNS
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}
@@ -54,6 +43,12 @@ jobs:
           run-id: 43099110149
           name: comparison37-dark-landscape-guest-loss-diagnostic
           path: /tmp/comparison37-originals/43099110149
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43101240889
+          name: comparison37-dark-landscape-guest-loss-diagnostic
+          path: /tmp/comparison37-originals/43101240889
       - uses: actions/download-artifact@v8.0.2
         with:
           github-token: ${{ github.token }}

@@ -4,24 +4,28 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import subprocess
+
+from github_api_retry import gh_json, run_gh
 
 
 def collect(run, output):
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
-    metadata=json.loads(subprocess.check_output(['gh','run','view',str(run),'--json','databaseId,headSha,status,conclusion,url,jobs']))
+    metadata=gh_json(['run','view',str(run),'--json','databaseId,headSha,status,conclusion,url,jobs'])
     if metadata['status']!='completed':raise ValueError('Only completed original logs can be retained')
     files=[]
     for job in metadata['jobs']:
         endpoint='repos/tarungittarun/TicTic/actions/jobs/'+str(job['databaseId'])+'/logs'
         receipt={'job':job['databaseId'],'name':job['name'],'endpoint':'https://api.github.com/'+endpoint}
         try:
-            response=subprocess.run(['gh','api',endpoint],capture_output=True,timeout=120)
+            response, attempts = run_gh(['api',endpoint],timeout=120)
+            receipt['transport_attempts']=attempts
             # New gh versions reject raw ANSI-bearing job logs, even when
             # captured to a pipe. Opt in only for this exact refusal; save the
             # bytes to a file, never replay raw terminal controls.
             if response.returncode and b'pass --allow-escape-sequences' in response.stderr:
-                response=subprocess.run(['gh','api',endpoint,'--allow-escape-sequences'],capture_output=True,timeout=120)
+                response, retry_attempts = run_gh(
+                    ['api',endpoint,'--allow-escape-sequences'],timeout=120)
+                receipt['transport_attempts'] += retry_attempts
                 receipt['raw_escape_preserving_retry']=True
 
             if response.returncode:

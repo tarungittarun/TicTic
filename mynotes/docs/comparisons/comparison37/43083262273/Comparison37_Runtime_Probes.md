@@ -8,9 +8,9 @@ READ FIRST: runtime page inspection is not a functional pass,74 attempt records 
 
 [Exact Actions run, source and job outcomes](https://github.com/tarungittarun/TicTic/actions/runs/43083262273)
 
-[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/summary.json)
+[Machine-readable coverage and limitations](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/summary.json)
 
-[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/retention.json)
+[Original-file SHA256 manifest](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/retention.json)
 
 light-portrait capture health: 0 complete original snapshot records; 0 capture errors. Capture-owner fields exist for 0 records. Zero owner fields in older originals means unrecorded, not that no app frames exist.
 
@@ -400,9 +400,9 @@ mynotes — interaction_observed. Actual bounded check: Local summary surface on
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X31.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X31.png)
 
 obsidian — blocked. Actual bounded check: No matching installed core command established for summari; not proof of feature absence
 
@@ -410,9 +410,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X31.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X31.png)
 
 No whole-family acceptance. Remaining: Verify each sentence comes from the source, essential cautions are not lost and limits are clear. No summary-quality test was executed in this report.
 
@@ -424,9 +424,9 @@ mynotes — interaction_observed. Actual bounded check: Named native controls op
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X32.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X32.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -434,9 +434,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X32.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X32.png)
 
 No whole-family acceptance. Remaining: Verify opt-out, readable levels/time range, explicit delete confirmation and exported content minimisation. Security of all native dependencies was not certified here.
 
@@ -448,9 +448,9 @@ mynotes — diagnostic_only. Actual bounded check: No verified outcome
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X33.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X33.png)
 
 obsidian — diagnostic_only. Actual bounded check: No verified outcome
 
@@ -458,9 +458,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X33.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X33.png)
 
 No whole-family acceptance. Remaining: Collect touch-to-visible timings, frame trace, dropped frames, memory and exact failure logs. Distinguish timeouts/socket failures from app crashes and do not publish a fabricated global score.
 
@@ -472,9 +472,9 @@ mynotes — counterpart_not_established. Actual bounded check: Requested counter
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X34.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X34.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -482,9 +482,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X34.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X34.png)
 
 No whole-family acceptance. Remaining: Verify reversible configuration and a stable default note workflow. No community code was installed or executed; unknown plugins and future modules are outside this pinned-version inventory.
 
@@ -496,9 +496,9 @@ mynotes — counterpart_not_established. Actual bounded check: Requested counter
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X35.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X35.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -506,9 +506,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X35.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X35.png)
 
 No whole-family acceptance. Remaining: No login, purchase, upload or publishing was performed. Conflict resolution, encryption, recovery and cost/value remain untested; an entry screen is not a passed sync task.
 
@@ -520,9 +520,9 @@ mynotes — counterpart_not_established. Actual bounded check: Requested counter
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X36.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X36.png)
 
 obsidian — blocked. Actual bounded check: No matching installed core command established for slides; not proof of feature absence
 
@@ -530,9 +530,9 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X36.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X36.png)
 
 No whole-family acceptance. Remaining: Verify every slide, media, controls and return location. Obsidian landscape was not qualified by its retained audit; no physical presentation run occurred here.
 
@@ -544,9 +544,9 @@ mynotes — interaction_observed. Actual bounded check: Named native controls op
 
 Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planned orientation is not accepted when the original image disagrees.
 
-[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[mynotes original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X37.png)
+[mynotes original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/mynotes-PLAN-X37.png)
 
 obsidian — interaction_observed. Actual bounded check: Official settings API navigation; actual visible surface retained. Requested tab is not presumed reached without subsequent evidence review.
 
@@ -554,8 +554,8 @@ Original PNG profile: {"width": 1920, "height": 1080, "landscape": true}; planne
 
 Actual WebView profile observation: {"dark": true, "landscape": true, "width": 640, "height": 360}; failed profile assertions remain blocked, never a landscape/theme pass.
 
-[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
+[obsidian original exact result record](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/modules.json)
 
-[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/584d98a327b6c2eaa26b8894e2d514fca392e859/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X37.png)
+[obsidian original screenshot](https://github.com/tarungittarun/TicTic/blob/c72b908c114c24c0c50011083fab7c30214c1523/mynotes/docs/comparisons/comparison37/43083262273/comparison37-dark-landscape-guest-loss-diagnostic/comparison37-evidence/obsidian-PLAN-X37.png)
 
 No whole-family acceptance. Remaining: Observe whether they can explain the result in their own words. Do not substitute long notices or a generated guide for successful comprehension.

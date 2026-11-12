@@ -38,7 +38,26 @@ def qemu_process_status(pid, proc_root=Path('/proc')):
     return {'state': 'running', 'running': True, 'terminated': False}
 
 
-def collect_host(output):
+def discover_qemu_pid():
+    """Observe only owned QEMU PIDs; never inspect command lines or environments."""
+    try:
+        result = subprocess.run(['ps', '-eo', 'pid=,uid=,comm='], capture_output=True,
+                                text=True, timeout=5)
+        if result.returncode:
+            return None
+        pids = []
+        for line in result.stdout.splitlines():
+            fields = line.split()
+            if (len(fields) == 3 and fields[0].isdigit() and fields[1].isdigit()
+                    and int(fields[1]) == os.getuid()
+                    and fields[2].startswith('qemu-system')):
+                pids.append(int(fields[0]))
+        return pids[0] if len(pids) == 1 else None
+    except Exception:
+        return None
+
+
+def collect_host(output, qemu_pid_hint=None):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     from emulator_crash_metadata import collect
@@ -49,11 +68,16 @@ def collect_host(output):
             trace_receipt = json.loads(receipt_path.read_text())
     except (OSError, ValueError):
         trace_receipt = {}
-    qemu_pid = trace_receipt.get('pid')
+    traced_qemu_pid = trace_receipt.get('pid')
+    qemu_pid = traced_qemu_pid if traced_qemu_pid is not None else qemu_pid_hint
     qemu_status = qemu_process_status(qemu_pid)
     trace_ended_before_harness = (
         trace_receipt.get('stopped_by_harness') is False
         and trace_receipt.get('returncode_before_harness_stop') is not None
+    ) if traced_qemu_pid is not None else None
+    qemu_identity_source = (
+        'trace_receipt' if traced_qemu_pid is not None else
+        'preflight_owned_qemu_scan' if qemu_pid_hint is not None else 'unavailable'
     )
     apport_metadata = {'wait_attempted': False, 'waited_seconds': 0,
                        'qemu_report_count': 0, 'reports': [],
@@ -76,6 +100,7 @@ def collect_host(output):
     data = {
         'scope': 'Public CI host diagnostics; not app fault attribution', 'proc': {},
         'qemu_process': {'pid': qemu_pid, **qemu_status,
+                         'identity_source': qemu_identity_source,
                          'trace_ended_before_harness': trace_ended_before_harness,
                          'exit_confirmed_for_apport_wait': qemu_exit_confirmed},
         'emulator_crash_metadata': collect(),
@@ -101,11 +126,13 @@ def collect_host(output):
 
 def main():
     tracer = None
+    qemu_pid_hint = discover_qemu_pid()
     try:
         if os.environ.get('COMPARISON_TRACE_EMULATOR_EXIT') == 'yes':
             from emulator_exit_trace import ExitTracer
             tracer = ExitTracer(Path('comparison37-evidence'))
             tracer.start()
+            qemu_pid_hint = tracer.receipt.get('pid') or qemu_pid_hint
         runpy.run_path(str(Path(__file__).with_name('paired_modules37.py')), run_name='__main__')
         if os.environ.get('COMPARISON_GUEST_LOSS_REPLAY') == 'yes':
             runpy.run_path(str(Path(__file__).with_name('guest_loss_lifecycle_replay.py')),
@@ -121,7 +148,7 @@ def main():
             if tracer is not None:
                 tracer.stop()
         finally:
-            collect_host(Path('comparison37-evidence'))
+            collect_host(Path('comparison37-evidence'), qemu_pid_hint=qemu_pid_hint)
 
 
 if __name__ == '__main__':

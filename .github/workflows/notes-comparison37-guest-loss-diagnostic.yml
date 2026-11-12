@@ -1,6 +1,6 @@
-# Repeat the observed dark-landscape X33 cold-start sequence with explicit SwiftShader.
-# This controls the observed host gfxstream SIGSEGV; bounded diagnostics, not acceptance.
-name: Comparison37 guest-loss control; SwiftShader QEMU/Apport diagnostics
+# Reproduce the guest-loss trigger on explicit SwiftShader without ptrace overhead.
+# QEMU still SIGSEGVed under SwiftShader with strace attached; isolate the tracer next.
+name: Comparison37 guest-loss control; untraced SwiftShader QEMU diagnostics
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -26,8 +26,6 @@ jobs:
       COMPARISON_PROFILE: dark-landscape
       COMPARISON_NIGHT: 'yes'
       COMPARISON_ORIENTATION: landscape
-      COMPARISON_TRACE_EMULATOR_EXIT: 'yes'
-      COMPARISON_TRACE_CODE_STACKS: 'yes'
       COMPARISON_GUEST_LOSS_REPLAY: 'yes'
       COMPARISON_GUEST_LOSS_REPLAY_CYCLES: '20'
       COMPARISON_WAIT_FOR_CRASH_REPORT: 'yes'
@@ -73,7 +71,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends libpulse0 strace
           bash mynotes/tools/ci/use_installed_emulator.sh
           sudo -n strace --version
-      - name: Cold-start replay on SwiftShader (host-renderer SIGSEGV control)
+      - name: Reproduce on verified SwiftShader without ptrace instrumentation
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           emulator-build: 16428233

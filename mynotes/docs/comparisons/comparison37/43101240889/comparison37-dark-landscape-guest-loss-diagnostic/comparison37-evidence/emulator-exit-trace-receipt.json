@@ -1,0 +1,39 @@
+{
+  "scope": "Host emulator exit/signal diagnostics only; not app fault attribution",
+  "enabled": true,
+  "syscalls": [
+    "exit",
+    "exit_group"
+  ],
+  "symbolic_code_stacks_only": true,
+  "signal_identity_scope": "Fatal traced-signal PID plus sanitized owned /proc identity only; no arguments, environment, or memory",
+  "raw_memory_dumped": false,
+  "environment_collected": false,
+  "matching_process_count": 1,
+  "pid": 3777,
+  "tracer_early_returncode": null,
+  "returncode_before_harness_stop": null,
+  "stopped_by_harness": true,
+  "returncode_after_harness_stop": -15,
+  "signal_process_identities": [
+    {
+      "trace_pid": 3966,
+      "trace_timestamp": "1794432398.618682",
+      "signal": "SIGSEGV",
+      "signal_code": "SEGV_MAPERR",
+      "process_identity": {
+        "pid": 3966,
+        "thread_group_pid": 3777,
+        "parent_pid": 1,
+        "state": "D",
+        "comm": "RenderThread",
+        "executable_basename": "qemu-system-x86_64-headless",
+        "in_qemu_thread_group": true,
+        "command_line_read": false,
+        "environment_read": false,
+        "memory_read": false
+      }
+    }
+  ],
+  "signal_process_identity_events_dropped": 0
+}

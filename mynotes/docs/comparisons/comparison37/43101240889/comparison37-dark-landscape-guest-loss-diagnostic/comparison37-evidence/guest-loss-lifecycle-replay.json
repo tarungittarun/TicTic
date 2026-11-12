@@ -1,0 +1,235 @@
+{
+  "schema": 1,
+  "scope": "Bounded QEMU/ADB cold-start reliability replay of the prior X33 sequence; not app acceptance.",
+  "source_run": "42617793054",
+  "selected_range": "31-37",
+  "cycle_count_requested": 20,
+  "cold_starts_per_app": 60,
+  "app_order_per_cycle": [
+    "mynotes",
+    "obsidian"
+  ],
+  "whole_module_acceptance": false,
+  "requested_task_acceptance": false,
+  "physical_acceptance": false,
+  "qemu_pid_change_observed": false,
+  "guest_reboot_observed": false,
+  "guest_boot_id_stable": true,
+  "samples": [
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "samples": [
+        {
+          "repeat": 1,
+          "android_total_time_ms": 926,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 2,
+          "android_total_time_ms": 1845,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 3,
+          "android_total_time_ms": 1549,
+          "launch_state": "cold"
+        }
+      ],
+      "capture": {
+        "id": "mynotes-REPLAY-01-mynotes",
+        "image": "guest-loss-replay-captures/mynotes-REPLAY-01-mynotes.png",
+        "accessibility_tree": "guest-loss-replay-captures/mynotes-REPLAY-01-mynotes.xml"
+      },
+      "requested_task_acceptance": false
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "samples": [
+        {
+          "repeat": 1,
+          "android_total_time_ms": 2133,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 2,
+          "android_total_time_ms": 2689,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 3,
+          "android_total_time_ms": 2376,
+          "launch_state": "cold"
+        }
+      ],
+      "capture": {
+        "id": "obsidian-REPLAY-01-obsidian",
+        "image": "guest-loss-replay-captures/obsidian-REPLAY-01-obsidian.png",
+        "accessibility_tree": "guest-loss-replay-captures/obsidian-REPLAY-01-obsidian.xml"
+      },
+      "requested_task_acceptance": false
+    },
+    {
+      "app": "mynotes",
+      "cycle": 2,
+      "samples": [
+        {
+          "repeat": 1,
+          "android_total_time_ms": 1074,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 2,
+          "android_total_time_ms": 1263,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 3,
+          "android_total_time_ms": 1085,
+          "launch_state": "cold"
+        }
+      ],
+      "capture": {
+        "id": "mynotes-REPLAY-02-mynotes",
+        "image": "guest-loss-replay-captures/mynotes-REPLAY-02-mynotes.png",
+        "accessibility_tree": "guest-loss-replay-captures/mynotes-REPLAY-02-mynotes.xml"
+      },
+      "requested_task_acceptance": false
+    }
+  ],
+  "events": [
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:25:25.873547+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 926,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:25:26.912800+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:25:30.912843+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1845,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:25:33.199089+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:25:37.199182+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1549,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:25:38.871120+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:25:45.220602+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2133,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:25:47.483851+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:25:51.483946+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2689,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:25:54.383367+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:25:58.383456+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2376,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:01.058014+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 2,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:26:07.551596+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1074,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:08.732228+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 2,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:26:12.732320+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1263,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:14.066270+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 2,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:26:18.066366+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1085,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:19.521713+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 2,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:26:25.889630+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2281,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:28.297035+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 2,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:26:32.297124+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1930,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:26:34.423937+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 2,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:26:38.424030+00:00",
+      "stage": "cold_start"
+    }
+  ],
+  "qemu_pids_at_start": [
+    3777
+  ],
+  "started_at": "2026-11-11T21:25:25.793694+00:00",
+  "guest_boot_id_sha256": "37d947d7dfaa89fdd253d85d422a4a103fceccf3cb7b7f8851258de93cf49ec6",
+  "completed_groups": 3,
+  "current_qemu_pids": [
+    3777
+  ],
+  "status": "replay_interrupted",
+  "error_type": "TimeoutExpired",
+  "error_excerpt": "Command '['adb', 'shell', 'am', 'start', '-W', '-n', 'md.obsidian/.MainActivity']' timed out after 35 seconds",
+  "finished_at": "2026-11-11T21:27:13.663622+00:00",
+  "wall_elapsed_seconds": 107.88,
+  "raw_memory_or_environment_collected": false
+}

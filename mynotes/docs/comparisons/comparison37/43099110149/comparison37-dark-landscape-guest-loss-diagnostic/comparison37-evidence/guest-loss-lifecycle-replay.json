@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "scope": "Bounded QEMU/ADB cold-start reliability replay of the prior X33 sequence; not app acceptance.",
+  "source_run": "42617793054",
+  "selected_range": "31-37",
+  "cycle_count_requested": 20,
+  "cold_starts_per_app": 60,
+  "app_order_per_cycle": [
+    "mynotes",
+    "obsidian"
+  ],
+  "whole_module_acceptance": false,
+  "requested_task_acceptance": false,
+  "physical_acceptance": false,
+  "samples": [
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "samples": [
+        {
+          "repeat": 1,
+          "android_total_time_ms": 952,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 2,
+          "android_total_time_ms": 1591,
+          "launch_state": "cold"
+        },
+        {
+          "repeat": 3,
+          "android_total_time_ms": 1654,
+          "launch_state": "cold"
+        }
+      ],
+      "capture": "Original adb screenshot and accessibility tree after three cold starts",
+      "requested_task_acceptance": false
+    }
+  ],
+  "events": [
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:09:43.643909+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 952,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:09:44.817422+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:09:48.817528+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1591,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:09:50.640631+00:00"
+    },
+    {
+      "app": "mynotes",
+      "cycle": 1,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:09:54.640734+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 1654,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:09:56.676243+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 1,
+      "started_at": "2026-11-11T21:10:03.169468+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2369,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:10:05.765932+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 2,
+      "started_at": "2026-11-11T21:10:09.766041+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2535,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:10:12.628799+00:00"
+    },
+    {
+      "app": "obsidian",
+      "cycle": 1,
+      "repeat": 3,
+      "started_at": "2026-11-11T21:10:16.628906+00:00",
+      "stage": "cold_start",
+      "android_total_time_ms": 2404,
+      "launch_state": "cold",
+      "finished_at": "2026-11-11T21:10:19.447902+00:00"
+    }
+  ],
+  "qemu_pids_at_start": [
+    3853
+  ],
+  "started_at": "2026-11-11T21:09:43.537386+00:00",
+  "completed_groups": 1,
+  "current_qemu_pids": [
+    3853
+  ],
+  "status": "replay_interrupted",
+  "error_type": "RuntimeError",
+  "error_excerpt": "('shell', 'uiautomator', 'dump', '/sdcard/paired-window.xml'): ",
+  "finished_at": "2026-11-11T21:10:25.135586+00:00",
+  "wall_elapsed_seconds": 41.61,
+  "raw_memory_or_environment_collected": false
+}

@@ -36,8 +36,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install workflow parser
-        run: python3 -m pip install 'PyYAML==6.0.3'
+      - name: Install workflow and QA dependencies
+        run: python3 -m pip install 'PyYAML==6.0.3' 'Pillow==11.3.0'
       - name: Validate workflow topology and isolation
         run: python3 -m mynotes.tools.ci.workflow_guard
       - name: Fast MyNotes checks only

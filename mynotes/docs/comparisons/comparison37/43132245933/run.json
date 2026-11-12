@@ -1,0 +1,157 @@
+{
+  "conclusion": "failure",
+  "databaseId": 43132245933,
+  "headSha": "5e7cdf6fcddeb9d9ed9d4056eba0fb6f5c862618",
+  "jobs": [
+    {
+      "completedAt": "2026-11-12T01:14:03Z",
+      "conclusion": "failure",
+      "databaseId": 130898941166,
+      "name": "diagnose",
+      "startedAt": "2026-11-12T01:07:17Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-12T01:07:21Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-12T01:07:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:23Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v5",
+          "number": 2,
+          "startedAt": "2026-11-12T01:07:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:23Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-11-12T01:07:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:28Z",
+          "conclusion": "success",
+          "name": "Run pip install websocket-client==1.8.0 Pillow==11.3.0 reportlab==4.4.4 python-docx==1.2.0 python-pptx==1.0.2 odfpy==1.4.1",
+          "number": 4,
+          "startedAt": "2026-11-12T01:07:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:36Z",
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@v8.0.2",
+          "number": 5,
+          "startedAt": "2026-11-12T01:07:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:36Z",
+          "conclusion": "skipped",
+          "name": "Retry only a failed pinned-artifact transport",
+          "number": 6,
+          "startedAt": "2026-11-12T01:07:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:38Z",
+          "conclusion": "success",
+          "name": "Pin exact signed apps; no build, re-signing or public release",
+          "number": 7,
+          "startedAt": "2026-11-12T01:07:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:07:53Z",
+          "conclusion": "success",
+          "name": "Prepare emulator only",
+          "number": 8,
+          "startedAt": "2026-11-12T01:07:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:13:58Z",
+          "conclusion": "failure",
+          "name": "Reproduce on verified SwiftShader without ptrace instrumentation",
+          "number": 9,
+          "startedAt": "2026-11-12T01:07:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:13:58Z",
+          "conclusion": "success",
+          "name": "Summarize trace, replay, and original attempts without reclassifying a failure",
+          "number": 10,
+          "startedAt": "2026-11-12T01:13:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:14:00Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v7.0.2",
+          "number": 11,
+          "startedAt": "2026-11-12T01:13:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:14:00Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 21,
+          "startedAt": "2026-11-12T01:14:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:14:00Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v5",
+          "number": 22,
+          "startedAt": "2026-11-12T01:14:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-12T01:14:00Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-11-12T01:14:00Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/tarungittarun/TicTic/actions/runs/43132245933/job/130898941166"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/tarungittarun/TicTic/actions/runs/43132245933",
+  "artifacts": {
+    "total_count": 1,
+    "artifacts": [
+      {
+        "id": 13906855023,
+        "node_id": "MDg6QXJ0aWZhY3QxMzkwNjg1NTAyMw==",
+        "name": "comparison37-dark-landscape-guest-loss-diagnostic",
+        "size_in_bytes": 920626,
+        "url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13906855023",
+        "archive_download_url": "https://api.github.com/repos/tarungittarun/TicTic/actions/artifacts/13906855023/zip",
+        "expired": false,
+        "digest": "sha256:20eceee13b1fffa366152fe4e0164343338f5029d841ff016764787773d78bf1",
+        "created_at": "2026-11-12T01:14:00Z",
+        "updated_at": "2026-11-12T01:14:00Z",
+        "expires_at": "2026-12-12T01:13:59Z",
+        "workflow_run": {
+          "id": 43132245933,
+          "repository_id": 1419770802,
+          "head_repository_id": 1419770802,
+          "head_branch": "arena/3caca636-tictic",
+          "head_sha": "5e7cdf6fcddeb9d9ed9d4056eba0fb6f5c862618"
+        }
+      }
+    ]
+  }
+}

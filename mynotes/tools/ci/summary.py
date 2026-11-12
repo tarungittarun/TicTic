@@ -9,7 +9,7 @@ from mynotes.tools.ci.test_plan import build_plan,cases,lane_cases
 REQUIRED=['checks','inventory','lint','jvm','release-build','test-build','apk-audit','android']
 
 
-def evaluate(needs,evidence,plan):
+def evaluate(needs,evidence,plan,publish_requested=True):
     root=Path(evidence);errors=[];lines=['# MyNotes acceptance','', '| Gate | Outcome |','|---|---|']
     for name in REQUIRED+['publish']:
         outcome=needs.get(name,{}).get('result','missing')
@@ -24,8 +24,8 @@ def evaluate(needs,evidence,plan):
         eligible=audit['publish_eligible']
         if not isinstance(eligible,bool):raise ValueError('Invalid eligibility')
         reviewed=audit.get('ux_review_approved',True)
-        if not reviewed:errors.append('Manual rendered UX review pending; publication withheld')
-        expected_publication='success' if eligible and reviewed else 'skipped'
+        if publish_requested and not reviewed:errors.append('Manual rendered UX review pending; publication withheld')
+        expected_publication='success' if publish_requested and eligible and reviewed else 'skipped'
         if needs.get('publish',{}).get('result')!=expected_publication:errors.append('Publication did not match audited eligibility')
         # Artifact name isolates accepted-release from any later publication copies.
         lines+=['','## Tested official release',f"- `{audit['filename']}` — {audit['accepted_from']}",
@@ -56,7 +56,8 @@ def evaluate(needs,evidence,plan):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--evidence',required=True);args=p.parse_args()
-    ok,markdown=evaluate(json.loads(os.environ.get('NEEDS_JSON','{}')),args.evidence,build_plan())
+    publish_requested=os.environ.get('PUBLISH_REQUESTED','true').lower()=='true'
+    ok,markdown=evaluate(json.loads(os.environ.get('NEEDS_JSON','{}')),args.evidence,build_plan(),publish_requested=publish_requested)
     print(markdown)
     if not ok:annotate(markdown)
     else:

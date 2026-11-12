@@ -3,11 +3,22 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      # Publication qualification is deliberate: touch this workflow to request it.
-      # Refinement has its own nonpublishing workflow; avoid starting 21 duplicate emulators.
+      # Touch this workflow to run the latest build-and-test qualification.
+      # Publication and evidence pushes require separate explicit dispatch inputs.
       - '.github/workflows/notes-ci.yml'
       - '.github/actions/setup-mynotes/**'
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the audited APK after every gate passes
+        required: false
+        type: boolean
+        default: false
+      persist_ux_evidence:
+        description: Commit acceptance UX evidence to this branch
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -319,7 +330,12 @@ jobs:
   publish:
     name: Publish immutable version (all gates required)
     needs: [checks, inventory, lint, jvm, release-build, test-build, apk-audit, android]
-    if: github.ref == 'refs/heads/arena/3caca636-tictic' && needs.apk-audit.outputs.publish_eligible == 'true' && needs.apk-audit.outputs.ux_approved == 'true'
+    if: >-
+      github.ref == 'refs/heads/arena/3caca636-tictic' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.publish_release == true &&
+      needs.apk-audit.outputs.publish_eligible == 'true' &&
+      needs.apk-audit.outputs.ux_approved == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -371,10 +387,11 @@ jobs:
         if: always()
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
+          PUBLISH_REQUESTED: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
         run: python3 -m mynotes.tools.ci.summary --evidence all-evidence
 
       - name: Persist bounded synthetic rendered proof even when qualification fails
-        if: always() && github.ref == 'refs/heads/arena/3caca636-tictic'
+        if: always() && github.ref == 'refs/heads/arena/3caca636-tictic' && github.event_name == 'workflow_dispatch' && inputs.persist_ux_evidence == true
         run: |
           set -euo pipefail
           python3 -m mynotes.tools.ci.persist_ux --evidence all-evidence

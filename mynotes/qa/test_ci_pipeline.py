@@ -142,6 +142,17 @@ class SummaryGate(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             needs,plan=self.fixture(d);ok,text=evaluate(needs,d,plan)
             self.assertTrue(ok,text);self.assertIn('separate from debug',text)
+    def test_nonpublishing_qualification_does_not_require_release_approval(self):
+        with tempfile.TemporaryDirectory() as d:
+            needs,plan=self.fixture(d)
+            audit=Path(d)/'release/audit.json'
+            data=json.loads(audit.read_text());data.update(publish_eligible=True,ux_review_approved=False)
+            audit.write_text(json.dumps(data))
+            ok,text=evaluate(needs,d,plan,publish_requested=False)
+            self.assertTrue(ok,text)
+            self.assertIn('| publish | skipped |',text)
+            self.assertNotIn('Manual rendered UX review pending',text)
+            self.assertFalse(evaluate(needs,d,plan,publish_requested=True)[0])
     def test_skipped_gate_failed_publish_or_wrong_installed_apk_rejected(self):
         for change in ['gate','publish','hash','missing','methods','source']:
             with tempfile.TemporaryDirectory() as d:

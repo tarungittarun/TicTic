@@ -13,6 +13,7 @@ RUN_PINS = {
     "43099110149": "8d86e50aff85bad57ccae9da04516fb7dc87ce2e",
     "43101240889": "496fce9d6416782b4332924e23c91bd2cd3edc85",
     "43130164650": "b475dfc6b3764cacf1f00dc2f4b616405950c29a",
+    "43132245933": "5e7cdf6fcddeb9d9ed9d4056eba0fb6f5c862618",
 }
 REPOSITORY = "tarungittarun/TicTic"
 

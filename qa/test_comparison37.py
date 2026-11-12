@@ -105,7 +105,7 @@ class PairedModuleComparisonTest(unittest.TestCase):
     def test_retainer_pins_and_downloads_the_traced_and_full_parallel_cohorts(self):
         path=Path('.github/workflows/notes-comparison37-retain.yml');text=path.read_text()
         workflow=yaml.safe_load(text);job=workflow['jobs']['retain']
-        self.assertEqual(job['env']['SOURCE_RUNS'],'42617793054 43083262273 43086479017 43099110149 43101240889 43130164650')
+        self.assertEqual(job['env']['SOURCE_RUNS'],'42617793054 43083262273 43086479017 43099110149 43101240889 43130164650 43132245933')
         pins=Path('mynotes/tools/comparisons/retained_run_metadata.py').read_text()
         self.assertIn('retained_run_metadata.py --output-dir /tmp/comparison37-runs $SOURCE_RUNS',text)
         self.assertIn('"43083262273": "e38403dd03e29799cfd8022adb9e5e460f755264"',pins)
@@ -113,11 +113,13 @@ class PairedModuleComparisonTest(unittest.TestCase):
         self.assertIn('"43099110149": "8d86e50aff85bad57ccae9da04516fb7dc87ce2e"',pins)
         self.assertIn('"43101240889": "496fce9d6416782b4332924e23c91bd2cd3edc85"',pins)
         self.assertIn('"43130164650": "b475dfc6b3764cacf1f00dc2f4b616405950c29a"',pins)
+        self.assertIn('"43132245933": "5e7cdf6fcddeb9d9ed9d4056eba0fb6f5c862618"',pins)
         downloads=[step for step in job['steps'] if step.get('uses')=='actions/download-artifact@v8.0.2']
         self.assertTrue(any(step.get('with',{}).get('run-id')==43083262273 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
         self.assertTrue(any(step.get('with',{}).get('run-id')==43099110149 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
         self.assertTrue(any(step.get('with',{}).get('run-id')==43101240889 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
         self.assertTrue(any(step.get('with',{}).get('run-id')==43130164650 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
+        self.assertTrue(any(step.get('with',{}).get('run-id')==43132245933 and step.get('with',{}).get('name')=='comparison37-dark-landscape-guest-loss-diagnostic' for step in downloads))
         self.assertTrue(any(step.get('with',{}).get('run-id')==43086479017 and step.get('with',{}).get('pattern')=='comparison37-*' for step in downloads))
 
 

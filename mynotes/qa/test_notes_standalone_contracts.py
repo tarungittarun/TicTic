@@ -44,6 +44,7 @@ class NotesStandaloneContracts(unittest.TestCase):
 
         for task in [':notes-domain:test',':notes:assembleRelease',':notes:assembleDebug',':notes:assembleDebugAndroidTest']:
             self.assertIn(task,s)
+        self.assertIn('-PmoduleE2E',s)
         self.assertNotIn('tests.yml',s)
         self.assertNotIn(':app:assemble',s)
 

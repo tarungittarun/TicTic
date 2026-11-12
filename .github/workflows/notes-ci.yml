@@ -168,7 +168,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          sh gradlew --build-cache :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/notes-tests.log
+          sh gradlew --build-cache -PmoduleE2E :notes:assembleDebug :notes:assembleDebugAndroidTest --stacktrace 2>&1 | tee /tmp/notes-tests.log
       - name: Compiler diagnostics
         if: failure()
         run: python3 -m mynotes.tools.ci.results build --path /tmp/notes-tests.log

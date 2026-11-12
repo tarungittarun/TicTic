@@ -42,6 +42,31 @@ class EmulatorExitTraceTest(unittest.TestCase):
             '123 1.0 --- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_TKILL} ---',123))
         self.assertIsNone(module.signal_identity_from_trace_line('123 exit_group(0) = ?',123))
 
+    def test_qemu_termination_check_distinguishes_live_zombie_and_missing_processes(self):
+        module=load()
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);process=root/'41';process.mkdir()
+            (process/'comm').write_text('qemu-system-x86_64\n')
+            (process/'stat').write_text('41 (qemu-system-x86_64) Z 1 2 3\n')
+            self.assertTrue(module.qemu_process_terminated(41,root))
+            (process/'stat').write_text('41 (qemu-system-x86_64) S 1 2 3\n')
+            self.assertFalse(module.qemu_process_terminated(41,root))
+            self.assertTrue(module.qemu_process_terminated(42,root))
+        self.assertIsNone(module.qemu_process_terminated(None))
+
+    def test_naturally_drains_tracer_after_confirmed_qemu_exit_before_killing_it(self):
+        module=load()
+        with tempfile.TemporaryDirectory() as directory,patch.object(module.os,'killpg') as kill,patch.object(module,'qemu_process_terminated',return_value=True):
+            tracer=module.ExitTracer(directory);tracer.receipt['pid']=41
+            tracer.process=Mock(pid=99);tracer.process.poll.side_effect=[None,0,0]
+            tracer.stop()
+            tracer.process.wait.assert_called_once_with(timeout=2)
+            kill.assert_not_called()
+            receipt=json.loads((Path(directory)/'emulator-exit-trace-receipt.json').read_text())
+            self.assertFalse(receipt['stopped_by_harness'])
+            self.assertEqual(receipt['returncode_before_harness_stop'],0)
+            self.assertTrue(receipt['target_qemu_terminated_at_harness_stop'])
+
     def test_live_trace_watcher_records_only_sanitized_fatal_signal_events(self):
         module=load()
         with tempfile.TemporaryDirectory() as directory:
@@ -70,7 +95,7 @@ class EmulatorExitTraceTest(unittest.TestCase):
         module=load()
         with tempfile.TemporaryDirectory() as directory,patch.dict(module.os.environ,{'COMPARISON_TRACE_EMULATOR_EXIT':'yes'}),patch.object(module.os,'getuid',return_value=1001),patch.object(module.time,'sleep'):
             process=Mock(pid=99);process.poll.side_effect=[None,None,0]
-            with patch.object(module.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'41 1001 qemu-system-x86\n','')),patch.object(module.subprocess,'Popen',return_value=process) as spawn,patch.object(module.os,'killpg') as kill:
+            with patch.object(module.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'41 1001 qemu-system-x86\n','')),patch.object(module.subprocess,'Popen',return_value=process) as spawn,patch.object(module.os,'killpg') as kill,patch.object(module,'qemu_process_terminated',return_value=False):
                 tracer=module.ExitTracer(directory);tracer.start();tracer.stop()
             arguments=spawn.call_args.args[0]
             self.assertIn('trace=exit,exit_group,kill,tgkill',arguments)

@@ -1,6 +1,6 @@
-# Repeat the observed dark-landscape X33 cold-start sequence on one fresh guest.
-# Captures bounded QEMU signals and sanitized Apport stack metadata; not acceptance.
-name: Comparison37 guest-loss lifecycle replay; bounded QEMU and Apport metadata only
+# Repeat the observed dark-landscape X33 cold-start sequence with explicit SwiftShader.
+# This controls the observed host gfxstream SIGSEGV; bounded diagnostics, not acceptance.
+name: Comparison37 guest-loss control; SwiftShader QEMU/Apport diagnostics
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
       COMPARISON_CAPTURE_POLICY: adb_only
       COMPARISON_RANGE: '31-37'
       COMPARISON_PROFILE: dark-landscape
@@ -74,20 +73,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends libpulse0 strace
           bash mynotes/tools/ci/use_installed_emulator.sh
           sudo -n strace --version
-      - name: Prepare and identify host software OpenGL
-        run: |
-          if ! command -v Xvfb >/dev/null || ! command -v glxinfo >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y xvfb libgl1-mesa-dri mesa-utils
-          fi
-          Xvfb :99 -screen 0 1280x1024x24 > "$RUNNER_TEMP/comparison-xvfb.log" 2>&1 &
-          echo 'DISPLAY=:99' >> "$GITHUB_ENV"
-          for attempt in $(seq 1 30); do
-            if DISPLAY=:99 glxinfo -B > "$RUNNER_TEMP/comparison-glxinfo.txt" 2>&1; then break; fi
-            sleep 1
-          done
-          DISPLAY=:99 glxinfo -B
-      - uses: ReactiveCircus/android-emulator-runner@v2
+      - name: Cold-start replay on SwiftShader (host-renderer SIGSEGV control)
+        uses: ReactiveCircus/android-emulator-runner@v2
         with:
           emulator-build: 16428233
           api-level: 34
@@ -95,7 +82,7 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: false
-          emulator-options: -no-window -gpu host -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu swiftshader_indirect -memory 3072 -cores 2 -feature -Vulkan -noaudio -no-boot-anim -no-snapshot
           script: |
             python -m mynotes.tools.ci.offline_guest
             cp offline-guest-proof.json comparison37-evidence/
@@ -123,7 +110,8 @@ jobs:
                   print(name,json.dumps({key:data.get(key) for key in
                         ['pid','matching_process_count','not_started','tracer_early_returncode',
                          'returncode_before_harness_stop','returncode_after_harness_stop',
-                         'stopped_by_harness','signal_process_identities',
+                         'stopped_by_harness','target_qemu_terminated_at_harness_stop',
+                         'signal_process_identities',
                          'signal_process_identity_events_dropped']},sort_keys=True)[:5000])
               elif name=='modules.json':
                   data=json.loads(path.read_text()); rows=data.get('results',[])
@@ -134,6 +122,13 @@ jobs:
                         'qemu_process=',data.get('qemu_process'),
                         'crash_metadata=',data.get('emulator_crash_metadata'),
                         'apport_crash_metadata=',data.get('apport_crash_metadata'))
+              elif name=='guest-loss-lifecycle-replay.json':
+                  data=json.loads(path.read_text())
+                  fields=['status','error_type','error_excerpt','completed_groups',
+                          'qemu_pids_at_start','current_qemu_pids','qemu_pid_change_observed',
+                          'guest_reboot_observed','guest_loss_observed','guest_boot_id_stable',
+                          'identity_change_at_failure','wall_elapsed_seconds']
+                  print(name,json.dumps({key:data.get(key) for key in fields},sort_keys=True))
               else:
                   print(name,json.dumps(json.loads(path.read_text()),sort_keys=True)[:3000])
           PY

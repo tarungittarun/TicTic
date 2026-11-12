@@ -1,9 +1,15 @@
 """Emulator-runner lines are separate shells; diagnostics must share a process."""
 import importlib.util
+import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import types
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import yaml
+
 
 class HostFinallyTest(unittest.TestCase):
     def module(self):
@@ -21,6 +27,38 @@ class HostFinallyTest(unittest.TestCase):
         module=self.module()
         with patch.object(module.runpy,'run_path'),patch.object(module,'collect_host') as collect:
             self.assertEqual(module.main(),0);collect.assert_called_once()
+
+    def test_apport_wait_runs_when_proc_confirms_qemu_exit_even_if_tracer_cleanup_was_harness_owned(self):
+        module=self.module()
+        crash = types.ModuleType('emulator_crash_metadata')
+        crash.collect = Mock(return_value={'candidate_count': 0, 'reports': []})
+        apport = types.ModuleType('apport_crash_metadata')
+        apport.wait_for_reports = Mock(return_value={
+            'wait_attempted': True, 'waited_seconds': 3, 'qemu_report_count': 0,
+            'reports': [], 'raw_reports_retained': False, 'raw_cores_read': False,
+        })
+        with tempfile.TemporaryDirectory() as directory:
+            output=Path(directory)
+            (output/'emulator-exit-trace-receipt.json').write_text(json.dumps({
+                'pid': 123, 'stopped_by_harness': True,
+                'returncode_before_harness_stop': None,
+            }))
+            with patch.dict(sys.modules, {
+                    'emulator_crash_metadata': crash,
+                    'apport_crash_metadata': apport,
+                }), patch.dict(module.os.environ, {
+                    'COMPARISON_WAIT_FOR_CRASH_REPORT': 'yes',
+                    'COMPARISON_CRASH_REPORT_WAIT_SECONDS': '7',
+                }), patch.object(module, 'qemu_process_status', return_value={
+                    'state': 'zombie', 'running': False, 'terminated': True,
+                }), patch.object(module.subprocess, 'run', return_value=subprocess.CompletedProcess([],0,'','')):
+                module.collect_host(output)
+            host=json.loads((output/'host-after.json').read_text())
+        apport.wait_for_reports.assert_called_once()
+        self.assertEqual(apport.wait_for_reports.call_args.kwargs['timeout_seconds'],7)
+        self.assertFalse(host['qemu_process']['trace_ended_before_harness'])
+        self.assertTrue(host['qemu_process']['exit_confirmed_for_apport_wait'])
+        self.assertEqual(host['apport_crash_metadata']['wait_reason'],'bounded_post_exit_wait')
 
     def test_emulator_script_does_not_depend_on_cross_shell_variables_or_heredoc(self):
         workflow=yaml.safe_load(Path('.github/workflows/notes-comparison37-capture-isolation.yml').read_text())

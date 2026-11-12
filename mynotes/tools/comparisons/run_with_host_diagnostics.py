@@ -58,8 +58,9 @@ def collect_host(output):
     apport_metadata = {'wait_attempted': False, 'waited_seconds': 0,
                        'qemu_report_count': 0, 'reports': [],
                        'raw_reports_retained': False, 'raw_cores_read': False}
+    qemu_exit_confirmed = bool(qemu_pid is not None and qemu_status['terminated'])
     wait_enabled = os.environ.get('COMPARISON_WAIT_FOR_CRASH_REPORT') == 'yes'
-    if wait_enabled and qemu_status['terminated'] and trace_ended_before_harness:
+    if wait_enabled and qemu_exit_confirmed:
         from apport_crash_metadata import wait_for_reports
         try:
             limit = int(os.environ.get('COMPARISON_CRASH_REPORT_WAIT_SECONDS', '120'))
@@ -68,16 +69,15 @@ def collect_host(output):
         apport_metadata = wait_for_reports(Path('/var/crash'), timeout_seconds=limit)
     if not wait_enabled:
         apport_metadata['wait_reason'] = 'disabled_by_configuration'
-    elif not qemu_status['terminated']:
+    elif not qemu_exit_confirmed:
         apport_metadata['wait_reason'] = 'qemu_exit_not_confirmed'
-    elif not trace_ended_before_harness:
-        apport_metadata['wait_reason'] = 'tracer_not_ended_before_harness'
     else:
         apport_metadata['wait_reason'] = 'bounded_post_exit_wait'
     data = {
         'scope': 'Public CI host diagnostics; not app fault attribution', 'proc': {},
         'qemu_process': {'pid': qemu_pid, **qemu_status,
-                         'trace_ended_before_harness': trace_ended_before_harness},
+                         'trace_ended_before_harness': trace_ended_before_harness,
+                         'exit_confirmed_for_apport_wait': qemu_exit_confirmed},
         'emulator_crash_metadata': collect(),
         'apport_crash_metadata': apport_metadata,
     }

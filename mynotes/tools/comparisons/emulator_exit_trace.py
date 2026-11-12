@@ -99,6 +99,27 @@ def owned_qemu_pids(text, uid):
     return found
 
 
+def qemu_process_terminated(pid, proc_root=Path('/proc')):
+    """Return True only when the observed PID is gone, reused, or a zombie/dead QEMU."""
+    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0:
+        return None
+    process = Path(proc_root) / str(pid)
+    try:
+        comm = (process / 'comm').read_text().strip()
+        stat = (process / 'stat').read_text()
+    except FileNotFoundError:
+        return True
+    except OSError:
+        return None
+    if not comm.startswith('qemu-system'):
+        return True
+    closing_paren = stat.rfind(')')
+    fields = stat[closing_paren + 2:].split() if closing_paren >= 0 else []
+    if not fields:
+        return None
+    return fields[0] in {'Z', 'X'}
+
+
 class ExitTracer:
     def __init__(self, output):
         self.output = Path(output)
@@ -196,6 +217,16 @@ class ExitTracer:
         try:
             if self.process is not None:
                 before = self.process.poll()
+                target_terminated = qemu_process_terminated(self.receipt.get('pid'))
+                self.receipt['target_qemu_terminated_at_harness_stop'] = target_terminated
+                if before is None and target_terminated is True:
+                    # If QEMU has already exited, let strace drain its natural
+                    # exit status before stopping only the tracer's process group.
+                    try:
+                        self.process.wait(timeout=2)
+                    except subprocess.TimeoutExpired:
+                        pass
+                    before = self.process.poll()
                 self.receipt['returncode_before_harness_stop'] = before
                 self.receipt['stopped_by_harness'] = before is None
                 if before is None:

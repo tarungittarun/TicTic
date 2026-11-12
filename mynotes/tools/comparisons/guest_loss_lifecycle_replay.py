@@ -29,14 +29,22 @@ def now():
 
 
 def qemu_pids():
-    result = subprocess.run(["ps", "-eo", "pid=,uid=,comm="], capture_output=True,
+    """Return live owned QEMU PIDs; zombies/dead entries are not a surviving guest."""
+    result = subprocess.run(["ps", "-eo", "pid=,uid=,comm=,stat="], capture_output=True,
                             text=True, timeout=5)
     if result.returncode:
-        return []
-    return sorted(int(line.split()[0]) for line in result.stdout.splitlines()
-                  if len(line.split()) == 3 and line.split()[0].isdigit()
-                  and int(line.split()[1]) == os.getuid()
-                  and line.split()[2].startswith("qemu-system"))
+        return None
+    pids = []
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) != 4 or not fields[0].isdigit() or not fields[1].isdigit():
+            continue
+        if int(fields[1]) != os.getuid() or not fields[2].startswith("qemu-system"):
+            continue
+        if fields[3][:1] in {"Z", "X"}:
+            continue
+        pids.append(int(fields[0]))
+    return sorted(pids)
 
 
 def guest_identity_change(initial_qemu_pids, current_qemu_pids, initial_boot_id, current_boot_id):
@@ -45,6 +53,60 @@ def guest_identity_change(initial_qemu_pids, current_qemu_pids, initial_boot_id,
     if initial_boot_id != current_boot_id:
         return "android_guest_reboot"
     return None
+
+
+def record_guest_identity(result, initial_boot_id, current_qemu_pids=None):
+    """Record a live host/guest identity check without treating a zombie as alive."""
+    if current_qemu_pids is None:
+        try:
+            current_qemu_pids = qemu_pids()
+        except Exception as error:
+            result["qemu_identity_scan_error_type"] = type(error).__name__
+            current_qemu_pids = None
+    result["current_qemu_pids"] = current_qemu_pids
+    initial_qemu_pids = result.get("qemu_pids_at_start")
+    if current_qemu_pids is None:
+        result["qemu_pid_change_observed"] = None
+        result["guest_boot_id_stable"] = None
+        result["guest_identity_check_error"] = "qemu_process_scan_failed"
+        return "qemu_process_scan_failed"
+    if initial_qemu_pids is None:
+        result["qemu_pid_change_observed"] = None
+        result["guest_boot_id_stable"] = None
+        result["guest_identity_check_error"] = "initial_qemu_process_scan_failed"
+        return "initial_qemu_process_scan_failed"
+    if current_qemu_pids != initial_qemu_pids:
+        result["qemu_pid_change_observed"] = True
+        result["guest_boot_id_stable"] = None
+        result["guest_loss_observed"] = True
+        return "qemu_pid_change"
+    result["qemu_pid_change_observed"] = False
+    if initial_boot_id is None:
+        result["guest_boot_id_stable"] = None
+        return "guest_boot_id_unavailable"
+    try:
+        state = h.adb("get-state", timeout=10).decode(errors="replace").strip()
+        if state != "device":
+            raise RuntimeError("Android guest was not ready during identity check")
+        current_boot_id = h.adb(
+            "shell", "cat", "/proc/sys/kernel/random/boot_id", timeout=10,
+        ).decode(errors="replace").strip()
+        if not re.fullmatch(r"[0-9a-f-]{36}", current_boot_id):
+            raise RuntimeError("Android guest returned an invalid boot ID during identity check")
+    except Exception as error:
+        result["guest_boot_id_stable"] = None
+        result["guest_identity_check_error_type"] = type(error).__name__
+        result["guest_identity_check_error_excerpt"] = str(error)[:300]
+        return "guest_identity_unavailable"
+
+    change = guest_identity_change(
+        initial_qemu_pids, current_qemu_pids, initial_boot_id, current_boot_id,
+    )
+    result["guest_boot_id_stable"] = change is None
+    if change == "android_guest_reboot":
+        result["guest_reboot_observed"] = True
+        result["guest_loss_observed"] = True
+    return change
 
 
 def resolve_activity(package):
@@ -118,6 +180,7 @@ def main():
         "physical_acceptance": False,
         "qemu_pid_change_observed": False,
         "guest_reboot_observed": False,
+        "guest_loss_observed": False,
         "guest_boot_id_stable": None,
         "samples": [],
         "events": [],
@@ -125,12 +188,13 @@ def main():
         "started_at": now(),
     }
     observer = None
+    guest_boot_id = None
     try:
         state = h.adb("get-state", timeout=10).decode(errors="replace").strip()
         if state != "device":
             raise RuntimeError("Android guest not ready before replay")
-        if len(result["qemu_pids_at_start"]) != 1:
-            raise RuntimeError("Could not establish exactly one owned QEMU process at replay start")
+        if result["qemu_pids_at_start"] is None or len(result["qemu_pids_at_start"]) != 1:
+            raise RuntimeError("Could not establish exactly one live owned QEMU process at replay start")
         guest_boot_id = h.adb("shell", "cat", "/proc/sys/kernel/random/boot_id",
                               timeout=10).decode(errors="replace").strip()
         if not re.fullmatch(r"[0-9a-f-]{36}", guest_boot_id):
@@ -155,22 +219,13 @@ def main():
                     observer = Device()
                     if not observer.js("!!window.app?.vault"):
                         raise RuntimeError("Obsidian observer did not reconnect after cold starts")
-                result["current_qemu_pids"] = qemu_pids()
-                if result["current_qemu_pids"] != result["qemu_pids_at_start"]:
-                    identity_change = "qemu_pid_change"
-                else:
-                    current_boot_id = h.adb("shell", "cat", "/proc/sys/kernel/random/boot_id",
-                                            timeout=10).decode(errors="replace").strip()
-                    identity_change = guest_identity_change(
-                        result["qemu_pids_at_start"], result["current_qemu_pids"],
-                        guest_boot_id, current_boot_id)
+                identity_change = record_guest_identity(result, guest_boot_id)
                 if identity_change == "qemu_pid_change":
-                    result["qemu_pid_change_observed"] = True
-                    raise RuntimeError("Owned QEMU PID set changed during the replay")
-                result["guest_boot_id_stable"] = identity_change is None
+                    raise RuntimeError("Owned QEMU PID set changed or exited during the replay")
                 if identity_change == "android_guest_reboot":
-                    result["guest_reboot_observed"] = True
                     raise RuntimeError("Android guest boot ID changed during the replay")
+                if identity_change is not None:
+                    raise RuntimeError("Could not verify emulator and Android guest identity")
                 (OUT / "guest-loss-lifecycle-replay.json").write_text(json.dumps(result, indent=2))
 
         result["status"] = "completed_no_guest_loss_observed"
@@ -178,7 +233,9 @@ def main():
         result["status"] = "replay_interrupted"
         result["error_type"] = type(error).__name__
         result["error_excerpt"] = str(error)[:500]
-        result["current_qemu_pids"] = qemu_pids()
+        identity_change = record_guest_identity(result, guest_boot_id)
+        if identity_change is not None:
+            result["identity_change_at_failure"] = identity_change
         (OUT / "guest-loss-lifecycle-replay.json").write_text(json.dumps(result, indent=2))
         raise
     finally:
@@ -200,6 +257,7 @@ def main():
         "wall_elapsed_seconds": result["wall_elapsed_seconds"],
         "qemu_pid_change_observed": result["qemu_pid_change_observed"],
         "guest_reboot_observed": result["guest_reboot_observed"],
+        "guest_loss_observed": result["guest_loss_observed"],
         "guest_boot_id_stable": result["guest_boot_id_stable"],
         "whole_module_acceptance": False,
     }, sort_keys=True), flush=True)

@@ -2,7 +2,7 @@
 
 Open **this directory**, not the repository root, in Android Studio.
 
-Latest development: **0.20.0 (23), Find, clean checklist conversion and content names in Notes + rich Doc**. [Raw APK, exact qualification and limits](docs/NOTES-FIND-NAMES-DEVELOPMENT-HANDOFF.md) · [Find/names guide](docs/NOTES-FIND-NAMES-USER-GUIDE.md) · [rich Doc guide](docs/NOTES-AND-DOC-USER-GUIDE.md) · [job ledger](docs/NOTES-FIND-NAMES-AND-DOC-FOLLOWUP.md). Install over existing data; never uninstall/clear data. Back up recordings separately; do not downgrade schema8 data. All4 emulator/PDF profiles pass, including Android16; automation is not novice/physical-device/public-release approval.
+Current source candidate: **0.72.0 (72), awaiting GitHub build and focused Android qualification**. This candidate addresses large-text Library visibility and the image-text selection viewport. [Candidate72 scope and pending acceptance](docs/LARGE-TEXT-CANDIDATE72.md) · [historical candidate71 failures and limits](docs/full-qualification/Full_Qualification.md). No APK is claimed as built, qualified, or released yet; do not install an unverified candidate.
 
 - `app/`: standalone app.space.notes host (debug uses .debug).
 - `runtime/`: reusable Notes UI and private-storage repository.
@@ -34,10 +34,13 @@ entry points; implementation evidence is under mynotes/docs.
 
 ## Workflow policy (owner instruction)
 
-`.github/workflows/notes-ci.yml` requests broad publication qualification only on a deliberate
-workflow/setup-action change or explicit dispatch. The nonpublishing refinement workflow
-runs one build plus three native profiles on a deliberate workflow-file change. Reserve jobs
-first: the original24 are exhausted; a later10-job allowance has4 reserved/6 unreserved.
+`.github/workflows/notes-ci.yml` retains its broad multi-lane qualification trigger on deliberate
+workflow/setup-action changes or explicit dispatch; release publication still requires an explicit
+opt-in and every gate. Candidate72 uses the nonpublishing `.github/workflows/notes-improvement70.yml`
+workflow, source-scoped to the two changed runtime files, their focused instrumentation checks, and
+app version metadata. It installs Java/Android dependencies through the shared toolchain action,
+builds once, then runs four focused emulator profiles (including font scale 2.0). This workflow
+creates no release and commits no evidence.
 Documentation/evidence pushes use `[skip ci]`; no automatic spending of the remainder. `notes-model-audit.yml` separately inspects the official
 offline speech model only when that provenance workflow changes; it does not publish an app. Existing Android CI and Tests are paused here: automatic
 triggers removed and all jobs set to `if: ${{ false }}`. Their step definitions are

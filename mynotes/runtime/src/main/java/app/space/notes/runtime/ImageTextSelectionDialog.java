@@ -33,12 +33,19 @@ final class ImageTextSelectionDialog {
   preview.setMinHeight(d.dp(48));
   // Activity retains this dialog on rotation. Reflow existing views, never recreate
   // the selection, crop, callbacks or bitmap; window bounds also cover multi-window.
-  final int[] mode={-1,-1};root.reflow=(width,height)->{
-   if(width<=0 || height<=0)return;boolean wide=width>height;int next=wide?1:0;if(mode[0]==next && mode[1]==width)return;mode[0]=next;mode[1]=width;int sideWidth=Math.min(d.dp(240),Math.max(d.dp(176),width/3));
+  // Secondary count/preview/tools scroll in portrait, preserving preview space and
+  // keeping the primary text/image actions pinned outside that scroller.
+  final int[] mode={-1,-1,-1};root.reflow=(width,height)->{
+   if(width<=0 || height<=0)return;boolean wide=width>height;int next=wide?1:0;if(mode[0]==next && mode[1]==width && mode[2]==height)return;mode[0]=next;mode[1]=width;mode[2]=height;int sideWidth=Math.min(d.dp(240),Math.max(d.dp(176),width/3));
    body.setOrientation(wide?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL);
    view.setLayoutParams(wide?new LinearLayout.LayoutParams(0,-1,1):new LinearLayout.LayoutParams(-1,0,1));
    sidePanel.setLayoutParams(wide?new LinearLayout.LayoutParams(sideWidth,-1):new LinearLayout.LayoutParams(-1,-2));
-   side.setLayoutParams(wide?new LinearLayout.LayoutParams(-1,0,1):new LinearLayout.LayoutParams(-1,-2));
+   int pinnedPortraitHeight=d.dp(96); // two always-visible 48dp primary action rows
+   int topChrome=d.dp(136); // root insets, heading and single-line help, with large-text slack
+   int minimumImage=Math.round(height*.35f);
+   int secondaryHeight=Math.max(0,Math.min(d.dp(160),height-topChrome-pinnedPortraitHeight-minimumImage));
+   side.setVerticalScrollBarEnabled(true);side.setScrollbarFadingEnabled(false);
+   side.setLayoutParams(wide?new LinearLayout.LayoutParams(-1,0,1):new LinearLayout.LayoutParams(-1,secondaryHeight));
    tools.setOrientation(wide?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);actions.setOrientation(wide?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
    tools.setLayoutParams(new android.widget.FrameLayout.LayoutParams(wide?sideWidth:-2,-2));actions.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));extract.setLayoutParams(new LinearLayout.LayoutParams(wide?-1:0,d.dp(48),wide?0:1));keep.setLayoutParams(new LinearLayout.LayoutParams(wide?-1:0,d.dp(48),wide?0:1));
    help.setVisibility(wide?View.GONE:View.VISIBLE);info.setVisibility(wide?View.VISIBLE:View.GONE);

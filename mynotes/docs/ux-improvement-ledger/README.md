@@ -1,5 +1,7 @@
 # MyNotes improvement execution ledger
 
+**Current source follow-up:** candidate72 / 0.72.0 (code72) contains a code-only large-text UI pass for the previously recorded Library and image-selection viewport failures. GitHub build and focused Android qualification are pending; no finding is marked fixed. See [candidate72 scope and acceptance status](../LARGE-TEXT-CANDIDATE72.md). Candidate71 run history below remains historical and unchanged.
+
 **Owner request:** test the relevant thing in **both installed apps** before recording a comparative improvement. Cover pages, features, icons, presentation, layout, animation, efficiency, smoothness, timing and failure/recovery. Keep the evidence and use these stable items for later fixes.
 
 **This is a living execution record, not a claim that the whole app has been tested.** The previous comparison PDFs are historical visual/source audits. They are hypothesis inputs, not fresh paired-task results. Creating the initial ledger did not authorise app fixes. On 2026-11-06 the user explicitly authorised starting implementation; candidate70 changes now require separate changed-build qualification.
@@ -68,11 +70,13 @@ The ledger records failed provisioning separately from actual app sessions. The 
 
 - **Wave three (42220127426):** offline bootstrap verified before installation (three consecutive checks; shell unrooted to UID2000); initial/final default network `none`. Obsidian W01 independently passed exact editor/vault readback **before** the separate explicit API fixture setup. Visible S01 result title/passage assertions and native screenshot agree. No continuous packet capture or reliability guarantee; the earlier input failure remains unisolated. All three sessions' originals remain retained.
 
-## Implementation authorised — candidate71 current, candidate70 history
+## Implementation status — candidate71 history, candidate72 pending
 
-User requested applying fixes on 2026-11-06. IMP-0001 and IMP-0002 are implemented in `be8643bb9967ff5f3cda0093fdf89e5736703609`, **not yet accepted as fixed**. Changed-build JVM/lint and four-profile native results are tracked separately. No production APK is being published by this nonpublishing qualification. Existing baseline frames/source hashes and all failed attempts remain unchanged.
+User requested applying fixes on 2026-11-06. IMP-0001 and IMP-0002 were implemented in `be8643bb9967ff5f3cda0093fdf89e5736703609`, **not accepted as fully fixed**. Their candidate71 changed-build JVM/lint and four-profile native results are tracked separately. Existing baseline frames/source hashes and all failed attempts remain unchanged.
 
-**Current result:** candidate71 passed Actions build/lint, 366 JVM tests and exactly eight focused native methods per four profiles. See `implementations/42231478498/`. Candidate70 API26 failure and preflight/schema/retention corrections remain in the execution history. Both items are `implemented_partially_verified`: not closed or whole-feature/physical accepted. No public APK release or install-over qualification is implied.
+**Historical candidate71 result:** Actions build/lint, 366 JVM tests and exactly eight focused native methods per four profiles passed. See `implementations/42231478498/`. Candidate70 API26 failure and preflight/schema/retention corrections remain in the execution history. Both prior items are `implemented_partially_verified`: not closed or whole-feature/physical accepted. No public APK release or install-over qualification is implied.
+
+**Candidate72 result:** large-text Library and image-selection viewport source changes are now present in 0.72.0/code72. The source-scoped workflow is prepared but has not yet run; no candidate72 build or native result exists, and no finding is marked fixed.
 
 | New implementation term | Meaning |
 |---|---|

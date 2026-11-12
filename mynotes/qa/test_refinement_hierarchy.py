@@ -118,14 +118,22 @@ class RefinementHierarchyContracts(unittest.TestCase):
             self.assertIn(token, fault)
         self.assertNotIn('postOnAnimation', fault)
 
-    def test_expensive_workflows_do_not_trigger_from_incidental_app_edits(self):
+    def test_expensive_workflows_have_deliberate_source_scoped_triggers(self):
         import re
         workflow_root = ROOT.parent / '.github/workflows'
         for filename, expected in [
             ('notes-soak.yml', {'.github/workflows/notes-soak.yml'}),
             ('notes-ci.yml', {'.github/workflows/notes-ci.yml', '.github/actions/setup-mynotes/**'}),
+            ('notes-improvement70.yml', {
+                '.github/workflows/notes-improvement70.yml',
+                'mynotes/app/build.gradle',
+                'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java',
+                'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java',
+                'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java',
+                'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java',
+            }),
         ]:
             source = (workflow_root / filename).read_text()
-            block = source.split('paths:', 1)[1].split('workflow_dispatch:', 1)[0]
+            block = source.split('paths:', 1)[1].split('\njobs:', 1)[0]
             paths = set(re.findall(r"(?m)^\s+- '([^']+)'", block))
             self.assertEqual(expected, paths, filename)

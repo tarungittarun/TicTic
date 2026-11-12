@@ -1,15 +1,21 @@
-# Candidate71: retain API26 three-line failure; compact actual header/scroll padding instead of lowering the assertion.
-# Qualification correction: existing OfflineOcrTest imports require the opt-in instrumentation dependency; no assertion was run or weakened in first build.
-name: Candidate71 compact Format follow-up and search and formatting qualification
+# Candidate72: qualify large-text Library visibility and bounded image-selection preview on GitHub's pinned Android toolchain.
+# The workflow runs only for these related source inputs; publishing is not a job in this workflow.
+name: Candidate72 large-text Library and image-selection qualification
 on:
   push:
     branches: ['arena/3caca636-tictic']
-    paths: ['.github/workflows/notes-improvement70.yml']
+    paths:
+      - '.github/workflows/notes-improvement70.yml'
+      - 'mynotes/app/build.gradle'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java'
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: improvement71-${{ github.ref }}
+  group: candidate72-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   build:
@@ -22,14 +28,14 @@ jobs:
         working-directory: mynotes
         run: |
           set -o pipefail
-          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/improvement71-build.log
+          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/candidate72-build.log
       - name: Surface bounded compiler diagnostics
         if: failure()
-        run: python3 -m mynotes.tools.ci.results build --path /tmp/improvement71-build.log
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/candidate72-build.log
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: improvement71-build-evidence
+          name: candidate72-build-evidence
           path: |
             mynotes/domain/build/test-results
             mynotes/app/build/reports
@@ -37,7 +43,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: improvement71-test-apks
+          name: candidate72-test-apks
           path: |
             mynotes/app/build/outputs/apk/debug/notes-debug.apk
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
@@ -52,11 +58,11 @@ jobs:
       matrix:
         include:
           - {id: api36-portrait, api: 36, target: google_apis, font: '1.0', night: 'no', orientation: portrait}
-          - {id: api34-large, api: 34, target: google_apis, font: '1.5', night: 'no', orientation: portrait}
+          - {id: api34-large, api: 34, target: google_apis, font: '2.0', night: 'no', orientation: portrait}
           - {id: api34-landscape, api: 34, target: google_apis, font: '1.0', night: 'yes', orientation: landscape}
           - {id: api26-portrait, api: 26, target: default, font: '1.0', night: 'no', orientation: portrait}
     env:
-      CASES: app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest
+      CASES: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape,app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -65,7 +71,7 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: improvement71-test-apks
+          name: candidate72-test-apks
           path: improvement-apks
       - name: Prepare emulator
         run: |
@@ -96,7 +102,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: improvement71-${{ matrix.id }}
+          name: candidate72-${{ matrix.id }}
           path: |
             refinement-native*
             refinement-captures.tar

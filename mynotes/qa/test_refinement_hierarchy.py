@@ -129,6 +129,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
                 'mynotes/app/build.gradle',
                 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java',
                 'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java',
+                'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java',
             }),

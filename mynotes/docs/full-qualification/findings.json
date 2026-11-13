@@ -28,35 +28,35 @@
       "method": "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn",
       "profile": "API36 light portrait, shard1; app animation scale1",
       "observation": "A repeated actual Doc-to-Notes workspace creation journey could not find the named New document control after a swipe.",
-      "classification": "reproduced workspace creation/navigation failure; exclusive gesture, transition or fixture cause still not isolated",
-      "status": "reproduced_in_isolation_unresolved",
-      "next_test": "Capture the exact failed cycle and actual active workspace/card bounds after each real swipe, then distinguish unacknowledged navigation from a prematurely queried control. Preserve all repeated creation/content/IME assertions and protect fast Back/save safety.",
+      "classification": "The repeated workspace-navigation failure passes a changed-source, four-profile targeted retest; the exclusive cause of the original failure remains unisolated.",
+      "status": "targeted_candidate72_retest_passed_all_four_configured_emulator_profiles",
+      "next_test": "Keep the original failure and its unisolated exclusive mechanism distinct from this passing retest. Broader full-inventory and physical-device acceptance remain separate.",
       "source": "42277337133/full71-native-api36-light-portrait-s1/refinement-native.txt",
-      "retest": "Run42282354356, isolated unchanged method: 0/1; same Missing named control: New document failure with API36 app motion 1. Not merely explained away as a full-suite-only interaction."
+      "retest": "Changed-source Candidate72 run 43404767000 at commit 0f85176b704122cc785aef0273d9ff447cf4e7fe: build and all four configured native emulator profiles passed (API26 portrait 1.0, API34 portrait 2.0, API34 landscape 1.0, API36 portrait 1.0). The workflow selected this exact method on every profile. Each native job’s “Reject absent or partial assertion results” step passed; the verifier parses instrumentation outcomes and rejects missing, duplicate, unexpected, or failed methods. The journey repeats Notes/Doc navigation and creation, checks workspace/card state and IME readiness, and verifies each newly created item remains in its intended workspace after Back. It waits for persistedRevision to catch up without calling controller.flush, then reloads the repository and compares the saved note fields or Doc content fingerprint. This is a targeted emulator retest, not proof of the original exclusive root cause or physical-device acceptance."
     },
     {
       "id": "FQ-0004",
       "method": "app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape",
       "profile": "API34 dark portrait, font scale2.0, shard1",
       "observation": "The image preview occupied less than the existing required 35 percent of the dialog. A retained large-text screenshot from another selection journey also shows large fixed chrome, a relatively small image and an ellipsized Keep image action.",
-      "classification": "large-text layout regression; screenshot-reviewed, exact exclusive mechanism not isolated",
-      "status": "reproduced_in_isolated_large_text_probe_unfixed",
-      "next_test": "Implement a measured compact/scrollable secondary-control budget preserving system font scaling, both primary actions, all 48dp targets, the same selection/crop/bitmap and real geometry threshold. Require changed-build qualification before claiming fixed.",
+      "classification": "The Candidate72 large-text image-selection layout passes the changed-source targeted retest in the configured light-mode API34 portrait at font scale 2.0; the historical dark-mode profile was not repeated.",
+      "status": "targeted_candidate72_retest_passed_all_four_configured_emulator_profiles",
+      "next_test": "If exact theme parity with the historical dark-mode observation is required, rerun API34 portrait at font scale 2.0 with night mode enabled. Physical-device and broader full-inventory acceptance remain separate.",
       "source": "42277337133/full71-native-api34-large-dark-s1/refinement-native.txt",
       "image": "42277337133/full71-native-api34-large-dark-s1/captures/image-text-selection.png",
-      "retest": "Run42282354356: both unchanged large-text assertions failed again in a two-method probe at API34/dark/portrait/font 2.0/motion 0. Original numeric Settings result 168 total/112 visible and image-area 35-percent threshold were retained."
+      "retest": "Changed-source Candidate72 run 43404767000 at commit 0f85176b704122cc785aef0273d9ff447cf4e7fe: the selected selectionViewportRetainsUsefulAreaInPortraitAndLandscape method passed the exact-result gate on all four profiles, including API34 portrait at font scale 2.0 with night mode off; the historical dark-mode theme was not in this workflow matrix. The unchanged 35-percent minimum image-preview assertion passed; the large-text portrait assertions also require bounded secondary details, fully visible primary actions, 48dp targets, and unellipsized labels. Each profile’s “Reject absent or partial assertion results” gate passed. This is targeted emulator qualification, not physical-device acceptance."
     },
     {
       "id": "FQ-0005",
       "method": "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
       "profile": "API34 dark portrait, font scale2.0, shard1",
       "observation": "The final Settings touch row was only 112 pixels globally visible out of its 168-pixel row height. Settings remains last and Folders penultimate, but the initial large-text Library viewport clips the bottom of the final target.",
-      "classification": "large-text initial-menu layout regression; screenshot-reviewed, not proof Settings is impossible to reach by scrolling",
-      "status": "reproduced_in_isolated_large_text_probe_unfixed",
-      "next_test": "Reconcile actual scaled row/chrome measurement with the Library height cap without shrinking fonts/targets, changing Settings/Folders order, adding duplicate destinations or weakening the assertion.",
+      "classification": "The Candidate72 large-text initial-Library visibility condition passes the changed-source retest in the configured light-mode API34 portrait at font scale 2.0; the historical dark-mode profile was not repeated.",
+      "status": "targeted_candidate72_retest_passed_all_four_configured_emulator_profiles",
+      "next_test": "If exact theme parity with the historical dark-mode observation is required, rerun API34 portrait at font scale 2.0 with night mode enabled. Physical-device and broader full-inventory acceptance remain separate.",
       "source": "42277337133/full71-native-api34-large-dark-s1/refinement-native.txt",
       "image": "42277337133/full71-native-api34-large-dark-s0/captures/e2e-settings-library.png",
-      "retest": "Run42282354356: both unchanged large-text assertions failed again in a two-method probe at API34/dark/portrait/font 2.0/motion 0. Original numeric Settings result 168 total/112 visible and image-area 35-percent threshold were retained."
+      "retest": "Changed-source Candidate72 run 43404767000 at commit 0f85176b704122cc785aef0273d9ff447cf4e7fe: the selected wholeAppLibraryTraversalRecordsEachVisitedPage method passed the exact-result gate on all four profiles, including API34 portrait at font scale 2.0 with night mode off; the historical dark-mode theme was not in this workflow matrix. In portrait, the existing assertion requires the Settings row to be fully visible on initial Library presentation, with Settings last and Folders penultimate; the traversal then visits the selected Library destinations. Each profile’s “Reject absent or partial assertion results” gate passed. This is targeted emulator qualification, not physical-device acceptance."
     }
   ]
 }

@@ -1,0 +1,94 @@
+{
+  "run_id": 43404767000,
+  "run_url": "https://github.com/tarungittarun/TicTic/actions/runs/43404767000",
+  "workflow": "Candidate72 large-text Library and image-selection qualification",
+  "tested_commit": "0f85176b704122cc785aef0273d9ff447cf4e7fe",
+  "candidate": "0.72.0",
+  "version_code": 72,
+  "conclusion": "success",
+  "build_job": {
+    "id": 131816301949,
+    "conclusion": "success"
+  },
+  "native_profiles": [
+    {
+      "profile": "api26-portrait",
+      "api": 26,
+      "orientation": "portrait",
+      "font_scale": 1.0,
+      "night_mode": false,
+      "job_id": 131819235411,
+      "conclusion": "success",
+      "assertion_gate": "passed",
+      "artifact": {
+        "name": "candidate72-api26-portrait",
+        "id": 14027306878
+      }
+    },
+    {
+      "profile": "api34-large",
+      "api": 34,
+      "orientation": "portrait",
+      "font_scale": 2.0,
+      "night_mode": false,
+      "job_id": 131819235399,
+      "conclusion": "success",
+      "assertion_gate": "passed",
+      "artifact": {
+        "name": "candidate72-api34-large",
+        "id": 14027781058
+      }
+    },
+    {
+      "profile": "api34-landscape",
+      "api": 34,
+      "orientation": "landscape",
+      "font_scale": 1.0,
+      "night_mode": true,
+      "job_id": 131819235415,
+      "conclusion": "success",
+      "assertion_gate": "passed",
+      "artifact": {
+        "name": "candidate72-api34-landscape",
+        "id": 14027841014
+      }
+    },
+    {
+      "profile": "api36-portrait",
+      "api": 36,
+      "orientation": "portrait",
+      "font_scale": 1.0,
+      "night_mode": false,
+      "job_id": 131819235375,
+      "conclusion": "success",
+      "assertion_gate": "passed",
+      "artifact": {
+        "name": "candidate72-api36-portrait",
+        "id": 14027337714
+      }
+    }
+  ],
+  "workflow_test_selectors": [
+    "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
+    "app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape",
+    "app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn",
+    "app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote",
+    "app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection",
+    "app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering",
+    "app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone",
+    "app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns",
+    "app.space.notes.EnvironmentQualificationTest"
+  ],
+  "assertion_receipt_validation": {
+    "step": "Reject absent or partial assertion results",
+    "result": "passed on all four native profiles",
+    "validator": "mynotes.tools.ci.verify_recognition_pilot",
+    "semantics": "The validator resolves expected methods from the instrumentation inventory and parses the instrumentation output. Its exact-result comparison rejects missing, unexpected, duplicate, or failed outcomes. A successful profile job therefore establishes that the selected expected cases were recorded exactly once and passed the validator.",
+    "direct_artifact_inspection": "The Actions API confirmed retained per-profile artifacts. Downloading the API34-large ZIP with gh run download returned EOF in this environment, so its per-profile JSON payload was not independently extracted or reviewed locally. Findings rely on the successful in-workflow exact-result gates, checked-in selector list, and validator implementation; no claim of local artifact extraction is made."
+  },
+  "scope_limits": [
+    "Targeted regression set, not the full native test inventory",
+    "Emulator results only; no physical-device acceptance",
+    "No release publication or distribution"
+  ]
+}

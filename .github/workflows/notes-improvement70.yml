@@ -246,12 +246,7 @@ jobs:
             python3 -m mynotes.tools.ci.offline_guest
             adb shell settings put system screen_off_timeout 3600000
             adb shell input keyevent KEYCODE_WAKEUP
-            adb shell wm dismiss-keyguard
-            python3 - <<'PY'
-            import json,subprocess,sys
-            apks=json.load(open('release-apks.json'))
-            subprocess.run([sys.executable,'mynotes/tools/ci/release_update_note_smoke.py','--old',apks['old']['path'],'--candidate',apks['candidate']['path'],'--old-code','13','--candidate-code','72','--output','release-update-smoke.json'],check=True)
-            PY
+            python3 mynotes/tools/ci/release_update_note_smoke.py --old old-apk/MyNotes-v0.12.0-13.apk --candidate candidate-apk/MyNotes-v0.72.0-72-update.apk --old-code 13 --candidate-code 72 --output release-update-smoke.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

@@ -26,13 +26,13 @@ public final class AudioArchiveRestore {
         private Result(boolean destinationComplete,boolean recoveryPending,ArchiveMerge.Plan plan){this.destinationComplete=destinationComplete;this.recoveryPending=recoveryPending;addedAudio=plan.addedAudio;reusedAudio=plan.reusedAudio;conflictCopies=plan.conflictCopies;addedMetadata=plan.addedMetadata;}
     }
     private static void check(BooleanSupplier cancelled)throws InterruptedIOException{if(Thread.currentThread().isInterrupted() || (cancelled!=null && cancelled.getAsBoolean()))throw new InterruptedIOException("Archive restore cancelled before the library commit");}
-    private static String libraryHash(List<Note> notes)throws IOException{try{return ArchiveRestoreJournal.sha256(DocumentCodec.encode(notes));}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to verify the restore; original library retained",pressure);}}
-    private static boolean samePlan(ArchiveMerge.Plan first,ArchiveMerge.Plan second)throws IOException{
+    private static String libraryHash(List<Note> notes)throws Exception{try{return ArchiveRestoreJournal.sha256(DocumentCodec.encode(notes));}catch(OutOfMemoryError pressure){throw new IOException("Not enough memory to verify the restore; original library retained",pressure);}}
+    private static boolean samePlan(ArchiveMerge.Plan first,ArchiveMerge.Plan second)throws Exception{
         if(first.recordings.size()!=second.recordings.size() || first.addedAudio!=second.addedAudio || first.reusedAudio!=second.reusedAudio || first.conflictCopies!=second.conflictCopies || first.addedMetadata!=second.addedMetadata)return false;
         for(int i=0;i<first.recordings.size();i++){ArchiveMerge.Target a=first.recordings.get(i),b=second.recordings.get(i);if(!a.sourceId.equals(b.sourceId) || !a.targetId.equals(b.targetId) || a.addAudio!=b.addAudio || a.addMetadata!=b.addMetadata || a.conflictCopy!=b.conflictCopy)return false;}
         return Arrays.equals(DocumentCodec.encode(first.notes.notes),DocumentCodec.encode(second.notes.notes));
     }
-    private static void sameLibrary(List<Note> expected,List<Note> actual)throws IOException{if(!Arrays.equals(DocumentCodec.encode(expected),DocumentCodec.encode(actual)))throw new IOException("Library changed; review the archive again");}
+    private static void sameLibrary(List<Note> expected,List<Note> actual)throws Exception{if(!Arrays.equals(DocumentCodec.encode(expected),DocumentCodec.encode(actual)))throw new IOException("Library changed; review the archive again");}
 
     /**
      * Rechecks the reviewed plan, journals ownership before publishing any files, installs

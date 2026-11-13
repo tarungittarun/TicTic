@@ -3,7 +3,6 @@ package app.space.notes.runtime;
 import android.content.Context;
 import android.util.AtomicFile;
 import app.space.notes.domain.ArchiveManifest;
-import app.space.notes.domain.DocumentCodec;
 import app.space.notes.domain.Note;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

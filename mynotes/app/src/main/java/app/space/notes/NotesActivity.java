@@ -117,6 +117,13 @@ public final class NotesActivity extends Activity implements NotesHost {
         Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         picker.addCategory(Intent.CATEGORY_OPENABLE);openPicker(picker,97);
     }
+    @Override public void exportFullBackup(){
+        Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/zip");picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.addCategory(Intent.CATEGORY_OPENABLE);
+        picker.putExtra(Intent.EXTRA_TITLE,"MyNotes-full-backup-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".zip");openPicker(picker,108);
+    }
+    @Override public void importFullBackup(){
+        Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*");picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/zip","application/x-zip-compressed","application/octet-stream"});picker.putExtra(Intent.EXTRA_LOCAL_ONLY,true);picker.addCategory(Intent.CATEGORY_OPENABLE);openPicker(picker,109);
+    }
     private void openPicker(Intent picker,int request) {
         try {startActivityForResult(picker,request);}
         catch(android.content.ActivityNotFoundException e) {showMessage("No document picker is installed.");}
@@ -130,7 +137,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(request<94 || request>107)return;
+        if(request<94 || request>109)return;
         if(result!=RESULT_OK || data==null || data.getData()==null) {
             if(request==107)markedPdfSource=null;if(request==106)viewedCopySource=null;if(request==101)diagnosticLevels=null;
             android.util.Log.i("MyNotes","picker outcome=cancelled request="+request);app.space.notes.runtime.Diagnostics.record("picker.cancelled","request="+request);return;
@@ -150,6 +157,8 @@ public final class NotesActivity extends Activity implements NotesHost {
         if(request==98){controller.exportPdf(uri,pdfPrintGuides);return;}
         if(request==96) {controller.exportBackup(uri);return;}
         if(request==97) {controller.importBackup(uri);return;}
+        if(request==108){controller.exportFullBackup(uri);return;}
+        if(request==109){controller.importFullBackup(uri);return;}
         try {
             int flags=data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             if(flags!=(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION)) {

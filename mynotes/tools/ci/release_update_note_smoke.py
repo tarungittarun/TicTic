@@ -211,10 +211,10 @@ def verify(old_apk, candidate_apk, output, old_code=13, candidate_code=72):
         'same_package_install_over': True,
         'release_approval': False,
         'fixture': {'title': TITLE, 'body': BODY},
-        'scope': ('One synthetic ASCII Note created in the public 0.12.0 (13) APK, '
+        'scope': ('One synthetic ASCII Note created in the exact public 0.12.0 (13) APK, '
                   'confirmed after an old-app cold start, then read after the signed '
-                  '0.72.0 (72) install-over. Emulator-only; not personal-data, '
-                  'all-schema, or physical-device acceptance.')
+                  'versionCode ' + str(candidate_code) + ' install-over. Emulator-only; '
+                  'not personal-data, all-schema, or physical-device acceptance.')
     }
     Path(output).write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report))

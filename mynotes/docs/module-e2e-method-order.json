@@ -232,7 +232,8 @@
     "app.space.notes.runtime.ArchiveSemanticTest#atomicMetadataSnapshotsAreBoundedAndLeaveOriginalRecordingUntouched",
     "app.space.notes.runtime.ArchiveSemanticTest#transcriptContentIdentityIgnoresOperationalStateUuidAndKeyOrderButPreservesWords",
     "app.space.notes.runtime.WhisperConnectionJourneysTest#cancellationBeforeLateConnectionNeverStartsNativeWorkAndUnbindsOnce",
-    "app.space.notes.OfflineSpeechTest#exactDigitalSilenceSkipsModelProvisioningAndPreservesAudio"
+    "app.space.notes.OfflineSpeechTest#exactDigitalSilenceSkipsModelProvisioningAndPreservesAudio",
+    "app.space.notes.runtime.ArchiveSemanticTest#archiveTranscriptRestoreRequiresAudioAndNeverReplacesLocalMetadata"
   ],
   "Images and drawing": [
     "app.space.notes.CoreJourneysTest#imageEditRasterMatchesPreviewGeometryWithoutChangingSource",
@@ -297,7 +298,8 @@
     "app.space.notes.runtime.PdfViewerInteractionTest#keyboardSearchActionFindsAndHighlightsEmbeddedText",
     "app.space.notes.runtime.PdfViewerInteractionTest#markToolbarIsAttachedAndHasExplicitFinishAndExportFlow",
     "app.space.notes.runtime.PdfViewerInteractionTest#pageRailDragAndDocumentScrollStaySynchronizedAndRailAutoHides",
-    "app.space.notes.runtime.PdfViewerInteractionTest#recognitionHasRealIndeterminateLoaderAndCancellationBeforeWork"
+    "app.space.notes.runtime.PdfViewerInteractionTest#recognitionHasRealIndeterminateLoaderAndCancellationBeforeWork",
+    "app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments"
   ],
   "Home, search and Library": [
     "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
@@ -435,7 +437,11 @@
     "app.space.notes.runtime.DrawingToolsTest#historyAvailabilityNotifiesControlsForStrokeUndoRedoAndSaving",
     "app.space.notes.runtime.LibraryOrderStoreTest#malformedOrderRejectedBeforeRestore",
     "app.space.notes.runtime.ViewedFileJourneysTest#pageZoomRestoresBeforeLayoutAndRetainsNormalizedPanAcrossResize",
-    "app.space.notes.runtime.ViewedFileJourneysTest#wordPagePreviewRejectsEntitiesAndArchiveTraversal"
+    "app.space.notes.runtime.ViewedFileJourneysTest#wordPagePreviewRejectsEntitiesAndArchiveTraversal",
+    "app.space.notes.RealFolderStorageTest#fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies",
+    "app.space.notes.runtime.ArchiveSemanticTest#preparedArchiveJournalRollsBackOwnedAudioBeforeVoiceRecovery",
+    "app.space.notes.runtime.ArchiveSemanticTest#committedArchiveJournalCompletesSourceDeletionGuardBeforeVoiceRecovery",
+    "app.space.notes.runtime.ArchiveSemanticTest#ambiguousArchiveJournalKeepsOwnedAudioButProtectsAgainstOrphanPlaceholder"
   ],
   "Reminders": [
     "app.space.notes.ReminderJourneysTest#clearReminderPersistsAndUndoRestoresSchedule",

@@ -17,6 +17,7 @@ import android.widget.*;
 import java.util.*;
 import java.util.concurrent.*;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.ArchiveMerge;
 import app.space.notes.domain.RichText;
 import app.space.notes.domain.TypingStyle;
 import app.space.notes.domain.RichLinks;
@@ -139,6 +140,11 @@ public final class NotesController {
     private boolean storagePage;
     private String auxiliaryPage;
     private PreparedImport prepared;
+    private PreparedArchive preparedArchive;
+    private java.util.concurrent.atomic.AtomicBoolean archiveCancellation;
+    private TextView archiveProgressText;
+    private Button archiveCancelButton;
+    private volatile boolean archiveCommitStarted;
     private final Set<DocumentGrant> documentGrants=Collections.newSetFromMap(new IdentityHashMap<>());
     private final class DocumentGrant implements Runnable {private final Runnable release;private boolean released;DocumentGrant(Runnable release){this.release=release;}public void run(){if(released)return;released=true;documentGrants.remove(this);try{release.run();}catch(RuntimeException failure){log("document-grant","release requested; provider unavailable");}}}
     private static final class PreparedImport {
@@ -149,6 +155,12 @@ public final class NotesController {
         PreparedImport(List<Note> base,NoteMerge.Plan merge,android.net.Uri folder,String head) {
             this.base=Collections.unmodifiableList(new ArrayList<>(base));this.merge=merge;this.folder=folder;this.head=head;
         }
+    }
+    private static final class PreparedArchive {
+        final List<Note> base;
+        final AudioArchiveFiles.Stage stage;
+        final ArchiveMerge.Plan merge;
+        PreparedArchive(List<Note> base,AudioArchiveFiles.Stage stage,ArchiveMerge.Plan merge){this.base=Collections.unmodifiableList(new ArrayList<>(base));this.stage=stage;this.merge=merge;}
     }
     private final Runnable saveDraft=this::persistDraft;
     private final Runnable filter=this::filterNow;
@@ -181,6 +193,7 @@ public final class NotesController {
                 repository=new NotesRepository(context.getApplicationContext());
                 startupPhase="Verifying the internal notes copy";Diagnostics.record("startup.phase","private load started elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
                 List<Note> loaded=repository.loadForStartup();
+                startupPhase="Finishing verified audio-archive recovery";AudioArchiveRestore.recoverBeforeVoiceScan(context.getApplicationContext(),loaded);
                 startupPhase="Checking retained recordings and history";Diagnostics.record("startup.phase","private load completed elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
                 boolean recovered=false,catalogReadable=true;Set<String> pendingVoiceDeletionMarkers=new HashSet<>();
                 try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
@@ -1105,7 +1118,7 @@ public final class NotesController {
         TextView current=text(repository==null?"Opening storage":repository.status(),16);current.setTextColor(design.accent);content.addView(current);content.addView(text("Your notes are saved on this phone. You can keep an extra copy in a folder. Nothing is uploaded. Before uninstalling, check the folder copy is ready and keep a separate backup.",16));
         LinearLayout organise=section(content,"Organise notes");
         settingRow(organise,"Folders","Organise notes on this device. Creating a folder does not move your storage location.",()->renderFolders(false,this::renderStorage));
-        settingRow(content,"Backups","Portable note-only exports: original recordings, settings and history are separate. Complete app recovery uses your optional App folder.",()->{Runnable parent=pageBack;renderBackups();pageBack=()->{renderStorage();pageBack=parent;};});
+        settingRow(content,"Backups","Choose a portable notes-only backup or a full local archive with completed recordings. App settings and history use the optional App folder.",()->{Runnable parent=pageBack;renderBackups();pageBack=()->{renderStorage();pageBack=parent;};});
         LinearLayout advanced=section(content,"More options & repair");advanced.addView(text("Edit history stays privately on this device: up to50 undo/redo steps per note,64 recently edited notes,16 MiB on disk. Older history may be trimmed; current notes are never trimmed. History is not part of exported backups. After a crash, only history matching the saved note is restored.",14));
         settingRow(advanced,"Reset edit history","Use only if history cannot be verified. Deletes history, never your current notes.",()->confirmSheet("Reset edit history?","Current notes, attachments and backups are kept. Saved Undo/Redo steps will be removed.","Reset history",()->{busy=true;disk.execute(()->{historyStore.reset();main.post(()->{busy=false;savedHistories.clear();canonicalHistory=null;canonicalHistoryNote=null;undoBatch.clear();undo=null;undoCreatedId=null;noteUndoIsLatest=false;historyNoticeShown=false;if(!closed){renderStorage();host.showMessage("Edit history reset. Current notes were kept.");}});});}));
         LinearLayout files=section(content,"Open files & older libraries");
@@ -1160,16 +1173,21 @@ public final class NotesController {
         LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));return content;
     }
+    private void discardPreparedArchive(){PreparedArchive old=preparedArchive;preparedArchive=null;if(old!=null)disk.execute(()->{try{old.stage.close();}catch(Exception failure){log("archive-stage-cleanup","retry on next start");}});}
     private void renderBackups() {
-        prepared=null;LinearLayout content=scrollContent("Backup & restore");pageBack=this::renderStorage;
-        content.addView(text("A local note backup includes text, checklists, diagrams, images, drawings, note formatting and folder placement. Saved named presets, edit history, empty folders and original recordings are not included.",16));
-        settingRow(content,"Export backup","Choose a local file. Success is reported only after complete readback verification.",host::exportBackup);
-        settingRow(content,"Import backup","Choose a backup or exported .mynote.json file. Review a merge before anything is saved.",host::importBackup);
+        prepared=null;discardPreparedArchive();LinearLayout content=scrollContent("Backup & restore");pageBack=this::renderStorage;
+        content.addView(text("A notes-only backup includes text, checklists, diagrams, images, drawings, formatting and folder placement. It excludes original recordings, named presets, edit history and empty folders.",16));
+        settingRow(content,"Export backup","Create a portable JSON backup. Success is reported only after complete readback verification.",host::exportBackup);
+        settingRow(content,"Import backup","Choose a JSON backup or exported .mynote.json file. Review a notes-only merge before anything is saved.",host::importBackup);
+        content.addView(text("Full local archive · notes and completed recordings",18));
+        content.addView(text("A separate ZIP archive includes the note library, completed original WAV recordings and bounded transcript metadata. It stays on your chosen local storage provider; it does not include settings, history, permissions, models or incomplete captures.",14));
+        settingRow(content,"Export full backup","Review recording count and source size, then choose a local archive file. Audio is never removed.",this::prepareFullArchiveExport);
+        settingRow(content,"Import full backup","Validate a local archive and review note/audio conflicts before applying. Existing recordings and transcripts are never overwritten.",host::importFullBackup);
         settingRow(content,"Before document editor","Review the private library snapshot kept before the first document-editor upgrade.",()->prepareDocumentCheckpoint());
         settingRow(content,"Previous snapshot","Recover the checkpoint from before the latest restore or open-library operation.",()->prepareImport(null,false,true));
-        content.addView(text("Backups are readable JSON, not encrypted. Original recordings are separate — export them from Voice inbox.",14));
-        LinearLayout details=section(content,"Backup details");details.addView(text("Use the local Internal storage/SD-card provider. The current portable backup limit is 8 MiB, checked on export and import. Images are copied into notes at a bounded resolution; an addition that would break a complete verified backup is refused. Larger libraries need a future streaming format.",14));
-        details.addView(text("Backup envelopes verify a checksum. Visible per-note files are schema-validated (not encrypted or signed). Import previews a merge: identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing the same conflict copy does not duplicate it. The previous snapshot is merged too, never used to delete newer work. Keep the source and old installation until the restored result is verified.",14));
+        content.addView(text("Backups are readable and not encrypted or signed. SHA-256 detects corruption, not who created an archive. Keep the source and old installation until the restored result is verified.",14));
+        LinearLayout details=section(content,"Backup details");details.addView(text("Use the local Internal storage/SD-card or Downloads provider; cloud providers are not accepted. JSON backup limit remains 8 MiB. Full archives are bounded and streamed to private staging; ZIP size may differ from the preflight source size. A full restore first validates and stages all entries, then shows the notes, recordings, transcript and conflict counts. Existing files are reused only when verified identical; differences become stable conflict copies.",14));
+        details.addView(text("Notes import previews a non-destructive merge: identical notes are skipped; a changed note with the same ID becomes a separate copy. Re-importing the same conflict copy does not duplicate it. The previous snapshot is merged too, never used to delete newer work.",14));
     }
 
     public void exportBackup(android.net.Uri uri) {
@@ -1184,7 +1202,72 @@ public final class NotesController {
             });
         });
     }
-    public void exportFolderCopy(android.net.Uri tree){whenReady(()->{persistDraft();List<Note> selected=new ArrayList<>(propertyTargets());if(selected.isEmpty() || busy){host.showMessage("Open a note or Doc before saving a copy.");return;}busy=true;disk.execute(()->{try{LocalNotebookFolders folder=new LocalNotebookFolders(context.getContentResolver(),tree);for(Note note:selected)folder.exportCopy(note);main.post(()->{busy=false;if(!closed)host.showMessage("Portable copy verified in the selected device folder. The original and automatic save location are unchanged.");});}catch(Exception failure){Diagnostics.failure("device-copy.failure",failure);main.post(()->{busy=false;if(!closed)host.showMessage("Copy could not be verified. Original notes are unchanged; a partial new file may remain in the selected folder.");});}});});}
+    private static String humanBytes(long bytes){if(bytes<1024)return bytes+" bytes";double value=bytes;String[] units={"KiB","MiB","GiB","TiB"};int index=-1;do{value/=1024;index++;}while(value>=1024 && index<units.length-1);return String.format(java.util.Locale.ROOT,"%.1f %s",value,units[index]);}
+    private String archiveSummary(AudioArchiveFiles.Summary summary){return "Notes: "+summary.noteCount+"\nCompleted recordings: "+summary.recordingCount+"\nOriginal WAV data: "+humanBytes(summary.audioBytes)+"\nTranscript metadata: "+humanBytes(summary.metadataBytes)+"\nCombined source data before ZIP compression: "+humanBytes(summary.payloadBytes)+"\n\nThe estimate will be checked again. No recording is removed.";}
+    private void showArchiveWork(String heading,String message,java.util.concurrent.atomic.AtomicBoolean cancellation){
+        archiveCommitStarted=false;clearPage();header(heading);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);content.setPadding(dp(12),dp(8),dp(12),dp(8));content.addView(new ProgressBar(context),new LinearLayout.LayoutParams(dp(40),dp(40)));archiveProgressText=text(message,15);archiveProgressText.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);content.addView(archiveProgressText);root.addView(content,new LinearLayout.LayoutParams(-1,0,1));archiveCancelButton=design.textAction("Cancel operation",()->{if(archiveCancellation==cancellation && !cancellation.get() && !archiveCommitStarted){cancellation.set(true);archiveCancelButton.setEnabled(false);archiveProgressText.setText("Cancelling safely…");}});root.addView(archiveCancelButton,new LinearLayout.LayoutParams(-1,-2));
+    }
+    private AudioArchiveFiles.Progress archiveProgress(java.util.concurrent.atomic.AtomicBoolean cancellation){return (phase,completed,total)->{
+        if(phase.startsWith("Saving the verified note merge"))archiveCommitStarted=true;
+        main.post(()->{if(closed || archiveCancellation!=cancellation || archiveProgressText==null || archiveProgressText.getParent()==null)return;String label=phase;if(total>0)label+=" · "+completed+" / "+total;archiveProgressText.setText(label);if(phase.startsWith("Saving the verified note merge") && archiveCancelButton!=null)archiveCancelButton.setEnabled(false);});
+    };}
+    private void finishArchiveWork(java.util.concurrent.atomic.AtomicBoolean cancellation){if(archiveCancellation==cancellation)archiveCancellation=null;archiveProgressText=null;archiveCancelButton=null;archiveCommitStarted=false;busy=false;}
+    private void prepareFullArchiveExport(){whenReady(()->{
+        persistDraft();if(capture!=null){host.showMessage("Stop the active recording before preparing a full backup. No files were changed.");return;}
+        busy=true;java.util.concurrent.atomic.AtomicBoolean cancellation=new java.util.concurrent.atomic.AtomicBoolean();archiveCancellation=cancellation;List<Note> snapshot=new ArrayList<>(notes);showArchiveWork("Full backup","Checking completed recordings and estimating source size…",cancellation);
+        disk.execute(()->{try{AudioArchiveFiles.Summary summary=AudioArchiveFiles.estimate(context,snapshot,cancellation::get,archiveProgress(cancellation));main.post(()->{
+            if(closed){finishArchiveWork(cancellation);return;}if(cancellation.get()){finishArchiveWork(cancellation);renderBackups();host.showMessage("Full backup estimate cancelled. No archive was written.");return;}
+            android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(context).setTitle("Review full backup size").setMessage(archiveSummary(summary)).setPositiveButton("Choose archive file",(d,w)->{finishArchiveWork(cancellation);renderBackups();host.exportFullBackup();}).setNegativeButton("Cancel",(d,w)->{finishArchiveWork(cancellation);renderBackups();}).create();dialog.setOnCancelListener(d->{if(!closed){finishArchiveWork(cancellation);renderBackups();}});design.show(dialog);
+        });}catch(Exception failure){main.post(()->{if(closed){finishArchiveWork(cancellation);return;}finishArchiveWork(cancellation);renderBackups();host.showMessage("Full backup is not ready: "+failure.getMessage()+". Original notes and recordings are unchanged.");});}});
+    });}
+    public void exportFullBackup(android.net.Uri uri){whenReady(()->{
+        persistDraft();if(capture!=null){host.showMessage("Stop the active recording before exporting. No files were changed.");return;}
+        busy=true;java.util.concurrent.atomic.AtomicBoolean cancellation=new java.util.concurrent.atomic.AtomicBoolean();archiveCancellation=cancellation;List<Note> snapshot=new ArrayList<>(notes);showArchiveWork("Full backup","Rechecking the archive contents before writing…",cancellation);
+        disk.execute(()->{try{AudioArchiveFiles.Summary summary=AudioArchiveFiles.estimate(context,snapshot,cancellation::get,archiveProgress(cancellation));main.post(()->{
+            if(closed){finishArchiveWork(cancellation);return;}if(cancellation.get()){finishArchiveWork(cancellation);renderBackups();host.showMessage("Export cancelled before writing. Notes and recordings are unchanged.");return;}
+            android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(context).setTitle("Confirm full backup").setMessage(archiveSummary(summary)+"\n\nThe selected destination may contain a partial file if writing is cancelled or the provider fails.").setPositiveButton("Write and verify",(d,w)->{if(archiveCancellation==cancellation)archiveCancellation=null;archiveProgressText=null;archiveCancelButton=null;writeFullArchive(uri);}).setNegativeButton("Cancel",(d,w)->{finishArchiveWork(cancellation);renderBackups();}).create();dialog.setOnCancelListener(d->{if(!closed){finishArchiveWork(cancellation);renderBackups();}});design.show(dialog);
+        });}catch(Exception failure){main.post(()->{if(closed){finishArchiveWork(cancellation);return;}finishArchiveWork(cancellation);renderBackups();host.showMessage("Export preflight failed: "+failure.getMessage()+". Notes and recordings are unchanged.");});}});
+    });}
+    private void writeFullArchive(android.net.Uri uri){
+        persistDraft();if(capture!=null){busy=false;host.showMessage("Stop the active recording before exporting. No files were changed.");return;}
+        busy=true;java.util.concurrent.atomic.AtomicBoolean cancellation=new java.util.concurrent.atomic.AtomicBoolean();archiveCancellation=cancellation;List<Note> snapshot=new ArrayList<>(notes);showArchiveWork("Writing full backup","Packing and verifying a local archive…",cancellation);
+        disk.execute(()->{String message;try{app.space.notes.domain.ArchiveManifest manifest=AudioArchiveFiles.write(context,uri,snapshot,cancellation::get,archiveProgress(cancellation));message="Full backup verified: "+snapshot.size()+" notes, "+manifest.recordings.size()+" completed recordings, "+humanBytes(manifest.payloadBytes)+" source data. Originals remain on this device.";log("archive-export","verified recordings="+manifest.recordings.size()+" payload="+manifest.payloadBytes);}
+            catch(Exception failure){message="Full backup not verified: "+failure.getMessage()+". Notes and original recordings are unchanged; remove any partial destination before relying on it.";log("archive-export","failed "+failure.getClass().getSimpleName());Diagnostics.failure("archive-export.failure",failure);}
+            final String result=message;main.post(()->{finishArchiveWork(cancellation);if(!closed){renderBackups();host.showMessage(result);}});
+        });
+    }
+    public void importFullBackup(android.net.Uri uri){whenReady(()->prepareArchiveImport(uri));}
+    private void prepareArchiveImport(android.net.Uri uri){
+        persistDraft();if(capture!=null){host.showMessage("Stop the active recording before restoring an archive. Nothing imported.");return;}
+        busy=true;java.util.concurrent.atomic.AtomicBoolean cancellation=new java.util.concurrent.atomic.AtomicBoolean();archiveCancellation=cancellation;List<Note> base=new ArrayList<>(notes);showArchiveWork("Checking full backup","Copying and validating the local archive; nothing is imported yet…",cancellation);
+        disk.execute(()->{AudioArchiveFiles.Stage stage=null;try{stage=AudioArchiveFiles.inspect(context,uri,cancellation::get,archiveProgress(cancellation));ArchiveMerge.Plan merge=AudioArchiveFiles.preview(context,stage,base,cancellation::get);if(cancellation.get())throw new java.io.InterruptedIOException("Archive import cancelled");PreparedArchive plan=new PreparedArchive(base,stage,merge);stage=null;main.post(()->{
+                finishArchiveWork(cancellation);if(closed){disk.execute(()->closeArchiveStage(plan.stage));return;}if(cancellation.get()){disk.execute(()->closeArchiveStage(plan.stage));renderBackups();host.showMessage("Archive inspection cancelled. Current notes and recordings are unchanged.");return;}preparedArchive=plan;renderArchivePreview();
+            });}catch(Exception failure){if(stage!=null)try{stage.close();}catch(Exception cleanup){failure.addSuppressed(cleanup);}main.post(()->{finishArchiveWork(cancellation);if(!closed){renderBackups();host.showMessage("Nothing imported: "+failure.getMessage()+". Current notes and recordings are unchanged.");}});}});
+    }
+    private void closeArchiveStage(AudioArchiveFiles.Stage stage){try{stage.close();}catch(Exception failure){log("archive-stage-cleanup","retry on next start");}}
+    private void renderArchivePreview(){
+        PreparedArchive plan=preparedArchive;if(plan==null){renderBackups();return;}LinearLayout content=scrollContent("Review full restore");pageBack=this::cancelArchivePreview;
+        content.addView(text("Nothing has been imported yet. The verified stage is private to MyNotes and can be discarded safely.",15));
+        content.addView(text("Notes: add "+plan.merge.notes.added+" · skip "+plan.merge.notes.unchanged+" identical · preserve "+plan.merge.notes.conflicts+" changed-ID conflicts as copies. Final note count: "+plan.merge.notes.notes.size()+".",16));
+        content.addView(text("Recordings: add "+plan.merge.addedAudio+" · reuse "+plan.merge.reusedAudio+" verified identical · preserve "+plan.merge.conflictCopies+" different clips as copies.",16));
+        content.addView(text("Transcript metadata to add without overwriting local text: "+plan.merge.addedMetadata+". Uncompressed archive payload: "+humanBytes(plan.stage.manifest.payloadBytes)+" across "+plan.stage.manifest.recordings.size()+" recordings.",15));
+        if(!plan.stage.manifest.recordings.isEmpty()){content.addView(text("Existing audio and transcript content are rechecked after confirmation. New files are verified before the note library is committed; a private journal supports process-death recovery.",14));}
+        content.addView(text("The previous note snapshot is kept before applying. Cancel discards the stage without changing live notes, recordings, or transcripts.",14));
+        row(new String[]{"Confirm full restore","Cancel"},new Runnable[]{this::confirmArchiveImport,this::cancelArchivePreview});
+    }
+    private void cancelArchivePreview(){PreparedArchive old=preparedArchive;preparedArchive=null;if(old!=null)disk.execute(()->closeArchiveStage(old.stage));renderBackups();}
+    private void confirmArchiveImport(){
+        PreparedArchive plan=preparedArchive;if(plan==null)return;if(!notes.equals(plan.base)){preparedArchive=null;disk.execute(()->closeArchiveStage(plan.stage));renderBackups();host.showMessage("Library changed after preview. Review the archive again.");return;}
+        preparedArchive=null;busy=true;java.util.concurrent.atomic.AtomicBoolean cancellation=new java.util.concurrent.atomic.AtomicBoolean();archiveCancellation=cancellation;showArchiveWork("Restoring full backup","Verifying recordings before committing the note merge…",cancellation);
+        disk.execute(()->{AudioArchiveRestore.Result result=null;Exception failure=null;try{result=AudioArchiveRestore.apply(context,repository,plan.base,plan.stage,plan.merge,cancellation::get,archiveProgress(cancellation));}catch(Exception error){failure=error;closeArchiveStage(plan.stage);}
+            final AudioArchiveRestore.Result applied=result;final Exception error=failure;main.post(()->{finishArchiveWork(cancellation);if(closed)return;if(error!=null){renderBackups();host.showMessage("Restore not completed: "+error.getMessage()+". Source archive and previous notes were retained.");return;}
+                notes.clear();notes.addAll(plan.merge.notes.notes);undo=null;undoBatch.clear();undoCreatedId=null;undoFull=false;noteUndoIsLatest=false;savedHistories.clear();canonicalHistory=null;canonicalHistoryNote=null;prepared=null;renderHome();AppFolderTasks.request(context);
+                String message=applied.recoveryPending?"Full restore is saved; private cleanup remains journaled and will retry at next start.":applied.destinationComplete?"Full restore saved and verified. The previous snapshot is available in Backups.":"Full restore is committed to private recovery; the selected folder copy is pending. Use Retry save before relying on that folder.";
+                host.showMessage(message+" Added "+applied.addedAudio+" recordings; reused "+applied.reusedAudio+"; preserved "+applied.conflictCopies+" conflict copies.");
+            });
+        });
+    }
+    public void exportFolderCopy(android.net.Uri tree){whenReady(()->{persistDraft();List<Note> selected=new ArrayList<>(propertyTargets());if(selected.isEmpty() || busy){host.showMessage("Open a note or Doc before saving a copy.");return;}busy=true;disk.execute(()->{try{LocalNotebookFolders folder=new LocalNotebookFolders(context.getContentResolver(),tree);for(Note note:selected)folder.exportCopy(note);main.post(()->{busy=false;if(!closed)host.showMessage("Portable copy verified in the selected device folder. The original and automatic save location are unchanged.");});}catch(Exception failure){Diagnostics.failure("device-copy.failure",failure);main.post(()->{busy=false;if(!closed)host.showMessage("Copy could not be verified. Original unchanged; a partial new file may remain in the selected folder.");});}});});}
     private static String viewedMime(String name){String extension=name.substring(Math.max(0,name.lastIndexOf('.')+1)).toLowerCase(java.util.Locale.ROOT);String mime=android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);return mime==null?"application/octet-stream":mime;}
     private void renderFileTextPreview(android.net.Uri uri,String name,String value){
         final String mime=viewedMime(name);final Runnable returnToCaller=fileReturnTarget();
@@ -1357,6 +1440,7 @@ public final class NotesController {
         if(voicePage){if(capture!=null){capture.stop();host.showMessage("Stopping capture and preserving audio…");return true;}voicePage=false;stopPlayback();renderHome();return true;}
         if(diagramOpen){diagramOpen=false;renderEditor();return true;}
         if(editing==null && !selectedIds.isEmpty()){selectedIds.clear();renderHome();return true;}
+        if(preparedArchive!=null){cancelArchivePreview();return true;}
         if(prepared!=null){prepared=null;renderBackups();return true;}
         if(editing==null && storagePage){renderHome();return true;}
         if(editing==null && activeFolder!=null){activeFolder=null;renderFolders(false);return true;}
@@ -1373,6 +1457,6 @@ public final class NotesController {
         if(editing!=null && find(editing)!=null){try{byte[] draft=DocumentCodec.encode(Arrays.asList(find(editing)));if(draft.length<=32768)state.putByteArray("draftDocument",draft);}catch(Exception e){log("draft-snapshot","failed "+e.getClass().getSimpleName());Diagnostics.failure("draft-snapshot.failure",e);}}
     }
     public void close() { if(diagnosticLogView!=null){diagnosticLogView.close();diagnosticLogView=null;}if(spreadsheetPreview!=null){spreadsheetPreview.close();spreadsheetPreview=null;}if(pdfPreview!=null){pdfPreview.close();pdfPreview=null;}Diagnostics.record("lifecycle.close","controller");NoteFindDialog.close(noteScroll);NoteFindDialog.close(canonicalEditor);
-        closed=true;closeOcrPreview();for(OfflineOcr.Scan scan:new ArrayList<>(pendingOcrScans))if(pendingOcrScans.remove(scan))scan.close();for(LocalPdfPreview.Document pdf:new ArrayList<>(pendingPdfDocuments))if(pendingPdfDocuments.remove(pdf))disk.execute(pdf::close);for(DocumentGrant grant:new ArrayList<>(documentGrants))grant.run();disposePlayback();if(ocrCancellation!=null)ocrCancellation.cancel();if(capture!=null)capture.stop();stopPlayback();if(unsubscribeVoice!=null)unsubscribeVoice.run();deferredResults.clear(); main.removeCallbacksAndMessages(null); searchWorker.shutdown();fileReader.shutdownNow();folderReader.shutdownNow();voiceReader.shutdownNow();
+        closed=true;if(archiveCancellation!=null)archiveCancellation.set(true);PreparedArchive pendingArchive=preparedArchive;preparedArchive=null;if(pendingArchive!=null)disk.execute(()->closeArchiveStage(pendingArchive.stage));closeOcrPreview();for(OfflineOcr.Scan scan:new ArrayList<>(pendingOcrScans))if(pendingOcrScans.remove(scan))scan.close();for(LocalPdfPreview.Document pdf:new ArrayList<>(pendingPdfDocuments))if(pendingPdfDocuments.remove(pdf))disk.execute(pdf::close);for(DocumentGrant grant:new ArrayList<>(documentGrants))grant.run();disposePlayback();if(ocrCancellation!=null)ocrCancellation.cancel();if(capture!=null)capture.stop();stopPlayback();if(unsubscribeVoice!=null)unsubscribeVoice.run();deferredResults.clear(); main.removeCallbacksAndMessages(null); searchWorker.shutdown();fileReader.shutdownNow();folderReader.shutdownNow();voiceReader.shutdownNow();
     }
 }

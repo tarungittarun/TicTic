@@ -1,96 +1,131 @@
-# Candidate72: qualify large-text Library visibility and bounded image-selection preview on GitHub's pinned Android toolchain.
-# The workflow runs only for these related source inputs; publishing is not a job in this workflow.
-name: Candidate72 large-text Library and image-selection qualification
+# Candidate73: audio-inclusive restore, large-text Library, workspace navigation, and signed update qualification.
+# Four native profiles and a public-baseline install-over smoke; no release publication or evidence push.
+name: MyNotes candidate73 archive and workspace qualification (nonpublishing)
 on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
       - '.github/workflows/notes-improvement70.yml'
+      - '.github/workflows/notes-archive-native.yml'
       - 'mynotes/app/build.gradle'
+      - 'mynotes/app/src/main/java/app/space/notes/NotesActivity.java'
       - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java'
       - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/AudioArchiveFiles.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/AudioArchiveRestore.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ArchiveRestoreJournal.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceFiles.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceTasks.java'
       - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesHost.java'
+      - 'mynotes/domain/src/main/java/app/space/notes/domain/Archive*.java'
+      - 'mynotes/domain/src/test/java/app/space/notes/domain/Archive*Test.java'
       - 'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/LocalFilePickerTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ArchiveSemanticTest.java'
       - 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java'
       - 'mynotes/tools/ci/release_update_note_smoke.py'
-      - 'mynotes/qa/test_candidate72_release_update.py'
+      - 'mynotes/tools/ci/test_plan.py'
+      - 'mynotes/tools/ci/plan.json'
+      - 'mynotes/qa/test_candidate73_release_update.py'
+      - 'mynotes/qa/test_backup_contracts.py'
+      - 'mynotes/qa/test_module_e2e.py'
+      - 'mynotes/qa/test_refinement_hierarchy.py'
+      - 'mynotes/docs/module-e2e-method-order.json'
       - 'mynotes/releases/MyNotes-v0.12.0-13.apk.sha256'
       - 'mynotes/releases/MyNotes-v0.12.0-13.apk.release.json'
 permissions:
   contents: read
-  actions: read
 concurrency:
-  group: candidate72-${{ github.ref }}
+  group: candidate73-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  build:
+  checks:
+    name: Source guardrails and exact native inventory
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bounded workflow/visual-check dependencies
+        run: python3 -m pip install 'PyYAML==6.0.3' 'Pillow==11.3.0'
+      - name: Validate all repository workflow boundaries
+        run: python3 -m mynotes.tools.ci.workflow_guard
+      - name: Run MyNotes source and acceptance guardrails
+        run: python3 -m unittest discover -s mynotes/qa -t . -v
+      - name: Rebuild the complete JVM/Android test lane plan
+        run: python3 -m mynotes.tools.ci.test_plan
+  build:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-mynotes
-      - name: Run release-update and APK identity guardrail tests
-        run: python3 -m unittest mynotes.qa.test_candidate72_release_update
-      - name: Compile actual candidate, JVM tests, instrumentation and lint (no publication)
+      - name: Compile app, instrumentation, JVM suite, lint, and release APK (no publication)
         working-directory: mynotes
         run: |
           set -o pipefail
-          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/candidate72-build.log
+          sh gradlew -PmoduleE2E :notes-domain:test :notes:assembleDebug :notes:assembleDebugAndroidTest :notes:assembleRelease :notes:lintDebug :notes:lintRelease --no-daemon --max-workers=2 --console=plain --stacktrace 2>&1 | tee /tmp/candidate73-build.log
       - name: Verify release APK identity, signer, and install-over version
         run: |
           set -euo pipefail
-          apk=MyNotes-v0.72.0-72-update.apk
+          apk=MyNotes-v0.73.0-73-update.apk
           cp mynotes/app/build/outputs/apk/release/notes-release.apk "$apk"
           tools="$ANDROID_HOME/build-tools/35.0.0"
-          "$tools/apksigner" verify --print-certs "$apk" > evidence-candidate72-signature.txt
-          grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' evidence-candidate72-signature.txt
-          "$tools/aapt" dump badging "$apk" > evidence-candidate72-badging.txt
-          python3 -m mynotes.tools.ci.apk_size_audit "$apk" evidence-candidate72-size.json
+          "$tools/apksigner" verify --print-certs "$apk" > evidence-candidate73-signature.txt
+          grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' evidence-candidate73-signature.txt
+          "$tools/aapt" dump badging "$apk" > evidence-candidate73-badging.txt
+          python3 -m mynotes.tools.ci.apk_size_audit "$apk" evidence-candidate73-size.json
           python3 - <<'PY'
           import datetime,hashlib,json,os,pathlib
-          apk=pathlib.Path('MyNotes-v0.72.0-72-update.apk')
-          badging=pathlib.Path('evidence-candidate72-badging.txt').read_text()
-          assert "package: name='app.space.notes' versionCode='72' versionName='0.72.0'" in badging
+          apk=pathlib.Path('MyNotes-v0.73.0-73-update.apk')
+          badging=pathlib.Path('evidence-candidate73-badging.txt').read_text()
+          assert "package: name='app.space.notes' versionCode='73' versionName='0.73.0'" in badging
           assert "sdkVersion:'26'" in badging and "targetSdkVersion:'34'" in badging
           assert 'android.permission.INTERNET' not in badging
           with apk.open('rb') as stream:
               digest=hashlib.file_digest(stream,'sha256').hexdigest()
-          proof={'source':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'built_verified_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'filename':apk.name,'bytes':apk.stat().st_size,'sha256':digest,'package':'app.space.notes','version_code':72,'version_name':'0.72.0','min_sdk':26,'target_sdk':34,'signing_certificate_sha256':'08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca','release_build':True,'debug_package':False,'public_release':False,'physical_device_acceptance':False}
-          pathlib.Path('evidence-candidate72-update-apk.json').write_text(json.dumps(proof,indent=2)+'\n')
+          proof={'source':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'built_verified_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'filename':apk.name,'bytes':apk.stat().st_size,'sha256':digest,'package':'app.space.notes','version_code':73,'version_name':'0.73.0','min_sdk':26,'target_sdk':34,'signing_certificate_sha256':'08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca','release_build':True,'debug_package':False,'public_release':False,'physical_device_acceptance':False}
+          pathlib.Path('evidence-candidate73-update-apk.json').write_text(json.dumps(proof,indent=2)+'\n')
           print('::notice title=Same-package install-over APK verified::'+json.dumps(proof))
           PY
-      - name: Upload verified update APK as a raw temporary artifact (not a public release)
+      - name: Upload the verified install-over APK as a temporary raw artifact (not a public release)
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.72.0-72-update.apk
+          name: MyNotes-v0.73.0-73-update.apk
+          path: MyNotes-v0.73.0-73-update.apk
           archive: false
           retention-days: 7
           if-no-files-found: error
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: candidate72-update-apk-verification
-          path: evidence-candidate72-update-apk.json
-          retention-days: 7
+          name: candidate73-update-apk-verification
+          path: evidence-candidate73-update-apk.json
+          retention-days: 14
           if-no-files-found: error
       - name: Surface bounded compiler diagnostics
         if: failure()
-        run: python3 -m mynotes.tools.ci.results build --path /tmp/candidate72-build.log
+        run: python3 -m mynotes.tools.ci.results build --path /tmp/candidate73-build.log
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: candidate72-build-evidence
+          name: candidate73-build-evidence
           path: |
             mynotes/domain/build/test-results
             mynotes/app/build/reports
             mynotes/runtime/build/reports
-            evidence-candidate72-signature.txt
-            evidence-candidate72-badging.txt
-            evidence-candidate72-size.json
-            evidence-candidate72-update-apk.json
+            evidence-candidate73-signature.txt
+            evidence-candidate73-badging.txt
+            evidence-candidate73-size.json
+            evidence-candidate73-update-apk.json
           retention-days: 14
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: candidate72-emulator-test-apks-do-not-install
+          name: candidate73-emulator-test-apks-do-not-install
           path: |
             mynotes/app/build/outputs/apk/debug/notes-debug.apk
             mynotes/app/build/outputs/apk/androidTest/debug/notes-debug-androidTest.apk
@@ -99,7 +134,7 @@ jobs:
   native:
     needs: build
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -109,7 +144,7 @@ jobs:
           - {id: api34-landscape, api: 34, target: google_apis, font: '1.0', night: 'yes', orientation: landscape}
           - {id: api26-portrait, api: 26, target: default, font: '1.0', night: 'no', orientation: portrait}
     env:
-      CASES: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape,app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn,app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest
+      CASES: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape,app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn,app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest,app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox,app.space.notes.RealFolderStorageTest#fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies,app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -118,7 +153,7 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: candidate72-emulator-test-apks-do-not-install
+          name: candidate73-emulator-test-apks-do-not-install
           path: improvement-apks
       - name: Prepare emulator
         run: |
@@ -149,7 +184,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: candidate72-${{ matrix.id }}
+          name: candidate73-${{ matrix.id }}
           path: |
             refinement-native*
             refinement-captures.tar
@@ -173,11 +208,11 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: MyNotes-v0.72.0-72-update.apk
+          name: MyNotes-v0.73.0-73-update.apk
           path: candidate-apk
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: candidate72-update-apk-verification
+          name: candidate73-update-apk-verification
           path: candidate-evidence
       - name: Download the exact public v0.12.0 (13) update baseline
         env:
@@ -204,16 +239,16 @@ jobs:
           assert len(checksum)==2 and checksum[1]==old.name==receipt['filename']
           assert receipt['applicationId']=='app.space.notes' and receipt['versionCode']==13 and receipt['versionName']=='0.12.0'
           assert receipt['certificate']=='08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca'
-          candidate_proof=json.loads((repo/'candidate-evidence/evidence-candidate72-update-apk.json').read_text())
+          candidate_proof=json.loads((repo/'candidate-evidence/evidence-candidate73-update-apk.json').read_text())
           assert candidate_proof['run_id']==os.environ['GITHUB_RUN_ID'] and candidate_proof['source']==os.environ['GITHUB_SHA']
           def digest(path):
               with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
           old_sha=digest(old);candidate_sha=digest(candidate)
           assert old_sha==checksum[0]==receipt['sha256'] and old.stat().st_size==receipt['bytes']
           assert candidate_sha==candidate_proof['sha256'] and candidate.stat().st_size==candidate_proof['bytes']
-          assert candidate_proof['package']=='app.space.notes' and candidate_proof['version_code']==72
+          assert candidate_proof['package']=='app.space.notes' and candidate_proof['version_code']==73
           assert candidate_proof['signing_certificate_sha256']==receipt['certificate']
-          apks={'old':(old,13,'0.12.0'),'candidate':(candidate,72,'0.72.0')}
+          apks={'old':(old,13,'0.12.0'),'candidate':(candidate,73,'0.73.0')}
           proof={}
           for label,(apk,code,version) in apks.items():
               cert=subprocess.check_output([str(tools/'apksigner'),'verify','--print-certs',str(apk)],text=True)
@@ -223,7 +258,7 @@ jobs:
               assert "sdkVersion:'26'" in badging and 'android.permission.INTERNET' not in badging
               if label=='candidate':assert "targetSdkVersion:'34'" in badging and 'debug' not in badging.splitlines()[0]
               proof[label]={'path':str(apk),'bytes':apk.stat().st_size,'sha256':digest(apk),'package':'app.space.notes','version_code':code,'version_name':version,'signing_certificate_sha256':receipt['certificate']}
-          assert proof['candidate']['version_code']>proof['old']['version_code']
+          assert proof['candidate']['version_code']>72>proof['old']['version_code']
           pathlib.Path('release-apks.json').write_text(json.dumps(proof,indent=2)+'\n')
           print('::notice title=Install-over APK identities verified::'+json.dumps(proof))
           PY
@@ -246,11 +281,11 @@ jobs:
             python3 -m mynotes.tools.ci.offline_guest
             adb shell settings put system screen_off_timeout 3600000
             adb shell input keyevent KEYCODE_WAKEUP
-            python3 mynotes/tools/ci/release_update_note_smoke.py --old old-apk/MyNotes-v0.12.0-13.apk --candidate candidate-apk/MyNotes-v0.72.0-72-update.apk --old-code 13 --candidate-code 72 --output release-update-smoke.json
+            python3 mynotes/tools/ci/release_update_note_smoke.py --old old-apk/MyNotes-v0.12.0-13.apk --candidate candidate-apk/MyNotes-v0.73.0-73-update.apk --old-code 13 --candidate-code 73 --output release-update-smoke.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: candidate72-public-v0.12-to-v0.72-api${{ matrix.api }}-install-over-evidence
+          name: candidate73-public-v0.12-to-v0.73-api${{ matrix.api }}-install-over-evidence
           path: |
             release-apks.json
             release-update-smoke.json

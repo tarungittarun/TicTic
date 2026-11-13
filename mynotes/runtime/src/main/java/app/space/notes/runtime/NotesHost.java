@@ -8,6 +8,8 @@ public interface NotesHost {
     default void recoverAppFolder(){openExistingFolder();}
     void exportBackup();
     void importBackup();
+    default void exportFullBackup(){showMessage("Full audio archive export is unavailable in this host.");}
+    default void importFullBackup(){showMessage("Full audio archive import is unavailable in this host.");}
     default void chooseCopyFolder(){showMessage("Folder copy is unavailable in this host.");}
     default void chooseNoteDocument(){importBackup();}
     default void chooseNoteImage(String noteId){showMessage("Image import is unavailable in this host.");}

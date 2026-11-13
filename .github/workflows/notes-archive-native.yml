@@ -3,7 +3,24 @@ name: MyNotes archive native foundations (nonpublishing)
 on:
   push:
     branches: ['arena/3caca636-tictic']
-    paths: ['.github/workflows/notes-archive-native.yml']
+    paths:
+      - '.github/workflows/notes-archive-native.yml'
+      - 'mynotes/app/src/main/java/app/space/notes/NotesActivity.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/AudioArchiveFiles.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/AudioArchiveRestore.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ArchiveRestoreJournal.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ArchiveJson.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceFiles.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/VoiceTasks.java'
+      - 'mynotes/domain/src/main/java/app/space/notes/domain/Archive*.java'
+      - 'mynotes/domain/src/test/java/app/space/notes/domain/Archive*Test.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesHost.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ArchiveSemanticTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java'
+      - 'mynotes/app/src/androidTest/java/app/space/notes/LocalFilePickerTest.java'
+      - 'mynotes/tools/ci/test_plan.py'
+      - 'mynotes/tools/ci/plan.json'
 permissions:
   contents: read
 concurrency:
@@ -71,7 +88,7 @@ jobs:
           script: |
             adb install -r archive-apks/debug/notes-debug.apk
             adb install -r archive-apks/androidTest/debug/notes-debug-androidTest.apk
-            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
+            adb shell am instrument -w -r -e class app.space.notes.runtime.ArchiveSemanticTest,app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox,app.space.notes.RealFolderStorageTest#fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies,app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint,app.space.notes.RepositoryTransferTest#compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner > archive-native.txt
       - name: Require every archive semantic case once with successful completion
         if: always()
         run: |
@@ -82,7 +99,8 @@ jobs:
           from mynotes.tools.ci.test_plan import build_plan
           cls='app.space.notes.runtime.ArchiveSemanticTest'
           expected=[cls+'#'+method for method in build_plan()['android'][cls]]
-          expected.append('app.space.notes.RealFolderStorageTest#fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox')
+          expected.extend('app.space.notes.RealFolderStorageTest#'+method for method in ['fullAudioArchiveReopensThroughRealSafAndInspectNeverMutatesLiveInbox','fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies'])
+          expected.append('app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments')
           expected.extend('app.space.notes.RepositoryTransferTest#'+method for method in ['compareAndApplyRestoreKeepsLatestWriterAndPreviousCheckpoint','compareAndApplyRestoreCommitsOnlyMatchingLibraryAndStorage'])
           path=Path('archive-native.txt')
           result=android(path.read_text(errors='replace') if path.exists() else '',expected)

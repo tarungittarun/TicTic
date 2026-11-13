@@ -3,13 +3,16 @@ package app.tictic.clock;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
+import android.app.UiAutomation;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
@@ -114,13 +117,9 @@ public final class WidgetConceptE2ETest {
         }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
-
-        Intent launch = new Intent(app, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity = (MainActivity) instrumentation.startActivitySync(launch);
-        assertNotNull("MainActivity did not launch on the emulator", activity);
-        instrumentation.waitForIdleSync();
-        SystemClock.sleep(400L);
+        // The catalog/pin journey does not need MainActivity. Defer its heavier alarm
+        // scheduler startup until a widget preview or action flow actually needs it.
+        activity = null;
     }
 
     @After public void tearDown() {
@@ -190,7 +189,7 @@ public final class WidgetConceptE2ETest {
         captureScreenshot("16_month_grid_compact_week", capture);
     }
 
-    @Test public void eWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows() throws Exception {
+    @Test public void dWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows() throws Exception {
         Capture wakeOn = display(R.layout.widget_wake_switch, 190, 340);
         View wakeButton = wakeOn.widget.findViewById(R.id.widget_wake_switch);
         assertTrue("Wake Switch action needs an accessibility label", text(wakeButton).contains("TAP TO PAUSE"));
@@ -223,7 +222,7 @@ public final class WidgetConceptE2ETest {
         captureScreenshot("19_timer_live_paused_after_tap", paused);
     }
 
-    @Test public void dQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight() throws Exception {
+    @Test public void eQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight() throws Exception {
         int originalAlarms = DataStore.array(app, "alarms").length();
         Capture quick = display(R.layout.widget_quick_alarm, 174, 340);
         View tenMinutes = quick.widget.findViewById(R.id.widget_quick_alarm_10);
@@ -237,6 +236,12 @@ public final class WidgetConceptE2ETest {
         assertEquals("Quick Alarm must not silently bypass the existing save flow", originalAlarms,
                 DataStore.array(app, "alarms").length());
         captureFullScreen("20_quick_alarm_save_preflight");
+        AccessibilityNodeInfo preflight = instrumentation.getUiAutomation().getRootInActiveWindow();
+        if (pendingQuickAlarm() != null && accessibilityContains(preflight, "Cancel")) {
+            assertTrue("Could not dismiss the Quick Alarm preflight for test cleanup",
+                    clickAccessibilityText(preflight, "Cancel"));
+            await(() -> pendingQuickAlarm() == null, "Quick Alarm preflight did not cancel cleanly");
+        }
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
@@ -332,7 +337,19 @@ public final class WidgetConceptE2ETest {
         instrumentation.runOnMainSync(catalog::finish);
     }
 
+    private MainActivity ensureMainActivity() throws Exception {
+        if (activity != null && !activity.isFinishing()) return activity;
+        Intent launch = new Intent(app, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity = (MainActivity) instrumentation.startActivitySync(launch);
+        assertNotNull("MainActivity did not launch on the emulator", activity);
+        instrumentation.waitForIdleSync();
+        SystemClock.sleep(400L);
+        return activity;
+    }
+
     private Capture display(int layout, int heightDp, int widthDp) throws Exception {
+        ensureMainActivity();
         int widgetId = FIRST_WIDGET_ID + layout;
         String name = app.getResources().getResourceEntryName(layout);
         WidgetEngine.PreviewStyle style = previewStyle(name);
@@ -446,11 +463,56 @@ public final class WidgetConceptE2ETest {
         }
     }
 
+    private void waitForResponsiveAndroidUi() throws Exception {
+        int waits = 0;
+        while (waits < 4) {
+            AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
+            if (!accessibilityContains(root, "isn't responding")) return;
+            assertTrue("Android displayed an ANR prompt without a usable Wait action: "
+                            + describeAccessibilityTree(root, new StringBuilder(), 0),
+                    clickAccessibilityText(root, "Wait"));
+            waits++;
+            SystemClock.sleep(1200L);
+        }
+        AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
+        assertFalse("Android remained unresponsive after four Wait actions: "
+                        + describeAccessibilityTree(root, new StringBuilder(), 0),
+                accessibilityContains(root, "isn't responding"));
+    }
+
+    private Bitmap takeEmulatorScreenshot() throws Exception {
+        waitForResponsiveAndroidUi();
+        UiAutomation ui = instrumentation.getUiAutomation();
+        for (int attempt = 0; attempt < 3; attempt++) {
+            Bitmap screenshot = ui.takeScreenshot();
+            if (screenshot != null) return screenshot;
+            SystemClock.sleep(300L);
+            waitForResponsiveAndroidUi();
+        }
+        ParcelFileDescriptor output = ui.executeShellCommand("screencap -p");
+        assertNotNull("Android shell did not open an emulator screen capture", output);
+        Bitmap screenshot;
+        try (ParcelFileDescriptor.AutoCloseInputStream stream =
+                     new ParcelFileDescriptor.AutoCloseInputStream(output)) {
+            screenshot = BitmapFactory.decodeStream(stream);
+        }
+        assertNotNull("UiAutomation and screencap both failed to provide an emulator image", screenshot);
+        return screenshot;
+    }
+
+    private void verifyScreenshotFile(File output, String name) {
+        assertTrue("Emulator screenshot was not written: " + name, output.length() > 1000L);
+        Bitmap decoded = BitmapFactory.decodeFile(output.getAbsolutePath());
+        assertNotNull("Emulator screenshot is not a decodable JPEG: " + name, decoded);
+        assertTrue("Emulator screenshot has invalid dimensions: " + name,
+                decoded.getWidth() > 0 && decoded.getHeight() > 0);
+        decoded.recycle();
+    }
+
     private void captureFullScreen(String name) throws Exception {
         instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
-        Bitmap full = instrumentation.getUiAutomation().takeScreenshot();
-        assertNotNull("Emulator did not provide a screen capture", full);
+        Bitmap full = takeEmulatorScreenshot();
         Bitmap image = full;
         int maxWidth = 400;
         if (full.getWidth() > maxWidth) {
@@ -464,14 +526,13 @@ public final class WidgetConceptE2ETest {
         }
         if (image != full) image.recycle();
         full.recycle();
-        assertTrue("Emulator screenshot was not written: " + name, output.length() > 1000L);
+        verifyScreenshotFile(output, name);
     }
 
     private void captureScreenshot(String name, Capture capture) throws Exception {
         instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
-        Bitmap full = instrumentation.getUiAutomation().takeScreenshot();
-        assertNotNull("Emulator did not provide a screen capture", full);
+        Bitmap full = takeEmulatorScreenshot();
         int[] location = new int[2];
         capture.column.getLocationOnScreen(location);
         int left = Math.max(0, location[0]);
@@ -494,7 +555,7 @@ public final class WidgetConceptE2ETest {
         }
         full.recycle();
         crop.recycle();
-        assertTrue("Emulator screenshot was not written: " + name, output.length() > 1000L);
+        verifyScreenshotFile(output, name);
     }
 
     private View findText(Activity target, String expected) {
@@ -530,15 +591,21 @@ public final class WidgetConceptE2ETest {
     private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
         AccessibilityNodeInfo lastRoot = null;
-        boolean waitedForSystemUi = false;
+        int anrWaits = 0;
         while (SystemClock.uptimeMillis() < end) {
-            instrumentation.waitForIdleSync();
             lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
-            if (!waitedForSystemUi && accessibilityContains(lastRoot, "System UI isn't responding")) {
-                waitedForSystemUi = clickAccessibilityText(lastRoot, "Wait");
-                Thread.sleep(750L);
+            if (accessibilityContains(lastRoot, "isn't responding")) {
+                if (anrWaits >= 4 || !clickAccessibilityText(lastRoot, "Wait")) {
+                    throw new AssertionError("Android remained unresponsive while waiting for UI text "
+                            + java.util.Arrays.toString(expected) + ": "
+                            + describeAccessibilityTree(lastRoot, new StringBuilder(), 0));
+                }
+                anrWaits++;
+                Thread.sleep(1200L);
                 continue;
             }
+            instrumentation.waitForIdleSync();
+            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
             boolean foundAll = lastRoot != null;
             if (foundAll) {
                 for (String value : expected) {

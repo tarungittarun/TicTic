@@ -7,16 +7,20 @@ readonly APP_PACKAGE="app.space.one"
 readonly TEST_PACKAGE="app.space.one.test"
 readonly SCREEN_DIR="/tmp/widget-e2e-screenshots"
 readonly INSTRUMENTATION_LOG="/tmp/widget-e2e-instrumentation.log"
+phase="initializing"
 
 on_error() {
-    local status=$?
-    printf 'Widget E2E script failed at line %s (exit %s): %s\n' \
-        "$LINENO" "$status" "$BASH_COMMAND" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
-    echo "::error title=Widget emulator setup failed::Script line $LINENO exited with status $status"
+    local status=$1 failed_line=$2 failed_command=$3
+    local detail="Phase: $phase · line $failed_line · exit $status · command: $failed_command"
+    printf 'Widget E2E script failed: %s\n' "$detail" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+    local escaped
+    escaped=$(printf '%s' "$detail" | sed 's/%/%25/g; s/\r//g; s/::/%3A%3A/g')
+    echo "::error title=Widget emulator setup failed::$escaped"
     exit "$status"
 }
-trap on_error ERR
+trap 'on_error "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
+phase="locate APKs"
 main_apk=$(find app/build/outputs/apk -path '*/lite/debug/*.apk' \
     ! -path '*/androidTest/*' -print -quit)
 test_apk=$(find app/build/outputs/apk -path '*/androidTest/lite/debug/*.apk' -print -quit)
@@ -24,26 +28,35 @@ test -n "$main_apk" && test -s "$main_apk"
 test -n "$test_apk" && test -s "$test_apk"
 printf 'App APK: %s\nInstrumentation APK: %s\n' "$main_apk" "$test_apk"
 
+phase="wait for emulator"
 adb wait-for-device
 adb shell getprop sys.boot_completed
+phase="install target APK"
 adb install -r "$main_apk"
+phase="install instrumentation APK"
 adb install -r "$test_apk"
+phase="grant emulator notification access"
 adb shell pm grant "$APP_PACKAGE" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 
+phase="run Android instrumentation suite"
 set +e
 adb shell am instrument -w -r "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" \
     > "$INSTRUMENTATION_LOG" 2>&1
 test_status=$?
 set -e
+phase="print instrumentation results"
 cat "$INSTRUMENTATION_LOG"
 
+phase="prepare screenshot export"
 rm -rf "$SCREEN_DIR"
 mkdir -p "$SCREEN_DIR"
+phase="list emulator screenshots"
 mapfile -t images < <(
     adb exec-out run-as "$APP_PACKAGE" ls -1 files/widget-e2e 2>/dev/null \
         | tr -d '\r' | grep '\.jpg$' || true
 )
 for image in "${images[@]}"; do
+    phase="copy emulator screenshot $image"
     adb exec-out run-as "$APP_PACKAGE" cat "files/widget-e2e/$image" \
         > "$SCREEN_DIR/$image"
 done

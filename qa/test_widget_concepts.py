@@ -267,6 +267,7 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("id: build", workflow)
         self.assertIn(":app:assembleLiteDebug 2>&1 | tee /tmp/widget-build.log", workflow)
         self.assertIn("GITHUB_STEP_SUMMARY", workflow)
+        self.assertIn("error:|symbol:|location:", workflow)
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("git push", workflow)
 

@@ -86,9 +86,8 @@ jobs:
               echo "::error title=$label::Gradle log missing on runner"
               return
             fi
-            excerpt=$({ grep -nE '^(e: |error:|FAILURE:|Execution failed|What went wrong|Caused by:|Could not resolve|No space left|Daemon)' "$file" | tail -25 || true
-                       echo "--- last 60 lines ---"
-                       tail -60 "$file"; })
+            excerpt=$(grep -nE 'error:|symbol:|location:|required:|found:|What went wrong|Execution failed for task' "$file" | tail -60 || true)
+            if [ -z "$excerpt" ]; then excerpt=$(tail -40 "$file"); fi
             {
               printf '\n#### %s\n\n```text\n' "$label"
               printf '%s\n' "$excerpt"

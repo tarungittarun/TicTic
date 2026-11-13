@@ -96,6 +96,7 @@ class Candidate72ReleaseUpdateTests(unittest.TestCase):
         smoke_source = (ROOT / 'tools/ci/release_update_note_smoke.py').read_text()
         self.assertIn("'uninstall_or_clear_data': False", smoke_source)
         self.assertNotIn("'shell', 'pm', 'clear'", smoke_source)
+        self.assertNotIn("device.adb('logcat', '-c')", smoke_source)
         self.assertNotIn("'uninstall', PACKAGE", smoke_source)
 
     def test_legacy_release_receipt_matches_pinned_checksum(self):

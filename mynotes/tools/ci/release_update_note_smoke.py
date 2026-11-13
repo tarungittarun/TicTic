@@ -103,22 +103,29 @@ class Device:
         self.click(hint)
         self.adb('shell', 'input', 'text', value)
 
-    def wait_for_save_stable(self, description):
-        """Wait for the public app's actual local-save log to go quiet after a save."""
+    def save_count(self):
+        log = self.adb('logcat', '-d', '-s', 'MyNotes:I')
+        return len(saved_revisions(log))
+
+    def wait_for_save_stable(self, description, after_count):
+        """Wait for a new successful local-save log after the given baseline."""
         deadline = time.monotonic() + 40
-        previous = ()
+        observed_count = after_count
         stable_since = None
+        latest = ()
         while time.monotonic() < deadline:
             log = self.adb('logcat', '-d', '-s', 'MyNotes:I')
             revisions = tuple(saved_revisions(log))
-            if revisions and revisions != previous:
-                previous = revisions
+            if len(revisions) > after_count and len(revisions) != observed_count:
+                observed_count = len(revisions)
+                latest = revisions
                 stable_since = time.monotonic()
-            elif revisions and stable_since is not None and time.monotonic() - stable_since >= 1.25:
+            elif len(revisions) > after_count and stable_since is not None and time.monotonic() - stable_since >= 1.25:
                 return revisions[-1]
             time.sleep(.3)
         print('::error title=Legacy release save not confirmed::' +
-              (description + '; completed save revisions: ' + repr(previous))
+              (description + '; baseline save count: ' + str(after_count) +
+               '; completed save revisions: ' + repr(latest))
               .replace('%', '%25').replace('\n', '%0A'))
         raise RuntimeError('Timed out waiting for a stable local save: ' + description)
 
@@ -163,22 +170,20 @@ def verify(old_apk, candidate_apk, output, old_code=13, candidate_code=72):
     phase('Installed the exact public package at versionCode ' + str(old_code))
 
     device.launch()
-    # Clear only Android's diagnostic log buffer; never app storage. This makes
-    # the empty-note save acknowledgement below attributable to this fixture.
-    device.adb('logcat', '-c')
+    empty_note_save_baseline = device.save_count()
     device.click('New text note')
     device.wait(lambda items: any(node.get('class') == 'android.widget.EditText'
                                   for node in items),
                 'new Note editor')
-    # Wait until the created empty Note is durable, then reset only Android's
-    # diagnostic log buffer so the following save event belongs to our fixture.
-    device.wait_for_save_stable('new empty Note')
+    # Use log-count baselines rather than logcat -c: Android 8/API 26 denies
+    # clearing its main log buffer. These are diagnostics only, never app data.
+    device.wait_for_save_stable('new empty Note', empty_note_save_baseline)
     phase('Created and confirmed the empty legacy Note save')
-    device.adb('logcat', '-c')
+    fixture_save_baseline = device.save_count()
     device.fill('Title', TITLE)
     device.fill('Write your note…', BODY)
     device.home()
-    device.wait_for_save_stable('fixture title and body')
+    device.wait_for_save_stable('fixture title and body', fixture_save_baseline)
     phase('Confirmed the synthetic legacy title and body were saved')
 
     # Verify disk persistence before the update, not just the old process's memory.

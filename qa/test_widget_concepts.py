@@ -296,6 +296,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("cMonthGridUsesCompactWeekStripAtCompactWidgetHeight", test)
         self.assertIn("dWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows", test)
         self.assertIn("eQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight", test)
+        self.assertIn("alarmEnabled(ALARM_ID, true)", test)
+        self.assertIn("Could not confirm the Android home-screen pin request; active window was", test)
         self.assertIn("waitForResponsiveAndroidUi", test)
         self.assertIn("FLAG_RETRIEVE_INTERACTIVE_WINDOWS", test)
         self.assertIn("findSystemAnrPrompt", test)

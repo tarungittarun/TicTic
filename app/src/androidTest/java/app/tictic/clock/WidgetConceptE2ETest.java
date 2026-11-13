@@ -210,14 +210,14 @@ public final class WidgetConceptE2ETest {
         assertTrue("Wake Switch action needs an accessibility label", text(wakeButton).contains("TAP TO PAUSE"));
         assertTrue("Wake Switch action is not clickable", wakeButton.isClickable());
         click(wakeButton);
-        await(() -> !DataStore.array(app, "alarms").optJSONObject(0).optBoolean("enabled", true), "Wake Switch did not disable the selected alarm");
+        await(() -> alarmEnabled(ALARM_ID, false), "Wake Switch did not disable the selected alarm");
         Capture wakeOff = display(R.layout.widget_wake_switch, 190, 340);
         assertTrue(text(wakeOff.widget.findViewById(R.id.widget_wake_switch)).contains("TAP TO ENABLE"));
         captureScreenshot("17_wake_switch_disabled_after_tap", wakeOff);
         View offButton = wakeOff.widget.findViewById(R.id.widget_wake_switch);
         assertTrue(String.valueOf(offButton.getContentDescription()).startsWith("Enable Morning focus at"));
         click(offButton);
-        await(() -> DataStore.array(app, "alarms").optJSONObject(0).optBoolean("enabled", false), "Wake Switch did not re-enable the alarm");
+        await(() -> alarmEnabled(ALARM_ID, true), "Wake Switch did not re-enable the selected alarm");
 
         Capture focus = display(R.layout.widget_focus_launch, 190, 340);
         View focus25 = focus.widget.findViewById(R.id.widget_focus_25);
@@ -289,9 +289,11 @@ public final class WidgetConceptE2ETest {
         int previousCount = manager.getAppWidgetIds(provider).length;
         click(card);
 
-        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(30000L, "Add");
+        waitForAccessibilityTexts(30000L, "Add");
         captureFullScreen("22_quick_alarm_pin_confirmation");
-        assertTrue("Could not confirm the Android home-screen pin request",
+        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(10000L, "Add");
+        assertTrue("Could not confirm the Android home-screen pin request; active window was "
+                        + describeAccessibilityTree(pinPrompt, new StringBuilder(), 0),
                 clickAccessibilityText(pinPrompt, "Add"));
 
         WidgetConfigActivity studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
@@ -711,21 +713,37 @@ public final class WidgetConceptE2ETest {
     }
 
     private void click(View view) throws Exception {
+        waitForResponsiveAndroidUi();
         AtomicBoolean clicked = new AtomicBoolean(false);
         instrumentation.runOnMainSync(() -> clicked.set(view.performClick()));
         assertTrue("RemoteViews click was not dispatched", clicked.get());
         instrumentation.waitForIdleSync();
         SystemClock.sleep(350L);
+        waitForResponsiveAndroidUi();
     }
 
     private void await(Check check, String failure) throws Exception {
         long end = SystemClock.uptimeMillis() + 5000L;
+        int iteration = 0;
         while (SystemClock.uptimeMillis() < end) {
-            instrumentation.waitForIdleSync();
+            if (iteration++ % 5 == 0) waitForResponsiveAndroidUi();
             if (check.ok()) return;
             Thread.sleep(100L);
         }
-        assertTrue(failure, check.ok());
+        AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
+        throw new AssertionError(failure + "; stored alarms=" + DataStore.array(app, "alarms")
+                + "; active window=" + describeAccessibilityTree(root, new StringBuilder(), 0));
+    }
+
+    private boolean alarmEnabled(long alarmId, boolean expected) {
+        JSONArray alarms = DataStore.array(app, "alarms");
+        for (int i = 0; i < alarms.length(); i++) {
+            JSONObject alarm = alarms.optJSONObject(i);
+            if (alarm != null && alarm.optLong("id", -1) == alarmId) {
+                return alarm.optBoolean("enabled", true) == expected;
+            }
+        }
+        return false;
     }
 
     private JSONObject pendingQuickAlarm() {

@@ -40,7 +40,7 @@ cat "$INSTRUMENTATION_LOG"
 rm -rf "$SCREEN_DIR"
 mkdir -p "$SCREEN_DIR"
 mapfile -t images < <(
-    adb exec-out run-as "$APP_PACKAGE" ls files/widget-e2e 2>/dev/null \
+    adb exec-out run-as "$APP_PACKAGE" ls -1 files/widget-e2e 2>/dev/null \
         | tr -d '\r' | grep '\.jpg$' || true
 )
 for image in "${images[@]}"; do
@@ -71,7 +71,16 @@ fi
 for image in "$SCREEN_DIR"/*.jpg; do
     [ -f "$image" ] || continue
     payload=$(base64 -w0 "$image")
-    printf '::notice title=E2E screenshot %s::%s\n' "${image##*/}" "$payload"
+    chunk_size=2500
+    payload_length=${#payload}
+    parts=$(((payload_length + chunk_size - 1) / chunk_size))
+    part=1
+    for ((offset = 0; offset < payload_length; offset += chunk_size)); do
+        chunk=${payload:offset:chunk_size}
+        printf '::notice title=E2E screenshot %s part %02d/%02d::%s\n' \
+            "${image##*/}" "$part" "$parts" "$chunk"
+        part=$((part + 1))
+    done
 done
 
 if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then

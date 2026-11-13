@@ -31,8 +31,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +50,7 @@ import static org.junit.Assert.assertTrue;
 
 /** Executes production RemoteViews on an Android emulator and retains real screen captures. */
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class WidgetConceptE2ETest {
     private static final int FIRST_WIDGET_ID = 8100;
     private static final int ALARM_ID = 92001;
@@ -143,7 +146,7 @@ public final class WidgetConceptE2ETest {
         }
     }
 
-    @Test public void allFifteenProductionWidgetsRenderAndCaptureOnEmulator() throws Exception {
+    @Test public void bAllFifteenProductionWidgetsRenderAndCaptureOnEmulator() throws Exception {
         assertEquals("Expected the complete new-concept traversal", 15, CASES.length);
         for (int i = 0; i < CASES.length; i++) {
             WidgetCase testCase = CASES[i];
@@ -170,7 +173,7 @@ public final class WidgetConceptE2ETest {
                 screenshotDirectory.listFiles((dir, name) -> name.matches("\\d{2}_.+\\.jpg")).length >= 15);
     }
 
-    @Test public void monthGridUsesCompactWeekStripAtCompactWidgetHeight() throws Exception {
+    @Test public void cMonthGridUsesCompactWeekStripAtCompactWidgetHeight() throws Exception {
         Capture capture = display(R.layout.widget_month_grid, 176, 340);
         View fullGrid = capture.widget.findViewById(R.id.widget_month_grid);
         View compactWeek = capture.widget.findViewById(R.id.widget_month_compact);
@@ -187,7 +190,7 @@ public final class WidgetConceptE2ETest {
         captureScreenshot("16_month_grid_compact_week", capture);
     }
 
-    @Test public void wakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows() throws Exception {
+    @Test public void eWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows() throws Exception {
         Capture wakeOn = display(R.layout.widget_wake_switch, 190, 340);
         View wakeButton = wakeOn.widget.findViewById(R.id.widget_wake_switch);
         assertTrue("Wake Switch action needs an accessibility label", text(wakeButton).contains("TAP TO PAUSE"));
@@ -220,7 +223,7 @@ public final class WidgetConceptE2ETest {
         captureScreenshot("19_timer_live_paused_after_tap", paused);
     }
 
-    @Test public void quickAlarmTapEntersTheExistingSaveAndPermissionPreflight() throws Exception {
+    @Test public void dQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight() throws Exception {
         int originalAlarms = DataStore.array(app, "alarms").length();
         Capture quick = display(R.layout.widget_quick_alarm, 174, 340);
         View tenMinutes = quick.widget.findViewById(R.id.widget_quick_alarm_10);
@@ -236,7 +239,7 @@ public final class WidgetConceptE2ETest {
         captureFullScreen("20_quick_alarm_save_preflight");
     }
 
-    @Test public void catalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
+    @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
         WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(
                 new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         assertNotNull("Widget catalog did not open from the app", catalog);
@@ -266,7 +269,7 @@ public final class WidgetConceptE2ETest {
         int previousCount = manager.getAppWidgetIds(provider).length;
         click(card);
 
-        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(12000L, "Add");
+        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(30000L, "Add");
         captureFullScreen("22_quick_alarm_pin_confirmation");
         assertTrue("Could not confirm the Android home-screen pin request",
                 clickAccessibilityText(pinPrompt, "Add"));
@@ -527,9 +530,15 @@ public final class WidgetConceptE2ETest {
     private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
         AccessibilityNodeInfo lastRoot = null;
+        boolean waitedForSystemUi = false;
         while (SystemClock.uptimeMillis() < end) {
             instrumentation.waitForIdleSync();
             lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
+            if (!waitedForSystemUi && accessibilityContains(lastRoot, "System UI isn't responding")) {
+                waitedForSystemUi = clickAccessibilityText(lastRoot, "Wait");
+                Thread.sleep(750L);
+                continue;
+            }
             boolean foundAll = lastRoot != null;
             if (foundAll) {
                 for (String value : expected) {

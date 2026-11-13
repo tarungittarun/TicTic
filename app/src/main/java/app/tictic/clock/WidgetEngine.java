@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/** Shared, battery-conscious RemoteViews renderer for 24 registered widget providers; the picker curates 20. */
+/** Shared, battery-conscious RemoteViews renderer for 39 registered widget providers; the catalog curates 35. */
 final class WidgetEngine {
     private static final int[] TIME_IDS={R.id.widget_time,R.id.widget_time_light,R.id.widget_time_serif,R.id.widget_time_mono,R.id.widget_time_black,R.id.widget_time_condensed,R.id.widget_time_rounded,R.id.widget_time_casual};
     private static final int[] TEXT_IDS={R.id.widget_time,R.id.widget_time_light,R.id.widget_time_serif,R.id.widget_time_mono,R.id.widget_time_black,R.id.widget_time_condensed,R.id.widget_time_rounded,R.id.widget_time_casual,R.id.widget_date,R.id.widget_alarm,R.id.widget_secondary,R.id.widget_caption};
@@ -40,8 +40,9 @@ final class WidgetEngine {
         String key="widget_"+widgetId+"_";android.content.SharedPreferences prefs=DataStore.prefs(c);
         Bundle options=manager.getAppWidgetOptions(widgetId);int width=options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH,220);int height=options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,110);
         boolean compact=width<155||height<84;boolean expanded=width>=180&&height>=125;
-        boolean weather=weatherSupported(name)&&prefs.getBoolean(key+"weather_enabled",false);
-        boolean showDate=!compact&&height>=100&&supportsDate(name)&&prefs.getBoolean(key+"show_date",defaultShowDate(name));boolean showAlarm=expanded&&supportsAlarm(name)&&prefs.getBoolean(key+"show_alarm",defaultShowAlarm(name));boolean showCaption=supportsCaption(name)&&prefs.getBoolean(key+"show_caption",defaultShowCaption(name));boolean showContext=expanded&&(weather||supportsContext(name)&&prefs.getBoolean(key+"show_context",defaultShowContext(name)));
+        boolean concept=WidgetConcepts.isConcept(name);
+        boolean weather=!concept&&weatherSupported(name)&&prefs.getBoolean(key+"weather_enabled",false);
+        boolean showDate=!concept&&!compact&&height>=100&&supportsDate(name)&&prefs.getBoolean(key+"show_date",defaultShowDate(name));boolean showAlarm=expanded&&supportsAlarm(name)&&prefs.getBoolean(key+"show_alarm",defaultShowAlarm(name));boolean showCaption=supportsCaption(name)&&prefs.getBoolean(key+"show_caption",defaultShowCaption(name));boolean showContext=!concept&&expanded&&(weather||supportsContext(name)&&prefs.getBoolean(key+"show_context",defaultShowContext(name)));
         int dateStyle=Math.max(0,Math.min(DATE_PATTERNS.length-1,prefs.getInt(key+"date_format",defaultDateFormat(name))));String datePattern=DATE_PATTERNS[dateStyle];
         v.setCharSequence(R.id.widget_date,"setFormat12Hour",datePattern);v.setCharSequence(R.id.widget_date,"setFormat24Hour",datePattern);
         v.setTextViewText(R.id.widget_alarm,nextAlarmDetail(c,prefs.getInt(key+"alarm_detail",defaultAlarmDetail(name))));
@@ -50,7 +51,9 @@ final class WidgetEngine {
         v.setViewVisibility(R.id.widget_date,showDate?View.VISIBLE:View.GONE);v.setViewVisibility(R.id.widget_alarm,showAlarm?View.VISIBLE:View.GONE);
         v.setViewVisibility(R.id.widget_secondary,showContext?View.VISIBLE:View.GONE);v.setViewVisibility(R.id.widget_caption,showCaption?View.VISIBLE:View.GONE);if(name.equals("widget_clock"))v.setTextViewText(R.id.widget_caption,"TICTIC");
         boolean progress=name.equals("widget_timeline")||name.equals("widget_orbit")||name.equals("widget_halo");if(progress){v.setProgressBar(R.id.widget_progress,100,dayProgress(),false);v.setViewVisibility(R.id.widget_progress,expanded?View.VISIBLE:View.GONE);}else v.setViewVisibility(R.id.widget_progress,View.GONE);
+        WidgetConcepts.render(c,v,widgetId,name,true);
         applyPerWidgetStyle(c,v,widgetId,name,null,width,height);
+        WidgetConcepts.applyStyle(c,v,widgetId,name,null,width,height);
         v.setOnClickPendingIntent(R.id.widget_root,widgetIntent(c,widgetId,name,route,420000+widgetId));
         if(name.equals("widget_command")){v.setOnClickPendingIntent(R.id.widget_action_timer,widgetIntent(c,widgetId,name,"timer",430000+widgetId*2));v.setOnClickPendingIntent(R.id.widget_action_alarm,widgetIntent(c,widgetId,name,"alarms",430001+widgetId*2));}
         UsageTracker.recordWidgetRefresh(c);manager.updateAppWidget(widgetId,v);
@@ -72,10 +75,11 @@ final class WidgetEngine {
         String name=c.getResources().getResourceEntryName(layout);
         RemoteViews v=new RemoteViews(c.getPackageName(),layout);
         android.content.SharedPreferences prefs=DataStore.prefs(c);
+        boolean concept=WidgetConcepts.isConcept(name);
         boolean compact=width<155||height<84,expanded=width>=180&&height>=125;
-        boolean showDate=!compact&&height>=100&&style.showDate&&supportsDate(name);
+        boolean showDate=!concept&&!compact&&height>=100&&style.showDate&&supportsDate(name);
         boolean showAlarm=expanded&&style.showAlarm&&supportsAlarm(name);
-        boolean showContext=expanded&&(style.weatherEnabled||style.showContext&&supportsContext(name));
+        boolean showContext=!concept&&expanded&&(style.weatherEnabled||style.showContext&&supportsContext(name));
         v.setCharSequence(R.id.widget_date,"setFormat12Hour",DATE_PATTERNS[Math.max(0,Math.min(DATE_PATTERNS.length-1,style.dateFormat))]);
         v.setCharSequence(R.id.widget_date,"setFormat24Hour",DATE_PATTERNS[Math.max(0,Math.min(DATE_PATTERNS.length-1,style.dateFormat))]);
         v.setTextViewText(R.id.widget_alarm,nextAlarmDetail(c,style.alarmDetail));
@@ -88,14 +92,16 @@ final class WidgetEngine {
         if(name.equals("widget_clock"))v.setTextViewText(R.id.widget_caption,"TICTIC");
         boolean progress=name.equals("widget_timeline")||name.equals("widget_orbit")||name.equals("widget_halo");
         if(progress){v.setProgressBar(R.id.widget_progress,100,dayProgress(),false);v.setViewVisibility(R.id.widget_progress,expanded?View.VISIBLE:View.GONE);}else v.setViewVisibility(R.id.widget_progress,View.GONE);
+        WidgetConcepts.render(c,v,widgetId,name,false);
         applyPerWidgetStyle(c,v,widgetId,name,style,width,height);
+        WidgetConcepts.applyStyle(c,v,widgetId,name,style,width,height);
         return v;
     }
 
     private static void applyPerWidgetStyle(Context c,RemoteViews v,int id,String layout,PreviewStyle preview,int width,int height){
         String p="widget_"+id+"_";android.content.SharedPreferences prefs=DataStore.prefs(c);
         boolean configured=preview!=null||prefs.getBoolean(p+"configured",false);
-        boolean dark=layout.equals("widget_bedside")||layout.equals("widget_mono")||layout.equals("widget_aurora")||layout.equals("widget_prism")||layout.equals("widget_flip")||layout.equals("widget_command")||layout.equals("widget_halo");
+        boolean dark=layout.equals("widget_bedside")||layout.equals("widget_mono")||layout.equals("widget_aurora")||layout.equals("widget_prism")||layout.equals("widget_flip")||layout.equals("widget_command")||layout.equals("widget_halo")||layout.equals("widget_wake_switch")||layout.equals("widget_quick_alarm")||layout.equals("widget_routine_countdown");
         int color=layout.equals("widget_prism")?0xff39e6e8:layout.equals("widget_halo")?0xffe8fcff:layout.equals("widget_clock")?0xfff7f2ff:(dark?Color.WHITE:0xff183a34);
         if(configured)color=preview!=null?preview.textColor:prefs.getInt(p+"text_color",color);
         boolean wallpaperPalette=preview!=null?preview.wallpaperColors:prefs.getBoolean(p+"wallpaper_colors",false);
@@ -104,7 +110,7 @@ final class WidgetEngine {
         float size=configured?(preview!=null?preview.size:prefs.getFloat(p+"size",defaultSize)):defaultSize;float fitScale=width<155?.68f:width<180?.84f:1f;if(height<90)fitScale=Math.min(fitScale,.72f);else if(height<110)fitScale=Math.min(fitScale,.86f);size*=fitScale;
         int font=configured?(preview!=null?preview.font:prefs.getInt(p+"font",defaultFont(layout))):defaultFont(layout);
         for(int view:TIME_IDS)v.setViewVisibility(view,View.GONE);
-        v.setViewVisibility(TIME_IDS[Math.max(0,Math.min(TIME_IDS.length-1,font))],View.VISIBLE);
+        if(!WidgetConcepts.isConcept(layout))v.setViewVisibility(TIME_IDS[Math.max(0,Math.min(TIME_IDS.length-1,font))],View.VISIBLE);
         boolean saver=powerSaverOptimization(c);boolean seconds=prefs.getBoolean("show_home_seconds",true)&&!saver;
         String twelve=seconds?"h:mm:ss a":"h:mm a",twentyFour=seconds?"HH:mm:ss":"HH:mm";
         for(int view:TIME_IDS){v.setCharSequence(view,"setFormat12Hour",twelve);v.setCharSequence(view,"setFormat24Hour",twentyFour);}
@@ -138,16 +144,47 @@ final class WidgetEngine {
     private static int dp(Context c,int value){return (int)(value*c.getResources().getDisplayMetrics().density+.5f);}
 private static boolean powerSaverOptimization(Context c){return PowerState.isOptimizing(c);}
     static void refreshForPowerSaverChange(Context c){android.content.SharedPreferences p=DataStore.prefs(c);android.os.PowerManager pm=(android.os.PowerManager)c.getSystemService(Context.POWER_SERVICE);boolean now=pm!=null&&pm.isPowerSaveMode();boolean known=p.getBoolean("power_mode_known",false),before=p.getBoolean("power_mode_last",false);if(!known||before!=now){p.edit().putBoolean("power_mode_known",true).putBoolean("power_mode_last",now).apply();refreshAll(c);}}
-    private static int panelDrawable(String n,int treatment){if(treatment==1)return R.drawable.widget_panel_fill_round;if(treatment==2)return R.drawable.widget_panel_fill_square;if(treatment==3)return R.drawable.widget_panel_fill_pill;if(treatment==4||treatment==5)return R.drawable.widget_panel_fill_soft;switch(n){case "widget_clock":return R.drawable.widget_bg_widget_clock;case "widget_date":return R.drawable.widget_bg_widget_date;case "widget_alarm":return R.drawable.widget_bg_widget_alarm;case "widget_analog":return R.drawable.widget_bg_widget_analog;case "widget_world":return R.drawable.widget_bg_widget_world;case "widget_timeline":return R.drawable.widget_bg_widget_timeline;case "widget_focus":return R.drawable.widget_bg_widget_focus;case "widget_timer":return R.drawable.widget_bg_widget_timer;case "widget_stopwatch":return R.drawable.widget_bg_widget_stopwatch;case "widget_bedside":return R.drawable.widget_bg_widget_bedside;case "widget_mono":return R.drawable.widget_bg_widget_mono;case "widget_calendar":return R.drawable.widget_bg_widget_calendar;case "widget_coral":return R.drawable.widget_bg_widget_coral;case "widget_sky":return R.drawable.widget_bg_widget_sky;case "widget_lavender":return R.drawable.widget_bg_widget_lavender;case "widget_stacked":return R.drawable.widget_bg_widget_stacked;case "widget_orbit":return R.drawable.widget_bg_widget_orbit;case "widget_prism":return R.drawable.widget_bg_widget_prism;case "widget_flip":return R.drawable.widget_bg_widget_flip;case "widget_command":return R.drawable.widget_bg_widget_command;case "widget_halo":return R.drawable.widget_bg_widget_halo;case "widget_routine":return R.drawable.widget_bg_widget_routine;case "widget_aurora":return R.drawable.widget_bg_widget_aurora;default:return R.drawable.widget_bg_widget_quiet;}}
+    private static int panelDrawable(String n,int treatment){
+        if(treatment==1)return R.drawable.widget_panel_fill_round;
+        if(treatment==2)return R.drawable.widget_panel_fill_square;
+        if(treatment==3)return R.drawable.widget_panel_fill_pill;
+        if(treatment==4||treatment==5)return R.drawable.widget_panel_fill_soft;
+        switch(n){
+            case "widget_clock":return R.drawable.widget_bg_widget_clock;
+            case "widget_date":case "widget_month_grid":return R.drawable.widget_bg_widget_date;
+            case "widget_alarm":case "widget_alarm_countdown":return R.drawable.widget_bg_widget_alarm;
+            case "widget_analog":return R.drawable.widget_bg_widget_analog;
+            case "widget_world":case "widget_world_grid":return R.drawable.widget_bg_widget_world;
+            case "widget_timeline":case "widget_year_pulse":return R.drawable.widget_bg_widget_timeline;
+            case "widget_focus":case "widget_focus_launch":return R.drawable.widget_bg_widget_focus;
+            case "widget_timer":case "widget_timer_live":return R.drawable.widget_bg_widget_timer;
+            case "widget_stopwatch":case "widget_lap_insights":return R.drawable.widget_bg_widget_stopwatch;
+            case "widget_bedside":case "widget_wake_switch":return R.drawable.widget_bg_widget_bedside;
+            case "widget_mono":return R.drawable.widget_bg_widget_mono;
+            case "widget_calendar":case "widget_week_strip":return R.drawable.widget_bg_widget_calendar;
+            case "widget_coral":return R.drawable.widget_bg_widget_coral;
+            case "widget_sky":case "widget_meeting_window":return R.drawable.widget_bg_widget_sky;
+            case "widget_lavender":return R.drawable.widget_bg_widget_lavender;
+            case "widget_stacked":case "widget_alarm_stack":return R.drawable.widget_bg_widget_stacked;
+            case "widget_orbit":case "widget_day_balance":return R.drawable.widget_bg_widget_orbit;
+            case "widget_prism":case "widget_quick_alarm":return R.drawable.widget_bg_widget_prism;
+            case "widget_flip":return R.drawable.widget_bg_widget_flip;
+            case "widget_command":return R.drawable.widget_bg_widget_command;
+            case "widget_halo":return R.drawable.widget_bg_widget_halo;
+            case "widget_routine":case "widget_routine_stack":return R.drawable.widget_bg_widget_routine;
+            case "widget_aurora":case "widget_routine_countdown":return R.drawable.widget_bg_widget_aurora;
+            default:return R.drawable.widget_bg_widget_quiet;
+        }
+    }
     private static int outlineDrawable(int treatment){switch(treatment){case 1:return R.drawable.widget_panel_outline_round;case 2:return R.drawable.widget_panel_outline_square;case 3:return R.drawable.widget_panel_outline_pill;default:return R.drawable.widget_panel_outline_soft;}}
-    static boolean supportsDate(String n){return !(n.equals("widget_focus")||n.equals("widget_timer")||n.equals("widget_stopwatch")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_bedside")||n.equals("widget_aurora")||n.equals("widget_command"));}
-    static boolean supportsAlarm(String n){return defaultShowAlarm(n)||n.equals("widget_world")||n.equals("widget_orbit")||n.equals("widget_routine");}
+    static boolean supportsDate(String n){return !WidgetConcepts.isConcept(n)&&!(n.equals("widget_focus")||n.equals("widget_timer")||n.equals("widget_stopwatch")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_bedside")||n.equals("widget_aurora")||n.equals("widget_command"));}
+    static boolean supportsAlarm(String n){return n.equals("widget_alarm_countdown")||!WidgetConcepts.isConcept(n)&&(defaultShowAlarm(n)||n.equals("widget_world")||n.equals("widget_orbit")||n.equals("widget_routine"));}
     static boolean supportsCaption(String n){return !n.equals("widget_clock")&&!n.equals("widget_mono")&&!n.equals("widget_sky")&&!n.equals("widget_stopwatch")&&!n.equals("widget_timer");}
-    static boolean supportsContext(String n){return !n.equals("widget_clock")&&!n.equals("widget_mono")&&!n.equals("widget_sky")&&!n.equals("widget_focus")&&!n.equals("widget_stopwatch")&&!n.equals("widget_timer");}
-    static boolean weatherSupported(String n){return n.equals("widget_clock")||n.equals("widget_date")||n.equals("widget_alarm")||n.equals("widget_analog")||n.equals("widget_sky")||n.equals("widget_coral")||n.equals("widget_quiet")||n.equals("widget_aurora")||n.equals("widget_prism")||n.equals("widget_halo");}
+    static boolean supportsContext(String n){return !WidgetConcepts.isConcept(n)&&!(n.equals("widget_clock")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_focus")||n.equals("widget_stopwatch")||n.equals("widget_timer"));}
+    static boolean weatherSupported(String n){return !WidgetConcepts.isConcept(n)&&(n.equals("widget_clock")||n.equals("widget_date")||n.equals("widget_alarm")||n.equals("widget_analog")||n.equals("widget_sky")||n.equals("widget_coral")||n.equals("widget_quiet")||n.equals("widget_aurora")||n.equals("widget_prism")||n.equals("widget_halo"));}
     static int[] previewWallpaperPalette(Context c,int fallback){int fallbackInk=Color.WHITE,fallbackPanel=fallback; if(Build.VERSION.SDK_INT<27)return new int[]{fallbackInk,fallbackPanel};try{WallpaperColors colors=WallpaperManager.getInstance(c).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);if(colors==null||colors.getPrimaryColor()==null)return new int[]{fallbackInk,fallbackPanel};int primary=colors.getPrimaryColor().toArgb();int secondary=colors.getSecondaryColor()!=null?colors.getSecondaryColor().toArgb():primary;int luminance=(int)(.299*Color.red(secondary)+.587*Color.green(secondary)+.114*Color.blue(secondary));int text=luminance>155?0xff172c29:0xfff7f6ef;return new int[]{text,secondary};}catch(RuntimeException ignored){return new int[]{fallbackInk,fallbackPanel};}}
     static int[] previewWallpaperSceneColors(Context c){int[] sample={0xff193d42,0xff426f6b,0xffa2aaa0};if(Build.VERSION.SDK_INT<27)return sample;try{WallpaperColors colors=WallpaperManager.getInstance(c).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);if(colors==null||colors.getPrimaryColor()==null)return sample;int primary=colors.getPrimaryColor().toArgb();int secondary=colors.getSecondaryColor()!=null?colors.getSecondaryColor().toArgb():primary;int tertiary=colors.getTertiaryColor()!=null?colors.getTertiaryColor().toArgb():secondary;return new int[]{primary,secondary,tertiary};}catch(RuntimeException ignored){return sample;}}
-    static String shortName(String layout){String s=layout.replace("widget_","").replace('_',' ');switch(s){case "date":return "Date";case "alarm":return "Alarm";case "analog":return "Analog";case "world":return "World";case "timeline":return "Day Arc";case "focus":return "Focus";case "timer":return "Timers";case "stopwatch":return "Stopwatch";case "bedside":return "Bedside";case "mono":return "Mono";case "calendar":return "Week";case "coral":return "Coral";case "sky":return "Sky";case "lavender":return "Lilac";case "stacked":return "Stamp";case "orbit":return "Orbit";case "routine":return "Routine";case "aurora":return "Aurora";case "quiet":return "Quiet";case "prism":return "Prism";case "flip":return "Flip";case "command":return "Console";case "halo":return "Halo";default:return "Clock";}}
+    static String shortName(String layout){String s=layout.replace("widget_","").replace('_',' ');switch(s){case "date":return "Date";case "alarm":return "Alarm";case "analog":return "Analog";case "world":return "World";case "timeline":return "Day Arc";case "focus":return "Focus";case "timer":return "Timers";case "stopwatch":return "Stopwatch";case "bedside":return "Bedside";case "mono":return "Mono";case "calendar":return "Week";case "coral":return "Coral";case "sky":return "Sky";case "lavender":return "Lilac";case "stacked":return "Stamp";case "orbit":return "Orbit";case "routine":return "Routine";case "aurora":return "Aurora";case "quiet":return "Quiet";case "prism":return "Prism";case "flip":return "Flip";case "command":return "Console";case "halo":return "Halo";case "alarm countdown":return "Wake Countdown";case "alarm stack":return "Alarm Stack";case "wake switch":return "Wake Switch";case "quick alarm":return "Quick Alarm";case "world grid":return "World Grid";case "meeting window":return "Meeting Window";case "week strip":return "Week Strip";case "month grid":return "Month Grid";case "year pulse":return "Year Pulse";case "day balance":return "Day Balance";case "routine stack":return "Routine Stack";case "routine countdown":return "Routine Countdown";case "focus launch":return "Focus Launch";case "timer live":return "Timer Live";case "lap insights":return "Lap Insights";default:return "Clock";}}
     private static String designLabel(String n){String value=n.replace("widget_","").replace("_"," ");return value.length()==0?"Widget":value.substring(0,1).toUpperCase(Locale.ROOT)+value.substring(1);}
     private static boolean isTimeId(int id){for(int view:TIME_IDS)if(view==id)return true;return false;}
     static void refreshAll(Context c){refreshComponent(c,ClockWidgetProvider.class,R.layout.widget_clock,"clock");refreshComponent(c,DateWidgetProvider.class,R.layout.widget_date,"clock");refreshComponent(c,NextAlarmWidgetProvider.class,R.layout.widget_alarm,"alarms");for(Class<?> cl:WidgetVariants.extras())refreshClass(c,cl);}
@@ -163,21 +200,21 @@ private static boolean powerSaverOptimization(Context c){return PowerState.isOpt
     static int defaultFont(Context c,int id){return defaultFont(designName(c,id));}
     static int defaultFont(String n){switch(n){case "widget_date":case "widget_calendar":case "widget_lavender":return 2;case "widget_alarm":case "widget_coral":case "widget_stacked":return 4;case "widget_world":case "widget_timer":case "widget_orbit":case "widget_quiet":return 5;case "widget_focus":return 6;case "widget_stopwatch":case "widget_mono":return 3;case "widget_prism":return 4;case "widget_flip":return 3;case "widget_command":return 5;case "widget_halo":return 0;case "widget_clock":case "widget_timeline":case "widget_sky":case "widget_bedside":case "widget_aurora":return 1;default:return 0;}}
     static boolean defaultShowDate(Context c,int id){return defaultShowDate(designName(c,id));}
-    static boolean defaultShowDate(String n){return !(n.equals("widget_focus")||n.equals("widget_timer")||n.equals("widget_stopwatch")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_bedside")||n.equals("widget_aurora"));}
+    static boolean defaultShowDate(String n){return !WidgetConcepts.isConcept(n)&&!(n.equals("widget_focus")||n.equals("widget_timer")||n.equals("widget_stopwatch")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_bedside")||n.equals("widget_aurora"));}
     static boolean defaultShowAlarm(Context c,int id){return defaultShowAlarm(designName(c,id));}
-    static boolean defaultShowAlarm(String n){return n.equals("widget_clock")||n.equals("widget_alarm")||n.equals("widget_analog")||n.equals("widget_bedside")||n.equals("widget_coral")||n.equals("widget_stacked")||n.equals("widget_quiet")||n.equals("widget_prism")||n.equals("widget_flip")||n.equals("widget_command")||n.equals("widget_halo");}
+    static boolean defaultShowAlarm(String n){return n.equals("widget_alarm_countdown")||!WidgetConcepts.isConcept(n)&&(n.equals("widget_clock")||n.equals("widget_alarm")||n.equals("widget_analog")||n.equals("widget_bedside")||n.equals("widget_coral")||n.equals("widget_stacked")||n.equals("widget_quiet")||n.equals("widget_prism")||n.equals("widget_flip")||n.equals("widget_command")||n.equals("widget_halo"));}
     static boolean defaultShowCaption(Context c,int id){return defaultShowCaption(designName(c,id));}
     static boolean defaultShowCaption(String n){return !(n.equals("widget_clock")||n.equals("widget_mono")||n.equals("widget_sky"));}
     static boolean defaultShowContext(Context c,int id){return defaultShowContext(designName(c,id));}
-    static boolean defaultShowContext(String n){return !(n.equals("widget_clock")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_focus"));}
+    static boolean defaultShowContext(String n){return !WidgetConcepts.isConcept(n)&&!(n.equals("widget_clock")||n.equals("widget_mono")||n.equals("widget_sky")||n.equals("widget_focus"));}
     static int defaultDateFormat(Context c,int id){return defaultDateFormat(designName(c,id));}
     static int defaultDateFormat(String n){if(n.equals("widget_prism"))return 2;if(n.equals("widget_date")||n.equals("widget_calendar")||n.equals("widget_lavender"))return 1;if(n.equals("widget_mono")||n.equals("widget_sky"))return 3;return 0;}
     static int defaultAlarmDetail(Context c,int id){return defaultAlarmDetail(designName(c,id));}
     static int defaultAlarmDetail(String n){return n.equals("widget_alarm")||n.equals("widget_quiet")?0:1;}
     static boolean defaultTransparent(Context c,int id){return designName(c,id).equals("widget_clock");}
-    static int defaultTextColor(Context c,int id){String n=designName(c,id);return n.equals("widget_prism")?0xff39e6e8:n.equals("widget_halo")?0xffe8fcff:n.equals("widget_clock")?0xfff7f2ff:(n.equals("widget_bedside")||n.equals("widget_mono")||n.equals("widget_aurora")||n.equals("widget_flip")||n.equals("widget_command")?Color.WHITE:0xff183a34);}
+    static int defaultTextColor(Context c,int id){String n=designName(c,id);return n.equals("widget_prism")?0xff39e6e8:n.equals("widget_halo")?0xffe8fcff:n.equals("widget_clock")?0xfff7f2ff:(n.equals("widget_bedside")||n.equals("widget_mono")||n.equals("widget_aurora")||n.equals("widget_flip")||n.equals("widget_command")||n.equals("widget_wake_switch")||n.equals("widget_quick_alarm")||n.equals("widget_routine_countdown")?Color.WHITE:0xff183a34);}
     static int defaultBackground(Context c,int id){return defaultBackgroundName(designName(c,id));}
-    private static int defaultBackgroundName(String n){switch(n){case "widget_clock":return 0xff193d38;case "widget_date":return 0xfffff1c7;case "widget_alarm":return 0xfff6e9c9;case "widget_analog":return 0xffddefe8;case "widget_world":return 0xffdde7f7;case "widget_timeline":return 0xffddf1e9;case "widget_focus":return 0xffe7e2fa;case "widget_timer":return 0xffdcebf8;case "widget_stopwatch":return 0xffe6e9ed;case "widget_bedside":return 0xff263b38;case "widget_mono":return 0xff22282f;case "widget_calendar":return 0xfff2eee2;case "widget_coral":return 0xfff5ddd8;case "widget_sky":return 0xffddebf8;case "widget_lavender":return 0xffe9e1f4;case "widget_stacked":return 0xfff7ebcb;case "widget_orbit":return 0xffd9ecec;case "widget_routine":return 0xffe2efe2;case "widget_aurora":return 0xff1d2b39;case "widget_prism":return 0xff101920;case "widget_flip":return 0xff172334;case "widget_command":return 0xff152624;case "widget_halo":return 0xff12303a;default:return 0xffe8ece7;}}
+    private static int defaultBackgroundName(String n){switch(n){case "widget_clock":return 0xff193d38;case "widget_date":case "widget_month_grid":return 0xfffff1c7;case "widget_alarm":case "widget_alarm_countdown":return 0xfff6e9c9;case "widget_analog":return 0xffddefe8;case "widget_world":case "widget_world_grid":return 0xffdde7f7;case "widget_timeline":case "widget_year_pulse":return 0xffddf1e9;case "widget_focus":case "widget_focus_launch":return 0xffe7e2fa;case "widget_timer":case "widget_timer_live":return 0xffdcebf8;case "widget_stopwatch":case "widget_lap_insights":return 0xffe6e9ed;case "widget_bedside":case "widget_wake_switch":return 0xff263b38;case "widget_mono":return 0xff22282f;case "widget_calendar":case "widget_week_strip":return 0xfff2eee2;case "widget_coral":return 0xfff5ddd8;case "widget_sky":case "widget_meeting_window":return 0xffddebf8;case "widget_lavender":return 0xffe9e1f4;case "widget_stacked":case "widget_alarm_stack":return 0xfff7ebcb;case "widget_orbit":case "widget_day_balance":return 0xffd9ecec;case "widget_routine":case "widget_routine_stack":return 0xffe2efe2;case "widget_aurora":case "widget_routine_countdown":return 0xff1d2b39;case "widget_prism":case "widget_quick_alarm":return 0xff101920;case "widget_flip":return 0xff172334;case "widget_command":return 0xff152624;case "widget_halo":return 0xff12303a;default:return 0xffe8ece7;}}
     private static String secondary(Context c,String layout){switch(layout){case "widget_clock":return "NEXT  ·  "+nextAlarmDetail(c);case "widget_date":return "TODAY  ·  "+new SimpleDateFormat("EEEE",Locale.getDefault()).format(new Date());case "widget_alarm":return nextAlarmDetail(c);case "widget_analog":return "SECONDS HAND  ·  NEXT "+nextAlarmDetail(c);case "widget_world":return "LONDON  ·  "+zoneTime("Europe/London",c);case "widget_timeline":return "DAY ARC  ·  "+dayProgress()+"%";case "widget_orbit":return "ORBIT COMPLETED  ·  "+dayProgress()+"%";case "widget_focus":return "FOCUS  ·  OPEN TIMER";case "widget_timer":return "PRESETS   1  ·  5  ·  10  ·  25 MIN";case "widget_stopwatch":return "LAPS RECORDED  ·  "+DataStore.array(c,"laps").length();case "widget_bedside":return "WAKE  ·  "+nextAlarmDetail(c);case "widget_mono":return "HH:MM:SS   /   LOCAL";case "widget_calendar":return new SimpleDateFormat("'WEEK' w  ·  yyyy",Locale.getDefault()).format(new Date());case "widget_coral":return "UP NEXT  ·  "+nextAlarmDetail(c);case "widget_sky":return "LOCAL ZONE  ·  "+TimeZone.getDefault().getID().replace('_',' ');case "widget_lavender":return new SimpleDateFormat("EEEE, d MMMM",Locale.getDefault()).format(new Date()).toUpperCase(Locale.getDefault());case "widget_stacked":return "NEXT  ·  "+nextAlarmDetail(c);case "widget_routine":return nextRoutine(c);case "widget_aurora":return "QUIET HOURS  ·  ALARM READY";case "widget_quiet":return new SimpleDateFormat("EEE",Locale.getDefault()).format(new Date())+"  ·  "+nextAlarmDetail(c);case "widget_prism":return new SimpleDateFormat("EEE",Locale.getDefault()).format(new Date()).toUpperCase(Locale.getDefault())+"  ·  LOCAL";case "widget_flip":return "FOLIO · LIVE LOCAL TIME";case "widget_command":return "SMART · TAP A SHORTCUT";case "widget_halo":return "TODAY · "+dayProgress()+"% COMPLETE";default:return "LOCAL TIME";}}
     private static String nextRoutine(Context c){JSONArray a=DataStore.array(c,"routines");JSONObject best=null;long soon=Long.MAX_VALUE;for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null&&o.optBoolean("enabled",true)){long t=DataStore.nextOccurrence(o,System.currentTimeMillis());if(t<soon){soon=t;best=o;}}}if(best==null)return "NO ROUTINE SCHEDULED";return best.optString("name","Routine")+"  ·  "+DataStore.formatTime(c,best.optInt("hour"),best.optInt("minute"));}
     private static String zoneTime(String id,Context c){SimpleDateFormat f=new SimpleDateFormat(DateFormat.is24HourFormat(c)?"HH:mm":"h:mm a",Locale.getDefault());f.setTimeZone(TimeZone.getTimeZone(id));return f.format(new Date());}

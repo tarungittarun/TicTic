@@ -1,5 +1,7 @@
 # TicTic redesign notes (v1.9.0)
 
+> The sections below document the v1.9.0 redesign history. The current unreleased branch adds fifteen purpose-built widget concepts (35 curated designs, 39 registered providers); see [`PRODUCT.md`](PRODUCT.md), [`widget_specs.txt`](widget_specs.txt), [`TESTING-widget-concepts.md`](TESTING-widget-concepts.md) and [`qa/QA-widget-concepts-manual.md`](qa/QA-widget-concepts-manual.md). This historical redesign checklist does not qualify the new concepts' Android build or device/launcher runtime; see the separate testing record for source and CI status.
+
 ## Intent
 
 Keep TicTic's Clock screen focused on the current moment and make alarms/widgets feel like first-class clock features. Use a stronger circular timepiece identity, clean hierarchy and useful density, while keeping the app private, local and dependency-light.

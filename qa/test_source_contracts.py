@@ -335,7 +335,7 @@ class NewFeatureContracts(unittest.TestCase):
 
     def test_every_widget_provider_supports_launcher_resize_and_studio_spacing_preview(self):
         providers=list((ROOT / "app/src/main/res/xml").glob("widget_*_info.xml"))
-        self.assertEqual(len(providers),24)
+        self.assertEqual(len(providers),39)
         for provider in providers:
             xml=provider.read_text()
             self.assertIn('android:resizeMode="horizontal|vertical"',xml)
@@ -741,7 +741,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         The namespace intentionally stays app.tictic.clock until :feature-clock
         is extracted, because it drives the R class and resolves the manifest's
         relative component names. Asserting both facts keeps a later refactor
-        from silently breaking the 24 widget providers.
+        from silently breaking the 39 widget providers.
         """
         gradle = (ROOT / "app/build.gradle").read_text()
         strings = (ROOT / "app/src/main/res/values/strings.xml").read_text()
@@ -3696,10 +3696,10 @@ class DistinctGlyphAndAppChromeContracts(unittest.TestCase):
                       "activeApp.label().toUpperCase(Locale.ROOT),10,accent,true);", main)
         # Cleared on every path that clears activeScreen, or a stale label would name an app
         # that is no longer on screen.
-        # Three paths clear it: opening the clock, the header wordmark, and the in-app bar's
-        # Clock button. Every path that clears the screen clears the app too, or a stale label
-        # would name an app that is no longer on screen.
-        self.assertEqual(main.count("activeApp=null"), 3)
+        # Existing routes clear it when opening the clock, using the wordmark, or tapping
+        # Clock in the in-app bar; Quick Alarm also clears a foreign screen before returning
+        # to the alarm flow. Every screen-clear path must clear its owner too.
+        self.assertGreaterEqual(main.count("activeApp=null"), 3)
         self.assertEqual(main.count("activeScreen=null"), main.count("activeApp=null"))
 
     def test_the_settings_gear_is_clock_only(self):

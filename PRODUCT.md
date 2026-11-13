@@ -2,6 +2,10 @@
 
 A living record of the product’s purpose, signature, constraints, and release history. The detailed change list is in [`CHANGELOG.md`](CHANGELOG.md); this page records why the product is shaped this way and what it does not claim.
 
+## Current branch worktree — unreleased widget expansion
+
+The current source adds fifteen task-focused widget concepts, bringing the curated catalog to **35 designs across 39 registered providers** while retaining existing provider component identities for placed widgets. New layouts surface local alarm/routine/lap/timer state; Wake Switch, Focus Launch and Timer Live have direct controls, while Quick Alarm follows TicTic’s existing alarm-save permission/preflight path. Routine creation/edit/deletion and timer/lap changes refresh the related widgets. Local qualification covers Python/XML/Java syntax only; remote CI build results are tracked separately, and no APK install or device/launcher runtime result is claimed. See [`TESTING-widget-concepts.md`](TESTING-widget-concepts.md) and [`qa/QA-widget-concepts-manual.md`](qa/QA-widget-concepts-manual.md).
+
 ## Product promise
 
 TicTic is a quiet, local-first time companion: a clear Clock home, dependable alarms, quick timer/stopwatch, routines, time zones and intentionally designed home widgets. Core timekeeping stays useful without network access, an account, ads, remote analytics, or third-party app/runtime code. Optional weather is off by default and network use is scoped to a user-enabled widget; optional usage metrics remain local.
@@ -20,7 +24,7 @@ The full-page Settings, custom alarm editor and Widget Studio use a shared accen
 
 Reference work was about capabilities and design principles, not copied screens:
 
-- Android Authority’s clock-widget roundup describes a range from simple analog/date clocks to highly customizable designs, with size, font, color, transparency and optional motion choices. TicTic translates that breadth into a curated 20-entry widget gallery, a faithful placement preview and per-instance controls rather than importing templates or scripts: [The best Android clock widgets and weather widgets](https://www.androidauthority.com/best-android-clock-widgets-weather-clock-widgets-883303/).
+- Android Authority’s clock-widget roundup describes a range from simple analog/date clocks to highly customizable designs, with size, font, color, transparency and optional motion choices. TicTic translates that breadth into a curated 35-design widget gallery, a faithful placement preview and per-instance controls rather than importing templates or scripts: [The best Android clock widgets and weather widgets](https://www.androidauthority.com/best-android-clock-widgets-weather-clock-widgets-883303/).
 - Android’s widget configuration guidance supports a configuration activity and the `reconfigurable` widget feature so users can revisit per-widget settings after placement. TicTic uses the standard AppWidget configuration flow; the launcher decides whether/how the reconfigure action appears: [Enable users to configure app widgets](https://developer.android.com/develop/ui/compose/glance/configuration), [AppWidgetProviderInfo reference](https://developer.android.com/reference/android/appwidget/AppWidgetProviderInfo).
 - Google Clock, Alarmy and Fossify Clock remain reference points for timekeeping breadth, alarm customization and local-first operation. TicTic is not a clone and does not claim sleep tracking, Wear OS, anti-dismissal wake-up missions or universal OEM lock-screen widgets.
 

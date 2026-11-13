@@ -40,3 +40,7 @@ bash gradlew lintDebug --no-daemon --max-workers=1 \
 - Do not label it release-ready until the focused and inherited manual QA matrix is executed on representative devices and the 242 lint warnings are reviewed/triaged.
 - No commit or GitHub push was made in this session.
 - The APK and workspace file viewer/download path have not been confirmed usable by the user; do not infer successful delivery from the artifact being present here.
+
+## Current unreleased widget-concepts worktree addendum
+
+The build/test/lint/APK results above are historical results for the v1.11.2 source and do **not** include the fifteen new widget concepts now present in the worktree. The new source's local static checks and remote CI compile status are tracked separately in [`TESTING-widget-concepts.md`](TESTING-widget-concepts.md). This versioned record does not qualify widget runtime/device behavior; use the separate [`qa/QA-widget-concepts-manual.md`](qa/QA-widget-concepts-manual.md) matrix.

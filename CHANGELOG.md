@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — fifteen purpose-built widget concepts
+
+- Added fifteen dedicated home-screen designs for alarm countdown/queue/toggle/quick-add, world clocks and meeting windows, week/month/year/day calendars, routine queues/countdowns, focus presets, a live timer and lap insights. The catalog now contains 35 designs backed by 39 provider components; existing provider identities are retained.
+- Connected the concepts to saved app data. Wake Switch toggles an existing alarm, Quick Alarm enters the normal alarm-save preflight before adding a one-time 10/30/60-minute alarm from saved defaults, Focus Launch starts 25/50/90-minute timer presets, and Timer Live toggles the current timer. Alarm, timer, routine create/edit/delete/occurrence and stopwatch-lap/reset changes refresh the relevant RemoteViews.
+- Added locale-first calendar layouts, leap-year/daylight-saving-aware progress calculations, four independent TextClock zones and weekday work-hour status. Countdown displays use a live RemoteViews Chronometer on supported API 26+ devices; a defensive pre-24 text fallback remains in source but is below this app's current minSdk.
+- Static source checks cover provider/resource registration, widget action receivers, view IDs, countdown fallback and calendar math. The manual-only CI workflow handles JVM/Android compile checks separately and never uploads an APK; no device/launcher runtime QA is claimed. See [`qa/QA-widget-concepts-manual.md`](qa/QA-widget-concepts-manual.md) and the current testing record.
+
 ## v1.11.2 — holistic responsive surfaces, five glass presets and selectable touch feedback
 
 - Expanded the earlier alarm-form fix across related surfaces: compact Settings uses a bounded scroll area below a horizontally browsable category row; alarm create/edit and **Configure alarm defaults** use full-screen forms on compact or short-height screens with fixed heading/actions and clipped, scrollable content; wider, taller screens retain centered, bounded dialogs.

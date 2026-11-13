@@ -1,0 +1,44 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_bg_widget_calendar" android:clipChildren="false">
+    <ImageView android:id="@+id/widget_panel" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_fill_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_gloss" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_gloss" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/widget_panel_edge" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_panel_outline_soft" android:visibility="gone" android:contentDescription="@null" android:importantForAccessibility="no" />
+    <LinearLayout android:id="@+id/widget_content" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:orientation="vertical" android:gravity="center_vertical" android:padding="10dp" android:clipToPadding="false">
+        <TextView android:id="@+id/widget_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="start" android:text="WEEK STRIP" android:textColor="#3F7C73" android:textSize="9sp" android:letterSpacing="0.10" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/widget_concept_heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THIS WEEK" android:textSize="9sp" android:letterSpacing="0.12" android:textStyle="bold" android:textColor="#7B6140" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:orientation="horizontal" android:gravity="center">
+            <LinearLayout android:id="@+id/widget_week_cell_0" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_0" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_0" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_1" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_2" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_3" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_4" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_5" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/widget_week_cell_6" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@android:color/transparent">
+                <TextView android:id="@+id/widget_week_day_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="MON" android:textSize="8sp" android:textColor="#65756E" />
+                <TextView android:id="@+id/widget_week_date_6" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="10" android:textSize="15sp" android:textStyle="bold" android:textColor="#183A34" />
+            </LinearLayout>
+        </LinearLayout>
+        <TextClock android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:format12Hour="EEE, d MMM" android:format24Hour="EEE, d MMM" android:textColor="#183A34" android:textSize="11sp" android:fontFamily="sans-serif" android:visibility="gone" />
+        <include layout="@layout/widget_clock_faces" android:layout_width="match_parent" android:layout_height="42dp" android:visibility="gone" />
+        <TextView android:id="@+id/widget_alarm" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="start" android:text="◴  NEXT ALARM" android:textColor="#183A34" android:textSize="10sp" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/widget_secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="start" android:text="" android:textColor="#183A34" android:textSize="9sp" android:maxLines="2" android:ellipsize="end" />
+        <ProgressBar android:id="@+id/widget_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:max="100" android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

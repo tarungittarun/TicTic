@@ -2,6 +2,8 @@
 
 **Status: NOT RUN.** This is a test plan, not evidence of Android runtime behavior. `adb devices -l` found no attached device. Run on a physical device and a supported emulator where possible. For every case record model, Android/API, OEM, screen size/orientation, theme, glass preset, motion mode, steps, actual result and evidence.
 
+> Coverage note: this versioned checklist predates the fifteen new widget concepts in the current unreleased worktree. It does not qualify their providers, actions or rendering. Use [`QA-widget-concepts-manual.md`](QA-widget-concepts-manual.md) for that separate, still-NOT-RUN device matrix.
+
 ## A. Settings → Alarms and alarm-default editor
 
 | ID | Scenario | Expected result | Status |

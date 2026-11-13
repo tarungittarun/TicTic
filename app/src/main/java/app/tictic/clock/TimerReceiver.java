@@ -62,6 +62,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 .putLong("timer_remaining", duration).apply();
         cancelAlarm(context);
         scheduleAt(context, wallEnd);
+        WidgetEngine.refreshAll(context);
     }
 
     static void pause(Context context, long remainingMillis) {
@@ -69,6 +70,7 @@ public class TimerReceiver extends BroadcastReceiver {
         DataStore.prefs(context).edit().putLong("timer_end", 0L)
                 .remove("timer_end_elapsed").remove("timer_boot_count")
                 .putLong("timer_remaining", Math.max(0L, remainingMillis)).apply();
+        WidgetEngine.refreshAll(context);
     }
 
     static void reset(Context context, long durationMillis) {
@@ -91,6 +93,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 .putLong("timer_remaining", left).apply();
         cancelAlarm(context);
         scheduleAt(context, wallEnd);
+        WidgetEngine.refreshAll(context);
     }
 
     private static PendingIntent pending(Context context) {
@@ -117,6 +120,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 DataStore.prefs(context).getLong("timer_default_duration", 300000L));
         DataStore.prefs(context).edit().putLong("timer_end", 0L).remove("timer_end_elapsed")
                 .remove("timer_boot_count").putLong("timer_remaining", duration).apply();
+        WidgetEngine.refreshAll(context);
         DataStore.log(context, "Timer", "Timer completed", "Your countdown finished");
         if (!DataStore.prefs(context).getBoolean("timer_alerts_enabled", true)) return;
 

@@ -122,7 +122,7 @@ The owner's direction is to **keep all three** and give the user control over wh
 :core-platform            → permissions flows, exact-alarm/notification/full-screen
                             preflight, boot/time-change rescheduling, power-saver,
                             foreground-service base.
-:core-widgets             → the widget renderer + 24 providers + Widget Studio,
+:core-widgets             → the widget renderer + 39 providers + Widget Studio,
                             so any feature app can expose widgets.
 :feature-clock            → today's Clock/Alarms/Reminders/Timer/Stopwatch/
                             Routines/Usage, moved out of :app unchanged in behaviour.
@@ -212,7 +212,7 @@ This is also what makes the Tier C apps safe to keep: email, streaming and messa
 | `applicationId` | **`app.space.one`** | A new id means existing `app.tictic.clock` installs **do not upgrade in place** — they become a separate app. Safe right now: v1.11.2 is a *debug candidate with device QA pending*, i.e. no installed base to lose. This is the cheapest moment to rebrand; later it will cost users their data. |
 | Version | **MySpace starts at 2.0.0**; the clock feature keeps its v1.11.2 lineage in CHANGELOG | Avoids confusing "clock v1.11.2" with "suite v1.11.2" |
 | Data migration | The clock's `tictic_local_v1` SharedPreferences must be carried over | Ship an **export/import**: old app writes a JSON bundle via the document picker; MySpace imports it. Also keeps a rollback path. This must be built *before* the rebrand ships, or existing alarms/routines/usage are stranded. |
-| Widgets | **Decided: accept one-time re-placement.** 24 providers move cleanly to `:core-widgets`; no compat providers or aliases | Launcher-placed widgets bind to the provider's component name, so the package change orphans them. Accepted because there is no install base (v1.11.2 is an unreleased debug candidate) *and* the new `applicationId` already prevents in-place upgrade — so widgets would need re-placing regardless. **Must be stated in the release notes and in the export/import flow**, not discovered by users. |
+| Widgets | **Decided: accept one-time re-placement.** 39 providers move cleanly to `:core-widgets`; no compat providers or aliases | Launcher-placed widgets bind to the provider's component name, so the package change orphans them. Accepted because there is no install base (v1.11.2 is an unreleased debug candidate) *and* the new `applicationId` already prevents in-place upgrade — so widgets would need re-placing regardless. **Must be stated in the release notes and in the export/import flow**, not discovered by users. |
 
 ---
 
@@ -343,7 +343,7 @@ Shared helpers appear in several closures (`appTypeface`, `clock24Hour`, `appSpi
 | **1e·1 — `:core-platform` created** | ✅ done | [run 39595590343](https://github.com/tarungittarun/TicTic/actions/runs/39595590343), all steps green, APK 565,112 B. `SystemBoot.count` moved out of `TimerReceiver`, which was the last `:app`-only dependency blocking the stopwatch screen. Receiver keeps a delegate, so its three call sites and `MainActivity`'s two are untouched. **99 contract tests** |
 | **1e·2 — power-saver rule unified** | ✅ done | [run 39598731947](https://github.com/tarungittarun/TicTic/actions/runs/39598731947), all steps green, APK 565,348 B. `PowerState.isOptimizing` replaces three identical copies in `MainActivity`, `WidgetEngine` and `AnalogClockView`; all three delegate, eleven call sites untouched. **The last prerequisite before a `Screen` can be written.** **100 contract tests** |
 | 1e·3 — rest of `:core-platform` | ⬜ | permissions preflight, boot/time rescheduling, usage |
-| 1f — `:core-widgets` | ⬜ | widget renderer, 24 providers, Widget Studio |
+| 1f — `:core-widgets` | ⬜ | widget renderer, 39 providers, Widget Studio |
 | 1g-2 — nav rendering in `:shell` | ⬜ | the hub/rail/drawer views themselves, plus the reorder/pin/hide UI. Follows 1h so there is a real app to render |
 | 1i — export/import bundle | ⬜ | must ship before the id change reaches users |
 | 1j — dead `SDK_INT` guard cleanup | ⬜ | 36 guards, deliberately deferred (§5.1) |
@@ -458,7 +458,7 @@ Still open, but none of these block Phase 1:
 2. **Per-app product specs do not exist.** Nothing in the repository specifies the calculator, notes, habits, expenses, recorder, scanner, writer or spreadsheet behaviour. These are written **just-in-time**, one short product note per app immediately before its phase — speculating on a spreadsheet editor before the shell exists would produce documents that are wrong. Only the **platform contract** (§3) needed specifying up front, and it is written.
 3. **Branding assets do not exist.** The icon is a single vector `ic_app.xml` (TicTic), with no `mipmap-*` directories and **no adaptive icon**. MySpace needs a launcher icon (with adaptive-icon support, now guaranteed available at `minSdk 26`) plus up to 13 in-suite app icons.
 4. **Play Console prerequisites** — developer account, Play App Signing, privacy policy and the data-safety form. Required before the first networked module ships, not before Phase 1.
-5. **Interim inconsistency, by design.** Until `:feature-clock` is extracted, the About screen still reads "TicTic · version …" and the 24 widget providers still live in `app.tictic.clock`. Only the launcher label and `applicationId` change now. This is intentional: keeping the Java `namespace` at `app.tictic.clock` means R references and the manifest's relative component names stay valid, so the rebrand lands as a small CI-verifiable change instead of a big-bang package rename.
+5. **Interim inconsistency, by design.** Until `:feature-clock` is extracted, the About screen still reads "TicTic · version …" and the 39 widget providers still live in `app.tictic.clock`. Only the launcher label and `applicationId` change now. This is intentional: keeping the Java `namespace` at `app.tictic.clock` means R references and the manifest's relative component names stay valid, so the rebrand lands as a small CI-verifiable change instead of a big-bang package rename.
 
 ---
 
@@ -521,7 +521,7 @@ The rename was surgical rather than global, and the distinction matters:
 * **`R.style.TicTicTheme`, the private `TicTicPrefs` class and the `app.tictic.clock` package
   were left alone.** Renaming a theme means touching every `R.style` reference for no gain a
   user can see. The namespace still drives the R class and resolves the manifest's relative
-  component names, including all 24 widget providers.
+  component names, including all 39 widget providers.
 
 The adaptive icon draws the existing brand mark scaled 1.3× about the centre, putting a dial of
 radius 29.9 inside the 33-unit safe zone: the launcher mask crops everything beyond that, so a

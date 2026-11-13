@@ -29,7 +29,7 @@ public final class ClockApp implements SuiteApp {
     /**
      * The destinations this app answers to.
      *
-     * <p>These are exactly the {@code tab} extras that the clock's 24 widget providers and
+     * <p>These are exactly the {@code tab} extras that the clock's 39 widget providers and
      * its notification actions already put on their intents, including the legacy
      * {@code "log"} value that predates the rename to {@code "usage"}. A widget placed
      * before the rebrand sends {@code tab=log}; dropping it here would make that widget
@@ -70,7 +70,7 @@ public final class ClockApp implements SuiteApp {
     }
 
     /**
-     * True, and not marginally: the clock ships 24 widget providers across four families.
+     * True, and not marginally: the clock ships 39 widget providers across four families.
      * It is the only app in the suite for which Widget Studio is currently the primary
      * home-screen surface rather than an optional extra.
      */

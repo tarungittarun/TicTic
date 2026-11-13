@@ -1,21 +1,22 @@
-# TicTic v1.9.1 — 20 curated launcher widget entries
-# Five core entries plus fifteen selections from registered providers; this is not the separate requirement for 15 genuinely new widget concepts.
-# Widget Studio displays the actual RemoteViews layout in its pinned preview and only offers relevant content controls.
+# TicTic — 35 curated launcher widget designs
+# The catalog contains five core designs, fifteen curated styles, and fifteen purpose-built concepts.
+# There are 39 registered providers in total; existing provider identities stay supported for placed widgets.
+# Widget Studio previews the actual RemoteViews layout and offers only applicable shared style controls.
 
 ## Core · 5
 
 01. Clock (widget_clock) — minimal live clock over the launcher's wallpaper; larger sizes can show date and alarm. Destination: Clock.
 02. Date (widget_date) — date-first layout with configurable date format and optional next alarm. Destination: Clock.
-03. Alarm (widget_alarm) — next wake-up and alarm label at a glance. Destination: Alarms.
+03. Alarm (widget_alarm) — next alarm time and label at a glance. Destination: Alarms.
 04. Analog (widget_analog) — classic dial plus digital time. Destination: Clock.
 05. World (widget_world) — local time paired with a second time zone. Destination: Clock.
 
 ## More · 15
 
-06. Day Arc (widget_timeline) — time plus a simple local-day progress bar. Destination: Clock.
+06. Day Arc (widget_timeline) — time plus a local-day progress bar. Destination: Clock.
 07. Focus (widget_focus) — quick access to a focused work timer. Destination: Timer.
 08. Timers (widget_timer) — shortcut to common countdown lengths. Destination: Timer.
-09. Stopwatch (widget_stopwatch) — stopwatch/lap entry point. Destination: Stopwatch.
+09. Stopwatch (widget_stopwatch) — stopwatch and saved-lap entry point. Destination: Stopwatch.
 10. Bedside (widget_bedside) — low-glare time with alarm context. Destination: Clock.
 11. Mono (widget_mono) — fixed-width digits for a clean, precise read. Destination: Clock.
 12. Week (widget_calendar) — weekday/date and week context. Destination: Clock.
@@ -25,13 +26,31 @@
 16. Quiet (widget_quiet) — alarm-first glance with quiet styling. Destination: Alarms.
 17. Prism (widget_prism) — raised-glass cyan digital signature design. Destination: Clock.
 18. Flip (widget_flip) — split folio-style live time and alarm. Destination: Clock.
-19. Console (widget_command) — dedicated one-tap Timer and Alarm actions. Destination: Clock, Timer, Alarms.
-20. Halo (widget_halo) — live day-progress bar with date and next alarm. Destination: Clock.
+19. Console (widget_command) — one-tap Timer and Alarm shortcuts. Destination: Clock, Timer, Alarms.
+20. Halo (widget_halo) — day-progress bar with date and next alarm. Destination: Clock.
 
-Weather is an optional per-widget add-on in Studio for supported clock designs (Clock, Date, Alarm, Analog, Skyline, Coral, Quiet, Aurora, Prism and Halo). When enabled, the widget uses a user-entered city and a selected 30/60/120-minute refresh interval. Android can defer network-constrained jobs; these are requested intervals, not guaranteed update times. No location permission is requested. The app makes no weather request before the user enables weather for that widget. Current conditions are cached locally and stale data is not replaced with a fabricated forecast.
+## New concepts · 15
 
-Wallpaper matching is also opt-in per widget. It reads only Android `WallpaperColors` metadata; it does not read wallpaper image files, request a picker, capture the screen or prompt for storage access. If metadata is unavailable, the widget uses its sample palette.
+21. Wake Countdown (widget_alarm_countdown) — time remaining until the next enabled alarm, with its scheduled time/label at larger sizes. Supported API 26+ devices use a live system countdown; a defensive pre-24 text-snapshot fallback remains in source but is below the app's current minSdk and is not supported. Destination: Alarms.
+22. Alarm Stack (widget_alarm_stack) — the next three enabled alarm occurrences, including date, time and label. Destination: Alarms.
+23. Wake Switch (widget_wake_switch) — toggles the next saved alarm directly; the widget refreshes after the saved enabled state and schedule change. Destination: Alarms.
+24. Quick Alarm (widget_quick_alarm) — starts a one-time alarm about 10, 30 or 60 minutes ahead, rounded up to minute precision so it never fires early. It inherits the app's alarm defaults and opens the existing alarm-save preflight for notification, exact-alarm and full-screen-intent access; it does not schedule around those prompts. Destination: Alarms.
+25. World Grid (widget_world_grid) — live local, London, New York and Tokyo TextClock rows. Destination: Clock.
+26. Meeting Window (widget_meeting_window) — London/New York local times plus weekday 09:00–17:00 work-window status. Destination: Clock.
+27. Week Strip (widget_week_strip) — seven dates aligned to the locale's first day of week, with today highlighted. Destination: Clock.
+28. Month Grid (widget_month_grid) — 42-cell month calendar with locale-first weekday headers and today highlighted at full size; compact launcher sizes switch to a seven-day current-week strip. Destination: Clock.
+29. Year Pulse (widget_year_pulse) — leap-year-aware day-of-year, progress and remaining-day count. Destination: Clock.
+30. Day Balance (widget_day_balance) — elapsed and remaining local-day time, using actual local-day length across daylight-saving transitions. Destination: Clock.
+31. Routine Stack (widget_routine_stack) — the next three enabled routine occurrences. Destination: Routines.
+32. Routine Countdown (widget_routine_countdown) — time remaining until the next enabled routine; supported API 26+ devices use a live Chronometer, while the defensive pre-24 text snapshot remains below the current minSdk and is not supported. Destination: Routines.
+33. Focus Launch (widget_focus_launch) — direct 25, 50 or 90-minute timer start. Destination: Timer.
+34. Timer Live (widget_timer_live) — current timer countdown, progress snapshot and start/pause/resume action. Supported API 26+ devices show a live countdown; a defensive pre-24 text-snapshot fallback remains below the current minSdk and is not supported. Progress updates when the timer starts, pauses, resumes, changes duration or completes; it is not a continuously animated fraction. Destination: Timer.
+35. Lap Insights (widget_lap_insights) — latest, fastest and average saved lap splits. Destination: Stopwatch.
+
+The five clock core and fifteen curated styles retain optional per-widget weather only where already supported in Widget Studio. When enabled, the widget uses a user-entered city and a selected 30/60/120-minute refresh interval. Android can defer network-constrained jobs; these are requested intervals, not guaranteed update times. No location permission is requested. The app makes no weather request before the user enables it for that widget. Current conditions are cached locally and stale data is not replaced with a fabricated forecast.
+
+Wallpaper matching is opt-in per widget. It reads only Android `WallpaperColors` metadata; it does not read wallpaper image files, request a picker, capture the screen or prompt for storage access. If metadata is unavailable, the widget uses its sample palette.
 
 Weather source/licensing gate: Open-Meteo free API and its geocoding endpoint are for non-commercial use. Attribution is shown in the widget and Studio; forecast data is CC BY 4.0. A commercial app, subscription, ad-supported distribution or other commercial integration must use a suitable paid plan before release. See https://open-meteo.com/en/terms and https://open-meteo.com/en/licence.
 
-The four signature layouts (Prism, Flip, Console and Halo) use static layered Android drawables rather than continuous 3D animation or blurred screen captures. AppWidget launchers and lock-screen surfaces vary by Android/OEM; no universal lock-screen placement is promised.
+The four signature layouts (Prism, Flip, Console and Halo) use static layered Android drawables rather than continuous 3D animation or blurred screen captures. AppWidget launchers and lock-screen surfaces vary by Android/OEM; no universal lock-screen placement is promised. The new widget concepts' placement, resizing, accessibility and tap behavior still require Android runtime QA; the manual matrix is [`qa/QA-widget-concepts-manual.md`](qa/QA-widget-concepts-manual.md).

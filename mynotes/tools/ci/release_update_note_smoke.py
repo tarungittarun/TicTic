@@ -53,10 +53,24 @@ def saved_revisions(log):
             re.findall(r'\bsave outcome=ok revision=(\d+)\b', log)]
 
 
+def phase(message):
+    print('::notice title=Legacy install-over smoke phase::' +
+          message.replace('%', '%25').replace('\n', '%0A'))
+
+
 class Device:
     def adb(self, *args):
-        return subprocess.check_output(['adb', *map(str, args)], text=True,
-                                       timeout=45)
+        command = ['adb', *map(str, args)]
+        try:
+            return subprocess.check_output(command, text=True,
+                                           stderr=subprocess.STDOUT, timeout=45)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+            output = getattr(error, 'output', '')
+            detail = ('command=' + ' '.join(map(str, args)) +
+                      '; error=' + str(error) + '; output=' + str(output))
+            print('::error title=Legacy install-over ADB command failed::' +
+                  detail.replace('%', '%25').replace('\n', '%0A'))
+            raise
 
     def ui(self):
         self.adb('shell', 'uiautomator', 'dump', '/sdcard/notes-update-ui.xml')
@@ -146,6 +160,7 @@ def verify(old_apk, candidate_apk, output, old_code=13, candidate_code=72):
     before = device.state()
     if before['version_code'] != old_code:
         raise RuntimeError('Expected installed old version code ' + str(old_code))
+    phase('Installed the exact public package at versionCode ' + str(old_code))
 
     device.launch()
     # Clear only Android's diagnostic log buffer; never app storage. This makes
@@ -158,23 +173,28 @@ def verify(old_apk, candidate_apk, output, old_code=13, candidate_code=72):
     # Wait until the created empty Note is durable, then reset only Android's
     # diagnostic log buffer so the following save event belongs to our fixture.
     device.wait_for_save_stable('new empty Note')
+    phase('Created and confirmed the empty legacy Note save')
     device.adb('logcat', '-c')
     device.fill('Title', TITLE)
     device.fill('Write your note…', BODY)
     device.home()
     device.wait_for_save_stable('fixture title and body')
+    phase('Confirmed the synthetic legacy title and body were saved')
 
     # Verify disk persistence before the update, not just the old process's memory.
     device.launch()
     device.verify_note()
+    phase('The Note survived a cold restart of public versionCode ' + str(old_code))
     device.adb('shell', 'am', 'force-stop', PACKAGE)
     device.adb('install', '-r', candidate_apk)
     after = device.state()
     if (after['version_code'] != candidate_code or
             after['first_install_time'] != before['first_install_time']):
         raise RuntimeError('Update changed install identity or installed the wrong version')
+    phase('Install-over retained the package first-install time and reached versionCode ' + str(candidate_code))
     device.launch()
     device.verify_note()
+    phase('The legacy Note survived the candidate update and a cold restart')
     report = {
         'ok': True,
         'package': PACKAGE,
@@ -203,4 +223,10 @@ if __name__ == '__main__':
     parser.add_argument('--old-code', type=int, default=13)
     parser.add_argument('--candidate-code', type=int, default=72)
     args = parser.parse_args()
-    verify(args.old, args.candidate, args.output, args.old_code, args.candidate_code)
+    try:
+        verify(args.old, args.candidate, args.output,
+               args.old_code, args.candidate_code)
+    except Exception as error:
+        print('::error title=Legacy release install-over smoke failed::' +
+              str(error).replace('%', '%25').replace('\n', '%0A'))
+        raise

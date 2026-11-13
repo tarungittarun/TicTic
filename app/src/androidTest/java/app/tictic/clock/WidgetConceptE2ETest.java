@@ -1,5 +1,6 @@
 package app.tictic.clock;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
@@ -18,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -43,12 +45,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /** Executes production RemoteViews on an Android emulator and retains real screen captures. */
@@ -101,6 +105,13 @@ public final class WidgetConceptE2ETest {
 
     @Before public void setUp() throws Exception {
         instrumentation = InstrumentationRegistry.getInstrumentation();
+        UiAutomation automation = instrumentation.getUiAutomation();
+        AccessibilityServiceInfo accessibility = automation.getServiceInfo();
+        if (accessibility != null
+                && (accessibility.flags & AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS) == 0) {
+            accessibility.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+            automation.setServiceInfo(accessibility);
+        }
         app = instrumentation.getTargetContext();
         screenshotDirectory = new File(app.getFilesDir(), "widget-e2e");
         if (!screenshotDirectory.exists()) {
@@ -117,9 +128,13 @@ public final class WidgetConceptE2ETest {
         }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
-        // The catalog/pin journey does not need MainActivity. Defer its heavier alarm
-        // scheduler startup until a widget preview or action flow actually needs it.
-        activity = null;
+        // Keep the app process and task alive under the catalog/pin launcher hand-off.
+        Intent launch = new Intent(app, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity = (MainActivity) instrumentation.startActivitySync(launch);
+        assertNotNull("MainActivity did not launch on the emulator", activity);
+        instrumentation.waitForIdleSync();
+        SystemClock.sleep(400L);
     }
 
     @After public void tearDown() {
@@ -463,32 +478,53 @@ public final class WidgetConceptE2ETest {
         }
     }
 
+    private AccessibilityNodeInfo findSystemAnrPrompt() {
+        UiAutomation ui = instrumentation.getUiAutomation();
+        AccessibilityNodeInfo active = ui.getRootInActiveWindow();
+        if (accessibilityContains(active, "isn't responding")) return active;
+        List<AccessibilityWindowInfo> windows = ui.getWindows();
+        for (AccessibilityWindowInfo window : windows) {
+            AccessibilityNodeInfo root = window.getRoot();
+            if (accessibilityContains(root, "isn't responding")) return root;
+            window.recycle();
+        }
+        return null;
+    }
+
     private void waitForResponsiveAndroidUi() throws Exception {
         int waits = 0;
         while (waits < 4) {
-            AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
-            if (!accessibilityContains(root, "isn't responding")) return;
+            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
+            if (prompt == null) return;
             assertTrue("Android displayed an ANR prompt without a usable Wait action: "
-                            + describeAccessibilityTree(root, new StringBuilder(), 0),
-                    clickAccessibilityText(root, "Wait"));
+                            + describeAccessibilityTree(prompt, new StringBuilder(), 0),
+                    clickAccessibilityText(prompt, "Wait"));
             waits++;
             SystemClock.sleep(1200L);
         }
-        AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
-        assertFalse("Android remained unresponsive after four Wait actions: "
-                        + describeAccessibilityTree(root, new StringBuilder(), 0),
-                accessibilityContains(root, "isn't responding"));
+        AccessibilityNodeInfo prompt = findSystemAnrPrompt();
+        assertNull("Android remained unresponsive after four Wait actions: "
+                        + describeAccessibilityTree(prompt, new StringBuilder(), 0), prompt);
     }
 
     private Bitmap takeEmulatorScreenshot() throws Exception {
-        waitForResponsiveAndroidUi();
         UiAutomation ui = instrumentation.getUiAutomation();
-        for (int attempt = 0; attempt < 3; attempt++) {
-            Bitmap screenshot = ui.takeScreenshot();
-            if (screenshot != null) return screenshot;
-            SystemClock.sleep(300L);
+        for (int attempt = 0; attempt < 4; attempt++) {
             waitForResponsiveAndroidUi();
+            Bitmap screenshot = ui.takeScreenshot();
+            if (screenshot == null) {
+                SystemClock.sleep(300L);
+                continue;
+            }
+            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
+            if (prompt == null) return screenshot;
+            screenshot.recycle();
+            assertTrue("Android ANR overlay appeared during capture without a usable Wait action: "
+                            + describeAccessibilityTree(prompt, new StringBuilder(), 0),
+                    clickAccessibilityText(prompt, "Wait"));
+            SystemClock.sleep(1200L);
         }
+        waitForResponsiveAndroidUi();
         ParcelFileDescriptor output = ui.executeShellCommand("screencap -p");
         assertNotNull("Android shell did not open an emulator screen capture", output);
         Bitmap screenshot;
@@ -497,6 +533,7 @@ public final class WidgetConceptE2ETest {
             screenshot = BitmapFactory.decodeStream(stream);
         }
         assertNotNull("UiAutomation and screencap both failed to provide an emulator image", screenshot);
+        assertNull("System ANR overlay remained in the emulator capture", findSystemAnrPrompt());
         return screenshot;
     }
 
@@ -593,17 +630,18 @@ public final class WidgetConceptE2ETest {
         AccessibilityNodeInfo lastRoot = null;
         int anrWaits = 0;
         while (SystemClock.uptimeMillis() < end) {
-            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
-            if (accessibilityContains(lastRoot, "isn't responding")) {
-                if (anrWaits >= 4 || !clickAccessibilityText(lastRoot, "Wait")) {
+            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
+            if (prompt != null) {
+                if (anrWaits >= 4 || !clickAccessibilityText(prompt, "Wait")) {
                     throw new AssertionError("Android remained unresponsive while waiting for UI text "
                             + java.util.Arrays.toString(expected) + ": "
-                            + describeAccessibilityTree(lastRoot, new StringBuilder(), 0));
+                            + describeAccessibilityTree(prompt, new StringBuilder(), 0));
                 }
                 anrWaits++;
                 Thread.sleep(1200L);
                 continue;
             }
+            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
             instrumentation.waitForIdleSync();
             lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
             boolean foundAll = lastRoot != null;

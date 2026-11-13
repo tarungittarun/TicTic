@@ -293,6 +293,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("dWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows", test)
         self.assertIn("eQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight", test)
         self.assertIn("waitForResponsiveAndroidUi", test)
+        self.assertIn("FLAG_RETRIEVE_INTERACTIVE_WINDOWS", test)
+        self.assertIn("findSystemAnrPrompt", test)
         self.assertIn("BitmapFactory.decodeFile", test)
         self.assertIn("screencap -p", test)
         self.assertIn("aCatalogPinConfigureAndPlacementCompleteTheUserJourney", test)

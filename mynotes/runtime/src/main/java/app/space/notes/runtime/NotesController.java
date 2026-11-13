@@ -365,7 +365,11 @@ public final class NotesController {
         if(board!=null)board.show(visible,selectedIds,!page.equals("Trash"));
         if(status!=null && !selectedIds.isEmpty())status.setText(selectedIds.size()+" selected · tap cards to change selection");root.post(this::adaptEditorViewport);
     }
-    private void openWorkspace(boolean documents){persistDraft();documentsWorkspace=documents;homeQuery="";navigate("Notes");}
+    private void openWorkspace(boolean documents){persistDraft();
+        // A fast Back can leave an editor/search IME attached to this home surface.
+        // End that stale focus before rebuilding the workspace and measuring its controls.
+        hideEditorKeyboard();View focused=root.findFocus();if(focused!=null)focused.clearFocus();
+        documentsWorkspace=documents;homeQuery="";navigate("Notes");}
     private void navigate(String name) { activeFolder=null;page=name;selectedIds.clear();activeLabel="";libraryFilter=new app.space.notes.domain.LibraryFilter(true,true,Collections.emptyList(),libraryFilter.sort,grid);renderHome(); }
     private void newNote() {
         page="Notes";documentsWorkspace=false;long now=System.currentTimeMillis();Note n=Note.create(now).folder(activeFolder==null?"":activeFolder,now).properties(0,activeLabel.isEmpty()?Collections.emptyList():Arrays.asList(activeLabel),now);notes.add(n);editing=n.id;selectedIds.clear();

@@ -35,21 +35,26 @@ final class ImageTextSelectionDialog {
   // the selection, crop, callbacks or bitmap; window bounds also cover multi-window.
   // Secondary count/preview/tools scroll in portrait, preserving preview space and
   // keeping the primary text/image actions pinned outside that scroller.
-  final int[] mode={-1,-1,-1};root.reflow=(width,height)->{
-   if(width<=0 || height<=0)return;boolean wide=width>height;int next=wide?1:0;if(mode[0]==next && mode[1]==width && mode[2]==height)return;mode[0]=next;mode[1]=width;mode[2]=height;int sideWidth=Math.min(d.dp(240),Math.max(d.dp(176),width/3));
+  final int[] mode={-1,-1,-1,-1};root.reflow=(width,height)->{
+   if(width<=0 || height<=0)return;boolean wide=width>height;int next=wide?1:0;int fontMode=Math.round(d.context.getResources().getConfiguration().fontScale*100f);if(mode[0]==next && mode[1]==width && mode[2]==height && mode[3]==fontMode)return;mode[0]=next;mode[1]=width;mode[2]=height;mode[3]=fontMode;int sideWidth=Math.min(d.dp(240),Math.max(d.dp(176),width/3));boolean largeText=fontMode>=150,stackActions=wide || largeText;
    body.setOrientation(wide?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL);
    view.setLayoutParams(wide?new LinearLayout.LayoutParams(0,-1,1):new LinearLayout.LayoutParams(-1,0,1));
    sidePanel.setLayoutParams(wide?new LinearLayout.LayoutParams(sideWidth,-1):new LinearLayout.LayoutParams(-1,-2));
-   int pinnedPortraitHeight=d.dp(96); // two always-visible 48dp primary action rows
-   int topChrome=d.dp(136); // root insets, heading and single-line help, with large-text slack
-   int minimumImage=Math.round(height*.35f);
-   int secondaryHeight=Math.max(0,Math.min(d.dp(160),height-topChrome-pinnedPortraitHeight-minimumImage));
    side.setVerticalScrollBarEnabled(true);side.setScrollbarFadingEnabled(false);
-   side.setLayoutParams(wide?new LinearLayout.LayoutParams(-1,0,1):new LinearLayout.LayoutParams(-1,secondaryHeight));
-   tools.setOrientation(wide?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);actions.setOrientation(wide?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
-   tools.setLayoutParams(new android.widget.FrameLayout.LayoutParams(wide?sideWidth:-2,-2));actions.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));extract.setLayoutParams(new LinearLayout.LayoutParams(wide?-1:0,d.dp(48),wide?0:1));keep.setLayoutParams(new LinearLayout.LayoutParams(wide?-1:0,d.dp(48),wide?0:1));
+   tools.setOrientation(wide?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);actions.setOrientation(stackActions?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
+   tools.setLayoutParams(new android.widget.FrameLayout.LayoutParams(wide?sideWidth:-2,-2));actions.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));extract.setLayoutParams(new LinearLayout.LayoutParams(stackActions?-1:0,d.dp(48),stackActions?0:1));keep.setLayoutParams(new LinearLayout.LayoutParams(stackActions?-1:0,d.dp(48),stackActions?0:1));
    help.setVisibility(wide?View.GONE:View.VISIBLE);info.setVisibility(wide?View.VISIBLE:View.GONE);
    extract.setText("Use text");keep.setText("Keep image");extract.setMinHeight(d.dp(48));keep.setMinHeight(d.dp(48));
+   int secondaryHeight=0;
+   if(!wide){
+    int contentWidth=Math.max(0,width-root.getPaddingLeft()-root.getPaddingRight());
+    int topChrome=root.getPaddingTop()+root.getPaddingBottom()+measureHeightAtWidth(heading,contentWidth)+measureHeightAtWidth(help,contentWidth);
+    int pinnedHeight=measureHeightAtWidth(actions,contentWidth)+measureHeightAtWidth(reread[0],contentWidth);
+    // Keep a 5-point guard band over the 35% acceptance floor for decor/inset rounding.
+    int minimumImage=Math.round(height*.40f);
+    secondaryHeight=Math.max(0,Math.min(d.dp(160),height-topChrome-pinnedHeight-minimumImage));
+   }
+   side.setLayoutParams(wide?new LinearLayout.LayoutParams(-1,0,1):new LinearLayout.LayoutParams(-1,secondaryHeight));
   };
   view.onChanged(()->{int n=selection.count();try{preview.setText(n==0?"":selection.text());}catch(IllegalArgumentException invalid){preview.setText("Selection is too large. Choose a smaller area.");}count.setText(selection.words.isEmpty()?"No text found. You can still save an image area.":n+" of "+selection.words.size()+" words selected");extract.setEnabled(n>0);copy.setEnabled(n>0);RectF box=view.crop();keep.setEnabled(box!=null && box.width()>0 && box.height()>0);});view.all(true);
   dialog.setContentView(root);dialog.show();if(dialog.getWindow()!=null)dialog.getWindow().setLayout(-1,-1);return dialog;
@@ -59,6 +64,12 @@ final class ImageTextSelectionDialog {
   java.util.function.BiConsumer<Integer,Integer> reflow;
   AdaptiveRoot(android.content.Context context){super(context);}
   @Override protected void onMeasure(int width,int height){if(reflow!=null)reflow.accept(View.MeasureSpec.getSize(width),View.MeasureSpec.getSize(height));super.onMeasure(width,height);}
+ }
+ private static int measureHeightAtWidth(View child,int width){
+  if(child.getVisibility()!=View.VISIBLE)return 0;
+  ViewGroup.LayoutParams params=child.getLayoutParams();int heightSpec=View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED);
+  if(params!=null && params.height>=0)heightSpec=View.MeasureSpec.makeMeasureSpec(params.height,View.MeasureSpec.EXACTLY);
+  child.measure(View.MeasureSpec.makeMeasureSpec(Math.max(0,width),View.MeasureSpec.EXACTLY),heightSpec);return child.getMeasuredHeight();
  }
  // Text actions use the same 48dp touch rail as icons; theme button minimums and
  // vertical text padding must not silently expand two pinned actions in landscape.

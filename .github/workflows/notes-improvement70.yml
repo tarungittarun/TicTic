@@ -9,6 +9,7 @@ on:
       - 'mynotes/app/build.gradle'
       - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesSheets.java'
       - 'mynotes/runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java'
+      - 'mynotes/runtime/src/main/java/app/space/notes/runtime/NotesController.java'
       - 'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java'
       - 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java'
 permissions:
@@ -62,7 +63,7 @@ jobs:
           - {id: api34-landscape, api: 34, target: google_apis, font: '1.0', night: 'yes', orientation: landscape}
           - {id: api26-portrait, api: 26, target: default, font: '1.0', night: 'no', orientation: portrait}
     env:
-      CASES: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape,app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest
+      CASES: app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage,app.space.notes.runtime.ImageSelectionTest#selectionViewportRetainsUsefulAreaInPortraitAndLandscape,app.space.notes.CoreJourneysTest#notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn,app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote,app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection,app.space.notes.CoreJourneysTest#adaptiveNotesFormatIncludesFontSizeAndParagraphNumbering,app.space.notes.CoreJourneysTest#adaptiveNotesPendingInlineStyleLeavesEarlierWordsAlone,app.space.notes.CoreJourneysTest#adaptiveEditorRailsKeepWritingBetweenActualToolColumns,app.space.notes.EnvironmentQualificationTest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5

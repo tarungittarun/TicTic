@@ -81,7 +81,8 @@ class Candidate72ReleaseUpdateTests(unittest.TestCase):
     def test_workflow_builds_and_uploads_only_a_verified_release_as_update(self):
         workflow = WORKFLOW.read_text()
         self.assertIn('MyNotes-v0.72.0-72-update.apk', workflow)
-        self.assertIn('candidate72-install-over-update-apk', workflow)
+        self.assertIn('name: MyNotes-v0.72.0-72-update.apk', workflow)
+        self.assertIn('archive: false', workflow)
         self.assertIn('candidate72-update-apk-verification', workflow)
         self.assertIn('candidate72-emulator-test-apks-do-not-install', workflow)
         self.assertIn('08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca', workflow)

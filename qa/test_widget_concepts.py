@@ -206,6 +206,8 @@ class WidgetConceptContracts(unittest.TestCase):
         concepts = read("WidgetConcepts.java")
         timer = read("TimerReceiver.java")
         self.assertIn("import app.space.core.domain.TimeMath;", concepts)
+        self.assertIn("import android.widget.RemoteViews;", concepts)
+        self.assertNotIn("import android.appwidget.RemoteViews;", concepts)
         self.assertIn("if(Build.VERSION.SDK_INT>=24)", concepts)
         self.assertIn("setChronometerCountDown(viewId,true)", concepts)
         self.assertIn('setTextViewText(viewId,"in "+formatDuration(remaining))', concepts)

@@ -60,5 +60,44 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-jdk17-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', 'gradle.properties') }}
           restore-keys: gradle-${{ runner.os }}-jdk17-
-      - name: Run JVM tests and compile the sideload-neutral debug variant
-        run: sh gradlew --no-daemon --stacktrace test :app:assembleLiteDebug
+      - name: Run JVM test tasks
+        id: unit
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew --no-daemon --stacktrace test 2>&1 | tee /tmp/widget-unit.log
+      - name: Assemble Lite debug variant
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          sh gradlew --no-daemon --stacktrace :app:assembleLiteDebug 2>&1 | tee /tmp/widget-build.log
+      - name: Surface Gradle failure details
+        if: steps.unit.outcome == 'failure' || steps.build.outcome == 'failure'
+        shell: bash
+        run: |
+          escape() { sed 's/%/%25/g; s/\r//g' | awk 'BEGIN { ORS = "%0A" } { print }'; }
+          summarize() {
+            label="$1"
+            file="$2"
+            if [ ! -f "$file" ]; then
+              echo "::error title=$label::Gradle log missing on runner"
+              return
+            fi
+            excerpt=$({ grep -nE '^(e: |error:|FAILURE:|Execution failed|What went wrong|Caused by:|Could not resolve|No space left|Daemon)' "$file" | tail -25 || true
+                       echo "--- last 60 lines ---"
+                       tail -60 "$file"; })
+            {
+              printf '\n#### %s\n\n```text\n' "$label"
+              printf '%s\n' "$excerpt"
+              printf '```\n'
+            } >> "$GITHUB_STEP_SUMMARY"
+            body=$(printf '%s\n' "$excerpt" | escape)
+            echo "::error title=$label::$body"
+          }
+          echo "::notice::Gradle outcomes unit=${{ steps.unit.outcome }} assemble=${{ steps.build.outcome }}"
+          if [ "${{ steps.unit.outcome }}" = "failure" ]; then summarize "JVM test failure context" /tmp/widget-unit.log; fi
+          if [ "${{ steps.build.outcome }}" = "failure" ]; then summarize "Lite debug assemble failure context" /tmp/widget-build.log; fi
+          exit 1

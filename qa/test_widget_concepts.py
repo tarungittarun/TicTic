@@ -262,7 +262,11 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("  push:\n    branches:\n      - arena/3caca636-tictic", workflow)
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertIn("contents: read", workflow)
-        self.assertIn("test :app:assembleLiteDebug", workflow)
+        self.assertIn("id: unit", workflow)
+        self.assertIn("test 2>&1 | tee /tmp/widget-unit.log", workflow)
+        self.assertIn("id: build", workflow)
+        self.assertIn(":app:assembleLiteDebug 2>&1 | tee /tmp/widget-build.log", workflow)
+        self.assertIn("GITHUB_STEP_SUMMARY", workflow)
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("git push", workflow)
 

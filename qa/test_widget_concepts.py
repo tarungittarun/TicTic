@@ -272,11 +272,15 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("error:|symbol:|location:", workflow)
         self.assertIn("ReactiveCircus/android-emulator-runner@v2", workflow)
         self.assertIn(":app:assembleLiteDebugAndroidTest", workflow)
-        self.assertIn("am instrument -w -r app.space.one.test/androidx.test.runner.AndroidJUnitRunner", workflow)
-        self.assertIn("widget-e2e-screenshots", workflow)
-        self.assertIn("notice title=E2E screenshot", workflow)
+        self.assertIn("script: bash qa/run_widget_emulator_e2e.sh", workflow)
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("git push", workflow)
+        runner = (ROOT / "qa/run_widget_emulator_e2e.sh").read_text(encoding="utf-8")
+        self.assertIn('readonly TEST_PACKAGE="app.space.one.test"', runner)
+        self.assertIn('"$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner"', runner)
+        self.assertIn("widget-e2e-screenshots", runner)
+        self.assertIn("notice title=E2E screenshot", runner)
+        self.assertIn('grep -q \'OK (\' "$INSTRUMENTATION_LOG"', runner)
 
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
@@ -285,9 +289,13 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("monthGridUsesCompactWeekStripAtCompactWidgetHeight", test)
         self.assertIn("wakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows", test)
         self.assertIn("quickAlarmTapEntersTheExistingSaveAndPermissionPreflight", test)
+        self.assertIn("catalogPinConfigureAndPlacementCompleteTheUserJourney", test)
+        self.assertIn("isRequestPinAppWidgetSupported", test)
+        self.assertIn("WidgetConfigActivity", test)
         self.assertIn("getUiAutomation().takeScreenshot()", test)
         self.assertIn("WidgetConcepts.render(app, remoteViews, widgetId, name, true)", test)
         self.assertIn('new File(app.getFilesDir(), "widget-e2e")', test)
+        self.assertIn("expected 24", (ROOT / "qa/run_widget_emulator_e2e.sh").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

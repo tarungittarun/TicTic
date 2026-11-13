@@ -146,33 +146,4 @@ jobs:
           cores: 2
           disable-animations: true
           force-avd-creation: true
-          script: |
-            set -euo pipefail
-            main_apk=$(find app/build/outputs/apk -path '*/lite/debug/*.apk' ! -path '*/androidTest/*' -print -quit)
-            test_apk=$(find app/build/outputs/apk -path '*/androidTest/lite/debug/*.apk' -print -quit)
-            test -n "$main_apk" && test -s "$main_apk"
-            test -n "$test_apk" && test -s "$test_apk"
-            adb wait-for-device
-            adb install -r "$main_apk"
-            adb install -r "$test_apk"
-            adb shell pm grant app.space.one android.permission.POST_NOTIFICATIONS 2>/dev/null || true
-            set +e
-            adb shell am instrument -w -r app.space.one.test/androidx.test.runner.AndroidJUnitRunner > /tmp/widget-e2e-instrumentation.log 2>&1
-            test_status=$?
-            set -e
-            cat /tmp/widget-e2e-instrumentation.log
-            mkdir -p /tmp/widget-e2e-screenshots
-            mapfile -t images < <(adb exec-out run-as app.space.one ls files/widget-e2e 2>/dev/null | tr -d '\r' | grep '\.jpg$' || true)
-            for image in "${images[@]}"; do
-              adb exec-out run-as app.space.one cat "files/widget-e2e/$image" > "/tmp/widget-e2e-screenshots/$image"
-            done
-            count=$(find /tmp/widget-e2e-screenshots -maxdepth 1 -type f -name '*.jpg' | wc -l)
-            echo "API 34 emulator screenshots captured: $count" >> "$GITHUB_STEP_SUMMARY"
-            test "$count" -eq 20 || { echo "Expected 20 emulator captures; got $count"; test_status=1; }
-            for image in /tmp/widget-e2e-screenshots/*.jpg; do
-              [ -f "$image" ] || continue
-              payload=$(base64 -w0 "$image")
-              printf '::notice title=E2E screenshot %s::%s\n' "${image##*/}" "$payload"
-            done
-            test "$test_status" -eq 0
-            grep -q 'OK (' /tmp/widget-e2e-instrumentation.log
+          script: bash qa/run_widget_emulator_e2e.sh

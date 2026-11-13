@@ -1,6 +1,10 @@
 package app.tictic.clock;
 
+import android.app.Activity;
 import android.app.Instrumentation;
+import android.app.Instrumentation.ActivityMonitor;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,9 +13,14 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextClock;
 import android.widget.TextView;
 
@@ -33,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -43,6 +53,7 @@ public final class WidgetConceptE2ETest {
     private static final int ALARM_ID = 92001;
     private static final int SECOND_ALARM_ID = 92002;
     private static final int ROUTINE_ID = 93001;
+    private static boolean screenshotDirectoryPrepared;
 
     private static final WidgetCase[] CASES = {
             new WidgetCase("alarm_countdown", R.layout.widget_alarm_countdown,
@@ -89,6 +100,15 @@ public final class WidgetConceptE2ETest {
         if (!screenshotDirectory.exists()) {
             assertTrue("Could not create emulator screenshot directory", screenshotDirectory.mkdirs());
         }
+        synchronized (WidgetConceptE2ETest.class) {
+            if (!screenshotDirectoryPrepared) {
+                File[] oldCaptures = screenshotDirectory.listFiles((dir, name) -> name.endsWith(".jpg"));
+                if (oldCaptures != null) {
+                    for (File oldCapture : oldCaptures) assertTrue("Could not clear stale emulator evidence", oldCapture.delete());
+                }
+                screenshotDirectoryPrepared = true;
+            }
+        }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
 
@@ -105,6 +125,14 @@ public final class WidgetConceptE2ETest {
             AlarmScheduler.cancel(app, ALARM_ID);
             AlarmScheduler.cancel(app, SECOND_ALARM_ID);
             TimerReceiver.cancelAlarm(app);
+            try {
+                JSONArray disabledRoutine = new JSONArray().put(new JSONObject()
+                        .put("id", ROUTINE_ID).put("enabled", false));
+                DataStore.putArray(app, "routines", disabledRoutine);
+                RoutineReceiver.scheduleAll(app);
+            } catch (Exception e) {
+                throw new AssertionError("Could not clean up the test routine alarm", e);
+            }
             DataStore.prefs(app).edit().clear().apply();
         }
         if (activity != null) {
@@ -206,6 +234,99 @@ public final class WidgetConceptE2ETest {
         assertEquals("Quick Alarm must not silently bypass the existing save flow", originalAlarms,
                 DataStore.array(app, "alarms").length());
         captureFullScreen("20_quick_alarm_save_preflight");
+    }
+
+    @Test public void catalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
+        WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(
+                new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        assertNotNull("Widget catalog did not open from the app", catalog);
+        String[] conceptNames = {"Wake Countdown", "Alarm Stack", "Wake Switch", "Quick Alarm", "World Grid",
+                "Meeting Window", "Week Strip", "Month Grid", "Year Pulse", "Day Balance", "Routine Stack",
+                "Routine Countdown", "Focus Launch", "Timer Live", "Lap Insights"};
+        for (String name : conceptNames) assertNotNull("Catalog is missing " + name, findText(catalog, name));
+        assertNotNull("Catalog is missing the new-concepts section", findText(catalog, "NEW CONCEPTS · 15"));
+
+        ScrollView scroll = findScrollView(catalog.getWindow().getDecorView());
+        assertNotNull("Catalog must scroll through all 35 widget designs", scroll);
+        instrumentation.runOnMainSync(() -> scroll.fullScroll(View.FOCUS_DOWN));
+        instrumentation.waitForIdleSync();
+        captureFullScreen("21_widget_catalog_new_concepts");
+
+        TextView quickAlarmTitle = (TextView) findText(catalog, "Quick Alarm");
+        assertNotNull(quickAlarmTitle);
+        View card = (View) quickAlarmTitle.getParent().getParent();
+        assertTrue("Quick Alarm catalog card must start the placement flow", card.isClickable());
+        instrumentation.runOnMainSync(() -> scroll.smoothScrollTo(0, card.getTop()));
+        instrumentation.waitForIdleSync();
+        ActivityMonitor configMonitor = instrumentation.addMonitor(WidgetConfigActivity.class.getName(), null, false);
+        AppWidgetManager manager = AppWidgetManager.getInstance(app);
+        assertTrue("The API 34 emulator launcher must support widget pin requests",
+                manager.isRequestPinAppWidgetSupported());
+        ComponentName provider = new ComponentName(app, WidgetVariants.QuickAlarm.class);
+        int previousCount = manager.getAppWidgetIds(provider).length;
+        click(card);
+
+        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(12000L, "Add");
+        captureFullScreen("22_quick_alarm_pin_confirmation");
+        assertTrue("Could not confirm the Android home-screen pin request",
+                clickAccessibilityText(pinPrompt, "Add"));
+
+        WidgetConfigActivity studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
+        instrumentation.removeMonitor(configMonitor);
+        if (studio == null) {
+            int[] placedIds = manager.getAppWidgetIds(provider);
+            await(() -> manager.getAppWidgetIds(provider).length > previousCount,
+                    "Launcher did not allocate the Quick Alarm widget after pin confirmation");
+            placedIds = manager.getAppWidgetIds(provider);
+            assertTrue("No Quick Alarm widget ID was allocated", placedIds.length > previousCount);
+            int widgetId = placedIds[placedIds.length - 1];
+            Intent configure = new Intent(app, WidgetConfigActivity.class)
+                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            studio = (WidgetConfigActivity) instrumentation.startActivitySync(configure);
+        }
+        assertNotNull("Android did not launch Widget Studio for the pinned concept", studio);
+        final WidgetConfigActivity studioActivity = studio;
+        int widgetId = studioActivity.getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+        assertTrue("Widget Studio did not receive the allocated launcher widget ID", widgetId >= 0);
+        assertNotNull("Widget Studio is showing the wrong provider", findText(studioActivity, "Quick Alarm"));
+
+        CheckBox label = (CheckBox) findText(studioActivity, "Widget label");
+        assertNotNull("Widget Studio must expose the concept label setting", label);
+        assertTrue("Widget label should start enabled for Quick Alarm", label.isChecked());
+        instrumentation.runOnMainSync(() -> label.setChecked(false));
+        Field surfaceField = WidgetConfigActivity.class.getDeclaredField("surfaceSpinner");
+        surfaceField.setAccessible(true);
+        AtomicReference<Spinner> surface = new AtomicReference<>();
+        instrumentation.runOnMainSync(() -> {
+            try {
+                surface.set((Spinner) surfaceField.get(studioActivity));
+                surface.get().setSelection(6);
+            } catch (Exception e) {
+                throw new AssertionError("Could not configure the widget surface", e);
+            }
+        });
+        instrumentation.waitForIdleSync();
+        captureFullScreen("23_quick_alarm_widget_studio");
+        View apply = findText(studioActivity, "Apply");
+        assertNotNull("Widget Studio must provide an Apply action", apply);
+        click(apply);
+
+        await(() -> manager.getAppWidgetIds(provider).length > previousCount,
+                "Quick Alarm was not placed on the Android launcher");
+        String key = "widget_" + widgetId + "_";
+        assertTrue("Applying Widget Studio must persist configured state",
+                DataStore.prefs(app).getBoolean(key + "configured", false));
+        assertEquals("Widget Studio surface selection was not saved", 6,
+                DataStore.prefs(app).getInt(key + "panel_treatment", -1));
+        assertFalse("Widget label choice was not saved", DataStore.prefs(app).getBoolean(key + "show_caption", true));
+        assertNotNull("Launcher did not bind the requested Quick Alarm provider", manager.getAppWidgetInfo(widgetId));
+        assertEquals("Launcher bound the wrong widget provider", R.layout.widget_quick_alarm,
+                manager.getAppWidgetInfo(widgetId).initialLayout);
+        instrumentation.waitForIdleSync();
+        SystemClock.sleep(500L);
+        captureFullScreen("24_quick_alarm_widget_placed");
+        instrumentation.runOnMainSync(catalog::finish);
     }
 
     private Capture display(int layout, int heightDp, int widthDp) throws Exception {
@@ -328,7 +449,7 @@ public final class WidgetConceptE2ETest {
         Bitmap full = instrumentation.getUiAutomation().takeScreenshot();
         assertNotNull("Emulator did not provide a screen capture", full);
         Bitmap image = full;
-        int maxWidth = 600;
+        int maxWidth = 400;
         if (full.getWidth() > maxWidth) {
             int scaledHeight = Math.max(1, full.getHeight() * maxWidth / full.getWidth());
             image = Bitmap.createScaledBitmap(full, maxWidth, scaledHeight, true);
@@ -336,7 +457,7 @@ public final class WidgetConceptE2ETest {
         File output = new File(screenshotDirectory, name + ".jpg");
         try (FileOutputStream stream = new FileOutputStream(output)) {
             assertTrue("Could not encode emulator screenshot: " + name,
-                    image.compress(Bitmap.CompressFormat.JPEG, 65, stream));
+                    image.compress(Bitmap.CompressFormat.JPEG, 42, stream));
         }
         if (image != full) image.recycle();
         full.recycle();
@@ -356,7 +477,7 @@ public final class WidgetConceptE2ETest {
         int bottom = Math.min(full.getHeight(), top + capture.column.getHeight());
         assertTrue("Widget capture bounds are empty", right > left && bottom > top);
         Bitmap crop = Bitmap.createBitmap(full, left, top, right - left, bottom - top);
-        int maxWidth = 600;
+        int maxWidth = 400;
         if (crop.getWidth() > maxWidth) {
             int scaledHeight = Math.max(1, crop.getHeight() * maxWidth / crop.getWidth());
             Bitmap scaled = Bitmap.createScaledBitmap(crop, maxWidth, scaledHeight, true);
@@ -366,11 +487,113 @@ public final class WidgetConceptE2ETest {
         File output = new File(screenshotDirectory, name + ".jpg");
         try (FileOutputStream stream = new FileOutputStream(output)) {
             assertTrue("Could not encode emulator screenshot: " + name,
-                    crop.compress(Bitmap.CompressFormat.JPEG, 68, stream));
+                    crop.compress(Bitmap.CompressFormat.JPEG, 42, stream));
         }
         full.recycle();
         crop.recycle();
         assertTrue("Emulator screenshot was not written: " + name, output.length() > 1000L);
+    }
+
+    private View findText(Activity target, String expected) {
+        return target == null || target.getWindow() == null ? null
+                : findText(target.getWindow().getDecorView(), expected);
+    }
+
+    private View findText(View root, String expected) {
+        if (root instanceof TextView
+                && expected.contentEquals(((TextView) root).getText())) return root;
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View found = findText(group.getChildAt(i), expected);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private ScrollView findScrollView(View root) {
+        if (root instanceof ScrollView) return (ScrollView) root;
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                ScrollView found = findScrollView(group.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
+        long end = SystemClock.uptimeMillis() + timeoutMs;
+        AccessibilityNodeInfo lastRoot = null;
+        while (SystemClock.uptimeMillis() < end) {
+            instrumentation.waitForIdleSync();
+            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
+            boolean foundAll = lastRoot != null;
+            if (foundAll) {
+                for (String value : expected) {
+                    if (!accessibilityContains(lastRoot, value)) {
+                        foundAll = false;
+                        break;
+                    }
+                }
+            }
+            if (foundAll) return lastRoot;
+            Thread.sleep(150L);
+        }
+        throw new AssertionError("Timed out waiting for Android UI text "
+                + java.util.Arrays.toString(expected) + "; active window was "
+                + describeAccessibilityTree(lastRoot, new StringBuilder(), 0));
+    }
+
+    private boolean accessibilityContains(AccessibilityNodeInfo node, String expected) {
+        if (node == null) return false;
+        CharSequence text = node.getText();
+        CharSequence description = node.getContentDescription();
+        if (text != null && text.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT))) return true;
+        if (description != null && description.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT))) return true;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (accessibilityContains(node.getChild(i), expected)) return true;
+        }
+        return false;
+    }
+
+    private boolean clickAccessibilityText(AccessibilityNodeInfo node, String expected) {
+        if (node == null) return false;
+        CharSequence text = node.getText();
+        CharSequence description = node.getContentDescription();
+        boolean matches = text != null && text.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT));
+        matches |= description != null && description.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT));
+        if (matches) {
+            AccessibilityNodeInfo candidate = node;
+            while (candidate != null) {
+                if (candidate.isClickable()
+                        && candidate.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;
+                candidate = candidate.getParent();
+            }
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (clickAccessibilityText(node.getChild(i), expected)) return true;
+        }
+        return false;
+    }
+
+    private String describeAccessibilityTree(AccessibilityNodeInfo node, StringBuilder out, int depth) {
+        if (node == null || depth > 8 || out.length() > 1600) return out.toString();
+        CharSequence text = node.getText();
+        CharSequence description = node.getContentDescription();
+        if ((text != null && text.length() > 0) || (description != null && description.length() > 0)) {
+            if (out.length() > 0) out.append(" | ");
+            out.append(text == null ? "" : text);
+            if (description != null && description.length() > 0) out.append(" [").append(description).append(']');
+        }
+        for (int i = 0; i < node.getChildCount(); i++) describeAccessibilityTree(node.getChild(i), out, depth + 1);
+        return out.toString();
     }
 
     private void click(View view) throws Exception {
@@ -392,13 +615,21 @@ public final class WidgetConceptE2ETest {
     }
 
     private JSONObject pendingQuickAlarm() {
-        try {
-            Field field = MainActivity.class.getDeclaredField("pendingAlarmSave");
-            field.setAccessible(true);
-            return (JSONObject) field.get(activity);
-        } catch (Exception e) {
-            throw new AssertionError("Could not inspect normal Quick Alarm save flow", e);
+        AtomicReference<JSONObject> result = new AtomicReference<>();
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        instrumentation.runOnMainSync(() -> {
+            try {
+                Field field = MainActivity.class.getDeclaredField("pendingAlarmSave");
+                field.setAccessible(true);
+                result.set((JSONObject) field.get(activity));
+            } catch (Exception e) {
+                failure.set(e);
+            }
+        });
+        if (failure.get() != null) {
+            throw new AssertionError("Could not inspect normal Quick Alarm save flow", failure.get());
         }
+        return result.get();
     }
 
     private void seedScenarioData() throws Exception {

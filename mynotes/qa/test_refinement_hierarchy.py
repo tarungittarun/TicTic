@@ -142,6 +142,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
                 'mynotes/domain/src/test/java/app/space/notes/domain/Archive*Test.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java',
+                'mynotes/app/src/androidTest/java/app/space/notes/LocalImageFixture.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/LocalFilePickerTest.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ArchiveSemanticTest.java',
                 'mynotes/app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java',

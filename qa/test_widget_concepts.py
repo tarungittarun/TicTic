@@ -280,8 +280,12 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn('"$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner"', runner)
         self.assertIn("widget-e2e-screenshots", runner)
         self.assertIn("ls -1 files/widget-e2e", runner)
-        self.assertIn("chunk_size=2500", runner)
-        self.assertIn("notice title=E2E screenshot", runner)
+        self.assertNotIn("chunk_size=2500", runner)
+        emitter = (ROOT / "qa/emit_widget_e2e_screenshots.sh").read_text(encoding="utf-8")
+        self.assertIn("notice title=E2E screenshot", emitter)
+        self.assertIn("payload_length > 30000", emitter)
+        for group in ("01–08", "09–16", "17–24"):
+            self.assertIn("Surface emulator screenshots " + group, workflow)
         self.assertIn('grep -q \'OK (\' "$INSTRUMENTATION_LOG"', runner)
 
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):

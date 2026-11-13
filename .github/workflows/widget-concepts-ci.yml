@@ -147,3 +147,15 @@ jobs:
           disable-animations: true
           force-avd-creation: true
           script: bash qa/run_widget_emulator_e2e.sh
+      - name: Surface emulator screenshots 01–08
+        if: always()
+        shell: bash
+        run: bash qa/emit_widget_e2e_screenshots.sh 0 8
+      - name: Surface emulator screenshots 09–16
+        if: always()
+        shell: bash
+        run: bash qa/emit_widget_e2e_screenshots.sh 8 8
+      - name: Surface emulator screenshots 17–24
+        if: always()
+        shell: bash
+        run: bash qa/emit_widget_e2e_screenshots.sh 16 8

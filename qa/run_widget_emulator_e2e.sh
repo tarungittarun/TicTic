@@ -79,22 +79,11 @@ if [ "$count" -ne 24 ]; then
     test_status=1
 fi
 
-# Emit each compact JPEG as a notice so evidence is viewable from the workflow run
-# without an artifact upload or a publishing step.
-for image in "$SCREEN_DIR"/*.jpg; do
-    [ -f "$image" ] || continue
-    payload=$(base64 -w0 "$image")
-    chunk_size=2500
-    payload_length=${#payload}
-    parts=$(((payload_length + chunk_size - 1) / chunk_size))
-    part=1
-    for ((offset = 0; offset < payload_length; offset += chunk_size)); do
-        chunk=${payload:offset:chunk_size}
-        printf '::notice title=E2E screenshot %s part %02d/%02d::%s\n' \
-            "${image##*/}" "$part" "$parts" "$chunk"
-        part=$((part + 1))
-    done
-done
+# The workflow emits the exported captures in three follow-up groups. One JPEG per
+# notice keeps each image intact and stays under GitHub's per-step annotation limit;
+# no artifact upload or publishing step is used.
+printf 'Screenshots are surfaced in the three E2E screenshot evidence steps below.\n' \
+    >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 
 if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
     excerpt=$(grep -E 'INSTRUMENTATION_STATUS:|FAILURES!!!|AssertionError|Exception|Error in |Tests run:|OK \(' \

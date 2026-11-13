@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.ArchiveMerge;
 import app.space.notes.runtime.*;
 import static org.junit.Assert.*;
 /** Exercises Android's actual local DocumentsProvider/grant, not an in-memory folder substitute. */

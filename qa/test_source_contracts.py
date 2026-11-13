@@ -3590,10 +3590,11 @@ class ApkPublishWorkflowContracts(unittest.TestCase):
     debug builds in artifacts/ with a SHA-256 sidecar and an index, so publishing follows that
     convention rather than inventing one.
 
-    Publishing lives in the push-triggered Android CI workflow, not in a workflow_dispatch one:
-    GitHub only exposes workflow_dispatch for files present on the DEFAULT branch, and this
-    work happens on a branch that is never merged, so a dispatch-only workflow could be written
-    and committed and still be impossible to run. That was built once before being discovered.
+    Repository APK publishing remains in the existing push-triggered Android CI workflow, not
+    in a workflow_dispatch workflow. GitHub exposes workflow_dispatch only for workflow files
+    present on the DEFAULT branch, so branch-specific validation must use a push trigger when
+    the development branch is not merged. The separate widget-concepts workflow is branch-scoped
+    and never publishes an APK.
     """
 
     def setUp(self):

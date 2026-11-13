@@ -257,6 +257,15 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("WidgetEngine.refreshAll(this)", main[delete_start:delete_end])
         self.assertIn("WidgetEngine.refreshAll(c)", receiver)
 
+    def test_widget_ci_runs_on_branch_push_without_publishing(self):
+        workflow = (ROOT / ".github/workflows/widget-concepts-ci.yml").read_text(encoding="utf-8")
+        self.assertIn("  push:\n    branches:\n      - arena/3caca636-tictic", workflow)
+        self.assertIn("  workflow_dispatch:", workflow)
+        self.assertIn("contents: read", workflow)
+        self.assertIn("test :app:assembleLiteDebug", workflow)
+        self.assertNotIn("actions/upload-artifact", workflow)
+        self.assertNotIn("git push", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

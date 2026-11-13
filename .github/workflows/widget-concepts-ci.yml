@@ -2,9 +2,13 @@ name: Widget Concepts CI
 
 # Narrow, non-publishing qualification for the fifteen alarm/routine/time widget concepts.
 # The existing Android CI is paused and retains its historical publish steps. This
-# workflow is workflow_dispatch-only: it runs contracts, JVM tests and a debug compile,
-# but never uploads or commits an APK.
+# workflow runs contracts, JVM tests and a debug compile on pushes to the active branch.
+# It also supports manual dispatch once present on the default branch. It never uploads
+# or commits an APK.
 on:
+  push:
+    branches:
+      - arena/3caca636-tictic
   workflow_dispatch:
 
 permissions:

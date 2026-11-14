@@ -146,6 +146,7 @@ jobs:
           cores: 4
           disable-animations: true
           force-avd-creation: true
+          emulator-boot-timeout: 900
           script: bash qa/run_widget_emulator_e2e.sh
       - name: Surface emulator screenshots 01–08
         if: always()

@@ -134,6 +134,24 @@ class WidgetConceptContracts(unittest.TestCase):
         for i in range(7):
             self.assertIn(f"@+id/widget_month_compact_day_{i}", month_layout)
 
+    def test_full_month_grid_uses_weighted_linear_rows_for_visible_dates(self):
+        android = "{http://schemas.android.com/apk/res/android}"
+        root = ET.parse(ROOT / "app/src/main/res/layout/widget_month_grid.xml").getroot()
+        grid = next(node for node in root.iter()
+                    if node.attrib.get(android + "id") == "@+id/widget_month_grid")
+        self.assertEqual(grid.tag, "LinearLayout")
+        self.assertEqual(grid.attrib.get(android + "orientation"), "vertical")
+        self.assertEqual(len(grid), 7)
+        for row_index, row in enumerate(grid):
+            with self.subTest(row=row_index):
+                self.assertEqual(row.tag, "LinearLayout")
+                self.assertEqual(row.attrib.get(android + "orientation"), "horizontal")
+                self.assertEqual(len(row), 7)
+                for cell in row:
+                    self.assertEqual(cell.tag, "TextView")
+                    self.assertEqual(cell.attrib.get(android + "layout_width"), "0dp")
+                    self.assertEqual(cell.attrib.get(android + "layout_weight"), "1")
+
     def test_new_concepts_include_every_shared_engine_view(self):
         engine = read("WidgetEngine.java")
         shared_ids = set()

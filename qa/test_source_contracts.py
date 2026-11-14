@@ -439,6 +439,28 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn("Math.min(.032f", scroll)
         self.assertIn("new OvershootInterpolator(.72f)", scroll)
 
+    def test_gel_motion_snapshots_settings_once_before_visiting_clickables(self):
+        motion = java_code_only(read_core_design("GelMotion.java"))
+        apply = motion[motion.index("public static void apply("):motion.index("private static void visit(")]
+        self.assertEqual(1, apply.count("AppPrefs.prefs(context)"))
+        self.assertIn("motionMode(prefs)", apply)
+        self.assertIn("intensity(prefs)", apply)
+        self.assertIn("reducedMotion(context,prefs)", apply)
+        self.assertIn("visit(root,accent,mode,strength,reduced)", apply)
+
+        visit = motion[motion.index("private static void visit("):motion.index("private static boolean isPressable(")]
+        self.assertIn("attach(view,accent,mode,strength,reduced)", visit)
+        self.assertNotIn("AppPrefs.prefs", visit)
+        self.assertNotIn("Settings.Global.getFloat", visit)
+
+        attach = motion[motion.index("private static void attach("):motion.index("private static void release(")]
+        self.assertNotIn("motionMode(", attach)
+        self.assertNotIn("intensity(", attach)
+        self.assertNotIn("reducedMotion(", attach)
+        self.assertNotIn("Settings.Global.getFloat", attach)
+        self.assertIn("return !ValueAnimator.areAnimatorsEnabled()", motion)
+        self.assertEqual(1, motion.count("Settings.Global.getFloat("))
+
     def test_alarm_editor_is_opaque_fullscreen_with_fixed_actions(self):
         main=read("MainActivity.java")
         start=main.index("private void showAlarmEditor(JSONObject existing)")

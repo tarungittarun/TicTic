@@ -553,9 +553,19 @@ public final class WidgetConceptE2ETest {
         int currentMonth = 0;
         int adjacentMonth = 0;
         int muted = mutedCalendarInk();
+        for (int i = 0; i < 7; i++) {
+            TextView weekday = (TextView) capture.widget.findViewById(calendarCellId("widget_month_weekday_", i));
+            assertNotNull("Month Grid weekday cell is missing at slot " + i, weekday);
+            assertFalse("Month Grid weekday cell has no text at slot " + i, text(weekday).trim().isEmpty());
+            assertTrue("Month Grid weekday cell has no rendered width at slot " + i,
+                    weekday.isShown() && weekday.getWidth() > 0 && weekday.getHeight() > 0);
+        }
         for (int i = 0; i < 42; i++) {
             TextView date = (TextView) capture.widget.findViewById(calendarCellId("widget_month_day_", i));
             assertNotNull("Month Grid date cell is missing at slot " + i, date);
+            assertFalse("Month Grid date cell has no date at slot " + i, text(date).trim().isEmpty());
+            assertTrue("Month Grid date cell has no rendered width at slot " + i,
+                    date.isShown() && date.getWidth() > 0 && date.getHeight() > 0);
             int ink = date.getCurrentTextColor();
             if (ink == Color.WHITE) highlighted++;
             else if (ink == CALENDAR_TEST_INK) currentMonth++;

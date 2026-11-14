@@ -2,6 +2,7 @@ package app.space.core.design;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.SharedPreferences;
 import app.space.core.data.AppPrefs;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -43,11 +44,19 @@ public final class GelMotion {
     private GelMotion(){}
 
     /** Attaches the user's selected press style to every pressable view in a tree. */
-    public static void apply(View root,int accent){if(root!=null)visit(root,accent);}
+    public static void apply(View root,int accent){
+        if(root==null)return;
+        Context context=root.getContext();
+        SharedPreferences prefs=AppPrefs.prefs(context);
+        int mode=motionMode(prefs);
+        float strength=intensity(prefs);
+        boolean reduced=reducedMotion(context,prefs);
+        visit(root,accent,mode,strength,reduced);
+    }
 
-    private static void visit(View view,int accent){
-        if(view.isClickable()&&isPressable(view))attach(view,accent);
-        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)visit(group.getChildAt(i),accent);}
+    private static void visit(View view,int accent,int mode,float strength,boolean reduced){
+        if(view.isClickable()&&isPressable(view))attach(view,accent,mode,strength,reduced);
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)visit(group.getChildAt(i),accent,mode,strength,reduced);}
     }
 
     private static boolean isPressable(View view){
@@ -57,16 +66,19 @@ public final class GelMotion {
                 &&!(view instanceof ScrollView)&&!(view instanceof HorizontalScrollView);
     }
 
-    private static int motionMode(Context c){return Math.max(0,Math.min(4,AppPrefs.prefs(c).getInt("app_motion_style",GEL_SQUEEZE)));}
-    private static float intensity(Context c){return Math.max(0,Math.min(100,AppPrefs.prefs(c).getInt("app_motion_intensity",68)))/100f;}
-    private static boolean reducedMotion(Context c){
-        if(AppPrefs.prefs(c).getBoolean("app_reduce_motion",false))return true;
-        try{if(Build.VERSION.SDK_INT>=26&&!ValueAnimator.areAnimatorsEnabled())return true;return Settings.Global.getFloat(c.getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1f)<=0f;}catch(RuntimeException ignored){return false;}
+    private static int motionMode(SharedPreferences prefs){return Math.max(0,Math.min(4,prefs.getInt("app_motion_style",GEL_SQUEEZE)));}
+    private static float intensity(SharedPreferences prefs){return Math.max(0,Math.min(100,prefs.getInt("app_motion_intensity",68)))/100f;}
+    private static boolean reducedMotion(Context c,SharedPreferences prefs){
+        if(prefs.getBoolean("app_reduce_motion",false))return true;
+        try{
+            if(Build.VERSION.SDK_INT>=26)return !ValueAnimator.areAnimatorsEnabled();
+            return Settings.Global.getFloat(c.getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1f)<=0f;
+        }catch(RuntimeException ignored){return false;}
     }
     private static int rippleColor(int accent,int mode){int alpha=mode==WATER_RIPPLE?0x35:mode==EXPRESSIVE_SPRING?0x28:mode==GLASS_WAVE?0x24:0x20;return (alpha<<24)|(accent&0x00ffffff);}
 
-    private static void attach(View view,int accent){
-        Context context=view.getContext();int mode=motionMode(context);float strength=intensity(context);boolean reduced=reducedMotion(context);
+    private static void attach(View view,int accent,int mode,float strength,boolean reduced){
+        Context context=view.getContext();
         if(view.getForeground()==null&&!(view.getBackground() instanceof RippleDrawable)){
             GradientDrawable mask=new GradientDrawable();mask.setColor(Color.WHITE);mask.setCornerRadius(view.getResources().getDisplayMetrics().density*22f);
             view.setForeground(new RippleDrawable(ColorStateList.valueOf(rippleColor(accent,mode)),null,mask));

@@ -293,6 +293,7 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("GITHUB_STEP_SUMMARY", workflow)
         self.assertIn("error:|symbol:|location:", workflow)
         self.assertIn("ReactiveCircus/android-emulator-runner@v2", workflow)
+        self.assertIn("target: default", workflow)
         self.assertIn(":app:assembleLiteDebugAndroidTest", workflow)
         self.assertIn("script: bash qa/run_widget_emulator_e2e.sh", workflow)
         self.assertIn("emulator-boot-timeout: 900", workflow)
@@ -364,8 +365,8 @@ class WidgetConceptContracts(unittest.TestCase):
 
     def test_e2e_dismisses_external_crash_dialogs_but_keeps_target_crashes_fatal(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
-        self.assertIn('findSystemPrompt("keeps stopping", "keeps crashing")', test)
-        self.assertIn('clickAccessibilityText(crash, "Close app")', test)
+        self.assertIn('"isn\'t responding", "keeps stopping", "keeps crashing"', test)
+        self.assertIn('clickAccessibilityText(prompt, "Close app")', test)
         self.assertIn("promptNamesTargetApp(details)", test)
         self.assertIn('Android displayed the target app crash dialog: ', test)
         self.assertIn('E2E dismissed unrelated-app crash dialog: ', test)
@@ -378,6 +379,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("if (!respondToSystemPrompt()) return screenshot", screenshot)
         wait = test[test.index("private AccessibilityNodeInfo waitForAccessibilityTexts"):test.index("private AccessibilityNodeInfo findAccessibilityRootContaining")]
         self.assertIn("if (respondToSystemPrompt())", wait)
+        prompt_scan = test[test.index("private boolean containsAnyAccessibilityText"):test.index("private boolean promptNamesTargetApp")]
+        self.assertIn("child.recycle()", prompt_scan)
         await_flow = test[test.index("private void await(Check check, String failure, long timeoutMs)"):test.index("private boolean alarmEnabled")]
         self.assertIn("waitForResponsiveAndroidUi()", await_flow)
 
@@ -399,6 +402,9 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("scroll.scrollTo(0, Math.max(0, card.getTop() - dp(16)))", test)
         catalog_journey = test[test.index("@Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney"):test.index("private <T extends Activity>")]
         self.assertNotIn("scroll.smoothScrollTo", catalog_journey)
+        self.assertNotIn("instrumentation.waitForIdleSync", catalog_journey)
+        self.assertIn('findText(catalog, "NEW CONCEPTS · 15")', catalog_journey)
+        self.assertIn("await(() -> isViewFullyVisible(newConceptsTitle)", catalog_journey)
         self.assertIn("await(() -> isTapTargetFullyVisible(card)", catalog_journey)
         self.assertIn("Focus Launch did not start the timer\", 20000L)", test)
         self.assertIn('timer state={running=', test)
@@ -406,7 +412,7 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("Could not confirm the Android home-screen pin request; active window was", test)
         self.assertIn("waitForResponsiveAndroidUi", test)
         self.assertIn("FLAG_RETRIEVE_INTERACTIVE_WINDOWS", test)
-        self.assertIn("findSystemAnrPrompt", test)
+        self.assertIn('"isn\'t responding"', test)
         self.assertIn("BitmapFactory.decodeFile", test)
         self.assertIn("screencap -p", test)
         self.assertIn("aCatalogPinConfigureAndPlacementCompleteTheUserJourney", test)

@@ -61,7 +61,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /** Executes production RemoteViews on an Android emulator and retains real screen captures. */
@@ -312,8 +311,12 @@ public final class WidgetConceptE2ETest {
 
         ScrollView scroll = findScrollView(catalog.getWindow().getDecorView());
         assertNotNull("Catalog must scroll through all 35 widget designs", scroll);
-        instrumentation.runOnMainSync(() -> scroll.fullScroll(View.FOCUS_DOWN));
-        instrumentation.waitForIdleSync();
+        TextView newConceptsTitle = (TextView) findText(catalog, "NEW CONCEPTS · 15");
+        assertNotNull("Catalog is missing the new-concepts section heading", newConceptsTitle);
+        instrumentation.runOnMainSync(() ->
+                scroll.scrollTo(0, Math.max(0, newConceptsTitle.getTop() - dp(16))));
+        await(() -> isViewFullyVisible(newConceptsTitle),
+                "New-concepts section heading did not become fully visible after scrolling");
         captureFullScreen("21_widget_catalog_new_concepts");
 
         TextView quickAlarmTitle = (TextView) findText(catalog, "Quick Alarm");
@@ -322,7 +325,6 @@ public final class WidgetConceptE2ETest {
         assertTrue("Quick Alarm catalog card must start the placement flow", card.isClickable());
         instrumentation.runOnMainSync(() ->
                 scroll.scrollTo(0, Math.max(0, card.getTop() - dp(16))));
-        instrumentation.waitForIdleSync();
         await(() -> isTapTargetFullyVisible(card),
                 "Quick Alarm catalog card did not become fully visible after scrolling");
         ActivityMonitor configMonitor = instrumentation.addMonitor(WidgetConfigActivity.class.getName(), null, false);
@@ -643,21 +645,12 @@ public final class WidgetConceptE2ETest {
         }
     }
 
-    private AccessibilityNodeInfo findSystemAnrPrompt() {
-        return findSystemPrompt("isn't responding");
-    }
-
-    private AccessibilityNodeInfo findSystemCrashPrompt() {
-        return findSystemPrompt("keeps stopping", "keeps crashing");
-    }
-
     private AccessibilityNodeInfo findSystemPrompt(String... markers) {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
         if (containsAnyAccessibilityText(active, markers)) return active;
         if (active != null) active.recycle();
-        List<AccessibilityWindowInfo> windows = ui.getWindows();
-        for (AccessibilityWindowInfo window : windows) {
+        for (AccessibilityWindowInfo window : ui.getWindows()) {
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
             if (containsAnyAccessibilityText(root, markers)) return root;
@@ -667,8 +660,22 @@ public final class WidgetConceptE2ETest {
     }
 
     private boolean containsAnyAccessibilityText(AccessibilityNodeInfo node, String... markers) {
+        if (node == null) return false;
+        CharSequence text = node.getText();
+        CharSequence description = node.getContentDescription();
         for (String marker : markers) {
-            if (accessibilityContains(node, marker)) return true;
+            String expected = marker.toLowerCase(java.util.Locale.ROOT);
+            if (text != null && text.toString().toLowerCase(java.util.Locale.ROOT).contains(expected)) return true;
+            if (description != null && description.toString().toLowerCase(java.util.Locale.ROOT).contains(expected)) return true;
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            try {
+                if (containsAnyAccessibilityText(child, markers)) return true;
+            } finally {
+                child.recycle();
+            }
         }
         return false;
     }
@@ -682,33 +689,32 @@ public final class WidgetConceptE2ETest {
     }
 
     private boolean respondToSystemPrompt() throws Exception {
-        AccessibilityNodeInfo anr = findSystemAnrPrompt();
-        if (anr != null) {
-            String details = describeAccessibilityTree(anr, new StringBuilder(), 0);
+        AccessibilityNodeInfo prompt = findSystemPrompt(
+                "isn't responding", "keeps stopping", "keeps crashing");
+        if (prompt == null) return false;
+        String details = describeAccessibilityTree(prompt, new StringBuilder(), 0);
+        if (accessibilityContains(prompt, "isn't responding")) {
             boolean waited;
             try {
-                waited = clickAccessibilityText(anr, "Wait");
+                waited = clickAccessibilityText(prompt, "Wait");
             } finally {
-                anr.recycle();
+                prompt.recycle();
             }
             assertTrue("Android displayed an ANR prompt without a usable Wait action: " + details, waited);
             SystemClock.sleep(1200L);
             return true;
         }
 
-        AccessibilityNodeInfo crash = findSystemCrashPrompt();
-        if (crash == null) return false;
-        String details = describeAccessibilityTree(crash, new StringBuilder(), 0);
         if (promptNamesTargetApp(details)) {
-            crash.recycle();
+            prompt.recycle();
             throw new AssertionError("Android displayed the target app crash dialog: " + details);
         }
         boolean closed;
         try {
-            closed = clickAccessibilityText(crash, "Close app")
-                    || clickAccessibilityText(crash, "OK");
+            closed = clickAccessibilityText(prompt, "Close app")
+                    || clickAccessibilityText(prompt, "OK");
         } finally {
-            crash.recycle();
+            prompt.recycle();
         }
         assertTrue("Android displayed an unrelated-app crash prompt without a usable close action: "
                 + details, closed);
@@ -720,18 +726,17 @@ public final class WidgetConceptE2ETest {
     private void waitForResponsiveAndroidUi() throws Exception {
         int recoveries = 0;
         while (recoveries < 4 && respondToSystemPrompt()) recoveries++;
-        AccessibilityNodeInfo anr = findSystemAnrPrompt();
-        if (anr != null) {
-            String details = describeAccessibilityTree(anr, new StringBuilder(), 0);
-            anr.recycle();
+        if (recoveries < 4) return;
+        AccessibilityNodeInfo prompt = findSystemPrompt(
+                "isn't responding", "keeps stopping", "keeps crashing");
+        if (prompt == null) return;
+        String details = describeAccessibilityTree(prompt, new StringBuilder(), 0);
+        boolean anr = accessibilityContains(prompt, "isn't responding");
+        prompt.recycle();
+        if (anr) {
             throw new AssertionError("Android remained unresponsive after four Wait actions: " + details);
         }
-        AccessibilityNodeInfo crash = findSystemCrashPrompt();
-        if (crash != null) {
-            String details = describeAccessibilityTree(crash, new StringBuilder(), 0);
-            crash.recycle();
-            throw new AssertionError("Android kept showing an app crash dialog after four recoveries: " + details);
-        }
+        throw new AssertionError("Android kept showing an app crash dialog after four recoveries: " + details);
     }
 
     private Bitmap takeEmulatorScreenshot() throws Exception {
@@ -755,19 +760,15 @@ public final class WidgetConceptE2ETest {
             screenshot = BitmapFactory.decodeStream(stream);
         }
         assertNotNull("UiAutomation and screencap both failed to provide an emulator image", screenshot);
-        AccessibilityNodeInfo remainingAnr = findSystemAnrPrompt();
-        if (remainingAnr != null) {
-            String details = describeAccessibilityTree(remainingAnr, new StringBuilder(), 0);
-            remainingAnr.recycle();
+        AccessibilityNodeInfo remainingPrompt = findSystemPrompt(
+                "isn't responding", "keeps stopping", "keeps crashing");
+        if (remainingPrompt != null) {
+            String details = describeAccessibilityTree(remainingPrompt, new StringBuilder(), 0);
+            boolean anr = accessibilityContains(remainingPrompt, "isn't responding");
+            remainingPrompt.recycle();
             screenshot.recycle();
-            throw new AssertionError("System ANR overlay remained in the emulator capture: " + details);
-        }
-        AccessibilityNodeInfo remainingCrash = findSystemCrashPrompt();
-        if (remainingCrash != null) {
-            String details = describeAccessibilityTree(remainingCrash, new StringBuilder(), 0);
-            remainingCrash.recycle();
-            screenshot.recycle();
-            throw new AssertionError("System crash overlay remained in the emulator capture: " + details);
+            throw new AssertionError((anr ? "System ANR" : "System crash")
+                    + " overlay remained in the emulator capture: " + details);
         }
         return screenshot;
     }
@@ -931,17 +932,7 @@ public final class WidgetConceptE2ETest {
     }
 
     private boolean accessibilityContains(AccessibilityNodeInfo node, String expected) {
-        if (node == null) return false;
-        CharSequence text = node.getText();
-        CharSequence description = node.getContentDescription();
-        if (text != null && text.toString().toLowerCase(java.util.Locale.ROOT)
-                .contains(expected.toLowerCase(java.util.Locale.ROOT))) return true;
-        if (description != null && description.toString().toLowerCase(java.util.Locale.ROOT)
-                .contains(expected.toLowerCase(java.util.Locale.ROOT))) return true;
-        for (int i = 0; i < node.getChildCount(); i++) {
-            if (accessibilityContains(node.getChild(i), expected)) return true;
-        }
-        return false;
+        return containsAnyAccessibilityText(node, expected);
     }
 
     private boolean clickAccessibilityText(AccessibilityNodeInfo node, String expected) {
@@ -954,14 +945,29 @@ public final class WidgetConceptE2ETest {
                 .contains(expected.toLowerCase(java.util.Locale.ROOT));
         if (matches) {
             AccessibilityNodeInfo candidate = node;
+            boolean ownsCandidate = false;
             while (candidate != null) {
-                if (candidate.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;
-                candidate = candidate.getParent();
+                if (candidate.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                    if (ownsCandidate) candidate.recycle();
+                    return true;
+                }
+                AccessibilityNodeInfo parent = candidate.getParent();
+                if (ownsCandidate) candidate.recycle();
+                candidate = parent;
+                ownsCandidate = parent != null;
             }
             if (injectTap(node)) return true;
         }
         for (int i = 0; i < node.getChildCount(); i++) {
-            if (clickAccessibilityText(node.getChild(i), expected)) return true;
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            boolean clicked;
+            try {
+                clicked = clickAccessibilityText(child, expected);
+            } finally {
+                child.recycle();
+            }
+            if (clicked) return true;
         }
         return false;
     }
@@ -1008,7 +1014,15 @@ public final class WidgetConceptE2ETest {
             out.append(" clickable=").append(node.isClickable());
             out.append(" bounds=").append(bounds);
         }
-        for (int i = 0; i < node.getChildCount(); i++) describeAccessibilityTree(node.getChild(i), out, depth + 1);
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            try {
+                describeAccessibilityTree(child, out, depth + 1);
+            } finally {
+                child.recycle();
+            }
+        }
         return out.toString();
     }
 
@@ -1040,6 +1054,17 @@ public final class WidgetConceptE2ETest {
                 injectTap(target.exactCenterX(), target.exactCenterY()));
         SystemClock.sleep(350L);
         waitForResponsiveAndroidUi();
+    }
+
+    private boolean isViewFullyVisible(View view) {
+        AtomicBoolean visible = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> {
+            Rect bounds = new Rect();
+            visible.set(view.isAttachedToWindow() && view.isShown()
+                    && view.getGlobalVisibleRect(bounds)
+                    && bounds.width() == view.getWidth() && bounds.height() == view.getHeight());
+        });
+        return visible.get();
     }
 
     private boolean isTapTargetFullyVisible(View view) {

@@ -139,7 +139,9 @@ jobs:
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 34
-          target: google_apis
+          # The journeys need Launcher3/AppWidget pinning, not Play services; prefer the
+          # lean AOSP image to avoid unrelated Google system-app crashes observed in CI.
+          target: default
           arch: x86_64
           profile: pixel_2
           ram-size: 3072M

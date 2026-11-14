@@ -131,7 +131,6 @@ public final class WidgetConceptE2ETest {
         seedScenarioData();
         // Launch screens lazily. MainActivity's live ticker can keep the UI queue non-idle,
         // so the E2E helper waits for lifecycle resume rather than a global idle barrier.
-        // The catalog journey does not need MainActivity at all.
         activity = null;
         catalogActivity = null;
     }
@@ -296,13 +295,33 @@ public final class WidgetConceptE2ETest {
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
-        // The catalog is internal, but its UI queue need not go idle before inspection.
-        // Wait for its lifecycle resume rather than startActivitySync's global idle barrier.
-        WidgetCatalogActivity catalog = launchActivityWithoutWaitingForIdle(
-                WidgetCatalogActivity.class,
-                new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        // Exercise the same visible Settings → Browse widgets route as a real user. The last
+        // direct launch resumed a 0x0 catalog window alongside a System UI ANR; its root cause
+        // is unresolved, so prefer the actual foreground user path for this qualification.
+        MainActivity host = ensureMainActivity();
+        View settings = findContentDescription(host, "Settings");
+        assertNotNull("MySpace home is missing its Settings action", settings);
+        await(() -> isTapTargetFullyVisible(settings), "Settings action did not become visible", 15000L);
+        click(settings);
+
+        View browseWidgets = findText(host, "Browse widgets");
+        assertNotNull("Settings is missing the Browse widgets action", browseWidgets);
+        ScrollView settingsScroll = findScrollView(host.getWindow().getDecorView());
+        assertNotNull("Settings must scroll to the widget catalog action", settingsScroll);
+        await(() -> isScrollContentLaidOut(settingsScroll, browseWidgets),
+                "Settings did not finish layout before opening the widget catalog", 15000L);
+        scrollTargetToTop(settingsScroll, browseWidgets, dp(16));
+        await(() -> isTapTargetFullyVisible(browseWidgets),
+                "Browse widgets action did not become fully visible", 15000L);
+
+        ActivityMonitor catalogMonitor = instrumentation.addMonitor(
+                WidgetCatalogActivity.class.getName(), null, false);
+        click(browseWidgets);
+        WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation
+                .waitForMonitorWithTimeout(catalogMonitor, 15000L);
+        instrumentation.removeMonitor(catalogMonitor);
         catalogActivity = catalog;
-        assertNotNull("Widget catalog did not open from the app", catalog);
+        assertNotNull("Widget catalog did not open from Settings", catalog);
         String[] conceptNames = {"Wake Countdown", "Alarm Stack", "Wake Switch", "Quick Alarm", "World Grid",
                 "Meeting Window", "Week Strip", "Month Grid", "Year Pulse", "Day Balance", "Routine Stack",
                 "Routine Countdown", "Focus Launch", "Timer Live", "Lap Insights"};
@@ -317,7 +336,7 @@ public final class WidgetConceptE2ETest {
         assertNotNull("Catalog is missing the Quick Alarm card", quickAlarmTitle);
         View card = (View) quickAlarmTitle.getParent().getParent();
         assertTrue("Quick Alarm catalog card must start the placement flow", card.isClickable());
-        await(() -> isCatalogLaidOut(scroll, newConceptsTitle, card),
+        await(() -> isScrollContentLaidOut(scroll, newConceptsTitle, card),
                 "Widget catalog did not finish layout before scrolling; " + catalogScrollState(scroll, card),
                 15000L);
         scrollTargetToTop(scroll, newConceptsTitle, dp(16));
@@ -940,6 +959,24 @@ public final class WidgetConceptE2ETest {
         return null;
     }
 
+    private View findContentDescription(Activity target, String expected) {
+        return target == null || target.getWindow() == null ? null
+                : findContentDescription(target.getWindow().getDecorView(), expected);
+    }
+
+    private View findContentDescription(View root, String expected) {
+        CharSequence description = root.getContentDescription();
+        if (description != null && expected.contentEquals(description)) return root;
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View found = findContentDescription(group.getChildAt(i), expected);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
     private ScrollView findScrollView(View root) {
         if (root instanceof ScrollView) return (ScrollView) root;
         if (root instanceof ViewGroup) {
@@ -1120,7 +1157,7 @@ public final class WidgetConceptE2ETest {
         waitForResponsiveAndroidUi();
     }
 
-    private boolean isCatalogLaidOut(ScrollView scroll, View... targets) {
+    private boolean isScrollContentLaidOut(ScrollView scroll, View... targets) {
         AtomicBoolean ready = new AtomicBoolean(false);
         instrumentation.runOnMainSync(() -> {
             View content = scroll.getChildCount() == 0 ? null : scroll.getChildAt(0);

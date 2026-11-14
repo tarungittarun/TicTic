@@ -446,10 +446,12 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertIn("motionMode(prefs)", apply)
         self.assertIn("intensity(prefs)", apply)
         self.assertIn("reducedMotion(context,prefs)", apply)
-        self.assertIn("visit(root,accent,mode,strength,reduced)", apply)
+        self.assertEqual(1, apply.count("ViewConfiguration.get(context)"))
+        self.assertIn("int touchSlop=ViewConfiguration.get(context).getScaledTouchSlop()", apply)
+        self.assertIn("visit(root,accent,mode,strength,reduced,touchSlop)", apply)
 
         visit = motion[motion.index("private static void visit("):motion.index("private static boolean isPressable(")]
-        self.assertIn("attach(view,accent,mode,strength,reduced)", visit)
+        self.assertIn("attach(view,accent,mode,strength,reduced,touchSlop)", visit)
         self.assertNotIn("AppPrefs.prefs", visit)
         self.assertNotIn("Settings.Global.getFloat", visit)
 
@@ -458,6 +460,7 @@ class UserFeedbackRegressionContracts(unittest.TestCase):
         self.assertNotIn("intensity(", attach)
         self.assertNotIn("reducedMotion(", attach)
         self.assertNotIn("Settings.Global.getFloat", attach)
+        self.assertNotIn("ViewConfiguration.get(context)", attach)
         self.assertIn("return !ValueAnimator.areAnimatorsEnabled()", motion)
         self.assertEqual(1, motion.count("Settings.Global.getFloat("))
 

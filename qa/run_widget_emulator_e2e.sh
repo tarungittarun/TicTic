@@ -126,8 +126,22 @@ if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
         tail -n 100 "$DEVICE_DIAGNOSTICS_LOG"
         printf '\n```\n'
     } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
-    escaped=$(tail -n 20 "$DEVICE_DIAGNOSTICS_LOG" | cut -c1-160 | sed 's/%/%25/g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }')
-    echo "::error title=Emulator crash diagnostics::$escaped"
+    escape_annotation() {
+        sed 's/%/%25/g; s/\r//g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }'
+    }
+    host_resources=$(
+        {
+            sed -n '/^Host emulator processes:/,/^ADB devices:/p' "$DEVICE_DIAGNOSTICS_LOG"
+            sed -n '/^Host memory:/,/^ADB devices:/p' "$DEVICE_DIAGNOSTICS_LOG"
+        } | grep -v '^ADB devices:' | tail -n 20 | cut -c1-180 | escape_annotation
+    )
+    guest_resources=$(sed -n '/^Guest boot state and memory:/,/^Android crash buffer:/p' \
+        "$DEVICE_DIAGNOSTICS_LOG" | grep -v '^Android crash buffer:' | cut -c1-180 | escape_annotation)
+    system_signals=$(grep -Ei 'FATAL EXCEPTION|Fatal signal|system_server|SystemUI|System UI|ANR in|Long monitor contention|dvm_lock_sample|lmkd|lowmemorykiller|watchdog' \
+        "$DEVICE_DIAGNOSTICS_LOG" | tail -n 12 | cut -c1-200 | escape_annotation || true)
+    if [ -n "$host_resources" ]; then echo "::error title=Emulator host resources::$host_resources"; fi
+    if [ -n "$guest_resources" ]; then echo "::error title=Emulator guest resources::$guest_resources"; fi
+    if [ -n "$system_signals" ]; then echo "::error title=Emulator system responsiveness signals::$system_signals"; fi
 fi
 
 phase="print instrumentation results"

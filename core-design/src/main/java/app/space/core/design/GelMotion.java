@@ -51,12 +51,13 @@ public final class GelMotion {
         int mode=motionMode(prefs);
         float strength=intensity(prefs);
         boolean reduced=reducedMotion(context,prefs);
-        visit(root,accent,mode,strength,reduced);
+        int touchSlop=ViewConfiguration.get(context).getScaledTouchSlop();
+        visit(root,accent,mode,strength,reduced,touchSlop);
     }
 
-    private static void visit(View view,int accent,int mode,float strength,boolean reduced){
-        if(view.isClickable()&&isPressable(view))attach(view,accent,mode,strength,reduced);
-        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)visit(group.getChildAt(i),accent,mode,strength,reduced);}
+    private static void visit(View view,int accent,int mode,float strength,boolean reduced,int touchSlop){
+        if(view.isClickable()&&isPressable(view))attach(view,accent,mode,strength,reduced,touchSlop);
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)visit(group.getChildAt(i),accent,mode,strength,reduced,touchSlop);}
     }
 
     private static boolean isPressable(View view){
@@ -77,13 +78,13 @@ public final class GelMotion {
     }
     private static int rippleColor(int accent,int mode){int alpha=mode==WATER_RIPPLE?0x35:mode==EXPRESSIVE_SPRING?0x28:mode==GLASS_WAVE?0x24:0x20;return (alpha<<24)|(accent&0x00ffffff);}
 
-    private static void attach(View view,int accent,int mode,float strength,boolean reduced){
+    private static void attach(View view,int accent,int mode,float strength,boolean reduced,int touchSlop){
         Context context=view.getContext();
         if(view.getForeground()==null&&!(view.getBackground() instanceof RippleDrawable)){
             GradientDrawable mask=new GradientDrawable();mask.setColor(Color.WHITE);mask.setCornerRadius(view.getResources().getDisplayMetrics().density*22f);
             view.setForeground(new RippleDrawable(ColorStateList.valueOf(rippleColor(accent,mode)),null,mask));
         }
-        final float density=view.getResources().getDisplayMetrics().density;final int touchSlop=ViewConfiguration.get(context).getScaledTouchSlop();final float[] down={0f,0f};final boolean[] tracking={false};
+        final float density=view.getResources().getDisplayMetrics().density;final float[] down={0f,0f};final boolean[] tracking={false};
         view.setOnTouchListener((target,event)->{
             int action=event.getActionMasked();
             if(action==MotionEvent.ACTION_DOWN&&target.isEnabled()){

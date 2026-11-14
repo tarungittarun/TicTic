@@ -3,7 +3,7 @@
 # divides the 24 expected captures into three groups of eight to respect per-step caps.
 set -Eeuo pipefail
 
-readonly SCREEN_DIR="/tmp/widget-e2e-screenshots"
+readonly SCREEN_DIR="${WIDGET_E2E_SCREEN_DIR:-/tmp/widget-e2e-screenshots}"
 start=${1:?Usage: emit_widget_e2e_screenshots.sh START COUNT}
 count=${2:?Usage: emit_widget_e2e_screenshots.sh START COUNT}
 if [[ ! "$start" =~ ^[0-9]+$ || ! "$count" =~ ^[1-9][0-9]*$ ]]; then

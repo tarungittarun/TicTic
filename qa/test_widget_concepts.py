@@ -4,7 +4,11 @@ These checks validate source/resource wiring only. They do not replace an Androi
 launcher placement, resize, interaction, accessibility, or device-runtime test.
 """
 from pathlib import Path
+import base64
+import os
 import re
+import subprocess
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -288,6 +292,28 @@ class WidgetConceptContracts(unittest.TestCase):
         for group in ("01–08", "09–16", "17–24"):
             self.assertIn("Surface emulator screenshots " + group, workflow)
         self.assertIn('grep -q \'OK (\' "$INSTRUMENTATION_LOG"', runner)
+
+    def test_screenshot_emitter_preserves_each_payload_under_annotation_limit(self):
+        emitter = ROOT / "qa/emit_widget_e2e_screenshots.sh"
+        with tempfile.TemporaryDirectory(prefix="widget-e2e-emitter-") as temp:
+            screen_dir = Path(temp)
+            expected = []
+            for index in range(1, 25):
+                payload = bytes([index]) * 2800
+                expected.append(payload)
+                (screen_dir / ("%02d_placeholder.jpg" % index)).write_bytes(payload)
+            env = os.environ.copy()
+            env["WIDGET_E2E_SCREEN_DIR"] = str(screen_dir)
+            for start in (0, 8, 16):
+                result = subprocess.run(
+                    ["bash", str(emitter), str(start), "8"],
+                    check=True, capture_output=True, text=True, env=env)
+                lines = result.stdout.splitlines()
+                self.assertEqual(8, len(lines))
+                for offset, line in enumerate(lines):
+                    encoded = line.rsplit("::", 1)[1]
+                    self.assertLessEqual(len(encoded), 3800)
+                    self.assertEqual(expected[start + offset], base64.b64decode(encoded, validate=True))
 
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")

@@ -1,7 +1,8 @@
 """Source-level contracts for the fifteen task-focused app-widget concepts.
 
-These checks validate source/resource wiring only. They do not replace an Android build,
-launcher placement, resize, interaction, accessibility, or device-runtime test.
+These checks validate source/resource wiring and evidence packaging only. They do not
+replace an Android build, launcher placement, resize, interaction, accessibility, or
+emulator-runtime test.
 """
 from pathlib import Path
 import base64

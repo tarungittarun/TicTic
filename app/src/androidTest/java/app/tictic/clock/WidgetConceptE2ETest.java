@@ -12,10 +12,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.view.Gravity;
+import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -63,8 +66,6 @@ public final class WidgetConceptE2ETest {
     private static final int ALARM_ID = 92001;
     private static final int SECOND_ALARM_ID = 92002;
     private static final int ROUTINE_ID = 93001;
-    private static boolean screenshotDirectoryPrepared;
-
     private static final WidgetCase[] CASES = {
             new WidgetCase("alarm_countdown", R.layout.widget_alarm_countdown,
                     R.id.widget_concept_heading, "NEXT WAKE IN", 202),
@@ -116,15 +117,6 @@ public final class WidgetConceptE2ETest {
         screenshotDirectory = new File(app.getFilesDir(), "widget-e2e");
         if (!screenshotDirectory.exists()) {
             assertTrue("Could not create emulator screenshot directory", screenshotDirectory.mkdirs());
-        }
-        synchronized (WidgetConceptE2ETest.class) {
-            if (!screenshotDirectoryPrepared) {
-                File[] oldCaptures = screenshotDirectory.listFiles((dir, name) -> name.endsWith(".jpg"));
-                if (oldCaptures != null) {
-                    for (File oldCapture : oldCaptures) assertTrue("Could not clear stale emulator evidence", oldCapture.delete());
-                }
-                screenshotDirectoryPrepared = true;
-            }
         }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
@@ -216,6 +208,7 @@ public final class WidgetConceptE2ETest {
         captureScreenshot("17_wake_switch_disabled_after_tap", wakeOff);
         View offButton = wakeOff.widget.findViewById(R.id.widget_wake_switch);
         assertTrue(String.valueOf(offButton.getContentDescription()).startsWith("Enable Morning focus at"));
+        assertTrue("Wake Switch lost its action after changing the alarm state", offButton.isClickable());
         click(offButton);
         await(() -> alarmEnabled(ALARM_ID, true), "Wake Switch did not re-enable the selected alarm");
 
@@ -257,6 +250,36 @@ public final class WidgetConceptE2ETest {
                     clickAccessibilityText(preflight, "Cancel"));
             await(() -> pendingQuickAlarm() == null, "Quick Alarm preflight did not cancel cleanly");
         }
+    }
+
+    @Test public void zAllTwentyFourEmulatorCapturesArePresentAndDecodable() {
+        String[] expected = {
+                "01_alarm_countdown", "02_alarm_stack", "03_wake_switch", "04_quick_alarm",
+                "05_world_grid", "06_meeting_window", "07_week_strip", "08_month_grid",
+                "09_year_pulse", "10_day_balance", "11_routine_stack", "12_routine_countdown",
+                "13_focus_launch", "14_timer_live", "15_lap_insights", "16_month_grid_compact_week",
+                "17_wake_switch_disabled_after_tap", "18_timer_live_running_after_focus_launch",
+                "19_timer_live_paused_after_tap", "20_quick_alarm_save_preflight",
+                "21_widget_catalog_new_concepts", "22_quick_alarm_pin_confirmation",
+                "23_quick_alarm_widget_studio", "24_quick_alarm_widget_placed"
+        };
+        StringBuilder missing = new StringBuilder();
+        for (String name : expected) {
+            File image = new File(screenshotDirectory, name + ".jpg");
+            if (!image.isFile()) {
+                if (missing.length() > 0) missing.append(", ");
+                missing.append(name);
+                continue;
+            }
+            assertTrue("Emulator capture is unexpectedly small: " + name, image.length() > 1000L);
+            Bitmap decoded = BitmapFactory.decodeFile(image.getAbsolutePath());
+            assertNotNull("Emulator capture is not a decodable JPEG: " + name, decoded);
+            decoded.recycle();
+        }
+        File[] actual = screenshotDirectory.listFiles((dir, filename) -> filename.endsWith(".jpg"));
+        assertNotNull("Emulator screenshot directory could not be listed", actual);
+        assertEquals("Expected exactly 24 uniquely named emulator screenshots", 24, actual.length);
+        assertTrue("Missing emulator captures: " + missing, missing.length() == 0);
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
@@ -484,11 +507,13 @@ public final class WidgetConceptE2ETest {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
         if (accessibilityContains(active, "isn't responding")) return active;
+        if (active != null) active.recycle();
         List<AccessibilityWindowInfo> windows = ui.getWindows();
         for (AccessibilityWindowInfo window : windows) {
             AccessibilityNodeInfo root = window.getRoot();
-            if (accessibilityContains(root, "isn't responding")) return root;
             window.recycle();
+            if (accessibilityContains(root, "isn't responding")) return root;
+            if (root != null) root.recycle();
         }
         return null;
     }
@@ -629,7 +654,6 @@ public final class WidgetConceptE2ETest {
 
     private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
-        AccessibilityNodeInfo lastRoot = null;
         int anrWaits = 0;
         while (SystemClock.uptimeMillis() < end) {
             AccessibilityNodeInfo prompt = findSystemAnrPrompt();
@@ -643,24 +667,37 @@ public final class WidgetConceptE2ETest {
                 Thread.sleep(1200L);
                 continue;
             }
-            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
+            AccessibilityNodeInfo root = findAccessibilityRootContaining(expected);
+            if (root != null) return root;
             instrumentation.waitForIdleSync();
-            lastRoot = instrumentation.getUiAutomation().getRootInActiveWindow();
-            boolean foundAll = lastRoot != null;
-            if (foundAll) {
-                for (String value : expected) {
-                    if (!accessibilityContains(lastRoot, value)) {
-                        foundAll = false;
-                        break;
-                    }
-                }
-            }
-            if (foundAll) return lastRoot;
             Thread.sleep(150L);
         }
+        AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
         throw new AssertionError("Timed out waiting for Android UI text "
                 + java.util.Arrays.toString(expected) + "; active window was "
-                + describeAccessibilityTree(lastRoot, new StringBuilder(), 0));
+                + describeAccessibilityTree(active, new StringBuilder(), 0));
+    }
+
+    private AccessibilityNodeInfo findAccessibilityRootContaining(String... expected) {
+        UiAutomation ui = instrumentation.getUiAutomation();
+        AccessibilityNodeInfo active = ui.getRootInActiveWindow();
+        if (containsAccessibilityTexts(active, expected)) return active;
+        if (active != null) active.recycle();
+        for (AccessibilityWindowInfo window : ui.getWindows()) {
+            AccessibilityNodeInfo root = window.getRoot();
+            window.recycle();
+            if (containsAccessibilityTexts(root, expected)) return root;
+            if (root != null) root.recycle();
+        }
+        return null;
+    }
+
+    private boolean containsAccessibilityTexts(AccessibilityNodeInfo node, String... expected) {
+        if (node == null) return false;
+        for (String value : expected) {
+            if (!accessibilityContains(node, value)) return false;
+        }
+        return true;
     }
 
     private boolean accessibilityContains(AccessibilityNodeInfo node, String expected) {
@@ -688,10 +725,10 @@ public final class WidgetConceptE2ETest {
         if (matches) {
             AccessibilityNodeInfo candidate = node;
             while (candidate != null) {
-                if (candidate.isClickable()
-                        && candidate.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;
+                if (candidate.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;
                 candidate = candidate.getParent();
             }
+            if (injectTap(node)) return true;
         }
         for (int i = 0; i < node.getChildCount(); i++) {
             if (clickAccessibilityText(node.getChild(i), expected)) return true;
@@ -699,14 +736,46 @@ public final class WidgetConceptE2ETest {
         return false;
     }
 
+    private boolean injectTap(AccessibilityNodeInfo node) {
+        Rect bounds = new Rect();
+        node.getBoundsInScreen(bounds);
+        if (bounds.isEmpty()) return false;
+        float x = bounds.exactCenterX();
+        float y = bounds.exactCenterY();
+        long downTime = SystemClock.uptimeMillis();
+        MotionEvent down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0);
+        down.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        boolean accepted;
+        try {
+            accepted = instrumentation.getUiAutomation().injectInputEvent(down, true);
+        } finally {
+            down.recycle();
+        }
+        if (!accepted) return false;
+        SystemClock.sleep(60L);
+        MotionEvent up = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, x, y, 0);
+        up.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        try {
+            return instrumentation.getUiAutomation().injectInputEvent(up, true);
+        } finally {
+            up.recycle();
+        }
+    }
+
     private String describeAccessibilityTree(AccessibilityNodeInfo node, StringBuilder out, int depth) {
-        if (node == null || depth > 8 || out.length() > 1600) return out.toString();
+        if (node == null || depth > 12 || out.length() > 2400) return out.toString();
         CharSequence text = node.getText();
         CharSequence description = node.getContentDescription();
         if ((text != null && text.length() > 0) || (description != null && description.length() > 0)) {
             if (out.length() > 0) out.append(" | ");
             out.append(text == null ? "" : text);
             if (description != null && description.length() > 0) out.append(" [").append(description).append(']');
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            out.append(" <").append(node.getClassName()).append(">");
+            out.append(" pkg=").append(node.getPackageName());
+            out.append(" clickable=").append(node.isClickable());
+            out.append(" bounds=").append(bounds);
         }
         for (int i = 0; i < node.getChildCount(); i++) describeAccessibilityTree(node.getChild(i), out, depth + 1);
         return out.toString();
@@ -732,7 +801,7 @@ public final class WidgetConceptE2ETest {
         }
         AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
         throw new AssertionError(failure + "; stored alarms=" + DataStore.array(app, "alarms")
-                + "; latest app event=" + DataStore.array(app, "events").optJSONObject(0)
+                + "; recent app events=" + DataStore.array(app, "events")
                 + "; active window=" + describeAccessibilityTree(root, new StringBuilder(), 0));
     }
 

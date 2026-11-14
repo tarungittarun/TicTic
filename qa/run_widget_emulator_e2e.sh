@@ -37,6 +37,9 @@ phase="install instrumentation APK"
 adb install -r "$test_apk"
 phase="grant emulator notification access"
 adb shell pm grant "$APP_PACKAGE" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+phase="prepare a clean emulator screenshot directory"
+adb shell run-as "$APP_PACKAGE" rm -rf files/widget-e2e
+adb shell run-as "$APP_PACKAGE" mkdir -p files/widget-e2e
 
 phase="run Android instrumentation suite"
 set +e

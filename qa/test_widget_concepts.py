@@ -357,8 +357,8 @@ class WidgetConceptContracts(unittest.TestCase):
         ensure_main = test[test.index("private MainActivity ensureMainActivity"):test.index("private Capture display")]
         self.assertIn("launchActivityWithoutWaitingForIdle(MainActivity.class, launch)", ensure_main)
         self.assertIn("isRequestPinAppWidgetSupported", test)
-        self.assertIn("app.startActivity(configure)", test)
-        self.assertNotIn("startActivitySync(configure)", test)
+        self.assertIn("instrumentation.startActivitySync(configure)", test)
+        self.assertNotIn("app.startActivity(configure)", test)
         self.assertIn("WidgetConfigActivity", test)
         self.assertIn("ui.takeScreenshot()", test)
         self.assertIn("WidgetConcepts.render(app, remoteViews, widgetId, name, true)", test)

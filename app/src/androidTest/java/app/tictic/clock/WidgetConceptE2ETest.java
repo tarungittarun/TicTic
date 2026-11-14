@@ -326,6 +326,7 @@ public final class WidgetConceptE2ETest {
                 clickAccessibilityText(pinPrompt, "Add"));
 
         WidgetConfigActivity studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
+        instrumentation.removeMonitor(configMonitor);
         if (studio == null) {
             int[] placedIds = manager.getAppWidgetIds(provider);
             await(() -> manager.getAppWidgetIds(provider).length > previousCount,
@@ -336,10 +337,11 @@ public final class WidgetConceptE2ETest {
             Intent configure = new Intent(app, WidgetConfigActivity.class)
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            app.startActivity(configure);
-            studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
+            // The launcher starts the exported configuration activity from outside the
+            // test process, which ActivityMonitor may miss. Explicit instrumentation
+            // startup returns the Activity instance instead of waiting on that monitor.
+            studio = (WidgetConfigActivity) instrumentation.startActivitySync(configure);
         }
-        instrumentation.removeMonitor(configMonitor);
         assertNotNull("Android did not launch Widget Studio for the pinned concept", studio);
         final WidgetConfigActivity studioActivity = studio;
         int widgetId = studioActivity.getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);

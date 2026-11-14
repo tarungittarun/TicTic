@@ -760,10 +760,18 @@ public final class WidgetConceptE2ETest {
             active.recycle();
         }
         // A system dialog can be a secondary accessibility window even while Android reports
-        // the app's surface as active. Search only non-target windows so the large widget/home
-        // trees are never recursively walked just to look for Wait or Close app.
+        // the app's surface as active. Avoid traversing launcher/application trees: inspect only
+        // system windows or windows titled as an Android error dialog, then discard target roots.
         for (AccessibilityWindowInfo window : ui.getWindows()) {
             if (activeWindowId != -1 && window.getId() == activeWindowId) {
+                window.recycle();
+                continue;
+            }
+            CharSequence title = window.getTitle();
+            String lowerTitle = title == null ? "" : title.toString().toLowerCase(java.util.Locale.ROOT);
+            boolean titledError = lowerTitle.contains("application error") || lowerTitle.contains("error dialog");
+            for (String marker : markers) titledError |= lowerTitle.contains(marker.toLowerCase(java.util.Locale.ROOT));
+            if (!titledError && window.getType() != AccessibilityWindowInfo.TYPE_SYSTEM) {
                 window.recycle();
                 continue;
             }
@@ -827,6 +835,7 @@ public final class WidgetConceptE2ETest {
         initial.recycle();
 
         String action = anr ? "Wait" : "Close app";
+        boolean systemUiAnr = anr && initialDetails.toLowerCase(java.util.Locale.ROOT).contains("system ui");
         StringBuilder recovery = new StringBuilder();
         int attempts = anr ? 3 : 2;
         for (int attempt = 1; attempt <= attempts; attempt++) {
@@ -843,26 +852,35 @@ public final class WidgetConceptE2ETest {
                 throw new AssertionError((anr ? "Android displayed the target app ANR dialog: "
                         : "Android displayed the target app crash dialog: ") + details);
             }
+            String attemptAction = systemUiAnr && attempt > 1 ? "Close app" : action;
             boolean accessibilityTap = false;
+            boolean coordinateTap = false;
             boolean shellTap = false;
             try {
-                if (attempt == 1) {
-                    accessibilityTap = clickAccessibilityText(prompt, action);
+                if (attempt == 1 || !anr || (systemUiAnr && attempt > 1)) {
+                    accessibilityTap = clickAccessibilityText(prompt, attemptAction);
                     if (!accessibilityTap && !anr) accessibilityTap = clickAccessibilityText(prompt, "OK");
                 }
-                if (!accessibilityTap) {
-                    shellTap = injectTapViaShell(prompt, action);
+                if (!accessibilityTap && attempt > 1) {
+                    Rect actionBounds = accessibilityTextBounds(prompt, attemptAction);
+                    coordinateTap = actionBounds != null
+                            && injectTap(actionBounds.exactCenterX(), actionBounds.exactCenterY());
+                }
+                if (!accessibilityTap && !coordinateTap) {
+                    shellTap = injectTapViaShell(prompt, attemptAction);
                     if (!shellTap && !anr) shellTap = injectTapViaShell(prompt, "OK");
                 }
             } finally {
                 prompt.recycle();
             }
             if (recovery.length() > 0) recovery.append("; ");
-            recovery.append("attempt").append(attempt).append(" accessibility=").append(accessibilityTap)
-                    .append(" shell=").append(shellTap);
+            recovery.append("attempt").append(attempt).append(" action=").append(attemptAction)
+                    .append(" accessibility=").append(accessibilityTap)
+                    .append(" coordinate=").append(coordinateTap).append(" shell=").append(shellTap);
             // A successful input injection is not proof the system dialog consumed the tap.
             // Reacquire the accessibility window after the framework has had time to respond.
-            SystemClock.sleep((accessibilityTap || shellTap) ? (anr ? 1200L : 600L) : 300L);
+            boolean inputAccepted = accessibilityTap || coordinateTap || shellTap;
+            SystemClock.sleep(inputAccepted ? (anr ? 1200L : 600L) : 300L);
         }
 
         AccessibilityNodeInfo remaining = findSystemPrompt(markers);
@@ -880,7 +898,7 @@ public final class WidgetConceptE2ETest {
                     : "Android displayed the target app crash dialog: ") + remainingDetails);
         }
         throw new AssertionError((anr
-                ? "Android displayed an ANR prompt that remained visible after three Wait inputs: "
+                ? "Android displayed an ANR prompt that remained visible after three recovery inputs: "
                 : "Android displayed an unrelated-app crash prompt that remained visible after two close inputs: ")
                 + remainingDetails + "; recovery=" + recovery);
     }

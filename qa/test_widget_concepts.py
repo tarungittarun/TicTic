@@ -441,8 +441,9 @@ class WidgetConceptContracts(unittest.TestCase):
     def test_e2e_dismisses_external_crash_dialogs_but_keeps_target_crashes_fatal(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
         self.assertIn('"isn\'t responding", "keeps stopping", "keeps crashing"', test)
-        self.assertIn('clickAccessibilityText(prompt, "Close app")', test)
-        self.assertIn('injectTapViaShell(prompt, "Close app")', test)
+        self.assertIn('String action = anr ? "Wait" : "Close app"', test)
+        self.assertIn("clickAccessibilityText(prompt, action)", test)
+        self.assertIn("injectTapViaShell(prompt, action)", test)
         self.assertIn("promptNamesTargetApp(details)", test)
         self.assertIn('Android displayed the target app crash dialog: ', test)
         self.assertIn('E2E dismissed unrelated-app crash dialog: ', test)
@@ -451,9 +452,13 @@ class WidgetConceptContracts(unittest.TestCase):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
         response = test[test.index("private boolean respondToSystemPrompt"):test.index("private void waitForResponsiveAndroidUi")]
         self.assertIn('"Android displayed the target app ANR dialog: "', response)
-        self.assertLess(response.index("promptNamesTargetApp(details)"),
-                        response.index('clickAccessibilityText(prompt, "Wait")'))
-        self.assertIn('injectTapViaShell(prompt, "Wait")', response)
+        self.assertIn('String action = anr ? "Wait" : "Close app"', response)
+        self.assertLess(response.index("promptNamesTargetApp(initialDetails)"),
+                        response.index("clickAccessibilityText(prompt, action)"))
+        self.assertIn("injectTapViaShell(prompt, action)", response)
+        self.assertIn("remaining = findSystemPrompt(markers)", response)
+        self.assertIn("after three Wait inputs", response)
+        self.assertIn("A successful input injection is not proof the system dialog consumed the tap", response)
         self.assertIn("recovery=", response)
 
     def test_e2e_system_prompt_recovery_runs_during_ui_waits_and_capture(self):
@@ -468,9 +473,17 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("child.recycle()", prompt_scan)
         system_scan = test[test.index("private AccessibilityNodeInfo findSystemPrompt"):test.index("private boolean containsAnyAccessibilityText")]
         self.assertIn("isTargetAppWindow(active)", system_scan)
-        self.assertIn("if (targetAppWindow) return null", system_scan)
+        self.assertIn("if (isTargetAppWindow(root))", system_scan)
+        self.assertNotIn("if (targetAppWindow) return null", system_scan)
+        self.assertIn("window.getId() == activeWindowId", system_scan)
+        self.assertIn("ui.getWindows()", system_scan)
         window_scan = test[test.index("private AccessibilityNodeInfo findAccessibilityRootContaining"):test.index("private boolean containsAccessibilityTexts")]
-        self.assertIn("if (targetAppWindow) return null", window_scan)
+        self.assertIn("boolean includeTargetAppWindow", window_scan)
+        self.assertIn("if (!includeTargetAppWindow && isTargetAppWindow(root))", window_scan)
+        self.assertIn("window.getId() == activeWindowId", window_scan)
+        self.assertIn("Thread.sleep(300L)", wait)
+        self.assertIn("waitForAccessibilityTexts(10000L, true", test)
+        self.assertIn("waitForAccessibilityTexts(30000L, false, \"Add\")", test)
         self.assertIn("nextPromptCheck = now + 900L", wait)
         await_flow = test[test.index("private void await(Check check, String failure, long timeoutMs)"):test.index("private boolean alarmEnabled")]
         self.assertIn("waitForResponsiveAndroidUi()", await_flow)
@@ -501,6 +514,7 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertNotIn("instrumentation.waitForIdleSync", catalog_journey)
         self.assertIn("MainActivity host = ensureMainActivity()", catalog_journey)
         self.assertIn('findContentDescription(host, "Settings")', catalog_journey)
+        self.assertIn("Settings page did not render its Browse widgets action", catalog_journey)
         self.assertIn('findText(host, "Browse widgets")', catalog_journey)
         self.assertIn("click(browseWidgets)", catalog_journey)
         self.assertIn("ActivityMonitor catalogMonitor = instrumentation.addMonitor(", catalog_journey)
@@ -541,9 +555,12 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertNotIn("MainActivity.class", setup)
         ensure_main = test[test.index("private MainActivity ensureMainActivity"):test.index("private Capture display")]
         self.assertIn("launchActivityWithoutWaitingForIdle(MainActivity.class, launch)", ensure_main)
+        self.assertIn("await(this::isMainActivityForeground", ensure_main)
+        self.assertIn("private boolean isMainActivityForeground()", ensure_main)
+        self.assertIn("isTargetAppWindow(active)", ensure_main)
         self.assertIn("isRequestPinAppWidgetSupported", test)
         self.assertIn("performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)", test)
-        self.assertIn('waitForAccessibilityTexts(15000L, "10 MIN")', test)
+        self.assertIn('waitForAccessibilityTexts(15000L, false, "10 MIN")', test)
         self.assertIn("launchActivityWithoutWaitingForIdle(WidgetConfigActivity.class, configure)", test)
         self.assertNotIn("instrumentation.startActivitySync(configure)", test)
         self.assertNotIn("app.startActivity(configure)", test)

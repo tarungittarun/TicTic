@@ -264,7 +264,7 @@ public final class WidgetConceptE2ETest {
         assertEquals("Quick · 10 min", pending.optString("label"));
         assertEquals("Quick Alarm must not silently bypass the existing save flow", originalAlarms,
                 DataStore.array(app, "alarms").length());
-        AccessibilityNodeInfo preflight = waitForAccessibilityTexts(10000L,
+        AccessibilityNodeInfo preflight = waitForAccessibilityTexts(10000L, true,
                 "No time for an early ping this time");
         try {
             captureFullScreenWithAccessibilityText("20_quick_alarm_save_preflight", preflight,
@@ -318,6 +318,8 @@ public final class WidgetConceptE2ETest {
         assertNotNull("MySpace home is missing its Settings action", settings);
         await(() -> isTapTargetFullyVisible(settings), "Settings action did not become visible", 15000L);
         click(settings);
+        await(() -> findText(host, "Browse widgets") != null,
+                "Settings page did not render its Browse widgets action", 15000L);
 
         View browseWidgets = findText(host, "Browse widgets");
         assertNotNull("Settings is missing the Browse widgets action", browseWidgets);
@@ -372,7 +374,7 @@ public final class WidgetConceptE2ETest {
         int previousCount = manager.getAppWidgetIds(provider).length;
         click(card);
 
-        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(30000L, "Add");
+        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(30000L, false, "Add");
         try {
             captureFullScreenWithAccessibilityText("22_quick_alarm_pin_confirmation", pinPrompt, "Add");
             String pinPromptDetails = describeAccessibilityTree(pinPrompt, new StringBuilder(), 0);
@@ -439,7 +441,7 @@ public final class WidgetConceptE2ETest {
                 manager.getAppWidgetInfo(widgetId).initialLayout);
         assertTrue("Could not return to the Android home screen after placement",
                 instrumentation.getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME));
-        AccessibilityNodeInfo placedWidget = waitForAccessibilityTexts(15000L, "10 MIN");
+        AccessibilityNodeInfo placedWidget = waitForAccessibilityTexts(15000L, false, "10 MIN");
         try {
             SystemClock.sleep(300L);
             captureFullScreenWithAccessibilityText("24_quick_alarm_widget_placed", placedWidget, "10 MIN");
@@ -506,10 +508,18 @@ public final class WidgetConceptE2ETest {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity = launchActivityWithoutWaitingForIdle(MainActivity.class, launch);
         assertNotNull("MainActivity did not launch on the emulator", activity);
-        await(this::isMainActivityFocused,
-                "MainActivity resumed but never acquired the foreground window; " + activeWindowDescription(),
-                10000L);
+        await(this::isMainActivityForeground,
+                "MainActivity resumed but its app window did not become active; " + activeWindowDescription(),
+                20000L);
         return activity;
+    }
+
+    private boolean isMainActivityForeground() {
+        if (isMainActivityFocused()) return true;
+        AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
+        boolean appWindow = isTargetAppWindow(active);
+        if (active != null) active.recycle();
+        return appWindow;
     }
 
     private boolean isMainActivityFocused() {
@@ -743,17 +753,26 @@ public final class WidgetConceptE2ETest {
     private AccessibilityNodeInfo findSystemPrompt(String... markers) {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
+        int activeWindowId = active == null ? -1 : active.getWindowId();
         if (active != null) {
             boolean targetAppWindow = isTargetAppWindow(active);
             if (!targetAppWindow && containsAnyAccessibilityText(active, markers)) return active;
             active.recycle();
-            // A system ANR/crash dialog takes the active window. Do not repeatedly enumerate
-            // every window while the large TicTic catalog/home hierarchy is in the foreground.
-            if (targetAppWindow) return null;
         }
+        // A system dialog can be a secondary accessibility window even while Android reports
+        // the app's surface as active. Search only non-target windows so the large widget/home
+        // trees are never recursively walked just to look for Wait or Close app.
         for (AccessibilityWindowInfo window : ui.getWindows()) {
+            if (activeWindowId != -1 && window.getId() == activeWindowId) {
+                window.recycle();
+                continue;
+            }
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
+            if (isTargetAppWindow(root)) {
+                if (root != null) root.recycle();
+                continue;
+            }
             if (containsAnyAccessibilityText(root, markers)) return root;
             if (root != null) root.recycle();
         }
@@ -795,75 +814,75 @@ public final class WidgetConceptE2ETest {
     }
 
     private boolean respondToSystemPrompt() throws Exception {
-        AccessibilityNodeInfo prompt = findSystemPrompt(
-                "isn't responding", "keeps stopping", "keeps crashing");
-        if (prompt == null) return false;
-        String details = describeAccessibilityTree(prompt, new StringBuilder(), 0);
-        if (accessibilityContains(prompt, "isn't responding")) {
+        String[] markers = {"isn't responding", "keeps stopping", "keeps crashing"};
+        AccessibilityNodeInfo initial = findSystemPrompt(markers);
+        if (initial == null) return false;
+        String initialDetails = describeAccessibilityTree(initial, new StringBuilder(), 0);
+        boolean anr = accessibilityContains(initial, "isn't responding");
+        if (promptNamesTargetApp(initialDetails)) {
+            initial.recycle();
+            throw new AssertionError((anr ? "Android displayed the target app ANR dialog: "
+                    : "Android displayed the target app crash dialog: ") + initialDetails);
+        }
+        initial.recycle();
+
+        String action = anr ? "Wait" : "Close app";
+        StringBuilder recovery = new StringBuilder();
+        int attempts = anr ? 3 : 2;
+        for (int attempt = 1; attempt <= attempts; attempt++) {
+            AccessibilityNodeInfo prompt = findSystemPrompt(markers);
+            if (prompt == null) {
+                System.out.println((anr ? "E2E requested Wait for unrelated Android system ANR: "
+                        : "E2E dismissed unrelated-app crash dialog: ") + initialDetails
+                        + (recovery.length() == 0 ? "" : " · recovery=" + recovery));
+                return true;
+            }
+            String details = describeAccessibilityTree(prompt, new StringBuilder(), 0);
             if (promptNamesTargetApp(details)) {
                 prompt.recycle();
-                throw new AssertionError("Android displayed the target app ANR dialog: " + details);
+                throw new AssertionError((anr ? "Android displayed the target app ANR dialog: "
+                        : "Android displayed the target app crash dialog: ") + details);
             }
-            boolean waited;
-            String actionEvidence;
+            boolean accessibilityTap = false;
+            boolean shellTap = false;
             try {
-                waited = clickAccessibilityText(prompt, "Wait");
-                actionEvidence = "accessibility/input-injection=" + waited;
-                if (!waited) {
-                    boolean shellTap = injectTapViaShell(prompt, "Wait");
-                    actionEvidence += "; shell-input=" + shellTap;
-                    waited = shellTap;
+                if (attempt == 1) {
+                    accessibilityTap = clickAccessibilityText(prompt, action);
+                    if (!accessibilityTap && !anr) accessibilityTap = clickAccessibilityText(prompt, "OK");
+                }
+                if (!accessibilityTap) {
+                    shellTap = injectTapViaShell(prompt, action);
+                    if (!shellTap && !anr) shellTap = injectTapViaShell(prompt, "OK");
                 }
             } finally {
                 prompt.recycle();
             }
-            if (!waited) {
-                // Reacquire the prompt once: an AccessibilityNodeInfo can become stale while
-                // Android is presenting the dialog, even when its printed tree says clickable.
-                SystemClock.sleep(300L);
-                AccessibilityNodeInfo retry = findSystemPrompt(
-                        "isn't responding", "keeps stopping", "keeps crashing");
-                if (retry == null) {
-                    System.out.println("E2E system ANR prompt disappeared during Wait recovery: " + details);
-                    return true;
-                }
-                try {
-                    String retryTree = describeAccessibilityTree(retry, new StringBuilder(), 0);
-                    boolean retryTap = clickAccessibilityText(retry, "Wait");
-                    if (!retryTap) retryTap = injectTapViaShell(retry, "Wait");
-                    actionEvidence += "; refreshed-node=" + retryTap;
-                    details = retryTree;
-                    waited = retryTap;
-                } finally {
-                    retry.recycle();
-                }
-            }
-            assertTrue("Android displayed an ANR prompt but no Wait input was accepted: " + details
-                    + "; recovery=" + actionEvidence, waited);
-            System.out.println("E2E requested Wait for unrelated Android system ANR: "
-                    + actionEvidence + " · " + details);
-            SystemClock.sleep(1200L);
-            return true;
+            if (recovery.length() > 0) recovery.append("; ");
+            recovery.append("attempt").append(attempt).append(" accessibility=").append(accessibilityTap)
+                    .append(" shell=").append(shellTap);
+            // A successful input injection is not proof the system dialog consumed the tap.
+            // Reacquire the accessibility window after the framework has had time to respond.
+            SystemClock.sleep((accessibilityTap || shellTap) ? (anr ? 1200L : 600L) : 300L);
         }
 
-        if (promptNamesTargetApp(details)) {
-            prompt.recycle();
-            throw new AssertionError("Android displayed the target app crash dialog: " + details);
+        AccessibilityNodeInfo remaining = findSystemPrompt(markers);
+        if (remaining == null) {
+            System.out.println((anr ? "E2E requested Wait for unrelated Android system ANR: "
+                    : "E2E dismissed unrelated-app crash dialog: ") + initialDetails
+                    + " · recovery=" + recovery);
+            return true;
         }
-        boolean closed;
-        try {
-            closed = clickAccessibilityText(prompt, "Close app");
-            if (!closed) closed = clickAccessibilityText(prompt, "OK");
-            if (!closed) closed = injectTapViaShell(prompt, "Close app")
-                    || injectTapViaShell(prompt, "OK");
-        } finally {
-            prompt.recycle();
+        String remainingDetails = describeAccessibilityTree(remaining, new StringBuilder(), 0);
+        boolean remainingIsTarget = promptNamesTargetApp(remainingDetails);
+        remaining.recycle();
+        if (remainingIsTarget) {
+            throw new AssertionError((anr ? "Android displayed the target app ANR dialog: "
+                    : "Android displayed the target app crash dialog: ") + remainingDetails);
         }
-        assertTrue("Android displayed an unrelated-app crash prompt without a usable close action: "
-                + details, closed);
-        System.out.println("E2E dismissed unrelated-app crash dialog: " + details);
-        SystemClock.sleep(600L);
-        return true;
+        throw new AssertionError((anr
+                ? "Android displayed an ANR prompt that remained visible after three Wait inputs: "
+                : "Android displayed an unrelated-app crash prompt that remained visible after two close inputs: ")
+                + remainingDetails + "; recovery=" + recovery);
     }
 
     private void waitForResponsiveAndroidUi() throws Exception {
@@ -1153,7 +1172,8 @@ public final class WidgetConceptE2ETest {
         return null;
     }
 
-    private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
+    private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, boolean includeTargetAppWindow,
+            String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
         long nextPromptCheck = SystemClock.uptimeMillis();
         int promptRecoveries = 0;
@@ -1168,9 +1188,9 @@ public final class WidgetConceptE2ETest {
                     continue;
                 }
             }
-            AccessibilityNodeInfo root = findAccessibilityRootContaining(expected);
+            AccessibilityNodeInfo root = findAccessibilityRootContaining(includeTargetAppWindow, expected);
             if (root != null) return root;
-            Thread.sleep(180L);
+            Thread.sleep(300L);
         }
         AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
         String details = describeAccessibilityTree(active, new StringBuilder(), 0);
@@ -1179,16 +1199,26 @@ public final class WidgetConceptE2ETest {
                 + java.util.Arrays.toString(expected) + "; active window was " + details);
     }
 
-    private AccessibilityNodeInfo findAccessibilityRootContaining(String... expected) {
+    private AccessibilityNodeInfo findAccessibilityRootContaining(boolean includeTargetAppWindow,
+            String... expected) {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
-        if (containsAccessibilityTexts(active, expected)) return active;
-        boolean targetAppWindow = isTargetAppWindow(active);
+        int activeWindowId = active == null ? -1 : active.getWindowId();
+        boolean activeIsTarget = isTargetAppWindow(active);
+        if (active != null && (includeTargetAppWindow || !activeIsTarget)
+                && containsAccessibilityTexts(active, expected)) return active;
         if (active != null) active.recycle();
-        if (targetAppWindow) return null;
         for (AccessibilityWindowInfo window : ui.getWindows()) {
+            if (activeWindowId != -1 && window.getId() == activeWindowId) {
+                window.recycle();
+                continue;
+            }
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
+            if (!includeTargetAppWindow && isTargetAppWindow(root)) {
+                if (root != null) root.recycle();
+                continue;
+            }
             if (containsAccessibilityTexts(root, expected)) return root;
             if (root != null) root.recycle();
         }

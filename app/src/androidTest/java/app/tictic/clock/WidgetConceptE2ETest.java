@@ -732,6 +732,7 @@ public final class WidgetConceptE2ETest {
         }
         AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
         throw new AssertionError(failure + "; stored alarms=" + DataStore.array(app, "alarms")
+                + "; latest app event=" + DataStore.array(app, "events").optJSONObject(0)
                 + "; active window=" + describeAccessibilityTree(root, new StringBuilder(), 0));
     }
 

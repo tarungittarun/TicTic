@@ -105,6 +105,7 @@ public final class WidgetConceptE2ETest {
     private Instrumentation instrumentation;
     private Context app;
     private MainActivity activity;
+    private WidgetCatalogActivity catalogActivity;
     private File screenshotDirectory;
 
     @Before public void setUp() throws Exception {
@@ -123,13 +124,11 @@ public final class WidgetConceptE2ETest {
         }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
-        // Keep the app process and task alive under the catalog/pin launcher hand-off.
-        Intent launch = new Intent(app, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity = (MainActivity) instrumentation.startActivitySync(launch);
-        assertNotNull("MainActivity did not launch on the emulator", activity);
-        instrumentation.waitForIdleSync();
-        SystemClock.sleep(400L);
+        // Launch screens lazily. MainActivity runs a live ticker, so startActivitySync()
+        // can wait forever for an idle queue on a freshly booted emulator. The catalog
+        // journey does not need MainActivity at all.
+        activity = null;
+        catalogActivity = null;
     }
 
     @After public void tearDown() {
@@ -147,9 +146,10 @@ public final class WidgetConceptE2ETest {
             }
             DataStore.prefs(app).edit().clear().apply();
         }
-        if (activity != null) {
+        if (activity != null || catalogActivity != null) {
             instrumentation.runOnMainSync(() -> {
-                if (!activity.isFinishing()) activity.finish();
+                if (catalogActivity != null && !catalogActivity.isFinishing()) catalogActivity.finish();
+                if (activity != null && !activity.isFinishing()) activity.finish();
             });
             instrumentation.waitForIdleSync();
         }
@@ -286,9 +286,12 @@ public final class WidgetConceptE2ETest {
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
-        WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(
+        WidgetCatalogActivity catalog = launchActivityWithoutWaitingForIdle(
+                WidgetCatalogActivity.class,
                 new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        catalogActivity = catalog;
         assertNotNull("Widget catalog did not open from the app", catalog);
+        instrumentation.waitForIdleSync();
         String[] conceptNames = {"Wake Countdown", "Alarm Stack", "Wake Switch", "Quick Alarm", "World Grid",
                 "Meeting Window", "Week Strip", "Month Grid", "Year Pulse", "Day Balance", "Routine Stack",
                 "Routine Countdown", "Focus Launch", "Timer Live", "Lap Insights"};
@@ -377,15 +380,27 @@ public final class WidgetConceptE2ETest {
         SystemClock.sleep(500L);
         captureFullScreen("24_quick_alarm_widget_placed");
         instrumentation.runOnMainSync(catalog::finish);
+        catalogActivity = null;
+    }
+
+    private <T extends Activity> T launchActivityWithoutWaitingForIdle(
+            Class<T> activityClass, Intent intent) throws Exception {
+        ActivityMonitor monitor = instrumentation.addMonitor(activityClass.getName(), null, false);
+        try {
+            app.startActivity(intent);
+            Activity launched = instrumentation.waitForMonitorWithTimeout(monitor, 15000L);
+            return launched == null ? null : activityClass.cast(launched);
+        } finally {
+            instrumentation.removeMonitor(monitor);
+        }
     }
 
     private MainActivity ensureMainActivity() throws Exception {
         if (activity != null && !activity.isFinishing()) return activity;
         Intent launch = new Intent(app, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity = (MainActivity) instrumentation.startActivitySync(launch);
+        activity = launchActivityWithoutWaitingForIdle(MainActivity.class, launch);
         assertNotNull("MainActivity did not launch on the emulator", activity);
-        instrumentation.waitForIdleSync();
         SystemClock.sleep(400L);
         return activity;
     }

@@ -100,7 +100,7 @@ count=$(find "$SCREEN_DIR" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' '
     printf 'Instrumentation exit code: `%s`\n\n' "$test_status"
     if [ -f "$INSTRUMENTATION_LOG" ]; then
         printf '<details><summary>Instrumentation result</summary>\n\n```text\n'
-        tail -n 45 "$INSTRUMENTATION_LOG"
+        tail -n 100 "$INSTRUMENTATION_LOG"
         printf '\n```\n</details>\n'
     fi
 } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
@@ -119,7 +119,7 @@ printf 'Screenshots are surfaced in the three E2E screenshot evidence steps belo
 
 if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
     excerpt=$(grep -E 'INSTRUMENTATION_STATUS:|FAILURES!!!|AssertionError|Exception|Error in |Tests run:|OK \(' \
-        "$INSTRUMENTATION_LOG" | tail -n 35 || true)
+        "$INSTRUMENTATION_LOG" | tail -n 100 || true)
     if [ -z "$excerpt" ]; then excerpt=$(tail -n 30 "$INSTRUMENTATION_LOG"); fi
     escaped=$(printf '%s\n' "$excerpt" | sed 's/%/%25/g; s/\r//g; s/::/%3A%3A/g' \
         | awk 'BEGIN { ORS = "%0A" } { print }')

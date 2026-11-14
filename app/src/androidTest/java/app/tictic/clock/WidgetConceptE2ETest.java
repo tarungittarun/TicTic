@@ -644,34 +644,94 @@ public final class WidgetConceptE2ETest {
     }
 
     private AccessibilityNodeInfo findSystemAnrPrompt() {
+        return findSystemPrompt("isn't responding");
+    }
+
+    private AccessibilityNodeInfo findSystemCrashPrompt() {
+        return findSystemPrompt("keeps stopping", "keeps crashing");
+    }
+
+    private AccessibilityNodeInfo findSystemPrompt(String... markers) {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
-        if (accessibilityContains(active, "isn't responding")) return active;
+        if (containsAnyAccessibilityText(active, markers)) return active;
         if (active != null) active.recycle();
         List<AccessibilityWindowInfo> windows = ui.getWindows();
         for (AccessibilityWindowInfo window : windows) {
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
-            if (accessibilityContains(root, "isn't responding")) return root;
+            if (containsAnyAccessibilityText(root, markers)) return root;
             if (root != null) root.recycle();
         }
         return null;
     }
 
-    private void waitForResponsiveAndroidUi() throws Exception {
-        int waits = 0;
-        while (waits < 4) {
-            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
-            if (prompt == null) return;
-            assertTrue("Android displayed an ANR prompt without a usable Wait action: "
-                            + describeAccessibilityTree(prompt, new StringBuilder(), 0),
-                    clickAccessibilityText(prompt, "Wait"));
-            waits++;
-            SystemClock.sleep(1200L);
+    private boolean containsAnyAccessibilityText(AccessibilityNodeInfo node, String... markers) {
+        for (String marker : markers) {
+            if (accessibilityContains(node, marker)) return true;
         }
-        AccessibilityNodeInfo prompt = findSystemAnrPrompt();
-        assertNull("Android remained unresponsive after four Wait actions: "
-                        + describeAccessibilityTree(prompt, new StringBuilder(), 0), prompt);
+        return false;
+    }
+
+    private boolean promptNamesTargetApp(String details) {
+        String label = String.valueOf(app.getApplicationInfo().loadLabel(app.getPackageManager()))
+                .toLowerCase(java.util.Locale.ROOT);
+        String lower = details.toLowerCase(java.util.Locale.ROOT);
+        return (!label.isEmpty() && lower.contains(label))
+                || lower.contains(app.getPackageName().toLowerCase(java.util.Locale.ROOT));
+    }
+
+    private boolean respondToSystemPrompt() throws Exception {
+        AccessibilityNodeInfo anr = findSystemAnrPrompt();
+        if (anr != null) {
+            String details = describeAccessibilityTree(anr, new StringBuilder(), 0);
+            boolean waited;
+            try {
+                waited = clickAccessibilityText(anr, "Wait");
+            } finally {
+                anr.recycle();
+            }
+            assertTrue("Android displayed an ANR prompt without a usable Wait action: " + details, waited);
+            SystemClock.sleep(1200L);
+            return true;
+        }
+
+        AccessibilityNodeInfo crash = findSystemCrashPrompt();
+        if (crash == null) return false;
+        String details = describeAccessibilityTree(crash, new StringBuilder(), 0);
+        if (promptNamesTargetApp(details)) {
+            crash.recycle();
+            throw new AssertionError("Android displayed the target app crash dialog: " + details);
+        }
+        boolean closed;
+        try {
+            closed = clickAccessibilityText(crash, "Close app")
+                    || clickAccessibilityText(crash, "OK");
+        } finally {
+            crash.recycle();
+        }
+        assertTrue("Android displayed an unrelated-app crash prompt without a usable close action: "
+                + details, closed);
+        System.out.println("E2E dismissed unrelated-app crash dialog: " + details);
+        SystemClock.sleep(600L);
+        return true;
+    }
+
+    private void waitForResponsiveAndroidUi() throws Exception {
+        int recoveries = 0;
+        while (recoveries < 4 && respondToSystemPrompt()) recoveries++;
+        AccessibilityNodeInfo anr = findSystemAnrPrompt();
+        if (anr != null) {
+            String details = describeAccessibilityTree(anr, new StringBuilder(), 0);
+            anr.recycle();
+            throw new AssertionError("Android remained unresponsive after four Wait actions: " + details);
+        }
+        AccessibilityNodeInfo crash = findSystemCrashPrompt();
+        if (crash != null) {
+            String details = describeAccessibilityTree(crash, new StringBuilder(), 0);
+            crash.recycle();
+            throw new AssertionError("Android kept showing an app crash dialog after four recoveries: " + details);
+        }
     }
 
     private Bitmap takeEmulatorScreenshot() throws Exception {
@@ -683,13 +743,8 @@ public final class WidgetConceptE2ETest {
                 SystemClock.sleep(300L);
                 continue;
             }
-            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
-            if (prompt == null) return screenshot;
+            if (!respondToSystemPrompt()) return screenshot;
             screenshot.recycle();
-            assertTrue("Android ANR overlay appeared during capture without a usable Wait action: "
-                            + describeAccessibilityTree(prompt, new StringBuilder(), 0),
-                    clickAccessibilityText(prompt, "Wait"));
-            SystemClock.sleep(1200L);
         }
         waitForResponsiveAndroidUi();
         ParcelFileDescriptor output = ui.executeShellCommand("screencap -p");
@@ -700,7 +755,20 @@ public final class WidgetConceptE2ETest {
             screenshot = BitmapFactory.decodeStream(stream);
         }
         assertNotNull("UiAutomation and screencap both failed to provide an emulator image", screenshot);
-        assertNull("System ANR overlay remained in the emulator capture", findSystemAnrPrompt());
+        AccessibilityNodeInfo remainingAnr = findSystemAnrPrompt();
+        if (remainingAnr != null) {
+            String details = describeAccessibilityTree(remainingAnr, new StringBuilder(), 0);
+            remainingAnr.recycle();
+            screenshot.recycle();
+            throw new AssertionError("System ANR overlay remained in the emulator capture: " + details);
+        }
+        AccessibilityNodeInfo remainingCrash = findSystemCrashPrompt();
+        if (remainingCrash != null) {
+            String details = describeAccessibilityTree(remainingCrash, new StringBuilder(), 0);
+            remainingCrash.recycle();
+            screenshot.recycle();
+            throw new AssertionError("System crash overlay remained in the emulator capture: " + details);
+        }
         return screenshot;
     }
 
@@ -821,17 +889,12 @@ public final class WidgetConceptE2ETest {
 
     private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
-        int anrWaits = 0;
+        int promptRecoveries = 0;
         while (SystemClock.uptimeMillis() < end) {
-            AccessibilityNodeInfo prompt = findSystemAnrPrompt();
-            if (prompt != null) {
-                if (anrWaits >= 4 || !clickAccessibilityText(prompt, "Wait")) {
-                    throw new AssertionError("Android remained unresponsive while waiting for UI text "
-                            + java.util.Arrays.toString(expected) + ": "
-                            + describeAccessibilityTree(prompt, new StringBuilder(), 0));
+            if (respondToSystemPrompt()) {
+                if (++promptRecoveries > 4) {
+                    throw new AssertionError("Android repeatedly interrupted the UI wait with system prompts");
                 }
-                anrWaits++;
-                Thread.sleep(1200L);
                 continue;
             }
             AccessibilityNodeInfo root = findAccessibilityRootContaining(expected);
@@ -839,9 +902,10 @@ public final class WidgetConceptE2ETest {
             Thread.sleep(150L);
         }
         AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
+        String details = describeAccessibilityTree(active, new StringBuilder(), 0);
+        if (active != null) active.recycle();
         throw new AssertionError("Timed out waiting for Android UI text "
-                + java.util.Arrays.toString(expected) + "; active window was "
-                + describeAccessibilityTree(active, new StringBuilder(), 0));
+                + java.util.Arrays.toString(expected) + "; active window was " + details);
     }
 
     private AccessibilityNodeInfo findAccessibilityRootContaining(String... expected) {

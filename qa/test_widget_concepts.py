@@ -362,6 +362,25 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("assertMonthGridCustomInk(capture)", test)
         self.assertIn("assertCompactMonthInk(capture)", test)
 
+    def test_e2e_dismisses_external_crash_dialogs_but_keeps_target_crashes_fatal(self):
+        test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
+        self.assertIn('findSystemPrompt("keeps stopping", "keeps crashing")', test)
+        self.assertIn('clickAccessibilityText(crash, "Close app")', test)
+        self.assertIn("promptNamesTargetApp(details)", test)
+        self.assertIn('Android displayed the target app crash dialog: ', test)
+        self.assertIn('E2E dismissed unrelated-app crash dialog: ', test)
+
+    def test_e2e_system_prompt_recovery_runs_during_ui_waits_and_capture(self):
+        test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
+        responsive = test[test.index("private void waitForResponsiveAndroidUi"):test.index("private Bitmap takeEmulatorScreenshot")]
+        self.assertIn("respondToSystemPrompt()", responsive)
+        screenshot = test[test.index("private Bitmap takeEmulatorScreenshot"):test.index("private void verifyScreenshotFile")]
+        self.assertIn("if (!respondToSystemPrompt()) return screenshot", screenshot)
+        wait = test[test.index("private AccessibilityNodeInfo waitForAccessibilityTexts"):test.index("private AccessibilityNodeInfo findAccessibilityRootContaining")]
+        self.assertIn("if (respondToSystemPrompt())", wait)
+        await_flow = test[test.index("private void await(Check check, String failure, long timeoutMs)"):test.index("private boolean alarmEnabled")]
+        self.assertIn("waitForResponsiveAndroidUi()", await_flow)
+
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
         self.assertIn("@FixMethodOrder(MethodSorters.NAME_ASCENDING)", test)

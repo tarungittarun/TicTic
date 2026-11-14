@@ -13,7 +13,13 @@ phase="initializing"
 
 on_error() {
     local status=$1 failed_line=$2 failed_command=$3
-    local detail="Phase: $phase · line $failed_line · exit $status · command: $failed_command"
+    local command_label=$failed_command
+    if [[ "$phase" == "install target APK" ]]; then
+        command_label="adb install -r \"$main_apk\" | tee \"$TARGET_INSTALL_LOG\""
+    elif [[ "$phase" == "install instrumentation APK" ]]; then
+        command_label="adb install -r \"$test_apk\" | tee \"$TEST_INSTALL_LOG\""
+    fi
+    local detail="Phase: $phase · line $failed_line · exit $status · command: $command_label"
     if [[ "$phase" == "wait for emulator" || "$phase" == "install target APK" || "$phase" == "install instrumentation APK" ]]; then
         local setup_log="/tmp/widget-e2e-setup-diagnostics.log"
         local install_log=""
@@ -26,6 +32,12 @@ on_error() {
                 printf '\nAPK install output:\n'
                 tail -n 40 "$install_log"
             fi
+            printf '\nHost memory:\n'
+            free -h 2>&1 || true
+            printf '\nHost emulator processes:\n'
+            ps -eo pid,rss,etime,comm,args \
+                | awk '$4 == "emulator" || $4 ~ /^qemu-system-/ { print }' \
+                | tail -n 12 || true
             printf '\nADB devices:\n'
             timeout 10s adb devices -l 2>&1 || true
             printf '\nGuest boot state:\n'
@@ -44,10 +56,13 @@ on_error() {
             tail -n 80 "$setup_log"
             printf '\n```\n'
         } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
-        local diagnostic_escaped
-        diagnostic_escaped=$(tail -n 20 "$setup_log" | cut -c1-160 \
+        local state_escaped signals_escaped
+        state_escaped=$(head -n 30 "$setup_log" | cut -c1-100 \
             | sed 's/%/%25/g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }')
-        echo "::error title=Emulator setup diagnostics::$diagnostic_escaped"
+        signals_escaped=$(tail -n 12 "$setup_log" | cut -c1-120 \
+            | sed 's/%/%25/g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }')
+        echo "::error title=Emulator setup state::$state_escaped"
+        echo "::error title=Emulator package and system signals::$signals_escaped"
     fi
     printf 'Widget E2E script failed: %s\n' "$detail" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
     local escaped
@@ -91,7 +106,9 @@ if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
     : > "$DEVICE_DIAGNOSTICS_LOG"
     {
         printf 'Host emulator processes:\n'
-        ps -eo pid,rss,etime,args | grep -E '[e]mulator|[q]emu-system' | tail -n 20 || true
+        ps -eo pid,rss,etime,comm,args \
+            | awk '$4 == "emulator" || $4 ~ /^qemu-system-/ { print }' \
+            | tail -n 20 || true
         printf '\nHost memory:\n'
         free -h 2>&1 || true
         printf '\nADB devices:\n'

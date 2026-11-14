@@ -1,5 +1,6 @@
 package app.tictic.clock;
 
+import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -379,6 +380,10 @@ public final class WidgetConceptE2ETest {
         assertNotNull("Launcher did not bind the requested Quick Alarm provider", manager.getAppWidgetInfo(widgetId));
         assertEquals("Launcher bound the wrong widget provider", R.layout.widget_quick_alarm,
                 manager.getAppWidgetInfo(widgetId).initialLayout);
+        assertTrue("Could not return to the Android home screen after placement",
+                instrumentation.getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME));
+        AccessibilityNodeInfo placedWidget = waitForAccessibilityTexts(15000L, "10 MIN");
+        placedWidget.recycle();
         SystemClock.sleep(500L);
         captureFullScreen("24_quick_alarm_widget_placed");
         instrumentation.runOnMainSync(catalog::finish);

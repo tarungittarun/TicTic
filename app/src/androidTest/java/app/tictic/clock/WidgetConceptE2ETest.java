@@ -3,6 +3,7 @@ package app.tictic.clock;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
+import android.app.Application;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
 import android.app.UiAutomation;
@@ -15,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.view.Gravity;
@@ -51,6 +53,8 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,6 +74,7 @@ public final class WidgetConceptE2ETest {
     private static final int ROUTINE_ID = 93001;
     private static final int MAX_SCREENSHOT_BYTES = 2800;
     private static final int MAX_SCREENSHOT_WIDTH = 320;
+    private static final int CALENDAR_TEST_INK = 0xff6855a5;
     private static final WidgetCase[] CASES = {
             new WidgetCase("alarm_countdown", R.layout.widget_alarm_countdown,
                     R.id.widget_concept_heading, "NEXT WAKE IN", 202),
@@ -125,9 +130,9 @@ public final class WidgetConceptE2ETest {
         }
         DataStore.prefs(app).edit().clear().apply();
         seedScenarioData();
-        // Launch screens lazily. MainActivity runs a live ticker, so startActivitySync()
-        // can wait forever for an idle queue on a freshly booted emulator. The catalog
-        // journey does not need MainActivity at all.
+        // Launch screens lazily. MainActivity's live ticker can keep the UI queue non-idle,
+        // so the E2E helper waits for lifecycle resume rather than a global idle barrier.
+        // The catalog journey does not need MainActivity at all.
         activity = null;
         catalogActivity = null;
     }
@@ -176,6 +181,10 @@ public final class WidgetConceptE2ETest {
                 assertEquals("Europe/London", ((TextClock) marker).getTimeZone());
                 assertEquals("America/New_York", ((TextClock) capture.widget.findViewById(R.id.widget_zone_new_york)).getTimeZone());
                 assertEquals("Asia/Tokyo", ((TextClock) capture.widget.findViewById(R.id.widget_zone_tokyo)).getTimeZone());
+            } else if (testCase.layout == R.layout.widget_week_strip) {
+                assertWeekStripCustomInk(capture);
+            } else if (testCase.layout == R.layout.widget_month_grid) {
+                assertMonthGridCustomInk(capture);
             }
             captureScreenshot(String.format(java.util.Locale.ROOT, "%02d_%s", i + 1, testCase.name), capture);
         }
@@ -197,6 +206,7 @@ public final class WidgetConceptE2ETest {
                 R.id.widget_month_compact_day_6}) {
             assertTrue("Compact month strip has an empty day cell", !text(capture.widget.findViewById(id)).isEmpty());
         }
+        assertCompactMonthInk(capture);
         captureScreenshot("16_month_grid_compact_week", capture);
     }
 
@@ -287,9 +297,10 @@ public final class WidgetConceptE2ETest {
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
-        // This internal, non-exported screen has no live ticker; Instrumentation's
-        // synchronous launch is appropriate here and preserves package-private access.
-        WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(
+        // The catalog is internal, but its UI queue need not go idle before inspection.
+        // Wait for its lifecycle resume rather than startActivitySync's global idle barrier.
+        WidgetCatalogActivity catalog = launchActivityWithoutWaitingForIdle(
+                WidgetCatalogActivity.class,
                 new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         catalogActivity = catalog;
         assertNotNull("Widget catalog did not open from the app", catalog);
@@ -342,8 +353,8 @@ public final class WidgetConceptE2ETest {
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             // The launcher starts configuration outside the test process, which the first
-            // monitor can miss. Instrumentation.startActivitySync also waits for the target
-            // UI queue to idle; use the monitor-based explicit launch used for MainActivity.
+            // ActivityMonitor can miss. Resume callbacks observe our explicit fallback without
+            // requiring Instrumentation's global UI-idle barrier.
             studio = launchActivityWithoutWaitingForIdle(WidgetConfigActivity.class, configure);
         }
         assertNotNull("Android did not launch Widget Studio for the pinned concept", studio);
@@ -395,13 +406,51 @@ public final class WidgetConceptE2ETest {
 
     private <T extends Activity> T launchActivityWithoutWaitingForIdle(
             Class<T> activityClass, Intent intent) throws Exception {
-        ActivityMonitor monitor = instrumentation.addMonitor(activityClass.getName(), null, false);
+        Application application = (Application) app.getApplicationContext();
+        CountDownLatch resumed = new CountDownLatch(1);
+        AtomicReference<T> launched = new AtomicReference<>();
+        AtomicReference<RuntimeException> launchFailure = new AtomicReference<>();
+        Application.ActivityLifecycleCallbacks callbacks = new Application.ActivityLifecycleCallbacks() {
+            @Override public void onActivityCreated(Activity candidate, Bundle state) { }
+            @Override public void onActivityStarted(Activity candidate) { }
+            @Override public void onActivityResumed(Activity candidate) {
+                if (activityClass.isInstance(candidate)) {
+                    launched.compareAndSet(null, activityClass.cast(candidate));
+                    resumed.countDown();
+                }
+            }
+            @Override public void onActivityPaused(Activity candidate) { }
+            @Override public void onActivityStopped(Activity candidate) { }
+            @Override public void onActivitySaveInstanceState(Activity candidate, Bundle state) { }
+            @Override public void onActivityDestroyed(Activity candidate) { }
+        };
+        application.registerActivityLifecycleCallbacks(callbacks);
+        Thread starter = new Thread(() -> {
+            try {
+                app.startActivity(intent);
+            } catch (RuntimeException error) {
+                launchFailure.set(error);
+                resumed.countDown();
+            }
+        }, "widget-e2e-launch-" + activityClass.getSimpleName());
+        starter.setDaemon(true);
         try {
-            app.startActivity(intent);
-            Activity launched = instrumentation.waitForMonitorWithTimeout(monitor, 15000L);
-            return launched == null ? null : activityClass.cast(launched);
+            starter.start();
+            if (!resumed.await(45000L, TimeUnit.MILLISECONDS)) {
+                starter.interrupt();
+                AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
+                String window = describeAccessibilityTree(active, new StringBuilder(), 0);
+                if (active != null) active.recycle();
+                throw new AssertionError("Android did not resume " + activityClass.getSimpleName()
+                        + " within 45 seconds; active window was " + window
+                        + "; startActivity error=" + launchFailure.get());
+            }
+            T result = launched.get();
+            if (result != null) return result;
+            throw new AssertionError("Android could not start " + activityClass.getSimpleName()
+                    + "; startActivity error=" + launchFailure.get());
         } finally {
-            instrumentation.removeMonitor(monitor);
+            application.unregisterActivityLifecycleCallbacks(callbacks);
         }
     }
 
@@ -422,6 +471,9 @@ public final class WidgetConceptE2ETest {
         WidgetEngine.PreviewStyle style = previewStyle(name);
         RemoteViews remoteViews = WidgetEngine.previewViews(app, widgetId, layout, style, widthDp, heightDp);
         WidgetConcepts.render(app, remoteViews, widgetId, name, true);
+        // previewViews applies style before interactive PendingIntents are installed. Reapply
+        // after the interactive render so calendar refreshes cannot reset configured ink.
+        WidgetConcepts.applyStyle(app, remoteViews, widgetId, name, style, widthDp, heightDp);
         AtomicReference<Capture> result = new AtomicReference<>();
         instrumentation.runOnMainSync(() -> {
             FrameLayout page = new FrameLayout(activity);
@@ -474,9 +526,70 @@ public final class WidgetConceptE2ETest {
         return result.get();
     }
 
+    private void assertWeekStripCustomInk(Capture capture) {
+        int highlighted = 0;
+        for (int i = 0; i < 7; i++) {
+            TextView weekday = (TextView) capture.widget.findViewById(calendarCellId("widget_week_day_", i));
+            TextView date = (TextView) capture.widget.findViewById(calendarCellId("widget_week_date_", i));
+            assertNotNull("Week Strip weekday cell is missing", weekday);
+            assertNotNull("Week Strip date cell is missing", date);
+            int dayInk = weekday.getCurrentTextColor();
+            int dateInk = date.getCurrentTextColor();
+            assertTrue("Week Strip weekday lost configured ink in slot " + i,
+                    dayInk == Color.WHITE || dayInk == CALENDAR_TEST_INK);
+            assertEquals("Week Strip date/weekday highlight differs in slot " + i, dayInk, dateInk);
+            if (dayInk == Color.WHITE) highlighted++;
+        }
+        assertEquals("Week Strip must highlight today exactly once", 1, highlighted);
+    }
+
+    private void assertMonthGridCustomInk(Capture capture) {
+        int highlighted = 0;
+        int currentMonth = 0;
+        int adjacentMonth = 0;
+        int muted = mutedCalendarInk();
+        for (int i = 0; i < 42; i++) {
+            TextView date = (TextView) capture.widget.findViewById(calendarCellId("widget_month_day_", i));
+            assertNotNull("Month Grid date cell is missing at slot " + i, date);
+            int ink = date.getCurrentTextColor();
+            if (ink == Color.WHITE) highlighted++;
+            else if (ink == CALENDAR_TEST_INK) currentMonth++;
+            else if (ink == muted) adjacentMonth++;
+            else assertTrue("Month Grid has unexpected ink at slot " + i + ": " + ink, false);
+        }
+        assertEquals("Month Grid must highlight today exactly once", 1, highlighted);
+        assertTrue("Month Grid must preserve custom ink for current-month dates", currentMonth > 0);
+        assertTrue("Month Grid must mute adjacent-month dates", adjacentMonth > 0);
+    }
+
+    private void assertCompactMonthInk(Capture capture) {
+        int highlighted = 0;
+        for (int i = 0; i < 7; i++) {
+            TextView date = (TextView) capture.widget.findViewById(calendarCellId("widget_month_compact_day_", i));
+            assertNotNull("Compact Month Grid date cell is missing", date);
+            int ink = date.getCurrentTextColor();
+            assertTrue("Compact Month Grid lost configured ink in slot " + i,
+                    ink == Color.WHITE || ink == CALENDAR_TEST_INK);
+            if (ink == Color.WHITE) highlighted++;
+        }
+        assertEquals("Compact Month Grid must highlight today exactly once", 1, highlighted);
+    }
+
+    private int mutedCalendarInk() {
+        return Color.argb(Math.min(Color.alpha(CALENDAR_TEST_INK), 0x99),
+                Color.red(CALENDAR_TEST_INK), Color.green(CALENDAR_TEST_INK), Color.blue(CALENDAR_TEST_INK));
+    }
+
+    private int calendarCellId(String prefix, int index) {
+        int id = app.getResources().getIdentifier(prefix + index, "id", app.getPackageName());
+        assertTrue("Missing calendar view ID " + prefix + index, id != 0);
+        return id;
+    }
+
     private WidgetEngine.PreviewStyle previewStyle(String layout) {
         WidgetEngine.PreviewStyle style = new WidgetEngine.PreviewStyle();
-        style.textColor = textColor(layout);
+        style.textColor = "widget_week_strip".equals(layout) || "widget_month_grid".equals(layout)
+                ? CALENDAR_TEST_INK : textColor(layout);
         style.background = background(layout);
         style.opacity = 255;
         style.font = 0;

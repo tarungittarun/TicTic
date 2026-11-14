@@ -351,6 +351,17 @@ class WidgetConceptContracts(unittest.TestCase):
                     self.assertLessEqual(len(encoded), 3800)
                     self.assertEqual(expected[start + offset], base64.b64decode(encoded, validate=True))
 
+    def test_e2e_reapplies_interactive_calendar_ink_after_render(self):
+        test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
+        display = test[test.index("private Capture display("):test.index("private void assertWeekStripCustomInk")]
+        interactive_render = display.index("WidgetConcepts.render(app, remoteViews, widgetId, name, true)")
+        style_reapply = display.index("WidgetConcepts.applyStyle(app, remoteViews, widgetId, name, style, widthDp, heightDp)")
+        self.assertLess(interactive_render, style_reapply)
+        self.assertIn("CALENDAR_TEST_INK = 0xff6855a5", test)
+        self.assertIn("assertWeekStripCustomInk(capture)", test)
+        self.assertIn("assertMonthGridCustomInk(capture)", test)
+        self.assertIn("assertCompactMonthInk(capture)", test)
+
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
         self.assertIn("@FixMethodOrder(MethodSorters.NAME_ASCENDING)", test)
@@ -381,8 +392,12 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("screencap -p", test)
         self.assertIn("aCatalogPinConfigureAndPlacementCompleteTheUserJourney", test)
         self.assertIn("launchActivityWithoutWaitingForIdle", test)
-        self.assertIn("waitForMonitorWithTimeout(monitor, 15000L)", test)
-        self.assertIn("WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(", test)
+        self.assertIn("application.registerActivityLifecycleCallbacks(callbacks)", test)
+        self.assertIn("onActivityResumed(Activity candidate)", test)
+        self.assertIn("resumed.await(45000L, TimeUnit.MILLISECONDS)", test)
+        self.assertIn("waitForMonitorWithTimeout(configMonitor, 15000L)", test)
+        self.assertIn("WidgetCatalogActivity catalog = launchActivityWithoutWaitingForIdle(", test)
+        self.assertNotIn("instrumentation.startActivitySync(", catalog_journey)
         setup = test[test.index("@Before public void setUp"):test.index("@After public void tearDown")]
         self.assertNotIn("MainActivity.class", setup)
         ensure_main = test[test.index("private MainActivity ensureMainActivity"):test.index("private Capture display")]

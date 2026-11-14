@@ -313,20 +313,23 @@ public final class WidgetConceptE2ETest {
         assertNotNull("Catalog must scroll through all 35 widget designs", scroll);
         TextView newConceptsTitle = (TextView) findText(catalog, "NEW CONCEPTS · 15");
         assertNotNull("Catalog is missing the new-concepts section heading", newConceptsTitle);
-        instrumentation.runOnMainSync(() ->
-                scroll.scrollTo(0, Math.max(0, newConceptsTitle.getTop() - dp(16))));
-        await(() -> isViewFullyVisible(newConceptsTitle),
-                "New-concepts section heading did not become fully visible after scrolling");
-        captureFullScreen("21_widget_catalog_new_concepts");
-
         TextView quickAlarmTitle = (TextView) findText(catalog, "Quick Alarm");
-        assertNotNull(quickAlarmTitle);
+        assertNotNull("Catalog is missing the Quick Alarm card", quickAlarmTitle);
         View card = (View) quickAlarmTitle.getParent().getParent();
         assertTrue("Quick Alarm catalog card must start the placement flow", card.isClickable());
-        instrumentation.runOnMainSync(() ->
-                scroll.scrollTo(0, Math.max(0, card.getTop() - dp(16))));
+        await(() -> isCatalogLaidOut(scroll, newConceptsTitle, card),
+                "Widget catalog did not finish layout before scrolling; " + catalogScrollState(scroll, card),
+                15000L);
+        scrollTargetToTop(scroll, newConceptsTitle, dp(16));
+        await(() -> isViewFullyVisible(newConceptsTitle),
+                "New-concepts section heading did not become fully visible after scrolling; "
+                        + catalogScrollState(scroll, newConceptsTitle), 15000L);
+        captureFullScreenWithVisibleText("21_widget_catalog_new_concepts", newConceptsTitle);
+
+        scrollTargetToTop(scroll, card, dp(16));
         await(() -> isTapTargetFullyVisible(card),
-                "Quick Alarm catalog card did not become fully visible after scrolling");
+                "Quick Alarm catalog card did not become fully visible after scrolling; "
+                        + catalogScrollState(scroll, card), 15000L);
         ActivityMonitor configMonitor = instrumentation.addMonitor(WidgetConfigActivity.class.getName(), null, false);
         AppWidgetManager manager = AppWidgetManager.getInstance(app);
         assertTrue("The API 34 emulator launcher must support widget pin requests",
@@ -694,6 +697,10 @@ public final class WidgetConceptE2ETest {
         if (prompt == null) return false;
         String details = describeAccessibilityTree(prompt, new StringBuilder(), 0);
         if (accessibilityContains(prompt, "isn't responding")) {
+            if (promptNamesTargetApp(details)) {
+                prompt.recycle();
+                throw new AssertionError("Android displayed the target app ANR dialog: " + details);
+            }
             boolean waited;
             try {
                 waited = clickAccessibilityText(prompt, "Wait");
@@ -836,6 +843,53 @@ public final class WidgetConceptE2ETest {
         } finally {
             full.recycle();
         }
+    }
+
+    private void captureFullScreenWithVisibleText(String name, TextView expectedText) throws Exception {
+        SystemClock.sleep(300L);
+        Bitmap full = takeEmulatorScreenshot();
+        try {
+            saveEmulatorScreenshot(full, name);
+            assertTextRenderedInScreenshot(full, expectedText, name);
+        } finally {
+            full.recycle();
+        }
+    }
+
+    private void assertTextRenderedInScreenshot(Bitmap screenshot, TextView expectedText, String name) {
+        AtomicBoolean visible = new AtomicBoolean(false);
+        AtomicReference<Rect> bounds = new AtomicReference<>(new Rect());
+        AtomicReference<Integer> ink = new AtomicReference<>(Color.TRANSPARENT);
+        AtomicReference<String> label = new AtomicReference<>("");
+        instrumentation.runOnMainSync(() -> {
+            Rect screenBounds = new Rect();
+            boolean hasBounds = expectedText.isLaidOut() && expectedText.getWidth() > 0
+                    && expectedText.getHeight() > 0 && expectedText.getGlobalVisibleRect(screenBounds);
+            visible.set(hasBounds);
+            bounds.set(screenBounds);
+            ink.set(expectedText.getCurrentTextColor());
+            label.set(String.valueOf(expectedText.getText()));
+        });
+        Rect pixels = bounds.get();
+        assertTrue("Catalog text has no visible screen bounds in " + name + ": " + label.get()
+                        + " bounds=" + pixels,
+                visible.get() && pixels.intersect(0, 0, screenshot.getWidth(), screenshot.getHeight()));
+        int expected = ink.get();
+        int matchingPixels = 0;
+        for (int y = pixels.top; y < pixels.bottom; y++) {
+            for (int x = pixels.left; x < pixels.right; x++) {
+                int actual = screenshot.getPixel(x, y);
+                if (Math.abs(Color.red(actual) - Color.red(expected)) <= 48
+                        && Math.abs(Color.green(actual) - Color.green(expected)) <= 48
+                        && Math.abs(Color.blue(actual) - Color.blue(expected)) <= 48) {
+                    matchingPixels++;
+                }
+            }
+        }
+        assertTrue("Catalog heading was not rendered into the emulator screenshot " + name
+                        + ": text=" + label.get() + " expectedInk=#" + Integer.toHexString(expected)
+                        + " bounds=" + pixels + " matchingPixels=" + matchingPixels,
+                matchingPixels >= 8);
     }
 
     private void captureScreenshot(String name, Capture capture) throws Exception {
@@ -1056,11 +1110,66 @@ public final class WidgetConceptE2ETest {
         waitForResponsiveAndroidUi();
     }
 
+    private boolean isCatalogLaidOut(ScrollView scroll, View... targets) {
+        AtomicBoolean ready = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> {
+            View content = scroll.getChildCount() == 0 ? null : scroll.getChildAt(0);
+            boolean laidOut = scroll.isLaidOut() && scroll.isShown() && scroll.hasWindowFocus()
+                    && scroll.getWidth() > 0 && scroll.getHeight() > 0 && content != null
+                    && content.isLaidOut() && content.getWidth() > 0
+                    && content.getHeight() > scroll.getHeight();
+            for (View target : targets) {
+                laidOut &= target != null && target.isLaidOut() && target.getWidth() > 0
+                        && target.getHeight() > 0;
+            }
+            ready.set(laidOut);
+        });
+        return ready.get();
+    }
+
+    private void scrollTargetToTop(ScrollView scroll, View target, int inset) {
+        AtomicReference<String> result = new AtomicReference<>("scroll content is missing");
+        instrumentation.runOnMainSync(() -> {
+            View content = scroll.getChildCount() == 0 ? null : scroll.getChildAt(0);
+            if (!(content instanceof ViewGroup) || !target.isLaidOut()
+                    || target.getWidth() <= 0 || target.getHeight() <= 0) return;
+            Rect contentBounds = new Rect(0, 0, target.getWidth(), target.getHeight());
+            ((ViewGroup) content).offsetDescendantRectToMyCoords(target, contentBounds);
+            int desiredY = Math.max(0, contentBounds.top - inset);
+            scroll.scrollTo(0, desiredY);
+            result.set("requestedY=" + desiredY + ", actualY=" + scroll.getScrollY()
+                    + ", targetContentBounds=" + contentBounds);
+        });
+        assertTrue("Catalog scroll target was not laid out or was not inside the scroll content: "
+                + result.get(), !"scroll content is missing".equals(result.get()));
+    }
+
+    private String catalogScrollState(ScrollView scroll, View target) {
+        AtomicReference<String> result = new AtomicReference<>("unavailable");
+        instrumentation.runOnMainSync(() -> {
+            View content = scroll.getChildCount() == 0 ? null : scroll.getChildAt(0);
+            Rect visible = new Rect();
+            boolean hasVisibleBounds = target.getGlobalVisibleRect(visible);
+            int[] targetLocation = new int[2];
+            target.getLocationOnScreen(targetLocation);
+            result.set("scrollY=" + scroll.getScrollY() + ", shown=" + scroll.isShown()
+                    + ", windowFocus=" + scroll.hasWindowFocus() + ", viewport=" + scroll.getWidth()
+                    + "x" + scroll.getHeight() + ", content="
+                    + (content == null ? "missing" : content.getWidth() + "x" + content.getHeight())
+                    + ", target=" + target.getClass().getSimpleName() + "@" + targetLocation[0] + ","
+                    + targetLocation[1] + " size=" + target.getWidth() + "x" + target.getHeight()
+                    + " attached=" + target.isAttachedToWindow() + " laidOut=" + target.isLaidOut()
+                    + " visible=" + (hasVisibleBounds ? visible.toString() : "none"));
+        });
+        return result.get();
+    }
+
     private boolean isViewFullyVisible(View view) {
         AtomicBoolean visible = new AtomicBoolean(false);
         instrumentation.runOnMainSync(() -> {
             Rect bounds = new Rect();
-            visible.set(view.isAttachedToWindow() && view.isShown()
+            visible.set(view.isLaidOut() && view.isAttachedToWindow() && view.isShown()
+                    && view.getWidth() > 0 && view.getHeight() > 0
                     && view.getGlobalVisibleRect(bounds)
                     && bounds.width() == view.getWidth() && bounds.height() == view.getHeight());
         });
@@ -1071,8 +1180,9 @@ public final class WidgetConceptE2ETest {
         AtomicBoolean visible = new AtomicBoolean(false);
         instrumentation.runOnMainSync(() -> {
             Rect bounds = new Rect();
-            visible.set(view.isAttachedToWindow() && view.isShown() && view.isEnabled()
-                    && view.isClickable() && view.getGlobalVisibleRect(bounds)
+            visible.set(view.isLaidOut() && view.isAttachedToWindow() && view.isShown() && view.isEnabled()
+                    && view.isClickable() && view.getWidth() > 0 && view.getHeight() > 0
+                    && view.getGlobalVisibleRect(bounds)
                     && bounds.width() == view.getWidth() && bounds.height() == view.getHeight());
         });
         return visible.get();

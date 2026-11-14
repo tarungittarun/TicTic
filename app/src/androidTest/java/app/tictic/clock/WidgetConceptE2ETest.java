@@ -341,10 +341,10 @@ public final class WidgetConceptE2ETest {
             Intent configure = new Intent(app, WidgetConfigActivity.class)
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            // The launcher starts the exported configuration activity from outside the
-            // test process, which ActivityMonitor may miss. Explicit instrumentation
-            // startup returns the Activity instance instead of waiting on that monitor.
-            studio = (WidgetConfigActivity) instrumentation.startActivitySync(configure);
+            // The launcher starts configuration outside the test process, which the first
+            // monitor can miss. Instrumentation.startActivitySync also waits for the target
+            // UI queue to idle; use the monitor-based explicit launch used for MainActivity.
+            studio = launchActivityWithoutWaitingForIdle(WidgetConfigActivity.class, configure);
         }
         assertNotNull("Android did not launch Widget Studio for the pinned concept", studio);
         final WidgetConfigActivity studioActivity = studio;

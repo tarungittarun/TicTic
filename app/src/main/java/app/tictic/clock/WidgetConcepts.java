@@ -148,10 +148,11 @@ final class WidgetConcepts {
         String key="widget_"+widgetId+"_";
         boolean configured=preview!=null||prefs.getBoolean(key+"configured",false);
         boolean wallpaper=preview!=null?preview.wallpaperColors:prefs.getBoolean(key+"wallpaper_colors",false);
+        int ink=0;
         if(configured||wallpaper) {
-            int color=preview!=null?preview.textColor:prefs.getInt(key+"text_color",WidgetEngine.defaultTextColor(context,widgetId));
-            if(wallpaper)color=WidgetEngine.previewWallpaperPalette(context,WidgetEngine.defaultBackground(context,widgetId))[0];
-            for(int id:textIds(layout))views.setTextColor(id,color);
+            ink=preview!=null?preview.textColor:prefs.getInt(key+"text_color",WidgetEngine.defaultTextColor(context,widgetId));
+            if(wallpaper)ink=WidgetEngine.previewWallpaperPalette(context,WidgetEngine.defaultBackground(context,widgetId))[0];
+            for(int id:textIds(layout))views.setTextColor(id,ink);
         }
 
         float defaultSize=WidgetEngine.defaultSize(context,widgetId);
@@ -168,7 +169,7 @@ final class WidgetConcepts {
             int gravity=alignment==0?Gravity.CENTER:alignment==1?Gravity.START|Gravity.CENTER_VERTICAL:Gravity.END|Gravity.CENTER_VERTICAL;
             for(int id:alignmentIds(layout))views.setInt(id,"setGravity",gravity);
         }
-        applyCalendarAccents(context,views,layout);
+        applyCalendarAccents(context,views,layout,configured||wallpaper,ink);
         applyActionContrast(views,layout);
         applyResponsiveLayout(context,views,layout,width,height);
     }
@@ -357,12 +358,10 @@ final class WidgetConcepts {
             String day=dayFormat.format(cursor.getTime());
             views.setTextViewText(WEEK_DAY_IDS[i],day);
             views.setTextViewText(WEEK_DATE_IDS[i],String.valueOf(cursor.get(Calendar.DAY_OF_MONTH)));
-            views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",Color.TRANSPARENT);
-            if(isSameLocalDay(cursor,now)) {
-                views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",DataStore.accent(context));
-                views.setTextColor(WEEK_DAY_IDS[i],Color.WHITE);
-                views.setTextColor(WEEK_DATE_IDS[i],Color.WHITE);
-            }
+            boolean today=isSameLocalDay(cursor,now);
+            views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",today?DataStore.accent(context):Color.TRANSPARENT);
+            views.setTextColor(WEEK_DAY_IDS[i],today?Color.WHITE:0xff65756e);
+            views.setTextColor(WEEK_DATE_IDS[i],today?Color.WHITE:0xff183a34);
             cursor.add(Calendar.DAY_OF_YEAR,1);
         }
     }
@@ -414,6 +413,10 @@ final class WidgetConcepts {
     private static boolean isSameLocalDay(Calendar one,Calendar two) {
         return one.get(Calendar.ERA)==two.get(Calendar.ERA)&&one.get(Calendar.YEAR)==two.get(Calendar.YEAR)
                 &&one.get(Calendar.DAY_OF_YEAR)==two.get(Calendar.DAY_OF_YEAR);
+    }
+
+    private static int mutedInk(int color) {
+        return Color.argb(Math.min(Color.alpha(color),0x99),Color.red(color),Color.green(color),Color.blue(color));
     }
 
     private static void yearPulse(RemoteViews views) {
@@ -610,7 +613,8 @@ final class WidgetConcepts {
                 occurrence.item.optString("name","Routine");
     }
 
-    private static void applyCalendarAccents(Context context,RemoteViews views,String layout) {
+    private static void applyCalendarAccents(Context context,RemoteViews views,String layout,
+                                             boolean customInk,int ink) {
         if("widget_week_strip".equals(layout)) {
             Calendar now=Calendar.getInstance();
             Calendar cursor=(Calendar)now.clone();
@@ -618,12 +622,12 @@ final class WidgetConcepts {
             int offset=(cursor.get(Calendar.DAY_OF_WEEK)-cursor.getFirstDayOfWeek()+7)%7;
             cursor.add(Calendar.DAY_OF_YEAR,-offset);
             for(int i=0;i<7;i++) {
-                views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",Color.TRANSPARENT);
-                if(isSameLocalDay(cursor,now)) {
-                    views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",DataStore.accent(context));
-                    views.setTextColor(WEEK_DAY_IDS[i],Color.WHITE);
-                    views.setTextColor(WEEK_DATE_IDS[i],Color.WHITE);
-                }
+                boolean today=isSameLocalDay(cursor,now);
+                int dayColor=customInk?ink:0xff65756e;
+                int dateColor=customInk?ink:0xff183a34;
+                views.setInt(WEEK_CELL_IDS[i],"setBackgroundColor",today?DataStore.accent(context):Color.TRANSPARENT);
+                views.setTextColor(WEEK_DAY_IDS[i],today?Color.WHITE:dayColor);
+                views.setTextColor(WEEK_DATE_IDS[i],today?Color.WHITE:dateColor);
                 cursor.add(Calendar.DAY_OF_YEAR,1);
             }
         } else if("widget_month_grid".equals(layout)) {
@@ -632,11 +636,13 @@ final class WidgetConcepts {
             cursor.set(Calendar.MINUTE,0);cursor.set(Calendar.SECOND,0);cursor.set(Calendar.MILLISECOND,0);
             int offset=(cursor.get(Calendar.DAY_OF_WEEK)-cursor.getFirstDayOfWeek()+7)%7;
             cursor.add(Calendar.DAY_OF_YEAR,-offset);
+            int currentMonthInk=customInk?ink:0xff574b39;
+            int adjacentMonthInk=customInk?mutedInk(ink):0xff9caaa4;
             for(int i=0;i<MONTH_DAY_IDS.length;i++) {
                 boolean sameMonth=cursor.get(Calendar.YEAR)==now.get(Calendar.YEAR)&&cursor.get(Calendar.MONTH)==now.get(Calendar.MONTH);
                 boolean today=sameMonth&&cursor.get(Calendar.DAY_OF_MONTH)==now.get(Calendar.DAY_OF_MONTH);
                 views.setInt(MONTH_DAY_IDS[i],"setBackgroundColor",today?DataStore.accent(context):Color.TRANSPARENT);
-                views.setTextColor(MONTH_DAY_IDS[i],today?Color.WHITE:(sameMonth?0xff574b39:0xff9caaa4));
+                views.setTextColor(MONTH_DAY_IDS[i],today?Color.WHITE:(sameMonth?currentMonthInk:adjacentMonthInk));
                 cursor.add(Calendar.DAY_OF_YEAR,1);
             }
             Calendar compact=(Calendar)now.clone();compact.set(Calendar.HOUR_OF_DAY,0);compact.set(Calendar.MINUTE,0);
@@ -645,7 +651,7 @@ final class WidgetConcepts {
             for(int i=0;i<MONTH_COMPACT_DAY_IDS.length;i++) {
                 boolean today=isSameLocalDay(compact,now);
                 views.setInt(MONTH_COMPACT_DAY_IDS[i],"setBackgroundColor",today?DataStore.accent(context):Color.TRANSPARENT);
-                views.setTextColor(MONTH_COMPACT_DAY_IDS[i],today?Color.WHITE:0xff574b39);
+                views.setTextColor(MONTH_COMPACT_DAY_IDS[i],today?Color.WHITE:currentMonthInk);
                 compact.add(Calendar.DAY_OF_YEAR,1);
             }
         }

@@ -225,6 +225,23 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("WidgetConcepts.render(c,v,widgetId,name,true)", read("WidgetEngine.java"))
         self.assertIn("WidgetConcepts.render(c,v,widgetId,name,false)", read("WidgetEngine.java"))
 
+    def test_week_strip_reapply_resets_previous_day_highlight_text(self):
+        concepts = read("WidgetConcepts.java")
+        render_start = concepts.index("private static void weekStrip")
+        render_end = concepts.index("private static void monthGrid", render_start)
+        render = concepts[render_start:render_end]
+        self.assertIn("views.setTextColor(WEEK_DAY_IDS[i],today?Color.WHITE:0xff65756e)", render)
+        self.assertIn("views.setTextColor(WEEK_DATE_IDS[i],today?Color.WHITE:0xff183a34)", render)
+        accents_start = concepts.index("private static void applyCalendarAccents")
+        accents = concepts[accents_start:]
+        self.assertIn("boolean customInk,int ink", accents)
+        self.assertIn("views.setTextColor(WEEK_DAY_IDS[i],today?Color.WHITE:dayColor)", accents)
+        self.assertIn("views.setTextColor(WEEK_DATE_IDS[i],today?Color.WHITE:dateColor)", accents)
+        self.assertIn("int currentMonthInk=customInk?ink:0xff574b39", accents)
+        self.assertIn("int adjacentMonthInk=customInk?mutedInk(ink):0xff9caaa4", accents)
+        self.assertIn("private static int mutedInk(int color)", concepts)
+        self.assertIn("configured||wallpaper,ink", concepts)
+
     def test_calendar_and_world_clock_data_respects_local_time_rules(self):
         concepts = read("WidgetConcepts.java")
         variants = read("WidgetVariants.java")
@@ -299,6 +316,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn('head -n 30 "$setup_log"', runner)
         self.assertIn('tail -n 100 "$INSTRUMENTATION_LOG"', runner)
         self.assertIn("adb logcat -d -b crash", runner)
+        self.assertIn("WidgetActionReceiver|TimerReceiver|START_FOCUS", runner)
+        self.assertIn("-t 4000", runner)
         self.assertIn("INSTRUMENTATION_ABORTED", runner)
         self.assertIn('if [ "$test_status" -ne 0 ] || ! grep -q \'OK (\' "$INSTRUMENTATION_LOG"; then', runner)
         self.assertIn("if adb shell am instrument", runner)
@@ -371,7 +390,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("isRequestPinAppWidgetSupported", test)
         self.assertIn("performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)", test)
         self.assertIn('waitForAccessibilityTexts(15000L, "10 MIN")', test)
-        self.assertIn("instrumentation.startActivitySync(configure)", test)
+        self.assertIn("launchActivityWithoutWaitingForIdle(WidgetConfigActivity.class, configure)", test)
+        self.assertNotIn("instrumentation.startActivitySync(configure)", test)
         self.assertNotIn("app.startActivity(configure)", test)
         self.assertIn("WidgetConfigActivity", test)
         self.assertIn("ui.takeScreenshot()", test)

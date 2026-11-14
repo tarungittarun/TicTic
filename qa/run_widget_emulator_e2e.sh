@@ -7,11 +7,48 @@ readonly APP_PACKAGE="app.space.one"
 readonly TEST_PACKAGE="app.space.one.test"
 readonly SCREEN_DIR="/tmp/widget-e2e-screenshots"
 readonly INSTRUMENTATION_LOG="/tmp/widget-e2e-instrumentation.log"
+readonly TARGET_INSTALL_LOG="/tmp/widget-e2e-target-install.log"
+readonly TEST_INSTALL_LOG="/tmp/widget-e2e-test-install.log"
 phase="initializing"
 
 on_error() {
     local status=$1 failed_line=$2 failed_command=$3
     local detail="Phase: $phase · line $failed_line · exit $status · command: $failed_command"
+    if [[ "$phase" == "wait for emulator" || "$phase" == "install target APK" || "$phase" == "install instrumentation APK" ]]; then
+        local setup_log="/tmp/widget-e2e-setup-diagnostics.log"
+        local install_log=""
+        if [[ "$phase" == "install target APK" ]]; then install_log=$TARGET_INSTALL_LOG; fi
+        if [[ "$phase" == "install instrumentation APK" ]]; then install_log=$TEST_INSTALL_LOG; fi
+        : > "$setup_log"
+        {
+            printf 'Failed setup phase: %s\n' "$phase"
+            if [[ -n "$install_log" && -f "$install_log" ]]; then
+                printf '\nAPK install output:\n'
+                tail -n 40 "$install_log"
+            fi
+            printf '\nADB devices:\n'
+            timeout 10s adb devices -l 2>&1 || true
+            printf '\nGuest boot state:\n'
+            timeout 10s adb shell getprop sys.boot_completed 2>&1 || true
+            printf '\nGuest storage:\n'
+            timeout 10s adb shell df -h /data 2>&1 || true
+            printf '\nGuest memory:\n'
+            timeout 10s adb shell cat /proc/meminfo 2>&1 | grep -E 'MemTotal|MemFree|MemAvailable|SwapTotal|SwapFree' || true
+            printf '\nRecent package/install/system signals:\n'
+            timeout 15s adb logcat -d -b all -v threadtime -t 1000 2>&1 \
+                | grep -Ei 'PackageManager|PackageInstaller|INSTALL_FAILED|installd|dex2oat|app[.]space[.]one|system_server|lmkd|lowmemorykiller|watchdog' \
+                | tail -n 60 || true
+        } >> "$setup_log"
+        {
+            printf '\n#### Emulator setup diagnostics\n\n```text\n'
+            tail -n 80 "$setup_log"
+            printf '\n```\n'
+        } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+        local diagnostic_escaped
+        diagnostic_escaped=$(tail -n 20 "$setup_log" | cut -c1-160 \
+            | sed 's/%/%25/g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }')
+        echo "::error title=Emulator setup diagnostics::$diagnostic_escaped"
+    fi
     printf 'Widget E2E script failed: %s\n' "$detail" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
     local escaped
     escaped=$(printf '%s' "$detail" | sed 's/%/%25/g; s/\r//g; s/::/%3A%3A/g')
@@ -32,9 +69,9 @@ phase="wait for emulator"
 adb wait-for-device
 adb shell getprop sys.boot_completed
 phase="install target APK"
-adb install -r "$main_apk"
+adb install -r "$main_apk" 2>&1 | tee "$TARGET_INSTALL_LOG"
 phase="install instrumentation APK"
-adb install -r "$test_apk"
+adb install -r "$test_apk" 2>&1 | tee "$TEST_INSTALL_LOG"
 phase="grant emulator notification access"
 adb shell pm grant "$APP_PACKAGE" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 phase="prepare a clean emulator screenshot directory"

@@ -42,12 +42,13 @@ adb shell run-as "$APP_PACKAGE" rm -rf files/widget-e2e
 adb shell run-as "$APP_PACKAGE" mkdir -p files/widget-e2e
 
 phase="run Android instrumentation suite"
-set +e
-adb shell am instrument -w -r "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" \
-    > "$INSTRUMENTATION_LOG" 2>&1
-test_status=$?
-set -e
-if [ "$test_status" -ne 0 ]; then
+if adb shell am instrument -w -r "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" \
+        > "$INSTRUMENTATION_LOG" 2>&1; then
+    test_status=0
+else
+    test_status=$?
+fi
+if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
     phase="capture emulator failure diagnostics"
     readonly DEVICE_DIAGNOSTICS_LOG="/tmp/widget-e2e-device-diagnostics.log"
     : > "$DEVICE_DIAGNOSTICS_LOG"

@@ -290,6 +290,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("capture emulator failure diagnostics", runner)
         self.assertIn("adb logcat -d -b crash", runner)
         self.assertIn("INSTRUMENTATION_ABORTED", runner)
+        self.assertIn('if [ "$test_status" -ne 0 ] || ! grep -q \'OK (\' "$INSTRUMENTATION_LOG"; then', runner)
+        self.assertIn("if adb shell am instrument", runner)
         self.assertNotIn("chunk_size=2500", runner)
         emitter = (ROOT / "qa/emit_widget_e2e_screenshots.sh").read_text(encoding="utf-8")
         self.assertIn("notice title=E2E screenshot", emitter)

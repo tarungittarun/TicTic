@@ -286,12 +286,12 @@ public final class WidgetConceptE2ETest {
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
-        WidgetCatalogActivity catalog = launchActivityWithoutWaitingForIdle(
-                WidgetCatalogActivity.class,
+        // This internal, non-exported screen has no live ticker; Instrumentation's
+        // synchronous launch is appropriate here and preserves package-private access.
+        WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(
                 new Intent(app, WidgetCatalogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         catalogActivity = catalog;
         assertNotNull("Widget catalog did not open from the app", catalog);
-        instrumentation.waitForIdleSync();
         String[] conceptNames = {"Wake Countdown", "Alarm Stack", "Wake Switch", "Quick Alarm", "World Grid",
                 "Meeting Window", "Week Strip", "Month Grid", "Year Pulse", "Day Balance", "Routine Stack",
                 "Routine Countdown", "Focus Launch", "Timer Live", "Lap Insights"};

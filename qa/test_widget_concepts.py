@@ -347,7 +347,11 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("aCatalogPinConfigureAndPlacementCompleteTheUserJourney", test)
         self.assertIn("launchActivityWithoutWaitingForIdle", test)
         self.assertIn("waitForMonitorWithTimeout(monitor, 15000L)", test)
-        self.assertNotIn("instrumentation.startActivitySync(", test)
+        self.assertIn("WidgetCatalogActivity catalog = (WidgetCatalogActivity) instrumentation.startActivitySync(", test)
+        setup = test[test.index("@Before public void setUp"):test.index("@After public void tearDown")]
+        self.assertNotIn("MainActivity.class", setup)
+        ensure_main = test[test.index("private MainActivity ensureMainActivity"):test.index("private Capture display")]
+        self.assertIn("launchActivityWithoutWaitingForIdle(MainActivity.class, launch)", ensure_main)
         self.assertIn("isRequestPinAppWidgetSupported", test)
         self.assertIn("app.startActivity(configure)", test)
         self.assertNotIn("startActivitySync(configure)", test)

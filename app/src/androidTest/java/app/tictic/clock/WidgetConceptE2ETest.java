@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
@@ -66,6 +67,8 @@ public final class WidgetConceptE2ETest {
     private static final int ALARM_ID = 92001;
     private static final int SECOND_ALARM_ID = 92002;
     private static final int ROUTINE_ID = 93001;
+    private static final int MAX_SCREENSHOT_BYTES = 2800;
+    private static final int MAX_SCREENSHOT_WIDTH = 320;
     private static final WidgetCase[] CASES = {
             new WidgetCase("alarm_countdown", R.layout.widget_alarm_countdown,
                     R.id.widget_concept_heading, "NEXT WAKE IN", 202),
@@ -566,6 +569,8 @@ public final class WidgetConceptE2ETest {
 
     private void verifyScreenshotFile(File output, String name) {
         assertTrue("Emulator screenshot was not written: " + name, output.length() > 1000L);
+        assertTrue("Emulator screenshot exceeds the intact GitHub annotation budget: " + name,
+                output.length() <= MAX_SCREENSHOT_BYTES);
         Bitmap decoded = BitmapFactory.decodeFile(output.getAbsolutePath());
         assertNotNull("Emulator screenshot is not a decodable JPEG: " + name, decoded);
         assertTrue("Emulator screenshot has invalid dimensions: " + name,
@@ -573,53 +578,80 @@ public final class WidgetConceptE2ETest {
         decoded.recycle();
     }
 
+    private void saveEmulatorScreenshot(Bitmap source, String name) throws Exception {
+        Bitmap image = source;
+        boolean ownsImage = false;
+        if (source.getWidth() > MAX_SCREENSHOT_WIDTH) {
+            int height = Math.max(1, source.getHeight() * MAX_SCREENSHOT_WIDTH / source.getWidth());
+            image = Bitmap.createScaledBitmap(source, MAX_SCREENSHOT_WIDTH, height, true);
+            ownsImage = true;
+        }
+        try {
+            int quality = 40;
+            while (true) {
+                ByteArrayOutputStream encoded = new ByteArrayOutputStream();
+                assertTrue("Could not encode emulator screenshot: " + name,
+                        image.compress(Bitmap.CompressFormat.JPEG, quality, encoded));
+                byte[] bytes = encoded.toByteArray();
+                if (bytes.length <= MAX_SCREENSHOT_BYTES) {
+                    File output = new File(screenshotDirectory, name + ".jpg");
+                    try (FileOutputStream stream = new FileOutputStream(output)) {
+                        stream.write(bytes);
+                    }
+                    verifyScreenshotFile(output, name);
+                    return;
+                }
+                if (quality > 22) {
+                    quality -= 6;
+                    continue;
+                }
+                if (image.getWidth() <= 160) {
+                    throw new AssertionError("Emulator screenshot cannot fit intact in a GitHub annotation: "
+                            + name + " (" + bytes.length + " bytes)");
+                }
+                int width = Math.max(160, image.getWidth() * 4 / 5);
+                int height = Math.max(1, image.getHeight() * width / image.getWidth());
+                Bitmap smaller = Bitmap.createScaledBitmap(image, width, height, true);
+                if (ownsImage) image.recycle();
+                image = smaller;
+                ownsImage = true;
+                quality = 40;
+            }
+        } finally {
+            if (ownsImage) image.recycle();
+        }
+    }
+
     private void captureFullScreen(String name) throws Exception {
         instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
         Bitmap full = takeEmulatorScreenshot();
-        Bitmap image = full;
-        int maxWidth = 400;
-        if (full.getWidth() > maxWidth) {
-            int scaledHeight = Math.max(1, full.getHeight() * maxWidth / full.getWidth());
-            image = Bitmap.createScaledBitmap(full, maxWidth, scaledHeight, true);
+        try {
+            saveEmulatorScreenshot(full, name);
+        } finally {
+            full.recycle();
         }
-        File output = new File(screenshotDirectory, name + ".jpg");
-        try (FileOutputStream stream = new FileOutputStream(output)) {
-            assertTrue("Could not encode emulator screenshot: " + name,
-                    image.compress(Bitmap.CompressFormat.JPEG, 42, stream));
-        }
-        if (image != full) image.recycle();
-        full.recycle();
-        verifyScreenshotFile(output, name);
     }
 
     private void captureScreenshot(String name, Capture capture) throws Exception {
         instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
         Bitmap full = takeEmulatorScreenshot();
-        int[] location = new int[2];
-        capture.column.getLocationOnScreen(location);
-        int left = Math.max(0, location[0]);
-        int top = Math.max(0, location[1]);
-        int right = Math.min(full.getWidth(), left + capture.column.getWidth());
-        int bottom = Math.min(full.getHeight(), top + capture.column.getHeight());
-        assertTrue("Widget capture bounds are empty", right > left && bottom > top);
-        Bitmap crop = Bitmap.createBitmap(full, left, top, right - left, bottom - top);
-        int maxWidth = 400;
-        if (crop.getWidth() > maxWidth) {
-            int scaledHeight = Math.max(1, crop.getHeight() * maxWidth / crop.getWidth());
-            Bitmap scaled = Bitmap.createScaledBitmap(crop, maxWidth, scaledHeight, true);
-            crop.recycle();
-            crop = scaled;
+        Bitmap crop = null;
+        try {
+            int[] location = new int[2];
+            capture.column.getLocationOnScreen(location);
+            int left = Math.max(0, location[0]);
+            int top = Math.max(0, location[1]);
+            int right = Math.min(full.getWidth(), left + capture.column.getWidth());
+            int bottom = Math.min(full.getHeight(), top + capture.column.getHeight());
+            assertTrue("Widget capture bounds are empty", right > left && bottom > top);
+            crop = Bitmap.createBitmap(full, left, top, right - left, bottom - top);
+            saveEmulatorScreenshot(crop, name);
+        } finally {
+            if (crop != null) crop.recycle();
+            full.recycle();
         }
-        File output = new File(screenshotDirectory, name + ".jpg");
-        try (FileOutputStream stream = new FileOutputStream(output)) {
-            assertTrue("Could not encode emulator screenshot: " + name,
-                    crop.compress(Bitmap.CompressFormat.JPEG, 42, stream));
-        }
-        full.recycle();
-        crop.recycle();
-        verifyScreenshotFile(output, name);
     }
 
     private View findText(Activity target, String expected) {
@@ -739,9 +771,10 @@ public final class WidgetConceptE2ETest {
     private boolean injectTap(AccessibilityNodeInfo node) {
         Rect bounds = new Rect();
         node.getBoundsInScreen(bounds);
-        if (bounds.isEmpty()) return false;
-        float x = bounds.exactCenterX();
-        float y = bounds.exactCenterY();
+        return !bounds.isEmpty() && injectTap(bounds.exactCenterX(), bounds.exactCenterY());
+    }
+
+    private boolean injectTap(float x, float y) {
         long downTime = SystemClock.uptimeMillis();
         MotionEvent down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0);
         down.setSource(InputDevice.SOURCE_TOUCHSCREEN);
@@ -783,9 +816,20 @@ public final class WidgetConceptE2ETest {
 
     private void click(View view) throws Exception {
         waitForResponsiveAndroidUi();
-        AtomicBoolean clicked = new AtomicBoolean(false);
-        instrumentation.runOnMainSync(() -> clicked.set(view.performClick()));
-        assertTrue("RemoteViews click was not dispatched", clicked.get());
+        AtomicBoolean ready = new AtomicBoolean(false);
+        AtomicReference<Rect> bounds = new AtomicReference<>();
+        instrumentation.runOnMainSync(() -> {
+            int[] location = new int[2];
+            view.getLocationOnScreen(location);
+            bounds.set(new Rect(location[0], location[1],
+                    location[0] + view.getWidth(), location[1] + view.getHeight()));
+            ready.set(view.isAttachedToWindow() && view.isShown() && view.isEnabled()
+                    && view.isClickable() && view.getWidth() > 0 && view.getHeight() > 0);
+        });
+        assertTrue("Android tap target is detached, hidden, or not clickable", ready.get());
+        Rect target = bounds.get();
+        assertTrue("Android tap did not reach the widget or app control",
+                injectTap(target.exactCenterX(), target.exactCenterY()));
         instrumentation.waitForIdleSync();
         SystemClock.sleep(350L);
         waitForResponsiveAndroidUi();

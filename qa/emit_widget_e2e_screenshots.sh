@@ -28,8 +28,8 @@ for ((index = start; index < end; index++)); do
     name=${images[$index]}
     payload=$(base64 -w0 "$SCREEN_DIR/$name")
     payload_length=${#payload}
-    if (( payload_length > 30000 )); then
-        echo "Screenshot $name is too large for one evidence annotation ($payload_length base64 characters)."
+    if (( payload_length > 3800 )); then
+        echo "Screenshot $name is too large for an intact GitHub check annotation ($payload_length base64 characters)."
         exit 1
     fi
     printf '::notice title=E2E screenshot %02d/%02d %s::%s\n' \

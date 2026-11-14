@@ -47,6 +47,34 @@ adb shell am instrument -w -r "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRu
     > "$INSTRUMENTATION_LOG" 2>&1
 test_status=$?
 set -e
+if [ "$test_status" -ne 0 ]; then
+    phase="capture emulator failure diagnostics"
+    readonly DEVICE_DIAGNOSTICS_LOG="/tmp/widget-e2e-device-diagnostics.log"
+    : > "$DEVICE_DIAGNOSTICS_LOG"
+    {
+        printf 'Host emulator processes:\n'
+        ps -eo pid,rss,etime,args | grep -E '[e]mulator|[q]emu-system' | tail -n 20 || true
+        printf '\nHost memory:\n'
+        free -h 2>&1 || true
+        printf '\nADB devices:\n'
+        timeout 10s adb devices -l 2>&1 || true
+        printf '\nGuest boot state and memory:\n'
+        timeout 10s adb shell getprop sys.boot_completed 2>&1 || true
+        timeout 10s adb shell cat /proc/meminfo 2>&1 | grep -E 'MemTotal|MemFree|MemAvailable|SwapTotal|SwapFree' || true
+        printf '\nAndroid crash buffer:\n'
+        timeout 15s adb logcat -d -b crash -v threadtime -t 300 2>&1 || true
+        printf '\nRecent system/test failure signals:\n'
+        timeout 15s adb logcat -d -b all -v threadtime -t 1200 2>&1 | grep -Ei 'FATAL EXCEPTION|Fatal signal|System server|system_server|INSTRUMENTATION_ABORTED|ANR in|lmkd|lowmemorykiller|AndroidRuntime|app\.space\.one|WidgetConceptE2ETest|watchdog' | tail -n 80 || true
+    } >> "$DEVICE_DIAGNOSTICS_LOG"
+    {
+        printf '\n#### Emulator failure diagnostics\n\n```text\n'
+        tail -n 100 "$DEVICE_DIAGNOSTICS_LOG"
+        printf '\n```\n'
+    } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+    escaped=$(tail -n 20 "$DEVICE_DIAGNOSTICS_LOG" | cut -c1-160 | sed 's/%/%25/g; s/::/%3A%3A/g' | awk 'BEGIN { ORS = "%0A" } { print }')
+    echo "::error title=Emulator crash diagnostics::$escaped"
+fi
+
 phase="print instrumentation results"
 cat "$INSTRUMENTATION_LOG"
 

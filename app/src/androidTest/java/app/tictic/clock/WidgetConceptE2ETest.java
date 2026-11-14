@@ -281,8 +281,8 @@ public final class WidgetConceptE2ETest {
         }
         File[] actual = screenshotDirectory.listFiles((dir, filename) -> filename.endsWith(".jpg"));
         assertNotNull("Emulator screenshot directory could not be listed", actual);
-        assertEquals("Expected exactly 24 uniquely named emulator screenshots", 24, actual.length);
         assertTrue("Missing emulator captures: " + missing, missing.length() == 0);
+        assertEquals("Expected exactly 24 uniquely named emulator screenshots", 24, actual.length);
     }
 
     @Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney() throws Exception {
@@ -323,7 +323,6 @@ public final class WidgetConceptE2ETest {
                 clickAccessibilityText(pinPrompt, "Add"));
 
         WidgetConfigActivity studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
-        instrumentation.removeMonitor(configMonitor);
         if (studio == null) {
             int[] placedIds = manager.getAppWidgetIds(provider);
             await(() -> manager.getAppWidgetIds(provider).length > previousCount,
@@ -334,8 +333,10 @@ public final class WidgetConceptE2ETest {
             Intent configure = new Intent(app, WidgetConfigActivity.class)
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            studio = (WidgetConfigActivity) instrumentation.startActivitySync(configure);
+            app.startActivity(configure);
+            studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
         }
+        instrumentation.removeMonitor(configMonitor);
         assertNotNull("Android did not launch Widget Studio for the pinned concept", studio);
         final WidgetConfigActivity studioActivity = studio;
         int widgetId = studioActivity.getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
@@ -357,7 +358,6 @@ public final class WidgetConceptE2ETest {
                 throw new AssertionError("Could not configure the widget surface", e);
             }
         });
-        instrumentation.waitForIdleSync();
         captureFullScreen("23_quick_alarm_widget_studio");
         View apply = findText(studioActivity, "Apply");
         assertNotNull("Widget Studio must provide an Apply action", apply);
@@ -374,7 +374,6 @@ public final class WidgetConceptE2ETest {
         assertNotNull("Launcher did not bind the requested Quick Alarm provider", manager.getAppWidgetInfo(widgetId));
         assertEquals("Launcher bound the wrong widget provider", R.layout.widget_quick_alarm,
                 manager.getAppWidgetInfo(widgetId).initialLayout);
-        instrumentation.waitForIdleSync();
         SystemClock.sleep(500L);
         captureFullScreen("24_quick_alarm_widget_placed");
         instrumentation.runOnMainSync(catalog::finish);
@@ -623,7 +622,6 @@ public final class WidgetConceptE2ETest {
     }
 
     private void captureFullScreen(String name) throws Exception {
-        instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
         Bitmap full = takeEmulatorScreenshot();
         try {
@@ -634,7 +632,6 @@ public final class WidgetConceptE2ETest {
     }
 
     private void captureScreenshot(String name, Capture capture) throws Exception {
-        instrumentation.waitForIdleSync();
         SystemClock.sleep(180L);
         Bitmap full = takeEmulatorScreenshot();
         Bitmap crop = null;
@@ -701,7 +698,6 @@ public final class WidgetConceptE2ETest {
             }
             AccessibilityNodeInfo root = findAccessibilityRootContaining(expected);
             if (root != null) return root;
-            instrumentation.waitForIdleSync();
             Thread.sleep(150L);
         }
         AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
@@ -830,7 +826,6 @@ public final class WidgetConceptE2ETest {
         Rect target = bounds.get();
         assertTrue("Android tap did not reach the widget or app control",
                 injectTap(target.exactCenterX(), target.exactCenterY()));
-        instrumentation.waitForIdleSync();
         SystemClock.sleep(350L);
         waitForResponsiveAndroidUi();
     }

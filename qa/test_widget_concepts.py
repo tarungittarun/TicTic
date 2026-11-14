@@ -339,6 +339,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("screencap -p", test)
         self.assertIn("aCatalogPinConfigureAndPlacementCompleteTheUserJourney", test)
         self.assertIn("isRequestPinAppWidgetSupported", test)
+        self.assertIn("app.startActivity(configure)", test)
+        self.assertNotIn("startActivitySync(configure)", test)
         self.assertIn("WidgetConfigActivity", test)
         self.assertIn("ui.takeScreenshot()", test)
         self.assertIn("WidgetConcepts.render(app, remoteViews, widgetId, name, true)", test)

@@ -344,21 +344,40 @@ class WidgetConceptContracts(unittest.TestCase):
         emitter = (ROOT / "qa/emit_widget_e2e_screenshots.sh").read_text(encoding="utf-8")
         self.assertIn("notice title=E2E screenshot", emitter)
         self.assertIn("payload_length > 3800", emitter)
+        self.assertIn("ordinal=${name%%_*}", emitter)
+        self.assertIn("%s/24 %s", emitter)
+        self.assertIn("01_alarm_countdown.jpg", emitter)
+        self.assertIn("${expected[$index]}", emitter)
         for group in ("01–08", "09–16", "17–24"):
             self.assertIn("Surface emulator screenshots " + group, workflow)
         self.assertIn('grep -q \'OK (\' "$INSTRUMENTATION_LOG"', runner)
 
-    def test_screenshot_emitter_preserves_each_payload_under_annotation_limit(self):
+    def test_screenshot_emitter_preserves_names_ordinals_and_payloads_when_partial(self):
         emitter = ROOT / "qa/emit_widget_e2e_screenshots.sh"
+        names = [
+            "01_alarm_countdown.jpg", "02_alarm_stack.jpg", "03_wake_switch.jpg", "04_quick_alarm.jpg",
+            "05_world_grid.jpg", "06_meeting_window.jpg", "07_week_strip.jpg", "08_month_grid.jpg",
+            "09_year_pulse.jpg", "10_day_balance.jpg", "11_routine_stack.jpg", "12_routine_countdown.jpg",
+            "13_focus_launch.jpg", "14_timer_live.jpg", "15_lap_insights.jpg", "16_month_grid_compact_week.jpg",
+            "17_wake_switch_disabled_after_tap.jpg", "18_timer_live_running_after_focus_launch.jpg",
+            "19_timer_live_paused_after_tap.jpg", "20_quick_alarm_save_preflight.jpg",
+            "21_widget_catalog_new_concepts.jpg", "22_quick_alarm_pin_confirmation.jpg",
+            "23_quick_alarm_widget_studio.jpg", "24_quick_alarm_widget_placed.jpg",
+        ]
         with tempfile.TemporaryDirectory(prefix="widget-e2e-emitter-") as temp:
             screen_dir = Path(temp)
-            expected = []
-            for index in range(1, 25):
+            payloads = {}
+            for index, name in enumerate(names, 1):
                 payload = bytes([index]) * 2800
-                expected.append(payload)
-                (screen_dir / ("%02d_placeholder.jpg" % index)).write_bytes(payload)
+                payloads[name] = payload
+                (screen_dir / name).write_bytes(payload)
             env = os.environ.copy()
             env["WIDGET_E2E_SCREEN_DIR"] = str(screen_dir)
+            instrumentation = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
+            expected_block = instrumentation[instrumentation.index("String[] expected = {", instrumentation.index("zAllTwentyFourEmulatorCapturesArePresentAndDecodable")):]
+            expected_block = expected_block[:expected_block.index("};")]
+            self.assertEqual([Path(name).stem for name in names],
+                             re.findall(r'"([^"]+)"', expected_block))
             for start in (0, 8, 16):
                 result = subprocess.run(
                     ["bash", str(emitter), str(start), "8"],
@@ -366,9 +385,40 @@ class WidgetConceptContracts(unittest.TestCase):
                 lines = result.stdout.splitlines()
                 self.assertEqual(8, len(lines))
                 for offset, line in enumerate(lines):
+                    expected_name = names[start + offset]
+                    ordinal = start + offset + 1
+                    self.assertIn(f"E2E screenshot {ordinal:02d}/24 {expected_name}::", line)
                     encoded = line.rsplit("::", 1)[1]
                     self.assertLessEqual(len(encoded), 3800)
-                    self.assertEqual(expected[start + offset], base64.b64decode(encoded, validate=True))
+                    self.assertEqual(payloads[expected_name], base64.b64decode(encoded, validate=True))
+
+            # Missing 01–15 must not cause screenshot 16 to be mislabeled 01/05 or
+            # move it into the 01–08 annotation step. Its filename owns its ordinal.
+            for missing in names[:15] + names[20:]:
+                (screen_dir / missing).unlink()
+            first = subprocess.run(["bash", str(emitter), "0", "8"],
+                                   check=True, capture_output=True, text=True, env=env)
+            self.assertEqual([], [line for line in first.stdout.splitlines() if "::" in line])
+            middle = subprocess.run(["bash", str(emitter), "8", "8"],
+                                    check=True, capture_output=True, text=True, env=env)
+            middle_lines = [line for line in middle.stdout.splitlines() if "::" in line]
+            self.assertEqual(1, len(middle_lines))
+            self.assertIn("E2E screenshot 16/24 16_month_grid_compact_week.jpg::", middle_lines[0])
+            self.assertEqual(payloads[names[15]], base64.b64decode(middle_lines[0].rsplit("::", 1)[1], validate=True))
+            last = subprocess.run(["bash", str(emitter), "16", "8"],
+                                  check=True, capture_output=True, text=True, env=env)
+            last_lines = [line for line in last.stdout.splitlines() if "::" in line]
+            self.assertEqual(4, len(last_lines))
+            for line, ordinal, name in zip(last_lines, range(17, 21), names[16:20]):
+                self.assertIn(f"E2E screenshot {ordinal:02d}/24 {name}::", line)
+                self.assertEqual(payloads[name], base64.b64decode(line.rsplit("::", 1)[1], validate=True))
+
+            unexpected = screen_dir / "unmapped_capture.jpg"
+            unexpected.write_bytes(b"not part of the numbered journey")
+            rejected = subprocess.run(["bash", str(emitter), "16", "8"],
+                                      capture_output=True, text=True, env=env)
+            self.assertNotEqual(0, rejected.returncode)
+            self.assertIn("Unexpected emulator screenshot filename: unmapped_capture.jpg", rejected.stderr)
 
     def test_e2e_reapplies_interactive_calendar_ink_after_render(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
@@ -380,11 +430,19 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("assertWeekStripCustomInk(capture)", test)
         self.assertIn("assertMonthGridCustomInk(capture)", test)
         self.assertIn("assertCompactMonthInk(capture)", test)
+        self.assertIn("private boolean isCaptureReady(Capture capture)", test)
+        self.assertIn("capture.page.hasWindowFocus()", test)
+        self.assertIn("takeVerifiedEmulatorScreenshot(name", test)
+        self.assertIn("capture.eyebrow, capture.title, expectedWidgetText", test)
+        self.assertIn("private Bitmap takeVerifiedEmulatorScreenshot(String name, TextView... expectedText)", test)
+        self.assertIn("captureFullScreenWithAccessibilityText", test)
+        self.assertNotIn("instrumentation.waitForIdleSync()", test)
 
     def test_e2e_dismisses_external_crash_dialogs_but_keeps_target_crashes_fatal(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
         self.assertIn('"isn\'t responding", "keeps stopping", "keeps crashing"', test)
         self.assertIn('clickAccessibilityText(prompt, "Close app")', test)
+        self.assertIn('injectTapViaShell(prompt, "Close app")', test)
         self.assertIn("promptNamesTargetApp(details)", test)
         self.assertIn('Android displayed the target app crash dialog: ', test)
         self.assertIn('E2E dismissed unrelated-app crash dialog: ', test)
@@ -395,6 +453,8 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn('"Android displayed the target app ANR dialog: "', response)
         self.assertLess(response.index("promptNamesTargetApp(details)"),
                         response.index('clickAccessibilityText(prompt, "Wait")'))
+        self.assertIn('injectTapViaShell(prompt, "Wait")', response)
+        self.assertIn("recovery=", response)
 
     def test_e2e_system_prompt_recovery_runs_during_ui_waits_and_capture(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
@@ -406,8 +466,15 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("if (respondToSystemPrompt())", wait)
         prompt_scan = test[test.index("private boolean containsAnyAccessibilityText"):test.index("private boolean promptNamesTargetApp")]
         self.assertIn("child.recycle()", prompt_scan)
+        system_scan = test[test.index("private AccessibilityNodeInfo findSystemPrompt"):test.index("private boolean containsAnyAccessibilityText")]
+        self.assertIn("isTargetAppWindow(active)", system_scan)
+        self.assertIn("if (targetAppWindow) return null", system_scan)
+        window_scan = test[test.index("private AccessibilityNodeInfo findAccessibilityRootContaining"):test.index("private boolean containsAccessibilityTexts")]
+        self.assertIn("if (targetAppWindow) return null", window_scan)
+        self.assertIn("nextPromptCheck = now + 900L", wait)
         await_flow = test[test.index("private void await(Check check, String failure, long timeoutMs)"):test.index("private boolean alarmEnabled")]
         self.assertIn("waitForResponsiveAndroidUi()", await_flow)
+        self.assertIn("nextPromptCheck = SystemClock.uptimeMillis() + 900L", await_flow)
 
     def test_emulator_e2e_captures_each_concept_and_exercises_direct_actions(self):
         test = (ROOT / "app/src/androidTest/java/app/tictic/clock/WidgetConceptE2ETest.java").read_text(encoding="utf-8")
@@ -443,8 +510,15 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("scrollTargetToTop(scroll, newConceptsTitle, dp(16))", catalog_journey)
         self.assertIn("captureFullScreenWithVisibleText(\"21_widget_catalog_new_concepts\", newConceptsTitle)", catalog_journey)
         self.assertIn("scrollTargetToTop(scroll, card, dp(16))", catalog_journey)
-        self.assertIn("await(() -> isViewFullyVisible(newConceptsTitle)", catalog_journey)
-        self.assertIn("await(() -> isTapTargetFullyVisible(card)", catalog_journey)
+        self.assertIn("isScrollTargetReady(scroll, newConceptsTitle, dp(16), false)", catalog_journey)
+        self.assertIn("isScrollTargetReady(scroll, card, dp(16), true)", catalog_journey)
+        scroll_helpers = test[test.index("private void scrollTargetToTop"):test.index("private boolean isTargetInsideViewportOnMain")]
+        self.assertIn("private boolean isScrollTargetReady(ScrollView scroll, View target, int inset,", scroll_helpers)
+        self.assertIn("if (!isTargetInsideScrollViewport(scroll, target, inset))", scroll_helpers)
+        self.assertIn("target.getLocationOnScreen(targetLocation)", scroll_helpers)
+        self.assertIn("scroll.scrollBy(0, delta)", scroll_helpers)
+        self.assertIn("target.requestRectangleOnScreen", scroll_helpers)
+        self.assertIn("scrollY=\" + scroll.getScrollY() + \"/\" + range", scroll_helpers)
         self.assertIn("Focus Launch did not start the timer\", 20000L)", test)
         self.assertIn('timer state={running=', test)
         self.assertIn("alarmEnabled(ALARM_ID, true)", test)

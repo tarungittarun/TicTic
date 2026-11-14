@@ -155,8 +155,11 @@ public final class WidgetConceptE2ETest {
                 if (catalogActivity != null && !catalogActivity.isFinishing()) catalogActivity.finish();
                 if (activity != null && !activity.isFinishing()) activity.finish();
             });
-            instrumentation.waitForIdleSync();
         }
+        // Do not block on a process-wide UI-idle barrier: MainActivity owns a live ticker,
+        // and finishing the activities on the main thread is sufficient for the next test.
+        catalogActivity = null;
+        activity = null;
     }
 
     @Test public void bAllFifteenProductionWidgetsRenderAndCaptureOnEmulator() throws Exception {
@@ -184,7 +187,9 @@ public final class WidgetConceptE2ETest {
             } else if (testCase.layout == R.layout.widget_month_grid) {
                 assertMonthGridCustomInk(capture);
             }
-            captureScreenshot(String.format(java.util.Locale.ROOT, "%02d_%s", i + 1, testCase.name), capture);
+            assertTrue(testCase.name + " screenshot marker is not a TextView", marker instanceof TextView);
+            captureScreenshot(String.format(java.util.Locale.ROOT, "%02d_%s", i + 1, testCase.name),
+                    capture, (TextView) marker);
         }
         assertTrue("One emulator screenshot per new widget concept",
                 screenshotDirectory.listFiles((dir, name) -> name.matches("\\d{2}_.+\\.jpg")).length >= 15);
@@ -205,7 +210,8 @@ public final class WidgetConceptE2ETest {
             assertTrue("Compact month strip has an empty day cell", !text(capture.widget.findViewById(id)).isEmpty());
         }
         assertCompactMonthInk(capture);
-        captureScreenshot("16_month_grid_compact_week", capture);
+        TextView firstCompactDate = (TextView) capture.widget.findViewById(R.id.widget_month_compact_day_0);
+        captureScreenshot("16_month_grid_compact_week", capture, firstCompactDate);
     }
 
     @Test public void dWakeSwitchFocusLaunchAndTimerLiveCompleteTheirTapFlows() throws Exception {
@@ -217,8 +223,9 @@ public final class WidgetConceptE2ETest {
         await(() -> alarmEnabled(ALARM_ID, false), "Wake Switch did not disable the selected alarm");
         Capture wakeOff = display(R.layout.widget_wake_switch, 190, 340);
         assertTrue(text(wakeOff.widget.findViewById(R.id.widget_wake_switch)).contains("TAP TO ENABLE"));
-        captureScreenshot("17_wake_switch_disabled_after_tap", wakeOff);
         View offButton = wakeOff.widget.findViewById(R.id.widget_wake_switch);
+        assertTrue("Wake Switch screenshot marker is not a TextView", offButton instanceof TextView);
+        captureScreenshot("17_wake_switch_disabled_after_tap", wakeOff, (TextView) offButton);
         assertTrue(String.valueOf(offButton.getContentDescription()).startsWith("Enable Morning focus at"));
         assertTrue("Wake Switch lost its action after changing the alarm state", offButton.isClickable());
         click(offButton);
@@ -231,15 +238,17 @@ public final class WidgetConceptE2ETest {
         await(() -> TimerReceiver.isRunning(app), "Focus Launch did not start the timer", 20000L);
         assertEquals(25L * 60_000L, DataStore.prefs(app).getLong("timer_duration", 0L));
         Capture running = display(R.layout.widget_timer_live, 212, 340);
-        assertTrue(text(running.widget.findViewById(R.id.widget_timer_live_action)).contains("PAUSE TIMER"));
-        captureScreenshot("18_timer_live_running_after_focus_launch", running);
         View timerAction = running.widget.findViewById(R.id.widget_timer_live_action);
+        assertTrue(text(timerAction).contains("PAUSE TIMER"));
+        assertTrue("Timer Live screenshot marker is not a TextView", timerAction instanceof TextView);
+        captureScreenshot("18_timer_live_running_after_focus_launch", running, (TextView) timerAction);
         assertTrue("Timer Live action must be clickable", timerAction.isClickable());
         click(timerAction);
         await(() -> !TimerReceiver.isRunning(app), "Timer Live did not pause the running timer");
         Capture paused = display(R.layout.widget_timer_live, 212, 340);
-        assertTrue(text(paused.widget.findViewById(R.id.widget_timer_live_action)).contains("START / RESUME"));
-        captureScreenshot("19_timer_live_paused_after_tap", paused);
+        TextView pausedAction = (TextView) paused.widget.findViewById(R.id.widget_timer_live_action);
+        assertTrue(text(pausedAction).contains("START / RESUME"));
+        captureScreenshot("19_timer_live_paused_after_tap", paused, pausedAction);
     }
 
     @Test public void eQuickAlarmTapEntersTheExistingSaveAndPermissionPreflight() throws Exception {
@@ -255,12 +264,18 @@ public final class WidgetConceptE2ETest {
         assertEquals("Quick · 10 min", pending.optString("label"));
         assertEquals("Quick Alarm must not silently bypass the existing save flow", originalAlarms,
                 DataStore.array(app, "alarms").length());
-        captureFullScreen("20_quick_alarm_save_preflight");
-        AccessibilityNodeInfo preflight = instrumentation.getUiAutomation().getRootInActiveWindow();
-        if (pendingQuickAlarm() != null && accessibilityContains(preflight, "Cancel")) {
-            assertTrue("Could not dismiss the Quick Alarm preflight for test cleanup",
-                    clickAccessibilityText(preflight, "Cancel"));
-            await(() -> pendingQuickAlarm() == null, "Quick Alarm preflight did not cancel cleanly");
+        AccessibilityNodeInfo preflight = waitForAccessibilityTexts(10000L,
+                "No time for an early ping this time");
+        try {
+            captureFullScreenWithAccessibilityText("20_quick_alarm_save_preflight", preflight,
+                    "No time for an early ping this time");
+            if (pendingQuickAlarm() != null && accessibilityContains(preflight, "Cancel")) {
+                assertTrue("Could not dismiss the Quick Alarm preflight for test cleanup",
+                        clickAccessibilityText(preflight, "Cancel"));
+                await(() -> pendingQuickAlarm() == null, "Quick Alarm preflight did not cancel cleanly");
+            }
+        } finally {
+            preflight.recycle();
         }
     }
 
@@ -340,13 +355,13 @@ public final class WidgetConceptE2ETest {
                 "Widget catalog did not finish layout before scrolling; " + catalogScrollState(scroll, card),
                 15000L);
         scrollTargetToTop(scroll, newConceptsTitle, dp(16));
-        await(() -> isViewFullyVisible(newConceptsTitle),
+        await(() -> isScrollTargetReady(scroll, newConceptsTitle, dp(16), false),
                 "New-concepts section heading did not become fully visible after scrolling; "
                         + catalogScrollState(scroll, newConceptsTitle), 15000L);
         captureFullScreenWithVisibleText("21_widget_catalog_new_concepts", newConceptsTitle);
 
         scrollTargetToTop(scroll, card, dp(16));
-        await(() -> isTapTargetFullyVisible(card),
+        await(() -> isScrollTargetReady(scroll, card, dp(16), true),
                 "Quick Alarm catalog card did not become fully visible after scrolling; "
                         + catalogScrollState(scroll, card), 15000L);
         ActivityMonitor configMonitor = instrumentation.addMonitor(WidgetConfigActivity.class.getName(), null, false);
@@ -357,12 +372,15 @@ public final class WidgetConceptE2ETest {
         int previousCount = manager.getAppWidgetIds(provider).length;
         click(card);
 
-        waitForAccessibilityTexts(30000L, "Add");
-        captureFullScreen("22_quick_alarm_pin_confirmation");
-        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(10000L, "Add");
-        assertTrue("Could not confirm the Android home-screen pin request; active window was "
-                        + describeAccessibilityTree(pinPrompt, new StringBuilder(), 0),
-                clickAccessibilityText(pinPrompt, "Add"));
+        AccessibilityNodeInfo pinPrompt = waitForAccessibilityTexts(30000L, "Add");
+        try {
+            captureFullScreenWithAccessibilityText("22_quick_alarm_pin_confirmation", pinPrompt, "Add");
+            String pinPromptDetails = describeAccessibilityTree(pinPrompt, new StringBuilder(), 0);
+            assertTrue("Could not confirm the Android home-screen pin request; active window was "
+                    + pinPromptDetails, clickAccessibilityText(pinPrompt, "Add"));
+        } finally {
+            pinPrompt.recycle();
+        }
 
         WidgetConfigActivity studio = (WidgetConfigActivity) instrumentation.waitForMonitorWithTimeout(configMonitor, 15000L);
         instrumentation.removeMonitor(configMonitor);
@@ -385,7 +403,8 @@ public final class WidgetConceptE2ETest {
         final WidgetConfigActivity studioActivity = studio;
         int widgetId = studioActivity.getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         assertTrue("Widget Studio did not receive the allocated launcher widget ID", widgetId >= 0);
-        assertNotNull("Widget Studio is showing the wrong provider", findText(studioActivity, "Quick Alarm"));
+        TextView studioTitle = (TextView) findText(studioActivity, "Quick Alarm");
+        assertNotNull("Widget Studio is showing the wrong provider", studioTitle);
 
         CheckBox label = (CheckBox) findText(studioActivity, "Widget label");
         assertNotNull("Widget Studio must expose the concept label setting", label);
@@ -402,7 +421,7 @@ public final class WidgetConceptE2ETest {
                 throw new AssertionError("Could not configure the widget surface", e);
             }
         });
-        captureFullScreen("23_quick_alarm_widget_studio");
+        captureFullScreenWithVisibleText("23_quick_alarm_widget_studio", studioTitle);
         View apply = findText(studioActivity, "Apply");
         assertNotNull("Widget Studio must provide an Apply action", apply);
         click(apply);
@@ -421,9 +440,12 @@ public final class WidgetConceptE2ETest {
         assertTrue("Could not return to the Android home screen after placement",
                 instrumentation.getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME));
         AccessibilityNodeInfo placedWidget = waitForAccessibilityTexts(15000L, "10 MIN");
-        placedWidget.recycle();
-        SystemClock.sleep(500L);
-        captureFullScreen("24_quick_alarm_widget_placed");
+        try {
+            SystemClock.sleep(300L);
+            captureFullScreenWithAccessibilityText("24_quick_alarm_widget_placed", placedWidget, "10 MIN");
+        } finally {
+            placedWidget.recycle();
+        }
         instrumentation.runOnMainSync(catalog::finish);
         catalogActivity = null;
     }
@@ -479,13 +501,22 @@ public final class WidgetConceptE2ETest {
     }
 
     private MainActivity ensureMainActivity() throws Exception {
-        if (activity != null && !activity.isFinishing()) return activity;
+        if (activity != null && !activity.isFinishing() && isMainActivityFocused()) return activity;
         Intent launch = new Intent(app, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity = launchActivityWithoutWaitingForIdle(MainActivity.class, launch);
         assertNotNull("MainActivity did not launch on the emulator", activity);
-        SystemClock.sleep(400L);
+        await(this::isMainActivityFocused,
+                "MainActivity resumed but never acquired the foreground window; " + activeWindowDescription(),
+                10000L);
         return activity;
+    }
+
+    private boolean isMainActivityFocused() {
+        AtomicBoolean focused = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> focused.set(activity != null && !activity.isFinishing()
+                && activity.hasWindowFocus()));
+        return focused.get();
     }
 
     private Capture display(int layout, int heightDp, int widthDp) throws Exception {
@@ -540,14 +571,46 @@ public final class WidgetConceptE2ETest {
             activity.setContentView(page);
             View widget = remoteViews.apply(app, container);
             container.addView(widget, new FrameLayout.LayoutParams(-1, -1));
-            result.set(new Capture(page, column, container, widget));
+            result.set(new Capture(page, column, container, widget, eyebrow, title));
         });
-        instrumentation.waitForIdleSync();
-        SystemClock.sleep(180L);
-        assertNotNull("RemoteViews host did not attach", result.get());
-        assertTrue("Widget card has no width", result.get().widget.getWidth() > 0);
-        assertTrue("Widget card has no height", result.get().widget.getHeight() > 0);
-        return result.get();
+        Capture capture = result.get();
+        assertNotNull("RemoteViews host did not attach", capture);
+        await(() -> isCaptureReady(capture),
+                "Widget E2E preview did not become the visible, focused MainActivity window; "
+                        + activeWindowDescription(), 10000L);
+        return capture;
+    }
+
+    private boolean isCaptureReady(Capture capture) {
+        AtomicBoolean ready = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> {
+            Rect headerBounds = new Rect();
+            Rect titleBounds = new Rect();
+            Rect widgetBounds = new Rect();
+            boolean headerVisible = capture.eyebrow.getGlobalVisibleRect(headerBounds)
+                    && headerBounds.width() == capture.eyebrow.getWidth()
+                    && headerBounds.height() == capture.eyebrow.getHeight();
+            boolean titleVisible = capture.title.getGlobalVisibleRect(titleBounds)
+                    && titleBounds.width() == capture.title.getWidth()
+                    && titleBounds.height() == capture.title.getHeight();
+            boolean widgetVisible = capture.widget.getGlobalVisibleRect(widgetBounds)
+                    && widgetBounds.width() == capture.widget.getWidth()
+                    && widgetBounds.height() == capture.widget.getHeight();
+            ready.set(capture.page.isAttachedToWindow() && capture.page.isLaidOut()
+                    && capture.page.isShown() && capture.page.hasWindowFocus()
+                    && capture.column.isShown() && headerVisible && titleVisible
+                    && capture.widget.isAttachedToWindow() && capture.widget.isShown()
+                    && capture.widget.getWidth() > 0 && capture.widget.getHeight() > 0
+                    && widgetVisible);
+        });
+        return ready.get();
+    }
+
+    private String activeWindowDescription() {
+        AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
+        String details = describeAccessibilityTree(root, new StringBuilder(), 0);
+        if (root != null) root.recycle();
+        return details;
     }
 
     private void assertWeekStripCustomInk(Capture capture) {
@@ -680,8 +743,14 @@ public final class WidgetConceptE2ETest {
     private AccessibilityNodeInfo findSystemPrompt(String... markers) {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
-        if (containsAnyAccessibilityText(active, markers)) return active;
-        if (active != null) active.recycle();
+        if (active != null) {
+            boolean targetAppWindow = isTargetAppWindow(active);
+            if (!targetAppWindow && containsAnyAccessibilityText(active, markers)) return active;
+            active.recycle();
+            // A system ANR/crash dialog takes the active window. Do not repeatedly enumerate
+            // every window while the large TicTic catalog/home hierarchy is in the foreground.
+            if (targetAppWindow) return null;
+        }
         for (AccessibilityWindowInfo window : ui.getWindows()) {
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
@@ -689,6 +758,11 @@ public final class WidgetConceptE2ETest {
             if (root != null) root.recycle();
         }
         return null;
+    }
+
+    private boolean isTargetAppWindow(AccessibilityNodeInfo root) {
+        CharSequence packageName = root == null ? null : root.getPackageName();
+        return packageName != null && app != null && app.getPackageName().contentEquals(packageName);
     }
 
     private boolean containsAnyAccessibilityText(AccessibilityNodeInfo node, String... markers) {
@@ -731,12 +805,43 @@ public final class WidgetConceptE2ETest {
                 throw new AssertionError("Android displayed the target app ANR dialog: " + details);
             }
             boolean waited;
+            String actionEvidence;
             try {
                 waited = clickAccessibilityText(prompt, "Wait");
+                actionEvidence = "accessibility/input-injection=" + waited;
+                if (!waited) {
+                    boolean shellTap = injectTapViaShell(prompt, "Wait");
+                    actionEvidence += "; shell-input=" + shellTap;
+                    waited = shellTap;
+                }
             } finally {
                 prompt.recycle();
             }
-            assertTrue("Android displayed an ANR prompt without a usable Wait action: " + details, waited);
+            if (!waited) {
+                // Reacquire the prompt once: an AccessibilityNodeInfo can become stale while
+                // Android is presenting the dialog, even when its printed tree says clickable.
+                SystemClock.sleep(300L);
+                AccessibilityNodeInfo retry = findSystemPrompt(
+                        "isn't responding", "keeps stopping", "keeps crashing");
+                if (retry == null) {
+                    System.out.println("E2E system ANR prompt disappeared during Wait recovery: " + details);
+                    return true;
+                }
+                try {
+                    String retryTree = describeAccessibilityTree(retry, new StringBuilder(), 0);
+                    boolean retryTap = clickAccessibilityText(retry, "Wait");
+                    if (!retryTap) retryTap = injectTapViaShell(retry, "Wait");
+                    actionEvidence += "; refreshed-node=" + retryTap;
+                    details = retryTree;
+                    waited = retryTap;
+                } finally {
+                    retry.recycle();
+                }
+            }
+            assertTrue("Android displayed an ANR prompt but no Wait input was accepted: " + details
+                    + "; recovery=" + actionEvidence, waited);
+            System.out.println("E2E requested Wait for unrelated Android system ANR: "
+                    + actionEvidence + " · " + details);
             SystemClock.sleep(1200L);
             return true;
         }
@@ -747,8 +852,10 @@ public final class WidgetConceptE2ETest {
         }
         boolean closed;
         try {
-            closed = clickAccessibilityText(prompt, "Close app")
-                    || clickAccessibilityText(prompt, "OK");
+            closed = clickAccessibilityText(prompt, "Close app");
+            if (!closed) closed = clickAccessibilityText(prompt, "OK");
+            if (!closed) closed = injectTapViaShell(prompt, "Close app")
+                    || injectTapViaShell(prompt, "OK");
         } finally {
             prompt.recycle();
         }
@@ -864,9 +971,52 @@ public final class WidgetConceptE2ETest {
         }
     }
 
-    private void captureFullScreen(String name) throws Exception {
+    private void captureFullScreenWithAccessibilityText(String name, AccessibilityNodeInfo root,
+                                                         String... expectedText) throws Exception {
+        assertTrue("Accessibility root did not contain the expected visible text for " + name,
+                containsAccessibilityTexts(root, expectedText));
+        for (String expected : expectedText) {
+            Rect bounds = accessibilityTextBounds(root, expected);
+            assertNotNull("Accessibility text has no screen bounds for " + name + ": " + expected, bounds);
+            assertTrue("Accessibility text has empty screen bounds for " + name + ": "
+                    + expected + " " + bounds, !bounds.isEmpty());
+        }
         SystemClock.sleep(180L);
         Bitmap full = takeEmulatorScreenshot();
+        try {
+            for (String expected : expectedText) {
+                Rect bounds = accessibilityTextBounds(root, expected);
+                assertAccessibilityTextHasFramebufferPixels(full, bounds, name, expected);
+            }
+            saveEmulatorScreenshot(full, name);
+        } finally {
+            full.recycle();
+        }
+    }
+
+    private void assertAccessibilityTextHasFramebufferPixels(Bitmap screenshot, Rect bounds,
+                                                               String name, String expected) {
+        assertNotNull("Missing accessibility bounds for screenshot " + name, bounds);
+        int left = Math.max(0, bounds.left);
+        int top = Math.max(0, bounds.top);
+        int right = Math.min(screenshot.getWidth(), bounds.right);
+        int bottom = Math.min(screenshot.getHeight(), bounds.bottom);
+        assertTrue("Accessibility text bounds do not intersect the framebuffer for " + name
+                + ": " + expected + " " + bounds, right > left && bottom > top);
+        int visiblePixels = 0;
+        for (int y = top; y < bottom; y += 2) {
+            for (int x = left; x < right; x += 2) {
+                int pixel = screenshot.getPixel(x, y);
+                if (Color.red(pixel) + Color.green(pixel) + Color.blue(pixel) > 96) visiblePixels++;
+            }
+        }
+        assertTrue("Expected emulator text region was black/unrendered in screenshot " + name
+                + ": text=" + expected + " bounds=" + bounds + " litPixels=" + visiblePixels,
+                visiblePixels >= 8);
+    }
+
+    private void captureFullScreenWithVisibleText(String name, TextView expectedText) throws Exception {
+        Bitmap full = takeVerifiedEmulatorScreenshot(name, expectedText);
         try {
             saveEmulatorScreenshot(full, name);
         } finally {
@@ -874,15 +1024,26 @@ public final class WidgetConceptE2ETest {
         }
     }
 
-    private void captureFullScreenWithVisibleText(String name, TextView expectedText) throws Exception {
-        SystemClock.sleep(300L);
-        Bitmap full = takeEmulatorScreenshot();
-        try {
-            saveEmulatorScreenshot(full, name);
-            assertTextRenderedInScreenshot(full, expectedText, name);
-        } finally {
-            full.recycle();
+    private Bitmap takeVerifiedEmulatorScreenshot(String name, TextView... expectedText) throws Exception {
+        AssertionError lastMismatch = null;
+        for (int attempt = 1; attempt <= 6; attempt++) {
+            Bitmap screenshot = takeEmulatorScreenshot();
+            try {
+                for (TextView expected : expectedText) {
+                    assertNotNull("Missing visible-text screenshot marker for " + name, expected);
+                    assertTextRenderedInScreenshot(screenshot, expected, name);
+                }
+                return screenshot;
+            } catch (AssertionError mismatch) {
+                lastMismatch = mismatch;
+                screenshot.recycle();
+                System.out.println("E2E screenshot frame " + attempt + "/6 did not contain expected "
+                        + "foreground text for " + name + ": " + mismatch.getMessage());
+                SystemClock.sleep(300L);
+            }
         }
+        throw new AssertionError("Emulator never rendered the expected foreground text for screenshot "
+                + name + " after six framebuffer captures", lastMismatch);
     }
 
     private void assertTextRenderedInScreenshot(Bitmap screenshot, TextView expectedText, String name) {
@@ -921,11 +1082,14 @@ public final class WidgetConceptE2ETest {
                 matchingPixels >= 8);
     }
 
-    private void captureScreenshot(String name, Capture capture) throws Exception {
-        SystemClock.sleep(180L);
-        Bitmap full = takeEmulatorScreenshot();
+    private void captureScreenshot(String name, Capture capture, TextView expectedWidgetText) throws Exception {
+        Bitmap full = takeVerifiedEmulatorScreenshot(name,
+                capture.eyebrow, capture.title, expectedWidgetText);
         Bitmap crop = null;
         try {
+            // Validate pixels from the actual device framebuffer, not only the off-screen
+            // View objects: after an interrupted activity transition, stale views can remain
+            // attached while the emulator is displaying the ordinary MySpace home screen.
             int[] location = new int[2];
             capture.column.getLocationOnScreen(location);
             int left = Math.max(0, location[0]);
@@ -991,17 +1155,22 @@ public final class WidgetConceptE2ETest {
 
     private AccessibilityNodeInfo waitForAccessibilityTexts(long timeoutMs, String... expected) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
+        long nextPromptCheck = SystemClock.uptimeMillis();
         int promptRecoveries = 0;
         while (SystemClock.uptimeMillis() < end) {
-            if (respondToSystemPrompt()) {
-                if (++promptRecoveries > 4) {
-                    throw new AssertionError("Android repeatedly interrupted the UI wait with system prompts");
+            long now = SystemClock.uptimeMillis();
+            if (now >= nextPromptCheck) {
+                nextPromptCheck = now + 900L;
+                if (respondToSystemPrompt()) {
+                    if (++promptRecoveries > 4) {
+                        throw new AssertionError("Android repeatedly interrupted the UI wait with system prompts");
+                    }
+                    continue;
                 }
-                continue;
             }
             AccessibilityNodeInfo root = findAccessibilityRootContaining(expected);
             if (root != null) return root;
-            Thread.sleep(150L);
+            Thread.sleep(180L);
         }
         AccessibilityNodeInfo active = instrumentation.getUiAutomation().getRootInActiveWindow();
         String details = describeAccessibilityTree(active, new StringBuilder(), 0);
@@ -1014,7 +1183,9 @@ public final class WidgetConceptE2ETest {
         UiAutomation ui = instrumentation.getUiAutomation();
         AccessibilityNodeInfo active = ui.getRootInActiveWindow();
         if (containsAccessibilityTexts(active, expected)) return active;
+        boolean targetAppWindow = isTargetAppWindow(active);
         if (active != null) active.recycle();
+        if (targetAppWindow) return null;
         for (AccessibilityWindowInfo window : ui.getWindows()) {
             AccessibilityNodeInfo root = window.getRoot();
             window.recycle();
@@ -1077,6 +1248,58 @@ public final class WidgetConceptE2ETest {
         Rect bounds = new Rect();
         node.getBoundsInScreen(bounds);
         return !bounds.isEmpty() && injectTap(bounds.exactCenterX(), bounds.exactCenterY());
+    }
+
+    private Rect accessibilityTextBounds(AccessibilityNodeInfo node, String expected) {
+        if (node == null) return null;
+        CharSequence text = node.getText();
+        CharSequence description = node.getContentDescription();
+        boolean matches = text != null && text.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT));
+        matches |= description != null && description.toString().toLowerCase(java.util.Locale.ROOT)
+                .contains(expected.toLowerCase(java.util.Locale.ROOT));
+        if (matches) {
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            if (!bounds.isEmpty()) return bounds;
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            try {
+                Rect bounds = accessibilityTextBounds(child, expected);
+                if (bounds != null) return bounds;
+            } finally {
+                child.recycle();
+            }
+        }
+        return null;
+    }
+
+    private boolean injectTapViaShell(AccessibilityNodeInfo root, String expected) throws Exception {
+        Rect bounds = accessibilityTextBounds(root, expected);
+        return bounds != null && injectTapViaShell(bounds.exactCenterX(), bounds.exactCenterY());
+    }
+
+    private boolean injectTapViaShell(float x, float y) throws Exception {
+        int px = Math.round(x);
+        int py = Math.round(y);
+        String marker = "__TICTIC_INPUT_EXIT__:";
+        ParcelFileDescriptor output = instrumentation.getUiAutomation().executeShellCommand(
+                "input tap " + px + " " + py + "; echo " + marker + "$?");
+        if (output == null) return false;
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        try (ParcelFileDescriptor.AutoCloseInputStream stream =
+                     new ParcelFileDescriptor.AutoCloseInputStream(output)) {
+            byte[] buffer = new byte[256];
+            int read;
+            while ((read = stream.read(buffer)) != -1) result.write(buffer, 0, read);
+        }
+        String text = result.toString("UTF-8").trim();
+        boolean success = text.contains(marker + "0");
+        System.out.println("E2E shell input tap at " + px + "," + py + " result=" + text
+                + " accepted=" + success);
+        return success;
     }
 
     private boolean injectTap(float x, float y) {
@@ -1180,15 +1403,62 @@ public final class WidgetConceptE2ETest {
             View content = scroll.getChildCount() == 0 ? null : scroll.getChildAt(0);
             if (!(content instanceof ViewGroup) || !target.isLaidOut()
                     || target.getWidth() <= 0 || target.getHeight() <= 0) return;
-            Rect contentBounds = new Rect(0, 0, target.getWidth(), target.getHeight());
-            ((ViewGroup) content).offsetDescendantRectToMyCoords(target, contentBounds);
-            int desiredY = Math.max(0, contentBounds.top - inset);
-            scroll.scrollTo(0, desiredY);
-            result.set("requestedY=" + desiredY + ", actualY=" + scroll.getScrollY()
-                    + ", targetContentBounds=" + contentBounds);
+            int[] viewportLocation = new int[2];
+            int[] targetLocation = new int[2];
+            scroll.getLocationOnScreen(viewportLocation);
+            target.getLocationOnScreen(targetLocation);
+            int targetTop = viewportLocation[1] + scroll.getPaddingTop() + inset;
+            int targetBottom = targetLocation[1] + target.getHeight();
+            int before = scroll.getScrollY();
+            int delta = targetLocation[1] - targetTop;
+            scroll.scrollBy(0, delta);
+
+            Rect visible = new Rect();
+            boolean fullyVisible = target.getGlobalVisibleRect(visible)
+                    && visible.width() == target.getWidth() && visible.height() == target.getHeight();
+            boolean requestedChildReveal = false;
+            if (!fullyVisible) {
+                requestedChildReveal = target.requestRectangleOnScreen(
+                        new Rect(0, 0, target.getWidth(), target.getHeight()), true);
+            }
+            result.set("scrollY=" + before + "→" + scroll.getScrollY() + ", requestedDelta=" + delta
+                    + ", targetScreenTop=" + targetLocation[1] + ", targetScreenBottom=" + targetBottom
+                    + ", alignedTop=" + targetTop + ", requestedChildReveal=" + requestedChildReveal
+                    + ", fullyVisible=" + fullyVisible);
         });
         assertTrue("Catalog scroll target was not laid out or was not inside the scroll content: "
                 + result.get(), !"scroll content is missing".equals(result.get()));
+    }
+
+    private boolean isScrollTargetReady(ScrollView scroll, View target, int inset,
+                                        boolean requireTapTarget) {
+        boolean fullyVisible = requireTapTarget
+                ? isTapTargetFullyVisible(target) : isViewFullyVisible(target);
+        if (fullyVisible) return true;
+        if (!isTargetInsideScrollViewport(scroll, target, inset)) {
+            scrollTargetToTop(scroll, target, inset);
+        }
+        return false;
+    }
+
+    private boolean isTargetInsideScrollViewport(ScrollView scroll, View target, int inset) {
+        AtomicBoolean inside = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> {
+            if (!target.isLaidOut() || target.getWidth() <= 0 || target.getHeight() <= 0
+                    || scroll.getWidth() <= 0 || scroll.getHeight() <= 0) return;
+            int[] viewportLocation = new int[2];
+            int[] targetLocation = new int[2];
+            scroll.getLocationOnScreen(viewportLocation);
+            target.getLocationOnScreen(targetLocation);
+            int viewportTop = viewportLocation[1] + scroll.getPaddingTop() + inset;
+            int viewportBottom = viewportLocation[1] + scroll.getHeight()
+                    - scroll.getPaddingBottom() - inset;
+            int targetBottom = targetLocation[1] + target.getHeight();
+            inside.set(targetLocation[1] >= viewportTop && targetBottom <= viewportBottom
+                    && targetLocation[0] >= viewportLocation[0]
+                    && targetLocation[0] + target.getWidth() <= viewportLocation[0] + scroll.getWidth());
+        });
+        return inside.get();
     }
 
     private String catalogScrollState(ScrollView scroll, View target) {
@@ -1198,17 +1468,37 @@ public final class WidgetConceptE2ETest {
             Rect visible = new Rect();
             boolean hasVisibleBounds = target.getGlobalVisibleRect(visible);
             int[] targetLocation = new int[2];
+            int[] viewportLocation = new int[2];
             target.getLocationOnScreen(targetLocation);
-            result.set("scrollY=" + scroll.getScrollY() + ", shown=" + scroll.isShown()
+            scroll.getLocationOnScreen(viewportLocation);
+            int range = content == null ? -1 : Math.max(0, content.getHeight() - scroll.getHeight());
+            result.set("scrollY=" + scroll.getScrollY() + "/" + range + ", shown=" + scroll.isShown()
                     + ", windowFocus=" + scroll.hasWindowFocus() + ", viewport=" + scroll.getWidth()
-                    + "x" + scroll.getHeight() + ", content="
-                    + (content == null ? "missing" : content.getWidth() + "x" + content.getHeight())
+                    + "x" + scroll.getHeight() + "@" + viewportLocation[0] + "," + viewportLocation[1]
+                    + ", content=" + (content == null ? "missing"
+                            : content.getWidth() + "x" + content.getHeight())
                     + ", target=" + target.getClass().getSimpleName() + "@" + targetLocation[0] + ","
                     + targetLocation[1] + " size=" + target.getWidth() + "x" + target.getHeight()
                     + " attached=" + target.isAttachedToWindow() + " laidOut=" + target.isLaidOut()
+                    + " shown=" + target.isShown() + " enabled=" + target.isEnabled()
+                    + " clickable=" + target.isClickable()
+                    + " insideViewport=" + isTargetInsideViewportOnMain(scroll, target)
                     + " visible=" + (hasVisibleBounds ? visible.toString() : "none"));
         });
         return result.get();
+    }
+
+    private boolean isTargetInsideViewportOnMain(ScrollView scroll, View target) {
+        int[] viewportLocation = new int[2];
+        int[] targetLocation = new int[2];
+        scroll.getLocationOnScreen(viewportLocation);
+        target.getLocationOnScreen(targetLocation);
+        int viewportTop = viewportLocation[1] + scroll.getPaddingTop();
+        int viewportBottom = viewportLocation[1] + scroll.getHeight() - scroll.getPaddingBottom();
+        return targetLocation[1] >= viewportTop
+                && targetLocation[1] + target.getHeight() <= viewportBottom
+                && targetLocation[0] >= viewportLocation[0]
+                && targetLocation[0] + target.getWidth() <= viewportLocation[0] + scroll.getWidth();
     }
 
     private boolean isViewFullyVisible(View view) {
@@ -1241,9 +1531,13 @@ public final class WidgetConceptE2ETest {
 
     private void await(Check check, String failure, long timeoutMs) throws Exception {
         long end = SystemClock.uptimeMillis() + timeoutMs;
-        int iteration = 0;
+        long nextPromptCheck = SystemClock.uptimeMillis();
         while (SystemClock.uptimeMillis() < end) {
-            if (iteration++ % 5 == 0) waitForResponsiveAndroidUi();
+            long now = SystemClock.uptimeMillis();
+            if (now >= nextPromptCheck) {
+                waitForResponsiveAndroidUi();
+                nextPromptCheck = SystemClock.uptimeMillis() + 900L;
+            }
             if (check.ok()) return;
             Thread.sleep(100L);
         }
@@ -1361,11 +1655,15 @@ public final class WidgetConceptE2ETest {
         final View column;
         final View container;
         final View widget;
-        Capture(View page, View column, View container, View widget) {
+        final TextView eyebrow;
+        final TextView title;
+        Capture(View page, View column, View container, View widget, TextView eyebrow, TextView title) {
             this.page = page;
             this.column = column;
             this.container = container;
             this.widget = widget;
+            this.eyebrow = eyebrow;
+            this.title = title;
         }
     }
 }

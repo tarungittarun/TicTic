@@ -18,9 +18,11 @@ on_error() {
         command_label="adb install -r \"$main_apk\" | tee \"$TARGET_INSTALL_LOG\""
     elif [[ "$phase" == "install instrumentation APK" ]]; then
         command_label="adb install -r \"$test_apk\" | tee \"$TEST_INSTALL_LOG\""
+    elif [[ "$phase" == "recover emulator after instrumentation APK install failure" ]]; then
+        command_label="adb reboot, wait for sys.boot_completed, and reinstall both APKs"
     fi
     local detail="Phase: $phase · line $failed_line · exit $status · command: $command_label"
-    if [[ "$phase" == "wait for emulator" || "$phase" == "install target APK" || "$phase" == "install instrumentation APK" ]]; then
+    if [[ "$phase" == "wait for emulator" || "$phase" == "install target APK" || "$phase" == "install instrumentation APK" || "$phase" == "recover emulator after instrumentation APK install failure" ]]; then
         local setup_log="/tmp/widget-e2e-setup-diagnostics.log"
         local install_log=""
         if [[ "$phase" == "install target APK" ]]; then install_log=$TARGET_INSTALL_LOG; fi
@@ -31,6 +33,10 @@ on_error() {
             if [[ -n "$install_log" && -f "$install_log" ]]; then
                 printf '\nAPK install output:\n'
                 tail -n 40 "$install_log"
+            fi
+            if [[ -f /tmp/widget-e2e-install-recovery.log ]]; then
+                printf '\nInstrumentation install recovery attempt:\n'
+                tail -n 60 /tmp/widget-e2e-install-recovery.log
             fi
             printf '\nHost memory:\n'
             free -h 2>&1 || true
@@ -72,6 +78,67 @@ on_error() {
 }
 trap 'on_error "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
+install_instrumentation_apk_with_recovery() {
+    local first_status=0
+    adb install -r "$test_apk" 2>&1 | tee "$TEST_INSTALL_LOG" || first_status=$?
+    if [ "$first_status" -eq 0 ]; then return 0; fi
+
+    cp "$TEST_INSTALL_LOG" /tmp/widget-e2e-test-install-initial.log 2>/dev/null || true
+    phase="recover emulator after instrumentation APK install failure"
+    local recovery_log="/tmp/widget-e2e-install-recovery.log"
+    : > "$recovery_log"
+    {
+        printf 'Instrumentation APK install failed with exit %s; collecting pre-reboot state.\n' "$first_status"
+        printf '\nInitial instrumentation APK install output:\n'
+        tail -n 40 /tmp/widget-e2e-test-install-initial.log 2>/dev/null || true
+        printf '\nSystem crash buffer:\n'
+        timeout 15s adb logcat -d -b crash -v threadtime -t 200 2>&1 || true
+        printf '\nRecent system-server and package-manager signals:\n'
+        timeout 15s adb logcat -d -b all -v threadtime -t 1200 2>&1 \
+            | grep -Ei 'system_server|Lost network stack|PackageManager|PackageInstaller|INSTALL_FAILED|installd|lmkd|watchdog' \
+            | tail -n 60 || true
+    } >> "$recovery_log"
+    {
+        printf '\n#### Instrumentation APK install recovery\n\n```text\n'
+        tail -n 60 "$recovery_log"
+        printf '\n```\n'
+    } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+    if ! grep -Eiq 'am_crash: .*system_server|Lost network stack|Zygote failed to write to system_server FD|ANR in system_server|system_server.*(died|fatal|crash|not responding)' "$recovery_log"; then
+        printf 'No recoverable system_server failure was found; leaving the original install failure intact.\n' \
+            | tee -a "$recovery_log"
+        phase="install instrumentation APK"
+        return "$first_status"
+    fi
+    echo "::warning title=Emulator install recovery::Instrumentation APK installation failed after a system_server crash; rebooting the emulator and retrying the two APK installs once."
+
+    local reboot_status=0
+    timeout 30s adb reboot || reboot_status=$?
+    if [ "$reboot_status" -ne 0 ]; then
+        printf 'adb reboot returned exit %s; checking whether the device recovers anyway.\n' "$reboot_status" \
+            | tee -a "$recovery_log"
+    fi
+    if ! timeout 240s adb wait-for-device; then
+        printf 'ADB device did not return after the recovery reboot.\n' | tee -a "$recovery_log"
+        return 1
+    fi
+    local deadline=$((SECONDS + 240))
+    local boot_state=""
+    while (( SECONDS < deadline )); do
+        boot_state=$(timeout 10s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
+        if [[ "$boot_state" == "1" ]]; then break; fi
+        sleep 2
+    done
+    if [[ "$boot_state" != "1" ]]; then
+        printf 'Android did not report sys.boot_completed=1 after recovery reboot.\n' | tee -a "$recovery_log"
+        return 1
+    fi
+
+    phase="install target APK"
+    adb install -r "$main_apk" 2>&1 | tee "$TARGET_INSTALL_LOG"
+    phase="install instrumentation APK"
+    adb install -r "$test_apk" 2>&1 | tee "$TEST_INSTALL_LOG"
+}
+
 phase="locate APKs"
 main_apk=$(find app/build/outputs/apk -path '*/lite/debug/*.apk' \
     ! -path '*/androidTest/*' -print -quit)
@@ -86,7 +153,7 @@ adb shell getprop sys.boot_completed
 phase="install target APK"
 adb install -r "$main_apk" 2>&1 | tee "$TARGET_INSTALL_LOG"
 phase="install instrumentation APK"
-adb install -r "$test_apk" 2>&1 | tee "$TEST_INSTALL_LOG"
+install_instrumentation_apk_with_recovery
 phase="grant emulator notification access"
 adb shell pm grant "$APP_PACKAGE" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 phase="prepare a clean emulator screenshot directory"

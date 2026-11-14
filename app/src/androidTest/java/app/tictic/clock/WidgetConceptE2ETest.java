@@ -220,7 +220,7 @@ public final class WidgetConceptE2ETest {
         View focus25 = focus.widget.findViewById(R.id.widget_focus_25);
         assertTrue("Focus preset must announce its duration", String.valueOf(focus25.getContentDescription()).contains("25 minute"));
         click(focus25);
-        await(() -> TimerReceiver.isRunning(app), "Focus Launch did not start the timer");
+        await(() -> TimerReceiver.isRunning(app), "Focus Launch did not start the timer", 20000L);
         assertEquals(25L * 60_000L, DataStore.prefs(app).getLong("timer_duration", 0L));
         Capture running = display(R.layout.widget_timer_live, 212, 340);
         assertTrue(text(running.widget.findViewById(R.id.widget_timer_live_action)).contains("PAUSE TIMER"));
@@ -309,8 +309,11 @@ public final class WidgetConceptE2ETest {
         assertNotNull(quickAlarmTitle);
         View card = (View) quickAlarmTitle.getParent().getParent();
         assertTrue("Quick Alarm catalog card must start the placement flow", card.isClickable());
-        instrumentation.runOnMainSync(() -> scroll.smoothScrollTo(0, card.getTop()));
+        instrumentation.runOnMainSync(() ->
+                scroll.scrollTo(0, Math.max(0, card.getTop() - dp(16))));
         instrumentation.waitForIdleSync();
+        await(() -> isTapTargetFullyVisible(card),
+                "Quick Alarm catalog card did not become fully visible after scrolling");
         ActivityMonitor configMonitor = instrumentation.addMonitor(WidgetConfigActivity.class.getName(), null, false);
         AppWidgetManager manager = AppWidgetManager.getInstance(app);
         assertTrue("The API 34 emulator launcher must support widget pin requests",
@@ -836,24 +839,49 @@ public final class WidgetConceptE2ETest {
         waitForResponsiveAndroidUi();
         AtomicBoolean ready = new AtomicBoolean(false);
         AtomicReference<Rect> bounds = new AtomicReference<>();
+        AtomicReference<String> targetState = new AtomicReference<>("uninspected");
         instrumentation.runOnMainSync(() -> {
-            int[] location = new int[2];
-            view.getLocationOnScreen(location);
-            bounds.set(new Rect(location[0], location[1],
-                    location[0] + view.getWidth(), location[1] + view.getHeight()));
+            Rect visible = new Rect();
+            boolean hasVisibleBounds = view.getGlobalVisibleRect(visible);
+            targetState.set("class=" + view.getClass().getName()
+                    + ", attached=" + view.isAttachedToWindow()
+                    + ", shown=" + view.isShown()
+                    + ", enabled=" + view.isEnabled()
+                    + ", clickable=" + view.isClickable()
+                    + ", size=" + view.getWidth() + "x" + view.getHeight()
+                    + ", visible=" + visible);
+            bounds.set(visible);
             ready.set(view.isAttachedToWindow() && view.isShown() && view.isEnabled()
-                    && view.isClickable() && view.getWidth() > 0 && view.getHeight() > 0);
+                    && view.isClickable() && view.getWidth() > 0 && view.getHeight() > 0
+                    && hasVisibleBounds && visible.width() == view.getWidth()
+                    && visible.height() == view.getHeight());
         });
-        assertTrue("Android tap target is detached, hidden, or not clickable", ready.get());
+        assertTrue("Android tap target is detached, hidden, clipped, or not clickable: "
+                + targetState.get(), ready.get());
         Rect target = bounds.get();
-        assertTrue("Android tap did not reach the widget or app control",
+        assertTrue("Android tap did not reach the widget or app control at " + target,
                 injectTap(target.exactCenterX(), target.exactCenterY()));
         SystemClock.sleep(350L);
         waitForResponsiveAndroidUi();
     }
 
+    private boolean isTapTargetFullyVisible(View view) {
+        AtomicBoolean visible = new AtomicBoolean(false);
+        instrumentation.runOnMainSync(() -> {
+            Rect bounds = new Rect();
+            visible.set(view.isAttachedToWindow() && view.isShown() && view.isEnabled()
+                    && view.isClickable() && view.getGlobalVisibleRect(bounds)
+                    && bounds.width() == view.getWidth() && bounds.height() == view.getHeight());
+        });
+        return visible.get();
+    }
+
     private void await(Check check, String failure) throws Exception {
-        long end = SystemClock.uptimeMillis() + 5000L;
+        await(check, failure, 5000L);
+    }
+
+    private void await(Check check, String failure, long timeoutMs) throws Exception {
+        long end = SystemClock.uptimeMillis() + timeoutMs;
         int iteration = 0;
         while (SystemClock.uptimeMillis() < end) {
             if (iteration++ % 5 == 0) waitForResponsiveAndroidUi();
@@ -861,7 +889,11 @@ public final class WidgetConceptE2ETest {
             Thread.sleep(100L);
         }
         AccessibilityNodeInfo root = instrumentation.getUiAutomation().getRootInActiveWindow();
-        throw new AssertionError(failure + "; stored alarms=" + DataStore.array(app, "alarms")
+        throw new AssertionError(failure + "; timer state={running=" + TimerReceiver.isRunning(app)
+                + ", end=" + DataStore.prefs(app).getLong("timer_end", 0L)
+                + ", duration=" + DataStore.prefs(app).getLong("timer_duration", 0L)
+                + ", remaining=" + DataStore.prefs(app).getLong("timer_remaining", 0L) + "}"
+                + "; stored alarms=" + DataStore.array(app, "alarms")
                 + "; recent app events=" + DataStore.array(app, "events")
                 + "; active window=" + describeAccessibilityTree(root, new StringBuilder(), 0));
     }

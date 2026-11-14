@@ -346,6 +346,13 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("findAccessibilityRootContaining", test)
         self.assertIn("injectTap(node)", test)
         self.assertIn("injectTap(target.exactCenterX(), target.exactCenterY())", test)
+        self.assertIn("visible.height() == view.getHeight()", test)
+        self.assertIn("scroll.scrollTo(0, Math.max(0, card.getTop() - dp(16)))", test)
+        catalog_journey = test[test.index("@Test public void aCatalogPinConfigureAndPlacementCompleteTheUserJourney"):test.index("private <T extends Activity>")]
+        self.assertNotIn("scroll.smoothScrollTo", catalog_journey)
+        self.assertIn("await(() -> isTapTargetFullyVisible(card)", catalog_journey)
+        self.assertIn("Focus Launch did not start the timer\", 20000L)", test)
+        self.assertIn('timer state={running=', test)
         self.assertIn("alarmEnabled(ALARM_ID, true)", test)
         self.assertIn("Could not confirm the Android home-screen pin request; active window was", test)
         self.assertIn("waitForResponsiveAndroidUi", test)

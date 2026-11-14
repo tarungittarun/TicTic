@@ -119,7 +119,7 @@ if [ "$test_status" -ne 0 ] || ! grep -q 'OK (' "$INSTRUMENTATION_LOG"; then
         printf '\nAndroid crash buffer:\n'
         timeout 15s adb logcat -d -b crash -v threadtime -t 300 2>&1 || true
         printf '\nRecent system/test failure signals:\n'
-        timeout 15s adb logcat -d -b all -v threadtime -t 1200 2>&1 | grep -Ei 'FATAL EXCEPTION|Fatal signal|System server|system_server|INSTRUMENTATION_ABORTED|ANR in|lmkd|lowmemorykiller|AndroidRuntime|app\.space\.one|WidgetConceptE2ETest|watchdog' | tail -n 80 || true
+        timeout 15s adb logcat -d -b all -v threadtime -t 4000 2>&1 | grep -Ei 'FATAL EXCEPTION|Fatal signal|System server|system_server|INSTRUMENTATION_ABORTED|ANR in|lmkd|lowmemorykiller|AndroidRuntime|app\.space\.one|WidgetConceptE2ETest|WidgetActionReceiver|TimerReceiver|START_FOCUS|watchdog' | tail -n 100 || true
     } >> "$DEVICE_DIAGNOSTICS_LOG"
     {
         printf '\n#### Emulator failure diagnostics\n\n```text\n'

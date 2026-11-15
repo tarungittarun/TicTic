@@ -299,7 +299,7 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn("WidgetEngine.refreshAll(this)", main[delete_start:delete_end])
         self.assertIn("WidgetEngine.refreshAll(c)", receiver)
 
-    def test_widget_ci_runs_on_branch_push_without_publishing(self):
+    def test_widget_ci_runs_on_branch_push_with_a_one_time_unqualified_apk_gate(self):
         workflow = (ROOT / ".github/workflows/widget-concepts-ci.yml").read_text(encoding="utf-8")
         self.assertIn("  push:\n    branches:\n      - arena/3caca636-tictic", workflow)
         self.assertIn("  workflow_dispatch:", workflow)
@@ -315,7 +315,13 @@ class WidgetConceptContracts(unittest.TestCase):
         self.assertIn(":app:assembleLiteDebugAndroidTest", workflow)
         self.assertIn("script: bash qa/run_widget_emulator_e2e.sh", workflow)
         self.assertIn("emulator-boot-timeout: 900", workflow)
-        self.assertNotIn("actions/upload-artifact", workflow)
+        self.assertEqual(1, workflow.count("actions/upload-artifact@v4"))
+        self.assertIn("Mark the one-time debug APK unqualified", workflow)
+        self.assertIn("Deliver the one-time unqualified debug APK", workflow)
+        self.assertEqual(2, workflow.count("contains(github.event.head_commit.message, '[deliver-debug-apk-once-20261115]')"))
+        self.assertEqual(2, workflow.count("steps.unit.outcome == 'success' && steps.build.outcome == 'success'"))
+        self.assertIn("retention-days: 7", workflow)
+        self.assertIn("UNQUALIFIED DEBUG APK", workflow)
         self.assertNotIn("git push", workflow)
         runner = (ROOT / "qa/run_widget_emulator_e2e.sh").read_text(encoding="utf-8")
         self.assertIn('readonly TEST_PACKAGE="app.space.one.test"', runner)

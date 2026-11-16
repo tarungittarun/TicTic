@@ -37,6 +37,15 @@ public class CanonicalNoteTest {
         Note reordered=table.withContent(content.move("table",0),3);assertFalse(NoteMerge.same(table,reordered));
         NoteMerge.Plan merge=NoteMerge.preview(Arrays.asList(table),Arrays.asList(reordered));assertEquals(1,merge.conflicts);assertNotNull(merge.notes.get(1).content);
     }
+    @Test public void canonicalMergeRetainsEachChecklistAppearance(){
+        ChecklistAppearance selected=new ChecklistAppearance(ChecklistAppearance.Glyph.DIAMOND,5);
+        DocumentContent.Block list=DocumentContent.Block.checklist("list","Shopping",Collections.singletonList(new Note.Item("row","Milk",true,0)),true,selected);
+        Note original=Note.create(1).withContent(new DocumentContent(Collections.singletonList(list)),2);
+        Note merged=NoteOperations.merge(Arrays.asList(original,original.withId("second")),3);
+        List<DocumentContent.Block> lists=new ArrayList<>();for(DocumentContent.Block block:merged.content.blocks)if(block.kind==DocumentContent.Kind.CHECKLIST)lists.add(block);
+        assertEquals(2,lists.size());assertEquals(selected,lists.get(0).checklistAppearance);assertEquals(selected,lists.get(1).checklistAppearance);
+        assertNotEquals(lists.get(0).id,lists.get(1).id);assertNotEquals(lists.get(0).items.get(0).id,lists.get(1).items.get(0).id);
+    }
     @Test public void linkAndFontRangesAreValidatedAndSurviveSlicing(){
         RichText rich=new RichText("click here",Arrays.asList(new Note.Mark("link",0,10,"https://example.com/path"),new Note.Mark("font",0,10,"serif"),new Note.Mark("size",0,10,"24")));
         assertEquals("https://example.com/path",rich.slice(2,8).marks.get(0).value);

@@ -22,6 +22,39 @@ public class PdfExportTest {
     @Test public void longUnicodeTextPaginatesWithoutDroppingFinalPage() throws Exception {StringBuilder text=new StringBuilder();for(int i=0;i<300;i++)text.append(i+" ಕನ್ನಡ Hindi नोट\n");File f=export(Note.create(1).edit("Long",text.toString(),2));try{assertTrue(pages(f)>4);}finally{f.delete();}}
     @Test public void flowchartAddsVectorPageAndRendersVisibleContent() throws Exception {Diagram d=Diagram.empty().put(new Diagram.Node("a","decision","Yes?",100,100,240,160,6)).put(new Diagram.Node("b","terminator","End",100,500,240,100,2)).connect("a","b","Yes");File f=export(Note.create(1).diagram(d,2));try(ParcelFileDescriptor fd=ParcelFileDescriptor.open(f,ParcelFileDescriptor.MODE_READ_ONLY);PdfRenderer renderer=new PdfRenderer(fd)){assertEquals(2,renderer.getPageCount());try(PdfRenderer.Page page=renderer.openPage(1)){Bitmap bitmap=Bitmap.createBitmap(595,842,Bitmap.Config.ARGB_8888);bitmap.eraseColor(Color.WHITE);page.render(bitmap,null,null,PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);int colored=0;for(int y=80;y<600;y+=4)for(int x=50;x<500;x+=4){int color=bitmap.getPixel(x,y);if(Color.red(color)!=Color.blue(color))colored++;}assertTrue("Colored shapes must render on exported PDF page",colored>50);bitmap.recycle();}}finally{f.delete();}}
     @Test public void checklistExportsAndOriginalRemainsStructured() throws Exception {Note n=Note.create(1).convert(2);File f=export(n);try{assertEquals(1,pages(f));assertTrue(n.checklist);}finally{f.delete();}}
+    @Test public void checklistRowsExportAsPlainTextPrefixes() throws Exception {
+        Note legacy=Note.create(1).withId("legacy-pdf").list("Legacy PDF",Arrays.asList(
+            new Note.Item("legacy-done","LegacyDoneK052",true,1),
+            new Note.Item("legacy-open","LegacyOpenK052",false,0)),true,2);
+        DocumentContent.Block checklist=DocumentContent.Block.checklist("canonical-list","Canonical shopping",
+            Arrays.asList(new Note.Item("canonical-done","CanonicalDoneK052",true,1),
+                new Note.Item("canonical-open","CanonicalOpenK052",false,2)),true,
+            new ChecklistAppearance(ChecklistAppearance.Glyph.STAR,5));
+        DocumentContent.Block writing=DocumentContent.Block.text("writing",
+            new RichText("WritingK052",Arrays.asList(new Note.Mark("bold",0,11))));
+        Note canonical=Note.create(3).withId("canonical-pdf").withContent(
+            new DocumentContent(Arrays.asList(writing,checklist)),4);
+        File file=File.createTempFile("pdf-checklist-", ".pdf",
+            InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir());
+        try {
+            try(OutputStream out=new FileOutputStream(file)){PdfExporter.write(Arrays.asList(legacy,canonical),out);}
+            com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(
+                InstrumentationRegistry.getInstrumentation().getTargetContext());
+            try(com.tom_roush.pdfbox.pdmodel.PDDocument pdf=
+                    com.tom_roush.pdfbox.pdmodel.PDDocument.load(file)) {
+                String text=new com.tom_roush.pdfbox.text.PDFTextStripper().getText(pdf)
+                    .replaceAll("\\s+"," ").trim();
+                assertTrue(text,text.contains("[x] LegacyDoneK052"));
+                assertTrue(text,text.contains("[ ] LegacyOpenK052"));
+                assertTrue(text,text.contains("WritingK052"));
+                assertTrue(text,text.contains("Canonical shopping"));
+                assertTrue("Hide checked is an editor preference, not an export filter: "+text,
+                    text.contains("[x] CanonicalDoneK052"));
+                assertTrue(text,text.contains("[ ] CanonicalOpenK052"));
+                assertTrue("Visual checklist glyphs are not exported as text",!text.contains("★"));
+            }
+        } finally {file.delete();}
+    }
     @Test public void richSpansOffsetAfterTitleWithoutCrashing() throws Exception {File f=export(Note.create(1).rich("Title","Hello world",Arrays.asList(new Note.Mark("bold",0,5),new Note.Mark("h1",6,11)),2));try{assertEquals(1,pages(f));}finally{f.delete();}}
     private void review(File file,String name)throws Exception{File dir=new File(InstrumentationRegistry.getInstrumentation().getTargetContext().getFilesDir(),"pdf-review");assertTrue(dir.isDirectory() || dir.mkdirs());try(InputStream in=new FileInputStream(file);OutputStream out=new FileOutputStream(new File(dir,name))){byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1)out.write(buffer,0,count);}}
     private Bitmap renderFirst(File file)throws Exception{try(ParcelFileDescriptor fd=ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);PdfRenderer renderer=new PdfRenderer(fd);PdfRenderer.Page page=renderer.openPage(0)){Bitmap bitmap=Bitmap.createBitmap(595,842,Bitmap.Config.ARGB_8888);bitmap.eraseColor(Color.WHITE);page.render(bitmap,null,null,PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);return bitmap;}}

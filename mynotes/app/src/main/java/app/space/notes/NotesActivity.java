@@ -1,5 +1,6 @@
 package app.space.notes;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,6 +12,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     private NotesController controller;private boolean pdfPrintGuides;
     private java.io.File markedPdfSource;private Uri viewedCopySource;private long diagnosticFrom,diagnosticTo;private String[] diagnosticLevels;
     private String ocrLanguage="eng",voiceExportId,imageNoteId;
+    @Override protected void attachBaseContext(Context base){super.attachBaseContext(app.space.notes.runtime.NotesTextSize.wrap(base));}
     @Override public void onCreate(Bundle state) {
         boolean dark=app.space.notes.runtime.NotesAppearance.dark(this,this);setTheme(dark?R.style.NotesThemeDark:R.style.NotesThemeLight);
         super.onCreate(state);
@@ -28,6 +30,7 @@ public final class NotesActivity extends Activity implements NotesHost {
     private void showSafeStart(Throwable failure){app.space.notes.runtime.Diagnostics.failure("startup.ui.failure",failure);android.widget.LinearLayout content=new android.widget.LinearLayout(this);content.setOrientation(android.widget.LinearLayout.VERTICAL);int pad=Math.round(20*getResources().getDisplayMetrics().density);content.setPadding(pad,pad,pad,pad);android.widget.TextView message=new android.widget.TextView(this);message.setText("MyNotes could not open. Saved data has not been cleared. Export a diagnostic report or reopen the verified internal copy. Do not uninstall or clear app data.");message.setTextSize(18);content.addView(message);android.widget.Button report=new android.widget.Button(this);report.setText("Export diagnostic report");report.setOnClickListener(v->exportDiagnostics());content.addView(report);android.widget.Button retry=new android.widget.Button(this);retry.setText("Enable issue logs and retry");retry.setOnClickListener(v->{app.space.notes.runtime.Diagnostics.setEnabled(true);recreate();});content.addView(retry);android.widget.Button internal=new android.widget.Button(this);internal.setText("Use internal copy");internal.setOnClickListener(v->new android.app.AlertDialog.Builder(this).setTitle("Disconnect folder and use internal copy?").setMessage("First verify the private saved notes, then disconnect the unavailable folder. Folder files are not deleted. Unfinished full-app recovery will not be bypassed.").setPositiveButton("Use internal copy",(d,w)->{internal.setEnabled(false);new Thread(()->{try{app.space.notes.runtime.NotesRepository repo=new app.space.notes.runtime.NotesRepository(this);java.io.File saved=new java.io.File(getFilesDir(),"notes-library/library-v1.json");if(!saved.isFile() && !new java.io.File(saved+".bak").isFile())throw new java.io.IOException("No verified internal library");java.util.List<app.space.notes.domain.Note> notes=repo.localSnapshot();repo.usePrivate(notes);runOnUiThread(this::recreate);}catch(Exception | OutOfMemoryError error){app.space.notes.runtime.Diagnostics.failure("startup.private.failure",error);runOnUiThread(()->{internal.setEnabled(true);showMessage("Internal copy could not be verified. No saved files were replaced.");});}},"notes-safe-start").start();}).setNegativeButton("Cancel",null).show());content.addView(internal);android.widget.ScrollView scroll=new android.widget.ScrollView(this);scroll.setFillViewport(true);scroll.addView(content);setContentView(scroll);}
     @Override public boolean managesAppearance(){return false;}
     @Override public void appearanceChanged(){recreate();}
+    @Override public void textSizeChanged(){recreate();}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);acceptIncoming(intent);}
     private void acceptIncoming(Intent intent){if(controller==null || intent==null)return;if(Intent.ACTION_VIEW.equals(intent.getAction())){if(intent.getData()!=null){controller.openFile(intent.getData());return;}String id=intent.getStringExtra("noteId");if(id!=null && !id.isEmpty())controller.openNote(id);}else acceptShare(intent);}
     /** External drops are read-only intake. The validated merge always requires confirmation. */

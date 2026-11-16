@@ -17,7 +17,7 @@ public final class Note {
     public final Diagram diagram;
     public final List<String> voiceSources;
     public final List<NoteImage> images;
-    /** Non-null only for canonical schema7 content; legacy fields then are read-only projections. */
+    /** Non-null for canonical ordered content; legacy fields then are read-only projections. */
     public final DocumentContent content;
     public static final class Item {
         public final String id,text;public final boolean checked;public final int depth;public final List<Mark> marks;
@@ -158,14 +158,20 @@ public final class Note {
         if(content!=null)throw new IllegalStateException("Convert selected content, not the whole document");
         if(checklist){
             StringBuilder text=new StringBuilder();
-            for(int row=0;row<items.size();row++){if(row>0)text.append('\n');Item item=items.get(row);for(int i=0;i<item.depth;i++)text.append("  ");text.append(item.text);}
+            for(int row=0;row<items.size();row++){
+                if(row>0)text.append('\n');Item item=items.get(row);
+                for(int i=0;i<item.depth;i++)text.append("  ");text.append(item.checked?"[x] ":"[ ] ").append(item.text);
+            }
             return copy(title,text.toString(),now,deletedAt,pinned,archived,color,false,false,Collections.emptyList(),Collections.emptyList(),labels);
         }
         List<Item> rows=new ArrayList<>();
-        for(String line:body.split("\n",-1)){
-            int depth=0;while(depth<3 && line.startsWith("  ")){depth++;line=line.substring(2);}
-            boolean checked=line.startsWith("[x] ") || line.startsWith("[X] ");
-            if(checked || line.startsWith("[ ] "))line=line.substring(4);
+        for(String line:body.split("\\n",-1)){
+            int markerAt=0;while(markerAt<6 && markerAt<line.length() && line.charAt(markerAt)==' ')markerAt++;
+            boolean checked=false,marked=false;
+            if(markerAt%2==0 && markerAt<=line.length()-4 && line.charAt(markerAt)=='[' && line.charAt(markerAt+2)==']' && line.charAt(markerAt+3)==' '){
+                char state=line.charAt(markerAt+1);if(state==' ' || state=='x' || state=='X'){marked=true;checked=state!=' ';}
+            }
+            int depth=marked?markerAt/2:0;if(marked)line=line.substring(markerAt+4);
             rows.add(new Item(UUID.randomUUID().toString(),line,checked,depth));
         }
         return list(title,rows,false,now);

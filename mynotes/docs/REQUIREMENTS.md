@@ -239,86 +239,89 @@ All new-runtime requirements start Planned. AT-* are reserved acceptance scenari
 ### K039
 - Scope: **Convert text ⇄ checklist** ✖ — Keep can turn a text note's lines into checkboxes (and back); the plain-text storage rule (already ours) makes this lossless.
 - State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K039`; scenarios due before implementation.
-- Evidence: none.
+- Acceptance: `AT-K039` is specified in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md) before implementation; executable cases are authored in `DocumentContentTest`, `NoteTest`, and `CoreJourneysTest` (Android case not run).
+- State remains **Planned** until source tests and Android runtime evidence pass.
+- Evidence: authored only; JVM/Android execution and APK remain pending.
 
 ### K040
-- Scope: **Hide checked items (list notes)** ✖ — per-note toggle; checked items collapse into an expandable "N checked items" footer row — Keep's grocery-list declutterer.
+- Scope: **Hide checked items (list notes)** ✖ — per-list hide preference; checked items collapse into an accessible count footer, which expands that list without changing its rows. Read-only Trash shows checked rows rather than a dead expansion control.
 - State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K040`; scenarios due before implementation.
-- Evidence: none.
+- Acceptance: `AT-K040` is specified in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md); domain and Android journey cases are authored.
+- State remains **Planned** until JVM and Android runtime cases pass.
+- Evidence: focused source-contract QA and Java syntax parsing pass; JVM/Android execution, build, and APK remain pending.
 
 ### K041
-- Scope: **Customize list: themes & bullets (Keep, 2024)** ✖ — per-list picker of bullet glyph (check, dot, square, diamond, star…) and theme colour; renders on the card *(our dark-pill picker design per the calculator's round-32 rule: match the app's signature, never stock dialogs)*.
+- Scope: **Customize list: themes & bullets (Keep, 2024)** ✖ — per-list picker of bullet glyph (check, dot, square, diamond, star) and twelve theme choices (Default accent plus eleven named colours); renders on the card *(dark-pill picker treatment; no stock dialogs)*.
 - State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K041`; scenarios due before implementation.
-- Evidence: none.
+- Acceptance: `AT-K041` is specified in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md) before implementation.
+- Planned evidence: domain model/codec cases and Android picker/card/persistence/plain-text journey.
+- Evidence: implementation/tests are authored; focused source QA passed 35/35 and Java syntax parsing accepted 19 changed files. JVM/JUnit/Android execution, runtime, build, and APK remain pending.
 
 ### K042
-- Scope: **3-dot ▸ Grab image text (OCR)** ✖ — Keep extracts an image's text into the note body so search finds it; on-device via bundled ML Kit *(decision D2)*.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K042`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **3-dot ▸ Grab image text (OCR)** ✖ — Keep extracts image text into an editable note body so search finds it; on-device. The historical D2 inventory names ML Kit, but the current MyNotes runtime uses bundled CPU Tesseract4Android, English/Hindi/Kannada, without network/model download.
+- State: OCR review/save flow is implemented and reused; the engine differs from historical D2, so this is **not ML Kit parity**. Acceptance is authored; runtime qualification remains open.
+- Acceptance: `AT-K042` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence: `OfflineOcrTest`, `ImageSelectionTest`, and `CoreJourneysTest#ocrReviewRequiresNonblankTextAndCancelNeverChangesTheOriginal` cover bundled native recognition, local-provider/cancel paths, reviewed append/new-note behavior, and search. Focused Python source QA passed 37/37; JVM/JUnit and Android/runtime execution, build, and APK evidence remain pending.
 
 ### K043
-- Scope: **Timestamps: "Edited …" line** ◐ — Keep sorts by last-modified and surfaces edit time; show a subtle "Edited 27 Oct, 12:40" row at the editor bottom *(data already stored; display new)*.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K043`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Timestamps: "Edited …" line** ◐ — Keep sorts by last-modified and surfaces edit time; show a subtle localized Edited date/time row at the editor bottom *(data already stored; display new)*.
+- State: **Implemented in source for legacy Notes and canonical Docs**, with live updates from the note's `updatedAt`; runtime qualification remains open.
+- Acceptance: `AT-K043` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `CoreJourneysTest#editedTimestampFooterTracksSavedEditsAcrossNotesDocsAndTrash` checks bottom placement, accessible text, save/reopen refresh, and read-only Trash nonmutation. The latest focused Python source QA passed 46/46; Android/JUnit execution, build, and APK evidence remain pending.
 
 ### K044
-- Scope: **Adjustable font size (Small / Medium / Large)** ✖ — Keep's teased-then-shipped reading comfort; app-wide setting affecting editor + cards.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K044`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Adjustable font size (Small / Medium / Large)** ✖ — App-wide presentation scale affecting editor and cards; default Medium.
+- State: **Implemented in source** as a persisted MyNotes-only configuration scale: Small 0.90×, Medium 1.00×, Large 1.15×. It combines with Android's current font scale without modifying system settings or note content; runtime/layout qualification remains open.
+- Acceptance: `AT-K044` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `CoreJourneysTest#appFontSizeChooserPersistsAndCombinesWithAndroidScaleWithoutChangingNotes` covers picker/cancel, preference re-read, system-scale isolation, scalable board/editor text, and note-data immutability. Focused Python source QA passed 46/46; eight touched Java files pass syntax parsing (not compilation). JVM/Android execution, rendered large-font/landscape/dark-mode review, build, and APK evidence remain pending.
 
 ### K045
-- Scope: **Checkboxes tick instantly; item text stays plain** ◐ — Keep does NOT strikethrough by default; checked items simply dim/hide per setting 40.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K045`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Checkboxes tick instantly; item text stays plain** ◐ — Checked rows are subdued rather than automatically struck through; the existing Hide checked choice may collapse them.
+- State: **Implemented in source** for legacy Notes and canonical Docs; checked text uses the theme's muted color, and toggles update that presentation immediately while preserving row text and formatting.
+- Acceptance: `AT-K045` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `CoreJourneysTest#checklistToggleKeepsItemTextPlainAndPersistsForNotesAndDocs` covers instant toggle, save/reopen, row identity/format retention, hide/expand, and read-only Trash; `test_checked_rows_dim_without_automatic_strikethrough` guards both editors. Focused Python source QA passed 46/46; eight changed Java files pass syntax parsing (not compilation). Android/JUnit execution, rendered contrast review, build, and APK evidence remain pending.
 
 ### K046
-- Scope: **Drag-to-reorder list items** ✖ — grip-and-move within the list; works on unchecked and checked alike.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K046`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Drag-to-reorder list items** ✖ — grip-and-move within the list; works on checked and unchecked rows alike.
+- State: **Implemented in source** for legacy Notes and canonical Docs; same-list drag preserves row models and offers accessible move-earlier/move-later actions.
+- Acceptance: `AT-K046` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: legacy and canonical Android journeys exercise checked and unchecked native drags, Undo, reopen persistence, and accessibility ordering; `ChecklistOrderTest` covers immutable identity/state preservation. `test_checked_and_unchecked_rows_can_reorder_with_drag_and_accessibility` guards same-list isolation and read-only handle behavior. Focused Python source QA passed 46/46; eight Java files pass syntax parsing (not compilation). Android/JUnit execution, device drag review, build, and APK evidence remain pending.
 
 ### K047
-- Scope: **Nested / indented list items** ✖ — sub-bullets under any item (Keep's "nested items" for multi-step lists); indent/outdent controls; nesting depth shown by inset.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K047`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Nested / indented list items** ✖ — nested rows for multi-step checklists; per-row indent/outdent controls; depth shown by inset (0–3).
+- State: **Implemented in source** for legacy Notes and canonical Docs. Indent/outdent preserves row data, and unavailable actions are disabled at the depth limits; runtime qualification remains open.
+- Acceptance: `AT-K047` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `NoteTest` covers depth bounds and row-data preservation; Android journeys cover both editors, rendered inset, persistence/reopen, Undo, and disabled limits; the Trash journey confirms no row actions in either read-only editor. Focused Python source selection passed 46/46; Java syntax parsing accepted all eight changed Java files (not a compile). The 48-test broader invocation also errored in `test_android16_is_full_and_all_four_profiles_are_required` because `.github/workflows/notes-refinement-native.yml` is absent, and failed `test_named_documents_use_new_schema_without_changing_unnamed_output` on its codec assertion; neither exercises K047. JVM/Android execution, rendered inset review, build, and APK evidence remain pending.
 
 ### K048
-- Scope: **Enter adds the next checkbox; empty trailing item auto-dropped** ◐ — the rhythm that makes Keep lists feel alive; saving a list with a blank last line drops it silently.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K048`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Enter adds the next checkbox; empty trailing item auto-dropped** ◐ — Enter splits a checklist row at the caret/selection into an unchecked next row; trailing whitespace-only rows are silently pruned when leaving an editable checklist.
+- State: **Implemented in source** for legacy Notes and canonical Docs; the split helper preserves row identity/state/depth and moves formatting ranges; pruning occurs on exit, not delayed draft autosave. Read-only Trash remains unchanged.
+- Acceptance: `AT-K048` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: domain tests cover caret/range splitting, mark clipping, interior blanks, canonical checklist metadata, and stale/invalid edits; Android journeys exercise hardware Enter for legacy Notes, IME newline for Docs, row focus, persistence/reopen/Undo, exit cleanup in both editors, and read-only Trash. The Python source guard covers the dual-editor wiring and cleanup boundary. Focused Python editor-coherence QA passed 22/22, and `javalang` accepted the six changed Java files as syntax (not compilation); no trailing whitespace. Android/JUnit execution, device/IME qualification, build, and APK evidence remain **pending**.
 
 ### K049
-- Scope: **"Hide checked items" footer** ✖ — (same mechanism as 40, listed here as the list-UX half: the collapsed row shows the count and expands on tap).
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K049`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **"Hide checked items" footer** ✔◐ — the collapsed row shows an accurate count and expands on tap.
+- State: **Implemented in source** for legacy Notes and canonical Docs; this is the footer/list-UX half of the K040 hide-checked mechanism, so no duplicate runtime implementation was needed.
+- Acceptance: `AT-K049` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md), alongside the broader `AT-K040` per-list collapse behavior.
+- Evidence authored: legacy and canonical journeys cover expansion, list-state preservation, persistence/reopen, and read-only Trash; `canonicalHideCheckedFooterExpandsAndPersistsPerList` covers singular count/per-list state, and `hiddenCheckedFooterUsesAccuratePluralCountInBothEditors` covers plural labels in both editors. The editor-coherence source guard checks footer accessibility and read-only behavior. Focused Python editor-coherence QA passed 22/22, and `javalang` accepted the six changed Java files as syntax (not compilation); no trailing whitespace. Android/JUnit execution, runtime/device review, build, and APK evidence remain **pending**.
 
 ### K050
-- Scope: **Swipe-to-delete a checked item** ✖ — Keep Android lets a checked item be swiped away; with Undo snackbar *(verify against current Keep during build; ship behind the same gesture rules as the calculator: outcomes logged)*.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K050`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Swipe-to-delete a checked item** ✔◐ — an editable checked row can be swiped away and restored from an Undo snackbar.
+- State: **Implemented in source** for legacy Notes and canonical Docs. Swipes are limited to checked rows, exclude reorder handles, and remain disabled in read-only Trash; an accessible delete action is also provided.
+- Acceptance: `AT-K050` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `checkedChecklistRowsSwipeAwayWithUndoInBothEditors` exercises checked/unchecked row transitions, both swipe directions, the accessible delete action, exact Undo restoration, Trash rejection, and saved deletion/Undo across reopen. Successful deletes and Undo outcomes are recorded without checklist text. Focused Python source QA passed 23/23; `javalang` accepted the eight changed Java files as syntax (not compilation), with no trailing whitespace. Android/JUnit execution, runtime/device review, build, and APK evidence remain **pending**.
 
 ### K051
 - Scope: **Links and plain text as list items** ✔◐ — list items are ordinary text (URLs clickable); no rich formatting inside checkbox items (Keep's actual limit — formatting lives in text notes).
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K051`; scenarios due before implementation.
-- Evidence: none.
+- State: **Implemented in source** for legacy Notes and canonical Docs. Web addresses use validated, transient clickable spans; canonical checklist formatting/insert-link routes are blocked, while writing fields retain rich formatting.
+- Acceptance: `AT-K051` scenarios were recorded before implementation in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `checklistUrlsOpenSafelyWhileRowsStayPlainTextInBothEditors` covers both list editors, cancellation, invalid schemes, plain-text paste/edit, historical marks, and writing-section formatting. Focused Python editor-coherence QA passed 24/24; `javalang` accepted four changed Java files as syntax (not compilation), with no trailing whitespace. Android/JUnit execution, live runtime/accessibility review, compilation, build, and APK evidence remain **pending**.
 
 ### K052
-- Scope: **Checklists stored as plain text** ✔ — our existing rule and Keep-compatible: search, export, share and the JSON mirror all keep working; checkbox state is a line prefix.
-- State: **Planned** for new runtime.
-- Acceptance reservation: `AT-K052`; scenarios due before implementation.
-- Evidence: none.
+- Scope: **Checklists stored as plain text** ✔ — search, share, PDF export and the JSON mirror preserve the `[x]`/`[ ]` row prefixes; JSON stores row state structurally rather than duplicating a flattened canonical body.
+- State: **Implemented in source** for legacy Notes and canonical Docs. Canonical PDF export includes checked rows even when the editor's Hide checked preference is enabled.
+- Acceptance: `AT-K052` scenarios in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md) were recorded before implementation.
+- Evidence authored: domain projection/search and conversion checks, a dual-editor search/share journey, PDF text extraction coverage, and checksummed backup round-trip coverage. Focused Python editor-coherence QA passed 24/24; `javalang` accepted five changed Java files as syntax (not compilation), with no trailing whitespace in seven K052 files. JVM/Android execution, compilation, runtime/device review, build, and APK evidence remain **pending**.
 
 ### K053
 - Scope: **Camera capture into a note** ✖ — system-camera intent, zero permissions *(ours: same pattern as the Scanner)*.

@@ -5,10 +5,10 @@ import org.json.*;
 import java.io.IOException;
 import java.util.*;
 
-/** Canonical schema7 content: pixels and tables occur once, at their ordered block position. */
+/** Canonical ordered content; schema11 adds per-checklist appearance without changing plain text. */
 final class ContentCodec {
     private ContentCodec(){}
-    static JSONObject encode(DocumentContent content)throws Exception{
+    static JSONObject encode(DocumentContent content,boolean includeChecklistAppearance)throws Exception{
         JSONArray array=new JSONArray();
         for(DocumentContent.Block block:content.blocks){
             JSONObject out=new JSONObject().put("id",block.id).put("kind",block.kind.name()).put("name",block.name);
@@ -18,7 +18,7 @@ final class ContentCodec {
                     out.put("text",block.text.text).put("marks",marks);break;
                 case CHECKLIST:
                     JSONArray rows=new JSONArray();for(Note.Item item:block.items){JSONArray rowMarks=new JSONArray();for(Note.Mark mark:item.marks)rowMarks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end).put("value",mark.value));rows.put(new JSONObject().put("id",item.id).put("text",item.text).put("checked",item.checked).put("depth",item.depth).put("marks",rowMarks));}
-                    out.put("rows",rows).put("hideChecked",block.hideChecked);break;
+                    out.put("rows",rows).put("hideChecked",block.hideChecked);if(includeChecklistAppearance)out.put("glyph",block.checklistAppearance.glyph.id).put("themeColor",block.checklistAppearance.themeColor);else if(!block.checklistAppearance.isDefault())throw new IOException("Checklist appearance requires schema11");break;
                 case IMAGE:case DRAWING:
                     NoteImage image=block.image;out.put("image",new JSONObject().put("id",image.id).put("name",image.name).put("mime",image.mime).put("width",image.width).put("height",image.height).put("data",image.data));break;
                 case DIAGRAM:out.put("diagram",DocumentCodec.encodeDiagram(block.diagram));break;
@@ -30,7 +30,7 @@ final class ContentCodec {
             }array.put(out);
         }JSONObject result=new JSONObject().put("writingLines",content.writingLines).put("blocks",array);if(content.notesWorkspace)result.put("notesWorkspace",true);return result;
     }
-    static DocumentContent decode(JSONObject content)throws Exception{
+    static DocumentContent decode(JSONObject content,int version)throws Exception{
         if(content.has("notesWorkspace")){keys(content,"writingLines","blocks","notesWorkspace");if(!bool(content,"notesWorkspace"))throw new IOException("Invalid Notes workspace marker");}else keys(content,"writingLines","blocks");JSONArray array=content.getJSONArray("blocks");
         if(array.length()>DocumentContent.MAX_BLOCKS)throw new IOException("Too many content sections");
         List<DocumentContent.Block> blocks=new ArrayList<>();
@@ -40,9 +40,10 @@ final class ContentCodec {
                 case TEXT:
                     keys(in,"id","kind","name","text","marks");if(!name.isEmpty())throw new IOException("Unexpected text section name");blocks.add(DocumentContent.Block.text(id,new RichText(string(in,"text"),marks(in.getJSONArray("marks")))));break;
                 case CHECKLIST:
-                    keys(in,"id","kind","name","rows","hideChecked");JSONArray rs=in.getJSONArray("rows");if(rs.length()>DocumentContent.MAX_EDITABLE_FIELDS)throw new IOException("Too many checklist rows");List<Note.Item> items=new ArrayList<>();
+                    if(version>=11)keys(in,"id","kind","name","rows","hideChecked","glyph","themeColor");else keys(in,"id","kind","name","rows","hideChecked");JSONArray rs=in.getJSONArray("rows");if(rs.length()>DocumentContent.MAX_EDITABLE_FIELDS)throw new IOException("Too many checklist rows");List<Note.Item> items=new ArrayList<>();
                     for(int j=0;j<rs.length();j++){JSONObject row=rs.getJSONObject(j);keys(row,"id","text","checked","depth","marks");items.add(new Note.Item(string(row,"id"),string(row,"text"),bool(row,"checked"),integer(row,"depth"),marks(row.getJSONArray("marks"))));}
-                    blocks.add(DocumentContent.Block.checklist(id,name,items,bool(in,"hideChecked")));break;
+                    ChecklistAppearance appearance=ChecklistAppearance.DEFAULT;if(version>=11)try{appearance=ChecklistAppearance.of(string(in,"glyph"),integer(in,"themeColor"));}catch(IllegalArgumentException invalid){throw new IOException("Invalid checklist appearance",invalid);}
+                    blocks.add(DocumentContent.Block.checklist(id,name,items,bool(in,"hideChecked"),appearance));break;
                 case IMAGE:case DRAWING:
                     keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");keys(image,"id","name","mime","width","height","data");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(string(image,"id"),string(image,"name"),string(image,"mime"),integer(image,"width"),integer(image,"height"),string(image,"data"))));break;
                 case DIAGRAM:keys(in,"id","kind","name","diagram");diagram(in.getJSONObject("diagram"));blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;

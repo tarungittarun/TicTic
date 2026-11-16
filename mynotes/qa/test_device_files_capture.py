@@ -18,7 +18,7 @@ class DeviceFilesCapture(unittest.TestCase):
   self.assertNotIn('URL(',s);self.assertNotIn('FileOutputStream',s)
  def test_mixed_notes_are_not_silently_moved_into_doc_workspace(self):
   self.assertIn('!note.content.notesWorkspace',(ROOT/'domain/src/main/java/app/space/notes/domain/Workspace.java').read_text())
-  codec=(JAVA/'DocumentCodec.java').read_text();self.assertIn('schema=10',codec);self.assertIn('version<10 && canonical.content.notesWorkspace',codec)
+  codec=(JAVA/'DocumentCodec.java').read_text();self.assertIn('Math.max(schema,10)',codec);self.assertIn('Math.max(schema,11)',codec);self.assertIn('version<10 && canonical.content.notesWorkspace',codec)
  def test_speech_keeps_raw_and_uses_one_absolute_word_timeline(self):
   s=(JAVA/'OfflineSpeech.java').read_text();self.assertIn('timeline.addAll(words)',s);self.assertIn('new Result(transcript.toString()',s);self.assertIn('TranscriptReadability.format(timeline)',s)
  def test_ocr_is_still_cancelable_and_no_emoji_fabrication_claim(self):

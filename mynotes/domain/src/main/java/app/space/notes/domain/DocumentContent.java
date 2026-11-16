@@ -3,7 +3,7 @@ package app.space.notes.domain;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/** Authoritative ordered schema7 content. Legacy Note fields are derived read-only projections.
+/** Authoritative ordered canonical content. Legacy Note fields are derived read-only projections.
  * Schema6 libraries remain untouched until an explicit, verified upgrade.
  */
 public final class DocumentContent {
@@ -15,14 +15,21 @@ public final class DocumentContent {
         public final RichText text;
         public final List<Note.Item> items;
         public final boolean hideChecked;
+        public final ChecklistAppearance checklistAppearance;
         public final NoteImage image;
         public final Diagram diagram;
         public final TextTable table;
         private Block(String id,String name,Kind kind,RichText text,List<Note.Item> items,boolean hideChecked,NoteImage image,Diagram diagram,TextTable table){
+            this(id,name,kind,text,items,hideChecked,image,diagram,table,ChecklistAppearance.DEFAULT);
+        }
+        private Block(String id,String name,Kind kind,RichText text,List<Note.Item> items,boolean hideChecked,NoteImage image,Diagram diagram,TextTable table,ChecklistAppearance checklistAppearance){
             if(id==null || id.isEmpty() || id.length()>256 || name==null || name.length()>200)
                 throw new IllegalArgumentException("Invalid content identity or name");
+            if(kind==null)throw new IllegalArgumentException("Missing content kind");
+            if(kind==Kind.CHECKLIST && checklistAppearance==null)throw new IllegalArgumentException("Missing checklist appearance");
             RichText.requireText(id);RichText.requireText(name);this.id=id;this.name=name;this.kind=kind;this.text=text;this.hideChecked=hideChecked;
             this.items=items==null?Collections.emptyList():Collections.unmodifiableList(new ArrayList<>(items));
+            this.checklistAppearance=kind==Kind.CHECKLIST?checklistAppearance:ChecklistAppearance.DEFAULT;
             this.image=image;this.diagram=diagram;this.table=table;
         }
         public static Block text(String id,RichText text){
@@ -33,9 +40,25 @@ public final class DocumentContent {
             return checklist(id,"",items,hideChecked);
         }
         public static Block checklist(String id,String name,List<Note.Item> items,boolean hideChecked){
+            return checklist(id,name,items,hideChecked,ChecklistAppearance.DEFAULT);
+        }
+        public static Block checklist(String id,String name,List<Note.Item> items,boolean hideChecked,ChecklistAppearance appearance){
             if(items==null)throw new IllegalArgumentException("Missing checklist");
+            if(appearance==null)throw new IllegalArgumentException("Missing checklist appearance");
             Set<String> ids=new HashSet<>();for(Note.Item item:items)if(item==null || !ids.add(item.id))throw new IllegalArgumentException("Invalid checklist identities");
-            return new Block(id,name,Kind.CHECKLIST,null,items,hideChecked,null,null,null);
+            return new Block(id,name,Kind.CHECKLIST,null,items,hideChecked,null,null,null,appearance);
+        }
+        /** Replace rows or collapse state while retaining this list's visual choices. */
+        public Block withChecklist(List<Note.Item> items,boolean hideChecked){
+            if(kind!=Kind.CHECKLIST)throw new IllegalArgumentException("Choose a checklist");
+            if(items==this.items && hideChecked==this.hideChecked)return this;
+            return checklist(id,name,items,hideChecked,checklistAppearance);
+        }
+        /** Change only this checklist's marker and colour; note colour and sibling lists are untouched. */
+        public Block withChecklistAppearance(ChecklistAppearance appearance){
+            if(kind!=Kind.CHECKLIST)throw new IllegalArgumentException("Choose a checklist");
+            if(appearance==null)throw new IllegalArgumentException("Missing checklist appearance");
+            return checklistAppearance.equals(appearance)?this:checklist(id,name,items,hideChecked,appearance);
         }
         public static Block visual(String id,String name,Kind kind,NoteImage image){
             if(image==null || (kind!=Kind.IMAGE && kind!=Kind.DRAWING))throw new IllegalArgumentException("Invalid visual kind");
@@ -52,7 +75,7 @@ public final class DocumentContent {
         public Block renamed(String name){
             if(name==null || name.trim().isEmpty())throw new IllegalArgumentException("Enter a content name");
             if(kind==Kind.TEXT)throw new IllegalArgumentException("Text sections do not have visual names");
-            return new Block(id,name,kind,text,items,hideChecked,image,diagram,table);
+            return new Block(id,name,kind,text,items,hideChecked,image,diagram,table,checklistAppearance);
         }
     }
     public final List<Block> blocks;public final boolean writingLines,notesWorkspace;
@@ -112,7 +135,12 @@ public final class DocumentContent {
     public DocumentContent checklistToText(String id){
         Block list=block(id);if(list.kind!=Kind.CHECKLIST)throw new IllegalArgumentException("Choose a checklist");StringBuilder text=new StringBuilder();List<Note.Mark> marks=new ArrayList<>();
         if(!list.name.isEmpty())text.append(list.name).append('\n');
-        for(int i=0;i<list.items.size();i++){if(i>0)text.append('\n');Note.Item item=list.items.get(i);for(int depth=0;depth<item.depth;depth++)text.append("  ");int offset=text.length();text.append(item.text);for(Note.Mark mark:item.marks)marks.add(new Note.Mark(mark.type,offset+mark.start,offset+mark.end,mark.value));}
+        for(int i=0;i<list.items.size();i++){
+            if(i>0)text.append('\n');Note.Item item=list.items.get(i);
+            for(int depth=0;depth<item.depth;depth++)text.append("  ");
+            text.append(item.checked?"[x] ":"[ ] ");int offset=text.length();text.append(item.text);
+            for(Note.Mark mark:item.marks)marks.add(new Note.Mark(mark.type,offset+mark.start,offset+mark.end,mark.value));
+        }
         return replace(id,Block.text(id,new RichText(text.toString(),marks)));
     }
     public DocumentContent moveChecklistIntoText(String checklistId,String textId,int offset){
@@ -140,8 +168,18 @@ public final class DocumentContent {
     public DocumentContent selectionToChecklist(String id,int start,int end){
         Block source=block(id);if(source.text==null || start==end)throw new IllegalArgumentException("Select text in a text section first");
         List<RichText> slices=source.text.selection(start,end);RichText selected=slices.get(1);
-        List<Note.Item> rows=new ArrayList<>();int at=0;
-        for(String line:selected.text.split("\n",-1)){RichText row=selected.slice(at,at+line.length());rows.add(new Note.Item(UUID.randomUUID().toString(),row.text,false,0,row.marks));at+=line.length()+1;}
+        List<Note.Item> rows=new ArrayList<>();int lineStart=0;
+        while(lineStart<=selected.text.length()){
+            int lineEnd=selected.text.indexOf('\n',lineStart);if(lineEnd<0)lineEnd=selected.text.length();
+            RichText line=selected.slice(lineStart,lineEnd);int markerAt=0;while(markerAt<6 && markerAt<line.text.length() && line.text.charAt(markerAt)==' ')markerAt++;
+            boolean checked=false,marked=false;
+            if(markerAt%2==0 && markerAt<=line.text.length()-4 && line.text.charAt(markerAt)=='[' && line.text.charAt(markerAt+2)==']' && line.text.charAt(markerAt+3)==' '){
+                char state=line.text.charAt(markerAt+1);if(state==' ' || state=='x' || state=='X'){marked=true;checked=state!=' ';}
+            }
+            int prefix=marked?markerAt+4:0;RichText row=line.slice(prefix,line.text.length());int depth=marked?markerAt/2:0;
+            rows.add(new Note.Item(UUID.randomUUID().toString(),row.text,checked,depth,row.marks));
+            if(lineEnd==selected.text.length())break;lineStart=lineEnd+1;
+        }
         List<Block> next=new ArrayList<>(blocks);int position=index(id);next.remove(position);
         next.add(position,Block.text(source.id,slices.get(0)));next.add(position+1,Block.checklist(UUID.randomUUID().toString(),nextVisualName(Kind.CHECKLIST),rows,false));next.add(position+2,Block.text(UUID.randomUUID().toString(),slices.get(2)));
         return new DocumentContent(next,writingLines,notesWorkspace);
@@ -179,7 +217,7 @@ public final class DocumentContent {
     public String fingerprint(){
         StringBuilder out=new StringBuilder();if(notesWorkspace)part(out,"notes-workspace-v10");part(out,Boolean.toString(writingLines));part(out,Integer.toString(blocks.size()));for(Block block:blocks){part(out,block.id);part(out,block.kind.name());part(out,block.name);
             if(block.text!=null){part(out,block.text.text);part(out,Integer.toString(block.text.marks.size()));for(Note.Mark mark:block.text.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}part(out,"end marks");}
-            if(block.kind==Kind.CHECKLIST){part(out,Boolean.toString(block.hideChecked));part(out,Integer.toString(block.items.size()));for(Note.Item item:block.items){part(out,item.id);part(out,item.text);part(out,Boolean.toString(item.checked));part(out,Integer.toString(item.depth));part(out,Integer.toString(item.marks.size()));for(Note.Mark mark:item.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}part(out,"end rows");}
+            if(block.kind==Kind.CHECKLIST){part(out,Boolean.toString(block.hideChecked));if(!block.checklistAppearance.isDefault()){part(out,"checklist appearance");part(out,block.checklistAppearance.glyph.id);part(out,Integer.toString(block.checklistAppearance.themeColor));}part(out,Integer.toString(block.items.size()));for(Note.Item item:block.items){part(out,item.id);part(out,item.text);part(out,Boolean.toString(item.checked));part(out,Integer.toString(item.depth));part(out,Integer.toString(item.marks.size()));for(Note.Mark mark:item.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}part(out,"end rows");}
             if(block.image!=null)part(out,block.image.fingerprint());
             if(block.diagram!=null)part(out,block.diagram.fingerprint());
             if(block.table!=null){if(block.table.columnWidth!=160){part(out,"column width");part(out,Integer.toString(block.table.columnWidth));}if(block.table.hasHeader)part(out,"header row");part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<RichText> row:block.table.cells)for(RichText cell:row){part(out,cell.text);part(out,Integer.toString(cell.marks.size()));for(Note.Mark mark:cell.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}}

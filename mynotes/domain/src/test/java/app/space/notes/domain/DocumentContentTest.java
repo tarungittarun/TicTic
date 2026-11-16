@@ -77,6 +77,14 @@ public class DocumentContentTest {
         assertNotEquals(document.fingerprint(),document.replace("list",list.renamed("Work")).fingerprint());
         assertThrows(IllegalArgumentException.class,()->list.renamed(" "));assertThrows(IllegalArgumentException.class,()->list.renamed(String.join("",Collections.nCopies(201,"x"))));
     }
+    @Test public void checkedVisibilityPreferenceIsPerChecklistAndDoesNotChangeRows(){
+        Note.Item done=new Note.Item("done","Milk",true,1,Arrays.asList(new Note.Mark("bold",0,4))),pending=new Note.Item("pending","Bread",false,0);
+        DocumentContent.Block first=DocumentContent.Block.checklist("first","Shopping",Arrays.asList(done,pending),true),second=DocumentContent.Block.checklist("second","Packing",Collections.singletonList(new Note.Item("other","Passport",true,0)),false);
+        DocumentContent source=new DocumentContent(Arrays.asList(first,second));DocumentContent expanded=source.replace("first",DocumentContent.Block.checklist("first",first.name,first.items,false));
+        assertTrue(source.block("first").hideChecked);assertFalse(source.block("second").hideChecked);assertFalse(expanded.block("first").hideChecked);assertFalse(expanded.block("second").hideChecked);
+        assertSame(done,expanded.block("first").items.get(0));assertSame(pending,expanded.block("first").items.get(1));assertTrue(expanded.block("first").items.get(0).checked);assertEquals(1,expanded.block("first").items.get(0).depth);assertEquals("bold",expanded.block("first").items.get(0).marks.get(0).type);
+        DocumentContent collapsedAgain=expanded.replace("first",DocumentContent.Block.checklist("first",first.name,first.items,true));assertTrue(collapsedAgain.block("first").hideChecked);assertFalse(collapsedAgain.block("second").hideChecked);assertEquals(source.block("first").items,collapsedAgain.block("first").items);
+    }
     @Test public void checklistMoveInsideRichTextPreservesSlicesAndSource(){
         DocumentContent.Block list=DocumentContent.Block.checklist("list","Plan",Arrays.asList(new Note.Item("row","Keep",true,1)),false);
         DocumentContent.Block writing=DocumentContent.Block.text("text",new RichText("One\nTwo\nThree",Arrays.asList(new Note.Mark("italic",0,13))));
@@ -92,5 +100,52 @@ public class DocumentContentTest {
     @Test public void checklistMoveRejectsStaleOffsetsAndSplitSurrogatesAtomically(){
         DocumentContent.Block list=DocumentContent.Block.checklist("list",Collections.emptyList(),false);DocumentContent original=new DocumentContent(Arrays.asList(list,text("text","😀a")));
         assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("list","text",1));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("list","text",4));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("missing","text",0));assertThrows(IllegalArgumentException.class,()->original.moveChecklistIntoText("text","list",0));assertEquals(2,original.blocks.size());assertSame(list,original.blocks.get(0));
+    }
+    @Test public void checklistTextRoundTripRetainsMarkersDepthAndRowMarks(){
+        Note.Item checked=new Note.Item("checked","Buy milk",true,1,Arrays.asList(new Note.Mark("bold",0,3)));
+        Note.Item pending=new Note.Item("pending","Bread",false,0,Arrays.asList(new Note.Mark("italic",0,5)));
+        DocumentContent source=new DocumentContent(Arrays.asList(DocumentContent.Block.checklist("list","Shopping",Arrays.asList(checked,pending),false)));
+        DocumentContent converted=source.checklistToText("list");RichText plain=converted.block("list").text;
+        assertEquals("Shopping\n  [x] Buy milk\n[ ] Bread",plain.text);
+        assertTrue(plain.marks.stream().anyMatch(mark->mark.type.equals("bold") && plain.text.substring(mark.start,mark.end).equals("Buy")));
+        assertTrue(plain.marks.stream().anyMatch(mark->mark.type.equals("italic") && plain.text.substring(mark.start,mark.end).equals("Bread")));
+        int rowsStart=plain.text.indexOf('\n')+1;
+        DocumentContent restored=converted.selectionToChecklist("list",rowsStart,plain.text.length());
+        DocumentContent.Block list=null;for(DocumentContent.Block block:restored.blocks)if(block.kind==DocumentContent.Kind.CHECKLIST)list=block;
+        assertNotNull(list);assertEquals(2,list.items.size());
+        assertEquals("Buy milk",list.items.get(0).text);assertTrue(list.items.get(0).checked);assertEquals(1,list.items.get(0).depth);
+        assertEquals("bold",list.items.get(0).marks.get(0).type);assertEquals(0,list.items.get(0).marks.get(0).start);assertEquals(3,list.items.get(0).marks.get(0).end);
+        assertEquals("Bread",list.items.get(1).text);assertFalse(list.items.get(1).checked);assertEquals(0,list.items.get(1).depth);assertEquals("italic",list.items.get(1).marks.get(0).type);
+    }
+    @Test public void convertingSelectedRowsPreservesSurroundingTextAndOnlyParsesExplicitMarkers(){
+        String sourceText="Prefix 😀\n  [x] checked\n  ordinary indentation\nSuffix";
+        List<Note.Mark> marks=Arrays.asList(new Note.Mark("bold",0,sourceText.length()),new Note.Mark("italic",sourceText.indexOf("checked"),sourceText.indexOf("checked")+7));
+        DocumentContent original=new DocumentContent(Arrays.asList(DocumentContent.Block.text("writing",new RichText(sourceText,marks))));
+        int start=sourceText.indexOf("  [x]"),end=sourceText.indexOf("\nSuffix");DocumentContent converted=original.selectionToChecklist("writing",start,end);
+        assertEquals("Prefix 😀\n",converted.blocks.get(0).text.text);assertEquals("\nSuffix",converted.blocks.get(2).text.text);
+        DocumentContent.Block list=converted.blocks.get(1);assertTrue(list.items.get(0).checked);assertEquals("checked",list.items.get(0).text);assertEquals(0,list.items.get(0).depth);
+        assertEquals("  ordinary indentation",list.items.get(1).text);assertFalse(list.items.get(1).checked);assertEquals(0,list.items.get(1).depth);
+        assertTrue(list.items.get(0).marks.stream().anyMatch(mark->mark.type.equals("italic") && mark.start==0 && mark.end==7));
+        assertEquals("Prefix 😀\n  [x] checked\n  ordinary indentation\nSuffix",original.blocks.get(0).text.text);
+    }
+
+    @Test public void checklistAppearanceIsPerListAndPlainTextIndependent(){
+        Note.Item milk=new Note.Item("milk","Milk",true,1,Arrays.asList(new Note.Mark("bold",0,4))),bread=new Note.Item("bread","Bread",false,0);
+        DocumentContent.Block shopping=DocumentContent.Block.checklist("shopping","Shopping",Arrays.asList(milk,bread),true);
+        DocumentContent.Block packing=DocumentContent.Block.checklist("packing","Packing",Collections.singletonList(new Note.Item("passport","Passport",true,0)),false);
+        DocumentContent original=new DocumentContent(Arrays.asList(shopping,packing));
+        ChecklistAppearance starTeal=new ChecklistAppearance(ChecklistAppearance.Glyph.STAR,5);
+        DocumentContent styled=original.replace("shopping",shopping.withChecklistAppearance(starTeal));
+        assertEquals("Shopping\n  [x] Milk\n[ ] Bread\nPacking\n[x] Passport",styled.plainText());
+        assertEquals(original.plainText(),styled.plainText());assertNotEquals(original.fingerprint(),styled.fingerprint());
+        assertTrue(original.block("shopping").checklistAppearance.isDefault());assertEquals(starTeal,styled.block("shopping").checklistAppearance);
+        assertTrue(styled.block("packing").checklistAppearance.isDefault());assertTrue(styled.block("shopping").hideChecked);
+        DocumentContent.Block edited=styled.block("shopping").withChecklist(Arrays.asList(milk),false).renamed("Groceries");
+        assertEquals(starTeal,edited.checklistAppearance);assertEquals("milk",edited.items.get(0).id);assertEquals("Groceries",edited.name);
+        DocumentContent.Block copied=ContentCopies.copy(styled.block("shopping"));assertEquals(starTeal,copied.checklistAppearance);assertNotEquals("shopping",copied.id);assertNotEquals("milk",copied.items.get(0).id);
+        assertEquals(12,ChecklistAppearance.THEME_COLOR_COUNT);assertEquals(11,ChecklistAppearance.NAMED_THEME_COLOR_COUNT);assertEquals(ChecklistAppearance.THEME_COLOR_COUNT,ChecklistAppearance.DEFAULT_THEME_COLOR);
+        for(int color=1;color<=ChecklistAppearance.NAMED_THEME_COLOR_COUNT;color++)assertNotNull(new ChecklistAppearance(ChecklistAppearance.Glyph.DOT,color));
+        assertThrows(IllegalArgumentException.class,()->new ChecklistAppearance(ChecklistAppearance.Glyph.DOT,0));assertThrows(IllegalArgumentException.class,()->new ChecklistAppearance(ChecklistAppearance.Glyph.DOT,ChecklistAppearance.THEME_COLOR_COUNT+1));
+        assertThrows(IllegalArgumentException.class,()->DocumentContent.Block.checklist("bad",Collections.emptyList(),false).withChecklistAppearance(null));
     }
 }

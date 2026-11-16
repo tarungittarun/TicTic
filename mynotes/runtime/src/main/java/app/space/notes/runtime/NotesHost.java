@@ -31,5 +31,6 @@ public interface NotesHost {
     default NotesPalette palette(){return null;}
     default String appearanceMode(){return "system";}
     default void appearanceChanged(){showMessage("Appearance is managed by the host.");}
+    default void textSizeChanged(){showMessage("Font size saved. Reopen this host to apply the MyNotes text scale.");}
     String versionLabel();
 }

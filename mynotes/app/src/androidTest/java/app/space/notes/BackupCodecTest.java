@@ -12,9 +12,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import app.space.notes.domain.Note;
+import app.space.notes.domain.NoteMerge;
+import app.space.notes.domain.ChecklistAppearance;
+import app.space.notes.domain.DocumentContent;
 import app.space.notes.runtime.BackupCodec;
 import app.space.notes.runtime.LocalBackupFiles;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -26,6 +30,45 @@ public class BackupCodecTest {
         assertEquals(1,read.size());Note n=read.get(0);assertEquals("id",n.id);
         assertEquals("नोट",n.title);assertEquals("ಕನ್ನಡ",n.body);assertEquals(1,n.createdAt);
         assertEquals(2,n.updatedAt);assertEquals(100,n.deletedAt);assertTrue(n.pinned);assertTrue(n.archived);assertEquals(11,n.color);
+    }
+    @Test public void checklistJsonRoundTripPreservesStatesAndPlainProjection() throws Exception {
+        Note legacy=Note.create(1).withId("legacy-checklist").list("Legacy shopping",Arrays.asList(
+            new Note.Item("legacy-milk","Milk",true,1),new Note.Item("legacy-bread","Bread",false,0)),true,2);
+        Note.Item done=new Note.Item("canonical-milk","Milk",true,1,Arrays.asList(new Note.Mark("bold",0,4)));
+        Note.Item open=new Note.Item("canonical-bread","Bread",false,2);
+        DocumentContent.Block checklist=DocumentContent.Block.checklist("canonical-list","Canonical shopping",
+            Arrays.asList(done,open),true,new ChecklistAppearance(ChecklistAppearance.Glyph.STAR,5));
+        Note canonical=Note.create(3).withId("canonical-checklist")
+            .withContent(new DocumentContent(Arrays.asList(checklist)),4);
+
+        byte[] bytes=BackupCodec.encode(Arrays.asList(legacy,canonical));
+        JSONObject envelope=new JSONObject(new String(bytes,StandardCharsets.UTF_8));
+        assertTrue(envelope.has("sha256"));
+        JSONObject library=new JSONObject(envelope.getString("payload"));
+        JSONObject savedCanonical=library.getJSONArray("notes").getJSONObject(1);
+        assertTrue(savedCanonical.has("content"));assertFalse(savedCanonical.has("body"));
+        JSONObject savedList=savedCanonical.getJSONObject("content").getJSONArray("blocks").getJSONObject(0);
+        assertEquals("canonical-list",savedList.getString("id"));
+        assertEquals("Canonical shopping",savedList.getString("name"));
+        assertEquals("CHECKLIST",savedList.getString("kind"));assertTrue(savedList.getBoolean("hideChecked"));
+        assertEquals("star",savedList.getString("glyph"));assertEquals(5,savedList.getInt("themeColor"));
+        JSONArray rows=savedList.getJSONArray("rows");assertEquals(2,rows.length());
+        assertEquals("canonical-milk",rows.getJSONObject(0).getString("id"));
+        assertEquals("Milk",rows.getJSONObject(0).getString("text"));assertTrue(rows.getJSONObject(0).getBoolean("checked"));
+        assertEquals(1,rows.getJSONObject(0).getInt("depth"));assertEquals("bold",rows.getJSONObject(0).getJSONArray("marks").getJSONObject(0).getString("type"));
+        assertEquals("canonical-bread",rows.getJSONObject(1).getString("id"));
+        assertEquals("Bread",rows.getJSONObject(1).getString("text"));assertFalse(rows.getJSONObject(1).getBoolean("checked"));
+        assertEquals(2,rows.getJSONObject(1).getInt("depth"));
+
+        List<Note> restored=BackupCodec.decode(bytes);
+        assertEquals(2,restored.size());assertTrue(NoteMerge.same(legacy,restored.get(0)));
+        assertTrue(NoteMerge.same(canonical,restored.get(1)));
+        assertEquals(legacy.plainText(),restored.get(0).plainText());
+        assertEquals(canonical.plainText(),restored.get(1).plainText());
+        assertTrue(restored.get(0).hideChecked);assertEquals("legacy-milk",restored.get(0).items.get(0).id);
+        assertTrue(restored.get(0).items.get(0).checked);assertEquals(1,restored.get(0).items.get(0).depth);
+        assertEquals("canonical-list",restored.get(1).content.block("canonical-list").id);
+        assertEquals(new ChecklistAppearance(ChecklistAppearance.Glyph.STAR,5),restored.get(1).content.block("canonical-list").checklistAppearance);
     }
     @Test public void checksumTamperingRejected() throws Exception {
         JSONObject root=new JSONObject(new String(BackupCodec.encode(Arrays.asList(note())),StandardCharsets.UTF_8));

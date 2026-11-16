@@ -17,11 +17,17 @@ class FindAndNames(unittest.TestCase):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text()
   for token in ['schema=6','schema=8','version!=8','version>=7 && n.has("content")','if(version<8','instanceof String']:
    self.assertIn(token,source)
- def test_doc_reverse_conversion_preserves_rich_rows(self):
+ def test_doc_reverse_conversion_preserves_status_and_rich_rows(self):
   source=(ROOT/'domain/src/main/java/app/space/notes/domain/DocumentContent.java').read_text().split('public DocumentContent checklistToText',1)[1].split('public DocumentContent moveChecklistIntoText',1)[0]
   self.assertIn('offset+mark.start',source)
-  self.assertNotIn('[x]',source)
-  self.assertNotIn('[ ]',source)
+  self.assertIn('item.checked?"[x] ":"[ ] "',source)
+  self.assertIn('new RichText(text.toString(),marks)',source)
+
+ def test_checklist_plain_text_junit_expectation_uses_real_newline_escapes(self):
+  source=(ROOT/'domain/src/test/java/app/space/notes/domain/DocumentContentTest.java').read_text()
+  expected=r'assertEquals("Shopping\n  [x] Milk\n[ ] Bread\nPacking\n[x] Passport",styled.plainText());'
+  self.assertIn(expected,source)
+  self.assertNotIn(r'assertEquals("Shopping\\n  [x] Milk',source)
 
  def test_all_mynotes_junit_helpers_have_imports(self):
   import re

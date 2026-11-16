@@ -123,7 +123,7 @@ public class DocumentContentTest {
         DocumentContent original=new DocumentContent(Arrays.asList(DocumentContent.Block.text("writing",new RichText(sourceText,marks))));
         int start=sourceText.indexOf("  [x]"),end=sourceText.indexOf("\nSuffix");DocumentContent converted=original.selectionToChecklist("writing",start,end);
         assertEquals("Prefix 😀\n",converted.blocks.get(0).text.text);assertEquals("\nSuffix",converted.blocks.get(2).text.text);
-        DocumentContent.Block list=converted.blocks.get(1);assertTrue(list.items.get(0).checked);assertEquals("checked",list.items.get(0).text);assertEquals(0,list.items.get(0).depth);
+        DocumentContent.Block list=converted.blocks.get(1);assertTrue(list.items.get(0).checked);assertEquals("checked",list.items.get(0).text);assertEquals(1,list.items.get(0).depth);
         assertEquals("  ordinary indentation",list.items.get(1).text);assertFalse(list.items.get(1).checked);assertEquals(0,list.items.get(1).depth);
         assertTrue(list.items.get(0).marks.stream().anyMatch(mark->mark.type.equals("italic") && mark.start==0 && mark.end==7));
         assertEquals("Prefix 😀\n  [x] checked\n  ordinary indentation\nSuffix",original.blocks.get(0).text.text);

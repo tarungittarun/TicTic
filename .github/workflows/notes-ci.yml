@@ -3,7 +3,7 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      # Touch this workflow to run the latest build-and-test qualification.
+      # K039-K052 qualification: this workflow-file push runs build/test gates without publication.
       # Publication and evidence pushes require separate explicit dispatch inputs.
       - '.github/workflows/notes-ci.yml'
       - '.github/actions/setup-mynotes/**'

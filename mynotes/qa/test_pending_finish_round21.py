@@ -49,7 +49,8 @@ class PendingFinishRound21(unittest.TestCase):
 
     def test_late_file_results_do_not_override_new_navigation(self):
         source=(JAVA/'NotesController.java').read_text()
-        self.assertIn('private void clearPage(){fileViewGeneration++',source)
+        clear_page=source.split('private void clearPage(){',1)[1].split('private void act(',1)[0]
+        self.assertIn('fileViewGeneration++;',clear_page)
         self.assertIn('fileTicket!=fileViewGeneration',source)
         self.assertIn('disk.execute(pdf::close);return;',source)
 

@@ -258,7 +258,7 @@ public class CoreJourneysTest {
     private boolean savedIn(View v){if(v instanceof TextView && ((TextView)v).getText().toString().startsWith("Saved ·"))return true;if(v instanceof ViewGroup){ViewGroup g=(ViewGroup)v;for(int i=0;i<g.getChildCount();i++)if(savedIn(g.getChildAt(i)))return true;}return false;}
     private String editedLabel(long time){return "Edited "+java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM,java.text.DateFormat.SHORT).format(new Date(time));}
     private TextView editedView(){return (TextView)controller.view().findViewWithTag("edited-timestamp");}
-    private Note storedNote(String id){for(Note value:new NotesRepository(context).load())if(value.id.equals(id))return value;throw new AssertionError("Missing saved note "+id);}
+    private Note storedNote(String id){try{for(Note value:new NotesRepository(context).load())if(value.id.equals(id))return value;}catch(Exception failure){throw new AssertionError("Could not load saved notes",failure);}throw new AssertionError("Missing saved note "+id);}
     private void restartController()throws Exception{main(()->{controller.close();controller=new NotesController(context,host,null);activity.setContentView(controller.view());});await(()->text("+ Text")!=null && controller.view().isAttachedToWindow());}
 
     private List<EditText> itemInputs(){List<EditText> result=new ArrayList<>();collectItems(controller.view(),result);return result;}

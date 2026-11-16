@@ -25,7 +25,7 @@ class WordFlowRevision(unittest.TestCase):
   codec=(JAVA/'ContentCodec.java').read_text();root=(JAVA/'DocumentCodec.java').read_text()
   self.assertIn('out.put("columnWidth",block.table.columnWidth)',codec)
   self.assertIn('integer(in,"columnWidth")',codec)
-  self.assertIn('schema=9',root)
+  self.assertIn('schema=Math.max(schema,9)',root)
   self.assertIn('version<9',root)
  def test_hyperlink_is_one_form_with_no_partial_invalid_write(self):
   s=(JAVA/'DocumentEditorView.java').read_text().split('private void linkMenu()',1)[1].split('private void convertSelection',1)[0]

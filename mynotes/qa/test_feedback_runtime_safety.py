@@ -46,7 +46,7 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   home=controller.split('private void hideEditorKeyboard()',1)[1].split('private void openWorkspace',1)[0]
   self.assertIn('insets.hide(android.view.WindowInsets.Type.ime())',home)
   self.assertIn('hideSoftInputFromWindow(root.getWindowToken(),0)',home)
-  self.assertIn('if(editing!=null)hideEditorKeyboard()',home)
+  self.assertIn('if(editing!=null){persistDraft();discardTrailingBlankChecklistRows();hideEditorKeyboard();}',home)
  def test_initial_document_ime_waits_for_animation_and_stable_layout(self):
   text=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('DISPATCH_MODE_CONTINUE_ON_SUBTREE',text)

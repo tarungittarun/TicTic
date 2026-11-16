@@ -27,4 +27,4 @@ class WritingStage(unittest.TestCase):
   self.assertIn('Text section options',editor)
   self.assertIn('Show move handle',editor)
   codec=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text()
-  self.assertIn('schema=7',codec)
+  self.assertIn('schema=Math.max(schema,7)',codec)

@@ -127,10 +127,12 @@ class EditorCoherence(unittest.TestCase):
   for scenario in ['legacyChecklistEnterSplitsAndUndoRestoresTheOriginalRowAfterReopen','canonicalChecklistEnterSplitsRichRowAndUndoRestoresItAfterReopen','trailingBlankChecklistRowsAreRemovedOnExitInNotesAndDocs','readOnlyTrashChecklistEnterDoesNotSplitOrPruneRows']:
    self.assertIn(scenario,journeys)
   self.assertIn('AT-K048.1 — Split at the caret',(ROOT/'docs/CHECKLIST-ACCEPTANCE.md').read_text())
- def test_find_compacts_without_hiding_a_live_result(self):
+ def test_compact_find_keeps_the_match_count_without_spending_the_writing_viewport(self):
   s=(JAVA/'NoteFindDialog.java').read_text()
   self.assertIn('owner.addOnLayoutChangeListener(resizeListener)',s)
-  self.assertIn('statusRow.setVisibility(matches.isEmpty()?View.GONE:View.VISIBLE)',s)
+  self.assertIn('count.setTag("inline-find-count")',s)
+  self.assertIn('statusRow.setVisibility(compact?View.GONE:View.VISIBLE)',s)
+  self.assertIn('count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()',s)
   self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)
  def test_basic_document_formatting_is_nonmodal_and_docked(self):
   s=(JAVA/'DocumentEditorView.java').read_text();part=s.split('private void formatMenu()',1)[1].split('private String fontLabel',1)[0]

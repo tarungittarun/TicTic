@@ -31,13 +31,20 @@ class RenderedUxPublicationContracts(unittest.TestCase):
         for changed in [xml.replace('Quickstep', 'MyNotes'),xml.replace('package="android"','package="app.space.notes"'),xml.replace('aerr_close','other'),xml.replace('clickable="true"','clickable="false"'),xml.replace('[10,20][50,60]','[10,20][10,20]')]:
             with self.subTest(xml=changed):
                 with self.assertRaises(ValueError):known_launcher_anr(changed)
-    def test_saf_fixture_does_not_repeat_async_confirmation_clicks(self):
-        source=(Path(__file__).resolve().parents[1]/'app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java').read_text()
-        self.assertIn('activatedGrantSteps.contains(phase)',source)
-        self.assertIn('if(clicked)activatedGrantSteps.add(phase)',source)
-        self.assertIn('Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK',source)
-        fixture=(Path(__file__).resolve().parents[1]/'app/src/androidTest/java/app/space/notes/LocalImageFixture.java').read_text()
-        self.assertIn('Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK',fixture)
+    def test_saf_fixture_retries_a_missed_picker_action_with_rate_limited_real_touch(self):
+        root=Path(__file__).resolve().parents[1]
+        picker=(root/'app/src/androidTest/java/app/space/notes/SafTestPicker.java').read_text()
+        self.assertIn('if(!retry || now-lastAttemptAt>=750)',picker)
+        self.assertIn('if(!retry){',picker)
+        self.assertIn('if(accepted)return true',picker)
+        self.assertIn('retry?"retry-with-touch":"touch-fallback"',picker)
+        self.assertIn('injectInputEvent(down,true)',picker)
+        self.assertIn('injectInputEvent(up,true)',picker)
+        for path in ['app/src/androidTest/java/app/space/notes/RealFolderStorageTest.java','app/src/androidTest/java/app/space/notes/LocalImageFixture.java']:
+            source=(root/path).read_text()
+            self.assertIn('SafTestPicker.Driver picker=new SafTestPicker.Driver(instrumentation)',source)
+            self.assertIn('Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK',source)
+            self.assertIn('SafTestPicker.describe(instrumentation.getUiAutomation().getRootInActiveWindow())',source)
     def test_mixed_filter_tab_row_uses_visual_not_text_baselines(self):
         source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/LibraryFilterView.java').read_text()
         self.assertIn('row.setBaselineAligned(false)',source)

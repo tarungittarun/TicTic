@@ -33,11 +33,11 @@ final class NoteFindDialog {
    fields(content,targets);for(TextView field:targets)snapshot.add(field.getText().toString());
    bar=new LinearLayout(content.getContext());bar.setOrientation(LinearLayout.VERTICAL);bar.setTag("inline-find");bar.setPadding(0,0,0,design.dp(4));bar.setBackground(design.shape(design.background,12));
    androidx.core.view.ViewCompat.setAccessibilityPaneTitle(bar,content instanceof DocumentEditorView?"Find in document":"Find in note");
-   LinearLayout row=new LinearLayout(content.getContext());searchRow=row;row.setGravity(Gravity.CENTER_VERTICAL);
+   LinearLayout row=new LinearLayout(content.getContext());searchRow=row;row.setTag("inline-find-controls");row.setGravity(Gravity.CENTER_VERTICAL);
    query=new EditText(content.getContext());design.entry(query,16);query.setSingleLine(true);query.setFilters(new InputFilter[]{new InputFilter.LengthFilter(256)});query.setHint(content instanceof DocumentEditorView?"Find in document":"Find in note");query.setContentDescription(query.getHint());row.addView(query,new LinearLayout.LayoutParams(0,-2,1));
    previous=design.icon("Previous match","up",()->move(-1));next=design.icon("Next match","down",()->move(1));
    row.addView(previous,new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));row.addView(next,new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));row.addView(design.icon("Close find","close",this::close),new LinearLayout.LayoutParams(design.dp(48),design.dp(48)));bar.addView(row);
-   LinearLayout status=new LinearLayout(content.getContext());statusRow=status;status.setGravity(Gravity.CENTER_VERTICAL);count=design.label(content instanceof DocumentEditorView?"Find in this document":"Find in this note",12,design.muted);status.addView(count,new LinearLayout.LayoutParams(-2,-2));
+   LinearLayout status=new LinearLayout(content.getContext());statusRow=status;status.setTag("inline-find-status");status.setGravity(Gravity.CENTER_VERTICAL);count=design.label(content instanceof DocumentEditorView?"Find in this document":"Find in this note",12,design.muted);count.setTag("inline-find-count");status.addView(count,new LinearLayout.LayoutParams(-2,-2));
    result=design.textAction("Type a word to find",()->{if(!matches.isEmpty() && jump(matches.get(index)))close();});result.setTextSize(13);result.setPadding(design.dp(8),0,design.dp(4),0);result.setMaxLines(1);result.setEllipsize(TextUtils.TruncateAt.END);result.setMinWidth(0);result.setMinimumWidth(0);result.setMinHeight(design.dp(48));status.addView(result,new LinearLayout.LayoutParams(0,-2,1));bar.addView(status);
    previous.setEnabled(false);previous.setAlpha(.35f);next.setEnabled(false);next.setAlpha(.35f);result.setEnabled(false);
    query.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI|android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN);
@@ -53,7 +53,7 @@ final class NoteFindDialog {
   }
   final View.OnLayoutChangeListener resizeListener=(v,l,t,r,b,ol,ot,or,ob)->resize();
   void resize(){boolean small=owner.getHeight()>0 && owner.getHeight()<design.dp(200);if(small==compact)return;compact=small;if(count.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)count.getParent()).removeView(count);if(compact){count.setGravity(Gravity.CENTER);searchRow.addView(count,1,new LinearLayout.LayoutParams(design.dp(48),-2));}else{count.setGravity(Gravity.START);statusRow.addView(count,0,new LinearLayout.LayoutParams(-2,-2));}updateCount();if(!matches.isEmpty())reveal(matches.get(index));}
-  void updateCount(){count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()+(more?"+":""):fullCount);if(compact)statusRow.setVisibility(matches.isEmpty()?View.GONE:View.VISIBLE);else statusRow.setVisibility(View.VISIBLE);}
+  void updateCount(){count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()+(more?"+":""):fullCount);statusRow.setVisibility(compact?View.GONE:View.VISIBLE);}
   void hideKeyboard(){((InputMethodManager)content.getContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(query.getWindowToken()!=null?query.getWindowToken():content.getWindowToken(),0);}
   void search(String needle){search(needle,true);}
   void search(String needle,boolean scrollToMatch){

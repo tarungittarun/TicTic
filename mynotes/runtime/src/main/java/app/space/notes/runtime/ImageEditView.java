@@ -84,7 +84,7 @@ final class ImageEditView extends View {
   if(snapshots.size()>MAX_HISTORY)throw new IllegalArgumentException("Image preview history limit exceeded");int size=encodedSize(snapshots);
   for(Snapshot snapshot:snapshots){int points=0;for(Annotation annotation:snapshot.annotations)points+=annotation.pointCount();if(snapshot.annotations.size()>MAX_ANNOTATIONS || points>MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation limit exceeded");}if(size>MAX_STATE_INTS)throw new IllegalArgumentException("Image preview history limit exceeded");
   int[] result=new int[size];int at=0;result[at++]=STATE_MAGIC;result[at++]=STATE_VERSION;result[at++]=snapshots.size();
-  for(Snapshot snapshot:snapshots){for(int value:snapshot.plan.state())result[at++]=value;result[at++]=snapshot.annotations.size();for(Annotation annotation:snapshot.annotations){result[at++]=annotation.kind.ordinal();result[at++]=annotation.color;result[at++]=Float.floatToIntBits(annotation.width);result[at++]=annotation.pointCount();for(float value:annotation.points)result[at++]=Float.floatToIntBits(value);}}
+  for(Snapshot snapshot:snapshots){for(int value:snapshot.plan.state())result[at++]=value;result[at++]=snapshot.annotations.size();for(Annotation annotation:snapshot.annotations){result[at++]=annotation.kind;result[at++]=annotation.color;result[at++]=Float.floatToIntBits(annotation.width);result[at++]=annotation.pointCount();for(float value:annotation.points)result[at++]=Float.floatToIntBits(value);}}
   return result;
  }
  private static List<Snapshot> decodeSnapshots(int[] values){

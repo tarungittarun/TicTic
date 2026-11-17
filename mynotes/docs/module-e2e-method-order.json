@@ -41,9 +41,7 @@
     "app.space.notes.CoreJourneysTest#caretFontSizeAndComposingInputPersistWithoutRestylingEarlierWords",
     "app.space.notes.CoreJourneysTest#legacyUndoAndRedoSurviveColdControllerRestart",
     "app.space.notes.CoreJourneysTest#aaPanelDistinguishesSelectionFromTypingAndKeepsRichText",
-    "app.space.notes.CoreJourneysTest#namedChecklistBoxCanMoveIntoWritingAndUndoWithoutLosingRows",
     "app.space.notes.CoreJourneysTest#nativeChecklistBoxDragShowsLineAndDropsInsideRichWriting",
-    "app.space.notes.CoreJourneysTest#summaryNeedsExplicitSaveAndNeverChangesItsSource",
     "app.space.notes.StructuredCodecTest#malformedNamesAndFutureSchemaAreRejected",
     "app.space.notes.StructuredCodecTest#headerRoleRoundTripsAndRejectsMalformedInput",
     "app.space.notes.StructuredCodecTest#schema2RetainsRichTextAndLabels",
@@ -65,7 +63,15 @@
     "app.space.notes.SystemSurfacesTest#widgetOpenIntentTargetsOnlyLocalHost",
     "app.space.notes.runtime.ViewedFileJourneysTest#selectionSurvivesDragInUnselectedTextWhileViewportScrolls",
     "app.space.notes.CoreJourneysTest#nativeNotesSelectionSurvivesUnselectedAreaScroll",
-    "app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection"
+    "app.space.notes.CoreJourneysTest#formattingBudgetPreservesWritingAndSelection",
+    "app.space.notes.CoreJourneysTest#appFontSizeChooserPersistsAndCombinesWithAndroidScaleWithoutChangingNotes",
+    "app.space.notes.CoreJourneysTest#checkedChecklistRowsSwipeAwayWithUndoInBothEditors",
+    "app.space.notes.CoreJourneysTest#checklistFormattingAndSafeLinksPreserveRowsInBothEditors",
+    "app.space.notes.CoreJourneysTest#checklistOptionsUncheckAllAndOfferDraggingInsteadOfMoveMenu",
+    "app.space.notes.CoreJourneysTest#emptyChecklistBackspaceAndMenuRemovalAreImmediateInBothEditors",
+    "app.space.notes.CoreJourneysTest#hiddenCheckedFooterUsesAccuratePluralCountInBothEditors",
+    "app.space.notes.CoreJourneysTest#legacyChecklistIndentOutdentPersistsNestingAndEnforcesDepthLimits",
+    "app.space.notes.CoreJourneysTest#namedChecklistOptionsOmitMoveAndKeepTheDragHandle"
   ],
   "Rich Doc and tables": [
     "app.space.notes.CoreJourneysTest#insertingLiteralNumberedPointRenumbersFollowingItemsInDoc",
@@ -120,7 +126,14 @@
     "app.space.notes.StructuredCodecTest#wordStructuredCopyPreservesEditableStylesParagraphOrderAndTableCells",
     "app.space.notes.StructuredCodecTest#openDocumentHtmlCsvMarkdownAndRtfAreReadableWithoutScriptExecution",
     "app.space.notes.SystemSurfacesTest#differentNotesHaveDistinctAndStablePendingIntents",
-    "app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll"
+    "app.space.notes.CoreJourneysTest#nativeDocSelectionSurvivesUnselectedAreaScroll",
+    "app.space.notes.CoreJourneysTest#canonicalChecklistIndentOutdentPersistsNestingAndDisablesDepthLimits",
+    "app.space.notes.CoreJourneysTest#canonicalHideCheckedFooterExpandsAndPersistsPerList",
+    "app.space.notes.CoreJourneysTest#checklistToggleKeepsItemTextPlainAndPersistsForNotesAndDocs",
+    "app.space.notes.CoreJourneysTest#findQueryAndNavigationControlsStayAboveKeyboardInNotesAndDocs",
+    "app.space.notes.CoreJourneysTest#insertedChecklistAndTableKeepWritableTailAndCaretOnNewRows",
+    "app.space.notes.CoreJourneysTest#noteAndDocumentMenusDoNotOfferQuickSummary",
+    "app.space.notes.CoreJourneysTest#trailingBlankChecklistRowsAreRemovedOnExitInNotesAndDocs"
   ],
   "Diagrams": [
     "app.space.notes.CoreJourneysTest#nativeSignatureShapeAndPickerDialogsRenderWithoutChangingReminder",
@@ -299,7 +312,8 @@
     "app.space.notes.runtime.PdfViewerInteractionTest#markToolbarIsAttachedAndHasExplicitFinishAndExportFlow",
     "app.space.notes.runtime.PdfViewerInteractionTest#pageRailDragAndDocumentScrollStaySynchronizedAndRailAutoHides",
     "app.space.notes.runtime.PdfViewerInteractionTest#recognitionHasRealIndeterminateLoaderAndCancellationBeforeWork",
-    "app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments"
+    "app.space.notes.LocalFilePickerTest#fullArchivePickersAreLocalOpenableZipDocuments",
+    "app.space.notes.PdfExportTest#checklistRowsExportAsPlainTextPrefixes"
   ],
   "Home, search and Library": [
     "app.space.notes.CoreJourneysTest#wholeAppLibraryTraversalRecordsEachVisitedPage",
@@ -320,7 +334,8 @@
     "app.space.notes.runtime.NotesMotionTest#dragClearDuringRealRecyclerLayoutDefersInvalidationAndRejectsCancelledOrder",
     "app.space.notes.CoreJourneysTest#nativeNotesBottomToTopDragScrollsAcrossThirtySixCards",
     "app.space.notes.CoreJourneysTest#nativeDocBottomToTopDragScrollsAcrossThirtySixCards",
-    "app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote"
+    "app.space.notes.CoreJourneysTest#searchPassageShowsBodyMatchWithoutChangingNote",
+    "app.space.notes.CoreJourneysTest#checklistPlainTextProjectionSurvivesSearchAndShareInBothEditors"
   ],
   "Folders and storage": [
     "app.space.notes.CoreJourneysTest#appOnlyFoldersExplainSetupWithoutChangingStorageOrNotes",
@@ -441,7 +456,14 @@
     "app.space.notes.RealFolderStorageTest#fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies",
     "app.space.notes.runtime.ArchiveSemanticTest#preparedArchiveJournalRollsBackOwnedAudioBeforeVoiceRecovery",
     "app.space.notes.runtime.ArchiveSemanticTest#committedArchiveJournalCompletesSourceDeletionGuardBeforeVoiceRecovery",
-    "app.space.notes.runtime.ArchiveSemanticTest#ambiguousArchiveJournalKeepsOwnedAudioButProtectsAgainstOrphanPlaceholder"
+    "app.space.notes.runtime.ArchiveSemanticTest#ambiguousArchiveJournalKeepsOwnedAudioButProtectsAgainstOrphanPlaceholder",
+    "app.space.notes.BackupCodecTest#checklistJsonRoundTripPreservesStatesAndPlainProjection",
+    "app.space.notes.CoreJourneysTest#canonicalChecklistEnterSplitsRichRowAndUndoRestoresItAfterReopen",
+    "app.space.notes.CoreJourneysTest#editedTimestampFooterTracksSavedEditsAcrossNotesDocsAndTrash",
+    "app.space.notes.CoreJourneysTest#imageAnnotationsUndoRedoRestoreAndOnlyChangeTheSavedAttachmentInNotesAndDocs",
+    "app.space.notes.CoreJourneysTest#legacyChecklistEnterSplitsAndUndoRestoresTheOriginalRowAfterReopen",
+    "app.space.notes.CoreJourneysTest#readOnlyTrashChecklistEnterDoesNotSplitOrPruneRows",
+    "app.space.notes.CoreJourneysTest#trashedChecklistsShowCheckedRowsWithoutAnExpansionControl"
   ],
   "Reminders": [
     "app.space.notes.ReminderJourneysTest#clearReminderPersistsAndUndoRestoresSchedule",
@@ -473,6 +495,9 @@
     "app.space.notes.EnvironmentQualificationTest#fontScaleMatchesRequestedLane",
     "app.space.notes.EnvironmentQualificationTest#orientationMatchesRequestedLane",
     "app.space.notes.EnvironmentQualificationTest#nightResourcesMatchRequestedLane",
-    "app.space.notes.RealFolderStorageTest#completeAppFolderRecoversRichNotesAudioSettingsHistoryAndEmptyFoldersIntoFreshPrivateStorage"
+    "app.space.notes.RealFolderStorageTest#completeAppFolderRecoversRichNotesAudioSettingsHistoryAndEmptyFoldersIntoFreshPrivateStorage",
+    "app.space.notes.CoreJourneysTest#checklistAppearancePickerIsCancelSafePerListAndVisibleOnBoardCards",
+    "app.space.notes.StructuredCodecTest#checklistAppearanceUsesSchema11AndSurvivesBackupWithoutChangingPlainText",
+    "app.space.notes.StructuredCodecTest#schema6AndSchemas7Through10DefaultChecklistAppearanceWithoutDroppingContent"
   ]
 }

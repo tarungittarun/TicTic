@@ -123,7 +123,13 @@ class RefinementHierarchyContracts(unittest.TestCase):
         workflow_root = ROOT.parent / '.github/workflows'
         for filename, expected in [
             ('notes-soak.yml', {'.github/workflows/notes-soak.yml'}),
-            ('notes-ci.yml', {'.github/workflows/notes-ci.yml', '.github/actions/setup-mynotes/**'}),
+            ('notes-ci.yml', {
+                '.github/workflows/notes-ci.yml', '.github/actions/setup-mynotes/**',
+                'mynotes/app/src/**', 'mynotes/domain/src/**', 'mynotes/runtime/src/**',
+                'mynotes/qa/**', 'mynotes/tools/ci/native_baseline_027.json',
+                'mynotes/tools/comparisons/paired_modules37.py',
+                'mynotes/docs/CHECKLIST-ACCEPTANCE.md', 'mynotes/docs/REQUIREMENTS.md',
+            }),
             ('notes-improvement70.yml', {
                 '.github/workflows/notes-improvement70.yml',
                 '.github/workflows/notes-archive-native.yml',

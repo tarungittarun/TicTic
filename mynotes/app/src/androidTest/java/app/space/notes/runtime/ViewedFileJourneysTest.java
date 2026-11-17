@@ -152,13 +152,21 @@ public class ViewedFileJourneysTest {
             assertTrue("Deferred range drag still cancels automatic caret reveal",manualGesture[0]);assertEquals(1,field.getSelectionStart());assertEquals(7,field.getSelectionEnd());assertTrue("Actual ScrollView must move, not just swallow touch",scroll.getScrollY()>50);int position=scroll.getScrollY();assertTrue(scroll.manualRangeActive(field));assertFalse("Automatic native caret rectangle cannot override manual reading",scroll.requestChildRectangleOnScreen(field,new android.graphics.Rect(0,0,100,20),true));assertEquals(position,scroll.getScrollY());scroll.requestLayout();scroll.measure(android.view.View.MeasureSpec.makeMeasureSpec(400,1073741824),android.view.View.MeasureSpec.makeMeasureSpec(240,1073741824));scroll.layout(0,0,400,240);assertEquals("Native ScrollView relayout retains the reading position",position,scroll.getScrollY());field.setSelection(1,8);assertFalse("A real endpoint change releases the manual viewport",scroll.manualRangeActive(field));
         });
     }
+    private void writeLargePdf(File file,int pageCount)throws Exception{
+        int paddingBytes=2304*8192,paddingObject=pageCount+3,totalObjects=paddingObject;
+        long[] offsets=new long[totalObjects+1];byte[] zeros=new byte[8192];
+        try(java.io.RandomAccessFile pdf=new java.io.RandomAccessFile(file,"rw")){
+            pdf.setLength(0);pdf.write("%PDF-1.4\n".getBytes(StandardCharsets.US_ASCII));
+            offsets[1]=pdf.getFilePointer();pdf.write("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n".getBytes(StandardCharsets.US_ASCII));
+            offsets[2]=pdf.getFilePointer();StringBuilder kids=new StringBuilder("2 0 obj\n<< /Type /Pages /Kids [");for(int i=0;i<pageCount;i++)kids.append(3+i).append(" 0 R ");kids.append("] /Count ").append(pageCount).append(" >>\nendobj\n");pdf.write(kids.toString().getBytes(StandardCharsets.US_ASCII));
+            for(int i=0;i<pageCount;i++){int object=3+i;offsets[object]=pdf.getFilePointer();String page=object+" 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 600 800] /Resources << >> >>\nendobj\n";pdf.write(page.getBytes(StandardCharsets.US_ASCII));}
+            offsets[paddingObject]=pdf.getFilePointer();pdf.write((paddingObject+" 0 obj\n<< /Length "+paddingBytes+" >>\nstream\n").getBytes(StandardCharsets.US_ASCII));for(int written=0;written<paddingBytes;written+=zeros.length)pdf.write(zeros);pdf.write("\nendstream\nendobj\n".getBytes(StandardCharsets.US_ASCII));
+            long xref=pdf.getFilePointer();pdf.write(("xref\n0 "+(totalObjects+1)+"\n0000000000 65535 f \n").getBytes(StandardCharsets.US_ASCII));for(int object=1;object<=totalObjects;object++)pdf.write(String.format(Locale.ROOT,"%010d 00000 n \n",offsets[object]).getBytes(StandardCharsets.US_ASCII));pdf.write(("trailer\n<< /Size "+(totalObjects+1)+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF\n").getBytes(StandardCharsets.US_ASCII));
+        }
+    }
     @Test public void eighteenMiBThousandPagePdfOpensAndRendersLastPage()throws Exception{
         File file=File.createTempFile("public-large-pdf-",".pdf",context().getCacheDir());LocalPdfPreview.Document doc=null;
-        try{com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(context());try(com.tom_roush.pdfbox.pdmodel.PDDocument generated=new com.tom_roush.pdfbox.pdmodel.PDDocument()){
-            for(int i=0;i<1097;i++)generated.addPage(new com.tom_roush.pdfbox.pdmodel.PDPage());
-            // Uncompressed synthetic attachment exercises real >18MiB I/O without private source pixels.
-            com.tom_roush.pdfbox.pdmodel.common.PDStream padding=new com.tom_roush.pdfbox.pdmodel.common.PDStream(generated);try(OutputStream out=padding.createOutputStream()){byte[] block=new byte[8192];for(int i=0;i<2304;i++)out.write(block);}generated.getDocumentCatalog().getCOSObject().setItem("PublicFixturePadding",padding);generated.save(file);
-        }assertTrue(file.length()>18L*1024*1024);long started=android.os.SystemClock.elapsedRealtime();doc=new LocalPdfPreview.Document(file);assertEquals(1097,doc.ratios.length);try(android.graphics.pdf.PdfRenderer.Page page=doc.renderer.openPage(1096)){android.graphics.Bitmap raster=android.graphics.Bitmap.createBitmap(120,170,android.graphics.Bitmap.Config.ARGB_8888);try{page.render(raster,null,null,android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);}finally{raster.recycle();}}
+        try{writeLargePdf(file,1097);assertTrue(file.length()>18L*1024*1024);long started=android.os.SystemClock.elapsedRealtime();doc=new LocalPdfPreview.Document(file);assertEquals(1097,doc.ratios.length);try(android.graphics.pdf.PdfRenderer.Page page=doc.renderer.openPage(1096)){android.graphics.Bitmap raster=android.graphics.Bitmap.createBitmap(120,170,android.graphics.Bitmap.Config.ARGB_8888);try{page.render(raster,null,null,android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);}finally{raster.recycle();}}
         android.util.Log.i("NotesPublicBenchmark","large_pdf_open_ms="+(android.os.SystemClock.elapsedRealtime()-started)+" bytes="+file.length()+" pages=1097");
         }finally{if(doc!=null){doc.closeText();doc.close();}file.delete();}
     }

@@ -123,9 +123,10 @@ final class DocumentEditorView extends LinearLayout {
                 boolean visible;
                 if(android.os.Build.VERSION.SDK_INT>=30){WindowInsets insets=focus.getRootWindowInsets();visible=insets!=null && insets.isVisible(WindowInsets.Type.ime());}
                 else{android.graphics.Rect frame=new android.graphics.Rect();focus.getWindowVisibleDisplayFrame(frame);visible=focus.getRootView().getHeight()-frame.height()>dp(120);}
-                keyboardDiagnostic="attempt="+attempts+" accepted="+acknowledged+" visible="+visible+" active="+keyboard.isActive(focus)+" focused="+focus.hasFocus()+" window="+focus.hasWindowFocus();
-                if(acknowledged && visible && keyboard.isActive(focus)){if(++servedFrames>=2){stopKeyboardStartup();return;}}else servedFrames=0;
+                boolean active=keyboard.isActive(focus);if(visible && active)acknowledged=true;keyboardDiagnostic="attempt="+attempts+" accepted="+acknowledged+" visible="+visible+" active="+active+" focused="+focus.hasFocus()+" window="+focus.hasWindowFocus();
+                if(acknowledged && visible && active){if(++servedFrames>=2){keyboardDiagnostic="served after "+attempts+" attempts; showAccepted="+acknowledged;stopKeyboardStartup();return;}}else servedFrames=0;
                 // Once Android accepts this request, observe only: never fight a later user/system hide.
+                // Confirm actual visibility/ownership too; showSoftInput may return false while the IME is served.
                 if(!acknowledged && focus.hasFocus() && focus.hasWindowFocus() && focus.getWidth()>0 && focus.getHeight()>0){
                     if(android.os.Build.VERSION.SDK_INT>=30){WindowInsetsController controller=focus.getWindowInsetsController();if(controller!=null)controller.show(WindowInsets.Type.ime());}
                     acknowledged=keyboard.showSoftInput(focus,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
@@ -185,7 +186,7 @@ final class DocumentEditorView extends LinearLayout {
         // Snapshot before native focus/window transitions, restore after, without treating it as a user edit.
         input.beforeFocusTransition=()->{if(!building && !restoringSelection && !selectionLocked)saveState();focusTransition=true;};
         input.afterFocusTransition=()->{focusTransition=false;if(!building && !restoringSelection && input.hasFocus() && key.equals(state.getString("field"))){restoringSelection=true;try{input.setSelection(Math.max(0,Math.min(input.length(),state.getInt("start"))),Math.max(0,Math.min(input.length(),state.getInt("end"))));}finally{restoringSelection=false;}}};
-        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection && !focusTransition){host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();if(input==selected)refreshFormatRibbon();}};
+        input.selectionChanged=()->{if(!building && !editingText[0] && !restoringSelection && !focusTransition){host.cursor(key,input.getSelectionStart(),input.getSelectionEnd());if(scroll instanceof SelectionScrollView)((SelectionScrollView)scroll).observeEditorSelection(input);if(!selectionLocked && input.hasFocus() && input.hasWindowFocus())saveState();if(input==selected)refreshFormatRibbon();}};
         input.addTextChangedListener(new TextWatcher(){
             public void beforeTextChanged(CharSequence s,int start,int count,int after){
                 if(autoChange[0])return;erasePrefix[0]=!formattingChange && count==1 && after==0 && input.getSelectionStart()==input.getSelectionEnd() && input.getSelectionEnd()==start+count && block!=null && host.current().content.block(block).text!=null?AutoListContinuation.beforeBackspace(s.toString(),start+count):null;editingText[0]=true;if(!formattingChange)selectionLocked=false;paragraphBoundaryChange=false;for(int i=start;i<Math.min(s.length(),start+count);i++)if(s.charAt(i)=='\n')paragraphBoundaryChange=true;numberAtEdit[0]=null;headingAtEdit[0]=false;

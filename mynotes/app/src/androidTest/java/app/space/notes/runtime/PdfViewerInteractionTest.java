@@ -55,20 +55,27 @@ public class PdfViewerInteractionTest {
  }
  private android.graphics.Rect inputMethodWindowBounds(){android.graphics.Rect bounds=new android.graphics.Rect();for(android.view.accessibility.AccessibilityWindowInfo window:instrument.getUiAutomation().getWindows()){try{if(window.getType()==android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD){window.getBoundsInScreen(bounds);if(!bounds.isEmpty())return bounds;}}finally{window.recycle();}}return bounds;}
  private Bitmap composedScreenshot(boolean requireIme)throws Exception{
-  long deadline=SystemClock.uptimeMillis()+5000;int[] last=new int[9];boolean[] focus={false,false,false};android.graphics.Rect lastImeBounds=new android.graphics.Rect();
+  long deadline=SystemClock.uptimeMillis()+5000;int[] last=new int[10];boolean[] focus={false,false,false};android.graphics.Rect lastImeBounds=new android.graphics.Rect();
   do{
    Bitmap shot=instrument.getUiAutomation().takeScreenshot();assertNotNull(shot);
    if(!requireIme)return shot;
    int[] insets={0,0};main(()->{int[] observed=keyboardInsets();insets[0]=observed[0];insets[1]=observed[1];focus[0]=keyboardVisible();try{EditText query=(EditText)field(preview,"query");focus[1]=query.hasFocus();focus[2]=query.hasWindowFocus();}catch(Exception ignored){focus[1]=focus[2]=false;}});android.graphics.Rect imeBounds=inputMethodWindowBounds();lastImeBounds.set(imeBounds);
-   int height=Math.min(shot.getHeight(),insets[0]),top=shot.getHeight()-height+height/4,bottom=shot.getHeight()-Math.max(insets[1],height/6);
-   if(height==0 && !imeBounds.isEmpty()){height=Math.min(shot.getHeight(),imeBounds.height());top=Math.max(0,imeBounds.top)+height/4;bottom=Math.min(shot.getHeight(),imeBounds.bottom-Math.max(insets[1],height/6));}
+   int height=Math.min(shot.getHeight(),insets[0]),top,bottom,geometry;
+   if(height>0){top=shot.getHeight()-height+height/4;bottom=shot.getHeight()-Math.max(insets[1],height/6);geometry=1;}
+   else if(height==0 && !imeBounds.isEmpty()){height=Math.min(shot.getHeight(),imeBounds.height());top=Math.max(0,imeBounds.top)+height/4;bottom=Math.min(shot.getHeight(),imeBounds.bottom-Math.max(insets[1],height/6));geometry=2;}
+   else if(focus[0]){
+    // Android 16 can report a visible overlay IME while both its inset and
+    // accessibility-window bounds are empty. Sample the lower keyboard band
+    // from the composed display rather than treating that API geometry as zero.
+    int nav=Math.max(0,Math.min(shot.getHeight()/4,insets[1]));int keyboardBottom=shot.getHeight()-nav;height=Math.max(1,Math.round(shot.getHeight()*.42f));top=Math.max(0,keyboardBottom-height);bottom=keyboardBottom;top+=height/4;bottom-=Math.max(nav,height/6);geometry=3;
+   }else{height=0;top=bottom=0;geometry=0;}
    int low=1000,high=-1;
    if(height>0 && bottom>top)for(int y=0;y<10;y++)for(int x=0;x<20;x++){int color=shot.getPixel((int)(shot.getWidth()*(.05f+.9f*(x+.5f)/20)),top+(bottom-top)*(2*y+1)/20);int light=Color.red(color)+Color.green(color)+Color.blue(color);low=Math.min(low,light);high=Math.max(high,light);}
-   last[0]=shot.getWidth();last[1]=shot.getHeight();last[2]=insets[0];last[3]=insets[1];last[4]=height;last[5]=top;last[6]=bottom;last[7]=low;last[8]=high;
+   last[0]=shot.getWidth();last[1]=shot.getHeight();last[2]=insets[0];last[3]=insets[1];last[4]=height;last[5]=top;last[6]=bottom;last[7]=low;last[8]=high;last[9]=geometry;
    if(high-low>24)return shot;
    shot.recycle();Thread.sleep(100);
   }while(SystemClock.uptimeMillis()<deadline);
-  throw new AssertionError("IME visible flag alone is insufficient: composed keyboard pixels never became non-uniform; screen="+last[0]+"x"+last[1]+" imeInset="+last[2]+" navigationInset="+last[3]+" imeVisible="+focus[0]+" queryFocus="+focus[1]+" queryWindowFocus="+focus[2]+" imeWindow="+lastImeBounds+" sampleRegion="+last[5]+".."+last[6]+" RGBsum="+last[7]+".."+last[8]);
+  throw new AssertionError("IME visible flag alone is insufficient: composed keyboard pixels never became non-uniform; screen="+last[0]+"x"+last[1]+" imeInset="+last[2]+" navigationInset="+last[3]+" imeVisible="+focus[0]+" queryFocus="+focus[1]+" queryWindowFocus="+focus[2]+" imeWindow="+lastImeBounds+" sampleRegion="+last[5]+".."+last[6]+" RGBsum="+last[7]+".."+last[8]+" geometry="+last[9]);
  }
  private void screenshot(String name)throws Exception{frames();int[] size={0,0};main(()->{size[0]=activity.getWindow().getDecorView().getWidth();size[1]=activity.getWindow().getDecorView().getHeight();});boolean systemWindow=name.equals("pdf68-search-above-keyboard") || name.equals("pdf68-offline-recognition-loader");Bitmap bitmap=systemWindow?composedScreenshot(name.equals("pdf68-search-above-keyboard")):Bitmap.createBitmap(size[0],size[1],Bitmap.Config.ARGB_8888);assertNotNull(bitmap);try{CountDownLatch done=new CountDownLatch(1);int[] status={-1};if(systemWindow){status[0]=PixelCopy.SUCCESS;done.countDown();}else main(()->PixelCopy.request(activity.getWindow(),bitmap,value->{status[0]=value;done.countDown();},new Handler(Looper.getMainLooper())));assertTrue(done.await(10,TimeUnit.SECONDS));assertEquals(PixelCopy.SUCCESS,status[0]);File directory=new File(context().getFilesDir(),"ux-review");assertTrue(directory.isDirectory()||directory.mkdirs());try(OutputStream out=new FileOutputStream(new File(directory,name+".png"))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,out));}}finally{bitmap.recycle();}}
  @Test public void compactFilenameToolbarLeavesContinuousPagesAndHasNoPermanentPageRow()throws Exception{

@@ -136,6 +136,16 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('statusRow.setVisibility(compact?View.GONE:View.VISIBLE)',s)
   self.assertIn('count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()',s)
   self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)
+ def test_explicit_document_focus_waits_for_the_new_field_layout_before_ime(self):
+  s=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('if(explicitFocus && !acknowledged && (imeAnimationRunning || stableLayouts<2 || focus.isLayoutRequested()))',s)
+  self.assertIn('Once Android accepts this request, observe only: never fight a later user/system hide.',s)
+ def test_pdf_keyboard_screenshot_uses_input_method_window_when_insets_are_zero(self):
+  s=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/PdfViewerInteractionTest.java').read_text()
+  self.assertIn('AccessibilityWindowInfo.TYPE_INPUT_METHOD',s)
+  self.assertIn('window.getBoundsInScreen(bounds)',s)
+  self.assertIn('if(height==0 && !imeBounds.isEmpty())',s)
+  self.assertIn('if(high-low>24)return shot;',s)
  def test_basic_document_formatting_is_nonmodal_and_docked(self):
   s=(JAVA/'DocumentEditorView.java').read_text();part=s.split('private void formatMenu()',1)[1].split('private String fontLabel',1)[0]
   self.assertIn('InlineFormatTray dialog',part)

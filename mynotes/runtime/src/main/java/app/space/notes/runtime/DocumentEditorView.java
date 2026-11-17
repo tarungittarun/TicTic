@@ -117,7 +117,7 @@ final class DocumentEditorView extends LinearLayout {
                     if(!focus.hasFocus()){keyboardDiagnostic="waiting-focus: explicit="+explicitFocus+" attempt="+attempts+" retry="+focusRetries;postDelayed(this,80);return;}
                 }
                 int height=getRootView().getHeight();if(imeAnimationRunning || isLayoutRequested() || height!=lastHeight)stableLayouts=0;else stableLayouts++;lastHeight=height;
-                if(handoff && !acknowledged && (imeAnimationRunning || stableLayouts<2)){keyboardDiagnostic="waiting-layout: animation="+imeAnimationRunning+" stable="+stableLayouts+" attempt="+attempts;postDelayed(this,100);return;}
+                if(explicitFocus && !acknowledged && (imeAnimationRunning || stableLayouts<2 || focus.isLayoutRequested())){keyboardDiagnostic="waiting-layout: animation="+imeAnimationRunning+" stable="+stableLayouts+" requested="+focus.isLayoutRequested()+" attempt="+attempts;postDelayed(this,100);return;}
                 android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if(keyboard==null){stopKeyboardStartup();return;}
                 boolean visible;

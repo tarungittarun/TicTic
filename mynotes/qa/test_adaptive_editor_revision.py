@@ -37,6 +37,12 @@ class AdaptiveEditorRevision(unittest.TestCase):
   source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text().split('private void closeKeyboard(){',1)[1].split('private String debugMarks',1)[0]
   self.assertIn('hideSoftInputFromWindow',source);self.assertNotIn('KEYCODE_BACK',source)
   for token in ['WindowInsetsAnimation.Callback','imeAnimation.get()','stable[0]>=12','setWindowInsetsAnimationCallback(null)']:self.assertIn(token,source)
+ def test_collapsed_caret_list_test_observes_keyboard_before_dismissing_it(self):
+  tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  source=tests.split('@Test public void listToolbarAtCollapsedCaretInsertsWithoutCrashAndUndoRestoresRichWriting()',1)[1].split('@Test public void contentPenHasManagement',1)[0]
+  self.assertIn('awaitImeVisible("Collapsed-caret checklist insertion',source)
+  close=tests.split('private void closeKeyboard(){',1)[1].split('private String debugMarks',1)[0]
+  self.assertIn('keyboardDiagnostics(root,imeAnimation)',close)
  def test_find_can_reveal_title_but_short_rail_viewport_prioritizes_writing(self):
   source=(JAVA/'NotesController.java').read_text().split('private void adaptEditorViewport()',1)[1].split('private boolean viewportVisibility',1)[0]
   self.assertIn('shell.getHeight()<dp(240) && !title.hasFocus()',source)

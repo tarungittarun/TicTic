@@ -18,8 +18,8 @@ final class SelectionScrollView extends ScrollView {
     void clearEditorSelection(EditText input){if(input==rememberedSelectionField)clearRememberedSelection();if(input==manualRangeField)manualRangeField=null;}
     /** A newly focused editor supersedes a range retained during another editor's focus handoff. */
     void onEditorFocus(EditText input){if(input!=rememberedSelectionField)clearRememberedSelection();if(input!=manualRangeField)manualRangeField=null;}
-    /** Keep the selection owner while Android's floating selection UI temporarily owns focus. */
-    void observeEditorSelection(EditText input){if(input==null)return;if(input.hasSelection()){int start=input.getSelectionStart(),end=input.getSelectionEnd();rememberedSelectionField=input;rememberedSelectionStart=start;rememberedSelectionEnd=end;if(manualRangeField==input && (manualAnchor!=start || manualFocus!=end))manualRangeField=null;}else clearEditorSelection(input);}
+    /** Keep a native range through temporary ActionMode/window-focus handoffs; retire it after the editor owns focus and the user collapses it. */
+    void observeEditorSelection(EditText input){if(input==null)return;if(input.hasSelection()){int start=input.getSelectionStart(),end=input.getSelectionEnd();rememberedSelectionField=input;rememberedSelectionStart=start;rememberedSelectionEnd=end;if(manualRangeField==input && (manualAnchor!=start || manualFocus!=end))manualRangeField=null;}else if(input.hasFocus() && input.hasWindowFocus())clearEditorSelection(input);}
     private boolean selectionRange(EditText input,int[] range){if(input==null)return false;if(input.hasSelection()){range[0]=input.getSelectionStart();range[1]=input.getSelectionEnd();if(range[0]!=range[1])return true;}if(manualRangeField==input && manualAnchor!=manualFocus){range[0]=manualAnchor;range[1]=manualFocus;return true;}if(rememberedSelectionField==input && rememberedSelectionStart>=0 && rememberedSelectionEnd>=0 && rememberedSelectionStart!=rememberedSelectionEnd && rememberedSelectionStart<=input.length() && rememberedSelectionEnd<=input.length()){range[0]=rememberedSelectionStart;range[1]=rememberedSelectionEnd;return true;}return false;}
     private EditText findSelectedEditor(View view){if(view instanceof EditText){EditText input=(EditText)view;int[] range=new int[2];if(input.isShown() && selectionRange(input,range))return input;}if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=group.getChildCount()-1;i>=0;i--){EditText found=findSelectedEditor(group.getChildAt(i));if(found!=null)return found;}}return null;}
     private EditText selectedEditor(View preferred){int[] range=new int[2];if(preferred instanceof EditText && selectionRange((EditText)preferred,range))return (EditText)preferred;if(manualRangeField!=null && manualRangeField.isAttachedToWindow() && selectionRange(manualRangeField,range))return manualRangeField;if(rememberedSelectionField!=null && rememberedSelectionField.isAttachedToWindow() && selectionRange(rememberedSelectionField,range))return rememberedSelectionField;return findSelectedEditor(this);}
@@ -72,5 +72,5 @@ final class SelectionScrollView extends ScrollView {
         return true;
     }
     private void release(){removeCallbacks(passHold);if(down!=null){down.recycle();down=null;}if(velocity!=null){velocity.recycle();velocity=null;}scrolling=false;}
-    @Override protected void onDetachedFromWindow(){release();super.onDetachedFromWindow();}
+    @Override protected void onDetachedFromWindow(){release();clearManualRangeViewport();super.onDetachedFromWindow();}
 }

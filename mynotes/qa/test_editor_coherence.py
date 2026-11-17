@@ -145,11 +145,21 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('void onEditorFocus(EditText input)',s)
   self.assertIn('if(manualRangeField==input && manualAnchor!=manualFocus)',s)
   self.assertIn('if(rememberedSelectionField==input && rememberedSelectionStart>=0',s)
-  self.assertIn('else clearEditorSelection(input)',s)
+  self.assertIn('else if(input.hasFocus() && input.hasWindowFocus())clearEditorSelection(input)',s)
+  self.assertIn('release();clearManualRangeViewport();super.onDetachedFromWindow()',s)
  def test_editor_switch_fixture_finishes_hiding_the_old_ime_before_new_focus_checks(self):
   tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   scenario=tests.split('@Test public void checklistFormattingAndSafeLinksPreserveRowsInBothEditors()',1)[1].split('@Test public void hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal',1)[0]
-  self.assertIn('closeKeyboard();await(()->!keyboardVisibleForTest());main(()->assertTrue("Finish the Notes editor before switching to another document",controller.back()));await(()->controller.view().findViewWithTag("home-board")!=null && controller.view().hasWindowFocus());main(()->controller.openNote(document.id));documentLaidOut("row:doc-url")',scenario)
+  self.assertIn('awaitStage("Formatting tray must close before navigating away"',scenario)
+  self.assertIn('awaitStage("Notes keyboard must finish hiding before leaving the checklist",()->!keyboardVisibleForTest())',scenario)
+  self.assertIn('awaitStage("Back must return to the home board",()->controller.view().findViewWithTag("home-board")!=null)',scenario)
+  self.assertIn('awaitStage("Home board must regain the app window after IME dismissal",()->controller.view().hasWindowFocus())',scenario)
+ def test_back_from_editor_clears_the_old_input_focus_and_avoids_rehiding_a_hidden_ime(self):
+  s=(JAVA/'NotesController.java').read_text()
+  hide=s.split('private void hideEditorKeyboard()',1)[1].split('private void discardTrailingBlankChecklistRows()',1)[0]
+  self.assertIn('current.isVisible(android.view.WindowInsets.Type.ime())',hide)
+  home=s.split('private void renderHome()',1)[1].split('private void reorderHome',1)[0]
+  self.assertIn('hideEditorKeyboard();View focused=root.findFocus();if(focused!=null)focused.clearFocus();',home)
  def test_explicit_document_focus_waits_for_the_new_field_layout_before_ime(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('if(explicitFocus && !acknowledged && (imeAnimationRunning || stableLayouts<2 || focus.isLayoutRequested()))',s)

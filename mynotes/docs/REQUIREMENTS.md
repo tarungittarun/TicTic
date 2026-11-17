@@ -312,10 +312,10 @@ All new-runtime requirements start Planned. AT-* are reserved acceptance scenari
 - Evidence authored: `checkedChecklistRowsSwipeAwayWithUndoInBothEditors` exercises checked/unchecked row transitions, both swipe directions, the accessible delete action, exact Undo restoration, Trash rejection, and saved deletion/Undo across reopen. Successful deletes and Undo outcomes are recorded without checklist text. Focused Python source QA passed 23/23; `javalang` accepted the eight changed Java files as syntax (not compilation), with no trailing whitespace. Android/JUnit execution, runtime/device review, build, and APK evidence remain **pending**.
 
 ### K051
-- Scope: **Links and plain text as list items** ✔◐ — list items are ordinary text (URLs clickable); no rich formatting inside checkbox items (Keep's actual limit — formatting lives in text notes).
-- State: **Implemented in source** for legacy Notes and canonical Docs. Web addresses use validated, transient clickable spans; canonical checklist formatting/insert-link routes are blocked, while writing fields retain rich formatting.
-- Acceptance: `AT-K051` scenarios were recorded before implementation in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
-- Evidence authored: `checklistUrlsOpenSafelyWhileRowsStayPlainTextInBothEditors` covers both list editors, cancellation, invalid schemes, plain-text paste/edit, historical marks, and writing-section formatting. Focused Python editor-coherence QA passed 24/24; `javalang` accepted four changed Java files as syntax (not compilation), with no trailing whitespace. Android/JUnit execution, live runtime/accessibility review, compilation, build, and APK evidence remain **pending**.
+- Scope: **Safe links and selected-text formatting in checklist rows** — URL taps require explicit confirmation, while selected row text can be formatted without flattening checklist identity or state.
+- State: **Implemented in source** for legacy Notes and canonical Docs. Docs format row ranges directly; legacy Notes migrate to canonical Notes-workspace content while preserving row IDs, state, order, depth, existing marks, and a writable tail. Writing sections retain their independent formatting behavior.
+- Acceptance: `AT-K051` in [CHECKLIST-ACCEPTANCE.md](CHECKLIST-ACCEPTANCE.md).
+- Evidence authored: `checklistFormattingAndSafeLinksPreserveRowsInBothEditors` covers validated URL affordances, selected formatting and rich paste, legacy migration, and writing-section formatting. Source QA, Android/JUnit execution, compilation, runtime/device review, build, and APK evidence are **pending** for this revision.
 
 ### K052
 - Scope: **Checklists stored as plain text** ✔ — search, share, PDF export and the JSON mirror preserve the `[x]`/`[ ]` row prefixes; JSON stores row state structurally rather than duplicating a flattened canonical body.

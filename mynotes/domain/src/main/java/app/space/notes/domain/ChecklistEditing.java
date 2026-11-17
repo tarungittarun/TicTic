@@ -26,6 +26,14 @@ public final class ChecklistEditing {
         return new Split(Collections.unmodifiableList(result),insertedId);
     }
 
+    /** Remove one checklist row by stable identity without changing siblings. */
+    public static List<Note.Item> removeRow(List<Note.Item> rows,String id){
+        if(rows==null || id==null)throw new IllegalArgumentException("Missing checklist row");
+        int index=-1;for(int i=0;i<rows.size();i++)if(rows.get(i).id.equals(id)){if(index>=0)throw new IllegalArgumentException("Duplicate checklist item");index=i;}
+        if(index<0)throw new IllegalArgumentException("Checklist item is no longer available");
+        List<Note.Item> result=new ArrayList<>(rows);result.remove(index);return Collections.unmodifiableList(result);
+    }
+
     /** Drop whitespace-only rows only at the end; an empty row between real items is preserved. */
     public static List<Note.Item> withoutTrailingBlankRows(List<Note.Item> rows){
         if(rows==null)throw new IllegalArgumentException("Missing checklist rows");
@@ -44,6 +52,17 @@ public final class ChecklistEditing {
             changed.set(i,DocumentContent.Block.checklist(block.id,block.name,rows,block.hideChecked,block.checklistAppearance));
         }
         return changed==null?content:new DocumentContent(changed,content.writingLines,content.notesWorkspace);
+    }
+
+    /** Return the same list when nothing is checked; otherwise clear completion and preserve row data. */
+    public static List<Note.Item> uncheckAll(List<Note.Item> rows){
+        if(rows==null)throw new IllegalArgumentException("Missing checklist rows");
+        List<Note.Item> result=null;
+        for(int i=0;i<rows.size();i++)if(rows.get(i).checked){
+            if(result==null)result=new ArrayList<>(rows);
+            Note.Item item=rows.get(i);result.set(i,item.change(item.text,false,item.depth));
+        }
+        return result==null?rows:Collections.unmodifiableList(result);
     }
 
     private static List<Note.Mark> marksBetween(List<Note.Mark> marks,int start,int end){

@@ -36,7 +36,9 @@ class ImageEditingContracts(unittest.TestCase):
             self.assertGreaterEqual(self.controller.count('"'+key+'"'), 2)
         self.assertIn('digest.equals(restored.getString("imageEditDigest"))', self.controller)
         self.assertIn('values.length>400', self.view)
-        self.assertIn('while(undo.size()>50)', self.view)
+        self.assertIn('MAX_HISTORY=16', self.view)
+        self.assertIn('while(undo.size()>MAX_HISTORY)undo.removeFirst()', self.view)
+        self.assertIn('while(values.size()>MAX_HISTORY)values.remove(0)', self.view)
 
     def test_crop_has_non_dragging_controls_and_recognisable_icons(self):
         for label in ['Crop presets','Rotate left','Rotate right','Mirror','Undo','Redo','Save image edits','Reset all edits']:

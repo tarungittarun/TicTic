@@ -15,6 +15,16 @@ public class DocumentContentTest {
         assertSame(original,original.move("b",1));assertSame(a,moved.move("b",0).blocks.get(1));
         assertEquals("between",original.insert(2,text("middle","between")).blocks.get(2).text.text);
     }
+    @Test public void terminalInsertedContentCanKeepAnEditableWritingTail(){
+        DocumentContent empty=new DocumentContent(Collections.emptyList(),true,true);
+        assertSame(empty,empty.ensureWritableTail());
+        DocumentContent checklist=empty.insert(0,DocumentContent.Block.checklist("list",Collections.emptyList(),false));
+        DocumentContent ready=checklist.ensureWritableTail();
+        assertEquals(2,ready.blocks.size());assertEquals(DocumentContent.Kind.CHECKLIST,ready.blocks.get(0).kind);
+        assertNotNull(ready.blocks.get(1).text);assertEquals("",ready.blocks.get(1).text.text);assertTrue(ready.writingLines);assertTrue(ready.notesWorkspace);
+        assertSame(ready,ready.ensureWritableTail());
+        assertEquals("",ready.ensureWritableTail().blocks.get(1).text.text);
+    }
     @Test public void visualRenameCannotChangeItsKindOrPixels(){
         NoteImage image=image("Drawing");DocumentContent.Block drawing=DocumentContent.Block.visual("ink","Drawing01",DocumentContent.Kind.DRAWING,image);
         DocumentContent.Block renamed=drawing.renamed("My sketch");

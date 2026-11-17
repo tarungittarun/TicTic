@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
 import app.space.notes.runtime.NotesController;
 import app.space.notes.runtime.NotesHost;
 /** Thin standalone host. Business/UI code is reusable by a future MySpace adapter. */
@@ -180,6 +179,6 @@ public final class NotesActivity extends Activity implements NotesHost {
     @Override public String versionLabel() { return "MyNotes " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")"; }
     @Override public void showMessage(String message) {
         app.space.notes.runtime.Diagnostics.record("ui.notice","shown; content intentionally excluded");
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        app.space.notes.runtime.NotesNotice.show(this,message);
     }
 }

@@ -255,37 +255,31 @@ eight changed Java files as syntax (not compilation), and the changed files have
 whitespace. Native swipe/Undo execution, runtime/device review, build, and APK evidence remain
 **pending**.
 
-## AT-K051 — Clickable URLs; plain-text checklist items
-
-These scenarios were recorded **before K051 implementation**.
+## AT-K051 — Safe links and selected-text formatting in checklist rows
 
 - **AT-K051.1 — Safe URL taps in both checklist editors:** Given an editable legacy Notes
   checklist or canonical Doc checklist row containing an ordinary `http://` or `https://`
-  address, when the user taps the address, then it is visibly and accessibly link-like and
-  MyNotes presents its external-site confirmation with the validated address. Cancel leaves
-  row text, completion, order, and depth unchanged; no external app is launched without the
-  user's explicit confirmation. Invalid/non-web schemes are not made actionable.
-- **AT-K051.2 — Checklist text has no rich formatting:** Given a checklist row in either
-  editor, when the user types or pastes ordinary text (including a URL), then its saved value
-  remains plain text and URL affordances do not become persisted rich-text marks. Canonical
-  Format and custom-hyperlink actions cannot add rich formatting to a focused checklist row;
-  legacy checklist rows expose no formatting action. Existing canonical row marks are neither
-  displayed as formatting nor rewritten merely by opening the list; this preserves earlier
-  non-destructive conversion/round-trip data, while editing a row normalizes the edited value
-  to ordinary text.
+  address, when the user taps the address, then MyNotes presents an external-site confirmation
+  with the validated address. Cancel leaves row text, completion, order, and depth unchanged;
+  no external app is launched without explicit confirmation. Invalid/non-web schemes are not
+  made actionable, and automatic link affordances are not stored as rich-text marks.
+- **AT-K051.2 — Format a selected checklist range:** Given a selected range inside a checklist
+  row, when the user applies text formatting or adds a selected-text hyperlink, then the chosen
+  marks apply only to that range. Row ID, text, order, checked state, depth, list name, and
+  hide-checked preference remain unchanged. Canonical Docs retain the row in place; formatting
+  a legacy Notes checklist migrates to canonical Notes-workspace content without turning it into
+  a Doc or flattening other rows. Rich pasted formatting is retained. A URL's transient clickable
+  span does not become a persisted mark unless the user explicitly adds a hyperlink.
 - **AT-K051.3 — Writing text remains formattable:** Given an ordinary writing note/section,
   when the user applies a text style or inserts a rich hyperlink, then its text and marks still
-  save/reopen as before. Checklist restrictions must not disable or alter formatting in writing
-  fields.
+  save/reopen as before. Checklist-row formatting must not disable or alter writing fields.
 
-The dual-editor source implementation and
-`CoreJourneysTest#checklistUrlsOpenSafelyWhileRowsStayPlainTextInBothEditors` are authored.
-The journey covers safe URL taps and Cancel, inert non-web schemes, hidden-but-preserved marks on
-untouched canonical rows, stripping rich pasted text on edit, blocked checklist formatting/custom
-links, and formatting in a writing section. Focused Python editor-coherence QA passed **24/24**;
-`javalang` accepted the four changed Java files as syntax (not compilation), and the seven K051
-files have no trailing whitespace. Android/JUnit execution, live accessibility/tap review,
-compilation, build, and APK evidence remain **pending**.
+`CoreJourneysTest#checklistFormattingAndSafeLinksPreserveRowsInBothEditors` now covers safe URL
+confirmation/cancellation, non-web schemes, transient automatic links, selected-range formatting
+in Docs, explicit row hyperlinks, rich paste, legacy checklist migration to Notes-workspace
+content, and formatting in an ordinary writing section. This scenario is **authored, not yet
+executed**. Static QA, Android/JUnit execution, accessibility/tap review, compilation, build, and
+APK evidence for this revision remain **pending**.
 
 ## AT-K052 — Plain-text checklist projections and JSON round-trip
 
@@ -319,3 +313,48 @@ coverage: `NoteTest#checklistPlainTextPrefixesDriveSearchIndependentOfVisibility
 editor-coherence QA passed **24/24**; `javalang` accepted the five changed Java files as syntax
 (not compilation), and seven K052 files have no trailing whitespace. Android/JUnit journeys are
 authored, not executed. Runtime review, compilation, build, and APK evidence remain **pending**.
+
+## Requested MyNotes editor updates — 2026-10-17
+
+These additional regressions track the current user request. They are not release qualification
+or physical-device evidence.
+
+- **Checklist deletion:** For both Notes and Docs, Backspace on a whitespace-only row removes it
+  immediately without a warning. The item menu's Remove item action is immediate too. Surviving
+  row IDs, marks, completion, depth, order, and checklist metadata are unchanged; Undo can restore
+  deliberate removals.
+- **Uncheck all:** The checklist-level menu exposes Uncheck all in both editors. Every checked
+  row becomes unchecked without replacing row IDs or changing text, marks, order, depth, or the
+  Hide checked preference.
+- **Drag-only checklist movement:** Checklist options do not offer “Move checklist”; the native
+  block handle remains available. Dragging a checklist into a writing line or to a new section
+  preserves its name, row identity/state/formatting, surrounding text, and a writable trailing
+  section. Undo restores the earlier structure.
+- **Writable continuation and focus:** In a fresh Doc, inserting a checklist or a table leaves an
+  empty writing section after the inserted object. The first checklist row and newly added rows
+  receive focus, a visible cursor at the expected caret, and the keyboard. Checklist conversion
+  in Notes and copied/moved Doc checklists also retain a writable tail.
+- **In-editor search:** Notes and Docs expose the query, Previous match, and Next match in a
+  non-modal bar immediately above the visible keyboard while the query is focused.
+- **Removed summary action:** The Notes and Doc action menus do not expose Quick summary.
+- **Image annotations:** Highlight and shape annotations work through the shared image editor for
+  Notes and Docs. Undo/Redo and controller-state restoration retain annotation state; saving
+  explicitly changes only the original attachment (identity retained), and note Undo restores
+  the original image bytes.
+- **Transient notices:** Repeated identical notices are coalesced and a new notice cancels the
+  preceding toast, so rapid notices replace rather than stack over editor content. Source QA
+  checks the coalescing/replacement boundary; live Android toast behavior still needs runtime
+  confirmation.
+
+Regression journeys authored in `CoreJourneysTest` include
+`emptyChecklistBackspaceAndMenuRemovalAreImmediateInBothEditors`,
+`checklistOptionsUncheckAllAndOfferDraggingInsteadOfMoveMenu`,
+`insertedChecklistAndTableKeepWritableTailAndCaretOnNewRows`,
+`findQueryAndNavigationControlsStayAboveKeyboardInNotesAndDocs`,
+`noteAndDocumentMenusDoNotOfferQuickSummary`,
+`imageAnnotationsUndoRedoRestoreAndOnlyChangeTheSavedAttachmentInNotesAndDocs`,
+`namedChecklistOptionsOmitMoveAndKeepTheDragHandle`, and the existing
+`nativeChecklistBoxDragShowsLineAndDropsInsideRichWriting`. JVM domain coverage includes
+`WorkspaceTest#copiedChecklistKeepsRowIdentityAndGetsWritableTail`. These are **authored, not
+executed** in this revision. Static QA, Android/JUnit execution, compilation, APK build, Android
+runtime, physical-device testing, and publication remain separate pending evidence gates.

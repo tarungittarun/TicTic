@@ -3,10 +3,18 @@ on:
   push:
     branches: ['arena/3caca636-tictic']
     paths:
-      # K039-K052 qualification refresh: fixed test helpers and scene capture; push remains non-publishing.
-      # Publication and evidence pushes require separate explicit dispatch inputs.
+      # MyNotes source and focused acceptance changes run non-publishing qualification on this branch.
+      # Publication and evidence persistence still require explicit workflow_dispatch inputs.
       - '.github/workflows/notes-ci.yml'
       - '.github/actions/setup-mynotes/**'
+      - 'mynotes/app/src/**'
+      - 'mynotes/domain/src/**'
+      - 'mynotes/runtime/src/**'
+      - 'mynotes/qa/**'
+      - 'mynotes/tools/ci/native_baseline_027.json'
+      - 'mynotes/tools/comparisons/paired_modules37.py'
+      - 'mynotes/docs/CHECKLIST-ACCEPTANCE.md'
+      - 'mynotes/docs/REQUIREMENTS.md'
   workflow_dispatch:
     inputs:
       publish_release:

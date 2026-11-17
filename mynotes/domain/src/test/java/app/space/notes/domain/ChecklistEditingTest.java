@@ -24,6 +24,19 @@ public class ChecklistEditingTest {
         assertEquals(2,split.rows.get(0).marks.get(0).end);assertEquals(0,split.rows.get(1).marks.get(0).start);assertEquals(2,split.rows.get(1).marks.get(0).end);
     }
 
+    @Test public void removeRowDoesNotMutateSiblingsAndUncheckAllPreservesRowData(){
+        Note.Item done=new Note.Item("done","Milk",true,2,Collections.singletonList(new Note.Mark("bold",0,4)));
+        Note.Item pending=new Note.Item("pending","Bread",false,1);
+        List<Note.Item> original=Arrays.asList(done,pending);
+        List<Note.Item> removed=ChecklistEditing.removeRow(original,"done");
+        assertEquals(1,removed.size());assertSame(pending,removed.get(0));assertSame(done,original.get(0));
+        List<Note.Item> unchecked=ChecklistEditing.uncheckAll(original);
+        assertNotSame(original,unchecked);assertFalse(unchecked.get(0).checked);assertFalse(unchecked.get(1).checked);
+        assertEquals("done",unchecked.get(0).id);assertEquals("Milk",unchecked.get(0).text);assertEquals(2,unchecked.get(0).depth);assertEquals("bold",unchecked.get(0).marks.get(0).type);
+        assertSame(unchecked,ChecklistEditing.uncheckAll(unchecked));
+        assertThrows(IllegalArgumentException.class,()->ChecklistEditing.removeRow(original,"missing"));
+    }
+
     @Test public void trailingBlankRowsAreRemovedButInteriorBlankRowsRemain(){
         Note.Item interior=new Note.Item("interior","",false,0),text=new Note.Item("text","Keep",false,0),blank=new Note.Item("blank","  \t",false,0);
         List<Note.Item> result=ChecklistEditing.withoutTrailingBlankRows(Arrays.asList(interior,text,blank,new Note.Item("last","",false,0)));

@@ -380,7 +380,8 @@ def ours_task(number):
     if number == 30:
         note(); h.tap('More actions'); h.tap('Share'); return {'status':'interaction_observed','check':'Share entry/resolver only; no external app, message or network operation is performed.'}
     if number == 31:
-        note(); h.tap('More actions'); h.tap('Quick summary'); return {'status':'interaction_observed','check':'Local summary surface only; no saving or summary accuracy acceptance.'}
+        note(); h.tap('More actions'); labels=native_labels(); assert 'Quick summary' not in labels, 'Quick summary must not appear in note actions'
+        return functional('Quick summary is omitted from the note-level action menu.', visible_labels=labels)
     if number == 32: return route('Library','Settings','Diagnostics')
     if number == 33:
         start=h.launch_samples('mynotes','app.space.notes'); start['status']='diagnostic_only'; return start

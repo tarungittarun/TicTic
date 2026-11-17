@@ -118,6 +118,11 @@ public final class DocumentContent {
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
         List<Block> next=new ArrayList<>(blocks);next.add(edge,block);return new DocumentContent(next,writingLines,notesWorkspace);
     }
+    /** Ensure an editable writing section follows a terminal visual/list/table insertion. */
+    public DocumentContent ensureWritableTail(){
+        if(blocks.isEmpty() || blocks.get(blocks.size()-1).text!=null)return this;
+        return insert(blocks.size(),Block.text(UUID.randomUUID().toString(),new RichText("",Collections.emptyList())));
+    }
     public DocumentContent replace(String id,Block replacement){
         int at=index(id);if(replacement==null || !id.equals(replacement.id))throw new IllegalArgumentException("Replacement must preserve block identity");
         if(blocks.get(at)==replacement)return this;

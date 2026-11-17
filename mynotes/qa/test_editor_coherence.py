@@ -131,6 +131,8 @@ class EditorCoherence(unittest.TestCase):
   s=(JAVA/'NoteFindDialog.java').read_text()
   self.assertIn('owner.addOnLayoutChangeListener(resizeListener)',s)
   self.assertIn('count.setTag("inline-find-count")',s)
+  self.assertIn('result.setTag("inline-find-result")',s)
+  self.assertIn('searchRow.addView(result,2,new LinearLayout.LayoutParams(0,-2,1))',s)
   self.assertIn('statusRow.setVisibility(compact?View.GONE:View.VISIBLE)',s)
   self.assertIn('count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()',s)
   self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)

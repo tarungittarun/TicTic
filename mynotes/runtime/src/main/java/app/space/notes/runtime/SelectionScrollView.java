@@ -13,14 +13,16 @@ final class SelectionScrollView extends ScrollView {
     void onUserGesture(Runnable listener){userGesture=listener;}
     private EditText manualRangeField;private int manualAnchor,manualFocus;
     void clearManualRangeViewport(){manualRangeField=null;}
-    boolean manualRangeActive(View focus){return focus!=null && focus==manualRangeField && manualRangeField.hasSelection() && manualRangeField.getSelectionStart()==manualAnchor && manualRangeField.getSelectionEnd()==manualFocus;}
-    private void rememberManualRange(){View focus=findFocus();if(focus instanceof EditText && ((EditText)focus).hasSelection()){manualRangeField=(EditText)focus;manualAnchor=manualRangeField.getSelectionStart();manualFocus=manualRangeField.getSelectionEnd();}}
+    private EditText findSelectedEditor(View view){if(view instanceof EditText){EditText input=(EditText)view;if(input.isShown() && input.hasSelection())return input;}if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=group.getChildCount()-1;i>=0;i--){EditText found=findSelectedEditor(group.getChildAt(i));if(found!=null)return found;}}return null;}
+    private EditText selectedEditor(View preferred){if(preferred instanceof EditText){EditText input=(EditText)preferred;return input.hasSelection()?input:null;}if(manualRangeField!=null && manualRangeField.isAttachedToWindow() && manualRangeField.hasSelection() && manualRangeField.getSelectionStart()==manualAnchor && manualRangeField.getSelectionEnd()==manualFocus)return manualRangeField;return findSelectedEditor(this);}
+    boolean manualRangeActive(View focus){EditText owner=selectedEditor(focus);return manualRangeField!=null && owner==manualRangeField && manualRangeField.hasSelection() && manualRangeField.getSelectionStart()==manualAnchor && manualRangeField.getSelectionEnd()==manualFocus;}
+    private void rememberManualRange(){EditText owner=selectedEditor(findFocus());if(owner!=null){manualRangeField=owner;manualAnchor=owner.getSelectionStart();manualFocus=owner.getSelectionEnd();}}
     @Override public boolean requestChildRectangleOnScreen(View child,android.graphics.Rect rectangle,boolean immediate){if(manualRangeActive(findFocus()))return false;return super.requestChildRectangleOnScreen(child,rectangle,immediate);}
     @Override public void requestChildFocus(View child,View focused){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(focused);super.requestChildFocus(child,focused);if(keep && manualRangeActive(focused))scrollTo(x,y);}
     @Override protected void onLayout(boolean changed,int left,int top,int right,int bottom){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(findFocus());super.onLayout(changed,left,top,right,bottom);if(keep && manualRangeActive(findFocus()))scrollTo(x,y);}
     private MotionEvent down;private float lastY;private boolean scrolling;private VelocityTracker velocity;
     private boolean lastGestureDeferred;private String lastDeferralReason="idle";private int deferredMoveCount,deferredStartScroll,deferredMaxScroll,deferredLastDelta,deferredScrollBefore,deferredScrollAfter;
-    String gestureDiagnostics(){View focused=findFocus();return "gestureDeferred="+lastGestureDeferred+" reason="+lastDeferralReason+" moves="+deferredMoveCount+" scroll="+deferredStartScroll+".."+deferredMaxScroll+" lastDelta="+deferredLastDelta+" step="+deferredScrollBefore+"→"+deferredScrollAfter+" manualOwner="+(manualRangeField==focused)+" manual="+manualAnchor+".."+manualFocus+" active="+manualRangeActive(focused);}
+    String gestureDiagnostics(){View focused=findFocus();EditText owner=selectedEditor(focused);return "gestureDeferred="+lastGestureDeferred+" reason="+lastDeferralReason+" moves="+deferredMoveCount+" scroll="+deferredStartScroll+".."+deferredMaxScroll+" lastDelta="+deferredLastDelta+" step="+deferredScrollBefore+"→"+deferredScrollAfter+" focused="+(focused==null?"none":focused.getClass().getSimpleName())+" selectionOwner="+(owner==null?"none":owner.getTag())+" manualOwner="+(manualRangeField==owner)+" manual="+manualAnchor+".."+manualFocus+" active="+manualRangeActive(focused);}
     private final Runnable passHold=()->{if(down!=null && !scrolling){MotionEvent held=MotionEvent.obtain(down);release();super.dispatchTouchEvent(held);held.recycle();}};
     SelectionScrollView(Context context){super(context);}
     private boolean nearEndpoint(EditText text,int offset,MotionEvent event){
@@ -31,13 +33,13 @@ final class SelectionScrollView extends ScrollView {
         return Math.hypot(event.getRawX()-x,event.getRawY()-y)<32*getResources().getDisplayMetrics().density;
     }
     private boolean defer(MotionEvent event){
-        View focused=findFocus();if(!(focused instanceof EditText)){lastDeferralReason="no-focused-editor";return false;}EditText text=(EditText)focused;
-        int a=text.getSelectionStart(),b=text.getSelectionEnd();if(a<0 || b<0 || a==b){lastDeferralReason="no-selection";return false;}
-        if(nearEndpoint(text,a,event)||nearEndpoint(text,b,event)){lastDeferralReason="near-selection-endpoint";return false;}
+        View focused=findFocus();EditText text=selectedEditor(focused);if(text==null){lastDeferralReason=focused instanceof EditText?"focused-editor-has-no-selection":"no-selected-editor";return false;}String owner=focused==text?"focused-editor":"selected-editor-fallback";
+        int a=text.getSelectionStart(),b=text.getSelectionEnd();if(a<0 || b<0 || a==b){lastDeferralReason=owner+"-no-selection";return false;}
+        if(nearEndpoint(text,a,event)||nearEndpoint(text,b,event)){lastDeferralReason=owner+"-near-selection-endpoint";return false;}
         int[] at=new int[2];text.getLocationOnScreen(at);float x=event.getRawX()-at[0],y=event.getRawY()-at[1];
         if(x>=0 && y>=0 && x<text.getWidth() && y<text.getHeight()){
-            int offset=text.getOffsetForPosition(x,y);if(offset>=Math.min(a,b)&&offset<=Math.max(a,b)){lastDeferralReason="touch-in-selected-range:"+offset;return false;}lastDeferralReason="unselected-offset:"+offset;
-        }else lastDeferralReason="outside-writing-field";
+            int offset=text.getOffsetForPosition(x,y);if(offset>=Math.min(a,b)&&offset<=Math.max(a,b)){lastDeferralReason=owner+"-touch-in-selected-range:"+offset;return false;}lastDeferralReason=owner+"-unselected-offset:"+offset;
+        }else lastDeferralReason=owner+"-outside-writing-field";
         return true;
     }
     @Override public boolean dispatchTouchEvent(MotionEvent event){

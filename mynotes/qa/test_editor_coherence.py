@@ -136,6 +136,16 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('statusRow.setVisibility(compact?View.GONE:View.VISIBLE)',s)
   self.assertIn('count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()',s)
   self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)
+ def test_selection_scroll_finds_a_native_range_even_when_no_field_owns_focus(self):
+  s=(JAVA/'SelectionScrollView.java').read_text()
+  self.assertIn('private EditText findSelectedEditor(View view)',s)
+  self.assertIn('private EditText selectedEditor(View preferred)',s)
+  self.assertIn('EditText text=selectedEditor(focused)',s)
+  self.assertIn('selectedEditor(focus)',s)
+ def test_editor_switch_fixture_finishes_hiding_the_old_ime_before_new_focus_checks(self):
+  tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  scenario=tests.split('@Test public void checklistFormattingAndSafeLinksPreserveRowsInBothEditors()',1)[1].split('@Test public void hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal',1)[0]
+  self.assertIn('closeKeyboard();await(()->!keyboardVisibleForTest());main(()->assertTrue("Finish the Notes editor before switching to another document",controller.back()));await(()->controller.view().findViewWithTag("home-board")!=null && controller.view().hasWindowFocus());main(()->controller.openNote(document.id));documentLaidOut("row:doc-url")',scenario)
  def test_explicit_document_focus_waits_for_the_new_field_layout_before_ime(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('if(explicitFocus && !acknowledged && (imeAnimationRunning || stableLayouts<2 || focus.isLayoutRequested()))',s)

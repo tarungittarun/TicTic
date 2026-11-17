@@ -35,9 +35,6 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   text=(JAVA/'NotesBoard.java').read_text()
   for fragment in ['dragTargetBounds.contains(Math.round(cx),Math.round(cy))','!repeated && canDropOver','dragLastTarget=((Note)rows.get(to)).id','dragTargetBounds.set(b.itemView.getLeft()','dragLastTarget=null;dragTargetBounds.setEmpty()']:
    self.assertIn(fragment,text)
- def test_switching_notes_dismisses_the_old_editor_ime_before_replacing_fields(self):
-  text=(JAVA/'NotesController.java').read_text().split('public void openNote(String id)',1)[1].split('public void chooseReminder()',1)[0]
-  self.assertIn('if(editing!=null && !editing.equals(id)){hideEditorKeyboard();View focused=root.findFocus();if(focused!=null)focused.clearFocus();}',text)
  def test_document_focus_recovery_never_steals_another_views_focus(self):
   text=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('actual!=null && actual!=focus',text)

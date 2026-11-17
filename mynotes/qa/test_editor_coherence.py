@@ -142,6 +142,10 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('private EditText selectedEditor(View preferred)',s)
   self.assertIn('EditText text=selectedEditor(focused)',s)
   self.assertIn('selectedEditor(focus)',s)
+  self.assertIn('void onEditorFocus(EditText input)',s)
+  self.assertIn('if(manualRangeField==input && manualAnchor!=manualFocus)',s)
+  self.assertIn('if(rememberedSelectionField==input && rememberedSelectionStart>=0',s)
+  self.assertIn('else clearEditorSelection(input)',s)
  def test_editor_switch_fixture_finishes_hiding_the_old_ime_before_new_focus_checks(self):
   tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   scenario=tests.split('@Test public void checklistFormattingAndSafeLinksPreserveRowsInBothEditors()',1)[1].split('@Test public void hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal',1)[0]

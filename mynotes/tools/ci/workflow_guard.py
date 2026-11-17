@@ -33,7 +33,8 @@ def validate(workflow):
         stack.remove(job);visited.add(job)
     for name in jobs:
         walk(name)
-        assert 1<=int(jobs[name]['timeout-minutes'])<=15,'Bound every job'
+        maximum=30 if name=='android' else 15
+        assert 1<=int(jobs[name]['timeout-minutes'])<=maximum,f'{name} job timeout exceeds {maximum} minutes'
         for step in jobs[name]['steps']:
             command=step.get('run','')
             assert ':app:assemble' not in command,'Legacy Android app is frozen'

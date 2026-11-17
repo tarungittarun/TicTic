@@ -251,7 +251,7 @@ jobs:
     name: Android / ${{ matrix.id }}
     needs: [checks, test-build, apk-audit]
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 8

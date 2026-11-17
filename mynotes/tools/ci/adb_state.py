@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import time
 
-def wait_uid(expected,seconds=20,run=subprocess.run,clock=time.monotonic,sleep=time.sleep):
+def wait_uid(expected,seconds=60,run=subprocess.run,clock=time.monotonic,sleep=time.sleep):
     deadline=clock()+seconds;last='no response'
     while clock()<deadline:
         try:

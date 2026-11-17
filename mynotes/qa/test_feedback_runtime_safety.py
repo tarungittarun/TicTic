@@ -23,7 +23,7 @@ class FeedbackRuntimeSafety(unittest.TestCase):
   self.assertLess(back.index('if(pageBack!=null)'),back.index('if(busy)'))
  def test_document_keyboard_request_is_bounded_current_field_and_detach_scoped(self):
   text=(JAVA/'DocumentEditorView.java').read_text()
-  for fragment in ['attempts++>=20','uiGeneration!=generation','fields.containsValue(focus)','focus.hasWindowFocus()','keyboard.isActive(focus)','acknowledged && visible','servedFrames>=2','controller.show(WindowInsets.Type.ime())','onDetachedFromWindow(){stopKeyboardStartup()','uiGeneration++;stopKeyboardStartup()']:
+  for fragment in ['attempts++>=40','focusRetries','waiting-focus: explicit=','uiGeneration!=generation','fields.containsValue(focus)','focus.hasWindowFocus()','keyboard.isActive(focus)','acknowledged && visible','servedFrames>=2','controller.show(WindowInsets.Type.ime())','onDetachedFromWindow(){stopKeyboardStartup()','uiGeneration++;stopKeyboardStartup()']:
    self.assertIn(fragment,text)
 
  def test_accepted_document_keyboard_request_never_reissues_against_a_later_hide(self):

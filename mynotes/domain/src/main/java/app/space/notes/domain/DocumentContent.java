@@ -225,8 +225,9 @@ public final class DocumentContent {
     public DocumentContent withImages(List<NoteImage> images){
         if(images==null || images.size()>8)throw new IllegalArgumentException("Maximum eight visuals per note");
         Map<String,NoteImage> remaining=new LinkedHashMap<>();for(NoteImage image:images)if(image==null || remaining.put(image.id,image)!=null)throw new IllegalArgumentException("Duplicate or missing visual");
+        DocumentContent base=this;for(Block block:blocks)if(block.image!=null && !remaining.containsKey(block.image.id))base=base.remove(block.id);
         List<Block> next=new ArrayList<>();
-        for(Block block:blocks){if(block.image==null){next.add(block);continue;}NoteImage image=remaining.remove(block.image.id);if(image!=null)next.add(Block.visual(block.id,block.name,block.kind,image));}
+        for(Block block:base.blocks){if(block.image==null){next.add(block);continue;}NoteImage image=remaining.remove(block.image.id);if(image!=null)next.add(Block.visual(block.id,block.name,block.kind,image));}
         DocumentContent result=new DocumentContent(next,writingLines,notesWorkspace);
         for(NoteImage image:remaining.values()){Kind kind="Drawing".equals(image.name)?Kind.DRAWING:Kind.IMAGE;result=result.insert(result.blocks.size(),Block.visual(UUID.randomUUID().toString(),result.nextVisualName(kind),kind,image));}
         return result;

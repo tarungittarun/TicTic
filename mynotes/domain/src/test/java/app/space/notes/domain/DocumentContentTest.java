@@ -51,6 +51,16 @@ public class DocumentContentTest {
             assertEquals("Deleting "+middle.kind+" joins adjacent writing sections",1,all.blocks.size());assertEquals("AB",all.blocks.get(0).text.text);assertTrue(all.writingLines);assertTrue(all.notesWorkspace);
         }
     }
+    @Test public void removingImageOrDrawingThroughLegacyImageProjectionJoinsWriting(){
+        for(DocumentContent.Kind kind:Arrays.asList(DocumentContent.Kind.IMAGE,DocumentContent.Kind.DRAWING)){
+            NoteImage attachment=image(kind==DocumentContent.Kind.DRAWING?"Drawing":"Photo");
+            DocumentContent.Block visual=DocumentContent.Block.visual("visual","Visual01",kind,attachment);
+            DocumentContent source=new DocumentContent(Arrays.asList(text("before","left"),visual,text("after","right")),true,true);
+            DocumentContent removed=source.withImages(Collections.emptyList());
+            assertEquals("Removing "+kind+" through Note.images rejoins writing",1,removed.blocks.size());
+            assertEquals("leftright",removed.blocks.get(0).text.text);assertTrue(removed.writingLines);assertTrue(removed.notesWorkspace);
+        }
+    }
     @Test public void movingChecklistDoesNotJoinOrInvalidateItsAdjacentWritingTargets(){
         DocumentContent.Block left=text("left","left"),list=DocumentContent.Block.checklist("list",Collections.singletonList(new Note.Item("row","Move me",false,0)),false),right=text("right","right");
         DocumentContent source=new DocumentContent(Arrays.asList(left,list,right));

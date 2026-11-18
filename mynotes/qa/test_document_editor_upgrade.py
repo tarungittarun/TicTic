@@ -39,6 +39,8 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
   self.assertIn('removingInsertedChecklistJoinsWritingAndOffsetsRichMarks',tests)
   self.assertIn('movingChecklistDoesNotJoinOrInvalidateItsAdjacentWritingTargets',tests)
   self.assertIn('removeForMove',content)
+  self.assertIn('base=base.remove(block.id)',content)
+  self.assertIn('removingImageOrDrawingThroughLegacyImageProjectionJoinsWriting',tests)
   self.assertIn('deletingChecklistBetweenWritingSectionsMergesTextAndRestoresCaret',journeys)
 
  def test_reordering_accepts_local_state_only_and_preserves_item_payload(self):

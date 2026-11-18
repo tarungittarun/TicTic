@@ -14,6 +14,15 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('else renderImageEditor(n.id,image.id,null)', self.controller)
         self.assertIn('if(!trashed)itemHeader.addView', self.controller)
 
+    def test_attachment_encoding_is_bounded_and_retries_smaller_rasters(self):
+        source = (JAVA / 'NoteImageFiles.java').read_text()
+        self.assertIn('MAX_ATTACHMENT_BYTES=900*1024', source)
+        self.assertIn('class BoundedBytes extends ByteArrayOutputStream', source)
+        self.assertIn('out.written()<=MAX_ATTACHMENT_BYTES', source)
+        self.assertIn('if(encoded && !png && quality>55)', source)
+        self.assertIn('Bitmap.createScaledBitmap(scaled,w,h,true)', source)
+        self.assertNotIn('throw new IOException("Cannot encode image")', source)
+
     def test_save_preserves_attachment_identity_and_validates_original(self):
         save = self.controller.split('private void saveImageEdit(', 1)[1].split('public void attachImage(', 1)[0]
         self.assertIn('disk.execute(', save)

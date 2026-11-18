@@ -136,6 +136,8 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('statusRow.setVisibility(compact?View.GONE:View.VISIBLE)',s)
   self.assertIn('count.setText(compact?matches.isEmpty()?"0":(index+1)+"/"+matches.size()',s)
   self.assertIn('owner.removeOnLayoutChangeListener(resizeListener)',s)
+  journeys=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('await(()->text("2 matches")!=null || text("1/2")!=null)',journeys)
  def test_selection_scroll_finds_a_native_range_even_when_no_field_owns_focus(self):
   s=(JAVA/'SelectionScrollView.java').read_text()
   self.assertIn('private EditText findSelectedEditor(View view)',s)
@@ -145,6 +147,8 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('void onEditorFocus(EditText input)',s)
   self.assertIn('if(manualRangeField==input && manualAnchor!=manualFocus)',s)
   self.assertIn('if(rememberedSelectionField==input && rememberedSelectionStart>=0',s)
+  selected=s.split('private EditText selectedEditor(View preferred)',1)[1].split('boolean manualRangeActive',1)[0]
+  self.assertNotIn('isAttachedToWindow()',selected)
   self.assertIn('else if(input.hasFocus() && input.hasWindowFocus())clearEditorSelection(input)',s)
   self.assertIn('boolean isNativeSelectionTouch(EditText text,MotionEvent event)',s)
   self.assertIn('release();clearManualRangeViewport();super.onDetachedFromWindow()',s)
@@ -163,8 +167,14 @@ class EditorCoherence(unittest.TestCase):
   s=(JAVA/'NotesController.java').read_text()
   hide=s.split('private void hideEditorKeyboard()',1)[1].split('private void discardTrailingBlankChecklistRows()',1)[0]
   self.assertIn('current.isVisible(android.view.WindowInsets.Type.ime())',hide)
+  self.assertIn('root.setFocusableInTouchMode(true)',s)
+  self.assertIn('root.setTag("home-focus-surface")',s)
   home=s.split('private void renderHome()',1)[1].split('private void reorderHome',1)[0]
   self.assertIn('hideEditorKeyboard();View focused=root.findFocus();if(focused!=null)focused.clearFocus();',home)
+  self.assertIn('root.postOnAnimation(()->{if(!closed && editing==null && root.isAttachedToWindow())root.requestFocus();})',home)
+  tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('Home surface must release the removed editor and take focus',tests)
+  self.assertIn('findFocus()==controller.view().findViewWithTag("home-focus-surface")',tests)
  def test_explicit_document_focus_waits_for_the_new_field_layout_before_ime(self):
   s=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('if(explicitFocus && !acknowledged && (imeAnimationRunning || stableLayouts<2 || focus.isLayoutRequested()))',s)

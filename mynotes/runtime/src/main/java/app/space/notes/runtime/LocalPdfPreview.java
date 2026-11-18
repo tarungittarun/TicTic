@@ -20,7 +20,8 @@ import java.util.concurrent.*;
 final class LocalPdfPreview extends LinearLayout implements AutoCloseable {
     static final class Document implements AutoCloseable {
         final File temporary;final ParcelFileDescriptor descriptor;final PdfRenderer renderer;final float[] ratios;
-        private final LinkedHashMap<Integer,String> textCache=new LinkedHashMap<>(16,.75f,true);private int cachedCharacters;private PDDocument text;private List<String> sourcePageText;private List<PdfTextLayer> sourcePageLayers;private boolean textClaimed,textClosed,rendererClosed;
+        private static final int MAX_TEXT_PAGES_PER_DOCUMENT=8;
+        private final LinkedHashMap<Integer,String> textCache=new LinkedHashMap<>(16,.75f,true);private int cachedCharacters,textWindowStart=-1;private PDDocument text;private List<String> sourcePageText;private List<PdfTextLayer> sourcePageLayers;private boolean textClaimed,textClosed,rendererClosed;
         Document(File file)throws IOException{
             temporary=file;ParcelFileDescriptor fd=ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);PdfRenderer pdf=null;
             try{pdf=new PdfRenderer(fd);if(pdf.getPageCount()<1 || pdf.getPageCount()>10000){throw new IOException("PDF exceeds the 10,000-page preview safety limit");}
@@ -30,29 +31,34 @@ final class LocalPdfPreview extends LinearLayout implements AutoCloseable {
         }
         /** Separate serialized text worker; no interaction with the renderer's page lock. */
         void sourceText(List<String> pages)throws IOException{if(pages.size()!=ratios.length)throw new IOException("Prepared Word page/text count mismatch");for(String value:pages)if(value.length()>500000)throw new IOException("Prepared Word page exceeds text safety limit");sourcePageText=Collections.unmodifiableList(new ArrayList<>(pages));}
+        private PDDocument textDocument(int page)throws IOException{
+            if(text!=null && page>=textWindowStart && page-textWindowStart<MAX_TEXT_PAGES_PER_DOCUMENT)return text;
+            closeTextDocument();text=PDDocument.load(temporary,MemoryUsageSetting.setupTempFileOnly(64L*1024*1024).setTempDir(temporary.getParentFile()));textWindowStart=page;return text;
+        }
+        private void closeTextDocument(){PDDocument open=text;text=null;textWindowStart=-1;if(open!=null)try{open.close();}catch(IOException | RuntimeException ignored){}}
         String text(int page)throws IOException{
             if(sourcePageText!=null)return sourcePageText.get(page);
             if(textCache.containsKey(page))return textCache.get(page);
-            if(text==null)text=PDDocument.load(temporary,MemoryUsageSetting.setupTempFileOnly(64L*1024*1024).setTempDir(temporary.getParentFile()));
+            PDDocument document=textDocument(page);
             PDFTextStripper strip=new PDFTextStripper();strip.setStartPage(page+1);strip.setEndPage(page+1);
             // Stop hostile/huge page extraction while it is written, not after allocating it all.
             StringBuilder out=new StringBuilder();Writer bounded=new Writer(){public void write(char[] chars,int off,int count)throws IOException{if(out.length()+count>500000)throw new IOException("This page exceeds the safe text-layer limit; visual pages still available");out.append(chars,off,count);}public void flush(){}public void close(){}};
-            strip.writeText(text,bounded);String value=out.toString();textCache.put(page,value);cachedCharacters+=value.length();while(cachedCharacters>2000000 || textCache.size()>32){Integer first=textCache.keySet().iterator().next();cachedCharacters-=textCache.remove(first).length();}return value;
+            strip.writeText(document,bounded);String value=out.toString();textCache.put(page,value);cachedCharacters+=value.length();while(cachedCharacters>2000000 || textCache.size()>32){Integer first=textCache.keySet().iterator().next();cachedCharacters-=textCache.remove(first).length();}return value;
         }
         PdfTextLayer selection(int page)throws IOException{
             if(sourcePageLayers!=null)return sourcePageLayers.get(page);
             if(sourcePageText!=null)throw new IOException("Prepared on-page geometry unavailable; use Page text");
-            if(text==null)text=PDDocument.load(temporary,MemoryUsageSetting.setupTempFileOnly(64L*1024*1024).setTempDir(temporary.getParentFile()));
-            com.tom_roush.pdfbox.pdmodel.PDPage source=text.getPage(page);if(source.getRotation()%360!=0)throw new IOException("Rotated pages need Page text for now");
+            PDDocument document=textDocument(page);
+            com.tom_roush.pdfbox.pdmodel.PDPage source=document.getPage(page);if(source.getRotation()%360!=0)throw new IOException("Rotated pages need Page text for now");
             final float width=source.getCropBox().getWidth(),height=source.getCropBox().getHeight();final List<PdfTextLayer.Glyph> glyphs=new ArrayList<>();
             PDFTextStripper strip=new PDFTextStripper(){@Override protected void writeString(String value,List<com.tom_roush.pdfbox.text.TextPosition> positions)throws IOException{for(com.tom_roush.pdfbox.text.TextPosition p:positions){if(p.getDir()!=0)throw new IOException("Rotated writing needs Page text for now");if(glyphs.size()>=20000)throw new IOException("Page has too many glyphs for safe on-page selection; use Page text");String letter=p.getUnicode();if(letter!=null && !letter.isEmpty() && p.getWidth()>0 && Math.max(p.getHeight(),p.getFontSizeInPt())>0){float x=p.getX()/width,y=p.getY()/height,w=p.getWidth()/width,h=Math.max(p.getHeight(),p.getFontSizeInPt())/height;glyphs.add(new PdfTextLayer.Glyph(letter,x,Math.max(0,y-h*.85f),x+w,Math.min(1,y+h*.18f)));}}}};
-            strip.setSortByPosition(true);strip.setStartPage(page+1);strip.setEndPage(page+1);strip.writeText(text,new Writer(){public void write(char[] c,int off,int count){}public void flush(){}public void close(){}});return new PdfTextLayer(glyphs);
+            strip.setSortByPosition(true);strip.setStartPage(page+1);strip.setEndPage(page+1);strip.writeText(document,new Writer(){public void write(char[] c,int off,int count){}public void flush(){}public void close(){}});return new PdfTextLayer(glyphs);
         }
         void sourceLayers(List<PdfTextLayer> layers)throws IOException{if(layers.size()!=ratios.length)throw new IOException("Prepared page geometry count mismatch");sourcePageLayers=Collections.unmodifiableList(new ArrayList<>(layers));}
         synchronized void claimText(){textClaimed=true;}
-        synchronized void closeText(){if(text!=null)try{text.close();}catch(IOException | RuntimeException ignored){}text=null;textCache.clear();cachedCharacters=0;sourcePageText=null;sourcePageLayers=null;textClosed=true;cleanup();}
+        synchronized void closeText(){closeTextDocument();textCache.clear();cachedCharacters=0;sourcePageText=null;sourcePageLayers=null;textClosed=true;cleanup();}
         private void cleanup(){if(rendererClosed && (!textClaimed || textClosed))temporary.delete();}
-        @Override public synchronized void close(){if(rendererClosed)return;rendererClosed=true;try{renderer.close();}finally{try{descriptor.close();}catch(IOException ignored){}cleanup();}}
+        @Override public synchronized void close(){if(rendererClosed)return;rendererClosed=true;try{renderer.close();}finally{try{descriptor.close();}catch(IOException ignored){}if(!textClaimed)closeTextDocument();cleanup();}}
     }
     static Document open(Context context,Uri source)throws Exception{
         LocalDeviceDocuments.requireReadable(source);PDFBoxResourceLoader.init(context.getApplicationContext());File temporary=File.createTempFile("pdf-preview-",".pdf",context.getCacheDir());boolean done=false;

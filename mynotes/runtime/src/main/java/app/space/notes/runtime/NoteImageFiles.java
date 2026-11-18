@@ -7,6 +7,13 @@ import java.util.*;
 import app.space.notes.domain.NoteImage;
 /** Copy local source once; re-encode pixels to strip EXIF/location and cap memory/backup size. */
 final class NoteImageFiles {
+ private static final int MAX_ATTACHMENT_BYTES=900*1024;
+ private static final class BoundedBytes extends ByteArrayOutputStream {
+  private long written;
+  @Override public synchronized void write(int value){written++;if(count<MAX_ATTACHMENT_BYTES)super.write(value);}
+  @Override public synchronized void write(byte[] bytes,int offset,int length){int keep=Math.min(length,Math.max(0,MAX_ATTACHMENT_BYTES-count));if(keep>0)super.write(bytes,offset,keep);written+=length;}
+  long written(){return written;}
+ }
  static NoteImage importImage(Context c,Uri uri)throws Exception{
   OfflineOcr.requireLocal(uri);byte[] bytes;try(InputStream in=c.getContentResolver().openInputStream(uri)){if(in==null)throw new IOException("Cannot open image");ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1){if(out.size()+count>20*1024*1024)throw new IOException("Choose an image smaller than 20 MiB");out.write(buffer,0,count);}bytes=out.toByteArray();}
   BitmapFactory.Options bounds=new BitmapFactory.Options();bounds.inJustDecodeBounds=true;BitmapFactory.decodeByteArray(bytes,0,bytes.length,bounds);if(bounds.outWidth<=0 || bounds.outHeight<=0)throw new IOException("Unsupported image");BitmapFactory.Options options=new BitmapFactory.Options();options.inSampleSize=1;while(Math.max(bounds.outWidth/options.inSampleSize,bounds.outHeight/options.inSampleSize)>1600)options.inSampleSize*=2;Bitmap decoded=BitmapFactory.decodeByteArray(bytes,0,bytes.length,options);if(decoded==null)throw new IOException("Image could not be decoded");try{android.graphics.Matrix matrix=new android.graphics.Matrix();int orientation=1;try{orientation=new android.media.ExifInterface(new ByteArrayInputStream(bytes)).getAttributeInt(android.media.ExifInterface.TAG_ORIENTATION,1);}catch(IOException unsupported){}
@@ -16,9 +23,12 @@ final class NoteImageFiles {
  static NoteImage encode(Bitmap bitmap,String name)throws IOException{
   Bitmap scaled=bitmap;int size=Math.max(bitmap.getWidth(),bitmap.getHeight());if(size>1600)scaled=Bitmap.createScaledBitmap(bitmap,Math.max(1,bitmap.getWidth()*1600/size),Math.max(1,bitmap.getHeight()*1600/size),true);
   try{boolean png=scaled.hasAlpha();int quality=85;for(int attempt=0;attempt<16;attempt++){
-   ByteArrayOutputStream out=new ByteArrayOutputStream();if(!scaled.compress(png?Bitmap.CompressFormat.PNG:Bitmap.CompressFormat.JPEG,png?100:quality,out))throw new IOException("Cannot encode image");
-   if(out.size()<=900*1024)return new NoteImage(UUID.randomUUID().toString(),name,png?"image/png":"image/jpeg",scaled.getWidth(),scaled.getHeight(),Base64.getEncoder().encodeToString(out.toByteArray()));
-   if(!png && quality>55){quality-=15;continue;}int w=Math.max(1,scaled.getWidth()*3/4),h=Math.max(1,scaled.getHeight()*3/4);if(w==scaled.getWidth() && h==scaled.getHeight())break;Bitmap smaller=Bitmap.createScaledBitmap(scaled,w,h,true);if(scaled!=bitmap)scaled.recycle();scaled=smaller;quality=85;
+   BoundedBytes out=new BoundedBytes();boolean encoded=scaled.compress(png?Bitmap.CompressFormat.PNG:Bitmap.CompressFormat.JPEG,png?100:quality,out);
+   if(encoded && out.written()<=MAX_ATTACHMENT_BYTES)return new NoteImage(UUID.randomUUID().toString(),name,png?"image/png":"image/jpeg",scaled.getWidth(),scaled.getHeight(),Base64.getEncoder().encodeToString(out.toByteArray()));
+   // JPEG quality reductions preserve pixel dimensions. A refused encode or a
+   // detailed/transparent PNG instead retries at a smaller, bounded raster size.
+   if(encoded && !png && quality>55){quality-=15;continue;}
+   int w=Math.max(1,scaled.getWidth()*3/4),h=Math.max(1,scaled.getHeight()*3/4);if(w==scaled.getWidth() && h==scaled.getHeight())break;Bitmap smaller=Bitmap.createScaledBitmap(scaled,w,h,true);if(scaled!=bitmap)scaled.recycle();scaled=smaller;quality=85;
   }throw new IOException("This image could not be reduced safely. Your original and note are unchanged.");}finally{if(scaled!=bitmap)scaled.recycle();}
  }
  static Bitmap decode(NoteImage image){return decode(image,1600);}

@@ -11,6 +11,13 @@ class ViewerSearchDiagnosticsContracts(unittest.TestCase):
   s=source('ViewedFileCopy.java');self.assertLess(s.index('from.st_ino==to.st_ino'),s.index('AutoCloseOutputStream(target)'));self.assertIn('openFileDescriptor(destination,"rw")',s);self.assertNotIn('openOutputStream(destination',s);self.assertIn('OsConstants.S_ISREG',s);self.assertNotIn('delete(',s)
  def test_pdf_owns_both_workers_and_bounded_scratch(self):
   s=source('LocalPdfPreview.java');self.assertIn('LinearLayoutManager(context)',s);self.assertIn('setupTempFileOnly(64L*1024*1024)',s);self.assertIn('rendererClosed && (!textClaimed || textClosed)',s);self.assertIn('volatile int token',s);self.assertIn('indexText(consumer)',s);self.assertIn('deferTextIndex()',s)
+ def test_pdf_text_parser_releases_page_objects_in_bounded_batches(self):
+  s=source('LocalPdfPreview.java')
+  self.assertIn('MAX_TEXT_PAGES_PER_DOCUMENT=8',s)
+  self.assertIn('private PDDocument textDocument(int page)',s)
+  self.assertIn('page-textWindowStart<MAX_TEXT_PAGES_PER_DOCUMENT',s)
+  self.assertIn('closeTextDocument();text=PDDocument.load',s)
+  self.assertIn('if(!textClaimed)closeTextDocument()',s)
  def test_user_data_precedes_viewed_files_and_settings(self):
   s=source('NotesController.java');a=s.index('private void renderUniversalResults(');b=s.index('private void rememberViewed(',a);s=s[a:b]
   self.assertLess(s.index('Saved notes & Docs'),s.index('Viewed files'));self.assertLess(s.index('Viewed files'),s.index('Settings'));self.assertIn('partial text',source('NotesController.java'))

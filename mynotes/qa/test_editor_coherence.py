@@ -157,7 +157,8 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('awaitStage("Formatting tray must close before navigating away"',scenario)
   self.assertIn('awaitStage("Notes keyboard must finish hiding before leaving the checklist",()->!keyboardVisibleForTest())',scenario)
   self.assertIn('awaitStage("Back must return to the home board",()->controller.view().findViewWithTag("home-board")!=null)',scenario)
-  self.assertIn('awaitStage("Home board must regain the app window after IME dismissal",()->controller.view().hasWindowFocus())',scenario)
+  self.assertIn('nativeTapWithoutFocusGate("Back")',scenario)
+  self.assertIn('awaitStage("Home board must regain the app window after a native touch restores focus",()->controller.view().hasWindowFocus())',scenario)
  def test_back_from_editor_clears_the_old_input_focus_and_avoids_rehiding_a_hidden_ime(self):
   s=(JAVA/'NotesController.java').read_text()
   hide=s.split('private void hideEditorKeyboard()',1)[1].split('private void discardTrailingBlankChecklistRows()',1)[0]

@@ -108,8 +108,10 @@ class ImageEditingContracts(unittest.TestCase):
 
     def test_image_editor_topbar_orders_undo_redo_immediately_before_save(self):
         editor = self.controller.split('private void renderImageEditor(', 1)[1].split('private void saveImageEdit(', 1)[0]
-        undo = editor.index('undo=icon("Undo image edit"')
-        redo = editor.index('redo=icon("Redo image edit"')
+        undo = editor.index('undo=icon("Undo"')
+        redo = editor.index('redo=icon("Redo"')
+        self.assertIn('undo.setTooltipText("Undo image edits")', editor)
+        self.assertIn('redo.setTooltipText("Redo image edits")', editor)
         save = editor.index('Button save=icon("Save image edits"')
         more = editor.index('Button more=icon("Image options"')
         self.assertLess(undo, redo)

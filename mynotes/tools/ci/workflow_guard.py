@@ -8,7 +8,9 @@ from mynotes.tools.ci.summary import REQUIRED
 def validate(workflow):
     jobs=workflow['jobs']
     from mynotes.tools.ci.test_plan import build_plan
-    assert len(jobs)-1+len(build_plan()['lanes'])<=45,'Expanded workflow exceeds the 45-job budget'
+    plan=build_plan();lane_count=len(plan['lanes'])
+    assert len(jobs)-1+lane_count<=45,'Expanded workflow exceeds the 45-job budget'
+    assert int(jobs['android']['strategy'].get('max-parallel',0))>=lane_count,'Android max-parallel must cover every independent emulator lane'
     def deps(job):
         value=jobs[job].get('needs',[])
         return [value] if isinstance(value,str) else value

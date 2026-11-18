@@ -255,7 +255,9 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      max-parallel: 8
+      # All 21 independent emulator lanes can start together; GitHub's account-level
+      # concurrency limit remains the only queue, instead of an eight-lane throttle.
+      max-parallel: 21
       matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
     env:
       LANE_ID: ${{ matrix.id }}

@@ -17,6 +17,7 @@ final class SafTestPicker {
         private String lastAction="";
         private long lastAttemptAt;
         private int attempts;
+        private boolean actionPending;
         private String lastOutcome="none";
 
         Driver(Instrumentation instrumentation){this.instrumentation=instrumentation;}
@@ -33,15 +34,22 @@ final class SafTestPicker {
                 if(target!=null){
                     long now=SystemClock.uptimeMillis();
                     boolean retry=action.equals(lastAction);
+                    if(!retry){lastAction=action;actionPending=false;}
+                    // A successful click is a one-shot command. Keep observing this
+                    // picker until its state changes; a second touch while the same
+                    // button remains on screen can submit the SAF result twice and
+                    // crash the API 29 DocumentsUI AsyncTask.
+                    if(retry && actionPending){lastOutcome="waiting-for-ui-transition";return true;}
                     if(!retry || now-lastAttemptAt>=750){
                         attempts++;lastAction=action;lastAttemptAt=now;
                         if(!retry){
                             boolean accepted=target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                             lastOutcome=accepted?"accessibility-click-accepted":"accessibility-click-rejected";
-                            if(accepted)return true;
+                            if(accepted){actionPending=true;return true;}
                         }
-                        lastOutcome=(retry?"retry-with-touch":"touch-fallback")+" "+tap(target);
-                        return lastOutcome.endsWith("true");
+                        boolean touched=tap(target);actionPending=touched;
+                        lastOutcome=(retry?"retry-with-touch":"touch-fallback")+" "+touched;
+                        return touched;
                     }
                 }
             }

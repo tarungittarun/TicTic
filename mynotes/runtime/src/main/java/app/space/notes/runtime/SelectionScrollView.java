@@ -40,6 +40,13 @@ final class SelectionScrollView extends ScrollView {
         float y=origin[1]+text.getTotalPaddingTop()+layout.getLineBottom(line)-text.getScrollY();
         return Math.hypot(event.getRawX()-x,event.getRawY()-y)<32*getResources().getDisplayMetrics().density;
     }
+    boolean isNativeSelectionTouch(EditText text,MotionEvent event){
+        int[] range=new int[2];if(!selectionRange(text,range))return false;
+        if(nearEndpoint(text,range[0],event) || nearEndpoint(text,range[1],event))return true;
+        int[] origin=new int[2];text.getLocationOnScreen(origin);float x=event.getRawX()-origin[0],y=event.getRawY()-origin[1];
+        if(x<0 || y<0 || x>=text.getWidth() || y>=text.getHeight())return false;
+        int offset=text.getOffsetForPosition(x,y);return offset>=Math.min(range[0],range[1]) && offset<=Math.max(range[0],range[1]);
+    }
     private boolean defer(MotionEvent event){
         View focused=findFocus();EditText text=selectedEditor(focused);if(text==null){lastDeferralReason=focused instanceof EditText?"focused-editor-has-no-selection":"no-selected-editor";return false;}String owner=focused==text?"focused-editor":"selected-editor-fallback";
         int[] range=new int[2];if(!selectionRange(text,range)){lastDeferralReason=owner+"-no-selection";return false;}int a=range[0],b=range[1];

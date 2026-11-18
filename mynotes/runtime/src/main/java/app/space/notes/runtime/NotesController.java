@@ -111,9 +111,14 @@ public final class NotesController {
         // Retry only the exact application-requested range, once; native touch handles stay native.
         @Override public void setSelection(int start,int end){super.setSelection(start,end);if(start>end && (getSelectionStart()!=start || getSelectionEnd()!=end))super.setSelection(start,end);}
 
+        private boolean isNativeSelectionGesture(android.view.MotionEvent event){
+            for(android.view.ViewParent ancestor=getParent();ancestor!=null;ancestor=ancestor.getParent())if(ancestor instanceof SelectionScrollView)return ((SelectionScrollView)ancestor).isNativeSelectionTouch(this,event);
+            return hasSelection();
+        }
         @Override public boolean onTouchEvent(android.view.MotionEvent event){
-            // Keep selection-handle drags in the native editor, not its enclosing ScrollView.
-            if(getParent()!=null){if(event.getActionMasked()==android.view.MotionEvent.ACTION_DOWN || (event.getActionMasked()==android.view.MotionEvent.ACTION_MOVE && hasSelection()))getParent().requestDisallowInterceptTouchEvent(true);else if(event.getActionMasked()==android.view.MotionEvent.ACTION_MOVE || event.getActionMasked()==android.view.MotionEvent.ACTION_UP || event.getActionMasked()==android.view.MotionEvent.ACTION_CANCEL)getParent().requestDisallowInterceptTouchEvent(false);}
+            // Keep taps in the selected range and native handle drags in the editor;
+            // an unselected-area drag must remain available to the enclosing ScrollView.
+            if(getParent()!=null){int action=event.getActionMasked();if(action==android.view.MotionEvent.ACTION_DOWN)getParent().requestDisallowInterceptTouchEvent(isNativeSelectionGesture(event));else if(action==android.view.MotionEvent.ACTION_UP || action==android.view.MotionEvent.ACTION_CANCEL)getParent().requestDisallowInterceptTouchEvent(false);}
             return super.onTouchEvent(event);
         }
         @Override protected void onFocusChanged(boolean focused,int direction,android.graphics.Rect previous){if(beforeFocusTransition!=null)beforeFocusTransition.run();try{super.onFocusChanged(focused,direction,previous);}finally{if(afterFocusTransition!=null)afterFocusTransition.run();}}

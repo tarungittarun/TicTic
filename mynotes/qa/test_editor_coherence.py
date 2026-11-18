@@ -146,7 +146,11 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('if(manualRangeField==input && manualAnchor!=manualFocus)',s)
   self.assertIn('if(rememberedSelectionField==input && rememberedSelectionStart>=0',s)
   self.assertIn('else if(input.hasFocus() && input.hasWindowFocus())clearEditorSelection(input)',s)
+  self.assertIn('boolean isNativeSelectionTouch(EditText text,MotionEvent event)',s)
   self.assertIn('release();clearManualRangeViewport();super.onDetachedFromWindow()',s)
+  notes=(JAVA/'NotesController.java').read_text()
+  self.assertIn('isNativeSelectionTouch(this,event)',notes)
+  self.assertIn('requestDisallowInterceptTouchEvent(isNativeSelectionGesture(event))',notes)
  def test_editor_switch_fixture_finishes_hiding_the_old_ime_before_new_focus_checks(self):
   tests=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   scenario=tests.split('@Test public void checklistFormattingAndSafeLinksPreserveRowsInBothEditors()',1)[1].split('@Test public void hyperlinkFormShowsBothFieldsAndCancelKeepsOriginal',1)[0]

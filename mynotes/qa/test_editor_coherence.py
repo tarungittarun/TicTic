@@ -302,6 +302,8 @@ class EditorCoherence(unittest.TestCase):
   self.assertIn('upgradeLegacyChecklistForFormatting()',controller)
   self.assertIn('DocumentContent.fromLegacy(source).inNotesWorkspace(true).ensureWritableTail()',controller)
   self.assertIn('putString("field","row:"+rowId)',controller)
+  self.assertIn('boolean showKeyboard=keyboardVisible()',controller)
+  self.assertIn('putBoolean("showKeyboard",showKeyboard)',controller)
   document=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('TextStyles.write(input.getText(),value.marks',document)
   self.assertIn('if(item!=null)ChecklistLinks.install(input,this::openWeb)',document)

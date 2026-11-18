@@ -715,7 +715,7 @@ persistDraft();switch(action){case "Save copy to device folder":host.chooseCopyF
         if(field==null || rowId==null)return false;
         int start=Math.max(0,Math.min(field.getSelectionStart(),field.length())),end=Math.max(0,Math.min(field.getSelectionEnd(),field.length()));
         DocumentContent content=DocumentContent.fromLegacy(source).inNotesWorkspace(true).ensureWritableTail();Note upgraded=source.withContent(content,System.currentTimeMillis());
-        captureUndo(Arrays.asList(source),true);canonicalState.clear();canonicalStateRestored=true;canonicalState.putString("note",source.id);canonicalState.putString("field","row:"+rowId);canonicalState.putInt("start",start);canonicalState.putInt("end",end);canonicalState.putBoolean("showKeyboard",true);
+        boolean showKeyboard=keyboardVisible();captureUndo(Arrays.asList(source),true);canonicalState.clear();canonicalStateRestored=true;canonicalState.putString("note",source.id);canonicalState.putString("field","row:"+rowId);canonicalState.putInt("start",start);canonicalState.putInt("end",end);canonicalState.putBoolean("showKeyboard",showKeyboard);
         replace(upgraded);queueSave();renderEditor();if(canonicalEditor!=null)canonicalEditor.openFormatForRestoredSelection();return true;
     }
     private void updateFormatting(){if(!binding && body!=null && noteFormatControls!=null && formattingPanel!=null && formattingPanel.getVisibility()==View.VISIBLE)noteFormatControls.refresh();}

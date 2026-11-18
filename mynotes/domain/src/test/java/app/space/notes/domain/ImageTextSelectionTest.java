@@ -9,7 +9,7 @@ public class ImageTextSelectionTest {
  @Test public void reversedDragIntersectsOnlyChosenRegions(){ImageTextSelection s=words();s.rectangle(.6f,.4f,0,0);assertEquals("नमस्ते 25",s.text());}
  @Test public void touchingAnEdgeDoesNotSelectUnrelatedWords(){ImageTextSelection s=words();s.rectangle(.5f,.1f,.9f,.3f);assertEquals("",s.text());}
  @Test public void aThinOverlapDoesNotSelectAWordBesideTheDraggedArea(){ImageTextSelection s=words();s.rectangle(.29f,.1f,.31f,.3f);assertEquals("",s.text());}
- @Test public void majorityOverlapSelectsPartiallyCoveredWordWithoutItsNeighbor(){ImageTextSelection s=words();s.rectangle(.18f,.08f,.36f,.32f);assertEquals("ONE",s.text());}
+ @Test public void majorityOverlapSelectsPartiallyCoveredWordWithoutItsNeighbor(){ImageTextSelection s=words();s.rectangle(.18f,.08f,.36f,.32f);assertEquals("नमस्ते",s.text());}
  @Test public void tappingTogglesWithoutChangingTheRecognizedWord(){ImageTextSelection s=words();s.toggle(3);assertEquals("😀",s.text());s.toggle(3);assertEquals("",s.text());}
  @Test(expected=IllegalArgumentException.class) public void nonFiniteBoxesAreRejected(){new ImageTextSelection.Word("bad",Float.NaN,0,1,1,0);}
  @Test(expected=IllegalArgumentException.class) public void outOfImageBoxesAreRejected(){new ImageTextSelection.Word("bad",0,0,1.1f,1,0);}

@@ -71,7 +71,8 @@
     "app.space.notes.CoreJourneysTest#emptyChecklistBackspaceAndMenuRemovalAreImmediateInBothEditors",
     "app.space.notes.CoreJourneysTest#hiddenCheckedFooterUsesAccuratePluralCountInBothEditors",
     "app.space.notes.CoreJourneysTest#legacyChecklistIndentOutdentPersistsNestingAndEnforcesDepthLimits",
-    "app.space.notes.CoreJourneysTest#namedChecklistOptionsOmitMoveAndKeepTheDragHandle"
+    "app.space.notes.CoreJourneysTest#namedChecklistOptionsOmitMoveAndKeepTheDragHandle",
+    "app.space.notes.CoreJourneysTest#deletingChecklistBetweenWritingSectionsMergesTextAndRestoresCaret"
   ],
   "Rich Doc and tables": [
     "app.space.notes.CoreJourneysTest#insertingLiteralNumberedPointRenumbersFollowingItemsInDoc",
@@ -208,7 +209,9 @@
     "app.space.notes.runtime.ImageRegionTextTest#cancellationSuppressesLateResultAndEventuallyReleasesSource",
     "app.space.notes.runtime.ImageRegionTextTest#absentAreaDoesNotLeakSourceOrDeliverAfterCancellation",
     "app.space.notes.runtime.ImageSelectionTest#compactSecondaryToolsRemainAccessibleAndReadAreaIsVisible",
-    "app.space.notes.runtime.ImageSelectionTest#copySelectedTextDoesNotSaveOrDismissAndClearDisablesCopy"
+    "app.space.notes.runtime.ImageSelectionTest#copySelectedTextDoesNotSaveOrDismissAndClearDisablesCopy",
+    "app.space.notes.runtime.ImageRegionTextTest#asyncAreaReadUsesFreshSourceCropInsteadOfStaleFullImageText",
+    "app.space.notes.runtime.ImageSelectionTest#startingFreshCropReadDisablesStaleFullImageWordActions"
   ],
   "Voice inbox and transcripts": [
     "app.space.notes.BackupCodecTest#restoredRecordingLinksKeepContentNamesThroughBackupCodec",
@@ -267,7 +270,11 @@
     "app.space.notes.runtime.DrawingToolsTest#extremeLegacyAspectRatioStaysBoundedAndDoesNotStretchPixels",
     "app.space.notes.runtime.DrawingToolsTest#copiedDrawingUsesReadablePngUriRatherThanTextOrUiPixels",
     "app.space.notes.runtime.DrawingToolsTest#draftChecksumMatchesPngBeforeAttachmentResizing",
-    "app.space.notes.runtime.NotesMotionTest#selectionRefreshReusesUnchangedImagePreviewInsteadOfRestartingDecode"
+    "app.space.notes.runtime.NotesMotionTest#selectionRefreshReusesUnchangedImagePreviewInsteadOfRestartingDecode",
+    "app.space.notes.runtime.ImageEditViewTest#pinchZoomAndPanWorkWithoutPaintingWhileAStrokeToolIsSelected",
+    "app.space.notes.runtime.ImageEditViewTest#rotatedSubpixelRedactionCoversWholeSourcePixelsWithoutChangingOriginal",
+    "app.space.notes.runtime.ImageEditViewTest#textAndRedactionPersistAsBoundedAnnotationsAndRenderWithoutChangingSource",
+    "app.space.notes.runtime.ImageEditViewTest#versionOneDrawingStateStillLoadsAfterAddingNewTools"
   ],
   "File viewers": [
     "app.space.notes.CoreJourneysTest#viewedFilesSearchCountsIndexedMatchesWithoutImportingNotes",

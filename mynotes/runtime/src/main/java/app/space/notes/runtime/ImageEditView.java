@@ -3,8 +3,10 @@ package app.space.notes.runtime;
 import android.content.Context;
 import android.graphics.*;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import app.space.notes.domain.ImageEditPlan;
+import app.space.notes.domain.RichText;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,25 +14,35 @@ import java.util.List;
 
 /** Local preview owns one decoded bitmap. Crops and vector annotations never copy pixels. */
 final class ImageEditView extends View {
- enum Tool { NONE, HIGHLIGHT, PEN, RECTANGLE, OVAL, ARROW }
- private static final int STATE_MAGIC=0x4d4e4931,STATE_VERSION=1;
+ enum Tool { NONE, HIGHLIGHT, PEN, RECTANGLE, OVAL, ARROW, LINE, REDACT, TEXT }
+ interface TextRequest { void place(float sourceX,float sourceY); }
+ private static final int STATE_MAGIC=0x4d4e4931,STATE_VERSION=2;
  private static final int MAX_HISTORY=16,MAX_ANNOTATIONS=64,MAX_TOTAL_POINTS=768,MAX_STATE_INTS=5000;
+ private static final int MAX_ANNOTATION_TEXT=256,MAX_TOTAL_TEXT=1024;
  private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);
  private final Paint annotationPaint=new Paint(Paint.ANTI_ALIAS_FLAG);
  private final ArrayDeque<Snapshot> undo=new ArrayDeque<>(),redo=new ArrayDeque<>();
  private final ArrayList<Annotation> annotations=new ArrayList<>();
+ private final ScaleGestureDetector zoomDetector;
  private Bitmap source;
  private ImageEditPlan plan;
  private Snapshot gesture,drawingBefore;
  private Annotation drawing;
  private Runnable changed=()->{};
- private boolean cropMode,saving;
+ private TextRequest textRequest=(x,y)->{};
+ private boolean cropMode,saving,navigating,multiFingerNavigation;
  private Tool drawingTool=Tool.NONE;
- private int drawingColor=Color.RED,handle=-1,pointer=-1,drawingPointer=-1;
- private float scale=1,ox,oy;
+ private int drawingColor=Color.RED,handle=-1,pointer=-1,drawingPointer=-1,textPointer=-1;
+ private float scale=1,fitScale=1,ox,oy,zoom=1,panX,panY,lastNavX,lastNavY;
 
- ImageEditView(Context c){super(c);setFocusable(true);setContentDescription("Image preview. Use Crop presets, Highlight, Pen, or Shapes.");}
- void loaded(Bitmap bitmap,ImageEditPlan restored){source=bitmap;plan=restored!=null && restored.sourceWidth==bitmap.getWidth() && restored.sourceHeight==bitmap.getHeight()?restored:new ImageEditPlan(bitmap.getWidth(),bitmap.getHeight());notifyChanged();}
+ ImageEditView(Context c){
+  super(c);setFocusable(true);setContentDescription("Image preview. Pinch to zoom; drag with two fingers to pan. Use Text, Redact, Highlight, Pen, Shapes, or Crop.");
+  zoomDetector=new ScaleGestureDetector(c,new ScaleGestureDetector.SimpleOnScaleGestureListener(){
+   @Override public boolean onScaleBegin(ScaleGestureDetector detector){return ready() && !saving;}
+   @Override public boolean onScale(ScaleGestureDetector detector){zoomAt(detector.getFocusX(),detector.getFocusY(),detector.getScaleFactor());invalidate();return true;}
+  });
+ }
+ void loaded(Bitmap bitmap,ImageEditPlan restored){source=bitmap;plan=restored!=null && restored.sourceWidth==bitmap.getWidth() && restored.sourceHeight==bitmap.getHeight()?restored:new ImageEditPlan(bitmap.getWidth(),bitmap.getHeight());updateViewport();notifyChanged();}
  boolean ready(){return source!=null && !source.isRecycled();}
  boolean saving(){return saving;}
  void saving(boolean value){saving=value;notifyChanged();}
@@ -40,16 +52,24 @@ final class ImageEditView extends View {
  Tool drawingTool(){return drawingTool;}
  int drawingColor(){return drawingColor;}
  int annotationCount(){return annotations.size();}
+ float zoomScale(){return zoom;}
+ float panOffsetX(){return panX;}
+ float panOffsetY(){return panY;}
+ float previewScale(){updateViewport();return scale;}
+ float previewOriginX(){updateViewport();return ox;}
+ float previewOriginY(){updateViewport();return oy;}
+ void onTextRequested(TextRequest request){textRequest=request==null?(x,y)->{}:request;}
  void settleGesture(){finishGesture(true);finishDrawing(true);}
  void cropMode(boolean value){if(saving)return;finishGesture(false);finishDrawing(false);cropMode=value;if(value)drawingTool=Tool.NONE;notifyChanged();}
  void drawingTool(Tool tool,int color){if(saving)return;finishGesture(false);finishDrawing(false);cropMode=false;drawingTool=tool==null?Tool.NONE:tool;drawingColor=color;notifyChanged();}
  boolean canUndo(){return !saving && !undo.isEmpty();}
  boolean canRedo(){return !saving && !redo.isEmpty();}
  void onStateChanged(Runnable listener){changed=listener;notifyChanged();}
- void edit(ImageEditPlan next){if(!ready() || saving || next==null)return;finishGesture(false);finishDrawing(false);if(plan.equals(next))return;remember(snapshot());plan=next;cropMode=false;drawingTool=Tool.NONE;notifyChanged();}
- void reset(){if(!ready() || saving)return;finishGesture(false);finishDrawing(false);ImageEditPlan original=new ImageEditPlan(source.getWidth(),source.getHeight());if(plan.equals(original) && annotations.isEmpty())return;remember(snapshot());plan=original;annotations.clear();cropMode=false;drawingTool=Tool.NONE;notifyChanged();}
- void undo(){finishGesture(false);finishDrawing(false);if(canUndo()){redo.addLast(snapshot());restore(undo.removeLast());notifyChanged();}}
- void redo(){finishGesture(false);finishDrawing(false);if(canRedo()){undo.addLast(snapshot());restore(redo.removeLast());notifyChanged();}}
+ void edit(ImageEditPlan next){if(!ready() || saving || next==null)return;finishGesture(false);finishDrawing(false);if(plan.equals(next))return;remember(snapshot());plan=next;cropMode=false;drawingTool=Tool.NONE;updateViewport();notifyChanged();}
+ void reset(){if(!ready() || saving)return;finishGesture(false);finishDrawing(false);ImageEditPlan original=new ImageEditPlan(source.getWidth(),source.getHeight());if(plan.equals(original) && annotations.isEmpty())return;remember(snapshot());plan=original;annotations.clear();cropMode=false;drawingTool=Tool.NONE;updateViewport();notifyChanged();}
+ void fitToScreen(){zoom=1;panX=panY=0;updateViewport();invalidate();}
+ void undo(){finishGesture(false);finishDrawing(false);if(canUndo()){redo.addLast(snapshot());restore(undo.removeLast());updateViewport();notifyChanged();}}
+ void redo(){finishGesture(false);finishDrawing(false);if(canRedo()){undo.addLast(snapshot());restore(redo.removeLast());updateViewport();notifyChanged();}}
  int[] historyState(boolean forward){List<Snapshot> values=new ArrayList<>(forward?redo:undo);while(values.size()>MAX_HISTORY)values.remove(0);while(values.size()>1 && encodedSize(values)>MAX_STATE_INTS)values.remove(0);return encodeSnapshots(values);}
  int[] annotationState(){return encodeSnapshots(java.util.Collections.singletonList(snapshot()));}
  void restoreAnnotations(int[] state){if(state==null || state.length==0)return;try{List<Snapshot> decoded=decodeSnapshots(state);if(decoded.size()!=1 || decoded.get(0).plan.sourceWidth!=plan.sourceWidth || decoded.get(0).plan.sourceHeight!=plan.sourceHeight || !decoded.get(0).plan.equals(plan))throw new IllegalArgumentException("Image preview state changed");annotations.clear();annotations.addAll(decoded.get(0).annotations);}catch(IllegalArgumentException invalid){annotations.clear();}notifyChanged();}
@@ -63,9 +83,9 @@ final class ImageEditView extends View {
  private void restore(Snapshot value){plan=value.plan;annotations.clear();annotations.addAll(value.annotations);}
  private void remember(Snapshot before){undo.addLast(before);while(undo.size()>MAX_HISTORY)undo.removeFirst();redo.clear();}
  private void notifyChanged(){
-  invalidate();if(plan!=null){String mode=cropMode?"Crop: drag a corner.":drawingTool!=Tool.NONE?"Draw with one finger: "+toolName(drawingTool)+".":"Choose Crop, Highlight, Pen, or Shapes.";setContentDescription("Image preview, "+plan.cropWidth()+" by "+plan.cropHeight()+" pixels. "+annotations.size()+" annotations. "+mode);}changed.run();
+  invalidate();if(plan!=null){String mode=cropMode?"Crop: drag a highlighted corner.":drawingTool==Tool.TEXT?"Tap the image to place text.":drawingTool==Tool.REDACT?"Drag over details to cover them with an opaque black block.":drawingTool!=Tool.NONE?"Draw with one finger: "+toolName(drawingTool)+".":"Pinch to zoom; use two fingers to pan. Choose a tool to edit.";setContentDescription("Image preview, "+plan.cropWidth()+" by "+plan.cropHeight()+" pixels. "+annotations.size()+" annotations. "+mode);}changed.run();
  }
- private static String toolName(Tool tool){switch(tool){case HIGHLIGHT:return "highlight";case PEN:return "pen";case RECTANGLE:return "rectangle";case OVAL:return "oval";case ARROW:return "arrow";default:return "browse";}}
+ private static String toolName(Tool tool){switch(tool){case HIGHLIGHT:return "highlight";case PEN:return "pen";case RECTANGLE:return "rectangle";case OVAL:return "oval";case ARROW:return "arrow";case LINE:return "line";case REDACT:return "redaction";case TEXT:return "text";default:return "browse";}}
  static Matrix matrix(ImageEditPlan p){float[] m=p.matrix();Matrix value=new Matrix();value.setValues(new float[]{m[0],m[1],m[2],m[3],m[4],m[5],0,0,1});return value;}
  /** Called only on the disk worker, with its own bitmap, never this view's bitmap. */
  static Bitmap render(Bitmap bitmap,ImageEditPlan plan){return render(bitmap,plan,null);}
@@ -76,23 +96,33 @@ final class ImageEditView extends View {
    out.setHasAlpha(bitmap.hasAlpha());Canvas canvas=new Canvas(out);canvas.translate(-plan.left,-plan.top);canvas.drawBitmap(bitmap,matrix(plan),new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));canvas.concat(matrix(plan));Paint ink=new Paint(Paint.ANTI_ALIAS_FLAG);for(Annotation mark:marks)drawAnnotation(canvas,ink,mark);return out;
   }catch(RuntimeException | OutOfMemoryError failure){out.recycle();throw failure;}
  }
+ void addText(String value,float sourceX,float sourceY){
+  if(!ready() || saving || plan==null)throw new IllegalStateException("Image preview is not ready");
+  RichText.requireText(value);if(value.trim().isEmpty())throw new IllegalArgumentException("Enter text to add");if(value.length()>MAX_ANNOTATION_TEXT)throw new IllegalArgumentException("Image text is limited to 256 characters");
+  int totalText=0;for(Annotation mark:annotations)totalText+=mark.text.length();if(annotations.size()>=MAX_ANNOTATIONS || totalText+value.length()>MAX_TOTAL_TEXT)throw new IllegalArgumentException("Image annotation limit reached; save or reset edits first");
+  if(totalPoints(annotations)>=MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation limit reached; save or reset edits first");
+  float size=Math.max(.5f,dp(26)/Math.max(.001f,scale));float x=Math.max(0,Math.min(source.getWidth(),sourceX)),y=Math.max(0,Math.min(source.getHeight()-Math.min(size,source.getHeight()),sourceY));
+  Annotation mark=new Annotation(Tool.TEXT,drawingColor,size,new float[]{x,y+Math.min(size,source.getHeight())},value);validateAnnotation(mark,plan);remember(snapshot());annotations.add(mark);notifyChanged();
+ }
  private static List<Annotation> decodeAnnotations(int[] state,ImageEditPlan plan){
   List<Snapshot> decoded=decodeSnapshots(state);if(decoded.size()!=1 || !decoded.get(0).plan.equals(plan))throw new IllegalArgumentException("Image annotation preview changed");return decoded.get(0).annotations;
  }
- private static int encodedSize(List<Snapshot> snapshots){int size=3;for(Snapshot snapshot:snapshots){size+=9;for(Annotation annotation:snapshot.annotations)size+=4+annotation.points.length;}return size;}
+ private static int encodedSize(List<Snapshot> snapshots){int size=3;for(Snapshot snapshot:snapshots){size+=9;for(Annotation annotation:snapshot.annotations)size+=5+annotation.points.length+annotation.text.length();}return size;}
  private static int[] encodeSnapshots(List<Snapshot> snapshots){
   if(snapshots.size()>MAX_HISTORY)throw new IllegalArgumentException("Image preview history limit exceeded");int size=encodedSize(snapshots);
-  for(Snapshot snapshot:snapshots){int points=0;for(Annotation annotation:snapshot.annotations)points+=annotation.pointCount();if(snapshot.annotations.size()>MAX_ANNOTATIONS || points>MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation limit exceeded");}if(size>MAX_STATE_INTS)throw new IllegalArgumentException("Image preview history limit exceeded");
+  for(Snapshot snapshot:snapshots){int points=0,text=0;for(Annotation annotation:snapshot.annotations){points+=annotation.pointCount();text+=annotation.text.length();validateAnnotation(annotation,snapshot.plan);}if(snapshot.annotations.size()>MAX_ANNOTATIONS || points>MAX_TOTAL_POINTS || text>MAX_TOTAL_TEXT)throw new IllegalArgumentException("Image annotation limit exceeded");}if(size>MAX_STATE_INTS)throw new IllegalArgumentException("Image preview history limit exceeded");
   int[] result=new int[size];int at=0;result[at++]=STATE_MAGIC;result[at++]=STATE_VERSION;result[at++]=snapshots.size();
-  for(Snapshot snapshot:snapshots){for(int value:snapshot.plan.state())result[at++]=value;result[at++]=snapshot.annotations.size();for(Annotation annotation:snapshot.annotations){result[at++]=annotation.kind;result[at++]=annotation.color;result[at++]=Float.floatToIntBits(annotation.width);result[at++]=annotation.pointCount();for(float value:annotation.points)result[at++]=Float.floatToIntBits(value);}}
+  for(Snapshot snapshot:snapshots){for(int value:snapshot.plan.state())result[at++]=value;result[at++]=snapshot.annotations.size();for(Annotation annotation:snapshot.annotations){result[at++]=annotation.kind;result[at++]=annotation.color;result[at++]=Float.floatToIntBits(annotation.width);result[at++]=annotation.pointCount();for(float value:annotation.points)result[at++]=Float.floatToIntBits(value);result[at++]=annotation.text.length();for(int i=0;i<annotation.text.length();i++)result[at++]=annotation.text.charAt(i);}}
   return result;
  }
  private static List<Snapshot> decodeSnapshots(int[] values){
-  if(values==null || values.length<3 || values.length>MAX_STATE_INTS || values[0]!=STATE_MAGIC || values[1]!=STATE_VERSION)throw new IllegalArgumentException("Invalid image preview state");int count=values[2];if(count<0 || count>MAX_HISTORY)throw new IllegalArgumentException("Invalid image preview history size");int at=3;List<Snapshot> decoded=new ArrayList<>();
+  if(values==null || values.length<3 || values.length>MAX_STATE_INTS || values[0]!=STATE_MAGIC || (values[1]!=1 && values[1]!=STATE_VERSION))throw new IllegalArgumentException("Invalid image preview state");int version=values[1],count=values[2];if(count<0 || count>MAX_HISTORY)throw new IllegalArgumentException("Invalid image preview history size");int at=3;List<Snapshot> decoded=new ArrayList<>();
   for(int n=0;n<count;n++){
-   if(at+9>values.length)throw new IllegalArgumentException("Truncated image preview state");int[] geometry=new int[8];System.arraycopy(values,at,geometry,0,8);at+=8;ImageEditPlan geometryPlan=ImageEditPlan.restore(geometry);int markCount=values[at++];if(markCount<0 || markCount>MAX_ANNOTATIONS)throw new IllegalArgumentException("Invalid image annotation count");int totalPoints=0;List<Annotation> marks=new ArrayList<>();
+   if(at+9>values.length)throw new IllegalArgumentException("Truncated image preview state");int[] geometry=new int[8];System.arraycopy(values,at,geometry,0,8);at+=8;ImageEditPlan geometryPlan=ImageEditPlan.restore(geometry);int markCount=values[at++];if(markCount<0 || markCount>MAX_ANNOTATIONS)throw new IllegalArgumentException("Invalid image annotation count");int totalPoints=0,totalText=0;List<Annotation> marks=new ArrayList<>();
    for(int i=0;i<markCount;i++){
-    if(at+4>values.length)throw new IllegalArgumentException("Truncated image annotation");int kind=values[at++],color=values[at++];float width=Float.intBitsToFloat(values[at++]);int pointCount=values[at++];if(kind<0 || kind>=Tool.values().length-1 || pointCount<1 || pointCount>MAX_TOTAL_POINTS || at+pointCount*2>values.length)throw new IllegalArgumentException("Invalid image annotation");float[] points=new float[pointCount*2];for(int p=0;p<points.length;p++)points[p]=Float.intBitsToFloat(values[at++]);totalPoints+=pointCount;if(totalPoints>MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation point limit exceeded");Annotation mark=new Annotation(Tool.values()[kind+1],color,width,points);validateAnnotation(mark,geometryPlan);marks.add(mark);
+    if(at+4>values.length)throw new IllegalArgumentException("Truncated image annotation");int kind=values[at++],color=values[at++];float width=Float.intBitsToFloat(values[at++]);int pointCount=values[at++];int maxKind=version==1?Tool.ARROW.ordinal()-1:Tool.values().length-2;if(kind<0 || kind>maxKind || pointCount<1 || pointCount>MAX_TOTAL_POINTS || at+pointCount*2>values.length)throw new IllegalArgumentException("Invalid image annotation");float[] points=new float[pointCount*2];for(int p=0;p<points.length;p++)points[p]=Float.intBitsToFloat(values[at++]);String text="";
+    if(version>=2){if(at>=values.length)throw new IllegalArgumentException("Truncated image annotation text");int length=values[at++];if(length<0 || length>MAX_ANNOTATION_TEXT || at+length>values.length)throw new IllegalArgumentException("Invalid image annotation text");StringBuilder value=new StringBuilder(length);for(int c=0;c<length;c++)value.append((char)values[at++]);text=value.toString();totalText+=length;if(totalText>MAX_TOTAL_TEXT)throw new IllegalArgumentException("Image annotation text limit exceeded");}
+    totalPoints+=pointCount;if(totalPoints>MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation point limit exceeded");Annotation mark=new Annotation(Tool.values()[kind+1],color,width,points,text);validateAnnotation(mark,geometryPlan);marks.add(mark);
    }
    decoded.add(new Snapshot(geometryPlan,marks));
   }
@@ -100,30 +130,73 @@ final class ImageEditView extends View {
  }
  private static void validateAnnotation(Annotation mark,ImageEditPlan plan){
   if(mark.points.length<2 || mark.points.length%2!=0 || !finite(mark.width) || mark.width<=0 || mark.width>Math.max(plan.sourceWidth,plan.sourceHeight))throw new IllegalArgumentException("Invalid annotation geometry");
-  if((mark.tool==Tool.RECTANGLE || mark.tool==Tool.OVAL || mark.tool==Tool.ARROW) && mark.pointCount()!=2)throw new IllegalArgumentException("Invalid shape geometry");
+  boolean shape=mark.tool==Tool.RECTANGLE || mark.tool==Tool.OVAL || mark.tool==Tool.ARROW || mark.tool==Tool.LINE || mark.tool==Tool.REDACT;
+  if(shape && mark.pointCount()!=2)throw new IllegalArgumentException("Invalid shape geometry");if(mark.tool==Tool.TEXT && mark.pointCount()!=1)throw new IllegalArgumentException("Invalid text geometry");
+  if(mark.text.length()>MAX_ANNOTATION_TEXT)throw new IllegalArgumentException("Image annotation text limit exceeded");RichText.requireText(mark.text);if(mark.tool==Tool.TEXT?mark.text.trim().isEmpty():!mark.text.isEmpty())throw new IllegalArgumentException("Invalid image annotation text");
   for(int i=0;i<mark.points.length;i+=2)if(!finite(mark.points[i]) || !finite(mark.points[i+1]) || mark.points[i]<0 || mark.points[i]>plan.sourceWidth || mark.points[i+1]<0 || mark.points[i+1]>plan.sourceHeight)throw new IllegalArgumentException("Annotation outside image");
  }
  private static boolean finite(float value){return !Float.isNaN(value) && !Float.isInfinite(value);}
  private static void drawAnnotation(Canvas canvas,Paint ink,Annotation mark){
-  ink.setColor(mark.color);ink.setStyle(Paint.Style.STROKE);ink.setStrokeWidth(mark.width);ink.setStrokeCap(Paint.Cap.ROUND);ink.setStrokeJoin(Paint.Join.ROUND);float[] points=mark.points;int count=mark.pointCount();
+  float[] points=mark.points;int count=mark.pointCount();
+  if(mark.tool==Tool.TEXT){drawTextAnnotation(canvas,ink,mark);return;}
+  ink.setColor(mark.color);ink.setStyle(Paint.Style.STROKE);ink.setStrokeWidth(mark.width);ink.setStrokeCap(Paint.Cap.ROUND);ink.setStrokeJoin(Paint.Join.ROUND);
   if(mark.tool==Tool.HIGHLIGHT || mark.tool==Tool.PEN){if(count==1){canvas.drawCircle(points[0],points[1],Math.max(.5f,mark.width/2),ink);}else{Path path=new Path();path.moveTo(points[0],points[1]);for(int i=1;i<count;i++)path.lineTo(points[i*2],points[i*2+1]);canvas.drawPath(path,ink);}return;}
-  float x1=points[0],y1=points[1],x2=points[2],y2=points[3];if(mark.tool==Tool.RECTANGLE){canvas.drawRect(Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2),ink);return;}if(mark.tool==Tool.OVAL){canvas.drawOval(Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2),ink);return;}
-  canvas.drawLine(x1,y1,x2,y2,ink);double angle=Math.atan2(y2-y1,x2-x1);float head=Math.max(mark.width*4,10);float left=(float)(angle+Math.PI*.82),right=(float)(angle-Math.PI*.82);Path arrow=new Path();arrow.moveTo(x2,y2);arrow.lineTo(x2+(float)Math.cos(left)*head,y2+(float)Math.sin(left)*head);arrow.moveTo(x2,y2);arrow.lineTo(x2+(float)Math.cos(right)*head,y2+(float)Math.sin(right)*head);canvas.drawPath(arrow,ink);
+  float x1=points[0],y1=points[1],x2=points[2],y2=points[3];
+  if(mark.tool==Tool.REDACT){boolean antiAlias=ink.isAntiAlias();ink.setAntiAlias(false);ink.setStyle(Paint.Style.FILL);ink.setColor(Color.BLACK);canvas.drawRect((float)Math.floor(Math.min(x1,x2)),(float)Math.floor(Math.min(y1,y2)),(float)Math.ceil(Math.max(x1,x2)),(float)Math.ceil(Math.max(y1,y2)),ink);ink.setAntiAlias(antiAlias);return;}
+  if(mark.tool==Tool.RECTANGLE){canvas.drawRect(Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2),ink);return;}
+  if(mark.tool==Tool.OVAL){canvas.drawOval(Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2),ink);return;}
+  canvas.drawLine(x1,y1,x2,y2,ink);if(mark.tool==Tool.LINE)return;
+  double angle=Math.atan2(y2-y1,x2-x1);float head=Math.max(mark.width*4,10);float left=(float)(angle+Math.PI*.82),right=(float)(angle-Math.PI*.82);Path arrow=new Path();arrow.moveTo(x2,y2);arrow.lineTo(x2+(float)Math.cos(left)*head,y2+(float)Math.sin(left)*head);arrow.moveTo(x2,y2);arrow.lineTo(x2+(float)Math.cos(right)*head,y2+(float)Math.sin(right)*head);canvas.drawPath(arrow,ink);
+ }
+ private static void drawTextAnnotation(Canvas canvas,Paint ink,Annotation mark){
+  ink.setTypeface(Typeface.create("sans-serif-medium",Typeface.BOLD));ink.setTextSize(mark.width);ink.setTextAlign(Paint.Align.LEFT);ink.setStrokeJoin(Paint.Join.ROUND);ink.setStrokeWidth(Math.max(1,mark.width*.10f));String[] lines=mark.text.split("\\n",-1);float baseline=mark.points[1];
+  ink.setStyle(Paint.Style.STROKE);ink.setColor(Color.BLACK);for(String line:lines){canvas.drawText(line,mark.points[0],baseline,ink);baseline+=mark.width*1.2f;}
+  baseline=mark.points[1];ink.setStyle(Paint.Style.FILL);ink.setColor(mark.color);for(String line:lines){canvas.drawText(line,mark.points[0],baseline,ink);baseline+=mark.width*1.2f;}ink.setTypeface(Typeface.DEFAULT);ink.setStyle(Paint.Style.STROKE);
  }
  private float dp(float n){return n*getResources().getDisplayMetrics().density;}
  private float[] screenToSource(float x,float y){
-  float oxp=(x-ox)/scale,oyp=(y-oy)/scale;if(oxp<plan.left || oxp>plan.right || oyp<plan.top || oyp>plan.bottom)return null;float[] m=plan.matrix();float dx=oxp-m[2],dy=oyp-m[5],det=m[0]*m[4]-m[1]*m[3];if(det==0)return null;float sx=(m[4]*dx-m[1]*dy)/det,sy=(-m[3]*dx+m[0]*dy)/det;return new float[]{Math.max(0,Math.min(plan.sourceWidth,sx)),Math.max(0,Math.min(plan.sourceHeight,sy))};
+  if(plan==null)return null;float oxp=(x-ox)/scale,oyp=(y-oy)/scale;if(oxp<plan.left || oxp>plan.right || oyp<plan.top || oyp>plan.bottom)return null;float[] m=plan.matrix();float dx=oxp-m[2],dy=oyp-m[5],det=m[0]*m[4]-m[1]*m[3];if(det==0)return null;float sx=(m[4]*dx-m[1]*dy)/det,sy=(-m[3]*dx+m[0]*dy)/det;return new float[]{Math.max(0,Math.min(plan.sourceWidth,sx)),Math.max(0,Math.min(plan.sourceHeight,sy))};
  }
+ private boolean insideImage(float x,float y){float ix=(x-ox)/scale,iy=(y-oy)/scale;return ix>=0 && iy>=0 && ix<=plan.width() && iy<=plan.height();}
+ private float dpDensity(){return getResources().getDisplayMetrics().density;}
+ private void updateViewport(){
+  if(plan==null || getWidth()<=0 || getHeight()<=0)return;float margin=dp(28);fitScale=Math.max(.001f,Math.min(Math.max(1,getWidth()-margin*2)/plan.width(),Math.max(1,getHeight()-margin*2)/plan.height()));scale=fitScale*zoom;
+  float imageWidth=plan.width()*scale,imageHeight=plan.height()*scale,centerX=(getWidth()-imageWidth)/2,centerY=(getHeight()-imageHeight)/2;
+  float minX=Math.min(0,getWidth()-imageWidth)-centerX,maxX=Math.max(0,getWidth()-imageWidth)-centerX,minY=Math.min(0,getHeight()-imageHeight)-centerY,maxY=Math.max(0,getHeight()-imageHeight)-centerY;
+  panX=Math.max(minX,Math.min(maxX,panX));panY=Math.max(minY,Math.min(maxY,panY));ox=centerX+panX;oy=centerY+panY;
+ }
+ private void zoomAt(float focusX,float focusY,float factor){
+  if(plan==null || getWidth()<=0 || getHeight()<=0)return;updateViewport();float imageX=(focusX-ox)/scale,imageY=(focusY-oy)/scale;float next=Math.max(1,Math.min(8,zoom*factor));if(next==zoom)return;zoom=next;
+  float margin=dp(28);fitScale=Math.max(.001f,Math.min(Math.max(1,getWidth()-margin*2)/plan.width(),Math.max(1,getHeight()-margin*2)/plan.height()));scale=fitScale*zoom;float centerX=(getWidth()-plan.width()*scale)/2,centerY=(getHeight()-plan.height()*scale)/2;panX=focusX-imageX*scale-centerX;panY=focusY-imageY*scale-centerY;updateViewport();
+ }
+ private static float centroid(MotionEvent event,boolean x){float total=0;for(int i=0;i<event.getPointerCount();i++)total+=x?event.getX(i):event.getY(i);return total/Math.max(1,event.getPointerCount());}
+ @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);updateViewport();}
  @Override protected void onDraw(Canvas canvas){
-  super.onDraw(canvas);canvas.drawColor(0xff242424);if(!ready() || plan==null)return;
-  float margin=dp(28);scale=Math.max(.001f,Math.min(Math.max(1,getWidth()-margin*2)/plan.width(),Math.max(1,getHeight()-margin*2)/plan.height()));ox=(getWidth()-plan.width()*scale)/2;oy=(getHeight()-plan.height()*scale)/2;
+  super.onDraw(canvas);canvas.drawColor(0xff242424);if(!ready() || plan==null)return;updateViewport();
   canvas.save();canvas.translate(ox,oy);canvas.scale(scale,scale);paint.setColor(Color.WHITE);canvas.drawRect(0,0,plan.width(),plan.height(),paint);canvas.drawBitmap(source,matrix(plan),paint);canvas.save();canvas.concat(matrix(plan));for(Annotation mark:annotations)drawAnnotation(canvas,annotationPaint,mark);if(drawing!=null)drawAnnotation(canvas,annotationPaint,drawing);canvas.restore();canvas.restore();
   float l=ox+plan.left*scale,t=oy+plan.top*scale,r=ox+plan.right*scale,b=oy+plan.bottom*scale;
   paint.setColor(0xa0000000);canvas.drawRect(ox,oy,ox+plan.width()*scale,t,paint);canvas.drawRect(ox,b,ox+plan.width()*scale,oy+plan.height()*scale,paint);canvas.drawRect(ox,t,l,b,paint);canvas.drawRect(r,t,ox+plan.width()*scale,b,paint);
   if(cropMode){paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xffffd477);canvas.drawRect(l,t,r,b,paint);paint.setStyle(Paint.Style.FILL);for(int i=0;i<4;i++){float x=i%2==0?l:r,y=i<2?t:b;paint.setColor(Color.BLACK);canvas.drawCircle(x,y,dp(9),paint);paint.setColor(0xffffd477);canvas.drawCircle(x,y,dp(7),paint);}}
  }
  @Override public boolean onTouchEvent(MotionEvent event){
-  if(!ready() || saving || plan==null)return false;if(cropMode)return touchCrop(event);if(drawingTool!=Tool.NONE)return touchDrawing(event);return false;
+  if(!ready() || saving || plan==null)return false;updateViewport();int action=event.getActionMasked();zoomDetector.onTouchEvent(event);
+  if(action==MotionEvent.ACTION_POINTER_DOWN){if(gesture!=null)finishGesture(false);if(drawing!=null)finishDrawing(false);textPointer=-1;navigating=true;multiFingerNavigation=true;lastNavX=centroid(event,true);lastNavY=centroid(event,false);if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;}
+  if(navigating)return touchNavigation(event);
+  if(action==MotionEvent.ACTION_DOWN){
+   if(cropMode && touchCrop(event))return true;
+   if(drawingTool!=Tool.NONE && touchDrawing(event))return true;
+   if(!insideImage(event.getX(),event.getY()))return false;navigating=true;multiFingerNavigation=false;lastNavX=event.getX();lastNavY=event.getY();if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;
+  }
+  if(cropMode)return touchCrop(event);if(drawingTool!=Tool.NONE)return touchDrawing(event);return false;
+ }
+ private boolean touchNavigation(MotionEvent event){
+  int action=event.getActionMasked();if(action==MotionEvent.ACTION_MOVE){
+   if(event.getPointerCount()>1){float x=centroid(event,true),y=centroid(event,false);boolean stationaryPinch=zoomDetector.isInProgress() && Math.abs(zoomDetector.getScaleFactor()-1f)<.001f;if(!zoomDetector.isInProgress() || stationaryPinch){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}lastNavX=x;lastNavY=y;}
+   else{float x=event.getX(),y=event.getY();boolean mayPan=zoom>1 && (multiFingerNavigation || drawingTool==Tool.NONE && !cropMode);if(mayPan){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}lastNavX=x;lastNavY=y;}
+   return true;
+  }
+  if(action==MotionEvent.ACTION_POINTER_UP){int remaining=event.getActionIndex()==0?1:0;if(remaining<event.getPointerCount()){lastNavX=event.getX(remaining);lastNavY=event.getY(remaining);}return true;}
+  if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL){navigating=false;multiFingerNavigation=false;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);if(action==MotionEvent.ACTION_UP)performClick();return true;}return true;
  }
  private boolean touchCrop(MotionEvent event){
   int action=event.getActionMasked();if(action==MotionEvent.ACTION_DOWN){float best=dp(28);handle=-1;for(int i=0;i<4;i++){float x=ox+(i%2==0?plan.left:plan.right)*scale,y=oy+(i<2?plan.top:plan.bottom)*scale;float distance=(float)Math.hypot(event.getX()-x,event.getY()-y);if(distance<=best){best=distance;handle=i;}}if(handle<0)return false;gesture=snapshot();pointer=event.getPointerId(0);if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;}
@@ -132,27 +205,34 @@ final class ImageEditView extends View {
   if(action==MotionEvent.ACTION_UP){finishGesture(true);performClick();return true;}return true;
  }
  private boolean touchDrawing(MotionEvent event){
-  int action=event.getActionMasked();if(action==MotionEvent.ACTION_DOWN){float[] point=screenToSource(event.getX(),event.getY());if(point==null)return false;drawingBefore=snapshot();drawingPointer=event.getPointerId(0);float width=(drawingTool==Tool.HIGHLIGHT?dp(22):dp(3))/scale;drawing=new Annotation(drawingTool,drawingColor,Math.max(.5f,width),drawingTool==Tool.RECTANGLE || drawingTool==Tool.OVAL || drawingTool==Tool.ARROW?new float[]{point[0],point[1],point[0],point[1]}:new float[]{point[0],point[1]});if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);invalidate();return true;}
+  int action=event.getActionMasked();if(textPointer>=0){if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL)textPointer=-1;return true;}
+  if(action==MotionEvent.ACTION_DOWN){float[] point=screenToSource(event.getX(),event.getY());if(point==null)return false;if(drawingTool==Tool.TEXT){textPointer=event.getPointerId(0);textRequest.place(point[0],point[1]);performClick();return true;}drawingBefore=snapshot();drawingPointer=event.getPointerId(0);float width=(drawingTool==Tool.HIGHLIGHT?dp(22):dp(3))/scale;boolean shape=isShape(drawingTool);drawing=new Annotation(drawingTool,drawingColor,Math.max(.5f,width),shape?new float[]{point[0],point[1],point[0],point[1]}:new float[]{point[0],point[1]});if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);invalidate();return true;}
   if(drawing==null)return false;if(action==MotionEvent.ACTION_CANCEL || event.getPointerCount()!=1){finishDrawing(false);return true;}int index=event.findPointerIndex(drawingPointer);if(index<0){finishDrawing(false);return true;}
   if(action==MotionEvent.ACTION_MOVE || action==MotionEvent.ACTION_UP){float[] point=screenToSource(event.getX(index),event.getY(index));if(point!=null)updateDrawing(point);if(action==MotionEvent.ACTION_UP){finishDrawing(true);performClick();}return true;}return true;
  }
+ private static boolean isShape(Tool tool){return tool==Tool.RECTANGLE || tool==Tool.OVAL || tool==Tool.ARROW || tool==Tool.LINE || tool==Tool.REDACT;}
+ void addRedaction(float x1,float y1,float x2,float y2){
+  if(!ready() || saving || plan==null)throw new IllegalStateException("Image preview is not ready");if(annotations.size()>=MAX_ANNOTATIONS || totalPoints(annotations)+2>MAX_TOTAL_POINTS)throw new IllegalArgumentException("Image annotation limit reached; save or reset edits first");
+  Annotation mask=new Annotation(Tool.REDACT,Color.BLACK,Math.max(.5f,dp(3)/Math.max(.001f,scale)),new float[]{x1,y1,x2,y2});validateAnnotation(mask,plan);remember(snapshot());annotations.add(mask);notifyChanged();
+ }
  private void updateDrawing(float[] point){
-  if(drawing.tool==Tool.RECTANGLE || drawing.tool==Tool.OVAL || drawing.tool==Tool.ARROW){drawing.points[2]=point[0];drawing.points[3]=point[1];}
+  if(isShape(drawing.tool)){drawing.points[2]=point[0];drawing.points[3]=point[1];}
   else{int count=drawing.pointCount();float x=drawing.points[(count-1)*2],y=drawing.points[(count-1)*2+1];if(Math.hypot(point[0]-x,point[1]-y)>=Math.max(.5f,drawing.width*.25f) && count<MAX_TOTAL_POINTS && totalPoints(annotations)+count<MAX_TOTAL_POINTS){float[] next=Arrays.copyOf(drawing.points,drawing.points.length+2);next[next.length-2]=point[0];next[next.length-1]=point[1];drawing.points=next;}}
   invalidate();
  }
  private void finishDrawing(boolean accept){
-  if(drawing==null)return;if(accept){boolean shape=drawing.tool==Tool.RECTANGLE || drawing.tool==Tool.OVAL || drawing.tool==Tool.ARROW;boolean visible=!shape || Math.abs(drawing.points[2]-drawing.points[0])>=1 || Math.abs(drawing.points[3]-drawing.points[1])>=1;if(visible && annotations.size()<MAX_ANNOTATIONS && totalPoints(annotations)+drawing.pointCount()<=MAX_TOTAL_POINTS){validateAnnotation(drawing,plan);annotations.add(drawing);remember(drawingBefore);}else if(visible)NotesNotice.show(getContext(),"Annotation limit reached; save this image before adding more marks.");}else if(drawingBefore!=null)restore(drawingBefore);
+  if(drawing==null)return;if(accept){boolean shape=isShape(drawing.tool);boolean visible=!shape || Math.abs(drawing.points[2]-drawing.points[0])>=1 || Math.abs(drawing.points[3]-drawing.points[1])>=1;if(visible && annotations.size()<MAX_ANNOTATIONS && totalPoints(annotations)+drawing.pointCount()<=MAX_TOTAL_POINTS){validateAnnotation(drawing,plan);annotations.add(drawing);remember(drawingBefore);}else if(visible)NotesNotice.show(getContext(),"Annotation limit reached; save this image before adding more marks.");}else if(drawingBefore!=null)restore(drawingBefore);
   drawing=null;drawingBefore=null;drawingPointer=-1;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);notifyChanged();
  }
  private void finishGesture(boolean accept){if(gesture==null)return;if(accept && !gesture.plan.equals(plan))remember(gesture);else if(!accept)restore(gesture);gesture=null;handle=-1;pointer=-1;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);notifyChanged();}
  @Override public boolean performClick(){super.performClick();return true;}
- @Override protected void onDetachedFromWindow(){super.onDetachedFromWindow();if(source!=null){source.recycle();source=null;}}
+ @Override protected void onDetachedFromWindow(){super.onDetachedFromWindow();navigating=false;if(source!=null){source.recycle();source=null;}}
  private static int totalPoints(List<Annotation> marks){int count=0;for(Annotation mark:marks)count+=mark.pointCount();return count;}
  private static final class Snapshot {final ImageEditPlan plan;final List<Annotation> annotations;Snapshot(ImageEditPlan plan,List<Annotation> annotations){this.plan=plan;this.annotations=java.util.Collections.unmodifiableList(new ArrayList<>(annotations));}}
  private static final class Annotation {
-  final Tool tool;final int kind,color;final float width;float[] points;
-  Annotation(Tool tool,int color,float width,float[] points){this.tool=tool;this.kind=tool.ordinal()-1;this.color=color;this.width=width;this.points=points.clone();}
+  final Tool tool;final int kind,color;final float width;final String text;float[] points;
+  Annotation(Tool tool,int color,float width,float[] points){this(tool,color,width,points,"");}
+  Annotation(Tool tool,int color,float width,float[] points,String text){this.tool=tool;this.kind=tool.ordinal()-1;this.color=color;this.width=width;this.points=points.clone();this.text=text==null?"":text;}
   int pointCount(){return points.length/2;}
  }
 }

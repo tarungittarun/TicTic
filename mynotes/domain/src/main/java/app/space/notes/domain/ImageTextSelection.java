@@ -12,6 +12,13 @@ public final class ImageTextSelection {
  public void toggle(int index){selected[index]=!selected[index];}
  public boolean selected(int index){return selected[index];}
  public int count(){int n=0;for(boolean value:selected)if(value)n++;return n;}
- public void rectangle(float l,float t,float r,float b){if(!Float.isFinite(l+t+r+b))throw new IllegalArgumentException("Invalid selection");float a=Math.min(l,r),c=Math.max(l,r),d=Math.min(t,b),e=Math.max(t,b);for(int i=0;i<words.size();i++){Word w=words.get(i);selected[i]=w.left<c && w.right>a && w.top<e && w.bottom>d;}}
+ public void rectangle(float l,float t,float r,float b){
+  if(!Float.isFinite(l+t+r+b))throw new IllegalArgumentException("Invalid selection");float a=Math.min(l,r),c=Math.max(l,r),d=Math.min(t,b),e=Math.max(t,b);
+  for(int i=0;i<words.size();i++){Word w=words.get(i);float overlapX=Math.max(0,Math.min(w.right,c)-Math.max(w.left,a)),overlapY=Math.max(0,Math.min(w.bottom,e)-Math.max(w.top,d));
+   // A stray edge crossing must not select an adjacent word; require half of the
+   // word box's area, while retaining generous partial-box selection for real drags.
+   selected[i]=overlapX*overlapY>=(w.right-w.left)*(w.bottom-w.top)*.5f;
+  }
+ }
  public String text(){StringBuilder out=new StringBuilder();int line=-1;for(int i=0;i<words.size();i++)if(selected[i]){Word word=words.get(i);if(out.length()+word.text.length()+1>100000)throw new IllegalArgumentException("Selected text exceeds safe length");if(out.length()>0)out.append(line==word.line?' ':'\n');out.append(word.text);line=word.line;}return out.toString();}
 }

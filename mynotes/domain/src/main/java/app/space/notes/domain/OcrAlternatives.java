@@ -18,6 +18,8 @@ public final class OcrAlternatives {
       || score>=50 && score>=confidence-5 && candidate.length()>baseline.length()*1.15;
  }
  /** Native letters wedged into an otherwise numeric run warrant one block pass. */
+ /** A selected crop may get one adaptive retry on a weak engine score; the score is not accuracy. */
+ public static boolean shouldRetryAdaptiveThreshold(String text,int confidence,boolean selectedRegion){return text==null || text.trim().isEmpty() || selectedRegion && confidence<55;}
  public static boolean needsBlockCheck(String text){
   if(text==null || text.length()>100000)return false;
   for(String line:text.split("[\\r\\n]+")){

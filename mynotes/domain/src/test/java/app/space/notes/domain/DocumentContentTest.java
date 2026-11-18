@@ -25,6 +25,33 @@ public class DocumentContentTest {
         assertSame(ready,ready.ensureWritableTail());
         assertEquals("",ready.ensureWritableTail().blocks.get(1).text.text);
     }
+    @Test public void removingInsertedChecklistJoinsWritingAndOffsetsRichMarks(){
+        RichText before=new RichText("Before ",Arrays.asList(new Note.Mark("bold",0,6),new Note.Mark("link",0,6,"https://example.com/before")));
+        RichText after=new RichText("after",Arrays.asList(new Note.Mark("italic",0,5),new Note.Mark("number",0,5,"2")));
+        DocumentContent.Block left=DocumentContent.Block.text("left",before),list=DocumentContent.Block.checklist("list",Arrays.asList(new Note.Item("row","Remove me",false,0)),false),right=DocumentContent.Block.text("right",after);
+        DocumentContent source=new DocumentContent(Arrays.asList(left,list,right),true,true);
+        DocumentContent removed=source.remove("list");
+        assertEquals(1,removed.blocks.size());assertEquals("left",removed.blocks.get(0).id);assertEquals("Before after",removed.blocks.get(0).text.text);
+        assertEquals(4,removed.blocks.get(0).text.marks.size());
+        assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("bold") && mark.start==0 && mark.end==6));
+        assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("link") && mark.start==0 && mark.end==6 && mark.value.equals("https://example.com/before")));
+        assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("italic") && mark.start==7 && mark.end==12));
+        assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("number") && mark.start==7 && mark.end==12 && mark.value.equals("2")));
+        assertEquals("Before ",source.block("left").text.text);assertEquals("after",source.block("right").text.text);assertTrue(removed.writingLines);assertTrue(removed.notesWorkspace);
+    }
+    @Test public void movingChecklistDoesNotJoinOrInvalidateItsAdjacentWritingTargets(){
+        DocumentContent.Block left=text("left","left"),list=DocumentContent.Block.checklist("list",Collections.singletonList(new Note.Item("row","Move me",false,0)),false),right=text("right","right");
+        DocumentContent source=new DocumentContent(Arrays.asList(left,list,right));
+        DocumentContent detached=source.removeForMove("list");assertEquals(2,detached.blocks.size());assertEquals("left",detached.block("left").text.text);assertEquals("right",detached.block("right").text.text);
+        DocumentContent moved=source.moveChecklistIntoText("list","right",5);assertEquals(3,moved.blocks.size());assertEquals("right",moved.block("right").text.text);assertEquals(DocumentContent.Kind.CHECKLIST,moved.blocks.get(2).kind);
+    }
+    @Test public void checklistRemovalAtEdgesKeepsTheNearestOrdinaryWritingArea(){
+        DocumentContent.Block list=DocumentContent.Block.checklist("list",Collections.emptyList(),false),writing=text("writing","Keep typing");
+        DocumentContent beginning=new DocumentContent(Arrays.asList(list,writing)).remove("list");assertEquals(1,beginning.blocks.size());assertEquals("writing",beginning.blocks.get(0).id);
+        DocumentContent ending=new DocumentContent(Arrays.asList(writing,list)).remove("list");assertEquals(1,ending.blocks.size());assertEquals("writing",ending.blocks.get(0).id);assertSame(ending,ending.ensureWritableTail());
+        DocumentContent only=new DocumentContent(Collections.singletonList(list)).remove("list");assertTrue(only.blocks.isEmpty());
+    }
+
     @Test public void visualRenameCannotChangeItsKindOrPixels(){
         NoteImage image=image("Drawing");DocumentContent.Block drawing=DocumentContent.Block.visual("ink","Drawing01",DocumentContent.Kind.DRAWING,image);
         DocumentContent.Block renamed=drawing.renamed("My sketch");

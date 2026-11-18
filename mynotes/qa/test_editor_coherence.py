@@ -358,7 +358,10 @@ class EditorCoherence(unittest.TestCase):
 
  def test_image_annotation_save_and_history_are_covered_for_notes_and_docs(self):
   editor=(JAVA/'ImageEditView.java').read_text()
-  self.assertIn('Tool { NONE, HIGHLIGHT, PEN, RECTANGLE, OVAL, ARROW }',editor)
+  self.assertIn('enum Tool { NONE, HIGHLIGHT, PEN, RECTANGLE, OVAL, ARROW, LINE, REDACT, TEXT }',editor)
+  self.assertIn('STATE_VERSION=2',editor)
+  self.assertIn('ScaleGestureDetector',editor)
+  self.assertIn('void addText(String value,float sourceX,float sourceY)',editor)
   self.assertIn('annotations.add(drawing);remember(drawingBefore)',editor)
   self.assertIn('render(decoded,plan,annotations)',(JAVA/'NotesController.java').read_text())
   journeys=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()

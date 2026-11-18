@@ -112,9 +112,12 @@ public final class OfflineOcr {
         int w=source.getWidth(),h=source.getHeight(),left=(int)Math.floor(box.left*w),top=(int)Math.floor(box.top*h),right=Math.min(w,(int)Math.ceil(box.right*w)),bottom=Math.min(h,(int)Math.ceil(box.bottom*h));
         if(right<=left || bottom<=top)throw new IOException("Choose a larger image area");
         Bitmap crop=Bitmap.createBitmap(source,left,top,right-left,bottom-top);
-        try{return recognizeBitmap(context,crop,language,cancellation);}finally{if(crop!=source)crop.recycle();}
+        try{return recognizeBitmap(context,crop,language,cancellation,true);}finally{if(crop!=source)crop.recycle();}
     }
     public static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation) throws Exception {
+        return recognizeBitmap(context,bitmap,language,cancellation,false);
+    }
+    private static Result recognizeBitmap(Context context,Bitmap bitmap,String language,Cancellation cancellation,boolean selectedRegion) throws Exception {
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("OCR must run off the UI thread");
         if(!"auto".equals(language) && !LANGUAGES.contains(language))throw new IOException("Choose English, Hindi or Kannada");
         if(bitmap==null || bitmap.isRecycled() || (long)bitmap.getWidth()*bitmap.getHeight()>4000000L)throw new IOException("Unsupported OCR bitmap");
@@ -133,9 +136,10 @@ public final class OfflineOcr {
                 cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);engine.setImage(prepared);String block=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
                 if(app.space.notes.domain.OcrAlternatives.prefer(text,confidence,block,score)){text=block;confidence=score;hocr=engine.getHOCRText(0);}
             }
-            // Local adaptive threshold fallback only after all ordinary passes are empty.
-            // Never rewrite already-recognized native-script/document text globally.
-            if(text.trim().isEmpty() && engine.setVariable("thresholding_method","2")){
+            // Region crops get one conservative adaptive-threshold retry when the first
+            // complete pass is weak; full-image native text keeps its qualified behavior.
+            // Confidence is only an engine score, not a calibrated accuracy percentage.
+            if(app.space.notes.domain.OcrAlternatives.shouldRetryAdaptiveThreshold(text,confidence,selectedRegion) && engine.setVariable("thresholding_method","2")){
                 cancellation.check();engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);engine.setImage(prepared);
                 String adaptive=engine.getUTF8Text();cancellation.check();int score=engine.meanConfidence();
                 if(adaptive!=null && app.space.notes.domain.OcrAlternatives.prefer(text,confidence,adaptive,score)){text=adaptive;confidence=score;hocr=engine.getHOCRText(0);}

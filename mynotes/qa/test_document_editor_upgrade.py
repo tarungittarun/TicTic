@@ -25,6 +25,22 @@ class DocumentEditorUpgradeContracts(unittest.TestCase):
    self.assertNotIn('"'+label+'"',document)
   self.assertIn('editorTool("List","Checklist options"',editor)
   self.assertIn('button("+ List item"',editor)
+ def test_deleting_inserted_checklist_rejoins_rich_text_and_restores_caret(self):
+  content=(ROOT/'domain/src/main/java/app/space/notes/domain/DocumentContent.java').read_text()
+  editor=(JAVA/'DocumentEditorView.java').read_text()
+  tests=(ROOT/'domain/src/test/java/app/space/notes/domain/DocumentContentTest.java').read_text()
+  journeys=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('removed.kind==Kind.CHECKLIST',content)
+  self.assertIn('before.text.text+after.text.text',content)
+  self.assertIn('offset+mark.start,offset+mark.end',content)
+  self.assertIn('removeChecklistAndFocus',editor)
+  self.assertIn('focusAfterRenderOffset=before.text.text.length()',editor)
+  self.assertIn('DocumentContent.Kind.CHECKLIST?removeChecklistAndFocus(id)',editor)
+  self.assertIn('removingInsertedChecklistJoinsWritingAndOffsetsRichMarks',tests)
+  self.assertIn('movingChecklistDoesNotJoinOrInvalidateItsAdjacentWritingTargets',tests)
+  self.assertIn('removeForMove',content)
+  self.assertIn('deletingChecklistBetweenWritingSectionsMergesTextAndRestoresCaret',journeys)
+
  def test_reordering_accepts_local_state_only_and_preserves_item_payload(self):
   method=self.controller.split('private static final class ChecklistDrag',1)[1].split('private void listItemOptions(',1)[0]
   self.assertIn('event.getLocalState() instanceof ChecklistDrag',method)

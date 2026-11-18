@@ -55,6 +55,27 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('MotionEvent.ACTION_CANCEL', touch)
         self.assertIn('event.getPointerCount()!=1', touch)
 
+    def test_image_editor_supports_pinch_pan_and_fit_while_browsing(self):
+        self.assertIn('ScaleGestureDetector', self.view)
+        self.assertIn('zoomAt(detector.getFocusX(),detector.getFocusY()', self.view)
+        self.assertIn('ACTION_POINTER_DOWN', self.view)
+        self.assertIn('multiFingerNavigation', self.view)
+        self.assertIn('void fitToScreen()', self.view)
+        self.assertIn('imageTool(row,"Fit","fit",view::fitToScreen)', self.controller)
+        self.assertIn('Pinch to zoom around your fingers', self.controller)
+
+    def test_text_redaction_and_line_tools_are_saved_in_versioned_annotation_state(self):
+        self.assertIn('REDACT, TEXT', self.view)
+        self.assertIn('void addText(String value,float sourceX,float sourceY)', self.view)
+        self.assertIn('STATE_VERSION=2', self.view)
+        self.assertIn('values[1]!=1 && values[1]!=STATE_VERSION', self.view)
+        self.assertIn('Tool.ARROW.ordinal()-1', self.view)
+        self.assertIn('Tool.REDACT', self.controller)
+        self.assertIn('Tool.TEXT', self.controller)
+        self.assertIn('"Arrow","Line"', self.controller)
+        self.assertIn('view.addText(input.getText().toString(),x,y)', self.controller)
+        self.assertIn('ink.setColor(Color.BLACK);canvas.drawRect', self.view)
+
     def test_checklist_actions_target_the_row_and_disable_boundaries(self):
         self.assertIn('"Actions for list item "+(n.items.indexOf(item)+1)', self.controller)
         options = self.controller.split('private void listItemOptions(', 1)[1].split('private void listAction(', 1)[0]

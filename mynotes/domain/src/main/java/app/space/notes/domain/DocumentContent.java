@@ -157,7 +157,7 @@ public final class DocumentContent {
     public DocumentContent moveIntoText(String sourceId,String textId,int offset){
         Block list=block(sourceId),target=block(textId);if(sourceId.equals(textId) || target.text==null)throw new IllegalArgumentException("Choose another writing area as destination");
         target.text.slice(0,offset);target.text.slice(offset,target.text.text.length());
-        DocumentContent without=remove(sourceId);
+        DocumentContent without=removeForMove(sourceId);
         if(offset==0)return without.insert(without.index(textId),list);
         if(offset==target.text.text.length())return without.insert(without.index(textId)+1,list);
         return without.insertAtText(textId,offset,list);
@@ -191,7 +191,22 @@ public final class DocumentContent {
     }
     public DocumentContent inNotesWorkspace(boolean notes){return notes==notesWorkspace?this:new DocumentContent(blocks,writingLines,notes);}
     public DocumentContent withWritingLines(boolean enabled){return enabled==writingLines?this:new DocumentContent(blocks,enabled,notesWorkspace);}
-    public DocumentContent remove(String id){List<Block> next=new ArrayList<>(blocks);next.remove(index(id));return new DocumentContent(next,writingLines,notesWorkspace);}
+    /** Removing a checklist inserted inside writing reconnects the exact rich-text fragments. */
+    public DocumentContent remove(String id){return remove(id,true);}
+    /** Detach content for a move without changing neighboring writing-section identities. */
+    public DocumentContent removeForMove(String id){return remove(id,false);}
+    private DocumentContent remove(String id,boolean joinAdjacentWriting){
+        int at=index(id);Block removed=blocks.get(at);List<Block> next=new ArrayList<>(blocks);next.remove(at);
+        if(joinAdjacentWriting && removed.kind==Kind.CHECKLIST && at>0 && at<next.size()){
+            Block before=next.get(at-1),after=next.get(at);
+            if(before.text!=null && after.text!=null && before.text.marks.size()+after.text.marks.size()<=RichText.MAX_MARKS){
+                List<Note.Mark> marks=new ArrayList<>(before.text.marks);int offset=before.text.text.length();
+                for(Note.Mark mark:after.text.marks)marks.add(new Note.Mark(mark.type,offset+mark.start,offset+mark.end,mark.value));
+                next.set(at-1,Block.text(before.id,new RichText(before.text.text+after.text.text,marks)));next.remove(at);
+            }
+        }
+        return new DocumentContent(next,writingLines,notesWorkspace);
+    }
     public Block block(String id){return blocks.get(index(id));}
     public List<NoteImage> images(){List<NoteImage> result=new ArrayList<>();for(Block block:blocks)if(block.image!=null)result.add(block.image);return Collections.unmodifiableList(result);}
     /** Legacy preview only. Editors must address a diagram block explicitly. */

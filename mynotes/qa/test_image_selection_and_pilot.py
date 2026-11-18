@@ -32,6 +32,21 @@ class ImageSelectionAndPilot(unittest.TestCase):
  def test_pilot_teacher_forcing_matches_no_timestamp_inference_prefix(self):
   source=(ROOT/'tools/ci/indian_speech_pilot.py').read_text();self.assertIn('tokenizer.sot_sequence_including_notimestamps',source);self.assertIn('targets[:,:len(prefix)-1]=-100',source);self.assertIn("name.startswith('decoder.blocks.3.')",source)
 
+ def test_region_read_runs_fresh_crop_inference_and_blocks_stale_word_actions(self):
+  source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/ImageRegionText.java').read_text()
+  ocr=(ROOT/'runtime/src/main/java/app/space/notes/runtime/OfflineOcr.java').read_text()
+  dialog=(ROOT/'runtime/src/main/java/app/space/notes/runtime/ImageTextSelectionDialog.java').read_text()
+  self.assertIn('OfflineOcr.recognizeRegion(app,scan.image,area,scan.result.language,cancel)',source)
+  self.assertIn('Bitmap.createBitmap(source,left,top,right-left,bottom-top)',ocr)
+  self.assertIn('OcrAlternatives.shouldRetryAdaptiveThreshold(text,confidence,selectedRegion)',ocr)
+  policy=(ROOT/'domain/src/main/java/app/space/notes/domain/OcrAlternatives.java').read_text()
+  self.assertIn('selectedRegion && confidence<55',policy)
+  self.assertIn('view.setEnabled(false)',dialog)
+  self.assertIn('for(Button control:cropPaused)control.setEnabled(false)',dialog)
+  self.assertIn('Fresh OCR of only the selected crop',dialog)
+  tests=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ImageRegionTextTest.java').read_text()
+  self.assertIn('asyncAreaReadUsesFreshSourceCropInsteadOfStaleFullImageText',tests)
+
  def test_review_input_has_bounded_height_inside_a_scrollable_column(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('reviewScroll.setFillViewport(true)',source);self.assertIn('content.addView(input,new LinearLayout.LayoutParams(-1,dp(240)))',source)
 

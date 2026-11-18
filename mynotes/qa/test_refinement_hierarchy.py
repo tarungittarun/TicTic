@@ -127,6 +127,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
                 '.github/workflows/notes-ci.yml', '.github/actions/setup-mynotes/**',
                 'mynotes/app/src/**', 'mynotes/domain/src/**', 'mynotes/runtime/src/**',
                 'mynotes/qa/**', 'mynotes/tools/ci/native_baseline_027.json',
+                'mynotes/tools/ci/android_lane.sh',
                 'mynotes/tools/comparisons/paired_modules37.py',
                 'mynotes/docs/CHECKLIST-ACCEPTANCE.md', 'mynotes/docs/REQUIREMENTS.md',
             }),

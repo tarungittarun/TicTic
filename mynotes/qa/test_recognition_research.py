@@ -104,7 +104,7 @@ class RecognitionResearchTests(unittest.TestCase):
         workflow=(root/'.github/workflows/notes-ci.yml').read_text()
         lane=(mynotes/'tools/ci/android_lane.sh').read_text()
         test=(mynotes/'app/src/androidTest/java/app/space/notes/OfflineOcrTest.java').read_text()
-        self.assertIn("      - 'mynotes/tools/ci/**'",workflow)
+        self.assertIn("      - 'mynotes/tools/ci/android_lane.sh'",workflow)
         self.assertIn('cat files/ocr-crop-comparison.json',lane)
         self.assertIn("report['selected_crop_precision']>report['baseline_precision']",lane)
         self.assertIn('recognizeRegion(context,source',test)

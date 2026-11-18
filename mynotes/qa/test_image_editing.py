@@ -92,6 +92,8 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('textSelected()?"Text box selected. Drag it to move', self.view)
         self.assertIn('drawTextSelection(canvas,annotations.get(selectedText))', self.view)
         self.assertIn('finishTextMove(true)', self.view)
+        self.assertIn('private boolean updateSelectedTextStyleWidth', self.view)
+        self.assertIn('private void syncTextToolStyle()', self.view)
 
     def test_image_editor_has_accessible_color_size_and_font_controls(self):
         self.assertIn('imageTool(row,"Color","palette"', self.controller)

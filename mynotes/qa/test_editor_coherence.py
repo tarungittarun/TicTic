@@ -359,7 +359,7 @@ class EditorCoherence(unittest.TestCase):
  def test_image_annotation_save_and_history_are_covered_for_notes_and_docs(self):
   editor=(JAVA/'ImageEditView.java').read_text()
   self.assertIn('enum Tool { NONE, HIGHLIGHT, PEN, RECTANGLE, OVAL, ARROW, LINE, REDACT, TEXT }',editor)
-  self.assertIn('STATE_VERSION=2',editor)
+  self.assertIn('STATE_VERSION=3',editor)
   self.assertIn('ScaleGestureDetector',editor)
   self.assertIn('void addText(String value,float sourceX,float sourceY)',editor)
   self.assertIn('annotations.add(drawing);remember(drawingBefore)',editor)

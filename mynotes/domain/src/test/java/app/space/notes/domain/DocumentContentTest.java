@@ -24,6 +24,9 @@ public class DocumentContentTest {
         assertNotNull(ready.blocks.get(1).text);assertEquals("",ready.blocks.get(1).text.text);assertTrue(ready.writingLines);assertTrue(ready.notesWorkspace);
         assertSame(ready,ready.ensureWritableTail());
         assertEquals("",ready.ensureWritableTail().blocks.get(1).text.text);
+        DocumentContent placeholder=new DocumentContent(Collections.singletonList(text("blank","")),true,true);
+        DocumentContent inserted=placeholder.replaceEmptyTextWith("blank",DocumentContent.Block.checklist("new-list","Checklist01",Collections.emptyList(),false)).ensureWritableTail();
+        assertEquals(DocumentContent.Kind.CHECKLIST,inserted.blocks.get(0).kind);assertNotEquals("blank",inserted.blocks.get(0).id);assertNotNull(inserted.blocks.get(1).text);assertTrue(inserted.writingLines);assertTrue(inserted.notesWorkspace);
     }
     @Test public void removingInsertedChecklistJoinsWritingAndOffsetsRichMarks(){
         RichText before=new RichText("Before ",Arrays.asList(new Note.Mark("bold",0,6),new Note.Mark("link",0,6,"https://example.com/before")));
@@ -38,6 +41,15 @@ public class DocumentContentTest {
         assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("italic") && mark.start==7 && mark.end==12));
         assertTrue(removed.blocks.get(0).text.marks.stream().anyMatch(mark->mark.type.equals("number") && mark.start==7 && mark.end==12 && mark.value.equals("2")));
         assertEquals("Before ",source.block("left").text.text);assertEquals("after",source.block("right").text.text);assertTrue(removed.writingLines);assertTrue(removed.notesWorkspace);
+        List<DocumentContent.Block> inserted=Arrays.asList(
+                DocumentContent.Block.visual("photo","Image01",DocumentContent.Kind.IMAGE,image("photo")),
+                DocumentContent.Block.visual("drawing","Drawing01",DocumentContent.Kind.DRAWING,image("Drawing")),
+                DocumentContent.Block.diagram("diagram","Diagram01",Diagram.empty().put(new Diagram.Node("node","process","Flow",40,40,120,80,0))),
+                DocumentContent.Block.table("table","Table01",TextTable.empty(1,1)));
+        for(DocumentContent.Block middle:inserted){
+            DocumentContent all=new DocumentContent(Arrays.asList(text("before","A"),middle,text("after","B")),true,true).remove(middle.id);
+            assertEquals("Deleting "+middle.kind+" joins adjacent writing sections",1,all.blocks.size());assertEquals("AB",all.blocks.get(0).text.text);assertTrue(all.writingLines);assertTrue(all.notesWorkspace);
+        }
     }
     @Test public void movingChecklistDoesNotJoinOrInvalidateItsAdjacentWritingTargets(){
         DocumentContent.Block left=text("left","left"),list=DocumentContent.Block.checklist("list",Collections.singletonList(new Note.Item("row","Move me",false,0)),false),right=text("right","right");

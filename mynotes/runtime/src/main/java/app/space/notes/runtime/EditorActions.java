@@ -14,7 +14,7 @@ final class EditorActions {
   if(label.contains("checklist") || label.contains("checked") || label.equals("Checklist"))return "checklist";
   switch(label){
    case "Sans serif":case "Serif":case "Monospace":case "Cursive":return "format";
-   case "Text":case "Convert to text":case "Writing lines":return "text";
+   case "Text":case "Convert to text":case "Writing lines":case "Show lines":case "Hide lines":return "text";
    case "Image":return "image";case "Drawing":return "pencil";case "Diagram":return "diagram";
    case "Cut":return "cut";case "Paste table":case "Paste content":return "paste";
    case "Fit to content":return "fit";case "Rows and columns":case "Fixed column width":case "Table":case "Cell actions":return "grid";

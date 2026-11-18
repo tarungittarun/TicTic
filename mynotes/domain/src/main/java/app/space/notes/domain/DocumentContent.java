@@ -128,6 +128,13 @@ public final class DocumentContent {
         if(blocks.get(at)==replacement)return this;
         List<Block> next=new ArrayList<>(blocks);next.set(at,replacement);return new DocumentContent(next,writingLines,notesWorkspace);
     }
+    /** Convert an empty writing placeholder into newly inserted structured content with a new identity. */
+    public DocumentContent replaceEmptyTextWith(String id,Block insertion){
+        Block source=block(id);
+        if(source.text==null || !source.text.text.isEmpty())throw new IllegalArgumentException("Choose an empty writing section");
+        if(insertion==null || insertion.kind==Kind.TEXT)throw new IllegalArgumentException("Choose inserted content");
+        int at=index(id);List<Block> next=new ArrayList<>(blocks);next.set(at,insertion);return new DocumentContent(next,writingLines,notesWorkspace);
+    }
     /** Edge semantics match checklist drag: the insertion edge refers to the original order. */
     public DocumentContent move(String id,int edge){
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
@@ -197,7 +204,7 @@ public final class DocumentContent {
     public DocumentContent removeForMove(String id){return remove(id,false);}
     private DocumentContent remove(String id,boolean joinAdjacentWriting){
         int at=index(id);Block removed=blocks.get(at);List<Block> next=new ArrayList<>(blocks);next.remove(at);
-        if(joinAdjacentWriting && removed.kind==Kind.CHECKLIST && at>0 && at<next.size()){
+        if(joinAdjacentWriting && removed.kind!=Kind.TEXT && at>0 && at<next.size()){
             Block before=next.get(at-1),after=next.get(at);
             if(before.text!=null && after.text!=null && before.text.marks.size()+after.text.marks.size()<=RichText.MAX_MARKS){
                 List<Note.Mark> marks=new ArrayList<>(before.text.marks);int offset=before.text.text.length();

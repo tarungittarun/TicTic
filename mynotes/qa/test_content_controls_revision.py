@@ -86,3 +86,23 @@ class ContentControlsRevision(unittest.TestCase):
   native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
   self.assertIn('connection.deleteSurroundingText(1,0)',native)
   self.assertIn('Caret follows generated prefix',native)
+ def test_empty_note_conversion_inserts_new_checklist_identity_safely(self):
+  source=(JAVA/'NotesController.java').read_text().split('private void convertNote()',1)[1].split('private void applyChecklistConversion',1)[0]
+  self.assertIn('content.replaceEmptyTextWith(writing.id,list)',source)
+  self.assertNotIn('content.replace(writing.id,list)',source)
+  domain=(ROOT/'domain/src/main/java/app/space/notes/domain/DocumentContent.java').read_text()
+  self.assertIn('public DocumentContent replaceEmptyTextWith(String id,Block insertion)',domain)
+  self.assertIn('if(joinAdjacentWriting && removed.kind!=Kind.TEXT',domain)
+  native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('Empty-note conversion inserts a new checklist block',native)
+ def test_note_and_document_menus_offer_show_lines(self):
+  controller=(JAVA/'NotesController.java').read_text()
+  self.assertIn('linesEnabled=n.content!=null?n.content.writingLines:n.background==3',controller)
+  self.assertIn('linesEnabled?"Hide lines":"Show lines"',controller)
+  self.assertIn('private void toggleNoteLines(String noteId)',controller)
+  document=self.editor()
+  self.assertIn('host.current().content.writingLines?"Hide lines":"Show lines"',document)
+  self.assertNotIn('"Writing lines",',document)
+  native=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('Edited notes expose Show lines',native)
+  self.assertIn('fresh=Note.create(2)',native)

@@ -97,3 +97,16 @@ class RecognitionResearchTests(unittest.TestCase):
         source=(root/'mynotes/app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
         self.assertIn('FLAG_KEEP_SCREEN_ON',source)
         self.assertIn('controller.view().hasWindowFocus()',source)
+
+    def test_ci_archives_the_fresh_crop_precision_comparison(self):
+        root=Path(__file__).resolve().parents[2]
+        mynotes=root/'mynotes'
+        workflow=(root/'.github/workflows/notes-ci.yml').read_text()
+        lane=(mynotes/'tools/ci/android_lane.sh').read_text()
+        test=(mynotes/'app/src/androidTest/java/app/space/notes/OfflineOcrTest.java').read_text()
+        self.assertIn("      - 'mynotes/tools/ci/**'",workflow)
+        self.assertIn('cat files/ocr-crop-comparison.json',lane)
+        self.assertIn("report['selected_crop_precision']>report['baseline_precision']",lane)
+        self.assertIn('recognizeRegion(context,source',test)
+        self.assertIn('baselinePrecision',test)
+        self.assertIn('selected_crop_precision',test)

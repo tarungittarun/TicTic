@@ -178,6 +178,7 @@ adb shell dumpsys display > "$OUT/display-after-instrumentation.txt"
 adb shell settings get system user_rotation > "$OUT/user-rotation-after.txt"
 if [[ "$LANE_GROUP" == all || "$LANE_GROUP" == ocr ]]; then
   adb shell run-as app.space.notes.debug cat files/ocr-corpus-report.json > "$OUT/ocr-corpus-report.json"
+  adb shell run-as app.space.notes.debug cat files/ocr-crop-comparison.json > "$OUT/ocr-crop-comparison.json"
   for language in hin kan; do adb shell run-as app.space.notes.debug cat "files/ocr-fixture-$language.png" > "$OUT/ocr-fixture-$language.png"; done
   python3 - "$OUT/ocr-corpus-report.json" <<'PYOCR'
 import json,sys
@@ -187,6 +188,15 @@ for case in report['cases']:
     print('::notice title=Controlled OCR diagnostic::'+message)
     if not case['token_match']:print('::warning title=Controlled OCR recognition gap::'+case['language']+' did not recover its expected token. Inspect the saved image/text; model initialization is not an accuracy guarantee.')
 PYOCR
+  python3 - "$OUT/ocr-crop-comparison.json" <<'PYCROP'
+import json,sys
+report=json.load(open(sys.argv[1]))
+assert report['target_token_count']==7
+assert report['selected_crop_precision']>report['baseline_precision']
+assert report['selected_crop_recall']>=report['baseline_recall']
+summary={key:report[key] for key in ('scope','baseline_target_hits','selected_crop_target_hits','target_token_count','baseline_precision','selected_crop_precision','baseline_recall','selected_crop_recall')}
+message=json.dumps(summary,ensure_ascii=False).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+print('::notice title=Controlled synthetic crop OCR comparison::'+message)
+PYCROP
 fi
-python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" \
-  --path "$OUT/instrumentation.txt" --output "$OUT/results.json"
+python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "$OUT/instrumentation.txt" --output "$OUT/results.json"

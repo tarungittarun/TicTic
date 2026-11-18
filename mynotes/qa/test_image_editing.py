@@ -64,6 +64,12 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('imageTool(row,"Fit","fit",view::fitToScreen)', self.controller)
         self.assertIn('Pinch to zoom around your fingers', self.controller)
 
+    def test_short_two_finger_spans_fall_back_when_platform_scale_slop_is_not_crossed(self):
+        self.assertIn('scaledByDetector=false;zoomDetector.onTouchEvent(event)', self.view)
+        self.assertIn('if(!scaledByDetector && lastNavSpan>0 && span>0)', self.view)
+        self.assertIn('private static float pointerSpan(MotionEvent event)', self.view)
+        self.assertIn('lastNavSpan=pointerSpan(event)', self.view)
+
     def test_text_redaction_and_line_tools_are_saved_in_versioned_annotation_state(self):
         self.assertIn('REDACT, TEXT', self.view)
         self.assertIn('void addText(String value,float sourceX,float sourceY)', self.view)

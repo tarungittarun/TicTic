@@ -32,12 +32,12 @@ public class ImageEditViewTest {
             assertTrue(sendMulti(view,down,down+60,MotionEvent.ACTION_POINTER_UP|(1<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new float[]{centerX-60,centerX+60},new float[]{centerY,centerY}));
             assertTrue(sendSingle(view,down,down+80,MotionEvent.ACTION_UP,centerX+60,centerY));float before=view.panOffsetX();assertTrue(view.zoomScale()>1);
             long pan=down+100;assertTrue(sendSingle(view,pan,pan,MotionEvent.ACTION_DOWN,centerX,centerY));assertTrue(sendSingle(view,pan,pan+20,MotionEvent.ACTION_MOVE,centerX+35,centerY+10));assertTrue(sendSingle(view,pan,pan+40,MotionEvent.ACTION_UP,centerX+35,centerY+10));assertTrue(Math.abs(before-view.panOffsetX())>.01f);
-            view.drawingTool(ImageEditView.Tool.PEN,Color.RED);float x=view.previewOriginX()+100*view.previewScale(),y=view.previewOriginY()+50*view.previewScale();long mark=pan+60;
+            view.drawingTool(ImageEditView.Tool.PEN,Color.RED);float beforePenPinch=view.zoomScale(),x=view.previewOriginX()+100*view.previewScale(),y=view.previewOriginY()+50*view.previewScale();long mark=pan+60;
             assertTrue(sendSingle(view,mark,mark,MotionEvent.ACTION_DOWN,x,y));
             assertTrue(sendMulti(view,mark,mark+20,MotionEvent.ACTION_POINTER_DOWN|(1<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new float[]{x-12,x+12},new float[]{y,y}));
             assertTrue(sendMulti(view,mark,mark+40,MotionEvent.ACTION_MOVE,new float[]{x-28,x+28},new float[]{y,y}));
             assertTrue(sendMulti(view,mark,mark+60,MotionEvent.ACTION_POINTER_UP|(1<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new float[]{x-28,x+28},new float[]{y,y}));
-            assertTrue(sendSingle(view,mark,mark+80,MotionEvent.ACTION_UP,x+28,y));assertEquals("Two-finger navigation cancels the in-progress pen stroke",0,view.annotationCount());assertTrue(view.zoomScale()>1);
+            assertTrue(sendSingle(view,mark,mark+80,MotionEvent.ACTION_UP,x+28,y));assertTrue("Pinching with PEN selected still zooms the image",view.zoomScale()>beforePenPinch+.1f);assertEquals("Two-finger navigation cancels the in-progress pen stroke",0,view.annotationCount());
             float beforeTwoFingerX=view.panOffsetX(),beforeTwoFingerY=view.panOffsetY();long move=mark+100;
             assertTrue(sendMulti(view,move,move,MotionEvent.ACTION_POINTER_DOWN|(1<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new float[]{x-20,x+20},new float[]{y,y}));
             assertTrue(sendMulti(view,move,move+20,MotionEvent.ACTION_MOVE,new float[]{x+10,x+50},new float[]{y+15,y+15}));

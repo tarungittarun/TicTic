@@ -30,16 +30,16 @@ final class ImageEditView extends View {
  private Annotation drawing;
  private Runnable changed=()->{};
  private TextRequest textRequest=(x,y)->{};
- private boolean cropMode,saving,navigating,multiFingerNavigation;
+ private boolean cropMode,saving,navigating,multiFingerNavigation,scaledByDetector;
  private Tool drawingTool=Tool.NONE;
  private int drawingColor=Color.RED,handle=-1,pointer=-1,drawingPointer=-1,textPointer=-1;
- private float scale=1,fitScale=1,ox,oy,zoom=1,panX,panY,lastNavX,lastNavY;
+ private float scale=1,fitScale=1,ox,oy,zoom=1,panX,panY,lastNavX,lastNavY,lastNavSpan;
 
  ImageEditView(Context c){
   super(c);setFocusable(true);setContentDescription("Image preview. Pinch to zoom; drag with two fingers to pan. Use Text, Redact, Highlight, Pen, Shapes, or Crop.");
   zoomDetector=new ScaleGestureDetector(c,new ScaleGestureDetector.SimpleOnScaleGestureListener(){
    @Override public boolean onScaleBegin(ScaleGestureDetector detector){return ready() && !saving;}
-   @Override public boolean onScale(ScaleGestureDetector detector){zoomAt(detector.getFocusX(),detector.getFocusY(),detector.getScaleFactor());invalidate();return true;}
+   @Override public boolean onScale(ScaleGestureDetector detector){scaledByDetector=true;zoomAt(detector.getFocusX(),detector.getFocusY(),detector.getScaleFactor());invalidate();return true;}
   });
  }
  void loaded(Bitmap bitmap,ImageEditPlan restored){source=bitmap;plan=restored!=null && restored.sourceWidth==bitmap.getWidth() && restored.sourceHeight==bitmap.getHeight()?restored:new ImageEditPlan(bitmap.getWidth(),bitmap.getHeight());updateViewport();notifyChanged();}
@@ -170,6 +170,7 @@ final class ImageEditView extends View {
   float margin=dp(28);fitScale=Math.max(.001f,Math.min(Math.max(1,getWidth()-margin*2)/plan.width(),Math.max(1,getHeight()-margin*2)/plan.height()));scale=fitScale*zoom;float centerX=(getWidth()-plan.width()*scale)/2,centerY=(getHeight()-plan.height()*scale)/2;panX=focusX-imageX*scale-centerX;panY=focusY-imageY*scale-centerY;updateViewport();
  }
  private static float centroid(MotionEvent event,boolean x){float total=0;for(int i=0;i<event.getPointerCount();i++)total+=x?event.getX(i):event.getY(i);return total/Math.max(1,event.getPointerCount());}
+ private static float pointerSpan(MotionEvent event){if(event.getPointerCount()<2)return 0;float x=centroid(event,true),y=centroid(event,false);double squared=0;for(int i=0;i<event.getPointerCount();i++){float dx=event.getX(i)-x,dy=event.getY(i)-y;squared+=(double)dx*dx+(double)dy*dy;}return (float)Math.sqrt(squared/event.getPointerCount());}
  @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);updateViewport();}
  @Override protected void onDraw(Canvas canvas){
   super.onDraw(canvas);canvas.drawColor(0xff242424);if(!ready() || plan==null)return;updateViewport();
@@ -179,8 +180,8 @@ final class ImageEditView extends View {
   if(cropMode){paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xffffd477);canvas.drawRect(l,t,r,b,paint);paint.setStyle(Paint.Style.FILL);for(int i=0;i<4;i++){float x=i%2==0?l:r,y=i<2?t:b;paint.setColor(Color.BLACK);canvas.drawCircle(x,y,dp(9),paint);paint.setColor(0xffffd477);canvas.drawCircle(x,y,dp(7),paint);}}
  }
  @Override public boolean onTouchEvent(MotionEvent event){
-  if(!ready() || saving || plan==null)return false;updateViewport();int action=event.getActionMasked();zoomDetector.onTouchEvent(event);
-  if(action==MotionEvent.ACTION_POINTER_DOWN){if(gesture!=null)finishGesture(false);if(drawing!=null)finishDrawing(false);textPointer=-1;navigating=true;multiFingerNavigation=true;lastNavX=centroid(event,true);lastNavY=centroid(event,false);if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;}
+  if(!ready() || saving || plan==null)return false;updateViewport();int action=event.getActionMasked();scaledByDetector=false;zoomDetector.onTouchEvent(event);
+  if(action==MotionEvent.ACTION_POINTER_DOWN){if(gesture!=null)finishGesture(false);if(drawing!=null)finishDrawing(false);textPointer=-1;navigating=true;multiFingerNavigation=true;lastNavX=centroid(event,true);lastNavY=centroid(event,false);lastNavSpan=pointerSpan(event);if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;}
   if(navigating)return touchNavigation(event);
   if(action==MotionEvent.ACTION_DOWN){
    if(cropMode && touchCrop(event))return true;
@@ -191,12 +192,19 @@ final class ImageEditView extends View {
  }
  private boolean touchNavigation(MotionEvent event){
   int action=event.getActionMasked();if(action==MotionEvent.ACTION_MOVE){
-   if(event.getPointerCount()>1){float x=centroid(event,true),y=centroid(event,false);boolean stationaryPinch=zoomDetector.isInProgress() && Math.abs(zoomDetector.getScaleFactor()-1f)<.001f;if(!zoomDetector.isInProgress() || stationaryPinch){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}lastNavX=x;lastNavY=y;}
-   else{float x=event.getX(),y=event.getY();boolean mayPan=zoom>1 && (multiFingerNavigation || drawingTool==Tool.NONE && !cropMode);if(mayPan){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}lastNavX=x;lastNavY=y;}
+   if(event.getPointerCount()>1){
+    float x=centroid(event,true),y=centroid(event,false),span=pointerSpan(event);
+    // Android's detector has a minimum span; keep short two-finger pinches usable too.
+    if(!scaledByDetector && lastNavSpan>0 && span>0){float factor=span/lastNavSpan;if(Float.isFinite(factor) && Math.abs(factor-1f)>.001f)zoomAt(lastNavX,lastNavY,factor);}
+    boolean stationaryPinch=zoomDetector.isInProgress() && Math.abs(zoomDetector.getScaleFactor()-1f)<.001f;
+    if(!zoomDetector.isInProgress() || stationaryPinch){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}
+    lastNavX=x;lastNavY=y;lastNavSpan=span;
+   }
+   else{float x=event.getX(),y=event.getY();boolean mayPan=zoom>1 && (multiFingerNavigation || drawingTool==Tool.NONE && !cropMode);if(mayPan){panX+=x-lastNavX;panY+=y-lastNavY;updateViewport();invalidate();}lastNavX=x;lastNavY=y;lastNavSpan=0;}
    return true;
   }
-  if(action==MotionEvent.ACTION_POINTER_UP){int remaining=event.getActionIndex()==0?1:0;if(remaining<event.getPointerCount()){lastNavX=event.getX(remaining);lastNavY=event.getY(remaining);}return true;}
-  if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL){navigating=false;multiFingerNavigation=false;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);if(action==MotionEvent.ACTION_UP)performClick();return true;}return true;
+  if(action==MotionEvent.ACTION_POINTER_UP){lastNavSpan=0;int remaining=event.getActionIndex()==0?1:0;if(remaining<event.getPointerCount()){lastNavX=event.getX(remaining);lastNavY=event.getY(remaining);}return true;}
+  if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL){navigating=false;multiFingerNavigation=false;lastNavSpan=0;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);if(action==MotionEvent.ACTION_UP)performClick();return true;}return true;
  }
  private boolean touchCrop(MotionEvent event){
   int action=event.getActionMasked();if(action==MotionEvent.ACTION_DOWN){float best=dp(28);handle=-1;for(int i=0;i<4;i++){float x=ox+(i%2==0?plan.left:plan.right)*scale,y=oy+(i<2?plan.top:plan.bottom)*scale;float distance=(float)Math.hypot(event.getX()-x,event.getY()-y);if(distance<=best){best=distance;handle=i;}}if(handle<0)return false;gesture=snapshot();pointer=event.getPointerId(0);if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(true);return true;}

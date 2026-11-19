@@ -31,9 +31,8 @@ final class SafTestPicker {
             CharSequence label=node.getText()!=null?node.getText():node.getContentDescription();
             String action=actionFor(label);
             if(action!=null && node.isEnabled() && node.isVisibleToUser()){
-                AccessibilityNodeInfo target=node;
-                while(target!=null && (!target.isClickable() || !target.isEnabled()))target=target.getParent();
-                if(target!=null){
+                AccessibilityNodeInfo target=actionTarget(node);
+                if(target!=null && target.isEnabled() && target.isVisibleToUser()){
                     long now=SystemClock.uptimeMillis();
                     boolean retry=action.equals(lastAction);
                     // A new label can appear before the previous click's picker
@@ -71,12 +70,25 @@ final class SafTestPicker {
             return false;
         }
 
+        // SAF confirmation dialogs expose a non-clickable title such as "Allow access to..."
+        // above the real ALLOW button. Never activate an arbitrary clickable dialog container.
+        private AccessibilityNodeInfo actionTarget(AccessibilityNodeInfo node){
+            for(AccessibilityNodeInfo target=node;target!=null;target=target.getParent()){
+                if(target.isClickable() && isButton(target))return target;
+            }
+            return null;
+        }
+
+        private boolean isButton(AccessibilityNodeInfo node){
+            CharSequence name=node.getClassName();return name!=null && name.toString().endsWith("Button");
+        }
+
         private String actionFor(CharSequence value){
             if(value==null)return null;
             String text=value.toString().trim(),upper=text.toUpperCase(Locale.ROOT);
             if(upper.equals("USE THIS FOLDER"))return "use-this-folder";
             if(upper.equals("SELECT"))return "select";
-            if(upper.equals("ALLOW") || upper.startsWith("ALLOW ACCESS TO"))return "confirm-access";
+            if(upper.equals("ALLOW"))return "confirm-access";
             return null;
         }
 

@@ -216,8 +216,13 @@ final class ImageEditView extends View {
  private int textHandle(float x,float y,Annotation mark){RectF bounds=textBounds(mark);float radius=dp(18)/Math.max(.001f,scale),closest=radius;int selected=-1;for(int corner=0;corner<4;corner++){float hx=corner%2==0?bounds.left:bounds.right,hy=corner<2?bounds.top:bounds.bottom;float distance=(float)Math.hypot(x-hx,y-hy);if(distance<=closest){closest=distance;selected=corner;}}return selected;}
  private void drawTextSelection(Canvas canvas,Annotation mark){RectF bounds=textBounds(mark);annotationPaint.setStyle(Paint.Style.STROKE);annotationPaint.setStrokeWidth(Math.max(.5f,dp(1.5f)/Math.max(.001f,scale)));annotationPaint.setColor(0xff5577dd);canvas.drawRoundRect(bounds,dp(3)/Math.max(.001f,scale),dp(3)/Math.max(.001f,scale),annotationPaint);annotationPaint.setStyle(Paint.Style.FILL);float radius=dp(4)/Math.max(.001f,scale);for(int i=0;i<4;i++){float x=i%2==0?bounds.left:bounds.right,y=i<2?bounds.top:bounds.bottom;canvas.drawCircle(x,y,radius,annotationPaint);}}
  private float dp(float n){return n*getResources().getDisplayMetrics().density;}
- private float[] screenToSource(float x,float y){
-  if(plan==null)return null;float oxp=(x-ox)/scale,oyp=(y-oy)/scale;if(oxp<plan.left || oxp>plan.right || oyp<plan.top || oyp>plan.bottom)return null;float[] m=plan.matrix();float dx=oxp-m[2],dy=oyp-m[5],det=m[0]*m[4]-m[1]*m[3];if(det==0)return null;float sx=(m[4]*dx-m[1]*dy)/det,sy=(-m[3]*dx+m[0]*dy)/det;return new float[]{Math.max(0,Math.min(plan.sourceWidth,sx)),Math.max(0,Math.min(plan.sourceHeight,sy))};
+ private float[] screenToSource(float x,float y){return screenToSource(x,y,false);}
+ private float[] screenToSourceClamped(float x,float y){return screenToSource(x,y,true);}
+ private float[] screenToSource(float x,float y,boolean clampToImage){
+  if(plan==null)return null;float oxp=(x-ox)/scale,oyp=(y-oy)/scale;
+  if(clampToImage){oxp=Math.max(plan.left,Math.min(plan.right,oxp));oyp=Math.max(plan.top,Math.min(plan.bottom,oyp));}
+  else if(oxp<plan.left || oxp>plan.right || oyp<plan.top || oyp>plan.bottom)return null;
+  float[] m=plan.matrix();float dx=oxp-m[2],dy=oyp-m[5],det=m[0]*m[4]-m[1]*m[3];if(det==0)return null;float sx=(m[4]*dx-m[1]*dy)/det,sy=(-m[3]*dx+m[0]*dy)/det;return new float[]{Math.max(0,Math.min(plan.sourceWidth,sx)),Math.max(0,Math.min(plan.sourceHeight,sy))};
  }
  private boolean insideImage(float x,float y){float ix=(x-ox)/scale,iy=(y-oy)/scale;return ix>=0 && iy>=0 && ix<=plan.width() && iy<=plan.height();}
  private float dpDensity(){return getResources().getDisplayMetrics().density;}
@@ -283,7 +288,7 @@ final class ImageEditView extends View {
  private boolean touchTextMove(MotionEvent event){
   int action=event.getActionMasked();if(action==MotionEvent.ACTION_CANCEL || event.getPointerCount()!=1){finishTextMove(false);return true;}
   int index=event.findPointerIndex(textPointer);if(index<0){finishTextMove(false);return true;}
-  if(action==MotionEvent.ACTION_MOVE || action==MotionEvent.ACTION_UP){float[] point=screenToSource(event.getX(index),event.getY(index));if(point!=null && movingText<annotations.size()){Annotation mark=annotations.get(movingText);float dx=point[0]-lastTextX,dy=point[1]-lastTextY;if(Math.abs(dx)>.001f || Math.abs(dy)>.001f){if(textResizeCorner>=0)resizeTextBox(mark,textResizeCorner,point[0],point[1]);else{RectF bounds=textBounds(mark);dx=Math.max(-bounds.left,Math.min(source.getWidth()-bounds.right,dx));dy=Math.max(-bounds.top,Math.min(source.getHeight()-bounds.bottom,dy));mark.points[0]+=dx;mark.points[1]+=dy;}lastTextX=point[0];lastTextY=point[1];textDidMove=true;invalidate();}}if(action==MotionEvent.ACTION_UP){finishTextMove(true);performClick();}return true;}return true;
+  if(action==MotionEvent.ACTION_MOVE || action==MotionEvent.ACTION_UP){float[] point=screenToSource(event.getX(index),event.getY(index));if(point==null && textResizeCorner>=0)point=screenToSourceClamped(event.getX(index),event.getY(index));if(point!=null && movingText<annotations.size()){Annotation mark=annotations.get(movingText);float dx=point[0]-lastTextX,dy=point[1]-lastTextY;if(Math.abs(dx)>.001f || Math.abs(dy)>.001f){if(textResizeCorner>=0)resizeTextBox(mark,textResizeCorner,point[0],point[1]);else{RectF bounds=textBounds(mark);dx=Math.max(-bounds.left,Math.min(source.getWidth()-bounds.right,dx));dy=Math.max(-bounds.top,Math.min(source.getHeight()-bounds.bottom,dy));mark.points[0]+=dx;mark.points[1]+=dy;}lastTextX=point[0];lastTextY=point[1];textDidMove=true;invalidate();}}if(action==MotionEvent.ACTION_UP){finishTextMove(true);performClick();}return true;}return true;
  }
  private void resizeTextBox(Annotation old,int corner,float x,float y){
   RectF bounds=textBounds(old);float padding=textPadding(old),maxBox=Math.max(.1f,source.getWidth()-2*padding);boolean rightSide=corner%2==1;

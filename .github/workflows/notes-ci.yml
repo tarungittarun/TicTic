@@ -252,7 +252,8 @@ jobs:
     name: Android / ${{ matrix.id }}
     needs: [checks, test-build, apk-audit]
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # The full Pixel C tablet pass is slower than phone profiles; give only that lane room to finish.
+    timeout-minutes: ${{ matrix.id == 'tablet-api34' && 45 || 30 }}
     strategy:
       fail-fast: false
       # All 21 independent emulator lanes can start together; GitHub's account-level

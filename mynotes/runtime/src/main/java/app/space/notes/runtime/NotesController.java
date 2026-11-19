@@ -1208,7 +1208,7 @@ persistDraft();switch(action){case "Save copy to device folder":host.chooseCopyF
     }
     private void insertOriginalImage(String noteId,app.space.notes.domain.NoteImage image){
         if(image==null)return;app.space.notes.domain.NoteImage source=originalImage(image);String suffix=" (original)";String name=source.name.length()+suffix.length()<=200?source.name+suffix:source.name.substring(0,200-suffix.length())+suffix;
-        app.space.notes.domain.NoteImage copy=source.asImage(UUID.randomUUID().toString(),name);pendingContentAnchor=null;pendingContentNote=null;pendingContentDigest=null;pendingContentOffset=-1;addImage(noteId,copy);
+        app.space.notes.domain.NoteImage copy=app.space.notes.domain.NoteImage.Original.of(source).asImage(UUID.randomUUID().toString(),name);pendingContentAnchor=null;pendingContentNote=null;pendingContentDigest=null;pendingContentOffset=-1;addImage(noteId,copy);
     }
     private void saveImageEdit(String id,app.space.notes.domain.NoteImage original,ImageEditView view){
         if(imageEditor!=view || !view.ready() || view.saving() || !view.dirty())return;

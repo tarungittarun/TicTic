@@ -40,7 +40,7 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('"Show original image"',self.controller)
         self.assertIn('"Insert original as new item"',self.controller)
         self.assertIn('VisualZoomDialog.image(context,design,source,drawing)',self.controller)
-        self.assertIn('source.asImage(UUID.randomUUID().toString(),name)',self.controller)
+        self.assertIn('Original.of(source).asImage(UUID.randomUUID().toString(),name)',self.controller)
         self.assertIn('host.showOriginal(block)',document)
         self.assertIn('host.insertOriginal(block)',document)
         self.assertIn('public final Original original',image)

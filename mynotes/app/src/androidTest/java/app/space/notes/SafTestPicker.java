@@ -11,6 +11,7 @@ import java.util.Locale;
 
 /** Reaches only the native local-folder SAF picker; verifies the returned tree separately. */
 final class SafTestPicker {
+    private static final long ACTION_TRANSITION_SETTLE_MS=1500;
     private SafTestPicker() {}
 
     static final class Driver {
@@ -35,18 +36,24 @@ final class SafTestPicker {
                 if(target!=null){
                     long now=SystemClock.uptimeMillis();
                     boolean retry=action.equals(lastAction);
-                    if(!retry){lastAction=action;actionPending=false;fallbackTouchUsed=false;accessibilityPending=false;}
-                    // An accepted accessibility click is normally a one-shot command.
-                    // On API 26 the system picker can report it accepted without
-                    // dispatching the SELECT action; after a bounded wait, allow one
-                    // native tap fallback. Do not repeat on newer DocumentsUI builds,
-                    // where resubmitting the same grant can crash the picker.
-                    if(retry && actionPending){
-                        if(Build.VERSION.SDK_INT==26 && accessibilityPending && !fallbackTouchUsed && now-lastAttemptAt>=1500){
-                            fallbackTouchUsed=true;lastAttemptAt=now;attempts++;boolean touched=tap(target);actionPending=touched;lastOutcome="api26-touch-fallback "+touched;return touched;
+                    // A new label can appear before the previous click's picker
+                    // transition has finished. Do not let SELECT -> confirmation
+                    // dispatch overlapping DocumentsUI tasks.
+                    if(actionPending){
+                        if(retry){
+                            // An accepted accessibility click is normally a one-shot command.
+                            // On API 26 the picker can report it accepted without dispatching
+                            // SELECT; after a bounded wait allow one native tap fallback.
+                            if(Build.VERSION.SDK_INT==26 && accessibilityPending && !fallbackTouchUsed && now-lastAttemptAt>=ACTION_TRANSITION_SETTLE_MS){
+                                fallbackTouchUsed=true;lastAttemptAt=now;attempts++;boolean touched=tap(target);actionPending=touched;lastOutcome="api26-touch-fallback "+touched;return touched;
+                            }
+                            // Do not repeat on newer DocumentsUI builds: resubmitting the
+                            // same grant can crash the picker.
+                            lastOutcome="waiting-for-ui-transition";return true;
                         }
-                        lastOutcome="waiting-for-ui-transition";return true;
+                        if(now-lastAttemptAt<ACTION_TRANSITION_SETTLE_MS){lastOutcome="waiting-for-ui-transition";return true;}
                     }
+                    if(!retry){lastAction=action;actionPending=false;fallbackTouchUsed=false;accessibilityPending=false;}
                     if(!retry || now-lastAttemptAt>=750){
                         attempts++;lastAction=action;lastAttemptAt=now;
                         if(!retry){
@@ -67,8 +74,9 @@ final class SafTestPicker {
         private String actionFor(CharSequence value){
             if(value==null)return null;
             String text=value.toString().trim(),upper=text.toUpperCase(Locale.ROOT);
-            if(upper.equals("USE THIS FOLDER") || upper.equals("SELECT"))return "select:"+upper;
-            if(upper.equals("ALLOW") || upper.startsWith("ALLOW ACCESS TO"))return "confirm:"+upper;
+            if(upper.equals("USE THIS FOLDER"))return "use-this-folder";
+            if(upper.equals("SELECT"))return "select";
+            if(upper.equals("ALLOW") || upper.startsWith("ALLOW ACCESS TO"))return "confirm-access";
             return null;
         }
 

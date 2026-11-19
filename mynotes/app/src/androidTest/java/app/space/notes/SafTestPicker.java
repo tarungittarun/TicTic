@@ -84,7 +84,7 @@ final class SafTestPicker {
             String text=value.toString().trim(),upper=text.toUpperCase(Locale.ROOT);
             if(upper.equals("USE THIS FOLDER"))return "use-this-folder";
             if(upper.equals("SELECT"))return "select";
-            if(upper.equals("ALLOW") || upper.startsWith("ALLOW ACCESS TO "))return "confirm-access";
+            if(upper.equals("ALLOW"))return "confirm-access";
             return null;
         }
 

@@ -48,6 +48,11 @@ class RenderedUxPublicationContracts(unittest.TestCase):
             self.assertIn('SafTestPicker.Driver picker=new SafTestPicker.Driver(instrumentation)',source)
             self.assertIn('Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK',source)
             self.assertIn('SafTestPicker.describe(instrumentation.getUiAutomation().getRootInActiveWindow())',source)
+        support=(root/'app/src/debug/java/app/space/notes/FolderGrantTestSupport.java').read_text()
+        self.assertIn('completedGrant=done;finish()',support)
+        self.assertIn('onStop()',support)
+        self.assertIn('postDelayed(()->sendBroadcast(result),350)',support)
+        self.assertNotIn('sendBroadcast(done);finish()',support)
     def test_mixed_filter_tab_row_uses_visual_not_text_baselines(self):
         source=(Path(__file__).resolve().parents[1]/'runtime/src/main/java/app/space/notes/runtime/LibraryFilterView.java').read_text()
         self.assertIn('row.setBaselineAligned(false)',source)

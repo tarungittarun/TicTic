@@ -111,15 +111,23 @@ public final class NotesController {
         // Retry only the exact application-requested range, once; native touch handles stay native.
         @Override public void setSelection(int start,int end){super.setSelection(start,end);if(start>end && (getSelectionStart()!=start || getSelectionEnd()!=end))super.setSelection(start,end);}
 
+        private SelectionScrollView selectionViewport(){
+            for(android.view.ViewParent ancestor=getParent();ancestor!=null;ancestor=ancestor.getParent())if(ancestor instanceof SelectionScrollView)return (SelectionScrollView)ancestor;
+            return null;
+        }
         private boolean isNativeSelectionGesture(android.view.MotionEvent event){
-            for(android.view.ViewParent ancestor=getParent();ancestor!=null;ancestor=ancestor.getParent())if(ancestor instanceof SelectionScrollView)return ((SelectionScrollView)ancestor).isNativeSelectionTouch(this,event);
-            return hasSelection();
+            SelectionScrollView viewport=selectionViewport();return viewport!=null?viewport.isNativeSelectionTouch(this,event):hasSelection();
         }
         @Override public boolean onTouchEvent(android.view.MotionEvent event){
             // Keep taps in the selected range and native handle drags in the editor;
             // an unselected-area drag must remain available to the enclosing ScrollView.
-            if(getParent()!=null){int action=event.getActionMasked();if(action==android.view.MotionEvent.ACTION_DOWN)getParent().requestDisallowInterceptTouchEvent(isNativeSelectionGesture(event));else if(action==android.view.MotionEvent.ACTION_UP || action==android.view.MotionEvent.ACTION_CANCEL)getParent().requestDisallowInterceptTouchEvent(false);}
-            return super.onTouchEvent(event);
+            int action=event.getActionMasked();if(getParent()!=null){if(action==android.view.MotionEvent.ACTION_DOWN)getParent().requestDisallowInterceptTouchEvent(isNativeSelectionGesture(event));else if(action==android.view.MotionEvent.ACTION_UP || action==android.view.MotionEvent.ACTION_CANCEL)getParent().requestDisallowInterceptTouchEvent(false);}
+            boolean handled=super.onTouchEvent(event);
+            // Native selection can outlive focus/ActionMode handoffs without a new
+            // selection callback. Snapshot it after the editor has processed touch,
+            // so the enclosing viewport can preserve it during the next blank-area drag.
+            if(hasSelection()){SelectionScrollView viewport=selectionViewport();if(viewport!=null)viewport.observeEditorSelection(this);}
+            return handled;
         }
         @Override protected void onFocusChanged(boolean focused,int direction,android.graphics.Rect previous){if(beforeFocusTransition!=null)beforeFocusTransition.run();try{super.onFocusChanged(focused,direction,previous);}finally{if(afterFocusTransition!=null)afterFocusTransition.run();}}
         @Override public void onWindowFocusChanged(boolean focused){if(beforeFocusTransition!=null)beforeFocusTransition.run();try{super.onWindowFocusChanged(focused);}finally{if(afterFocusTransition!=null)afterFocusTransition.run();}}

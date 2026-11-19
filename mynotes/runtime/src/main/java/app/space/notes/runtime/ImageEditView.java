@@ -213,7 +213,7 @@ final class ImageEditView extends View {
  float selectedTextBoxWidth(){return textSelected()?annotations.get(selectedText).boxWidth:0;}
  RectF selectedTextBounds(){return textSelected()?new RectF(textBounds(annotations.get(selectedText))):null;}
  private int hitText(float x,float y){for(int i=annotations.size()-1;i>=0;i--){Annotation mark=annotations.get(i);if(mark.tool!=Tool.TEXT)continue;RectF bounds=textBounds(mark);float padding=dp(16)/Math.max(.001f,scale);bounds.inset(-padding,-padding);if(bounds.contains(x,y))return i;}return -1;}
- private int textHandle(float x,float y,Annotation mark){RectF bounds=textBounds(mark);float radius=dp(18)/Math.max(.001f,scale);for(int corner=0;corner<4;corner++){float hx=corner%2==0?bounds.left:bounds.right,hy=corner<2?bounds.top:bounds.bottom;if(Math.hypot(x-hx,y-hy)<=radius)return corner;}return -1;}
+ private int textHandle(float x,float y,Annotation mark){RectF bounds=textBounds(mark);float radius=dp(18)/Math.max(.001f,scale),closest=radius;int selected=-1;for(int corner=0;corner<4;corner++){float hx=corner%2==0?bounds.left:bounds.right,hy=corner<2?bounds.top:bounds.bottom;float distance=(float)Math.hypot(x-hx,y-hy);if(distance<=closest){closest=distance;selected=corner;}}return selected;}
  private void drawTextSelection(Canvas canvas,Annotation mark){RectF bounds=textBounds(mark);annotationPaint.setStyle(Paint.Style.STROKE);annotationPaint.setStrokeWidth(Math.max(.5f,dp(1.5f)/Math.max(.001f,scale)));annotationPaint.setColor(0xff5577dd);canvas.drawRoundRect(bounds,dp(3)/Math.max(.001f,scale),dp(3)/Math.max(.001f,scale),annotationPaint);annotationPaint.setStyle(Paint.Style.FILL);float radius=dp(4)/Math.max(.001f,scale);for(int i=0;i<4;i++){float x=i%2==0?bounds.left:bounds.right,y=i<2?bounds.top:bounds.bottom;canvas.drawCircle(x,y,radius,annotationPaint);}}
  private float dp(float n){return n*getResources().getDisplayMetrics().density;}
  private float[] screenToSource(float x,float y){
@@ -286,12 +286,12 @@ final class ImageEditView extends View {
   if(action==MotionEvent.ACTION_MOVE || action==MotionEvent.ACTION_UP){float[] point=screenToSource(event.getX(index),event.getY(index));if(point!=null && movingText<annotations.size()){Annotation mark=annotations.get(movingText);float dx=point[0]-lastTextX,dy=point[1]-lastTextY;if(Math.abs(dx)>.001f || Math.abs(dy)>.001f){if(textResizeCorner>=0)resizeTextBox(mark,textResizeCorner,point[0],point[1]);else{RectF bounds=textBounds(mark);dx=Math.max(-bounds.left,Math.min(source.getWidth()-bounds.right,dx));dy=Math.max(-bounds.top,Math.min(source.getHeight()-bounds.bottom,dy));mark.points[0]+=dx;mark.points[1]+=dy;}lastTextX=point[0];lastTextY=point[1];textDidMove=true;invalidate();}}if(action==MotionEvent.ACTION_UP){finishTextMove(true);performClick();}return true;}return true;
  }
  private void resizeTextBox(Annotation old,int corner,float x,float y){
-  RectF bounds=textBounds(old);float fixedX=corner%2==0?bounds.right:bounds.left,fixedY=corner<2?bounds.bottom:bounds.top;
-  float oldX=corner%2==0?bounds.left:bounds.right,oldY=corner<2?bounds.top:bounds.bottom;float denominator=(float)Math.hypot(oldX-fixedX,oldY-fixedY);if(denominator<.1f)return;
-  float ratio=Math.max(.08f,Math.min(8f,(float)Math.hypot(x-fixedX,y-fixedY)/denominator));float maxBox=Math.max(.1f,source.getWidth());float box=Math.max(Math.max(.1f,old.width*2),Math.min(maxBox,old.boxWidth*ratio));
-  Annotation resized=fitText(new Annotation(Tool.TEXT,old.color,Math.max(.05f,old.width*ratio),old.points,old.text,old.font,box));RectF next=textBounds(resized);
-  if(corner%2==0)resized.points[0]=fixedX-next.width()+textPadding(resized);else resized.points[0]=fixedX+textPadding(resized);
-  next=textBounds(resized);if(corner<2)resized.points[1]=fixedY-(next.bottom-resized.points[1]);else resized.points[1]=fixedY-(next.top-resized.points[1]);
+  RectF bounds=textBounds(old);float padding=textPadding(old),maxBox=Math.max(.1f,source.getWidth()-2*padding);boolean rightSide=corner%2==1;
+  float minimum=Math.min(maxBox,Math.max(.1f,old.width*3f));float box=rightSide?x-old.points[0]-padding:bounds.right-x-2*padding;box=Math.max(minimum,Math.min(maxBox,box));
+  float[] position=old.points.clone();if(!rightSide)position[0]=bounds.right-box-padding;
+  Annotation resized=fitText(new Annotation(Tool.TEXT,old.color,old.width,position,old.text,old.font,box));RectF next=textBounds(resized);
+  if(rightSide)resized.points[0]+=bounds.left-next.left;else resized.points[0]+=bounds.right-next.right;
+  next=textBounds(resized);resized.points[1]+=corner<2?bounds.bottom-next.bottom:bounds.top-next.top;
   resized=fitText(resized);annotations.set(movingText,resized);syncTextToolStyle();
  }
  private void finishTextMove(boolean accept){if(movingText<0)return;if(accept && textDidMove && movingTextBefore!=null)remember(movingTextBefore);else if(!accept && movingTextBefore!=null)restore(movingTextBefore);movingText=-1;textPointer=-1;textResizeCorner=-1;textDidMove=false;movingTextBefore=null;if(getParent()!=null)getParent().requestDisallowInterceptTouchEvent(false);notifyChanged();}

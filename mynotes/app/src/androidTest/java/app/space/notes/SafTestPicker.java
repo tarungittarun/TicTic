@@ -2,6 +2,7 @@ package app.space.notes;
 
 import android.app.Instrumentation;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -17,7 +18,7 @@ final class SafTestPicker {
         private String lastAction="";
         private long lastAttemptAt;
         private int attempts;
-        private boolean actionPending;
+        private boolean actionPending,fallbackTouchUsed,accessibilityPending;
         private String lastOutcome="none";
 
         Driver(Instrumentation instrumentation){this.instrumentation=instrumentation;}
@@ -34,18 +35,24 @@ final class SafTestPicker {
                 if(target!=null){
                     long now=SystemClock.uptimeMillis();
                     boolean retry=action.equals(lastAction);
-                    if(!retry){lastAction=action;actionPending=false;}
-                    // A successful click is a one-shot command. Keep observing this
-                    // picker until its state changes; a second touch while the same
-                    // button remains on screen can submit the SAF result twice and
-                    // crash the API 29 DocumentsUI AsyncTask.
-                    if(retry && actionPending){lastOutcome="waiting-for-ui-transition";return true;}
+                    if(!retry){lastAction=action;actionPending=false;fallbackTouchUsed=false;accessibilityPending=false;}
+                    // An accepted accessibility click is normally a one-shot command.
+                    // On API 26 the system picker can report it accepted without
+                    // dispatching the SELECT action; after a bounded wait, allow one
+                    // native tap fallback. Do not repeat on newer DocumentsUI builds,
+                    // where resubmitting the same grant can crash the picker.
+                    if(retry && actionPending){
+                        if(Build.VERSION.SDK_INT==26 && accessibilityPending && !fallbackTouchUsed && now-lastAttemptAt>=1500){
+                            fallbackTouchUsed=true;lastAttemptAt=now;attempts++;boolean touched=tap(target);actionPending=touched;lastOutcome="api26-touch-fallback "+touched;return touched;
+                        }
+                        lastOutcome="waiting-for-ui-transition";return true;
+                    }
                     if(!retry || now-lastAttemptAt>=750){
                         attempts++;lastAction=action;lastAttemptAt=now;
                         if(!retry){
                             boolean accepted=target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                             lastOutcome=accepted?"accessibility-click-accepted":"accessibility-click-rejected";
-                            if(accepted){actionPending=true;return true;}
+                            if(accepted){accessibilityPending=true;actionPending=true;return true;}
                         }
                         boolean touched=tap(target);actionPending=touched;
                         lastOutcome=(retry?"retry-with-touch":"touch-fallback")+" "+touched;

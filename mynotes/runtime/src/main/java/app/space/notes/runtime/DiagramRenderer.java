@@ -69,7 +69,7 @@ public final class DiagramRenderer {
             case "semicircle":p.moveTo(r.left,r.bottom);p.cubicTo(r.left,r.top-r.height()*.33f,r.right,r.top-r.height()*.33f,r.right,r.bottom);p.close();break;
             case "preparation":polygon(p,r,.2f,0,.8f,0,1,.5f,.8f,1,.2f,1,0,.5f);break;
             case "manualInput":polygon(p,r,.15f,0,1,0,1,1,0,1);break;
-            case "manualOperation":polygon(p,r,.15f,0,1,0,.85f,1,0,1);break;
+            case "manualOperation":polygon(p,r,0,0,1,0,.85f,1,.15f,1);break;
             case "delay":p.moveTo(r.left,r.top);p.lineTo(r.centerX(),r.top);p.cubicTo(r.right+r.width()*.18f,r.top,r.right+r.width()*.18f,r.bottom,r.centerX(),r.bottom);p.lineTo(r.left,r.bottom);p.close();break;
             case "display":polygon(p,r,0,0,.72f,0,1,.25f,1,.75f,.72f,1,0,1,.18f,.5f);break;
             case "offPageConnector":polygon(p,r,0,0,1,0,1,.68f,.5f,1,0,.68f);break;

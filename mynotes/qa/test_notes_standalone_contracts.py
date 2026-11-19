@@ -11,6 +11,15 @@ class NotesStandaloneContracts(unittest.TestCase):
         for module in ['notes-domain','notes-runtime','notes']:
             self.assertIn("':"+module+"'",s)
 
+    def test_central_mirror_precedes_primary_in_all_gradle_repository_sets(self):
+        settings=(ROOT/'settings.gradle').read_text()
+        mirror='https://maven-central.storage-download.googleapis.com/maven2/'
+        self.assertEqual(2,settings.count(mirror))
+        plugin=settings.split('pluginManagement',1)[1].split('dependencyResolutionManagement',1)[0]
+        dependencies=settings.split('dependencyResolutionManagement',1)[1]
+        for repositories in [plugin,dependencies]:
+            self.assertLess(repositories.index(mirror),repositories.index('mavenCentral()'))
+
     def test_old_hosts_do_not_consume_new_runtime(self):
         for name in ['app','feature-notes','calc']:
             s=(REPO/name/'build.gradle').read_text()

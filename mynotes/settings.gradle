@@ -1,7 +1,21 @@
-pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+pluginManagement {
+    repositories {
+        google()
+        // Google-hosted Maven Central mirror avoids shared-runner 429 throttling.
+        maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories { google(); mavenCentral(); maven { url "https://jitpack.io"; content { includeGroup "cz.adaptech.tesseract4android" } } }
+    repositories {
+        google()
+        // Keep the mirror ahead of central for the many isolated Android CI lanes.
+        maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+        mavenCentral()
+        maven { url "https://jitpack.io"; content { includeGroup "cz.adaptech.tesseract4android" } }
+    }
 }
 rootProject.name = 'MyNotes'
 include ':notes', ':notes-runtime', ':notes-domain'

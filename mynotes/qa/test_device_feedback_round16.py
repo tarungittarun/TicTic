@@ -64,7 +64,7 @@ class DeviceFeedbackRound16(unittest.TestCase):
         self.assertLess(source.index('reflow.accept(View.MeasureSpec'),source.index('super.onMeasure(width,height)'))
         reflow=source.split('root.reflow=',1)[1].split('view.onChanged',1)[0]
         self.assertIn('body.setOrientation',reflow)
-        self.assertIn('side.setLayoutParams',reflow)
+        self.assertIn('sidePanel.setLayoutParams',reflow)
         self.assertNotIn('new ImageTextSelection(',reflow)
         self.assertNotIn('new ImageTextSelectionView(',reflow)
         native=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ImageSelectionTest.java').read_text()

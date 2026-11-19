@@ -32,11 +32,12 @@ public final class GenerationProtocol {
     /** Both legacy and canonical visual payloads share immutable content-addressed blobs. */
     private static List<JSONObject> images(JSONObject root)throws Exception{
         List<JSONObject> result=new ArrayList<>();org.json.JSONArray notes=root.getJSONArray("notes");
-        for(int i=0;i<notes.length();i++){JSONObject note=notes.getJSONObject(i);int before=result.size();org.json.JSONArray legacy=note.optJSONArray("images");if(legacy!=null)for(int j=0;j<legacy.length();j++)result.add(legacy.getJSONObject(j));
-            if(note.has("content")){org.json.JSONArray blocks=note.getJSONObject("content").getJSONArray("blocks");if(blocks.length()>app.space.notes.domain.DocumentContent.MAX_BLOCKS)throw new IOException("Too many document sections");for(int j=0;j<blocks.length();j++){JSONObject block=blocks.getJSONObject(j);String kind=block.getString("kind");if(kind.equals("IMAGE") || kind.equals("DRAWING"))result.add(block.getJSONObject("image"));}}
-            if(result.size()-before>8)throw new IOException("Too many visual references in note");
+        for(int i=0;i<notes.length();i++){JSONObject note=notes.getJSONObject(i);int before=result.size(),attachments=0;org.json.JSONArray legacy=note.optJSONArray("images");if(legacy!=null)for(int j=0;j<legacy.length();j++){addImagePayload(result,legacy.getJSONObject(j));attachments++;}
+            if(note.has("content")){org.json.JSONArray blocks=note.getJSONObject("content").getJSONArray("blocks");if(blocks.length()>app.space.notes.domain.DocumentContent.MAX_BLOCKS)throw new IOException("Too many document sections");for(int j=0;j<blocks.length();j++){JSONObject block=blocks.getJSONObject(j);String kind=block.getString("kind");if(kind.equals("IMAGE") || kind.equals("DRAWING")){addImagePayload(result,block.getJSONObject("image"));attachments++;}}}
+            if(attachments>8 || result.size()-before>16)throw new IOException("Too many visual references in note");
         }return result;
     }
+    private static void addImagePayload(List<JSONObject> result,JSONObject image)throws Exception{result.add(image);if(image.has("original")){Object original=image.get("original");if(!(original instanceof JSONObject))throw new IOException("Invalid retained image source");result.add((JSONObject)original);}}
     private byte[] externalize(byte[] payload)throws Exception{
         JSONObject root=new JSONObject(app.space.notes.domain.JsonLimits.text(payload));for(JSONObject image:images(root)){byte[] bytes=Base64.getDecoder().decode(image.getString("data"));String hash=digest(bytes);((BlobBackend)backend).createBlob(hash,bytes);image.remove("data");image.put("blob",hash);}return root.toString().getBytes(StandardCharsets.UTF_8);
     }

@@ -33,6 +33,20 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertLess(apply.index('BackupCodec.encode(candidate)'), apply.index('captureUndo('))
         self.assertIn('revision!=candidateRevision', apply)
 
+    def test_original_image_is_view_only_and_inserted_copy_keeps_edited_item(self):
+        document=(JAVA/'DocumentEditorView.java').read_text()
+        image=(ROOT/'domain/src/main/java/app/space/notes/domain/NoteImage.java').read_text()
+        journey=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+        self.assertIn('"Show original image"',self.controller)
+        self.assertIn('"Insert original as new item"',self.controller)
+        self.assertIn('VisualZoomDialog.image(context,design,source,drawing)',self.controller)
+        self.assertIn('source.asImage(UUID.randomUUID().toString(),name)',self.controller)
+        self.assertIn('host.showOriginal(block)',document)
+        self.assertIn('host.insertOriginal(block)',document)
+        self.assertIn('public final Original original',image)
+        self.assertIn('editedImageOriginalIsViewOnlyAndCanBeInsertedAsANewItem',journey)
+        self.assertIn('assertEquals(edited.data,documentAfter.content.images().get(0).data)',journey)
+
     def test_back_cancellation_keeps_the_discard_guard(self):
         leave = self.controller.split('private void leaveImageEditor()', 1)[1].split('private Button imageTool(', 1)[0]
         self.assertIn('pageBack=this::leaveImageEditor', leave)
@@ -82,7 +96,7 @@ class ImageEditingContracts(unittest.TestCase):
     def test_text_redaction_and_line_tools_are_saved_in_versioned_annotation_state(self):
         self.assertIn('REDACT, TEXT', self.view)
         self.assertIn('void addText(String value,float sourceX,float sourceY)', self.view)
-        self.assertIn('STATE_VERSION=3', self.view)
+        self.assertIn('STATE_VERSION=4', self.view)
         self.assertIn('(values[1]<1 || values[1]>STATE_VERSION)', self.view)
         self.assertIn('Tool.ARROW.ordinal()-1', self.view)
         self.assertIn('Tool.REDACT', self.controller)
@@ -98,7 +112,7 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('void drawingFont(int value)', self.view)
         self.assertIn('void drawingWidthDp(float value)', self.view)
         self.assertIn('void drawingColor(int color)', self.view)
-        self.assertIn('textSelected()?"Text box selected. Drag it to move', self.view)
+        self.assertIn('textSelected()?"Text box selected. Drag inside to move', self.view)
         self.assertIn('drawTextSelection(canvas,annotations.get(selectedText))', self.view)
         self.assertIn('finishTextMove(true)', self.view)
         self.assertIn('private boolean updateSelectedTextStyleWidth', self.view)
@@ -112,8 +126,11 @@ class ImageEditingContracts(unittest.TestCase):
         self.assertIn('"Text font"', self.controller)
         self.assertIn('"imageEditWidth"', self.controller)
         self.assertIn('"imageEditFont"', self.controller)
-        self.assertIn('private static final int STATE_MAGIC=0x4d4e4931,STATE_VERSION=3;', self.view)
+        self.assertIn('private static final int STATE_MAGIC=0x4d4e4931,STATE_VERSION=4;', self.view)
         self.assertIn('if(version>=3)', self.view)
+        self.assertIn('if(version>=4)', self.view)
+        self.assertIn('private static String[] wrapText(String text,Paint measure,float maxWidth)', self.view)
+        self.assertIn('resizeTextBox(mark,textResizeCorner', self.view)
 
     def test_image_editor_topbar_orders_undo_redo_immediately_before_save(self):
         editor = self.controller.split('private void renderImageEditor(', 1)[1].split('private void saveImageEdit(', 1)[0]

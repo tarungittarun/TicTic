@@ -15,7 +15,7 @@ class FindAndNames(unittest.TestCase):
   self.assertIn('captureUndo(Arrays.asList(current),true);replace(next)',source)
  def test_named_documents_use_new_schema_without_changing_unnamed_output(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/DocumentCodec.java').read_text()
-  for token in ['int schema=6','schema=Math.max(schema,8)','schema=Math.max(schema,9)','schema=Math.max(schema,10)','schema=Math.max(schema,11)','version>11','version>=7 && n.has("content")','if(version<8','instanceof String']:
+  for token in ['int schema=6','schema=Math.max(schema,8)','schema=Math.max(schema,9)','schema=Math.max(schema,10)','schema=Math.max(schema,11)','schema=Math.max(schema,12)','schema=Math.max(schema,13)','version>13','version>=7 && n.has("content")','if(version<8','instanceof String']:
    self.assertIn(token,source)
  def test_doc_reverse_conversion_preserves_status_and_rich_rows(self):
   source=(ROOT/'domain/src/main/java/app/space/notes/domain/DocumentContent.java').read_text().split('public DocumentContent checklistToText',1)[1].split('public DocumentContent moveChecklistIntoText',1)[0]

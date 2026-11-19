@@ -15,20 +15,20 @@ public final class DiagramRenderer {
             float dx=bx-ax,dy=by-ay;
             if(dx==0 && dy==0)continue;
             float[] start=boundary(a,dx,dy),end=boundary(b,-dx,-dy);float angle=(float)Math.atan2(end[1]-start[1],end[0]-start[0]);
-            paint.setStyle(Paint.Style.STROKE);paint.setColor(ink);canvas.drawLine(start[0],start[1],end[0],end[1],paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setColor(ink);paint.setStrokeWidth(Math.max(1,(a.strokeWidth+b.strokeWidth)/2f));canvas.drawLine(start[0],start[1],end[0],end[1],paint);
             Path head=new Path();head.moveTo(end[0],end[1]);head.lineTo(end[0]-16*(float)Math.cos(angle-.45),end[1]-16*(float)Math.sin(angle-.45));head.moveTo(end[0],end[1]);head.lineTo(end[0]-16*(float)Math.cos(angle+.45),end[1]-16*(float)Math.sin(angle+.45));canvas.drawPath(head,paint);
-            if(!edge.label.isEmpty())drawText(canvas,edge.label,(start[0]+end[0])/2-90,(start[1]+end[1])/2-32,180,50,ink,20);
+            if(!edge.label.isEmpty())drawText(canvas,edge.label,(start[0]+end[0])/2-90,(start[1]+end[1])/2-32,180,50,ink,20,0);
         }
         Diagram.Node selectedNode=diagram.find(selected);
         for(Diagram.Node node:diagram.nodes){
             boolean highlighted=node.id.equals(selected) || (selectedNode!=null && !selectedNode.group.isEmpty() && selectedNode.group.equals(node.group));
             RectF r=new RectF(node.x,node.y,node.x+node.width,node.y+node.height);Path path=shape(node,r);
             if(!node.shape.equals("text") && node.color!=0){paint.setStyle(Paint.Style.FILL);paint.setColor(node.color==0 && design!=null?design.surface:NotesBoard.colour(node.color,dark));canvas.drawPath(path,paint);}
-            paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?(design==null?Color.parseColor("#B17400"):design.accent):ink);paint.setStrokeWidth(highlighted?6:3);
+            paint.setStyle(Paint.Style.STROKE);paint.setColor(highlighted?(design==null?Color.parseColor("#B17400"):design.accent):ink);paint.setStrokeWidth(highlighted?Math.max(6,node.strokeWidth+3):node.strokeWidth);
             if(!node.shape.equals("text") || highlighted)canvas.drawPath(path,paint);
             details(canvas,node,r,paint);
             float inset=node.shape.equals("decision")?node.width*.23f:node.shape.equals("data")?node.width*.17f:12;
-            drawText(canvas,node.text,node.x+inset,node.y+8,node.width-2*inset,node.height-16,ink,24);
+            drawText(canvas,node.text,node.x+inset,node.y+8,node.width-2*inset,node.height-16,ink,24,node.font);
         }
     }
     private static float centerX(Diagram.Node n){return n.x+n.width/(n.shape.equals("rightTriangle")?3f:2f);}
@@ -67,6 +67,19 @@ public final class DiagramRenderer {
             case "cloud":p.moveTo(r.left+r.width()*.15f,r.top+r.height()*.75f);p.cubicTo(r.left-r.width()*.07f,r.top+r.height()*.7f,r.left,r.top+r.height()*.35f,r.left+r.width()*.2f,r.top+r.height()*.35f);p.cubicTo(r.left+r.width()*.15f,r.top,r.left+r.width()*.55f,r.top-r.height()*.05f,r.left+r.width()*.6f,r.top+r.height()*.2f);p.cubicTo(r.right,r.top+r.height()*.05f,r.right,r.top+r.height()*.4f,r.right-r.width()*.06f,r.top+r.height()*.45f);p.cubicTo(r.right+r.width()*.15f,r.bottom,r.left+r.width()*.5f,r.bottom,r.left+r.width()*.45f,r.bottom-r.height()*.12f);p.cubicTo(r.left+r.width()*.2f,r.bottom+r.height()*.05f,r.left+r.width()*.1f,r.bottom-r.height()*.1f,r.left+r.width()*.15f,r.top+r.height()*.75f);p.close();break;
             case "heart":p.moveTo(r.centerX(),r.bottom);p.cubicTo(r.left-r.width()*.1f,r.centerY(),r.left,r.top-r.height()*.2f,r.centerX(),r.top+r.height()*.25f);p.cubicTo(r.right,r.top-r.height()*.2f,r.right+r.width()*.1f,r.centerY(),r.centerX(),r.bottom);p.close();break;
             case "semicircle":p.moveTo(r.left,r.bottom);p.cubicTo(r.left,r.top-r.height()*.33f,r.right,r.top-r.height()*.33f,r.right,r.bottom);p.close();break;
+            case "preparation":polygon(p,r,.2f,0,.8f,0,1,.5f,.8f,1,.2f,1,0,.5f);break;
+            case "manualInput":polygon(p,r,.15f,0,1,0,1,1,0,1);break;
+            case "manualOperation":polygon(p,r,.15f,0,1,0,.85f,1,0,1);break;
+            case "delay":p.moveTo(r.left,r.top);p.lineTo(r.centerX(),r.top);p.cubicTo(r.right+r.width()*.18f,r.top,r.right+r.width()*.18f,r.bottom,r.centerX(),r.bottom);p.lineTo(r.left,r.bottom);p.close();break;
+            case "display":polygon(p,r,0,0,.72f,0,1,.25f,1,.75f,.72f,1,0,1,.18f,.5f);break;
+            case "offPageConnector":polygon(p,r,0,0,1,0,1,.68f,.5f,1,0,.68f);break;
+            case "multipleDocument":p.addRect(r,Path.Direction.CW);break;
+            case "internalStorage":p.addRect(r,Path.Direction.CW);break;
+            case "merge":polygon(p,r,0,0,1,0,.5f,1);break;
+            case "extract":polygon(p,r,.5f,0,1,1,0,1);break;
+            case "or":p.addOval(r,Path.Direction.CW);break;
+            case "pieChart":p.addOval(r,Path.Direction.CW);break;
+            case "lineChart":case "barChart":p.addRect(r,Path.Direction.CW);break;
             case "ellipse":p.addOval(r,Path.Direction.CW);break;
             case "terminator":p.addRoundRect(r,r.height()/2,r.height()/2,Path.Direction.CW);break;
             default:p.addRect(r,Path.Direction.CW);
@@ -78,9 +91,15 @@ public final class DiagramRenderer {
     private static void details(Canvas c,Diagram.Node n,RectF r,Paint paint){
         if(n.shape.equals("cylinder"))c.drawArc(r.left,r.top,r.right,r.top+r.height()*.32f,0,180,false,paint);
         if(n.shape.equals("cube")){Path p=new Path();p.moveTo(r.left,r.top+r.height()*.2f);p.lineTo(r.left+r.width()*.3f,r.top+r.height()*.4f);p.lineTo(r.right,r.top+r.height()*.2f);p.moveTo(r.left+r.width()*.3f,r.top+r.height()*.4f);p.lineTo(r.left+r.width()*.3f,r.bottom);c.drawPath(p,paint);}
+        if(n.shape.equals("multipleDocument")){c.drawLine(r.left+r.width()*.12f,r.top+r.height()*.10f,r.right-r.width()*.12f,r.top+r.height()*.10f,paint);c.drawLine(r.left+r.width()*.12f,r.top+r.height()*.10f,r.left+r.width()*.12f,r.bottom-r.height()*.10f,paint);}
+        if(n.shape.equals("internalStorage")){c.drawLine(r.left+r.width()*.28f,r.top,r.left+r.width()*.28f,r.bottom,paint);c.drawLine(r.left,r.top+r.height()*.36f,r.right,r.top+r.height()*.36f,paint);}
+        if(n.shape.equals("barChart")){float base=r.bottom-r.height()*.16f;for(int i=0;i<3;i++){float left=r.left+r.width()*(.20f+i*.22f),top=r.top+r.height()*(i==0?.52f:i==1?.32f:.18f),right=left+r.width()*.12f;c.drawRect(left,top,right,base,paint);}}
+        if(n.shape.equals("pieChart")){Path wedge=new Path();wedge.moveTo(r.centerX(),r.centerY());wedge.lineTo(r.centerX(),r.top);wedge.lineTo(r.right,r.centerY());wedge.close();c.drawPath(wedge,paint);}
+        if(n.shape.equals("lineChart")){Path line=new Path();line.moveTo(r.left+r.width()*.18f,r.bottom-r.height()*.20f);line.lineTo(r.left+r.width()*.40f,r.top+r.height()*.52f);line.lineTo(r.left+r.width()*.60f,r.top+r.height()*.62f);line.lineTo(r.right-r.width()*.16f,r.top+r.height()*.20f);c.drawLine(r.left+r.width()*.16f,r.top+r.height()*.16f,r.left+r.width()*.16f,r.bottom-r.height()*.16f,paint);c.drawLine(r.left+r.width()*.16f,r.bottom-r.height()*.16f,r.right-r.width()*.12f,r.bottom-r.height()*.16f,paint);c.drawPath(line,paint);}
+        if(n.shape.equals("or")){c.drawLine(r.centerX(),r.top,r.centerX(),r.bottom,paint);c.drawLine(r.left,r.centerY(),r.right,r.centerY(),paint);}
     }
-    private static void drawText(Canvas canvas,String text,float x,float y,float width,float height,int color,int size){
-        TextPaint tp=new TextPaint(Paint.ANTI_ALIAS_FLAG);tp.setColor(color);tp.setTextSize(size);
+    private static void drawText(Canvas canvas,String text,float x,float y,float width,float height,int color,int size,int font){
+        String[] families={"sans-serif","serif","monospace","cursive"};TextPaint tp=new TextPaint(Paint.ANTI_ALIAS_FLAG);tp.setTypeface(Typeface.create(families[Math.max(0,Math.min(3,font))],Typeface.NORMAL));tp.setColor(color);tp.setTextSize(size);
         StaticLayout layout=StaticLayout.Builder.obtain(text,0,text.length(),tp,Math.max(1,(int)width)).setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(false).setEllipsize(TextUtils.TruncateAt.END).setMaxLines(Math.max(1,(int)(height/(size*1.25f)))).build();
         canvas.save();canvas.clipRect(x,y,x+width,y+height);canvas.translate(x,y+Math.max(0,(height-layout.getHeight())/2));layout.draw(canvas);canvas.restore();
     }

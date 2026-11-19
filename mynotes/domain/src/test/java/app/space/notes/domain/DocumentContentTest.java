@@ -28,6 +28,23 @@ public class DocumentContentTest {
         DocumentContent inserted=placeholder.replaceEmptyTextWith("blank",DocumentContent.Block.checklist("new-list","Checklist01",Collections.emptyList(),false)).ensureWritableTail();
         assertEquals(DocumentContent.Kind.CHECKLIST,inserted.blocks.get(0).kind);assertNotEquals("blank",inserted.blocks.get(0).id);assertNotNull(inserted.blocks.get(1).text);assertTrue(inserted.writingLines);assertTrue(inserted.notesWorkspace);
     }
+    @Test public void insertingVisualAtEmptyWritingOrParagraphEdgeDoesNotCreateBlankGaps(){
+        DocumentContent.Block list=DocumentContent.Block.checklist("list",Collections.emptyList(),false);
+        DocumentContent empty=new DocumentContent(Collections.singletonList(text("writing","")),true,true);
+        DocumentContent atEmpty=empty.insertAtText("writing",0,list).ensureWritableTail();
+        assertEquals(2,atEmpty.blocks.size());assertEquals(DocumentContent.Kind.CHECKLIST,atEmpty.blocks.get(0).kind);assertEquals("",atEmpty.blocks.get(1).text.text);
+        DocumentContent beginning=new DocumentContent(Collections.singletonList(text("words","Keep"))).insertAtText("words",0,list);
+        assertEquals(2,beginning.blocks.size());assertEquals(DocumentContent.Kind.CHECKLIST,beginning.blocks.get(0).kind);assertEquals("Keep",beginning.blocks.get(1).text.text);
+        DocumentContent end=new DocumentContent(Collections.singletonList(text("words","Keep"))).insertAtText("words",4,list).ensureWritableTail();
+        assertEquals(3,end.blocks.size());assertEquals("Keep",end.blocks.get(0).text.text);assertEquals(DocumentContent.Kind.CHECKLIST,end.blocks.get(1).kind);assertEquals("",end.blocks.get(2).text.text);
+        DocumentContent.Block diagram=DocumentContent.Block.diagram("diagram","Diagram01",Diagram.empty());
+        DocumentContent surrounded=new DocumentContent(Arrays.asList(text("leading",""),text("leading2",""),list,text("middle",""),text("middle2",""),diagram,text("tail","")),true,true).compactEmptyWriting();
+        assertEquals(3,surrounded.blocks.size());assertEquals(DocumentContent.Kind.CHECKLIST,surrounded.blocks.get(0).kind);assertEquals(DocumentContent.Kind.DIAGRAM,surrounded.blocks.get(1).kind);assertEquals("tail",surrounded.blocks.get(2).id);
+        DocumentContent retained=new DocumentContent(Arrays.asList(text("intentional-leading",""),text("real-writing","Keep this writing"),text("gap",""),diagram,text("tail2","")),true,true).compactEmptyWriting();
+        assertEquals("An empty section away from visuals remains untouched",4,retained.blocks.size());assertEquals("intentional-leading",retained.blocks.get(0).id);assertEquals("Keep this writing",retained.blocks.get(1).text.text);assertEquals("diagram",retained.blocks.get(2).id);
+        DocumentContent afterDelete=surrounded.remove("list");assertEquals(2,afterDelete.blocks.size());assertEquals("diagram",afterDelete.blocks.get(0).id);assertEquals("tail",afterDelete.blocks.get(1).id);
+        DocumentContent explicitText=surrounded.insert(0,text("intentional",""));assertEquals("Explicit Text before actions remain available",4,explicitText.blocks.size());
+    }
     @Test public void removingInsertedChecklistJoinsWritingAndOffsetsRichMarks(){
         RichText before=new RichText("Before ",Arrays.asList(new Note.Mark("bold",0,6),new Note.Mark("link",0,6,"https://example.com/before")));
         RichText after=new RichText("after",Arrays.asList(new Note.Mark("italic",0,5),new Note.Mark("number",0,5,"2")));

@@ -6,7 +6,7 @@ import java.util.*;
 /** Resolution-independent ink. Tool properties belong to each stroke, not the current brush.
  * Two fingers navigate; a cancelled gesture never becomes a stroke. Exports ignore the viewport. */
 final class DrawingPad extends View {
- static final String[] TOOLS={"Pen","Pencil","Highlighter","Eraser","Line","Rectangle","Oval"};
+ static final String[] TOOLS={"Pen","Pencil","Highlighter","Eraser","Line","Rectangle","Oval","Arrow"};
  private static final class Stroke {
   final Path path;final int color;final float width;final boolean fill;
   Stroke(Path p,int c,float w,boolean f){path=p;color=c;width=w;fill=f;}
@@ -48,7 +48,7 @@ final class DrawingPad extends View {
  @Override protected void onDraw(Canvas c){super.onDraw(c);c.drawColor(Color.WHITE);if(getWidth()<=0 || getHeight()<=0)return;c.save();c.clipRect(0,0,getWidth(),getHeight());c.translate(offsetX()+panX,offsetY()+panY);c.scale(zoom*scale(),zoom*scale());c.clipRect(0,0,1024,paperHeight);drawPaper(c,true);if(grid){paint.setStyle(Paint.Style.STROKE);paint.setColor(0x22808080);paint.setStrokeWidth(1/(zoom*scale()));for(int x=0;x<=1024;x+=64)c.drawLine(x,0,x,paperHeight,paint);for(int y=0;y<=paperHeight;y+=64)c.drawLine(0,y,1024,y,paint);}if(offsetX()>1 || offsetY()>1){paint.setStyle(Paint.Style.STROKE);paint.setColor(0xffd9ddd8);paint.setStrokeWidth(1/(zoom*scale()));c.drawRect(0,0,1024,paperHeight,paint);}c.restore();}
  @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);if(w>0 && h>0)clampPan();}
  private void point(float x,float y,boolean finish){
-  if(strokeMode>=4){current.reset();if(strokeMode==4){current.moveTo(startX,startY);current.lineTo(x,y);}else{RectF box=new RectF(Math.min(startX,x),Math.min(startY,y),Math.max(startX,x),Math.max(startY,y));if(strokeMode==5)current.addRect(box,Path.Direction.CW);else current.addOval(box,Path.Direction.CW);}}
+  if(strokeMode>=4){current.reset();if(strokeMode==4){current.moveTo(startX,startY);current.lineTo(x,y);}else if(strokeMode==7){double angle=Math.atan2(y-startY,x-startX);float head=Math.max(12,strokeWidth*4),left=(float)(angle+Math.PI*.82),right=(float)(angle-Math.PI*.82);current.moveTo(startX,startY);current.lineTo(x,y);current.moveTo(x,y);current.lineTo(x+(float)Math.cos(left)*head,y+(float)Math.sin(left)*head);current.moveTo(x,y);current.lineTo(x+(float)Math.cos(right)*head,y+(float)Math.sin(right)*head);}else{RectF box=new RectF(Math.min(startX,x),Math.min(startY,y),Math.max(startX,x),Math.max(startY,y));if(strokeMode==5)current.addRect(box,Path.Direction.CW);else current.addOval(box,Path.Direction.CW);}}
   else{current.quadTo(lastX,lastY,(lastX+x)/2,(lastY+y)/2);if(finish)current.lineTo(x,y);}lastX=x;lastY=y;
  }
  @Override public boolean onTouchEvent(MotionEvent e){

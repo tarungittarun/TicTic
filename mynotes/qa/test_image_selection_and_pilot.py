@@ -42,13 +42,34 @@ class ImageSelectionAndPilot(unittest.TestCase):
   policy=(ROOT/'domain/src/main/java/app/space/notes/domain/OcrAlternatives.java').read_text()
   self.assertIn('selectedRegion && confidence<55',policy)
   self.assertIn('view.setEnabled(false)',dialog)
-  self.assertIn('for(Button control:cropPaused)control.setEnabled(false)',dialog)
-  self.assertIn('Fresh OCR of only the selected crop',dialog)
+  self.assertIn('view.setEnabled(false)',dialog)
+  self.assertIn('reread[0].setText("Reading area…")',dialog)
+  self.assertIn('ImageRegionText.read(d.context,scan,box',dialog)
+  self.assertNotIn('Fresh OCR of only the selected crop',dialog)
   tests=(ROOT/'app/src/androidTest/java/app/space/notes/runtime/ImageRegionTextTest.java').read_text()
   self.assertIn('asyncAreaReadUsesFreshSourceCropInsteadOfStaleFullImageText',tests)
+  self.assertIn('outsideInFull>outsideInCrop',tests)
+  self.assertIn('MyNotesOcrCropMeasure',tests)
+  self.assertIn('not a general OCR accuracy claim',tests)
 
  def test_review_input_has_bounded_height_inside_a_scrollable_column(self):
   source=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text();self.assertIn('reviewScroll.setFillViewport(true)',source);self.assertIn('content.addView(input,new LinearLayout.LayoutParams(-1,dp(240)))',source)
+  self.assertIn('input.setHint("Recognized text")',source)
+  self.assertNotIn('Engine score:',source)
+  self.assertNotIn('Handwriting and difficult photos may be inaccurate',source)
+  self.assertNotIn('Select from image ↗',source)
+
+ def test_read_image_review_is_minimal_and_selection_controls_are_accessible(self):
+  controller=(ROOT/'runtime/src/main/java/app/space/notes/runtime/NotesController.java').read_text()
+  loading=controller.split('public void recognizeImage',1)[1].split('private void cancelOcr',1)[0]
+  review=controller.split('private void renderOcrReview',1)[1].split('private void closeOcrPreview',1)[0]
+  self.assertIn('header("Read image")',loading)
+  self.assertNotIn('root.addView(text("Reading this image',loading)
+  self.assertNotIn('Engine score:',review)
+  self.assertNotIn('About this reading',review)
+  self.assertIn('input.setContentDescription("Recognized text")',review)
+  self.assertIn('icon("Select from image"',controller)
+  self.assertNotIn('Existing text edits are replaced only when you use a selection',controller)
 
  def test_extra_voice_curation_never_treats_availability_as_permission(self):
   from mynotes.tools.ci.indian_cmu_candidates import permitted

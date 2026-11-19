@@ -5,10 +5,10 @@ import org.json.*;
 import java.io.IOException;
 import java.util.*;
 
-/** Canonical ordered content; schema11 adds per-checklist appearance without changing plain text. */
+/** Canonical ordered content; schemas11–13 add checklist appearance, diagram styling, and retained image sources. */
 final class ContentCodec {
     private ContentCodec(){}
-    static JSONObject encode(DocumentContent content,boolean includeChecklistAppearance)throws Exception{
+    static JSONObject encode(DocumentContent content,int schema)throws Exception{
         JSONArray array=new JSONArray();
         for(DocumentContent.Block block:content.blocks){
             JSONObject out=new JSONObject().put("id",block.id).put("kind",block.kind.name()).put("name",block.name);
@@ -18,10 +18,9 @@ final class ContentCodec {
                     out.put("text",block.text.text).put("marks",marks);break;
                 case CHECKLIST:
                     JSONArray rows=new JSONArray();for(Note.Item item:block.items){JSONArray rowMarks=new JSONArray();for(Note.Mark mark:item.marks)rowMarks.put(new JSONObject().put("type",mark.type).put("start",mark.start).put("end",mark.end).put("value",mark.value));rows.put(new JSONObject().put("id",item.id).put("text",item.text).put("checked",item.checked).put("depth",item.depth).put("marks",rowMarks));}
-                    out.put("rows",rows).put("hideChecked",block.hideChecked);if(includeChecklistAppearance)out.put("glyph",block.checklistAppearance.glyph.id).put("themeColor",block.checklistAppearance.themeColor);else if(!block.checklistAppearance.isDefault())throw new IOException("Checklist appearance requires schema11");break;
-                case IMAGE:case DRAWING:
-                    NoteImage image=block.image;out.put("image",new JSONObject().put("id",image.id).put("name",image.name).put("mime",image.mime).put("width",image.width).put("height",image.height).put("data",image.data));break;
-                case DIAGRAM:out.put("diagram",DocumentCodec.encodeDiagram(block.diagram));break;
+                    out.put("rows",rows).put("hideChecked",block.hideChecked);if(schema>=11)out.put("glyph",block.checklistAppearance.glyph.id).put("themeColor",block.checklistAppearance.themeColor);else if(!block.checklistAppearance.isDefault())throw new IOException("Checklist appearance requires schema11");break;
+                case IMAGE:case DRAWING:out.put("image",DocumentCodec.encodeImage(block.image,schema>=13));break;
+                case DIAGRAM:out.put("diagram",DocumentCodec.encodeDiagram(block.diagram,schema>=12));break;
                 case TABLE:
                     if(block.table.hasHeader)out.put("header",true);
                     if(block.table.columnWidth!=160)out.put("columnWidth",block.table.columnWidth);
@@ -45,8 +44,8 @@ final class ContentCodec {
                     ChecklistAppearance appearance=ChecklistAppearance.DEFAULT;if(version>=11)try{appearance=ChecklistAppearance.of(string(in,"glyph"),integer(in,"themeColor"));}catch(IllegalArgumentException invalid){throw new IOException("Invalid checklist appearance",invalid);}
                     blocks.add(DocumentContent.Block.checklist(id,name,items,bool(in,"hideChecked"),appearance));break;
                 case IMAGE:case DRAWING:
-                    keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");keys(image,"id","name","mime","width","height","data");blocks.add(DocumentContent.Block.visual(id,name,kind,new NoteImage(string(image,"id"),string(image,"name"),string(image,"mime"),integer(image,"width"),integer(image,"height"),string(image,"data"))));break;
-                case DIAGRAM:keys(in,"id","kind","name","diagram");diagram(in.getJSONObject("diagram"));blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"))));break;
+                    keys(in,"id","kind","name","image");JSONObject image=in.getJSONObject("image");blocks.add(DocumentContent.Block.visual(id,name,kind,DocumentCodec.decodeImage(image,version)));break;
+                case DIAGRAM:keys(in,"id","kind","name","diagram");diagram(in.getJSONObject("diagram"),version>=12);blocks.add(DocumentContent.Block.diagram(id,name,DocumentCodec.decodeDiagram(in.getJSONObject("diagram"),version)));break;
                 case TABLE:
                     List<String> tableKeys=new ArrayList<>(Arrays.asList("id","kind","name","rows"));if(in.has("header"))tableKeys.add("header");if(in.has("columnWidth"))tableKeys.add("columnWidth");keys(in,tableKeys.toArray(new String[0]));JSONArray table=in.getJSONArray("rows");if(table.length()<1 || table.length()>TextTable.MAX_ROWS)throw new IOException("Invalid table dimensions");List<List<RichText>> rows=new ArrayList<>();
                     for(int j=0;j<table.length();j++){JSONArray cells=table.getJSONArray(j);if(cells.length()<1 || cells.length()>TextTable.MAX_COLUMNS || table.length()*cells.length()>TextTable.MAX_CELLS)throw new IOException("Invalid table dimensions");List<RichText> values=new ArrayList<>();for(int c=0;c<cells.length();c++){JSONObject cell=cells.getJSONObject(c);keys(cell,"text","marks");values.add(new RichText(string(cell,"text"),marks(cell.getJSONArray("marks"))));}rows.add(values);}blocks.add(DocumentContent.Block.table(id,name,TextTable.rich(rows,in.has("header") && bool(in,"header")).withColumnWidth(in.has("columnWidth")?integer(in,"columnWidth"):160)));break;
@@ -54,9 +53,9 @@ final class ContentCodec {
             }
         }return new DocumentContent(blocks,bool(content,"writingLines"),content.has("notesWorkspace"));
     }
-    private static void diagram(JSONObject diagram)throws Exception{
+    private static void diagram(JSONObject diagram,boolean styled)throws Exception{
         keys(diagram,"nodes","edges");JSONArray nodes=diagram.getJSONArray("nodes"),edges=diagram.getJSONArray("edges");if(nodes.length()>DocumentContent.MAX_DIAGRAM_NODES || edges.length()>DocumentContent.MAX_DIAGRAM_EDGES)throw new IOException("Diagram safety limit exceeded");
-        for(int i=0;i<nodes.length();i++){JSONObject node=nodes.getJSONObject(i);keys(node,"id","shape","text","x","y","width","height","color","group");for(String key:Arrays.asList("id","shape","text","group"))string(node,key);for(String key:Arrays.asList("x","y","width","height","color"))integer(node,key);}
+        for(int i=0;i<nodes.length();i++){JSONObject node=nodes.getJSONObject(i);if(styled)keys(node,"id","shape","text","x","y","width","height","color","group","font","strokeWidth");else keys(node,"id","shape","text","x","y","width","height","color","group");for(String key:Arrays.asList("id","shape","text","group"))string(node,key);for(String key:Arrays.asList("x","y","width","height","color"))integer(node,key);if(styled){integer(node,"font");integer(node,"strokeWidth");}}
         for(int i=0;i<edges.length();i++){JSONObject edge=edges.getJSONObject(i);keys(edge,"id","from","to","label");for(String key:Arrays.asList("id","from","to","label"))string(edge,key);}
     }
     private static List<Note.Mark> marks(JSONArray array)throws Exception{

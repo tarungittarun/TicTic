@@ -10,8 +10,11 @@ class CoreNotesContracts(unittest.TestCase):
         self.assertIn("int schema=6",s)
         self.assertIn("schema=Math.max(schema,7)",s)
         self.assertIn("schema=Math.max(schema,11)",s)
+        self.assertIn("schema=Math.max(schema,12)",s)
+        self.assertIn("schema=Math.max(schema,13)",s)
         self.assertIn('put("version",schema)',s)
-        self.assertIn("version>11",s)
+        self.assertIn("version>13",s)
+        self.assertIn('"original"',s)
         self.assertIn("version>=7 && n.has(\"content\")",s)
         for field in ['items','marks','labels','hideChecked']:
             self.assertIn('"'+field+'"',s)

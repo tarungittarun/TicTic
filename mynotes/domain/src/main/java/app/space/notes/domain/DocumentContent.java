@@ -112,16 +112,50 @@ public final class DocumentContent {
     private static String legacyId(String note,String suffix){return UUID.nameUUIDFromBytes((note.length()+":"+note+":"+suffix).getBytes(StandardCharsets.UTF_8)).toString();}
     public DocumentContent insertAtText(String id,int offset,Block insertion){
         Block source=block(id);if(source.text==null)throw new IllegalArgumentException("Choose a text section");
-        RichText before=source.text.slice(0,offset),after=source.text.slice(offset,source.text.text.length());List<Block> next=new ArrayList<>(blocks);int at=index(id);next.set(at,Block.text(id,before));next.add(at+1,insertion);next.add(at+2,Block.text(UUID.randomUUID().toString(),after));return new DocumentContent(next,writingLines,notesWorkspace);
+        RichText before=source.text.slice(0,offset),after=source.text.slice(offset,source.text.text.length());List<Block> next=new ArrayList<>(blocks);int at=index(id),insertAt=at;
+        // Splitting an empty editor, or inserting at the start/end of a paragraph,
+        // must not manufacture blank writing sections around the inserted content.
+        // Those empty EditTexts have a minimum height and were the large ruled gaps
+        // visible between checklists, diagrams and other visuals.
+        if(before.text.isEmpty())next.set(at,insertion);
+        else{next.set(at,Block.text(id,before));next.add(++insertAt,insertion);}
+        if(!after.text.isEmpty())next.add(insertAt+1,Block.text(UUID.randomUUID().toString(),after));
+        return new DocumentContent(next,writingLines,notesWorkspace).compactEmptyWriting();
     }
     public DocumentContent insert(int edge,Block block){
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
-        List<Block> next=new ArrayList<>(blocks);next.add(edge,block);return new DocumentContent(next,writingLines,notesWorkspace);
+        List<Block> next=new ArrayList<>(blocks);next.add(edge,block);DocumentContent inserted=new DocumentContent(next,writingLines,notesWorkspace);return block.text==null?inserted.compactEmptyWriting():inserted;
     }
     /** Ensure an editable writing section follows a terminal visual/list/table insertion. */
     public DocumentContent ensureWritableTail(){
-        if(blocks.isEmpty() || blocks.get(blocks.size()-1).text!=null)return this;
-        return insert(blocks.size(),Block.text(UUID.randomUUID().toString(),new RichText("",Collections.emptyList())));
+        DocumentContent compact=compactEmptyWriting();
+        if(compact.blocks.isEmpty() || compact.blocks.get(compact.blocks.size()-1).text!=null)return compact;
+        return compact.insert(compact.blocks.size(),Block.text(UUID.randomUUID().toString(),new RichText("",Collections.emptyList())));
+    }
+    /**
+     * Drop empty writing fragments that sit directly beside inserted visuals, while
+     * retaining one terminal blank writing section for continued typing. Nonempty
+     * text and explicit empty paragraphs inside writing are never rewritten.
+     */
+    public DocumentContent compactEmptyWriting(){
+        if(blocks.size()<2)return this;
+        boolean hasVisual=false;for(Block block:blocks)if(block.text==null){hasVisual=true;break;}
+        if(!hasVisual)return this;
+        List<Block> next=new ArrayList<>();
+        for(int i=0;i<blocks.size();i++){
+            Block block=blocks.get(i);
+            if(block.text==null || !block.text.text.isEmpty()){next.add(block);continue;}
+            boolean terminal=i==blocks.size()-1;
+            int previous=i-1,nextNonempty=i+1;
+            while(previous>=0 && isEmptyWriting(blocks.get(previous)))previous--;
+            while(nextNonempty<blocks.size() && isEmptyWriting(blocks.get(nextNonempty)))nextNonempty++;
+            boolean besideVisual=(previous>=0 && blocks.get(previous).text==null) || (nextNonempty<blocks.size() && blocks.get(nextNonempty).text==null);
+            if(besideVisual && !terminal)continue;
+            if(!next.isEmpty() && isEmptyWriting(next.get(next.size()-1)))continue;
+            next.add(block);
+        }
+        if(next.size()==blocks.size())return this;
+        return new DocumentContent(next,writingLines,notesWorkspace);
     }
     public DocumentContent replace(String id,Block replacement){
         int at=index(id);if(replacement==null || !id.equals(replacement.id))throw new IllegalArgumentException("Replacement must preserve block identity");
@@ -139,7 +173,7 @@ public final class DocumentContent {
     public DocumentContent move(String id,int edge){
         if(edge<0 || edge>blocks.size())throw new IllegalArgumentException("Invalid content insertion edge");
         int from=index(id),to=edge>from?edge-1:edge;if(from==to)return this;
-        List<Block> next=new ArrayList<>(blocks);Block block=next.remove(from);next.add(to,block);return new DocumentContent(next,writingLines,notesWorkspace);
+        List<Block> next=new ArrayList<>(blocks);Block block=next.remove(from);next.add(to,block);return new DocumentContent(next,writingLines,notesWorkspace).compactEmptyWriting();
     }
     /** Move one checklist into a precise UTF-16 text position, preserving rows, names and rich slices.
      * The source is removed before splitting; validation is immutable and failures leave both intact. */
@@ -194,7 +228,7 @@ public final class DocumentContent {
         }
         List<Block> next=new ArrayList<>(blocks);int position=index(id);next.remove(position);
         next.add(position,Block.text(source.id,slices.get(0)));next.add(position+1,Block.checklist(UUID.randomUUID().toString(),nextVisualName(Kind.CHECKLIST),rows,false));next.add(position+2,Block.text(UUID.randomUUID().toString(),slices.get(2)));
-        return new DocumentContent(next,writingLines,notesWorkspace);
+        return new DocumentContent(next,writingLines,notesWorkspace).compactEmptyWriting();
     }
     public DocumentContent inNotesWorkspace(boolean notes){return notes==notesWorkspace?this:new DocumentContent(blocks,writingLines,notes);}
     public DocumentContent withWritingLines(boolean enabled){return enabled==writingLines?this:new DocumentContent(blocks,enabled,notesWorkspace);}
@@ -212,7 +246,7 @@ public final class DocumentContent {
                 next.set(at-1,Block.text(before.id,new RichText(before.text.text+after.text.text,marks)));next.remove(at);
             }
         }
-        return new DocumentContent(next,writingLines,notesWorkspace);
+        return new DocumentContent(next,writingLines,notesWorkspace).compactEmptyWriting();
     }
     public Block block(String id){return blocks.get(index(id));}
     public List<NoteImage> images(){List<NoteImage> result=new ArrayList<>();for(Block block:blocks)if(block.image!=null)result.add(block.image);return Collections.unmodifiableList(result);}
@@ -251,6 +285,7 @@ public final class DocumentContent {
             if(block.table!=null){if(block.table.columnWidth!=160){part(out,"column width");part(out,Integer.toString(block.table.columnWidth));}if(block.table.hasHeader)part(out,"header row");part(out,Integer.toString(block.table.columns));part(out,Integer.toString(block.table.rows.size()));for(List<RichText> row:block.table.cells)for(RichText cell:row){part(out,cell.text);part(out,Integer.toString(cell.marks.size()));for(Note.Mark mark:cell.marks){part(out,mark.type);part(out,Integer.toString(mark.start));part(out,Integer.toString(mark.end));part(out,mark.value);}}}
         }return out.toString();
     }
+    private static boolean isEmptyWriting(Block block){return block.text!=null && block.text.text.isEmpty();}
     private static void part(StringBuilder out,String text){out.append(text.length()).append(':').append(text);}
     private int index(String id){for(int i=0;i<blocks.size();i++)if(blocks.get(i).id.equals(id))return i;throw new IllegalArgumentException("Content is no longer available");}
 }

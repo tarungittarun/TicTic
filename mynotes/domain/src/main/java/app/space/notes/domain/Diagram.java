@@ -5,29 +5,33 @@ import java.util.*;
 /** Immutable flowchart on an 800 x 1000 logical canvas. Edges reference stable node IDs. */
 public final class Diagram {
     public static final int WIDTH=800,HEIGHT=1000;
-    public static final List<String> SHAPES=Collections.unmodifiableList(Arrays.asList("process","decision","terminator","data","ellipse","text","triangle","rightTriangle","pentagon","hexagon","octagon","star","trapezoid","cylinder","cube","document","cloud","arrow","chevron","semicircle","heart"));
+    public static final List<String> SHAPES=Collections.unmodifiableList(Arrays.asList("process","decision","terminator","data","ellipse","text","triangle","rightTriangle","pentagon","hexagon","octagon","star","trapezoid","cylinder","cube","document","cloud","arrow","chevron","semicircle","heart","preparation","manualInput","manualOperation","delay","display","offPageConnector","multipleDocument","internalStorage","merge","extract","or","barChart","pieChart","lineChart"));
     /** Stored legacy IDs remain valid; presentation uses geometric names. */
     public static String shapeName(String id){
-        String[] names={"Rectangle","Diamond","Capsule","Parallelogram","Oval","Text annotation","Triangle","Right triangle","Pentagon","Hexagon","Octagon","Star","Trapezoid","Cylinder","Cube","Wavy rectangle","Cloud","Right arrow","Chevron","Semicircle","Heart"};
+        String[] names={"Rectangle","Diamond","Capsule","Parallelogram","Oval","Text annotation","Triangle","Right triangle","Pentagon","Hexagon","Octagon","Star","Trapezoid","Cylinder","Cube","Wavy rectangle","Cloud","Right arrow","Chevron","Semicircle","Heart","Preparation","Manual input","Manual operation","Delay","Display","Off-page connector","Multiple documents","Internal storage","Merge","Extract","OR junction","Bar chart","Pie chart","Line chart"};
         int index=SHAPES.indexOf(id);if(index<0)throw new IllegalArgumentException("Unknown shape");return names[index];
     }
     public final List<Node> nodes;
     public final List<Edge> edges;
     public static final class Node {
         public final String id,shape,text,group;
-        public final int x,y,width,height,color;
+        public final int x,y,width,height,color,font,strokeWidth;
         public Node(String id,String shape,String text,int x,int y,int width,int height,int color) {
-            this(id,shape,text,x,y,width,height,color,"");
+            this(id,shape,text,x,y,width,height,color,"",0,3);
         }
         public Node(String id,String shape,String text,int x,int y,int width,int height,int color,String group) {
-            if(group==null || id==null || id.isEmpty() || !SHAPES.contains(shape) || text==null || x<0 || y<0 || width<60 || height<40 || width>WIDTH || height>HEIGHT
-                || x>WIDTH-width || y>HEIGHT-height || color<0 || color>11)throw new IllegalArgumentException("Invalid diagram shape");
-            this.id=id;this.shape=shape;this.text=text;this.x=x;this.y=y;this.width=width;this.height=height;this.color=color;this.group=group;
+            this(id,shape,text,x,y,width,height,color,group,0,3);
         }
-        public Node move(int x,int y){return new Node(id,shape,text,Math.max(0,Math.min(WIDTH-width,x)),Math.max(0,Math.min(HEIGHT-height,y)),width,height,color,group);}
-        public Node edit(String text,int color){return new Node(id,shape,text,x,y,width,height,color,group);}
-        public Node resize(int width,int height){int w=Math.max(60,Math.min(WIDTH,width)),h=Math.max(40,Math.min(HEIGHT,height));return new Node(id,shape,text,Math.min(x,WIDTH-w),Math.min(y,HEIGHT-h),w,h,color,group);}
-            public Node grouped(String value){return new Node(id,shape,text,x,y,width,height,color,value);}
+        public Node(String id,String shape,String text,int x,int y,int width,int height,int color,String group,int font,int strokeWidth) {
+            if(group==null || id==null || id.isEmpty() || !SHAPES.contains(shape) || text==null || x<0 || y<0 || width<60 || height<40 || width>WIDTH || height>HEIGHT
+                || x>WIDTH-width || y>HEIGHT-height || color<0 || color>11 || font<0 || font>3 || strokeWidth<1 || strokeWidth>12)throw new IllegalArgumentException("Invalid diagram shape");
+            this.id=id;this.shape=shape;this.text=text;this.x=x;this.y=y;this.width=width;this.height=height;this.color=color;this.group=group;this.font=font;this.strokeWidth=strokeWidth;
+        }
+        public Node move(int x,int y){return new Node(id,shape,text,Math.max(0,Math.min(WIDTH-width,x)),Math.max(0,Math.min(HEIGHT-height,y)),width,height,color,group,font,strokeWidth);}
+        public Node edit(String text,int color){return new Node(id,shape,text,x,y,width,height,color,group,font,strokeWidth);}
+        public Node style(String text,int color,int font,int strokeWidth){return new Node(id,shape,text,x,y,width,height,color,group,font,strokeWidth);}
+        public Node resize(int width,int height){int w=Math.max(60,Math.min(WIDTH,width)),h=Math.max(40,Math.min(HEIGHT,height));return new Node(id,shape,text,Math.min(x,WIDTH-w),Math.min(y,HEIGHT-h),w,h,color,group,font,strokeWidth);}
+        public Node grouped(String value){return new Node(id,shape,text,x,y,width,height,color,value,font,strokeWidth);}
     }
     public static final class Edge {
         public final String id,from,to,label;
@@ -67,12 +71,12 @@ public final class Diagram {
         Set<String> ids=members(id);if(ids.isEmpty())return this;
         int right=0,bottom=0,left=WIDTH,top=HEIGHT;for(Node n:nodes)if(ids.contains(n.id)){right=Math.max(right,n.x+n.width);bottom=Math.max(bottom,n.y+n.height);left=Math.min(left,n.x);top=Math.min(top,n.y);}
         int dx=right+24<=WIDTH?24:Math.max(-24,-left),dy=bottom+24<=HEIGHT?24:Math.max(-24,-top);String group=ids.size()>1?UUID.randomUUID().toString():"";
-        Map<String,String> copied=new HashMap<>();List<Node> next=new ArrayList<>(nodes);for(Node n:nodes)if(ids.contains(n.id)){String key=UUID.randomUUID().toString();copied.put(n.id,key);next.add(new Node(key,n.shape,n.text,n.x+dx,n.y+dy,n.width,n.height,n.color,group));}
+        Map<String,String> copied=new HashMap<>();List<Node> next=new ArrayList<>(nodes);for(Node n:nodes)if(ids.contains(n.id)){String key=UUID.randomUUID().toString();copied.put(n.id,key);next.add(new Node(key,n.shape,n.text,n.x+dx,n.y+dy,n.width,n.height,n.color,group,n.font,n.strokeWidth));}
         List<Edge> links=new ArrayList<>(edges);for(Edge e:edges)if(ids.contains(e.from) && ids.contains(e.to))links.add(new Edge(UUID.randomUUID().toString(),copied.get(e.from),copied.get(e.to),e.label));return new Diagram(next,links);
     }
     /** Split a connector by a small editable junction, then Connect can add branches. */
     public Diagram splitEdge(String id){
-        for(Edge e:edges)if(e.id.equals(id)){Node a=find(e.from),b=find(e.to);int x=Math.max(0,Math.min(WIDTH-60,(a.x+a.width/2+b.x+b.width/2)/2-30)),y=Math.max(0,Math.min(HEIGHT-40,(a.y+a.height/2+b.y+b.height/2)/2-20));Node junction=new Node(UUID.randomUUID().toString(),"ellipse","",x,y,60,40,a.color);List<Node> next=new ArrayList<>(nodes);next.add(junction);List<Edge> links=new ArrayList<>();for(Edge old:edges)if(!old.id.equals(id))links.add(old);links.add(new Edge(e.id,e.from,junction.id,e.label));links.add(new Edge(UUID.randomUUID().toString(),junction.id,e.to,""));return new Diagram(next,links);}throw new IllegalArgumentException("Arrow no longer exists");
+        for(Edge e:edges)if(e.id.equals(id)){Node a=find(e.from),b=find(e.to);int x=Math.max(0,Math.min(WIDTH-60,(a.x+a.width/2+b.x+b.width/2)/2-30)),y=Math.max(0,Math.min(HEIGHT-40,(a.y+a.height/2+b.y+b.height/2)/2-20));Node junction=new Node(UUID.randomUUID().toString(),"ellipse","",x,y,60,40,a.color,"",a.font,a.strokeWidth);List<Node> next=new ArrayList<>(nodes);next.add(junction);List<Edge> links=new ArrayList<>();for(Edge old:edges)if(!old.id.equals(id))links.add(old);links.add(new Edge(e.id,e.from,junction.id,e.label));links.add(new Edge(UUID.randomUUID().toString(),junction.id,e.to,""));return new Diagram(next,links);}throw new IllegalArgumentException("Arrow no longer exists");
     }
     public Diagram connect(String from,String to,String label){List<Edge> copy=new ArrayList<>(edges);copy.add(new Edge(UUID.randomUUID().toString(),from,to,label));return new Diagram(nodes,copy);}
     public Diagram removeEdge(String id){List<Edge> copy=new ArrayList<>(edges);copy.removeIf(e->e.id.equals(id));return new Diagram(nodes,copy);}
@@ -81,7 +85,7 @@ public final class Diagram {
     /** Length-delimited, deterministic representation for merge conflict identity. */
     public String fingerprint(){
         StringBuilder out=new StringBuilder();out.append(nodes.size()).append('#');
-        for(Node n:nodes){field(out,n.id);field(out,n.shape);field(out,n.text);out.append(n.x).append(',').append(n.y).append(',').append(n.width).append(',').append(n.height).append(',').append(n.color).append(';');if(!n.group.isEmpty()){out.append('@');field(out,n.group);}}
+        for(Node n:nodes){field(out,n.id);field(out,n.shape);field(out,n.text);out.append(n.x).append(',').append(n.y).append(',').append(n.width).append(',').append(n.height).append(',').append(n.color).append(';');if(!n.group.isEmpty()){out.append('@');field(out,n.group);}if(n.font!=0 || n.strokeWidth!=3)out.append("@style:").append(n.font).append(',').append(n.strokeWidth).append(';');}
         out.append(edges.size()).append('#');for(Edge e:edges){field(out,e.id);field(out,e.from);field(out,e.to);field(out,e.label);}return out.toString();
     }
     private static void field(StringBuilder out,String value){out.append(value.length()).append(':').append(value);}

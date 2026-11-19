@@ -21,10 +21,14 @@ class DeviceFilesCapture(unittest.TestCase):
   codec=(JAVA/'DocumentCodec.java').read_text();self.assertIn('Math.max(schema,10)',codec);self.assertIn('Math.max(schema,11)',codec);self.assertIn('version<10 && canonical.content.notesWorkspace',codec)
  def test_speech_keeps_raw_and_uses_one_absolute_word_timeline(self):
   s=(JAVA/'OfflineSpeech.java').read_text();self.assertIn('timeline.addAll(words)',s);self.assertIn('new Result(transcript.toString()',s);self.assertIn('TranscriptReadability.format(timeline)',s)
- def test_ocr_is_still_cancelable_and_no_emoji_fabrication_claim(self):
+ def test_ocr_is_still_cancelable_and_read_image_copy_stays_minimal(self):
   s=(JAVA/'OfflineOcr.java').read_text()
   for token in ['PSM_SPARSE_TEXT','prepareBitmap','cancellation.check()','prepared.recycle()']:self.assertIn(token,s)
-  self.assertIn('Emoji and decorative lettering may need manual correction',(JAVA/'NotesController.java').read_text())
+  controller=(JAVA/'NotesController.java').read_text()
+  review=controller.split('private void renderOcrReview(',1)[1].split('private void saveOcrText(',1)[0]
+  self.assertNotIn('Emoji and decorative lettering may need manual correction',review)
+  self.assertNotIn('Engine score:',review)
+  self.assertIn('host.showMessage("Selected image saved.")',controller)
  def test_recording_meter_and_optional_effect_do_not_drop_permission_safety(self):
   s=(JAVA/'VoiceCapture.java').read_text()
   for token in ['NoiseSuppressor.isAvailable()','listener.level(peak)','checkSelfPermission','suppression.release()','recorder.release()','output.getFD().sync()']:self.assertIn(token,s)

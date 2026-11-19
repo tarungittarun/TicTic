@@ -88,14 +88,18 @@ class RefinementHierarchyContracts(unittest.TestCase):
         self.assertIn('root.findViewWithTag("diagram-add-shape")', group)
         self.assertIn('add.setTag("diagram-add-shape")', self.source)
 
-    def test_empty_ocr_result_has_persistent_help_and_live_action_availability(self):
+    def test_read_image_review_is_minimal_and_empty_actions_follow_text(self):
         review = self.source.split('private void renderOcrReview(', 1)[1].split('private void saveOcrText(', 1)[0]
-        for token in ['No text to save.', 'English', 'Hindi / Devanagari', 'Kannada',
+        for token in ['No text found', 'input.setHint("Recognized text")',
                       '!input.getText().toString().trim().isEmpty()',
                       'emptyResult.setVisibility(hasText?View.GONE:View.VISIBLE)',
                       'controlAvailable(actions.getChildAt(i),hasText)',
                       'input.addTextChangedListener(watcher(availability))', 'availability.run()']:
             self.assertIn(token, review)
+        for unnecessary in ['About this reading', 'Engine score:', 'Hindi / Devanagari',
+                            'Handwriting and difficult photos may be inaccurate',
+                            'Emoji and decorative lettering may need manual correction']:
+            self.assertNotIn(unnecessary, review)
         save = self.source.split('private void saveOcrText(', 1)[1].split('public void startVoiceCapture()', 1)[0]
         self.assertIn('if(value.trim().isEmpty())', save)
         self.assertIn('Original note is unavailable or in Trash.', save)

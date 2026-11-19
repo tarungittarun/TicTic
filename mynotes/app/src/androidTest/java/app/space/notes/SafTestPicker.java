@@ -85,7 +85,16 @@ final class SafTestPicker {
             if(upper.equals("USE THIS FOLDER"))return "use-this-folder";
             if(upper.equals("SELECT"))return "select";
             if(upper.equals("ALLOW"))return "confirm-access";
+            if(isFolderAccessButton(upper))return "select-folder";
             return null;
+        }
+
+        private boolean isFolderAccessButton(String upper){
+            // Android 10 labels its tree-picker button "Allow access to <folder>";
+            // the separate confirmation title appends "in <device>?". Never click the title.
+            if(!upper.startsWith("ALLOW ACCESS TO ") || upper.contains(" IN "))return false;
+            return upper.endsWith("\"") || upper.endsWith("'")
+                    || upper.endsWith("\u201d") || upper.endsWith("\u2019");
         }
 
         private boolean tap(AccessibilityNodeInfo target){

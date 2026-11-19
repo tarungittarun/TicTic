@@ -28,6 +28,14 @@ class EditorCoherence(unittest.TestCase):
  def test_back_closes_find_before_leaving_document(self):
   s=(JAVA/'NotesController.java').read_text().split('public boolean back()',1)[1]
   self.assertLess(s.index('NoteFindDialog.close'),s.index('persistDraft(); renderHome()'))
+ def test_document_selection_survives_native_focus_handoffs(self):
+  document=(JAVA/'DocumentEditorView.java').read_text()
+  self.assertIn('input.afterFocusTransition=()->{focusTransition=false;',document)
+  self.assertIn('if(input.hasSelection() && scroll instanceof SelectionScrollView)((SelectionScrollView)scroll).observeEditorSelection(input)',document)
+  android=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  self.assertIn('Foreground Android system window must release focus to MyNotes',android)
+  self.assertIn('sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)',android)
+  self.assertIn('nativeDocSelectionSurvivesUnselectedAreaScroll',android)
 
  def test_conversion_is_in_insert_not_note_management(self):
   s=(JAVA/'NotesController.java').read_text();editor=s.split('private void renderEditor()',1)[1].split('private void buildFormatting',1)[0]

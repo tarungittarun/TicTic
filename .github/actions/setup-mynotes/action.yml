@@ -4,6 +4,9 @@ inputs:
   sdk:
     description: Install pinned compile/build tools (false for pure JVM tests)
     default: 'true'
+  model:
+    description: Verify and bundle the optional trained offline speech model
+    default: 'true'
 runs:
   using: composite
   steps:
@@ -15,7 +18,7 @@ runs:
       with:
         cache-read-only: ${{ github.event_name != 'push' }}
     - name: Cache pinned offline model downloads (build-time only)
-      if: inputs.sdk == 'true'
+      if: inputs.sdk == 'true' && inputs.model == 'true'
       uses: actions/cache@v4
       with:
         path: ~/.cache/mynotes-models
@@ -27,7 +30,7 @@ runs:
         SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
         "$SDK/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'build-tools;34.0.0'
     - name: Verify source-pinned trained model export (build-time only)
-      if: inputs.sdk == 'true'
+      if: inputs.sdk == 'true' && inputs.model == 'true'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -40,14 +43,14 @@ runs:
         assert not artifact['expired'],'Trained export expired; regenerate from preserved actual blocks, never substitute base weights'
         PY
     - uses: actions/download-artifact@v8.0.2
-      if: inputs.sdk == 'true'
+      if: inputs.sdk == 'true' && inputs.model == 'true'
       with:
         github-token: ${{ github.token }}
         run-id: 41409413622
         name: trained-whisper-android-offline
         path: ${{ runner.temp }}/trained-whisper-export
     - name: Bundle verified trained CPU model and pinned native toolchain
-      if: inputs.sdk == 'true'
+      if: inputs.sdk == 'true' && inputs.model == 'true'
       shell: bash
       run: |
         python3 -m mynotes.tools.models.bundle_trained_whisper --source "$RUNNER_TEMP/trained-whisper-export" --output mynotes/runtime/build/generated/trained-whisper-assets

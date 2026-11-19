@@ -125,6 +125,17 @@ class ApkAuditPolicy(unittest.TestCase):
     def test_all_runtime_build_identity_paths_protected(self):
         for path in ['app/src/main','domain/src/main','runtime/src/main','gradle','signing','settings.gradle','gradle.properties','app/build.gradle']:
             self.assertIn('mynotes/'+path,APP_PATHS)
+    def test_apk_audit_skips_unneeded_trained_model_download(self):
+        import yaml
+        action=yaml.load((ROOT.parent/'.github/actions/setup-mynotes/action.yml').read_text(),Loader=yaml.BaseLoader)
+        workflow=yaml.load((ROOT.parent/'.github/workflows/notes-ci.yml').read_text(),Loader=yaml.BaseLoader)
+        self.assertEqual('true',action['inputs']['model']['default'])
+        model_condition="inputs.sdk == 'true' && inputs.model == 'true'"
+        self.assertEqual(4,sum(step.get('if')==model_condition for step in action['runs']['steps']))
+        audit=workflow['jobs']['apk-audit']
+        self.assertEqual('10',audit['timeout-minutes'])
+        audit_setup=next(step for step in audit['steps'] if step.get('uses')=='./.github/actions/setup-mynotes')
+        self.assertEqual('false',audit_setup['with']['model'])
 
 class SummaryGate(unittest.TestCase):
     def fixture(self,root):

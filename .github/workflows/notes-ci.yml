@@ -200,7 +200,7 @@ jobs:
     name: APK privacy, signature and update contract
     needs: release-build
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     outputs:
       publish_eligible: ${{ steps.audit.outputs.publish_eligible }}
       ux_approved: ${{ steps.ux.outputs.ux_approved }}
@@ -209,6 +209,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-mynotes
+        with:
+          model: 'false'
       - uses: actions/download-artifact@v8.0.2
         with:
           name: notes-release-candidate

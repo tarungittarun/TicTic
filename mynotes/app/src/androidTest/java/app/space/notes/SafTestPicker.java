@@ -70,17 +70,13 @@ final class SafTestPicker {
             return false;
         }
 
-        // SAF confirmation dialogs expose a non-clickable title such as "Allow access to..."
-        // above the real ALLOW button. Never activate an arbitrary clickable dialog container.
+        // Use the nearest clickable ancestor of an exact action label. The broader
+        // confirmation title is intentionally not an action in actionFor().
         private AccessibilityNodeInfo actionTarget(AccessibilityNodeInfo node){
             for(AccessibilityNodeInfo target=node;target!=null;target=target.getParent()){
-                if(target.isClickable() && isButton(target))return target;
+                if(target.isClickable())return target;
             }
             return null;
-        }
-
-        private boolean isButton(AccessibilityNodeInfo node){
-            CharSequence name=node.getClassName();return name!=null && name.toString().endsWith("Button");
         }
 
         private String actionFor(CharSequence value){

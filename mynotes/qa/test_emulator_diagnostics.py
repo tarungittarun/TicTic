@@ -23,6 +23,11 @@ class EmulatorDiagnostics(unittest.TestCase):
     def test_landscape_uses_fixed_display_policy_and_actual_activity_assertions(self):
         script=(ROOT/'mynotes/tools/ci/android_lane.sh').read_text();self.assertIn('wm fixed-to-user-rotation enabled',script);self.assertIn('display-after-instrumentation.txt',script)
         test=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/EnvironmentQualificationTest.java').read_text();self.assertIn('getRealMetrics(metrics)',test);self.assertIn('wanted,actual.get()',test)
+    def test_completed_instrumentation_is_parsed_before_optional_adb_diagnostics(self):
+        script=(ROOT/'mynotes/tools/ci/android_lane.sh').read_text()
+        self.assertLess(script.index('python3 -m mynotes.tools.ci.results android'),script.index('post_test_adb "$OUT/display-after-instrumentation.txt"'))
+        self.assertIn('if grep -Eiq \'error: closed|device offline|device not found|no devices/emulators|unauthorized\'',script)
+        self.assertIn('POST_TEST_DISCONNECTED=true',script)
 
     def test_bootstrap_diagnostic_keeps_uppercase_panic_and_shutdown_context(self):
         from mynotes.tools.ci.results import build_diagnostic

@@ -174,29 +174,62 @@ fi
 adb shell dumpsys display > "$OUT/display-before-instrumentation.txt"
 adb shell am instrument -r -w -e disableAnalytics true -e expectedMic "${LANE_MIC:-denied}" -e expectedFont "${LANE_FONT:-1.0}" -e expectedNight "${LANE_NIGHT:-no}" -e expectedOrientation "${LANE_ORIENTATION:-portrait}" -e class "$CLASSES" \
   app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
-adb shell dumpsys display > "$OUT/display-after-instrumentation.txt"
-adb shell settings get system user_rotation > "$OUT/user-rotation-after.txt"
+# Parse the completed runner output before optional post-test ADB diagnostics. A device
+# disconnect after the final test must not erase a valid instrumentation result.
+python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "$OUT/instrumentation.txt" --output "$OUT/results.json"
+POST_TEST_DISCONNECTED=false
+post_test_adb(){
+  local output="$1"
+  local error="${output}.adb-error.txt"
+  shift
+  local label="$*"
+  if "$@" > "$output" 2> "$error"; then return 0; fi
+  if grep -Eiq 'error: closed|device offline|device not found|no devices/emulators|unauthorized' "$error" "$output"; then
+    echo "Unavailable after completed instrumentation: $label" > "$output"
+    POST_TEST_DISCONNECTED=true
+    echo "::warning title=Post-test emulator disconnect::Instrumentation results were already verified; skipped remaining optional ADB collection."
+    return 0
+  fi
+  cat "$error" >&2
+  return 1
+}
 if [[ "$LANE_GROUP" == all || "$LANE_GROUP" == ocr ]]; then
-  adb shell run-as app.space.notes.debug cat files/ocr-corpus-report.json > "$OUT/ocr-corpus-report.json"
-  adb shell run-as app.space.notes.debug cat files/ocr-crop-comparison.json > "$OUT/ocr-crop-comparison.json"
-  for language in hin kan; do adb shell run-as app.space.notes.debug cat "files/ocr-fixture-$language.png" > "$OUT/ocr-fixture-$language.png"; done
-  python3 - "$OUT/ocr-corpus-report.json" <<'PYOCR'
+  for name in ocr-corpus-report.json ocr-crop-comparison.json; do
+    post_test_adb "$OUT/$name" adb shell run-as app.space.notes.debug cat "files/$name"
+    [[ "$POST_TEST_DISCONNECTED" == true ]] && break
+  done
+  if [[ "$POST_TEST_DISCONNECTED" == false ]]; then
+    for language in hin kan; do
+      post_test_adb "$OUT/ocr-fixture-$language.png" adb shell run-as app.space.notes.debug cat "files/ocr-fixture-$language.png"
+      [[ "$POST_TEST_DISCONNECTED" == true ]] && break
+    done
+  fi
+  if [[ "$POST_TEST_DISCONNECTED" == false ]]; then
+    python3 - "$OUT/ocr-corpus-report.json" <<'PYOCR'
 import json,sys
 report=json.load(open(sys.argv[1]));assert len(report['cases'])==2
 for case in report['cases']:
-    message=json.dumps(case,ensure_ascii=False).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+    message=json.dumps(case,ensure_ascii=False).replace('%','%25').replace(chr(13),'%0D').replace(chr(10),'%0A')
     print('::notice title=Controlled OCR diagnostic::'+message)
     if not case['token_match']:print('::warning title=Controlled OCR recognition gap::'+case['language']+' did not recover its expected token. Inspect the saved image/text; model initialization is not an accuracy guarantee.')
 PYOCR
-  python3 - "$OUT/ocr-crop-comparison.json" <<'PYCROP'
+    python3 - "$OUT/ocr-crop-comparison.json" <<'PYCROP'
 import json,sys
 report=json.load(open(sys.argv[1]))
 assert report['target_token_count']==7
 assert report['selected_crop_precision']>report['baseline_precision']
 assert report['selected_crop_recall']>=report['baseline_recall']
 summary={key:report[key] for key in ('scope','baseline_target_hits','selected_crop_target_hits','target_token_count','baseline_precision','selected_crop_precision','baseline_recall','selected_crop_recall')}
-message=json.dumps(summary,ensure_ascii=False).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+message=json.dumps(summary,ensure_ascii=False).replace('%','%25').replace(chr(13),'%0D').replace(chr(10),'%0A')
 print('::notice title=Controlled synthetic crop OCR comparison::'+message)
 PYCROP
+  else
+    echo 'OCR instrumentation passed, but the emulator disconnected before private-file evidence could be copied.' > "$OUT/post-test-adb-disconnected.txt"
+  fi
 fi
-python3 -m mynotes.tools.ci.results android --group "$LANE_GROUP" --path "$OUT/instrumentation.txt" --output "$OUT/results.json"
+if [[ "$POST_TEST_DISCONNECTED" == false ]]; then
+  post_test_adb "$OUT/display-after-instrumentation.txt" adb shell dumpsys display
+fi
+if [[ "$POST_TEST_DISCONNECTED" == false ]]; then
+  post_test_adb "$OUT/user-rotation-after.txt" adb shell settings get system user_rotation
+fi

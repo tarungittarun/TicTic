@@ -74,6 +74,9 @@ class NativeFailureRegressions(unittest.TestCase):
   source=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('draggingContent=true',source)
   self.assertIn('private void revealCaret(){if(draggingContent)return;',source)
+  self.assertIn('viewport.userPointerActive() || viewport.manualRangeActive(selected)',source)
+  viewport=(JAVA/'SelectionScrollView.java').read_text()
+  self.assertIn('try{return dispatchGestureTouch(event);}finally{if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL)userPointerActive=false;}',viewport)
   self.assertIn('hideSoftInputFromWindow(getWindowToken(),0)',source)
  def test_native_selection_is_snapshotted_after_touch_before_next_viewport_drag(self):
   source=(JAVA/'NotesController.java').read_text()

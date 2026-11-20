@@ -29,9 +29,10 @@ final class SelectionScrollView extends ScrollView {
     @Override public void requestChildFocus(View child,View focused){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(focused);super.requestChildFocus(child,focused);if(keep && manualRangeActive(focused))scrollTo(x,y);}
     @Override protected void onLayout(boolean changed,int left,int top,int right,int bottom){int x=getScrollX(),y=getScrollY();boolean keep=manualRangeActive(findFocus());super.onLayout(changed,left,top,right,bottom);if(keep && manualRangeActive(findFocus()))scrollTo(x,y);}
     private MotionEvent down;private float lastY;private boolean scrolling;private VelocityTracker velocity;
-    private boolean lastGestureDeferred;private String lastDeferralReason="idle",lastDownContext="none";private int deferredMoveCount,deferredStartScroll,deferredMaxScroll,deferredLastDelta,deferredScrollBefore,deferredScrollAfter;
+    private boolean userPointerActive,lastGestureDeferred;private String lastDeferralReason="idle",lastDownContext="none",lastTouchContext="none";private int deferredMoveCount,deferredStartScroll,deferredMaxScroll,deferredLastDelta,deferredScrollBefore,deferredScrollAfter;
+    boolean userPointerActive(){return userPointerActive;}
     private String editorState(EditText input){return input==null?"none":input.getTag()+"["+input.getSelectionStart()+".."+input.getSelectionEnd()+" len="+input.length()+" focus="+input.hasFocus()+" window="+input.hasWindowFocus()+" attached="+input.isAttachedToWindow()+" shown="+input.isShown()+"]";}
-    String gestureDiagnostics(){View focused=findFocus();EditText owner=selectedEditor(focused);boolean active=manualRangeActive(focused);return "gestureDeferred="+lastGestureDeferred+" reason="+lastDeferralReason+" moves="+deferredMoveCount+" scroll="+deferredStartScroll+".."+deferredMaxScroll+" lastDelta="+deferredLastDelta+" step="+deferredScrollBefore+"→"+deferredScrollAfter+" focused="+(focused==null?"none":focused.getClass().getSimpleName())+" selectionOwner="+(owner==null?"none":owner.getTag())+" rememberedOwner="+(rememberedSelectionField==null?"none":rememberedSelectionField.getTag())+" remembered="+rememberedSelectionStart+".."+rememberedSelectionEnd+" lastFocused="+editorState(lastFocusedEditor)+" manualOwner="+(manualRangeField==owner)+" manual="+manualAnchor+".."+manualFocus+" active="+active+" lastDown={"+lastDownContext+"}";}
+    String gestureDiagnostics(){View focused=findFocus();EditText owner=selectedEditor(focused);boolean active=manualRangeActive(focused);return "pointerActive="+userPointerActive+" lastTouch={"+lastTouchContext+"} gestureDeferred="+lastGestureDeferred+" reason="+lastDeferralReason+" moves="+deferredMoveCount+" scroll="+deferredStartScroll+".."+deferredMaxScroll+" lastDelta="+deferredLastDelta+" step="+deferredScrollBefore+"→"+deferredScrollAfter+" focused="+(focused==null?"none":focused.getClass().getSimpleName())+" selectionOwner="+(owner==null?"none":owner.getTag())+" rememberedOwner="+(rememberedSelectionField==null?"none":rememberedSelectionField.getTag())+" remembered="+rememberedSelectionStart+".."+rememberedSelectionEnd+" lastFocused="+editorState(lastFocusedEditor)+" manualOwner="+(manualRangeField==owner)+" manual="+manualAnchor+".."+manualFocus+" active="+active+" lastDown={"+lastDownContext+"}";}
     private final Runnable passHold=()->{if(down!=null && !scrolling){MotionEvent held=MotionEvent.obtain(down);release();super.dispatchTouchEvent(held);held.recycle();}};
     SelectionScrollView(Context context){super(context);}
     private boolean nearEndpoint(EditText text,int offset,MotionEvent event){
@@ -59,6 +60,11 @@ final class SelectionScrollView extends ScrollView {
         return true;
     }
     @Override public boolean dispatchTouchEvent(MotionEvent event){
+        int action=event.getActionMasked();if(action==MotionEvent.ACTION_DOWN)userPointerActive=true;
+        lastTouchContext="action="+MotionEvent.actionToString(action)+" raw="+Math.round(event.getRawX())+","+Math.round(event.getRawY())+" local="+Math.round(event.getX())+","+Math.round(event.getY());
+        try{return dispatchGestureTouch(event);}finally{if(action==MotionEvent.ACTION_UP || action==MotionEvent.ACTION_CANCEL)userPointerActive=false;}
+    }
+    private boolean dispatchGestureTouch(MotionEvent event){
         int action=event.getActionMasked();
         // Deferred range-preserving gestures bypass child/onTouch listeners. The
         // editor must still cancel pending automatic caret reveal before scrollBy.
@@ -80,5 +86,5 @@ final class SelectionScrollView extends ScrollView {
         return true;
     }
     private void release(){removeCallbacks(passHold);if(down!=null){down.recycle();down=null;}if(velocity!=null){velocity.recycle();velocity=null;}scrolling=false;}
-    @Override protected void onDetachedFromWindow(){release();clearManualRangeViewport();super.onDetachedFromWindow();}
+    @Override protected void onDetachedFromWindow(){userPointerActive=false;release();clearManualRangeViewport();super.onDetachedFromWindow();}
 }

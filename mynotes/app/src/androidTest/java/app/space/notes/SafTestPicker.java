@@ -43,8 +43,12 @@ final class SafTestPicker {
                             // An accepted accessibility click is normally a one-shot command.
                             // On API 26 the picker can report it accepted without dispatching
                             // SELECT; after a bounded wait allow one native tap fallback.
-                            if(Build.VERSION.SDK_INT==26 && accessibilityPending && !fallbackTouchUsed && now-lastAttemptAt>=ACTION_TRANSITION_SETTLE_MS){
-                                fallbackTouchUsed=true;lastAttemptAt=now;attempts++;boolean touched=tap(target);actionPending=touched;lastOutcome="api26-touch-fallback "+touched;return touched;
+                            if(Build.VERSION.SDK_INT<=28 && !fallbackTouchUsed && now-lastAttemptAt>=ACTION_TRANSITION_SETTLE_MS){
+                                // API 26 DocumentsUI can return ACTION_CLICK accepted without dispatching
+                                // SELECT. Retry the still-visible exact action with one coordinate tap.
+                                // Do not require accessibilityPending here: older picker transitions can
+                                // change that bookkeeping while the original action remains on screen.
+                                fallbackTouchUsed=true;lastAttemptAt=now;attempts++;boolean touched=tap(target);actionPending=touched;accessibilityPending=false;lastOutcome="legacy-touch-fallback "+touched;return touched;
                             }
                             // Do not repeat on newer DocumentsUI builds: resubmitting the
                             // same grant can crash the picker.
@@ -112,7 +116,7 @@ final class SafTestPicker {
             }finally{down.recycle();up.recycle();}
         }
 
-        @Override public String toString(){return "attempts="+attempts+" lastAction="+lastAction+" lastOutcome="+lastOutcome;}
+        @Override public String toString(){return "sdk="+Build.VERSION.SDK_INT+" attempts="+attempts+" pending="+actionPending+" accessibilityPending="+accessibilityPending+" fallbackTouchUsed="+fallbackTouchUsed+" sinceAttemptMs="+(lastAttemptAt==0?0:SystemClock.uptimeMillis()-lastAttemptAt)+" lastAction="+lastAction+" lastOutcome="+lastOutcome;}
     }
 
     static String describe(AccessibilityNodeInfo node){

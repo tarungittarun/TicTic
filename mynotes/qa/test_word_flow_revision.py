@@ -81,9 +81,16 @@ class NativeFailureRegressions(unittest.TestCase):
  def test_native_selection_is_snapshotted_after_touch_before_next_viewport_drag(self):
   source=(JAVA/'NotesController.java').read_text()
   viewport=(JAVA/'SelectionScrollView.java').read_text()
+  document=(JAVA/'DocumentEditorView.java').read_text()
   self.assertIn('boolean handled=super.onTouchEvent(event);',source)
   self.assertIn('if(hasSelection()){SelectionScrollView viewport=selectionViewport();if(viewport!=null)viewport.observeEditorSelection(this);}',source)
   self.assertIn('lastFocusedEditor=input;rememberedSelectionField=input;',viewport)
+  self.assertIn('onSelectionRecovery(this::recoverSavedSelectionForPointer)',document)
+  self.assertIn('if(action==MotionEvent.ACTION_DOWN && selectionRecovery!=null)selectionRecovery.accept(event)',viewport)
+  self.assertIn('String key=state.getString("field");EditText field=fields.get(key)',document)
+  self.assertIn('visible.contains(Math.round(event.getRawX()),Math.round(event.getRawY()))',document)
+  self.assertIn('if(!field.hasSelection())field.setSelection(start,end)',document)
+  self.assertIn('((SelectionScrollView)scroll).observeEditorSelection(field)',document)
  def test_link_actions_notify_native_menu_and_are_prioritized(self):
   source=(JAVA/'DocumentEditorView.java').read_text()
   self.assertNotIn('addLinkActions(input,menu);return false;',source)

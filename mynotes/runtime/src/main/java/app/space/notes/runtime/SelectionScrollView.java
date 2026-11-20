@@ -10,7 +10,9 @@ import android.widget.*;
  */
 final class SelectionScrollView extends ScrollView {
     private Runnable userGesture;
+    private java.util.function.Consumer<MotionEvent> selectionRecovery;
     void onUserGesture(Runnable listener){userGesture=listener;}
+    void onSelectionRecovery(java.util.function.Consumer<MotionEvent> listener){selectionRecovery=listener;}
     private EditText manualRangeField;private int manualAnchor,manualFocus;
     private EditText rememberedSelectionField,lastFocusedEditor;private int rememberedSelectionStart=-1,rememberedSelectionEnd=-1;
     void clearManualRangeViewport(){manualRangeField=null;lastFocusedEditor=null;clearRememberedSelection();}
@@ -68,6 +70,7 @@ final class SelectionScrollView extends ScrollView {
         int action=event.getActionMasked();
         // Deferred range-preserving gestures bypass child/onTouch listeners. The
         // editor must still cancel pending automatic caret reveal before scrollBy.
+        if(action==MotionEvent.ACTION_DOWN && selectionRecovery!=null)selectionRecovery.accept(event);
         if((action==MotionEvent.ACTION_DOWN || action==MotionEvent.ACTION_MOVE) && userGesture!=null)userGesture.run();
         if(action==MotionEvent.ACTION_DOWN){release();lastGestureDeferred=defer(event);deferredMoveCount=0;deferredStartScroll=getScrollY();deferredMaxScroll=deferredStartScroll;deferredLastDelta=0;deferredScrollBefore=deferredStartScroll;deferredScrollAfter=deferredStartScroll;if(lastGestureDeferred){down=MotionEvent.obtain(event);lastY=event.getY();scrolling=false;velocity=VelocityTracker.obtain();velocity.addMovement(event);postDelayed(passHold,ViewConfiguration.getLongPressTimeout());return true;}}
         if(down==null)return super.dispatchTouchEvent(event);

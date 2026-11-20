@@ -82,6 +82,7 @@ final class DocumentEditorView extends LinearLayout {
         undo=compactButton("↶","Undo",()->host.undo(false));redo=compactButton("↷","Redo",()->host.undo(true));top.addView(undo,new LayoutParams(dp(48),dp(48)));top.addView(redo,new LayoutParams(dp(48),dp(48)));top.addView(compactButton("?","Find in document",()->host.action("Find in document")),new LayoutParams(dp(48),dp(48)));top.addView(compactButton("⋯","Document",this::documentMenu),new LayoutParams(dp(48),dp(48)));undo.setEnabled(!readOnly() && host.canUndo(false));redo.setEnabled(!readOnly() && host.canUndo(true));
         scroll=new SelectionScrollView(getContext());scroll.setFillViewport(true);
         ((SelectionScrollView)scroll).onUserGesture(()->caretRevealUntil=0);
+        ((SelectionScrollView)scroll).onSelectionRecovery(this::recoverSavedSelectionForPointer);
         scroll.setOnScrollChangeListener((v,x,y,oldX,oldY)->{if(android.os.SystemClock.uptimeMillis()<caretRevealUntil)postOnAnimation(this::revealCaret);});scroll.setOnDragListener((v,event)->{if(!internalDrag(event))return false;trackDrag(event,v);return true;});scroll.setBackground(new NoteBackground(note.background,note.color==0?design.surface:NotesBoard.colour(note.color,design.dark),design.dark,getResources().getDisplayMetrics().density,true));
         LinearLayout content=new LinearLayout(getContext());content.setOrientation(VERTICAL);content.setPadding(dp(12),0,dp(12),dp(16));scroll.addView(content);addView(scroll,new LayoutParams(-1,0,1));
         EditText title=field("title",new RichText(note.title,Collections.emptyList()),(text)->host.change(host.current().title(text.text,System.currentTimeMillis()),"title"),null,null);title.setHint("Title");title.setTextSize(26);content.addView(title,new LayoutParams(-1,-2));
@@ -260,6 +261,16 @@ final class DocumentEditorView extends LinearLayout {
         if(!finding && saveStatus.getText().toString().toLowerCase(java.util.Locale.ROOT).contains("retry"))visibility=VISIBLE;topControls.setVisibility(visibility);compactDocument.setVisibility(compact || readOnly()?VISIBLE:GONE);
         EditText title=fields.get("title");if(title!=null){int show=compact && !title.hasFocus()?GONE:VISIBLE;changed|=title.getVisibility()!=show;title.setVisibility(show);}
         if(changed)requestLayout();if(selected!=null)postOnAnimation(this::revealCaret);
+    }
+    /** Restore a saved native range when Android briefly clears editor focus during ActionMode handoff. */
+    private void recoverSavedSelectionForPointer(MotionEvent event){
+        if(!(scroll instanceof SelectionScrollView) || selected==null || !host.current().id.equals(state.getString("note")))return;
+        String key=state.getString("field");EditText field=fields.get(key);if(field==null || field!=selected || !field.isShown() || !field.isAttachedToWindow())return;
+        View focused=scroll.findFocus();if(focused!=null && focused!=field)return;
+        int start=state.getInt("start",-1),end=state.getInt("end",-1);if(start<0 || end<0 || start==end || Math.max(start,end)>field.length())return;
+        android.graphics.Rect visible=new android.graphics.Rect();if(!field.getGlobalVisibleRect(visible) || !visible.contains(Math.round(event.getRawX()),Math.round(event.getRawY())))return;
+        if(!field.hasSelection())field.setSelection(start,end);
+        ((SelectionScrollView)scroll).observeEditorSelection(field);
     }
     /** Bounded IME settling correction. Explicit reading/drag gestures cancel it. */
     private void revealCaret(){if(draggingContent)return;if(scroll instanceof SelectionScrollView){SelectionScrollView viewport=(SelectionScrollView)scroll;if(viewport.userPointerActive() || viewport.manualRangeActive(selected))return;}EditText field=selected;if(field==null || !field.hasFocus() || !hasWindowFocus() || !field.isAttachedToWindow() || field.getLayout()==null || scroll.getHeight()<=0)return;android.text.Layout layout=field.getLayout();int caretLine=layout.getLineForOffset(Math.max(0,Math.min(field.length(),field.getSelectionEnd()))),top=field.getCompoundPaddingTop()+layout.getLineTop(caretLine)-field.getScrollY();View current=field;while(current!=scroll && current.getParent() instanceof View){top+=current.getTop();current=(View)current.getParent();if(current!=scroll)top-=current.getScrollY();}if(current!=scroll)return;int bottom=top+layout.getLineBottom(caretLine)-layout.getLineTop(caretLine),at=scroll.getScrollY(),height=scroll.getHeight()-scroll.getPaddingBottom();if(top<at)at=top;else if(bottom>at+height)at=bottom-height;scroll.scrollTo(0,Math.max(0,at));

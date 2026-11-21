@@ -347,7 +347,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git pull --ff-only origin arena/3caca636-tictic
-          python3 -m unittest discover -s qa
+          python3 -m unittest discover -s mynotes/qa -t .
           git diff --check
           git add mynotes/docs/module-e2e/${{ github.run_id }}
           git commit -m 'Preserve separate module-ordered E2E, measured OCR/voice ground truth and performance [skip ci]'
@@ -355,5 +355,5 @@ jobs:
             if git push origin arena/3caca636-tictic; then break; fi
             if [ "$attempt" = 3 ]; then exit 1; fi
             git pull --rebase origin arena/3caca636-tictic
-            python3 -m unittest discover -s qa
+            python3 -m unittest discover -s mynotes/qa -t .
           done

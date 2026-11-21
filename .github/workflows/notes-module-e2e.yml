@@ -4,7 +4,10 @@ name: MyNotes current-source ordered module E2E and recognition performance
 on:
   push:
     branches: ['arena/3caca636-tictic']
-    paths: ['.github/workflows/notes-module-e2e.yml']
+    paths:
+      - '.github/workflows/notes-module-e2e.yml'
+      - '.github/actions/setup-mynotes/**'
+      - 'mynotes/**'
 permissions:
   contents: read
   actions: read

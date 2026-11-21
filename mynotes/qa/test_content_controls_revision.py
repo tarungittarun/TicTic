@@ -68,14 +68,14 @@ class ContentControlsRevision(unittest.TestCase):
   for name in ['listToolbarAtCollapsedCaretInsertsWithoutCrash','wholeChecklistCopyAndDeferredCut','contentPenHasManagement','typedNumberingContinuesAndSingleBackspace','typedNumberingAndEmptyEntryEscape']:
    self.assertIn(name,source)
 
- def test_historical_module_workflow_keeps_its_source_pinned_artifact_identity(self):
+ def test_current_module_workflow_names_and_verifies_the_sequential_development_apk(self):
   import re
   workflow=(ROOT.parent/'.github/workflows/notes-module-e2e.yml').read_text()
-  # This old workflow's gate pins an earlier commit. Candidate72 is qualified
-  # by notes-improvement70.yml, not by renaming a stale historical artifact.
   names=set(re.findall(r'MyNotes-v[0-9.]+-\d+-development\.apk',workflow))
-  self.assertEqual({'MyNotes-v0.71.0-71-development.apk'},names)
-  self.assertIn("assert run['head_sha']=='b43d3a6840378813cfbbe8534ebbbf0acbd37e97'",workflow)
+  self.assertEqual({'MyNotes-v0.74.0-74-development.apk'},names)
+  self.assertIn("versionCode='74' versionName='0.74.0'",workflow)
+  self.assertIn('current-source ordered module e2e',workflow.lower())
+  self.assertNotIn('42021419781',workflow)
 
  def test_motion_and_input_protocol_are_qualified_not_only_static_screenshots(self):
   workflow=(ROOT.parent/'.github/workflows/notes-refinement-native.yml').read_text()

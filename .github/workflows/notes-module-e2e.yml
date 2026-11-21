@@ -1,23 +1,6 @@
-# Final viewer-window audit source: centered filename, compact pixel-tracking rail, actual injected drag, dialog-inclusive loader and no fictitious CSV heading. Wait for exact five-lane gate before build; supersede old pre-audit full run.
-# Candidate69: rotation/crop markup and interrupted-copy follow-up; full444-method/profile qualification after successful source-matching five-lane viewer gate; no physical acceptance.
-# Final67 qualification: native range ownership passed180/180 focused checks in41874321912; exact source, all437 methods/profile,4752 main inferences plus8 separately scored public-scene observations.
-# Candidate67: preserve Notes manual range viewport through IME/relayout; retain strict after-layout scroll assertion that exposed this defect.
-# Candidate67: honor manual selected-range viewport even for already queued / unconditional relayout caret reveals; reset intent on a real selection/caret change.
-# Candidate67 followup: custom range-preserving dispatch now cancels Doc caret-reveal lease before manual scroll; source-qualified replacement, not a waiver of prior outcome.
-# Candidate67: full437-method four-profile qualification after focused UI gates; additional public poster/sign observations separate from4752 main corpus. No physical acceptance.
-# Candidate66: fix actual rotation clipping; pin primary image actions outside secondary scroll. Gate full corpus/native lanes on all four recognition-focus profiles first.
-# Candidate65: exact-zero silence preflight, explicit image-text copy and image-led accessible tools. Full new-source qualification; no model added or speech attention adoption.
-# Candidate63: bounded same-script consensus; retain tight native boxes, source pixels and exact original API26 assertion. 41782476953 passed both APIs and one-profile historical audit. No weight addition or training.
-# Candidate62: preserve already readable paper ink; repair independently observed Kannada/mixed-script interpolation regressions.
-# Candidate61: real-world screenshot source preservation, fresh-area inference, empty-only adaptive fallback and restrained motion. Models unchanged.
-# Execute candidate60 production repair against complete native and original recognition corpus; source-pinned failed reproduction retained separately.
-# Cycle60: reproduce stale hOCR versus UTF8 selection disagreement, repair correspondence, rerun exact full corpus and native assertions. No model training.
-#331-method JVM gate found numeric fallback accepted a lower-confidence rewrite; fixed the production guard, unchanged failing test retained.
-# Regression58 retry: Actions exposed diagnostic-only TessBaseAPI compile classpath; add exact runtime-matching test dependency only under moduleE2E. No runtime assertion or app fix changed.
-# Regression cycle1 / v58: native labelled transactional PDF checkbox, unchanged OCR output plus separately timed PUBLIC failed-case segmentation diagnostics.
-# Round2: original CMU archive omits COPYING; require exact retained primary-source grant bound to the same archive, not an assumed license. No app assertion/model change.
-# Separate baseline evaluation: no model training, production APK publication or user uploads.
-name: MyNotes ordered module E2E and recognition performance
+# Current-source MyNotes ordered module E2E: 489 native methods across light/dark portrait/landscape, screenshots, and an executed PDF report.
+
+name: MyNotes current-source ordered module E2E and recognition performance
 on:
   push:
     branches: ['arena/3caca636-tictic']
@@ -26,30 +9,10 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: notes-module-e2e-regression69-${{ github.ref }}
+  group: notes-module-e2e-current-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  viewer_gate:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 8
-      - name: Require successful exact-source viewer interactions before full qualification
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run watch 42021419781 --exit-status --interval 30
-          python3 - <<'PYGATE'
-          import json,subprocess
-          run=json.loads(subprocess.check_output(['gh','api','repos/tarungittarun/TicTic/actions/runs/42021419781']))
-          assert run['status']=='completed' and run['conclusion']=='success', 'Viewer interaction gate is not green; no full qualification or APK publication'
-          assert run['head_sha']=='b43d3a6840378813cfbbe8534ebbbf0acbd37e97'
-          subprocess.run(['git','diff','--exit-code',run['head_sha'],'HEAD','--','mynotes'],check=True)
-          PYGATE
   build:
-    needs: viewer_gate
     if: github.ref == 'refs/heads/arena/3caca636-tictic'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -91,16 +54,26 @@ jobs:
           size=Path('mynotes/app/build/outputs/apk/release/notes-release.apk').stat().st_size
           assert size <= 156213948, f'Release APK exceeds bounded growth budget: {size}'
           PY
-      - name: Prepare genuinely new signed development APK, not a public release
+      - name: Verify and stage the v0.74.0 development APK, never a public release
         run: |
           set -euo pipefail
-          cp mynotes/app/build/outputs/apk/release/notes-release.apk MyNotes-v0.71.0-71-development.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs MyNotes-v0.71.0-71-development.apk | tee notes-development-signature.txt
+          apk=MyNotes-v0.74.0-74-development.apk
+          cp mynotes/app/build/outputs/apk/release/notes-release.apk "$apk"
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/apksigner" verify --print-certs "$apk" | tee notes-development-signature.txt
           grep -Fq '08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca' notes-development-signature.txt
-          sha256sum MyNotes-v0.71.0-71-development.apk > notes-development-sha256.txt
+          "$tools/aapt" dump badging "$apk" > notes-development-badging.txt
+          python3 - <<'PYVERSION'
+          from pathlib import Path
+          badging=Path('notes-development-badging.txt').read_text()
+          assert "package: name='app.space.notes' versionCode='74' versionName='0.74.0'" in badging
+          assert "sdkVersion:'26'" in badging and "targetSdkVersion:'34'" in badging
+          PYVERSION
+          sha256sum "$apk" > notes-development-sha256.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
-          path: MyNotes-v0.71.0-71-development.apk
+          name: MyNotes-v0.74.0-74-development.apk
+          path: MyNotes-v0.74.0-74-development.apk
           archive: false
           retention-days: 7
           if-no-files-found: error

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT.parent / '.github/workflows/notes-improvement70.yml'
 
 
-class Candidate73ReleaseUpdateTests(unittest.TestCase):
+class Candidate74ReleaseUpdateTests(unittest.TestCase):
     def test_package_install_identity_and_saved_revision_parsers_fail_closed(self):
         self.assertEqual(
             {'version_code': 13, 'first_install_time': '2026-10-01 12:00:00'},
@@ -34,7 +34,7 @@ class Candidate73ReleaseUpdateTests(unittest.TestCase):
         device = Mock()
         device.state.side_effect = [
             {'version_code': 13, 'first_install_time': 'fixed'},
-            after or {'version_code': 73, 'first_install_time': 'fixed'}]
+            after or {'version_code': 74, 'first_install_time': 'fixed'}]
         device.adb.return_value = '34\n'
         return device
 
@@ -44,7 +44,7 @@ class Candidate73ReleaseUpdateTests(unittest.TestCase):
                 patch.object(smoke, 'Device', return_value=device), \
                 patch('builtins.print'):
             output = Path(directory) / 'report.json'
-            smoke.verify('public-0.12.apk', 'candidate-0.73.apk', output, 13, 73)
+            smoke.verify('public-0.12.apk', 'candidate-0.74.apk', output, 13, 74)
             report = json.loads(output.read_text())
 
         self.assertTrue(report['legacy_note_retained_after_cold_restart_and_update'])
@@ -55,21 +55,21 @@ class Candidate73ReleaseUpdateTests(unittest.TestCase):
         self.assertEqual(3, device.launch.call_count)
         commands = [call.args for call in device.adb.call_args_list]
         self.assertIn(('install', 'public-0.12.apk'), commands)
-        self.assertIn(('install', '-r', 'candidate-0.73.apk'), commands)
+        self.assertIn(('install', '-r', 'candidate-0.74.apk'), commands)
         self.assertFalse(any('uninstall' in args or
                              ('pm' in args and 'clear' in args)
                              for args in commands))
 
     def test_no_success_report_for_wrong_version_or_changed_install_time(self):
         for after in (
-                {'version_code': 72, 'first_install_time': 'fixed'},
-                {'version_code': 73, 'first_install_time': 'changed'}):
+                {'version_code': 73, 'first_install_time': 'fixed'},
+                {'version_code': 74, 'first_install_time': 'changed'}):
             with self.subTest(after=after), tempfile.TemporaryDirectory() as directory, \
                     patch.object(smoke, 'Device', return_value=self.device(after)), \
                     patch('builtins.print'):
                 output = Path(directory) / 'report.json'
                 with self.assertRaises(RuntimeError):
-                    smoke.verify('public-0.12.apk', 'candidate-0.73.apk', output, 13, 73)
+                    smoke.verify('public-0.12.apk', 'candidate-0.74.apk', output, 13, 74)
                 self.assertFalse(output.exists())
 
     def test_version_downgrade_is_rejected_before_device_access(self):
@@ -80,11 +80,11 @@ class Candidate73ReleaseUpdateTests(unittest.TestCase):
 
     def test_workflow_builds_and_uploads_only_a_verified_release_as_update(self):
         workflow = WORKFLOW.read_text()
-        self.assertIn('MyNotes-v0.73.0-73-update.apk', workflow)
-        self.assertIn('name: MyNotes-v0.73.0-73-update.apk', workflow)
+        self.assertIn('MyNotes-v0.74.0-74-update.apk', workflow)
+        self.assertIn('name: MyNotes-v0.74.0-74-update.apk', workflow)
         self.assertIn('archive: false', workflow)
-        self.assertIn('candidate73-update-apk-verification', workflow)
-        self.assertIn('candidate73-emulator-test-apks-do-not-install', workflow)
+        self.assertIn('candidate74-update-apk-verification', workflow)
+        self.assertIn('candidate74-emulator-test-apks-do-not-install', workflow)
         self.assertIn('08cd7d693078ef665b7acd427d71fa3aa477cc6af2cab2a00c310f9d66198fca', workflow)
         self.assertIn('mynotes/releases/MyNotes-v0.12.0-13.apk.sha256', workflow)
         self.assertIn('mynotes/tools/ci/release_update_note_smoke.py', workflow)
@@ -97,7 +97,7 @@ class Candidate73ReleaseUpdateTests(unittest.TestCase):
                      'fullAudioArchiveApplyRestoresAudioAndTranscriptWithStableConflictCopies',
                      'fullArchivePickersAreLocalOpenableZipDocuments']:
             self.assertIn(case, workflow)
-        self.assertIn("proof['candidate']['version_code']>72", workflow)
+        self.assertIn("proof['candidate']['version_code']>73", workflow)
         self.assertIn('python3 -m mynotes.tools.ci.test_plan', workflow)
         self.assertNotIn('softprops/action-gh-release', workflow)
         self.assertNotIn('gh release create', workflow)

@@ -160,7 +160,7 @@ class RefinementHierarchyContracts(unittest.TestCase):
                 'mynotes/tools/ci/release_update_note_smoke.py',
                 'mynotes/tools/ci/test_plan.py',
                 'mynotes/tools/ci/plan.json',
-                'mynotes/qa/test_candidate73_release_update.py',
+                'mynotes/qa/test_candidate74_release_update.py',
                 'mynotes/qa/test_backup_contracts.py',
                 'mynotes/qa/test_module_e2e.py',
                 'mynotes/qa/test_refinement_hierarchy.py',

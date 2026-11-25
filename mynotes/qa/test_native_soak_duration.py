@@ -12,6 +12,7 @@ class NativeSoakDurationContracts(unittest.TestCase):
         self.assertIn('120-minute native/durable cycles',workflow)
         self.assertIn('timeout-minutes: 150',workflow)
         self.assertIn('api: [26, 35]',workflow)
+        self.assertIn('-PmoduleE2E',workflow)
         self.assertIn('-e soakMinutes 120',script)
         self.assertIn("requested_minutes']==120",script)
         self.assertIn("elapsed_ms']>=120*60000",script)

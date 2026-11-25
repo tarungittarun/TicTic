@@ -53,8 +53,8 @@ public class VoiceRecoveryJourneysTest {
     }
     private void main(Runnable action){instrumentation.runOnMainSync(action);}
     private void awaitSavedCount(int expected) throws Exception {
-        long deadline=SystemClock.elapsedRealtime()+12000L;
-        while(SystemClock.elapsedRealtime()<deadline){if(new NotesRepository(context).load().size()==expected)return;Thread.sleep(25);}
+        long deadline=android.os.SystemClock.elapsedRealtime()+12000L;
+        while(android.os.SystemClock.elapsedRealtime()<deadline){if(new NotesRepository(context).load().size()==expected)return;Thread.sleep(25);}
         assertEquals("Deferred startup repair must eventually reach private storage",expected,new NotesRepository(context).load().size());
     }
     private void await(BooleanSupplier condition) throws Exception {

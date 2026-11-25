@@ -88,7 +88,7 @@ adb shell am start -W -n app.space.notes/.NotesActivity
 LAUNCHER_ANR_DISMISSED=0
 find_release_text() {
   local target="$1"
-  for attempt in {1..8}; do
+  for attempt in {1..15}; do
     adb shell rm -f /sdcard/notes-upgrade.xml
     if adb shell uiautomator dump /sdcard/notes-upgrade.xml >/dev/null && adb pull /sdcard/notes-upgrade.xml "$OUT/upgrade-window.xml" >/dev/null; then
       if python3 -m mynotes.tools.ci.ui --xml "$OUT/upgrade-window.xml" --text "$target" > "$OUT/coordinates.txt"; then return 0; fi
@@ -108,6 +108,9 @@ find_release_text() {
       adb shell dumpsys input_method > "$OUT/selector-attempt-$attempt-ime.txt" 2>&1 || true
       if grep -Eq 'mInputShown=true|mIsInputViewShown=true' "$OUT/selector-attempt-$attempt-ime.txt"; then adb shell input keyevent KEYCODE_BACK; fi
     fi
+    # Android 16 may report a launched activity before its first stable accessibility tree.
+    # Poll the real UI for up to 15 seconds; keep the exact enabled-node selector strict.
+    if (( attempt < 15 )); then sleep 1; fi
   done
   return 1
 }

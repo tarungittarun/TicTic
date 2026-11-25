@@ -29,6 +29,26 @@ class EmulatorDiagnostics(unittest.TestCase):
         self.assertIn('if grep -Eiq \'error: closed|device offline|device not found|no devices/emulators|unauthorized\'',script)
         self.assertIn('POST_TEST_DISCONNECTED=true',script)
 
+
+    def test_release_upgrade_selector_waits_for_rendered_ui_without_weakening_match(self):
+        script=(ROOT/'mynotes/tools/ci/android_lane.sh').read_text()
+        selector=script.split('find_release_text() {',1)[1].split("\nfind_release_text '+ Text'",1)[0]
+        self.assertIn('for attempt in {1..15}; do',selector)
+        self.assertIn('if (( attempt < 15 )); then sleep 1; fi',selector)
+        self.assertIn('ui --xml "$OUT/upgrade-window.xml" --text "$target"',selector)
+        self.assertIn("find_release_text '+ Text'",script)
+
+    def test_purged_voice_placeholder_waits_for_deferred_purge_before_and_after_reopen(self):
+        source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/VoiceRecoveryJourneysTest.java').read_text()
+        start=source.index('purgedPendingPlaceholderIsNotRecreatedByALaterTranscript()')
+        end=source.find('\n    @Test ',start)
+        scenario=source[start:end]
+        self.assertEqual(2,scenario.count('awaitSavedCount(0)'))
+        self.assertLess(scenario.index('start(Arrays.asList(pending))'),scenario.index('awaitSavedCount(0)'))
+        self.assertLess(scenario.index('awaitSavedCount(0)'),scenario.index('files.result(id,"late recovered words"'))
+        self.assertLess(scenario.index('files.result(id,"late recovered words"'),scenario.index('reopen()'))
+        self.assertLess(scenario.index('reopen()'),scenario.rindex('awaitSavedCount(0)'))
+
     def test_bootstrap_diagnostic_keeps_uppercase_panic_and_shutdown_context(self):
         from mynotes.tools.ci.results import build_diagnostic
         with tempfile.TemporaryDirectory() as d:

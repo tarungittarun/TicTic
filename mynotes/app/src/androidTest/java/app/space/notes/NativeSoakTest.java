@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import app.space.notes.domain.*;
 import app.space.notes.runtime.*;
 import static org.junit.Assert.*;
-/** Short in the normal gate; a separate read-only workflow requests a real 70-minute native/disk/editor soak. */
+/** Short in the normal gate; a separate read-only workflow requests a real 120-minute native/disk/editor soak. */
 @RunWith(AndroidJUnit4.class)
 public class NativeSoakTest {
  @Test public void repeatedNativeInferenceAndDurableDocumentCyclesStayBounded() throws Exception {
@@ -21,7 +21,7 @@ public class NativeSoakTest {
   Context isolated=new ContextWrapper(app){@Override public Context getApplicationContext(){return this;}@Override public File getFilesDir(){return root;}@Override public SharedPreferences getSharedPreferences(String name,int mode){return app.getSharedPreferences(root.getName()+"-"+name,mode);}};
   File wave=new File(root,"fixture.wav");try(InputStream in=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("voice/test.wav");OutputStream out=new FileOutputStream(wave)){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}
   String original;try(InputStream in=new FileInputStream(wave)){original=OfflineOcr.digest(in);}
-  int minutes=Integer.parseInt(InstrumentationRegistry.getArguments().getString("soakMinutes","0"));assertTrue(minutes>=0 && minutes<=90);long started=SystemClock.elapsedRealtime(),lastReport=0;int iterations=0;long warmPss=0,peakPss=0;JSONArray samples=new JSONArray();List<Note> notes=new ArrayList<>();
+  int minutes=Integer.parseInt(InstrumentationRegistry.getArguments().getString("soakMinutes","0"));assertTrue(minutes>=0 && minutes<=120);long started=SystemClock.elapsedRealtime(),lastReport=0;int iterations=0;long warmPss=0,peakPss=0;JSONArray samples=new JSONArray();List<Note> notes=new ArrayList<>();
   try (NativeEditorExercise editor=new NativeEditorExercise(root)) {
    do {
     editor.cycle(iterations);

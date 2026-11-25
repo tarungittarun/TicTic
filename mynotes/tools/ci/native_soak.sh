@@ -17,7 +17,7 @@ test -f "$DEBUG" && test -f "$TEST"
 sha256sum "$DEBUG" "$TEST" > "$OUT/apk-sha256.txt"
 adb install -r "$DEBUG"
 adb install -r "$TEST"
-adb shell am instrument -r -w -e disableAnalytics true -e soakMinutes 70 -e class app.space.notes.NativeSoakTest app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
+adb shell am instrument -r -w -e disableAnalytics true -e soakMinutes 120 -e class app.space.notes.NativeSoakTest app.space.notes.debug.test/androidx.test.runner.AndroidJUnitRunner | tee "$OUT/instrumentation.txt"
 python3 - <<'PY'
 from pathlib import Path
 import json
@@ -31,7 +31,7 @@ adb shell run-as app.space.notes.debug cat files/soak-report.json > "$OUT/report
 python3 - <<'PY'
 import json
 r=json.load(open('evidence/soak/report.json'))
-assert r['requested_minutes']==70 and r['elapsed_ms']>=70*60000 and r['iterations']>=4,r
+assert r['requested_minutes']==120 and r['elapsed_ms']>=120*60000 and r['iterations']>=4,r
 print(json.dumps(r,indent=2))
 metrics={k:v for k,v in r.items() if k!='samples'}
 print('::notice title=Native soak completed::'+json.dumps(metrics).replace('%','%25').replace('\n','%0A'))

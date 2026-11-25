@@ -38,16 +38,31 @@ class EmulatorDiagnostics(unittest.TestCase):
         self.assertIn('ui --xml "$OUT/upgrade-window.xml" --text "$target"',selector)
         self.assertIn("find_release_text '+ Text'",script)
 
-    def test_purged_voice_placeholder_waits_for_deferred_purge_before_and_after_reopen(self):
+    def test_voice_recovery_journeys_wait_for_deferred_saves_before_disk_assertions(self):
         source=(ROOT/'mynotes/app/src/androidTest/java/app/space/notes/VoiceRecoveryJourneysTest.java').read_text()
-        start=source.index('purgedPendingPlaceholderIsNotRecreatedByALaterTranscript()')
-        end=source.find('\n    @Test ',start)
-        scenario=source[start:end]
-        self.assertEqual(2,scenario.count('awaitSavedCount(0)'))
-        self.assertLess(scenario.index('start(Arrays.asList(pending))'),scenario.index('awaitSavedCount(0)'))
-        self.assertLess(scenario.index('awaitSavedCount(0)'),scenario.index('files.result(id,"late recovered words"'))
-        self.assertLess(scenario.index('files.result(id,"late recovered words"'),scenario.index('reopen()'))
-        self.assertLess(scenario.index('reopen()'),scenario.rindex('awaitSavedCount(0)'))
+        def scenario(name):
+            start=source.index(name+'()')
+            end=source.find('\n    @Test ',start)
+            return source[start:end]
+        durable=scenario('durableTranscriptRecoveredOnceAcrossControllerRecreation')
+        self.assertEqual(2,durable.count('awaitSavedCount(1)'))
+        self.assertLess(durable.index('await(()->newTextVisible("Voice note"))'),durable.index('awaitSavedCount(1)'))
+        self.assertLess(durable.index('awaitSavedCount(1)'),durable.index('List<Note> first='))
+        self.assertLess(durable.index('reopen()'),durable.rindex('awaitSavedCount(1)'))
+        purged=scenario('purgedVoiceNoteIsNotRecreatedFromRetainedAudio')
+        self.assertEqual(2,purged.count('awaitSavedCount(0)'))
+        self.assertLess(purged.index('start(Arrays.asList(applied))'),purged.index('awaitSavedCount(0)'))
+        self.assertLess(purged.index('reopen()'),purged.rindex('awaitSavedCount(0)'))
+        corrupt=scenario('corruptTranscriptDoesNotBlockOtherRecoveredNotes')
+        self.assertEqual(1,corrupt.count('awaitSavedCount(1)'))
+        self.assertLess(corrupt.index('await(()->newTextVisible("Voice note"))'),corrupt.index('awaitSavedCount(1)'))
+        self.assertLess(corrupt.index('awaitSavedCount(1)'),corrupt.index('List<Note> result='))
+        late=scenario('purgedPendingPlaceholderIsNotRecreatedByALaterTranscript')
+        self.assertEqual(2,late.count('awaitSavedCount(0)'))
+        self.assertLess(late.index('start(Arrays.asList(pending))'),late.index('awaitSavedCount(0)'))
+        self.assertLess(late.index('awaitSavedCount(0)'),late.index('files.result(id,"late recovered words"'))
+        self.assertLess(late.index('files.result(id,"late recovered words"'),late.index('reopen()'))
+        self.assertLess(late.index('reopen()'),late.rindex('awaitSavedCount(0)'))
 
     def test_bootstrap_diagnostic_keeps_uppercase_panic_and_shutdown_context(self):
         from mynotes.tools.ci.results import build_diagnostic

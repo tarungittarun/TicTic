@@ -87,9 +87,40 @@ public class VoiceRecoveryJourneysTest {
     @Test public void playbackCardPausesStopsAndRemainsUsableAfterLifecyclePause()throws Exception{
         String id=voice("Readable transcript.",false);VoiceFiles files=new VoiceFiles(context);try(java.io.RandomAccessFile wave=new java.io.RandomAccessFile(files.audio(id),"rw")){wave.setLength(44+96000);app.space.notes.domain.PcmWave.header(wave,96000);}start(Collections.emptyList());click("Library");click("Voice inbox");await(()->text("Play")!=null);main(()->{View progress=UiActions.named(controller.view(),"Recording playback position");assertNotNull(progress);assertTrue(progress instanceof SeekBar);assertTrue(progress.isEnabled());assertEquals(3000,((SeekBar)progress).getMax());});click("Play");await(()->text("Pause")!=null);click("Pause");main(()->assertNotNull(text("Play")));click("Stop playback");main(()->assertEquals(0,((SeekBar)UiActions.named(controller.view(),"Recording playback position")).getProgress()));main(controller::pause);click("Play");await(()->text("Pause")!=null);click("Stop playback");assertTrue(files.audio(id).isFile());
     }
-    @Test public void durableTranscriptRecoveredOnceAcrossControllerRecreation() throws Exception {String id=voice("one zero one",false);start(Collections.emptyList());await(()->newTextVisible("Voice note"));List<Note> first=new NotesRepository(context).load();assertEquals(1,first.size());assertTrue(first.get(0).voiceSources.contains(id));reopen();assertEquals(1,new NotesRepository(context).load().size());}
-    @Test public void purgedVoiceNoteIsNotRecreatedFromRetainedAudio() throws Exception {String id=voice("words",false);Note applied=app.space.notes.domain.VoiceTranscripts.apply(app.space.notes.domain.VoiceTranscripts.placeholder(id,1),id,"words",2).state(false,false,3,3);start(Arrays.asList(applied));assertEquals(0,new NotesRepository(context).load().size());reopen();assertEquals(0,new NotesRepository(context).load().size());assertTrue(new VoiceFiles(context).audio(id).isFile());}
-    @Test public void corruptTranscriptDoesNotBlockOtherRecoveredNotes() throws Exception {String valid=voice("good transcript",false);String damaged=voice("",true);new VoiceFiles(context).audio(damaged).setLastModified(System.currentTimeMillis()+1000);start(Collections.emptyList());await(()->newTextVisible("Voice note"));List<Note> result=new NotesRepository(context).load();assertEquals(1,result.size());assertTrue(result.get(0).voiceSources.contains(valid));assertTrue(new VoiceFiles(context).audio(damaged).isFile());}
+    @Test public void durableTranscriptRecoveredOnceAcrossControllerRecreation() throws Exception {
+        String id=voice("one zero one",false);
+        start(Collections.emptyList());
+        await(()->newTextVisible("Voice note"));
+        awaitSavedCount(1);
+        List<Note> first=new NotesRepository(context).load();
+        assertEquals(1,first.size());
+        assertTrue(first.get(0).voiceSources.contains(id));
+        reopen();
+        awaitSavedCount(1);
+        assertEquals(1,new NotesRepository(context).load().size());
+    }
+    @Test public void purgedVoiceNoteIsNotRecreatedFromRetainedAudio() throws Exception {
+        String id=voice("words",false);
+        Note applied=app.space.notes.domain.VoiceTranscripts.apply(app.space.notes.domain.VoiceTranscripts.placeholder(id,1),id,"words",2).state(false,false,3,3);
+        start(Arrays.asList(applied));
+        awaitSavedCount(0);
+        assertEquals(0,new NotesRepository(context).load().size());
+        reopen();
+        awaitSavedCount(0);
+        assertEquals(0,new NotesRepository(context).load().size());
+        assertTrue(new VoiceFiles(context).audio(id).isFile());
+    }
+    @Test public void corruptTranscriptDoesNotBlockOtherRecoveredNotes() throws Exception {
+        String valid=voice("good transcript",false);String damaged=voice("",true);
+        new VoiceFiles(context).audio(damaged).setLastModified(System.currentTimeMillis()+1000);
+        start(Collections.emptyList());
+        await(()->newTextVisible("Voice note"));
+        awaitSavedCount(1);
+        List<Note> result=new NotesRepository(context).load();
+        assertEquals(1,result.size());
+        assertTrue(result.get(0).voiceSources.contains(valid));
+        assertTrue(new VoiceFiles(context).audio(damaged).isFile());
+    }
     @Test public void purgedPendingPlaceholderIsNotRecreatedByALaterTranscript() throws Exception {
         String id=voice("",false);VoiceFiles files=new VoiceFiles(context);
         files.result(id,"","Failed; audio retained");

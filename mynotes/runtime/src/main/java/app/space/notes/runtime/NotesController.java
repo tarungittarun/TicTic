@@ -214,46 +214,66 @@ public final class NotesController {
         final long startupStarted=android.os.SystemClock.elapsedRealtime();
         main.postDelayed(new Runnable(){public void run(){if(closed || ready || loading.getParent()==null)return;long seconds=(android.os.SystemClock.elapsedRealtime()-startupStarted)/1000;loading.setText("Opening saved notes · "+seconds+" s\n"+startupPhase+"\nSaved data has not been cleared.");if(seconds>=5)startupReport.setVisibility(View.VISIBLE);main.postDelayed(this,1000);}},1000);
         unsubscribeVoice=VoiceTasks.subscribe(context,this::voiceComplete);
+        final long startupQueuedAt=android.os.SystemClock.elapsedRealtime();
         disk.execute(()->{
             try {
-                startupPhase="Finishing verified recovery";Diagnostics.record("startup.phase","recovery started elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
+                long stepStarted=android.os.SystemClock.elapsedRealtime();
+                Diagnostics.record("startup.phase","step=disk_queue queue_wait_ms="+(stepStarted-startupQueuedAt)+" elapsed_ms="+(stepStarted-startupStarted));
+                startupPhase="Finishing verified recovery";Diagnostics.record("startup.phase","recovery started elapsed_ms="+(stepStarted-startupStarted));
                 AppFolder.finishRecovery(context.getApplicationContext());
+                stepStarted=recordStartupStep("recovery",startupStarted,stepStarted);
                 repository=new NotesRepository(context.getApplicationContext());
+                stepStarted=recordStartupStep("repository_init",startupStarted,stepStarted);
                 startupPhase="Verifying the internal notes copy";Diagnostics.record("startup.phase","private load started elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
+                stepStarted=android.os.SystemClock.elapsedRealtime();
                 List<Note> loaded=repository.loadForStartup();
-                startupPhase="Finishing verified audio-archive recovery";AudioArchiveRestore.recoverBeforeVoiceScan(context.getApplicationContext(),loaded);
-                startupPhase="Checking retained recordings and history";Diagnostics.record("startup.phase","private load completed elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));
+                stepStarted=recordStartupStep("private load completed",startupStarted,stepStarted);
+                startupPhase="Finishing verified audio-archive recovery";stepStarted=android.os.SystemClock.elapsedRealtime();
+                AudioArchiveRestore.recoverBeforeVoiceScan(context.getApplicationContext(),loaded);
+                stepStarted=recordStartupStep("audio_archive_recovery",startupStarted,stepStarted);
                 boolean recovered=false,catalogReadable=true;Set<String> pendingVoiceDeletionMarkers=new HashSet<>();
-                try{VoiceFiles files=new VoiceFiles(context);for(String id:files.list()){
-                    knownRecordings.add(id);String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Note current=null;for(Note n:loaded)if(n.id.equals(voiceId))current=n;
-                    // Even an untranscribed/failed placeholder was deliberately created and must stay deleted after purge.
-                    if(current!=null)try{files.noteCreated(id);}catch(Exception pendingMarker){pendingVoiceDeletionMarkers.add(voiceId);log("voice-source-marker","purge delayed until durable deletion guard is writable");}
-                    org.json.JSONObject result;try{result=files.result(id);}catch(Exception invalidTranscript){log("voice-recovery","one unreadable transcript skipped; audio retained");continue;}if(!result.optString("state").equals("DONE"))continue;
-                    if(current==null && files.noteWasCreated(id))continue;
-                    if(current==null){current=app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis());loaded.add(current);recovered=true;}
-                    Note changed=app.space.notes.domain.VoiceTranscripts.apply(current,id,result.optString("text",""),System.currentTimeMillis());if(changed!=current){loaded.set(loaded.indexOf(current),changed);recovered=true;}
-                }}catch(Exception voiceFailure){catalogReadable=false;log("voice-recovery","audio retained; automatic purge delayed until voice catalogue can be checked");}
-                if(recovered){try{repository.save(loaded);markVoiceNotesCreated(loaded);}catch(Exception pendingVoiceSave){log("voice-recovery","transcript recovery save needs retry");}}
-                long now=System.currentTimeMillis();final boolean canCheckVoiceGuards=catalogReadable;
+                startupPhase="Checking retained recordings";long voiceStepStarted=android.os.SystemClock.elapsedRealtime();
+                // A single index avoids rescanning every note for every retained recording.
+                Map<String,Integer> voiceNoteIndices=new HashMap<>();for(int i=0;i<loaded.size();i++)voiceNoteIndices.put(loaded.get(i).id,i);
+                voiceStepStarted=recordStartupStep("voice_note_index",startupStarted,voiceStepStarted);
+                try{
+                    VoiceFiles files=new VoiceFiles(context);List<String> recordingIds=files.list();
+                    voiceStepStarted=recordStartupStep("voice_catalog_list",startupStarted,voiceStepStarted);
+                    for(String id:recordingIds){
+                        knownRecordings.add(id);String voiceId=app.space.notes.domain.VoiceTranscripts.noteId(id);Integer currentIndex=voiceNoteIndices.get(voiceId);Note current=currentIndex==null?null:loaded.get(currentIndex);
+                        // Even an untranscribed/failed placeholder was deliberately created and must stay deleted after purge.
+                        if(current!=null)try{files.noteCreated(id);}catch(Exception pendingMarker){pendingVoiceDeletionMarkers.add(voiceId);log("voice-source-marker","purge delayed until durable deletion guard is writable");}
+                        org.json.JSONObject result;try{result=files.result(id);}catch(Exception invalidTranscript){log("voice-recovery","one unreadable transcript skipped; audio retained");continue;}if(!result.optString("state").equals("DONE"))continue;
+                        if(current==null && files.noteWasCreated(id))continue;
+                        if(current==null){current=app.space.notes.domain.VoiceTranscripts.placeholder(id,System.currentTimeMillis());currentIndex=loaded.size();loaded.add(current);voiceNoteIndices.put(voiceId,currentIndex);recovered=true;}
+                        Note changed=app.space.notes.domain.VoiceTranscripts.apply(current,id,result.optString("text",""),System.currentTimeMillis());if(changed!=current){loaded.set(currentIndex,changed);recovered=true;}
+                    }
+                    voiceStepStarted=recordStartupStep("voice_transcript_recovery",startupStarted,voiceStepStarted);
+                }catch(Exception voiceFailure){catalogReadable=false;recordStartupStep("voice_recovery_failed",startupStarted,voiceStepStarted);log("voice-recovery","audio retained; automatic purge delayed until voice catalogue can be checked");}
+                startupPhase="Checking expired notes";long purgeStarted=android.os.SystemClock.elapsedRealtime();long now=System.currentTimeMillis();final boolean canCheckVoiceGuards=catalogReadable;
                 boolean purged=loaded.removeIf(n->n.expired(now) && canCheckVoiceGuards && !pendingVoiceDeletionMarkers.contains(n.id));
-                if(purged) { try { repository.save(loaded); } catch(Exception pending) { log("purge","private recovery retained; folder pending"); } }
+                recordStartupStep("expired_note_purge",startupStarted,purgeStarted);
+                startupPhase="Restoring edit history";long historyStarted=android.os.SystemClock.elapsedRealtime();
                 historyStore=new PersistentHistoryStore(context);final Map<String,app.space.notes.domain.DocumentHistory> restoredHistories=historyStore.load(loaded);
-                main.post(()->{ if(closed)return;try{ savedHistories.putAll(restoredHistories);trimSavedHistories();notes.addAll(loaded); ready=true;if(historyStore.notice()!=null){historyNoticeShown=true;log("history.partial","older undo steps skipped; current notes retained");}
+                recordStartupStep("history_load",startupStarted,historyStarted);
+                final boolean startupRepairNeeded=recovered||purged;
+                final long uiPostedAt=android.os.SystemClock.elapsedRealtime();
+                main.post(()->{ if(closed)return;long uiStarted=android.os.SystemClock.elapsedRealtime();Diagnostics.record("startup.phase","step=main_queue queue_wait_ms="+(uiStarted-uiPostedAt)+" elapsed_ms="+(uiStarted-startupStarted));try{ savedHistories.putAll(restoredHistories);trimSavedHistories();notes.addAll(loaded); ready=true;if(historyStore.notice()!=null){historyNoticeShown=true;log("history.partial","older undo steps skipped; current notes retained");}if(startupRepairNeeded)main.post(()->{if(closed || !ready)return;if(revision==0){Diagnostics.record("startup.phase","step=deferred_repair_save elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));queueSave();}else Diagnostics.record("startup.phase","step=repair_save_already_queued elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted));});
                     if(restored!=null) {
                         documentsWorkspace=restored.getBoolean("documentsWorkspace",false);page=restored.getString("page","Notes");activeFolder=restored.getString("activeFolder");
-                        if(restoreViewedFile(restored.getBundle("viewedFileSession"))){deliverDeferred();return;}
+                        long viewedFileStarted=android.os.SystemClock.elapsedRealtime();if(restoreViewedFile(restored.getBundle("viewedFileSession"))){recordStartupStep("initial_surface_render",startupStarted,viewedFileStarted);recordStartupReady(startupStarted,"viewed_file");deliverDeferred();return;}
                         String id=restored.getString("editing");
                         if(id!=null && find(id)!=null) {
                             Note n=find(id);
                             try {byte[] draft=restored.getByteArray("draftDocument");if(draft!=null){List<Note> decoded=DocumentCodec.decode(draft);if(decoded.size()==1 && decoded.get(0).id.equals(id))n=decoded.get(0);}}catch(Exception invalid){log("draft-restore","invalid snapshot ignored");}
-                            replace(n);editing=id;if(id.equals(restored.getString("drawingNote"))){renderDrawing(id,restored.getString("drawingImage"));queueSave();deliverDeferred();return;}if(id.equals(restored.getString("imageEditNote"))){app.space.notes.domain.ImageEditPlan plan=null;try{if(n.updatedAt==restored.getLong("imageEditVersion",-1))plan=app.space.notes.domain.ImageEditPlan.restore(restored.getIntArray("imageEditPlan"));}catch(IllegalArgumentException invalid){log("image-edit.restore","invalid preview ignored");}renderImageEditor(id,restored.getString("imageEditItem"),plan);queueSave();deliverDeferred();return;}caretNote=id;caretAnchor=restored.getInt("bodyAnchor",0);caretFocus=restored.getInt("bodyFocus",caretAnchor);renderEditor();if(body!=null && restored.getBoolean("bodyFocused",false))body.requestFocus();queueSave(); deliverDeferred(); return;
+                            replace(n);editing=id;if(id.equals(restored.getString("drawingNote"))){long initialSurfaceStarted=android.os.SystemClock.elapsedRealtime();renderDrawing(id,restored.getString("drawingImage"));recordStartupStep("initial_surface_render",startupStarted,initialSurfaceStarted);recordStartupReady(startupStarted,"drawing");queueSave();deliverDeferred();return;}if(id.equals(restored.getString("imageEditNote"))){long initialSurfaceStarted=android.os.SystemClock.elapsedRealtime();app.space.notes.domain.ImageEditPlan plan=null;try{if(n.updatedAt==restored.getLong("imageEditVersion",-1))plan=app.space.notes.domain.ImageEditPlan.restore(restored.getIntArray("imageEditPlan"));}catch(IllegalArgumentException invalid){log("image-edit.restore","invalid preview ignored");}renderImageEditor(id,restored.getString("imageEditItem"),plan);recordStartupStep("initial_surface_render",startupStarted,initialSurfaceStarted);recordStartupReady(startupStarted,"image_editor");queueSave();deliverDeferred();return;}long initialSurfaceStarted=android.os.SystemClock.elapsedRealtime();caretNote=id;caretAnchor=restored.getInt("bodyAnchor",0);caretFocus=restored.getInt("bodyFocus",caretAnchor);renderEditor();if(body!=null && restored.getBoolean("bodyFocused",false))body.requestFocus();recordStartupStep("initial_surface_render",startupStarted,initialSurfaceStarted);recordStartupReady(startupStarted,"editor");queueSave(); deliverDeferred(); return;
                         }
                     }
-                    if(restored!=null && restored.getBoolean("voiceInbox",false)){voiceReturn=()->{Note target=voiceInsertTarget==null?null:find(voiceInsertTarget);if(target!=null && target.deletedAt==0){editing=target.id;renderEditor();}else renderHome();};refreshVoiceInbox();deliverDeferred();return;}
-                    if(restored!=null){String auxiliary=restored.getString("auxiliaryPage","");if(!auxiliary.isEmpty()){switch(auxiliary){case "Settings":renderSettings();break;case "Storage & recovery":renderStorage();break;case "Backups":renderBackups();break;case "About & offline models":renderModelInfo();break;case "Diagnostics":renderDiagnostics();break;case "Manage labels":manageLabels();break;case "Folders":renderFolders(false);break;case "Viewed files":renderViewedFiles();break;default:renderHome();}deliverDeferred();return;}}
-                    renderHome(); log("load","ok count="+notes.size());Diagnostics.record("startup.ready","elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted)); deliverDeferred();
+                    if(restored!=null && restored.getBoolean("voiceInbox",false)){long initialSurfaceStarted=android.os.SystemClock.elapsedRealtime();voiceReturn=()->{Note target=voiceInsertTarget==null?null:find(voiceInsertTarget);if(target!=null && target.deletedAt==0){editing=target.id;renderEditor();}else renderHome();};refreshVoiceInbox();recordStartupStep("initial_surface_render",startupStarted,initialSurfaceStarted);recordStartupReady(startupStarted,"voice_inbox");deliverDeferred();return;}
+                    if(restored!=null){String auxiliary=restored.getString("auxiliaryPage","");if(!auxiliary.isEmpty()){long initialSurfaceStarted=android.os.SystemClock.elapsedRealtime();switch(auxiliary){case "Settings":renderSettings();break;case "Storage & recovery":renderStorage();break;case "Backups":renderBackups();break;case "About & offline models":renderModelInfo();break;case "Diagnostics":renderDiagnostics();break;case "Manage labels":manageLabels();break;case "Folders":renderFolders(false);break;case "Viewed files":renderViewedFiles();break;default:renderHome();}recordStartupStep("initial_surface_render",startupStarted,initialSurfaceStarted);recordStartupReady(startupStarted,"auxiliary");deliverDeferred();return;}}
+                    long homeRenderStarted=android.os.SystemClock.elapsedRealtime();renderHome();recordStartupStep("home_render",startupStarted,homeRenderStarted);log("load","ok count="+notes.size());recordStartupReady(startupStarted,"home");deliverDeferred();
                 }catch(RuntimeException | OutOfMemoryError failure){ready=false;Diagnostics.failure("load.ui.failure",failure);clearPage();root.addView(text("Notes could not be displayed. Saved data was not cleared.",18));root.addView(button("Export diagnostic report",host::exportDiagnostics));root.addView(button("Try opening again",host::appearanceChanged));host.libraryUnavailable(failure);}});
-                try{LocalSystemSurfaces.refresh(context,true);}catch(Exception unavailable){log("reminder.refresh","OS refresh pending; notes retained");}
+                long surfacesStarted=android.os.SystemClock.elapsedRealtime();try{LocalSystemSurfaces.refresh(context,true);recordStartupStep("os_surface_refresh",startupStarted,surfacesStarted);}catch(Exception unavailable){recordStartupStep("os_surface_refresh_failed",startupStarted,surfacesStarted);log("reminder.refresh","OS refresh pending; notes retained");}
             } catch(Exception | OutOfMemoryError e) { main.post(()->{
                 if(closed)return; clearPage(); root.addView(text("Library could not be opened. Existing data was not replaced.",18));
                 root.addView(text("Close and retry. Do not clear app data.",14));root.addView(button("Export diagnostic report",host::exportDiagnostics));root.addView(button("Enable issue logs and retry",()->{Diagnostics.setEnabled(true);host.appearanceChanged();}));root.addView(button("Try opening again",host::appearanceChanged));
@@ -261,6 +281,8 @@ public final class NotesController {
             }); }
         });
     }
+    private static long recordStartupStep(String step,long startupStarted,long phaseStarted){long finished=android.os.SystemClock.elapsedRealtime();Diagnostics.record("startup.phase","step="+step+" phase_ms="+(finished-phaseStarted)+" elapsed_ms="+(finished-startupStarted));return finished;}
+    private static void recordStartupReady(long startupStarted,String surface){Diagnostics.record("startup.ready","elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-startupStarted)+" surface="+surface);}
     private void deliverDeferred() {while(!deferredResults.isEmpty() && !closed)deferredResults.removeFirst().run();}
     private void whenReady(Runnable action) {
         if(closed)return;

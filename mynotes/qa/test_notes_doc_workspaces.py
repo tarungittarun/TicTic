@@ -51,3 +51,11 @@ class NotesDocWorkspaces(unittest.TestCase):
   self.assertIn('documentImeReady();tap("Back")',journey)
   self.assertIn('editorImeReady();tap("Back")',journey)
   self.assertIn('keyboardVisibleForTest() && controller.view().hasWindowFocus()',source)
+ def test_navigation_acceptance_repeats_real_swipes_back_and_saved_workspace_identity(self):
+  source=(ROOT/'app/src/androidTest/java/app/space/notes/CoreJourneysTest.java').read_text()
+  journey=source.split('void notesAndDocCreationRemainSeparateEvenAfterAnOldOptIn()',1)[1].split('@Test',1)[0]
+  for token in ('putBoolean("canonical-default",true)','swipeWorkspace(true)','swipeWorkspace(false)','for(int cycle=0;cycle<3;cycle++)','assertSavedWorkspaceCreation','awaitWorkspace("final Notes Back"','click("Library");click("+ Checklist")'):
+   self.assertIn(token,journey)
+  swipe=source.split('private void swipeWorkspace(boolean left)',1)[1].split('private void swipeChecklistRow',1)[0]
+  self.assertIn('instrumentation.getUiAutomation().injectInputEvent(event,true)',swipe)
+  self.assertIn('fullyVisible(tab)',source);self.assertIn('cardMatchesWorkspace(expected,docs)',source)
